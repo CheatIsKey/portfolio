@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shop 서비스 — Project — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a class="active" href="/projects/">Projects</a>
+      <a href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container prose">
+    <h1>Shop 서비스</h1>
+    <p class="muted">Spring Boot · Spring Data JPA · QueryDSL</p>
+
+    <h2>문제정의</h2>
+    <p>예: 카테고리/가격/키워드로 <b>동적 검색</b>을 지원하면서도 <b>N+1</b> 없이 빠르게 조회.</p>
+
+    <h2>접근</h2>
+    <ul>
+      <li>조회 전용 DTO로 투명한 스키마</li>
+      <li>QueryDSL로 조건 조립</li>
+      <li>페이징 + 정렬 최적화</li>
+    </ul>
+
+    <h2>아키텍처</h2>
+    <pre><code>Controller → Service → Repository(QueryDSL)
+                       ↳ ReadModel(DTO)
+    </code></pre>
+
+    <h2>핵심 코드</h2>
+    <pre><code>// 예시: where 조건 동적 조립 (Kotlin/Java 아무거나 가능)
+// BooleanBuilder 로 필터 조합, 페이징 적용
+    </code></pre>
+
+    <h2>성능/함정</h2>
+    <ul>
+      <li>fetch join은 다대다에서 주의</li>
+      <li>컬렉션 페치 페이징 금지 → batch_size로 대체</li>
+    </ul>
+
+    <h2>회고</h2>
+    <p>무엇을 배웠고 다음엔 무엇을 바꿀지.</p>
+
+    <div class="card-inline">
+      <a class="btn" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">라이브 데모</a>
+      <a class="btn ghost" href="/projects/">프로젝트 목록</a>
+    </div>
+  </main>
+</body>
+</html>
