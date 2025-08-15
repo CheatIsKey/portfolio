@@ -22,22 +22,32 @@
   </header>
 
   <main class="container">
+    <!-- HERO -->
     <section class="hero">
-      <h1>안녕하세요<br/>스프링 부트를 활용한 프로젝트 저장소입니다.</h1>
-      <p class="subtitle">Spring Boot · Spring Data JPA · QueryDSL 중심으로 소프트웨어 설계 원칙인, <b>요구사항 분석 -> 설계 -> 코딩 -> 테스트 -> 유지보수</b> 단계로 글과 실제 프로젝트를 정리합니다.</p>
+      <h1>안녕하세요.<br/>스프링 부트 학습과 경험을 기록하는 공간입니다.</h1>
+      <p class="subtitle">
+        Spring Boot · Spring Data JPA · QueryDSL을 중심으로,
+        소프트웨어 설계 원칙인 <b>요구사항 분석 → 설계 → 코딩 → 테스트 → 유지보수</b>를
+        <b>지향</b>하며 프로젝트와 글에 <b>최대한 반영</b>합니다.
+      </p>
       <div class="hero-actions">
         <a class="btn" href="/projects/">프로젝트 보러가기</a>
         <a class="btn ghost" href="/notes/">기술 노트 보기</a>
       </div>
     </section>
 
+    <!-- FEATURED PROJECTS -->
     <section>
       <h2 class="section-title">대표 프로젝트</h2>
       <div class="cards">
         <article class="card">
           <div class="card-head">
             <h3>Shop 서비스</h3>
-            <div class="tags"><span class="tag">Spring Boot</span><span class="tag">JPA</span><span class="tag">QueryDSL</span></div>
+            <div class="tags">
+              <span class="tag">Spring Boot</span>
+              <span class="tag">JPA</span>
+              <span class="tag">QueryDSL</span>
+            </div>
           </div>
           <p>스프링 부트 + Spring Data JPA로 구현한 샘플 쇼핑몰. N+1 해결, 동적 검색(QueryDSL), 페이징 최적화.</p>
           <div class="card-actions">
@@ -45,40 +55,41 @@
             <a class="btn sm ghost" href="/projects/shop.html">설명 보기</a>
           </div>
         </article>
-        <!-- 새 카드 추가는 이 블록을 복사해서 수정하세요 -->
+
+        <!-- 새 카드 추가는 아래 블록을 복사해서 수정하세요
+        <article class="card">
+          <div class="card-head">
+            <h3>프로젝트 이름</h3>
+            <div class="tags">
+              <span class="tag">기술1</span><span class="tag">기술2</span><span class="tag">기술3</span>
+            </div>
+          </div>
+          <p>한 줄 요약(문제 → 접근 → 성과/지표).</p>
+          <div class="card-actions">
+            <a class="btn sm" href="라이브_또는_리포지토리_URL" target="_blank" rel="noreferrer">라이브/Repo</a>
+            <a class="btn sm ghost" href="/projects/프로젝트파일.html">설명 보기</a>
+          </div>
+        </article>
+        -->
       </div>
     </section>
 
+    <!-- QUICK LINKS -->
     <section>
       <h2 class="section-title">빠른 링크</h2>
       <div class="quick-grid">
-        <a class="quick" href="/notes/jpa-nplus1.html"><strong>JPA N+1 해결 가이드</strong><span>fetch join / batch size / entity graph</span></a>
-        <a class="quick" href="/notes/querydsl-cheatsheet.html"><strong>QueryDSL 치트시트</strong><span>동적 조건, 정렬, 페이징</span></a>
-        <a class="quick" href="/notes/spring-transaction.html"><strong>트랜잭션 전파/격리 한 장 요약</strong><span>실전 예제 포함</span></a>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="section-title">프로젝트 목록(요약)</h2>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>프로젝트</th>
-              <th>기술</th>
-              <th>포인트</th>
-              <th>링크</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Shop 서비스</td>
-              <td>Spring Boot · JPA · QueryDSL</td>
-              <td>N+1 제거, 동적 검색, 성능 튜닝</td>
-              <td><a href="/projects/shop.html">설명</a> · <a href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">데모</a></td>
-            </tr>
-          </tbody>
-        </table>
+        <a class="quick" href="/notes/jpa-nplus1.html">
+          <strong>JPA N+1 해결 가이드</strong>
+          <span>fetch join / batch size / entity graph</span>
+        </a>
+        <a class="quick" href="/notes/querydsl-cheatsheet.html">
+          <strong>QueryDSL 치트시트</strong>
+          <span>동적 조건, 정렬, 페이징</span>
+        </a>
+        <a class="quick" href="/notes/spring-transaction.html">
+          <strong>트랜잭션 전파/격리 한 장 요약</strong>
+          <span>실전 예제 포함</span>
+        </a>
       </div>
     </section>
   </main>
