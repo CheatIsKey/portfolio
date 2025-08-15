@@ -1,26 +1,95 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>spring-jpa.dev</title>
-    <style>
-      body { font-family: system-ui, sans-serif; max-width: 760px; margin: 40px auto; line-height: 1.6; }
-      h1 { margin-bottom: 0; } .tag{display:inline-block;padding:4px 8px;border:1px solid #ddd;border-radius:8px;margin-right:6px;}
-      .card{border:1px solid #eee;border-radius:12px;padding:16px;margin:12px 0;}
-    </style>
-  </head>
-  <body>
-    <h1>안녕하세요 👋</h1>
-    <p>여기는 제 포트폴리오/블로그 메인입니다. 스프링 부트 · Spring Data JPA · QueryDSL 정리와 프로젝트 기록을 올릴 예정!</p>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>spring-jpa.dev — Portfolio</title>
+  <meta name="description" content="Spring Boot · Spring Data JPA · QueryDSL 프로젝트 & 기술 노트" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a href="/notes/">Notes</a>
+      <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+    </nav>
+  </header>
 
-    <h2>최근 글</h2>
-    <div class="card"><b>JPA N+1 문제, 이렇게 잡았다</b><br><small>카테고리: <span class="tag">JPA</span> <span class="tag">성능</span></small></div>
-    <div class="card"><b>QueryDSL 기본 문법 한 장 요약</b><br><small>카테고리: <span class="tag">QueryDSL</span></small></div>
+  <main class="container">
+    <section class="hero">
+      <h1>안녕하세요 👋<br/>스프링 생태계를 좋아하는 개발자입니다.</h1>
+      <p class="subtitle">Spring Boot · Spring Data JPA · QueryDSL 중심으로 <b>문제→접근→아키텍처→코드→회고</b> 형식의 글과 실제 프로젝트를 정리합니다.</p>
+      <div class="hero-actions">
+        <a class="btn" href="/projects/">프로젝트 보러가기</a>
+        <a class="btn ghost" href="/notes/">기술 노트 보기</a>
+      </div>
+    </section>
 
-    <h2>프로젝트</h2>
-    <div class="card"><b>Shop 서비스</b><br>스프링부트 + JPA로 만든 샘플 쇼핑몰. <a href="https://shop.spring-jpa.dev">바로가기</a></div>
+    <section>
+      <h2 class="section-title">대표 프로젝트</h2>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head">
+            <h3>Shop 서비스</h3>
+            <div class="tags"><span class="tag">Spring Boot</span><span class="tag">JPA</span><span class="tag">QueryDSL</span></div>
+          </div>
+          <p>스프링 부트 + Spring Data JPA로 구현한 샘플 쇼핑몰. N+1 해결, 동적 검색(QueryDSL), 페이징 최적화.</p>
+          <div class="card-actions">
+            <a class="btn sm" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">라이브 데모</a>
+            <a class="btn sm ghost" href="/projects/shop.html">설명 보기</a>
+          </div>
+        </article>
+        <!-- 새 카드 추가는 이 블록을 복사해서 수정하세요 -->
+      </div>
+    </section>
 
-    <p style="margin-top:40px">이 페이지는 Cloudflare Pages로 배포됩니다. 깃허브에서 이 파일만 수정해도 사이트가 자동 업데이트돼요!</p>
-  </body>
+    <section>
+      <h2 class="section-title">빠른 링크</h2>
+      <div class="quick-grid">
+        <a class="quick" href="/notes/jpa-nplus1.html"><strong>JPA N+1 해결 가이드</strong><span>fetch join / batch size / entity graph</span></a>
+        <a class="quick" href="/notes/querydsl-cheatsheet.html"><strong>QueryDSL 치트시트</strong><span>동적 조건, 정렬, 페이징</span></a>
+        <a class="quick" href="/notes/spring-transaction.html"><strong>트랜잭션 전파/격리 한 장 요약</strong><span>실전 예제 포함</span></a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">프로젝트 목록(요약)</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>프로젝트</th>
+              <th>기술</th>
+              <th>포인트</th>
+              <th>링크</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Shop 서비스</td>
+              <td>Spring Boot · JPA · QueryDSL</td>
+              <td>N+1 제거, 동적 검색, 성능 튜닝</td>
+              <td><a href="/projects/shop.html">설명</a> · <a href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">데모</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer container">
+    <span>© <span id="year"></span> spring-jpa.dev</span>
+    <a href="/notes/">Notes</a>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
 </html>
