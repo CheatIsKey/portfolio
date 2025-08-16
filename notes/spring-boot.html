@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[예시] 스프링 부트 아티클 템플릿 — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측: 자동 생성 목차 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">목차</div>
+      <ul id="toc-list">
+        <!-- JS가 h2/h3를 읽어 자동 생성 -->
+        <!-- JS 비활성 대비해 아래처럼 수동 목록도 넣을 수 있어요
+        <li><a href="#sec-1">1. 개요</a></li>
+        <li class="level-3"><a href="#sec-1-1">1.1 배경</a></li>
+        -->
+      </ul>
+    </aside>
+
+    <!-- 우측: 글 본문 -->
+    <article class="prose">
+      <h1>스프링 부트 예시 글 제목</h1>
+      <p class="muted">작성일 2025-08-16 · 분류: Spring Boot, JPA</p>
+
+      <!-- 섹션: h2/h3를 사용하면 자동으로 목차에 반영됩니다 -->
+      <h2 class="section">개요</h2>
+      <p>
+        이 글은 <b>요구사항 분석 → 설계 → 코딩 → 테스트 → 유지보수</b> 흐름에 맞춰 정리됩니다.
+        각 섹션은 바로가기 링크로 이동할 수 있습니다.
+      </p>
+
+      <div class="callout info">
+        <b>TIP</b> · 실제 운영 사례/지표가 있으면 섹션 끝에 간단한 수치(응답시간, 쿼리 수 등)를 남겨두세요.
+      </div>
+
+      <h2 class="section">요구사항 분석</h2>
+      <ul>
+        <li>사용자는 상품을 조건(카테고리/가격/키워드)으로 <b>동적 검색</b>할 수 있어야 한다.</li>
+        <li>N+1 없이 첫 페이지 <b>TTFB &lt; 200ms</b> 목표.</li>
+      </ul>
+
+      <h3 class="section">도메인/경계</h3>
+      <p>상품, 주문, 회원을 핵심 도메인으로 정의하고 조회는 별도의 Read 모델로 분리합니다.</p>
+
+      <h2 class="section">설계</h2>
+      <pre><code>Controller → Service → Repository(QueryDSL)
+                       ↳ ReadModel(DTO)</code></pre>
+
+      <h3 class="section">ERD 스냅샷</h3>
+      <figure class="figure">
+        <img src="/assets/notes/example-erd.png" alt="예시 ERD 이미지">
+        <figcaption>도식은 단순화를 위해 필수 필드만 표기.</figcaption>
+      </figure>
+
+      <h2 class="section">코딩</h2>
+      <pre><code>// 예시: QueryDSL 동적 where
+BooleanBuilder where = new BooleanBuilder();
+if (keyword != null) where.and(product.name.containsIgnoreCase(keyword));
+if (minPrice != null) where.and(product.price.goe(minPrice));
+// ...
+</code></pre>
+
+      <h3 class="section">테이블 예시</h3>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>케이스</th><th>전</th><th>후</th></tr></thead>
+          <tbody>
+            <tr><td>N+1</td><td>SELECT 201회</td><td>SELECT 3회</td></tr>
+            <tr><td>응답시간</td><td>420ms</td><td>160ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="section">테스트</h2>
+      <ul>
+        <li>단위: Repository 메서드 쿼리 검증</li>
+        <li>통합: 슬라이스 테스트로 컨텍스트 경량화</li>
+      </ul>
+
+      <h2 class="section">유지보수/회고</h2>
+      <p>페이징-정렬 조합에서 인덱스 선택이 중요. 다음 스프린트에 커버링 인덱스 검토 예정.</p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <script>
+  // === 간단 TOC 자동 생성 & 활성 섹션 하이라이트 ===
+  (function(){
+    const article = document.querySelector('article.prose');
+    const headers = article.querySelectorAll('h2.section, h3.section');
+    const toc = document.getElementById('toc-list');
+
+    let h2Count = 0, h3Count = 0;
+    headers.forEach(h => {
+      if(h.tagName === 'H2'){ h2Count++; h3Count = 0; h.id = `sec-${h2Count}`; }
+      else { h3Count++; h.id = `sec-${h2Count}-${h3Count}`; }
+
+      const li = document.createElement('li');
+      if(h.tagName === 'H3') li.classList.add('level-3');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+
+    // 활성 섹션 표시
+    const links = toc.querySelectorAll('a');
+    const map = new Map([...links].map(a => [a.getAttribute('href').slice(1), a]));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          links.forEach(a => a.classList.remove('active'));
+          const link = map.get(e.target.id);
+          if(link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+    headers.forEach(h => io.observe(h));
+  })();
+  </script>
+</body>
+</html>
