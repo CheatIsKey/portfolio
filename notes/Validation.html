@@ -115,16 +115,19 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
 
   <!-- TOC 자동 생성 + 현재 섹션 동기화 (정확도 개선 버전) -->
   <script>
+/* TOC 자동 생성 + 현재 섹션 하이라이트 (헤더 보정 포함) */
   (function(){
     const article = document.querySelector('article.prose');
     if(!article) return;
 
+    // h2/h3.section만 수집 (p 안에 넣지 말 것!)
     const headers = [...article.querySelectorAll('h2.section, h3.section')];
 
-    // 텍스트 기반 ID 부여 (안정적 슬러그)
+    // 텍스트 기반 슬러그 (섹션 제목 바뀌어도 안정적)
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
+
     headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent) || `sec-${Math.random().toString(36).slice(2,8)}`; });
 
     const toc = document.getElementById('toc-list');
@@ -147,7 +150,7 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
       if(el) el.classList.add('active');
     };
 
-    // 클릭 시 스무스 스크롤 + URL 동기화
+    // 클릭 시 부드럽게 스크롤 + URL 동기화
     links.forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
@@ -160,17 +163,23 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
       });
     });
 
-    // 스크롤 위치로 활성 섹션 계산 (헤더 오프셋 보정)
+    // 스크롤 위치로 활성 섹션 계산 (헤더 높이 보정)
     function onScroll(){
-      const y = window.scrollY + 100;
+      const y = window.scrollY + 100;   // 헤더/여백 보정
       let current = headers[0]?.id;
-      for(const h of headers){ if(h.offsetTop <= y) current = h.id; else break; }
+      for(const h of headers){
+        if(h.offsetTop <= y) current = h.id; else break;
+      }
       setActive(current);
     }
     onScroll();
     document.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if(id) setActive(id); });
+    window.addEventListener('hashchange', () => {
+      const id = location.hash.slice(1);
+      if(id) setActive(id);
+    });
   })();
   </script>
+
 </body>
 </html>
