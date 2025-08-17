@@ -118,3 +118,31 @@ a{color:inherit}
 .figure figcaption{padding:8px 12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 .callout{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;margin:12px 0; text-align:center;}
 .callout.info{border-color:var(--brand)}
+
+.prose h2.section{
+  position:relative;
+  padding-top:18px;      /* 바와 제목 사이 여백 */
+  margin-top:42px;       /* 이전 섹션과 거리 */
+}
+.prose h2.section::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height:1px;
+  background:var(--line);        /* 얇은 구분 바 */
+}
+.prose h3.section{
+  position:relative;
+  padding-top:14px;
+  margin-top:28px;
+}
+.prose h3.section::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height:1px;
+  background:rgba(255,255,255,.06); /* 더 은은한 바 (라이트 모드에서도 보임) */
+}
+.prose p{ margin:10px 0 12px; }       /* 문단 간격 안정화 */
+.figure img{ display:block; max-width:80%; height:auto; margin:0 auto; }
+.figure figcaption{ text-align:center; }
