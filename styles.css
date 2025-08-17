@@ -112,9 +112,9 @@ a{color:inherit}
 .figure{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0;background:var(--panel)}
 .figure img{
   display:block;
-  width:60%;
+  max-width:60%;
   height:auto;
   margin: 0 auto;}
 .figure figcaption{padding:8px 12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
-.callout{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;margin:12px 0}
+.callout{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;margin:12px 0; text-align:center;}
 .callout.info{border-color:var(--brand)}
