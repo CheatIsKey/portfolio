@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> Spring_Validation</title>
+  <title>Spring_Validation — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -19,13 +19,7 @@
     <!-- 좌측: 자동 생성 목차 -->
     <aside class="toc" aria-label="Table of contents">
       <div class="toc-title">목차</div>
-      <ul id="toc-list">
-        <!-- JS가 h2/h3를 읽어 자동 생성 -->
-        <!-- JS 비활성 대비해 아래처럼 수동 목록도 넣을 수 있어요
-        <li><a href="#sec-1">1. 개요</a></li>
-        <li class="level-3"><a href="#sec-1-1">1.1 배경</a></li>
-        -->
-      </ul>
+      <ul id="toc-list"></ul>
     </aside>
 
     <!-- 우측: 글 본문 -->
@@ -33,97 +27,109 @@
       <h1>Validation</h1>
       <p class="muted">작성일 2025-08-17 · 분류: Spring Boot, Thymeleaf</p>
 
-      <!-- 섹션: h2/h3를 사용하면 자동으로 목차에 반영됩니다 -->
+      <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p>
-        <p></p><i>25.08.17 기준</i> 현재 진행 중인 게시판 프로젝트는 사용자가 회원가입, 로그인 등 폼 입력 시 오류가 발생하면 오류 화면으로 이동한다. </p>
-        <p>따라서 입력값에 어떤 오류가 있는지 알려주고, 이미 입력한 데이터는 유지되도록 개선하려 한다.</p>
-
-        <p>이전에 작성한 <b>스프링 부트<b> 챕터에서 보았듯이, 컨트롤러는 사용자의 요청을 받고 그 HTTP 요청이 유효한지 검증해야 한다.</p>
-        <ul>
-          <li> 클라이언트 검증(JavaScript)은 보안에 취약하다.</li>
-          <li> 서버 검증만 사용하면 사용자 경험이 떨어진다.</li>
-          <li> 따라서 클라이언트와 서버 검증을 적절히 조합해 보안과 UX를 동시에 확보한다.</li>
-        </ul>
-
-        <figure class="figure">
-          <img src="/assets/notes/Board_PRG.png" alt="게시판 PRG 이미지">
-          <figcaption>성공적인 저장 과정</figcaption>
-        </figure>
-
-        <figure class="figure">
-          <img src="/assets/notes/Board_Validation.png" alt="게시판 Validation 이미지">
-          <figcaption>검증 실패 과정</figcaption>
-        </figure>
-      </p>
-
-      <div class="callout info">
-        <b>TIP</b> · 실제 운영 사례/지표가 있으면 섹션 끝에 간단한 수치(응답시간, 쿼리 수 등)를 남겨두세요.
-      </div>
-
-      <h2 class="section">요구사항 분석</h2>
+      <p><i>2025-08-17 기준</i> 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
+      오류 화면으로 이동한다. 이 과정에서 입력된 데이터는 사라진다.</p>
+      <p>앞으로는 입력값을 유지하고, 어떤 오류가 있었는지 명확히 보여주는 방식으로 개선하려 한다.</p>
+      <p>이전에 작성한 <b>스프링 부트</b> 챕터에서도 다뤘듯이, 컨트롤러는 들어온 HTTP 요청이 유효한지 검증해야 한다.
+      검증은 보통 두 축으로 나뉜다.</p>
       <ul>
-        <li>사용자는 상품을 조건(카테고리/가격/키워드)으로 <b>동적 검색</b>할 수 있어야 한다.</li>
-        <li>N+1 없이 첫 페이지 <b>TTFB &lt; 200ms</b> 목표.</li>
+        <li><b>클라이언트 검증(JavaScript)</b>: 빠르지만 우회해서 POST를 보내는 등 보안에 취약.</li>
+        <li><b>서버 검증</b>: 신뢰성은 높지만 사용자 경험이 떨어질 수 있음.</li>
+        <li><b>권장</b>: 클라이언트와 서버 검증을 적절히 조합해 보안과 UX를 동시에 확보.</li>
       </ul>
 
-      <h3 class="section">도메인/경계</h3>
-      <p>상품, 주문, 회원을 핵심 도메인으로 정의하고 조회는 별도의 Read 모델로 분리합니다.</p>
+      <!-- 2. PRG (성공 흐름) -->
+      <h2 class="section">PRG 패턴(성공 흐름)</h2>
+      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 <i>중복 제출</i>과 뒤로가기 문제를 막는 전형적인 패턴이다.
+      사용자가 <b>POST</b>로 데이터를 제출하면 서버는 저장을 마친 뒤 <b>Redirect</b> 응답을 보내고,
+      브라우저는 최종 <b>GET</b>으로 결과 페이지를 조회한다. 따라서 새로고침을 해도 GET만 반복되어 데이터가 다시 저장되지 않는다.</p>
 
-      <h2 class="section">설계</h2>
-      <pre><code>Controller → Service → Repository(QueryDSL)
-                       ↳ ReadModel(DTO)</code></pre>
-
-      <h3 class="section">ERD 스냅샷</h3>
       <figure class="figure">
-        <img src="/assets/notes/example-erd.png" alt="예시 ERD 이미지">
-        <figcaption>도식은 단순화를 위해 필수 필드만 표기.</figcaption>
+        <img src="/assets/notes/Board_PRG.png" alt="게시판 PRG 이미지">
+        <figcaption>성공적인 저장 과정 (PRG: Post → Redirect → Get)</figcaption>
       </figure>
 
-      <h2 class="section">코딩</h2>
-      <pre><code>// 예시: QueryDSL 동적 where
-BooleanBuilder where = new BooleanBuilder();
-if (keyword != null) where.and(product.name.containsIgnoreCase(keyword));
-if (minPrice != null) where.and(product.price.goe(minPrice));
-// ...
-</code></pre>
+      <!-- 3. 검증 실패 흐름 -->
+      <h2 class="section">검증 실패 흐름</h2>
+      <p>검증이 실패하면 <b>PRG로 가지 않고</b> 같은 폼 화면을 다시 렌더링한다. 이때 사용자가 입력했던 값과
+      필드별 오류 메시지를 함께 보여줘야 UX가 좋아진다.</p>
 
-      <h3 class="section">테이블 예시</h3>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th>케이스</th><th>전</th><th>후</th></tr></thead>
-          <tbody>
-            <tr><td>N+1</td><td>SELECT 201회</td><td>SELECT 3회</td></tr>
-            <tr><td>응답시간</td><td>420ms</td><td>160ms</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <figure class="figure">
+        <img src="/assets/notes/Board_Validation.png" alt="게시판 Validation 이미지">
+        <figcaption>검증 실패: 입력값 유지 + 오류 메시지 표시</figcaption>
+      </figure>
 
-      <h2 class="section">테스트</h2>
+      <!-- 4. Validation 구현 메모 (진행 중) -->
+      <h2 class="section">Validation 구현 메모 (진행 중)</h2>
+
+      <h3 class="section">BindingResult 기본</h3>
+      <p>컨트롤러에서 폼 객체 바로 뒤에 <code>BindingResult</code>를 두면 바인딩/검증 오류를 담을 수 있다.
+      오류가 있더라도 예외로 튀지 않고 같은 뷰를 다시 렌더링하는 데 활용한다.</p>
+      <pre><code>@PostMapping("/members/new")
+public String save(@Valid MemberForm form, BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+        return "members/newForm"; // 입력값 + 오류 메시지 표시
+    }
+    // 저장 로직...
+    return "redirect:/members";
+}</code></pre>
+
+      <h3 class="section">addError()</h3>
+      <p>개별 필드가 아닌 <b>글로벌 오류</b>를 수동으로 추가할 때 쓴다. (또는 특정 상황에서 필드 오류를 직접 구성)</p>
+      <pre><code>if (form.getStartDate().isAfter(form.getEndDate())) {
+    bindingResult.addError(new ObjectError("form",
+        "종료일은 시작일보다 빠를 수 없습니다."));
+}</code></pre>
+
+      <h3 class="section">reject()</h3>
+      <p>글로벌 오류를 <b>메시지 코드</b> 기반으로 추가한다. <code>messages.properties</code>에 코드-문구를 매핑해두면
+      다국어 처리/문구 관리가 편해진다.</p>
+      <pre><code>if (!isBusinessOpen(form.getVisitTime())) {
+    bindingResult.reject("business.closed"); // 메시지 코드
+}</code></pre>
+
+      <h3 class="section">rejectValue()</h3>
+      <p><b>필드 오류</b>를 메시지 코드로 추가한다. 템플릿(Thymeleaf)에서는 <code>th:errors</code>/<code>#fields</code>로 표시.</p>
+      <pre><code>if (form.getEmail() == null || !EMAIL.matcher(form.getEmail()).matches()) {
+    bindingResult.rejectValue("email", "email.invalid");
+}</code></pre>
+
+      <h3 class="section">Thymeleaf에서 오류 표시</h3>
+      <pre><code>&lt;input type="text" th:field="*{email}"
+       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"&gt;
+&lt;div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">이메일 오류&lt;/div&gt;</code></pre>
+
+      <!-- 5. 정리 -->
+      <h2 class="section">정리</h2>
       <ul>
-        <li>단위: Repository 메서드 쿼리 검증</li>
-        <li>통합: 슬라이스 테스트로 컨텍스트 경량화</li>
+        <li>성공: PRG로 중복 제출 방지.</li>
+        <li>실패: 같은 폼 재렌더링(입력값 유지 + 오류 메시지).</li>
+        <li><code>BindingResult</code>로 오류 수집: <code>addError</code> / <code>reject</code> / <code>rejectValue</code>.</li>
       </ul>
-
-      <h2 class="section">유지보수/회고</h2>
-      <p>페이징-정렬 조합에서 인덱스 선택이 중요. 다음 스프린트에 커버링 인덱스 검토 예정.</p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
+  <!-- TOC 자동 생성 + 현재 섹션 동기화 (정확도 개선 버전) -->
   <script>
-  // === 간단 TOC 자동 생성 & 활성 섹션 하이라이트 ===
   (function(){
     const article = document.querySelector('article.prose');
-    const headers = article.querySelectorAll('h2.section, h3.section');
+    if(!article) return;
+
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+
+    // 텍스트 기반 ID 부여 (안정적 슬러그)
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent) || `sec-${Math.random().toString(36).slice(2,8)}`; });
+
     const toc = document.getElementById('toc-list');
-
-    let h2Count = 0, h3Count = 0;
+    toc.innerHTML = '';
     headers.forEach(h => {
-      if(h.tagName === 'H2'){ h2Count++; h3Count = 0; h.id = `sec-${h2Count}`; }
-      else { h3Count++; h.id = `sec-${h2Count}-${h3Count}`; }
-
       const li = document.createElement('li');
       if(h.tagName === 'H3') li.classList.add('level-3');
       const a = document.createElement('a');
@@ -133,20 +139,37 @@ if (minPrice != null) where.and(product.price.goe(minPrice));
       toc.appendChild(li);
     });
 
-    // 활성 섹션 표시
-    const links = toc.querySelectorAll('a');
-    const map = new Map([...links].map(a => [a.getAttribute('href').slice(1), a]));
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if(e.isIntersecting){
-          links.forEach(a => a.classList.remove('active'));
-          const link = map.get(e.target.id);
-          if(link) link.classList.add('active');
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    const links = [...toc.querySelectorAll('a')];
+    const linkById = new Map(links.map(a => [a.hash.slice(1), a]));
+    const setActive = id => {
+      links.forEach(a => a.classList.remove('active'));
+      const el = linkById.get(id);
+      if(el) el.classList.add('active');
+    };
 
-    headers.forEach(h => io.observe(h));
+    // 클릭 시 스무스 스크롤 + URL 동기화
+    links.forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const id = a.hash.slice(1);
+        const target = document.getElementById(id);
+        if(!target) return;
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+        history.pushState(null, '', `#${id}`);
+        setActive(id);
+      });
+    });
+
+    // 스크롤 위치로 활성 섹션 계산 (헤더 오프셋 보정)
+    function onScroll(){
+      const y = window.scrollY + 100;
+      let current = headers[0]?.id;
+      for(const h of headers){ if(h.offsetTop <= y) current = h.id; else break; }
+      setActive(current);
+    }
+    onScroll();
+    document.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if(id) setActive(id); });
   })();
   </script>
 </body>
