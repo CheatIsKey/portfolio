@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>[예시] 스프링 부트 아티클 템플릿 — spring-jpa.dev</title>
+  <title>JPA 연관관계 매핑 — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -19,94 +19,125 @@
     <!-- 좌측: 자동 생성 목차 -->
     <aside class="toc" aria-label="Table of contents">
       <div class="toc-title">목차</div>
-      <ul id="toc-list">
-        <!-- JS가 h2/h3를 읽어 자동 생성 -->
-        <!-- JS 비활성 대비해 아래처럼 수동 목록도 넣을 수 있어요
-        <li><a href="#sec-1">1. 개요</a></li>
-        <li class="level-3"><a href="#sec-1-1">1.1 배경</a></li>
-        -->
-      </ul>
+      <ul id="toc-list"></ul>
     </aside>
 
     <!-- 우측: 글 본문 -->
     <article class="prose">
-      <h1>스프링 부트 예시 글 제목</h1>
-      <p class="muted">작성일 2025-08-16 · 분류: Spring Boot, JPA</p>
+      <h1>JPA 연관관계 매핑</h1>
+      <p class="muted">작성일 2025-08-02 · 분류: Spring Boot, JPA</p>
 
-      <!-- 섹션: h2/h3를 사용하면 자동으로 목차에 반영됩니다 -->
+      <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p>
-        이 글은 <b>요구사항 분석 → 설계 → 코딩 → 테스트 → 유지보수</b> 흐름에 맞춰 정리됩니다.
-        각 섹션은 바로가기 링크로 이동할 수 있습니다.
-      </p>
-
-      <div class="callout info">
-        <b>TIP</b> · 실제 운영 사례/지표가 있으면 섹션 끝에 간단한 수치(응답시간, 쿼리 수 등)를 남겨두세요.
-      </div>
-
-      <h2 class="section">요구사항 분석</h2>
+      <p>객체는 참조, 데이터베이스는 외래 키. JPA는 그 차이를 줄여준다. 내 기준에서 중요한 건 셋.</p>
       <ul>
-        <li>사용자는 상품을 조건(카테고리/가격/키워드)으로 <b>동적 검색</b>할 수 있어야 한다.</li>
-        <li>N+1 없이 첫 페이지 <b>TTFB &lt; 200ms</b> 목표.</li>
+        <li>단방향부터 시작. 필요할 때만 양방향 추가.</li>
+        <li>연관관계 <b>주인(owner) = 외래 키 가진 쪽</b>. <code>mappedBy</code>는 항상 비주인.</li>
+        <li><b>ToOne은 기본 EAGER</b>라서 <code>fetch = LAZY</code>를 <b>항상 명시</b>. 컬렉션은 기본 LAZY.</li>
       </ul>
 
-      <h3 class="section">도메인/경계</h3>
-      <p>상품, 주문, 회원을 핵심 도메인으로 정의하고 조회는 별도의 Read 모델로 분리합니다.</p>
+      <div class="callout muted">
+        <p><b>이미지/폴더 규칙</b> · 스냅샷은 <code>/assets/notes/jpa/relations/</code>에 둔다. 
+        파일명: <code>SNAPSHOT-REL-XX-설명.png</code>.</p>
+      </div>
 
-      <h2 class="section">설계</h2>
-      <pre><code>Controller → Service → Repository(QueryDSL)
-                       ↳ ReadModel(DTO)</code></pre>
+      <!-- 2. N:1 단방향 (기본 선택) -->
+      <h2 class="section">다대일(N:1) — 단방향 (기본 선택)</h2>
+      <p>가장 단순하고 실용적. “다(N)” 쪽이 FK를 가진다(=주인). 팀이 회원을 몰라도 되는 화면이면 이걸로 충분했다.</p>
 
-      <h3 class="section">ERD 스냅샷</h3>
+      <!-- 이미지 자리 -->
       <figure class="figure">
-        <img src="/assets/notes/example-erd.png" alt="예시 ERD 이미지">
-        <figcaption>도식은 단순화를 위해 필수 필드만 표기.</figcaption>
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-01-member-to-team.png" alt="Member→Team 단방향 N:1">
+        <figcaption>Member → Team 단방향 N:1 (SNAPSHOT-REL-01-member-to-team.png)</figcaption>
       </figure>
 
-      <h2 class="section">코딩</h2>
-      <pre><code>// 예시: QueryDSL 동적 where
-BooleanBuilder where = new BooleanBuilder();
-if (keyword != null) where.and(product.name.containsIgnoreCase(keyword));
-if (minPrice != null) where.and(product.price.goe(minPrice));
-// ...
-</code></pre>
+      <p>팀 컬렉션이 꼭 필요해지면 그때 양방향을 추가한다.</p>
 
-      <h3 class="section">테이블 예시</h3>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th>케이스</th><th>전</th><th>후</th></tr></thead>
-          <tbody>
-            <tr><td>N+1</td><td>SELECT 201회</td><td>SELECT 3회</td></tr>
-            <tr><td>응답시간</td><td>420ms</td><td>160ms</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <!-- 3. N:1 + 1:N 양방향 (오너 편의 메서드) -->
+      <h2 class="section">양방향 — 오너(Member) 편의 메서드로 일원화</h2>
+      <p>DB FK는 하나지만, 코드엔 양쪽 참조가 생긴다. 루프/혼란을 막으려면 <b>변경의 단일 진입점</b>을 오너쪽(<code>Member.changeTeam</code>)으로 둔다.
+         <code>Team</code>의 헬퍼는 “위임만”.</p>
 
-      <h2 class="section">테스트</h2>
+      <figure class="figure">
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-02-bidirectional.png" alt="Team↔Member 양방향">
+        <figcaption>Team ↔ Member 양방향 (연관관계 주인측 편의 메서드) (SNAPSHOT-REL-02-bidirectional.png)</figcaption>
+      </figure>
+
+      <p>호출 흐름이 단선이라 디버깅이 쉽다. 직렬화는 DTO로 끊거나 한쪽에 <code>@JsonIgnore</code>.</p>
+
+      <!-- 4. 1:1 -->
+      <h2 class="section">일대일(1:1) — 외래 키 위치 결정</h2>
+      <p>조회 패턴을 먼저 본다. 조회 잦은 쪽에 FK를 두면 조인이 줄고, 대상 테이블에 두면 제약이 명확해진다.</p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-03-one-to-one.png" alt="1:1 주 테이블 FK 예시">
+        <figcaption>1:1 — 주 테이블 FK 예시 (SNAPSHOT-REL-03-one-to-one.png)</figcaption>
+      </figure>
+
+      <!-- 5. 1:N 단방향 -->
+      <h2 class="section">일대다(1:N) — 가급적 지양</h2>
+      <p>1쪽이 FK를 갖게 되면 INSERT 후 UPDATE가 한 번 더 붙는 등 비효율이 생길 수 있다. N:1 양방향으로 모델링했다.</p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-04-one-to-many-uni.png" alt="1:N 단방향 예시">
+        <figcaption>1:N 단방향 예시 (SNAPSHOT-REL-04-one-to-many-uni.png)</figcaption>
+      </figure>
+
+      <!-- 6. N:N → 중간 엔티티 -->
+      <h2 class="section">다대다(N:N) — 중간 엔티티로 분해</h2>
+      <p><code>@ManyToMany</code>는 편하지만 확장/감사/쿼리 최적화에 약하다. <b>조인 테이블을 엔티티</b>로 올려 설계하면 유연해진다.</p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-05-join-entity.png" alt="N:N을 중간 엔티티로 분해">
+        <figcaption>N:N을 중간 엔티티로 분해 (SNAPSHOT-REL-05-join-entity.png)</figcaption>
+      </figure>
+
+      <!-- 7. 로딩 전략: fetch join / EntityGraph -->
+      <h2 class="section">로딩 전략 — fetch join / EntityGraph</h2>
+      <p>기본은 LAZY. 화면/요건에 맞춰 묶어서 로딩한다. 페이징이 필요한 목록은 DTO 전용 쿼리를 고려.</p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/relations/SNAPSHOT-REL-06-loading.png" alt="fetch join / EntityGraph 비교">
+        <figcaption>fetch join / EntityGraph 비교 (SNAPSHOT-REL-06-loading.png)</figcaption>
+      </figure>
+
+      <!-- 8. 직렬화/순환 참조 메모 -->
+      <h2 class="section">직렬화/순환 참조 — 한 줄 메모</h2>
       <ul>
-        <li>단위: Repository 메서드 쿼리 검증</li>
-        <li>통합: 슬라이스 테스트로 컨텍스트 경량화</li>
+        <li>엔티티를 바로 JSON으로 내보내면 양방향에서 무한 루프 가능.</li>
+        <li>DTO로 경계를 끊거나, 필요 시 한쪽에 <code>@JsonIgnore</code>.</li>
       </ul>
 
-      <h2 class="section">유지보수/회고</h2>
-      <p>페이징-정렬 조합에서 인덱스 선택이 중요. 다음 스프린트에 커버링 인덱스 검토 예정.</p>
+      <!-- 9. 체크리스트 -->
+      <h2 class="section">체크리스트</h2>
+      <ul>
+        <li>단방향 우선. 양방향은 탐색 수요가 확실할 때만.</li>
+        <li>주인 = FK 가진 쪽. <code>mappedBy</code>는 비주인(읽기용).</li>
+        <li>양방향은 오너쪽 편의 메서드로 일원화(재귀 방지).</li>
+        <li>1:N 단방향/직접 N:N 지양. 필요하면 중간 엔티티.</li>
+        <li>ToOne은 항상 <code>fetch = LAZY</code> 명시. 화면별 fetch join/EntityGraph/DTO 설계.</li>
+      </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
+  <!-- TOC 자동 생성 + 현재 섹션 동기화 -->
   <script>
-  // === 간단 TOC 자동 생성 & 활성 섹션 하이라이트 ===
   (function(){
     const article = document.querySelector('article.prose');
-    const headers = article.querySelectorAll('h2.section, h3.section');
+    if(!article) return;
+
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+
     const toc = document.getElementById('toc-list');
-
-    let h2Count = 0, h3Count = 0;
+    toc.innerHTML = '';
     headers.forEach(h => {
-      if(h.tagName === 'H2'){ h2Count++; h3Count = 0; h.id = `sec-${h2Count}`; }
-      else { h3Count++; h.id = `sec-${h2Count}-${h3Count}`; }
-
       const li = document.createElement('li');
       if(h.tagName === 'H3') li.classList.add('level-3');
       const a = document.createElement('a');
@@ -115,21 +146,6 @@ if (minPrice != null) where.and(product.price.goe(minPrice));
       li.appendChild(a);
       toc.appendChild(li);
     });
-
-    // 활성 섹션 표시
-    const links = toc.querySelectorAll('a');
-    const map = new Map([...links].map(a => [a.getAttribute('href').slice(1), a]));
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if(e.isIntersecting){
-          links.forEach(a => a.classList.remove('active'));
-          const link = map.get(e.target.id);
-          if(link) link.classList.add('active');
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
-
-    headers.forEach(h => io.observe(h));
   })();
   </script>
 </body>
