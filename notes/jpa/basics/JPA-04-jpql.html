@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JPQL과 쿼리 API — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">목차</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>JPQL과 쿼리 API</h1>
+      <p class="muted">작성일 2025-08-06 · 분류: Spring Boot, JPA</p>
+
+      <p class="muted">
+        ※ 로딩 전략·N+1·EntityGraph·배치 페치·페치 조인 튜닝은 <b>JPA-03-loading</b>에 있음.
+        본 문서는 <b>JPQL/쿼리 문법과 API</b>에 집중.
+      </p>
+
+      <h2 class="section">쿼리 API(엔티티 매니저)</h2>
+      <p>
+        <code>EntityManager.createQuery</code>로 JPQL 실행. <code>TypedQuery&lt;T&gt;</code>를 우선 사용하고,
+        파라미터는 <b>이름 기반</b>을 권장한다.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-01-query-api.png" alt="createQuery, TypedQuery, 파라미터 사용 예">
+        <figcaption>쿼리 API 기본 (SNAPSHOT-01-query-api.png)</figcaption>
+      </figure>
+
+      <h2 class="section">프로젝션(SELECT)</h2>
+      <p>
+        프로젝션은 <b>엔티티</b>, <b>임베디드</b>, <b>스칼라</b>, <b>DTO(new …)</b>를 지원.
+        스칼라 혼합은 Object[] 반환이므로 DTO로 직접 투영하면 깔끔하다.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-02-projections.png" alt="엔티티·임베디드·스칼라·DTO 프로젝션">
+        <figcaption>프로젝션 패턴 (SNAPSHOT-02-projections.png)</figcaption>
+      </figure>
+
+      <h2 class="section">페이징</h2>
+      <p>
+        <code>setFirstResult</code>, <code>setMaxResults</code>로 구현. (페치 조인 제약은 JPA-03 참고)
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-03-paging.png" alt="JPA 페이징 API 사용 예">
+        <figcaption>페이징 (SNAPSHOT-03-paging.png)</figcaption>
+      </figure>
+
+      <h2 class="section">조인</h2>
+      <p>
+        명시적 조인을 사용하자. 묵시적 조인은 의도치 않은 내부 조인을 유발할 수 있다.
+        (로딩 전략 자체는 JPA-03 참고)
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-04-joins.png" alt="내부·외부·세타 조인 예">
+        <figcaption>조인 기본 (SNAPSHOT-04-joins.png)</figcaption>
+      </figure>
+
+      <h2 class="section">서브쿼리</h2>
+      <p>
+        JPQL은 <b>WHERE/HAVING</b> 절에서 서브쿼리를 지원. <b>FROM 절 서브쿼리는 불가</b>하므로
+        필요 시 조인/뷰/네이티브를 고려한다.
+      </p>
+      
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-05-subqueries.png" alt="WHERE/HAVING 서브쿼리 예">
+        <figcaption>서브쿼리 (SNAPSHOT-05-subqueries.png)</figcaption>
+      </figure>
+
+      <h2 class="section">경로 표현식</h2>
+      <p>
+        상태 필드(<code>m.name</code>)는 탐색 끝. 단일 값 연관(<code>m.team</code>)은 <b>묵시적 내부 조인</b>이 발생,
+        컬렉션(<code>t.members</code>)은 탐색 불가이므로 <b>조인 + 별칭</b>이 필요. 크기는 <code>size()</code>.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-06-path-expr.png" alt="경로 표현식 규칙과 size()">
+        <figcaption>경로 표현식 (SNAPSHOT-06-path-expr.png)</figcaption>
+      </figure>
+
+      <h2 class="section">조건식(CASE 등)과 타입/기타 식</h2>
+      <p>
+        단순/검색 CASE를 모두 지원. 상속 구조에서는 <code>TYPE()</code>과 JPA 2.1+의 <code>TREAT</code>로 다운캐스팅 가능.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-07-case-type.png" alt="CASE, TYPE, TREAT 사용 예">
+        <figcaption>CASE와 타입/캐스팅 (SNAPSHOT-07-case-type.png)</figcaption>
+      </figure>
+
+      <h2 class="section">JPQL 함수</h2>
+      <p>
+        표준(문자/숫자/날짜, <code>size()</code>, <code>index()</code>) + 공급자 함수는
+        <code>function('name', …)</code>으로 호출한다.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-08-functions.png" alt="표준/공급자 함수 호출 예">
+        <figcaption>JPQL 함수 (SNAPSHOT-08-functions.png)</figcaption>
+      </figure>
+
+      <h2 class="section">페치 조인 1 — 기본</h2>
+      <p>
+        연관을 한 번에 로딩하는 조인. <b>자세한 튜닝/제약은 JPA-03 참고</b>—여기선 문법만 다룸.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-09-fetchjoin-basic.png" alt="기본 페치 조인 문법">
+        <figcaption>페치 조인 기본 (SNAPSHOT-09-fetchjoin-basic.png)</figcaption>
+      </figure>
+
+      <h2 class="section">페치 조인 2 — 한계</h2>
+      <p>
+        컬렉션 페치 조인은 <b>페이징 불가</b>, 다중 컬렉션 페치 조인은 <b>사실상 금지</b>.
+        중복/카디널리티 폭증으로 데이터 왜곡이 발생할 수 있어 화면 요구에 맞춰 DTO/쿼리 분리 권장.
+        (근거와 대안: JPA-03)
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-10-fetchjoin-limits.png" alt="컬렉션 페치 조인 한계">
+        <figcaption>페치 조인 한계 (SNAPSHOT-10-fetchjoin-limits.png)</figcaption>
+      </figure>
+
+      <h2 class="section">다형성 쿼리</h2>
+      <p>
+        상속 매핑에서 <code>TYPE()</code>으로 구체 타입 필터, <code>TREAT()</code>로 다운캐스팅 가능.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-11-polymorphism.png" alt="TYPE/TREAT를 사용한 다형성 쿼리">
+        <figcaption>다형성 쿼리 (SNAPSHOT-11-polymorphism.png)</figcaption>
+      </figure>
+
+      <h2 class="section">엔티티 직접 사용 (식별자 비교 자동 변환)</h2>
+      <p>
+        JPQL에서 엔티티를 직접 비교하면 <b>식별자 비교</b>로 자동 변환된다. 연관 필드 비교도 동일.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-12-entity-direct.png" alt="엔티티 직접 비교는 식별자 비교로 해석">
+        <figcaption>엔티티 직접 사용 (SNAPSHOT-12-entity-direct.png)</figcaption>
+      </figure>
+
+      <h2 class="section">Named 쿼리</h2>
+      <p>
+        정적 쿼리를 엔티티에 선언해 재사용·검증을 강화. 시작 시 파싱되어 오타를 조기 발견 가능.
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-13-namedquery.png" alt="NamedQuery 선언과 사용">
+        <figcaption>Named 쿼리 (SNAPSHOT-13-namedquery.png)</figcaption>
+      </figure>
+
+      <h2 class="section">벌크 연산</h2>
+      <p>
+        <b>update/delete</b> 벌크는 1차 캐시를 우회해 DB에 바로 반영된다.
+        실행 후 <b>em.clear()</b>로 상태 동기화를 권장. (로딩 규칙은 JPA-03 참고)
+      </p>
+
+      <figure class="figure">
+        <img src="/assets/notes/jpa/jpql/SNAPSHOT-14-bulk.png" alt="벌크 연산 후 영속성 컨텍스트 초기화">
+        <figcaption>벌크 연산 주의 (SNAPSHOT-14-bulk.png)</figcaption>
+      </figure>
+
+      <h2 class="section">체크리스트</h2>
+      <ul>
+        <li>쿼리 API는 <b>TypedQuery</b> + <b>이름 파라미터</b> 우선.</li>
+        <li>프로젝션은 DTO(new …)로 직접 투영하면 깔끔.</li>
+        <li>페이징은 <code>setFirstResult/setMaxResults</code> (페치 조인 제약은 JPA-03).</li>
+        <li>경로 표현식: 단일 연관=묵시적 내부 조인, 컬렉션=명시적 조인.</li>
+        <li>서브쿼리는 WHERE/HAVING만, FROM 서브쿼리는 불가.</li>
+        <li>CASE/TYPE/TREAT로 조건·다형성 처리.</li>
+        <li>엔티티 직접 비교 → 식별자 비교로 자동 해석.</li>
+        <li>벌크 연산 후 <code>em.clear()</code> 필수.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      if(h.tagName === 'H3') li.classList.add('level-3');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
