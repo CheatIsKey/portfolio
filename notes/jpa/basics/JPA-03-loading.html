@@ -53,7 +53,7 @@
       <h2 class="section">N+1 해결 전략</h2>
       <p>대표 솔루션과 주의점은 다음과 같다.</p>
       <ul>
-        <li><b>Fetch Join</b>: 한 번에 가져오되, 컬렉션 페치 조인은 페이징 금지(카디널리티 폭증·중복).</li>
+        <li><b>Fetch Join</b>: 한 번에 가져오되, 컬렉션 페치 조인은 페이징 금지(Row 뻥튀기 주의).</li>
         <li><b>@EntityGraph</b>: 특정 조회 메서드에 필요한 연관만 동적으로 로딩.</li>
         <li><b>Batch Fetch</b>: <code>hibernate.default_batch_fetch_size</code>로 LAZY를 묶음 로딩.</li>
         <li><b>DTO 프로젝션</b>: 화면 전용 쿼리로 필요한 필드만 선별.</li>
