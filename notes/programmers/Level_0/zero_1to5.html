@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>프로그래머스 Level 0 — 문자열/배열 기초 5문제 · spring-jpa.dev</title>
+  <title>프로그래머스 Level 0 — 5문제 묶음 · spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -16,104 +16,165 @@
   </header>
 
   <main class="container article">
-    <!-- 좌측 목차(자동 생성) -->
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
     <aside class="toc" aria-label="Table of contents">
       <div class="toc-title">문제 목록</div>
       <ul id="toc-list"></ul>
     </aside>
 
-    <!-- 본문 -->
     <article class="prose">
-      <h1>프로그래머스 Level 0 — 문자열/배열 기초 5문제</h1>
+      <h1>프로그래머스 Level 0 — 5문제 묶음</h1>
       <p class="muted">작성일 2025-09-09 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
-      <!-- 1 -->
-      <h2 class="section">[LV0] 문자 출력</h2>
-      <h3 class="section">문제</h3>
-      <p>문자열 <code>str</code>이 주어지면 그대로 출력하세요.</p>
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — (제목을 입력하세요)</h2>
 
-      <h3 class="section">정답 코드 (Java)</h3>
-      <pre><code class="language-java">import java.io.*;
-class Solution1 {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String str = br.readLine();
-        System.out.print(str);
-    }
-}</code></pre>
+      <h3 class="section">문제 설명 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p1-problem.png" alt="문제 1 설명 스크린샷">
+        <figcaption>문제 1 — 설명</figcaption>
+      </figure>
 
-      <h3 class="section">해설</h3>
-      <p>입출력 기초 문제. 버퍼를 쓰면 대용량 입력에서도 안정적입니다.</p>
+      <h3 class="section">출력 예시 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p1-output.png" alt="문제 1 출력 예시 스크린샷">
+        <figcaption>문제 1 — 출력 예시</figcaption>
+      </figure>
 
-      <!-- 2 -->
-      <h2 class="section">[LV0] 문자열 반복</h2>
-      <h3 class="section">문제</h3>
-      <p>문자열 <code>my_string</code>을 <code>n</code>번 반복해 이어붙인 문자열을 반환하세요.</p>
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p1-code.png" alt="문제 1 코드 스크린샷">
+        <figcaption>문제 1 — 코드</figcaption>
+      </figure>
 
-      <h3 class="section">정답 코드 (Java)</h3>
-      <pre><code class="language-java">class RepeatString {
-    public String solution(String my_string, int n) {
-        StringBuilder sb = new StringBuilder(my_string.length() * n);
-        for (int i = 0; i &lt; n; i++) sb.append(my_string);
-        return sb.toString();
-    }
-}</code></pre>
+      <h3 class="section">실행 결과 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p1-run.png" alt="문제 1 실행 결과 스크린샷">
+        <figcaption>문제 1 — 실행 결과</figcaption>
+      </figure>
 
       <h3 class="section">해설</h3>
-      <p><code>StringBuilder</code>로 누적 연결하면 불필요한 임시 문자열 생성을 줄일 수 있습니다.</p>
+      <p>여기에 간단한 풀이 아이디어/시간복잡도/실수 포인트 등을 적어주세요.</p>
 
-      <!-- 3 -->
-      <h2 class="section">[LV0] 배열 두 배 만들기</h2>
-      <h3 class="section">문제</h3>
-      <p>정수 배열 <code>numbers</code>의 모든 원소에 2를 곱한 배열을 반환하세요.</p>
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — (제목을 입력하세요)</h2>
 
-      <h3 class="section">정답 코드 (Java)</h3>
-      <pre><code class="language-java">import java.util.*;
-class DoubleArray {
-    public int[] solution(int[] numbers) {
-        int[] ans = new int[numbers.length];
-        for (int i = 0; i &lt; numbers.length; i++) ans[i] = numbers[i] * 2;
-        return ans;
-    }
-}</code></pre>
+      <h3 class="section">문제 설명 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p2-problem.png" alt="문제 2 설명 스크린샷">
+        <figcaption>문제 2 — 설명</figcaption>
+      </figure>
 
-      <h3 class="section">해설</h3>
-      <p>단순 순회. 스트림을 써도 되지만 반복문이 가장 가볍고 빠릅니다.</p>
+      <h3 class="section">출력 예시 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p2-output.png" alt="문제 2 출력 예시 스크린샷">
+        <figcaption>문제 2 — 출력 예시</figcaption>
+      </figure>
 
-      <!-- 4 -->
-      <h2 class="section">[LV0] 짝수 홀수 개수</h2>
-      <h3 class="section">문제</h3>
-      <p>정수 배열에서 짝수 개수와 홀수 개수를 배열로 반환하세요. (순서: <code>[짝수, 홀수]</code>)</p>
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p2-code.png" alt="문제 2 코드 스크린샷">
+        <figcaption>문제 2 — 코드</figcaption>
+      </figure>
 
-      <h3 class="section">정답 코드 (Java)</h3>
-      <pre><code class="language-java">class EvenOddCount {
-    public int[] solution(int[] num_list) {
-        int even = 0, odd = 0;
-        for (int n : num_list) {
-            if ((n &amp; 1) == 0) even++;
-            else odd++;
-        }
-        return new int[]{even, odd};
-    }
-}</code></pre>
+      <h3 class="section">실행 결과 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p2-run.png" alt="문제 2 실행 결과 스크린샷">
+        <figcaption>문제 2 — 실행 결과</figcaption>
+      </figure>
 
       <h3 class="section">해설</h3>
-      <p>비트 연산 <code>&amp; 1</code>로 홀짝 판정하면 분기 비용이 거의 없습니다.</p>
+      <p>풀이 요약을 작성하세요.</p>
 
-      <!-- 5 -->
-      <h2 class="section">[LV0] 피자 나눠 먹기 (1)</h2>
-      <h3 class="section">문제</h3>
-      <p>피자 한 판에 7조각. 사람 수 <code>n</code>이 주어지면, 모두가 한 조각 이상 먹기 위한 최소 피자 수를 구하세요.</p>
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — (제목을 입력하세요)</h2>
 
-      <h3 class="section">정답 코드 (Java)</h3>
-      <pre><code class="language-java">class Pizza {
-    public int solution(int n) {
-        return (n + 6) / 7; // 올림: ⌈n / 7⌉
-    }
-}</code></pre>
+      <h3 class="section">문제 설명 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p3-problem.png" alt="문제 3 설명 스크린샷">
+        <figcaption>문제 3 — 설명</figcaption>
+      </figure>
+
+      <h3 class="section">출력 예시 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p3-output.png" alt="문제 3 출력 예시 스크린샷">
+        <figcaption>문제 3 — 출력 예시</figcaption>
+      </figure>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p3-code.png" alt="문제 3 코드 스크린샷">
+        <figcaption>문제 3 — 코드</figcaption>
+      </figure>
+
+      <h3 class="section">실행 결과 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p3-run.png" alt="문제 3 실행 결과 스크린샷">
+        <figcaption>문제 3 — 실행 결과</figcaption>
+      </figure>
 
       <h3 class="section">해설</h3>
-      <p>올림 나눗셈 패턴 <code>(a + b - 1) / b</code>를 활용합니다. 여기서는 <code>b = 7</code>.</p>
+      <p>풀이 요약을 작성하세요.</p>
+
+      <!-- 문제 4 -->
+      <h2 class="section">문제 4 — (제목을 입력하세요)</h2>
+
+      <h3 class="section">문제 설명 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p4-problem.png" alt="문제 4 설명 스크린샷">
+        <figcaption>문제 4 — 설명</figcaption>
+      </figure>
+
+      <h3 class="section">출력 예시 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p4-output.png" alt="문제 4 출력 예시 스크린샷">
+        <figcaption>문제 4 — 출력 예시</figcaption>
+      </figure>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p4-code.png" alt="문제 4 코드 스크린샷">
+        <figcaption>문제 4 — 코드</figcaption>
+      </figure>
+
+      <h3 class="section">실행 결과 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p4-run.png" alt="문제 4 실행 결과 스크린샷">
+        <figcaption>문제 4 — 실행 결과</figcaption>
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>풀이 요약을 작성하세요.</p>
+
+      <!-- 문제 5 -->
+      <h2 class="section">문제 5 — (제목을 입력하세요)</h2>
+
+      <h3 class="section">문제 설명 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p5-problem.png" alt="문제 5 설명 스크린샷">
+        <figcaption>문제 5 — 설명</figcaption>
+      </figure>
+
+      <h3 class="section">출력 예시 (스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p5-output.png" alt="문제 5 출력 예시 스크린샷">
+        <figcaption>문제 5 — 출력 예시</figcaption>
+      </figure>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p5-code.png" alt="문제 5 코드 스크린샷">
+        <figcaption>문제 5 — 코드</figcaption>
+      </figure>
+
+      <h3 class="section">실행 결과 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/p5-run.png" alt="문제 5 실행 결과 스크린샷">
+        <figcaption>문제 5 — 실행 결과</figcaption>
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>풀이 요약을 작성하세요.</p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
@@ -124,12 +185,12 @@ class DoubleArray {
     <span class="muted">Built with Spring • JPA • QueryDSL</span>
   </footer>
 
-  <!-- H2/H3(.section)로 자동 목차 생성 -->
+  <!-- H2(.section)만 목차로 사용 -->
   <script>
   (function(){
     const article = document.querySelector('article.prose');
     if(!article) return;
-    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
@@ -138,7 +199,6 @@ class DoubleArray {
     toc.innerHTML = '';
     headers.forEach(h => {
       const li = document.createElement('li');
-      if(h.tagName === 'H3') li.classList.add('level-3');
       const a = document.createElement('a');
       a.href = `#${h.id}`;
       a.textContent = h.textContent.trim();
