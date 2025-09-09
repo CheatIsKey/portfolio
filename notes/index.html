@@ -4,10 +4,52 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Notes — spring-jpa.dev</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0f14; --card: #121821; --muted: #7c8aa0; --text: #e7eef9; --accent: #5cc8ff; --border: #1f2937;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:980px;margin:0 auto;padding:24px}
+    header.site-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:linear-gradient(180deg, rgba(11,15,20,.95), rgba(11,15,20,.85));backdrop-filter:saturate(150%) blur(6px);z-index:10}
+    .brand{font-weight:700;letter-spacing:.2px}
+    .nav a{margin-left:16px;opacity:.8}
+    .nav a.active{opacity:1;color:var(--accent)}
+
+    h1.page-title{margin:22px 0 4px;font-size:28px}
+    .sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+
+    /* Filters */
+    .filters{display:grid;grid-template-columns:1fr;gap:12px;margin:18px 0 8px}
+    @media(min-width:820px){.filters{grid-template-columns:1fr 220px 180px}}
+    .search{position:relative}
+    .search input{width:100%;padding:12px 14px 12px 36px;border-radius:12px;background:#0f141b;border:1px solid var(--border);color:var(--text)}
+    .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.6}
+    .select, .btn{background:#0f141b;border:1px solid var(--border);padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text)}
+    .select{width:100%}
+
+    /* Groups */
+    .groups{display:grid;gap:16px;margin-top:12px}
+    .group{border:1px solid var(--border);background:var(--card);border-radius:16px;overflow:hidden}
+    .group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+    .group-title{font-weight:600}
+    .group-count{color:var(--muted);font-size:12px}
+    .items{display:grid;grid-template-columns:1fr;gap:6px;padding:12px}
+    @media(min-width:700px){.items{grid-template-columns:1fr 1fr}}
+
+    .item{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--border);border-radius:12px;transition:border-color .15s, background .15s}
+    .item:hover{border-color:#2b3a4f;background:#0f151e}
+    .item .title{font-weight:600}
+    .item .meta{color:var(--muted);font-size:13px}
+    .empty{padding:24px;color:var(--muted)}
+  </style>
 </head>
 <body>
-  <header class="site-header container">
+  <header class="site-header">
     <a class="brand" href="/">spring-jpa.dev</a>
     <nav class="nav">
       <a href="/projects/">Projects</a>
@@ -17,54 +59,144 @@
 
   <main class="container">
     <h1 class="page-title">Notes</h1>
+    <p class="sub">카테고리로만 깔끔하게 묶고, 정렬(최신/오래된)만 제공합니다.</p>
 
-    <!-- 카테고리/검색(원하면) -->
-    <!-- <div class="filters">
-      <input class="input" placeholder="검색: JPA, QueryDSL, 트랜잭션..." />
-      <div class="tags">
-        <a class="tag" href="#">Spring Boot</a>
-        <a class="tag" href="#">JPA</a>
-        <a class="tag" href="#">QueryDSL</a>
+    <div class="filters">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        <input id="q" type="search" placeholder="검색: 스프링 부트, JPA, 코딩 테스트..." />
       </div>
-    </div> -->
-
-    <div class="list">
-      <a class="list-item" href="/notes/jpa/basics/JPA-01-basics.html">
-        <span class="title">JPA 기본 개념 정리</span>
-        <span class="meta">영속성 컨텍스트 · 플러시 · 엔티티 생명주기</span>
-      </a>
-
-      <a class="list-item" href="/notes/jpa/basics/JPA-02-relations.html">
-        <span class="title">JPA 연관관계 매핑</span>
-        <span class="meta">단방향 · 양방향 · 연관관계 주인 · 로딩 전략</span>
-      </a>
-
-      <a class="list-item" href="/notes/jpa/basics/JPA-03-loading.html">
-        <span class="title">JPA 프록시와 로딩 전략</span>
-        <span class="meta">지연 로딩 · N+1 · EntityGraph · 페치 조인 · 값 타입 · 전이/고아</span>
-      </a>
-
-      <a class="list-item" href="/notes/jpa/basics/JPA-04-jpql.html">
-        <span class="title">JPQL과 쿼리 API</span>
-        <span class="meta">프로젝션 · 조인 · 페이징 · 서브쿼리 · 경로 · 함수 · 페치 조인 · 벌크</span>
-      </a>
-      
-      
-      <a class="list-item" href="/notes/Validation.html">
-        <span class="title">Validation</span>
-        <span class="meta">springboot · Thymeleaf</span>
-      </a>
-
-      <a class="list-item" href="/notes/querydsl-cheatsheet.html">
-        <span class="title">QueryDSL 치트시트</span>
-        <span class="meta">동적 조건 · 정렬 · 페이징</span>
-      </a>
-
-      <a class="list-item" href="/notes/spring-transaction.html">
-        <span class="title">스프링 트랜잭션 전파/격리</span>
-        <span class="meta">실전 예제 요약</span>
-      </a>
+      <select id="cat" class="select" aria-label="카테고리 선택">
+        <option value="">전체 카테고리</option>
+      </select>
+      <select id="sort" class="select" aria-label="정렬">
+        <option value="newest">최신순</option>
+        <option value="oldest">오래된순</option>
+      </select>
     </div>
+
+    <div class="groups" id="groups"></div>
+    <div class="empty" id="empty" style="display:none">검색/필터에 해당하는 노트가 없어요.</div>
   </main>
+
+  <script>
+  // --- 카테고리 권장 명칭 --------------------------------------------
+  // • 스프링 부트
+  // • 프로젝트 실습
+  // • JPA · Spring Data JPA · QueryDSL
+  // • 코딩 테스트(프로그래머스)
+
+  const NOTES = [
+    { title: 'JPA 기본 개념 정리', url: '/notes/jpa/basics/JPA-01-basics.html',
+      meta: '영속성 컨텍스트 · 플러시 · 엔티티 생명주기',
+      category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-01-10' },
+    { title: 'JPA 연관관계 매핑', url: '/notes/jpa/basics/JPA-02-relations.html',
+      meta: '단방향 · 양방향 · 연관관계 주인 · 로딩 전략',
+      category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-01-18' },
+    { title: 'JPA 프록시와 로딩 전략', url: '/notes/jpa/basics/JPA-03-loading.html',
+      meta: '지연 로딩 · N+1 · EntityGraph · 페치 조인 · 값 타입 · 전이/고아',
+      category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-01-24' },
+    { title: 'JPQL과 쿼리 API', url: '/notes/jpa/basics/JPA-04-jpql.html',
+      meta: '프로젝션 · 조인 · 페이징 · 서브쿼리 · 경로 · 함수 · 페치 조인 · 벌크',
+      category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-02-02' },
+
+    { title: 'Validation', url: '/notes/Validation.html',
+      meta: 'springboot · Thymeleaf',
+      category: '스프링 부트', date: '2024-02-15' },
+
+    { title: 'QueryDSL 치트시트', url: '/notes/querydsl-cheatsheet.html',
+      meta: '동적 조건 · 정렬 · 페이징',
+      category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-03-03' },
+
+    { title: '스프링 트랜잭션 전파/격리', url: '/notes/spring-transaction.html',
+      meta: '실전 예제 요약',
+      category: '스프링 부트', date: '2024-03-20' },
+
+    // 예시 자리
+    // { title: '프로젝트 X 회고', url: '/notes/projects/x-postmortem.html', meta: '운영 이슈 · 배운 점', category: '프로젝트 실습', date: '2024-04-01' },
+    // { title: '프로그래머스 - 기능개발', url: '/notes/ps/programmers- 기능개발.html', meta: '스택/큐', category: '코딩 테스트(프로그래머스)', date: '2024-04-12' },
+  ];
+
+  const uniq = (arr) => [...new Set(arr)];
+  const byDateDesc = (a,b)=> new Date(b.date) - new Date(a.date);
+  const byDateAsc  = (a,b)=> new Date(a.date) - new Date(b.date);
+
+  const CATEGORIES = [
+    '스프링 부트',
+    '프로젝트 실습',
+    'JPA · Spring Data JPA · QueryDSL',
+    '코딩 테스트(프로그래머스)'
+  ];
+
+  const state = { q:'', cat:'', sort:'newest' };
+
+  const $q = document.getElementById('q');
+  const $groups = document.getElementById('groups');
+  const $empty = document.getElementById('empty');
+  const $cat = document.getElementById('cat');
+  const $sort = document.getElementById('sort');
+
+  // 카테고리 옵션 렌더
+  function renderCatOptions(){
+    $cat.innerHTML = `<option value="">전체 카테고리</option>` +
+      CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+  }
+
+  function applyFilters(){
+    const q = state.q.trim().toLowerCase();
+    let rows = NOTES.filter(n=>{
+      const inQ = !q || `${n.title} ${n.meta}`.toLowerCase().includes(q);
+      const inCat = !state.cat || state.cat === n.category;
+      return inQ && inCat;
+    });
+    rows.sort(state.sort==='newest' ? byDateDesc : byDateAsc);
+    return rows;
+  }
+
+  function renderGroups(rows){
+    const byCat = {};
+    rows.forEach(n=>{ (byCat[n.category] ||= []).push(n) });
+    const cats = (state.cat? [state.cat] : CATEGORIES).filter(c=>byCat[c]);
+
+    if (rows.length === 0){
+      $groups.innerHTML = ''; $empty.style.display = 'block'; return;
+    }
+    $empty.style.display = 'none';
+
+    $groups.innerHTML = cats.map(c=>{
+      const items = byCat[c];
+      return `<section class="group">
+        <div class="group-header">
+          <div class="group-title">${c}</div>
+          <div class="group-count">${items.length}개</div>
+        </div>
+        <div class="items">
+          ${items.map(itemTpl).join('')}
+        </div>
+      </section>`
+    }).join('');
+  }
+
+  function itemTpl(n){
+    return `<a class="item" href="${n.url}">
+      <div class="title">${n.title}</div>
+      <div class="meta">${n.meta}</div>
+    </a>`
+  }
+
+  function render(){
+    const rows = applyFilters();
+    renderGroups(rows);
+  }
+
+  // 이벤트
+  $q.addEventListener('input', (e)=>{ state.q = e.target.value; render(); });
+  $cat.addEventListener('change', (e)=>{ state.cat = e.target.value; render(); });
+  $sort.addEventListener('change', (e)=>{ state.sort = e.target.value; render(); });
+
+  // init
+  renderCatOptions();
+  render();
+  </script>
 </body>
 </html>
