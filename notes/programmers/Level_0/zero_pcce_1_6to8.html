@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 6 — 8문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 6 — 8문제 묶음</h1>
+      <p class="muted">작성일 2025-09-12 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 6 -->
+      <h2 class="section">문제 6 — 물 부족</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340202">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/zero_pcce_6to8/pcce_p6-code.png" alt="문제 6 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>총사용량(total_usage)에서 전 달 대비 리스트(change) 값을 활용하는 것이 아닌, 지난 달 물 사용량(usage)과 계산 후, 더하면 된다.</p>
+
+      <!-- 문제 7 -->
+      <h2 class="section">문제 7 — 버스</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340201">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/zero_pcce_6to8/pcce_p7-code.png" alt="문제 7 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>승객이 탑승할 때는 func4(passengers[i])를 호출하고 승객이 내릴 때는 func3(passengers[i])을 호출하면 된다.
+      그리고 남은 자리의 수는 원래 버스 좌석 개수에서 현재 승객 인원을 뺀 수를 func1 함수의 매개변수로 보내면 된다. </p>
+
+      <!-- 문제 8 -->
+      <h2 class="section">문제 8 — 닉네임 규칙</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340200">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/zero_pcce_6to8/pcce_p8-code.png" alt="문제 8 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>기존 코드의 닉네임 길이가 4 미만일 경우 소문자 o를 하나만 추가했다. 이를 반복문으로 while(answer.length() < 4)
+      변경해서 최소 길이 조건에 충족할 때까지 이어붙이면 된다.</p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
