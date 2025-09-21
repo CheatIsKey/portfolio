@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-09-19 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 주사위 게임 3</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181916">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0919_1to5/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>int 배열과 Map을 활용했다. Map은 만약 같은 주사위 눈이 나온다면 그 횟수를 저장해서 switch문으로 분기하도록 했으며, 각 경우의 수를 메서드로 추출해서 주사위 눈을 구하도록 했다.
+       추가로 다른 사람 코드를 확인해보니, 초기에 정렬을 한 상태로 로직을 구현했으면 훨씬 간결하고 쉽게 해결할 수 있었다는 점을 알게되었다.</p>
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 글자 이어 붙여 문자열 만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181915">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0919_1to5/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>StringBuffer를 선언하고 my_string의 문자열을 문자 단위로 받도록 char 배열을 선언한다. 그리고 각 인덱스에 해당하는 글자들을 연결해서 반환한다.</p>
+
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 9로 나눈 나머지</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181914">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0919_1to5/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>문제에 핵심 내용이 적혀있다. "9로 나눈 나머지는 그 정수의 각 자리 숫자의 합을 9로 나눈 나머지와 같다" 즉, 자리수 합의 mod 9와 원래 수의 mod 9가 같다. 
+      그리고 각 문자는 유니코드로 값을 가지기 때문에 숫자의 기준(0)을 뺀 수가 저장되도록 구현하면 됐다. 해당 문제는 20자리 수가 주어지기 때문에 int와 long으로 단순히 받는 건 
+      불가능하다.</p>
+
+      <!-- 문제 4 -->
+      <h2 class="section">문제 4 — 문자열 여러 번 뒤집기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181913">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0919_1to5/p4-code.png" alt="문제 4 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>StringBuffer를 초기화 선언하고 인덱스들을 시작, 종료값으로 설정한 후 해당 범위에 속한 문자열들을 짤라낸다. 그리고 그 문자열들을 거꾸로 전환하고 StringBuffer에 교체한다.</p>
+
+      <!-- 문제 5 -->
+      <h2 class="section">문제 5 — 배열 만들기 5</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181912">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0919_1to5/p5-code.png" alt="문제 5 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>int[] 배열은 빈 공간을 0으로 채우기 때문에 짤라내야 하는 과정이 필요하다. 여기서는 List로 선언하고 반복문을 통해 문제의 조건을 반영했으며, 마지막에 stream과 메소드 참조를 통해 반환했다.
+       추가로 성능을 더 향상시키려면 반복문 내 substring 대신 직접 파싱하는 방법이 있었다. 그리고 박싱/생성/스트림을 최소화하면 더 빨라질 수 있을 것이다.</p>
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
