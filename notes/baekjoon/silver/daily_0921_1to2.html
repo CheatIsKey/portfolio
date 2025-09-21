@@ -38,25 +38,22 @@
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 서쪽 N개, 동쪽 M개의 사이트가 있을 때 다리가 서로 겹치지 않으려면 서쪽의 순서가 동쪽에서도 유지되어야 합니다. 이는 결국 <code>M</code>개 중에서 <code>N</code>개를 고르는 조합과 같아서, 정답은 <code>C(M, N)</code>입니다.</p>
+      <p><strong>핵심 아이디어</strong> — 서쪽 N개, 동쪽 M개의 사이트를 교차 없이 연결하려면 서쪽의 순서가 동쪽에서도 유지되어야 한다. 이는 결국 M개 중 N개를 고르는 문제이며 정답은 <code>C(M, N)</code>이다.</p>
+
+      <p><strong>변수 매핑</strong> — 입력에서 <code>west</code>는 고르는 개수 r, <code>east</code>는 전체 개수 n을 의미한다. 즉 이 코드는 <code>C(n=east, r=west)</code>를 구한다.</p>
       
-      <p><strong>변수 매핑</strong> — 입력에서 <code>west</code>는 서쪽(고르는 개수, r), <code>east</code>는 동쪽(전체 개수, n)을 의미합니다. 따라서 우리가 구하는 값은 <code>nCr(west, east)</code>라기보다 수학적으로는 <code>C(n=east, r=west)</code>입니다. 혼동을 줄이려고 함수 내부에서 이 의미를 정확히 반영해 계산합니다.</p>
+      <p><strong>왜 BigInteger인가</strong> — 팩토리얼로 직접 계산하면 중간 값이 매우 커져 <code>long</code>을 넘는다(예: 30! ≈ 2.65×10<sup>32</sup>). 따라서 임의 정밀 정수형 <code>BigInteger</code>로 계산한다. <code>BigInteger.ONE</code>은 값 1을 의미한다.</p>
       
-      <p><strong>왜 BigInteger인가</strong> — 팩토리얼로 직접 계산하면 중간 값이 급격히 커져 <code>long</code>을 넘어섭니다(예: 30! ≈ 2.65×10<sup>32</sup>). 그래서 자바의 임의 정밀 정수형인 <code>BigInteger</code>로 연산합니다. <code>BigInteger.ONE</code>은 1을 나타내는 상수이고, 곱셈/나눗셈은 <code>multiply</code>/<code>divide</code> 메서드로 수행합니다.</p>
-      
-      <p><strong>조합을 안전하게 계산하는 방법</strong> — 팩토리얼을 모두 계산하지 않고, 조합의 등가식</p>
-      <p style="margin-left:1rem"><code>C(n, r) = ∏(i=1..r) (n - r + i) / i</code></p>
-      <p>을 그대로 구현했습니다. 먼저 <code>r</code>을 더 작은 쪽(<code>min(r, n-r)</code>)으로 바꿔 곱·나눗셈 횟수를 줄입니다(대칭성 <code>C(n, r) = C(n, n-r)</code>). 그다음 반복문에서 매 회차마다 <em>분자 하나</em>와 <em>분모 하나</em>를 처리합니다:</p>
+      <p><strong>계산 방법(팩토리얼 회피)</strong> — 등가식 <code>C(n, r) = Π (n - r + i) / i  (i=1..r)</code>을 그대로 구현한다. 먼저 대칭성 <code>C(n, r) = C(n, n-r)</code>을 이용해 <code>r ← min(r, n-r)</code>로 줄인다. 그런 다음 반복문에서 매 회차에 분자 하나와 분모 하나를 처리한다.</p>
       
       <ul>
-        <li><code>east - west + i</code> → 분자 <code>(n - r + i)</code></li>
-        <li><code>i</code> → 분모 <code>i</code></li>
-        <li><code>result = result.multiply(...).divide(...)</code> → 누적 곱에 분자/분모를 차례로 반영</li>
+        <li><code>west = Math.min(west, east - west)</code> → <code>r = min(r, n - r)</code>로 축소한다.</li>
+        <li><code>for (int i = 1; i <= west; i++)</code> → <code>i = 1..r</code>을 순회한다.</li>
+        <li><code>east - west + i</code> → 분자 <code>(n - r + i)</code>에 해당한다.</li>
+        <li><code>result = result.multiply(...).divide(...)</code> → 누적값에 <code>× (분자) ÷ (분모)</code>를 순서대로 반영한다.</li>
       </ul>
       
-      <p>이렇게 하면 매 단계가 <code>result = result × (분자/분모)</code> 형태로 누적되며, 루프가 끝나면 정확히 <code>C(n, r)</code>가 됩니다. 팩토리얼 전체를 만들지 않기 때문에 중간 값이 불필요하게 커지지 않고, 오버플로우 위험도 없습니다.</p>
-      
-      <p><strong>입출력 최적화(StringBuilder)</strong> — 테스트 케이스가 여러 개일 때 <code>System.out.println()</code>을 반복 호출하면 I/O 비용이 커질 수 있습니다. 그래서 각 케이스의 결과를 <code>StringBuilder</code>로 이어 붙였다가(<code>append</code>) 마지막에 한 번에 출력합니다. 논리 결과는 같지만, 채점 환경에서 일반적으로 더 빠르고 안정적입니다.</p>
+      <p><strong>입출력</strong> — 여러 테스트 케이스를 처리하므로 각 결과를 <code>StringBuilder</code>에 <code>append</code>로 모아 두었다가 마지막에 한 번에 출력한다. 이는 <code>println</code>을 반복 호출하는 것보다 I/O 비용이 작다.</p>
       
       <p><strong>예시</strong></p>
       <pre><code>입력
@@ -70,12 +67,12 @@
       5
       67863915
       </code></pre>
-
+      
       <p><strong>요약</strong></p>
       <ul>
-        <li>문제는 결국 조합 <code>C(M, N)</code> 계산이다.</li>
-        <li><code>BigInteger</code>로 곱하면서 즉시 나누는 방식(<code>∏ (n - r + i) / i</code>)을 구현해 오버플로우 없이 정확하게 구한다.</li>
-        <li><code>StringBuilder</code>로 결과를 모아 한 번에 출력해 I/O 부담을 줄인다.</li>
+        <li>문제는 조합 <code>C(M, N)</code> 계산이다.</li>
+        <li>등가식 <code>∏ (n - r + i) / i</code>로 직접 곱하며 나눠 오버플로우를 피한다.</li>
+        <li><code>BigInteger</code>로 정확도를 보장하고, <code>StringBuilder</code>로 출력 효율을 높인다.</li>
       </ul>
 
 
