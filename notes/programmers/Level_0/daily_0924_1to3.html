@@ -24,93 +24,88 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-23 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-09-24 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 문자열 뒤집기</h2>
+      <h2 class="section">문제 1 — 문자 개수 세기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181905">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181902">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-      주어진 문자열에서 인덱스 <code>s</code>부터 <code>e</code>까지의 부분 문자열을 잘라낸 뒤, 
-      이를 뒤집어서 다시 원래 문자열에 붙여 넣는 방식으로 문제를 해결했다.
+      주어진 문자열을 순회하면서 각 문자가 대문자인지 소문자인지 판별한 뒤, 
+      문제에서 요구하는 52칸짜리 배열의 해당 인덱스를 증가시키는 방식으로 해결했다.
       </p>
       <p>
-      가장 간단한 방법은 세 부분(<code>substring(0, s)</code>, <code>substring(s, e+1)</code>, 
-      <code>substring(e+1)</code>)으로 나누고, 중간 부분만 뒤집은 뒤 이어 붙이는 방식이다. 
+      구체적으로, 대문자는 <code>'A'</code>를 기준으로 빼서 <code>0~25</code> 인덱스에 매핑하고, 
+      소문자는 <code>'a'</code>를 기준으로 빼서 <code>26~51</code> 인덱스에 매핑하면 된다. 
+      이렇게 하면 <code>A~Z</code>, <code>a~z</code>의 빈도를 각각 배열에 저장할 수 있다.
       </p>
       <p>
-      추가적으로, <code>toCharArray()</code>를 이용해 문자 배열로 변환한 뒤, 
-      양 끝에서 서로 교환하는 투 포인터(two-pointer) 방식으로도 구현할 수 있다. 
-      이 방법은 별도의 문자열 객체를 새로 만들지 않아 효율적이다.
-      </p>
-      <p>
-      또는 <code>StringBuilder</code> 하나만 사용하여 <code>setCharAt()</code>으로 직접 교환하는 방법도 가능하다.
-      상황에 따라 가장 읽기 쉽고 유지보수하기 좋은 방식을 선택하면 된다.
+      추가적으로, <code>Map&lt;Character, Integer&gt;</code>을 활용하는 방법도 있다. 
+      각 문자의 빈도를 <code>getOrDefault()</code>로 누적한 뒤, 
+      최종적으로 <code>for</code>문을 돌면서 <code>A~Z</code>, <code>a~z</code> 순서에 맞게 
+      배열로 변환하면 문제 조건을 만족시킬 수 있다. 
+      이 방식은 유연하지만, 변환 과정이 필요하므로 단순히 배열을 직접 채우는 방식이 더 직관적이다.
       </p>
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 세로 읽기</h2>
+      <h2 class="section">문제 2 — 배열 만들기 1</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181904">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181901">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-      문자열을 <code>m</code>개씩 끊어 가로로 채운다고 생각하면, 
-      <code>c</code>번째 열에 해당하는 문자들만 세로로 읽어 오면 된다.
+        1부터 <code>n</code>까지의 정수 중에서 <code>k</code>의 배수만 뽑아 배열로 반환하는 문제다.
+        배수의 개수는 정확히 <code>n / k</code>개이므로, 먼저 그 크기만큼 배열을 잡아두고(<code>int[] answer = new int[n / k]</code>),
+        인덱스 변수 <code>idx</code>를 이용해 채워 넣는다.
       </p>
       <p>
-      굳이 2차원 배열을 만들 필요 없이, 인덱스 규칙을 이용할 수 있다. 
-      세로로 읽히는 위치는 <code>c - 1</code>, <code>c - 1 + m</code>, 
-      <code>c - 1 + 2m</code>, … 처럼 <code>m</code>씩 증가한다.
+        구현은 1부터 <code>n</code>까지 순회하며(<code>for (int i = 1; i &le; n; i++)</code>) 
+        <code>i % k == 0</code>인 값들만 <code>answer[idx++] = i;</code>로 담으면 된다.
+        이렇게 하면 조건을 만족하는 값들만 순서대로 배열에 저장된다.
       </p>
       <p>
-      따라서 반복문을 <code>for (int i = c - 1; i &lt; my_string.length(); i += m)</code> 
-      형태로 돌리면서 <code>my_string.charAt(i)</code>를 <code>StringBuilder</code>에 붙여주면 된다.
-      </p>
-      <p>
-      이 방법은 문자열을 여러 번 잘라 만들 필요가 없어서 간단하고 효율적이다. 
-      추가적으로, 전체 문자를 순회하면서 <code>i % m == c - 1</code> 조건을 만족하는 
-      문자만 골라 붙이는 방식으로도 구현할 수 있다.
+        시간 복잡도는 전체를 한 번 도는 <code>O(n)</code>, 추가 공간은 결과 배열 <code>O(n/k)</code>이다.
       </p>
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — qr code</h2>
+      <h2 class="section">문제 3 — 글자 지우기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181903">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181900">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-      문자열 전체를 순회하면서 <code>i % q == r</code>인 인덱스의 문자만 
-      <code>StringBuilder</code>에 붙이는 방식으로 문제를 해결했다. 
-      구현이 단순하고 직관적이라는 장점이 있다.
+      주어진 문자열 <code>my_string</code>에서 <code>indices</code> 배열에 해당하는 위치의 문자들을 삭제한 결과를 반환하는 문제다.
       </p>
       <p>
-      추가적으로, 반복문의 시작점을 <code>r</code>로 두고 
-      <code>i += q</code>씩 증가시키며 필요한 문자만 직접 가져오는 방법도 가능하다. 
-      이 방식은 조건 검사가 필요 없으므로 약간 더 효율적이다.
+      처음에는 <code>StringBuilder</code>를 이용해 <code>deleteCharAt()</code>으로 지우는 방식을 생각했지만, 
+      앞에서 문자가 삭제되면 뒤쪽 인덱스가 당겨지는 문제가 있었다. 
+      이를 해결하려면 인덱스를 정렬한 뒤 뒤에서부터 차례대로 삭제해야 한다.
       </p>
       <p>
-      두 방법 모두 결과는 동일하며, 상황에 따라 가독성과 효율성 중 원하는 쪽을 선택하면 된다.
+      보다 직관적인 방법으로는, 삭제해야 할 인덱스를 <code>Set</code>에 담아두고 
+      문자열 전체를 순회하면서 해당 인덱스가 <code>Set</code>에 없는 경우에만 
+      <code>StringBuilder</code>에 추가하는 방식이다. 
+      이 접근은 인덱스 꼬임 문제를 피할 수 있고 코드 가독성도 좋다.
       </p>
       
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
