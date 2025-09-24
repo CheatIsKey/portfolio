@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-09-23 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 문자열 뒤집기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181905">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+      주어진 문자열에서 인덱스 <code>s</code>부터 <code>e</code>까지의 부분 문자열을 잘라낸 뒤, 
+      이를 뒤집어서 다시 원래 문자열에 붙여 넣는 방식으로 문제를 해결했다.
+      </p>
+      <p>
+      가장 간단한 방법은 세 부분(<code>substring(0, s)</code>, <code>substring(s, e+1)</code>, 
+      <code>substring(e+1)</code>)으로 나누고, 중간 부분만 뒤집은 뒤 이어 붙이는 방식이다. 
+      </p>
+      <p>
+      추가적으로, <code>toCharArray()</code>를 이용해 문자 배열로 변환한 뒤, 
+      양 끝에서 서로 교환하는 투 포인터(two-pointer) 방식으로도 구현할 수 있다. 
+      이 방법은 별도의 문자열 객체를 새로 만들지 않아 효율적이다.
+      </p>
+      <p>
+      또는 <code>StringBuilder</code> 하나만 사용하여 <code>setCharAt()</code>으로 직접 교환하는 방법도 가능하다.
+      상황에 따라 가장 읽기 쉽고 유지보수하기 좋은 방식을 선택하면 된다.
+      </p>
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 세로 읽기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181904">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+      문자열을 <code>m</code>개씩 끊어 가로로 채운다고 생각하면, 
+      <code>c</code>번째 열에 해당하는 문자들만 세로로 읽어 오면 된다.
+      </p>
+      <p>
+      굳이 2차원 배열을 만들 필요 없이, 인덱스 규칙을 이용할 수 있다. 
+      세로로 읽히는 위치는 <code>c - 1</code>, <code>c - 1 + m</code>, 
+      <code>c - 1 + 2m</code>, … 처럼 <code>m</code>씩 증가한다.
+      </p>
+      <p>
+      따라서 반복문을 <code>for (int i = c - 1; i &lt; my_string.length(); i += m)</code> 
+      형태로 돌리면서 <code>my_string.charAt(i)</code>를 <code>StringBuilder</code>에 붙여주면 된다.
+      </p>
+      <p>
+      이 방법은 문자열을 여러 번 잘라 만들 필요가 없어서 간단하고 효율적이다. 
+      추가적으로, 전체 문자를 순회하면서 <code>i % m == c - 1</code> 조건을 만족하는 
+      문자만 골라 붙이는 방식으로도 구현할 수 있다.
+      </p>
+
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — qr code</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181903">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0923_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+      문자열 전체를 순회하면서 <code>i % q == r</code>인 인덱스의 문자만 
+      <code>StringBuilder</code>에 붙이는 방식으로 문제를 해결했다. 
+      구현이 단순하고 직관적이라는 장점이 있다.
+      </p>
+      <p>
+      추가적으로, 반복문의 시작점을 <code>r</code>로 두고 
+      <code>i += q</code>씩 증가시키며 필요한 문자만 직접 가져오는 방법도 가능하다. 
+      이 방식은 조건 검사가 필요 없으므로 약간 더 효율적이다.
+      </p>
+      <p>
+      두 방법 모두 결과는 동일하며, 상황에 따라 가독성과 효율성 중 원하는 쪽을 선택하면 된다.
+      </p>
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
