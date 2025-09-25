@@ -39,10 +39,10 @@
 
       <h3 class="section">해설</h3>
       <p><strong>핵심 아이디어</strong> — 어떤 문자가 한 번 끊겼다가(직전 문자와 달라진 뒤) 다시 나타나면
-      그 단어는 <em>그룹 단어가 아니다</em>. 반대로, 각 문자는 오직 한 번의 연속 구간(덩어리)으로만 나와야 한다.</p>
+      그 단어는 그룹 단어가 아니다. 반대로, 각 문자는 오직 한 번의 연속 구간(덩어리)으로만 나와야 한다.</p>
       
       <p><strong>상태 관리</strong> — 현재 진행 중인 문자 하나(<code>prev</code>)와,
-      이미 한 번이라도 등장해 덩어리가 <em>끝난 적 있는지</em>를 기록하는 불리언 배열 <code>visited[26]</code>만 있으면 충분하다.
+      이미 한 번이라도 등장해 덩어리가 끝난 적 있는지를 기록하는 불리언 배열 <code>visited[26]</code>만 있으면 충분하다.
       문자가 바뀌는 순간(<code>prev != c</code>) 그 새 문자 <code>c</code>가 <code>visited</code>에 이미 표시돼 있었다면 규칙 위반이다.</p>
       
       <p><strong>알고리즘</strong></p>
@@ -82,7 +82,7 @@
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 올해 전체 시간을 <em>분 단위</em>로 환산하고,
+      <p><strong>핵심 아이디어</strong> — 올해 전체 시간을 분 단위로 환산하고,
       1월 1일 00:00부터 현재 시각까지 지난 분을 계산한 뒤
       <code>(지난 분 ÷ 전체 분) × 100</code>으로 백분율을 구한다.
       윤년이면 전체 분(분모)이 하루(1440분) 더 많아진다는 점만 주의하면 된다.</p>
@@ -99,16 +99,16 @@
       
       <p><strong>달 직전까지 누적 일수</strong> — 평년 기준 누적합 배열
       <code>cum = {0,31,59,90,120,151,181,212,243,273,304,334}</code>를 사용해
-      <code>d = cum[month-1]</code>로 <em>m월 시작 전까지</em>의 일수를 얻는다.
+      <code>d = cum[month-1]</code>로 m월 시작 전까지의 일수를 얻는다.
       윤년이고 <code>m &gt; 2</code>(3월 이후)이면 2월이 하루 더 있으므로 <code>d += 1</code>로 보정한다.</p>
       
       <p><strong>진행률 계산</strong></p>
       <ul>
-        <li><em>전체 분(분모)</em> : <code>total = daysInYear × 24 × 60</code></li>
-        <li><em>지나간 일수</em> : <code>daysPassed = daysBeforeMonth(year, month) + (day - 1)</code></li>
-        <li><em>지난 분(분자)</em> :
+        <li>전체 분(분모) : <code>total = daysInYear × 24 × 60</code></li>
+        <li>지나간 일수 : <code>daysPassed = daysBeforeMonth(year, month) + (day - 1)</code></li>
+        <li>지난 분(분자) :
           <code>passed = daysPassed × 24 × 60 + hour × 60 + minute</code></li>
-        <li><em>백분율</em> : <code>percent = passed / total × 100</code></li>
+        <li>백분율 : <code>percent = passed / total × 100</code></li>
       </ul>
       
       <p><strong>엣지 케이스</strong></p>
@@ -122,7 +122,7 @@
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>연간 전체 시간과 현재까지의 누적 시간을 <em>분 단위</em>로 맞춘 다음 비율을 계산한다.</li>
+        <li>연간 전체 시간과 현재까지의 누적 시간을 분 단위로 맞춘 다음 비율을 계산한다.</li>
         <li>윤년 여부(365/366)와 3월 이후의 +1 보정이 핵심.</li>
         <li>파싱은 <code>Month DD, YYYY HH:MM</code> 형식을 그대로 따라 처리한다.</li>
       </ul>
