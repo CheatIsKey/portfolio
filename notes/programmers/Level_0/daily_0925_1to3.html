@@ -24,88 +24,105 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-24 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-09-25 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 문자 개수 세기</h2>
+      <h2 class="section">문제 1 — 카운트 다운</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181902">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181899">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-      주어진 문자열을 순회하면서 각 문자가 대문자인지 소문자인지 판별한 뒤, 
-      문제에서 요구하는 52칸짜리 배열의 해당 인덱스를 증가시키는 방식으로 해결했다.
+        주어진 구간 <code>[start_num, end_num]</code>에서 <code>start_num</code>부터 1씩 감소시키며 
+        배열에 담아 반환하는 문제다.
       </p>
       <p>
-      구체적으로, 대문자는 <code>'A'</code>를 기준으로 빼서 <code>0~25</code> 인덱스에 매핑하고, 
-      소문자는 <code>'a'</code>를 기준으로 빼서 <code>26~51</code> 인덱스에 매핑하면 된다. 
-      이렇게 하면 <code>A~Z</code>, <code>a~z</code>의 빈도를 각각 배열에 저장할 수 있다.
+        두 수의 차이를 이용해 결과 배열의 크기를 먼저 계산할 수 있다. 
+        구체적으로 <code>start_num - end_num + 1</code>개의 원소가 필요하므로, 
+        이 길이를 가진 배열을 미리 생성한다.
       </p>
       <p>
-      추가적으로, <code>Map&lt;Character, Integer&gt;</code>을 활용하는 방법도 있다. 
-      각 문자의 빈도를 <code>getOrDefault()</code>로 누적한 뒤, 
-      최종적으로 <code>for</code>문을 돌면서 <code>A~Z</code>, <code>a~z</code> 순서에 맞게 
-      배열로 변환하면 문제 조건을 만족시킬 수 있다. 
-      이 방식은 유연하지만, 변환 과정이 필요하므로 단순히 배열을 직접 채우는 방식이 더 직관적이다.
+        이후 <code>for</code>문을 돌면서 <code>start_num</code>에서 시작해 
+        매 반복마다 1씩 줄여가며 배열에 채워 넣으면 된다. 
+        인덱스 <code>i</code>번째 원소에는 <code>start_num - i</code>를 저장하는 식으로 구현하면 깔끔하다.
+      </p>
+      <p>
+        시간 복잡도는 배열을 한 번 채우는 <code>O(n)</code>, 
+        추가 공간은 결과 배열 <code>O(n)</code>으로 충분하다.
       </p>
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 배열 만들기 1</h2>
+      <h2 class="section">문제 2 — 가까운 1 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181901">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181898">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        1부터 <code>n</code>까지의 정수 중에서 <code>k</code>의 배수만 뽑아 배열로 반환하는 문제다.
-        배수의 개수는 정확히 <code>n / k</code>개이므로, 먼저 그 크기만큼 배열을 잡아두고(<code>int[] answer = new int[n / k]</code>),
-        인덱스 변수 <code>idx</code>를 이용해 채워 넣는다.
+        주어진 배열 <code>arr</code>과 시작 위치 <code>idx</code>가 있을 때, 
+        <code>idx</code> 이후에서 가장 가까운 값이 <code>1</code>인 원소의 인덱스를 반환하는 문제다.
       </p>
       <p>
-        구현은 1부터 <code>n</code>까지 순회하며(<code>for (int i = 1; i &le; n; i++)</code>) 
-        <code>i % k == 0</code>인 값들만 <code>answer[idx++] = i;</code>로 담으면 된다.
-        이렇게 하면 조건을 만족하는 값들만 순서대로 배열에 저장된다.
+        풀이 방법은 간단하다. 먼저 <code>idx</code>부터 배열 끝까지 순회하면서 
+        원소가 <code>1</code>인 지점을 찾는다. 
+        가장 먼저 발견되는 순간 그 인덱스를 반환하면 된다.
       </p>
       <p>
-        시간 복잡도는 전체를 한 번 도는 <code>O(n)</code>, 추가 공간은 결과 배열 <code>O(n/k)</code>이다.
+        만약 끝까지 순회했는데 <code>1</code>을 발견하지 못했다면, 
+        조건에 맞는 값이 없으므로 <code>-1</code>을 반환한다.
+      </p>
+      <p>
+        시간 복잡도는 최악의 경우 배열 전체를 한 번 도는 <code>O(n)</code>, 
+        추가 공간은 사용하지 않으므로 <code>O(1)</code>이다.
       </p>
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 글자 지우기</h2>
+      <h2 class="section">문제 3 — 리스트 자르기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181900">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181897">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0924_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-      주어진 문자열 <code>my_string</code>에서 <code>indices</code> 배열에 해당하는 위치의 문자들을 삭제한 결과를 반환하는 문제다.
+        주어진 배열 <code>num_list</code>에서 슬라이싱 정보를 담은 <code>slicer = {a, b, c}</code>와 모드 <code>n</code>에 따라
+        부분 배열을 잘라 반환하는 문제다. 파이썬의 슬라이싱 문법과 달리 자바에서는
+        <code>Arrays.copyOfRange()</code>와 직접 순회를 조합해 구현한다.
       </p>
       <p>
-      처음에는 <code>StringBuilder</code>를 이용해 <code>deleteCharAt()</code>으로 지우는 방식을 생각했지만, 
-      앞에서 문자가 삭제되면 뒤쪽 인덱스가 당겨지는 문제가 있었다. 
-      이를 해결하려면 인덱스를 정렬한 뒤 뒤에서부터 차례대로 삭제해야 한다.
+        규칙은 다음과 같다.
+      </p>
+      <ul>
+        <li><code>n == 1</code> → <code>num_list[0..b]</code></li>
+        <li><code>n == 2</code> → <code>num_list[a..끝]</code></li>
+        <li><code>n == 3</code> → <code>num_list[a..b]</code></li>
+        <li><code>n == 4</code> → <code>num_list[a..b]</code> 구간에서 간격 <code>c</code>로 추출</li>
+      </ul>
+      <p>
+        구현 포인트는 두 가지다. 첫째, <code>Arrays.copyOfRange(arr, from, to)</code>는
+        <code>from &le; i &lt; to</code> 범위를 반환하므로, 상한 <code>b</code>를 포함하려면
+        <code>to = b + 1</code>로 지정해야 한다. 둘째, 간격 <code>c</code>가 필요한
+        <code>n == 4</code>의 경우에는 범용 슬라이서가 없으므로 <code>for (int i = a; i &le; b; i += c)</code>로
+        직접 인덱스를 건너뛰며 선택하고, 임시 리스트에 담았다가 <code>int[]</code>로 변환한다.
       </p>
       <p>
-      보다 직관적인 방법으로는, 삭제해야 할 인덱스를 <code>Set</code>에 담아두고 
-      문자열 전체를 순회하면서 해당 인덱스가 <code>Set</code>에 없는 경우에만 
-      <code>StringBuilder</code>에 추가하는 방식이다. 
-      이 접근은 인덱스 꼬임 문제를 피할 수 있고 코드 가독성도 좋다.
+        시간 복잡도는 잘라내는 구간 길이를 <code>m</code>이라 할 때 각 경우 모두 <code>O(m)</code>,
+        추가 공간은 반환 배열에 해당하는 <code>O(m)</code>이다.
       </p>
       
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
