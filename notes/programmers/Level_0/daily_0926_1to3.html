@@ -24,105 +24,113 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-25 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-09-26 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 카운트 다운</h2>
+      <h2 class="section">문제 1 — 첫 번째로 나오는 음수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181899">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181896">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0926_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 구간 <code>[start_num, end_num]</code>에서 <code>start_num</code>부터 1씩 감소시키며 
-        배열에 담아 반환하는 문제다.
+        배열 <code>num_list</code>를 왼쪽부터 차례대로 순회하면서 
+        처음으로 <code>0</code>보다 작은 값(<code>num &lt; 0</code>)이 등장하는 위치의 인덱스를 즉시 반환하는 방식이다.
+        구체적으로 인덱스 <code>i = 0</code>부터 <code>num_list.length - 1</code>까지 반복하며
+        <code>num_list[i] &lt; 0</code>이면 곧바로 <code>i</code>를 반환하고,
+        끝까지 찾지 못하면 <code>-1</code>을 반환한다.
       </p>
       <p>
-        두 수의 차이를 이용해 결과 배열의 크기를 먼저 계산할 수 있다. 
-        구체적으로 <code>start_num - end_num + 1</code>개의 원소가 필요하므로, 
-        이 길이를 가진 배열을 미리 생성한다.
+        이 방법은 인덱스가 증가하는 순서대로 검사하므로,
+        반환되는 값이 “처음(가장 왼쪽)으로 등장하는 음수의 인덱스”임이 보장된다.
+        또한 조건을 만족하는 순간 탐색을 멈추기 때문에 불필요한 연산을 줄일 수 있다.
       </p>
-      <p>
-        이후 <code>for</code>문을 돌면서 <code>start_num</code>에서 시작해 
-        매 반복마다 1씩 줄여가며 배열에 채워 넣으면 된다. 
-        인덱스 <code>i</code>번째 원소에는 <code>start_num - i</code>를 저장하는 식으로 구현하면 깔끔하다.
-      </p>
-      <p>
-        시간 복잡도는 배열을 한 번 채우는 <code>O(n)</code>, 
-        추가 공간은 결과 배열 <code>O(n)</code>으로 충분하다.
-      </p>
+      <ul>
+        <li>배열이 비어 있으면 반복이 한 번도 실행되지 않아 <code>-1</code>을 반환한다.</li>
+        <li>첫 원소가 음수면 즉시 <code>0</code>을 반환한다.</li>
+        <li>반복 범위는 <code>i &lt; num_list.length</code>로 설정해 인덱스 범위를 벗어나지 않도록 한다.</li>
+      </ul>
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 가까운 1 찾기</h2>
+      <h2 class="section">문제 2 — 배열 만들기 3</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181898">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181895">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0926_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 배열 <code>arr</code>과 시작 위치 <code>idx</code>가 있을 때, 
-        <code>idx</code> 이후에서 가장 가까운 값이 <code>1</code>인 원소의 인덱스를 반환하는 문제다.
+        주어진 배열 <code>arr</code>에서 두 구간 <code>[a, b]</code>, <code>[c, d]</code>를 잘라낸 뒤 
+        이어붙여 반환하는 문제다. 
+        풀이 접근은 비교적 단순하다. 
+        우선 <code>intervals</code> 배열을 순회하면서 각 구간의 시작과 끝 인덱스를 꺼내온다. 
+        그리고 해당 범위를 <code>for</code>문으로 돌면서 원소를 하나씩 리스트에 추가한다. 
+        마지막에 리스트를 <code>int[]</code>로 변환하면 정답 배열을 얻을 수 있다.
       </p>
       <p>
-        풀이 방법은 간단하다. 먼저 <code>idx</code>부터 배열 끝까지 순회하면서 
-        원소가 <code>1</code>인 지점을 찾는다. 
-        가장 먼저 발견되는 순간 그 인덱스를 반환하면 된다.
+        이 방식은 자바에서 파이썬처럼 <code>[start:end]</code> 슬라이싱 문법이 없다는 점을 고려해, 
+        직접 반복문으로 잘라내는 아이디어다. 
+        다만 이때 주의할 점은 인덱스 자체(<code>i</code>)를 리스트에 넣는 것이 아니라 
+        반드시 배열 값(<code>arr[i]</code>)을 넣어야 한다는 것이다. 
+        그렇지 않으면 원하는 구간의 값이 아니라 단순히 숫자 인덱스 나열이 되기 때문이다.
       </p>
       <p>
-        만약 끝까지 순회했는데 <code>1</code>을 발견하지 못했다면, 
-        조건에 맞는 값이 없으므로 <code>-1</code>을 반환한다.
+        시간 복잡도는 자르는 구간의 길이를 <code>m</code>이라고 할 때 <code>O(m)</code>, 
+        추가 공간은 반환 배열에 해당하는 <code>O(m)</code>이 필요하다.
       </p>
       <p>
-        시간 복잡도는 최악의 경우 배열 전체를 한 번 도는 <code>O(n)</code>, 
-        추가 공간은 사용하지 않으므로 <code>O(1)</code>이다.
+        추가적으로, 자바 표준 라이브러리에는 <code>Arrays.copyOfRange()</code>라는 
+        슬라이싱 메서드가 제공되므로 이를 활용해 코드를 더 간결하게 만들 수 있다. 
+        두 구간을 각각 <code>copyOfRange()</code>로 잘라낸 뒤 
+        <code>System.arraycopy()</code>나 <code>IntStream.concat()</code>으로 합치는 방법도 있다. 
+        이번 문제를 풀면서 이런 방식도 있다는 것을 함께 배웠다.
       </p>
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 리스트 자르기</h2>
+      <h2 class="section">문제 3 — 2의 영역</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181897">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181894">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0926_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 배열 <code>num_list</code>에서 슬라이싱 정보를 담은 <code>slicer = {a, b, c}</code>와 모드 <code>n</code>에 따라
-        부분 배열을 잘라 반환하는 문제다. 파이썬의 슬라이싱 문법과 달리 자바에서는
-        <code>Arrays.copyOfRange()</code>와 직접 순회를 조합해 구현한다.
+        배열 <code>arr</code>에서 값이 <code>2</code>인 원소가 등장하는 구간을 잘라내어 반환하는 문제다.
+        조건은 다음과 같다. 
+        <ul>
+          <li>만약 <code>2</code>가 한 번도 없다면 <code>[-1]</code>을 반환한다.</li>
+          <li><code>2</code>가 한 번 이상 존재한다면, 가장 처음 나타난 <code>2</code>의 위치부터 마지막 <code>2</code>의 위치까지 잘라낸 부분 배열을 반환한다.</li>
+        </ul>
       </p>
       <p>
-        규칙은 다음과 같다.
-      </p>
-      <ul>
-        <li><code>n == 1</code> → <code>num_list[0..b]</code></li>
-        <li><code>n == 2</code> → <code>num_list[a..끝]</code></li>
-        <li><code>n == 3</code> → <code>num_list[a..b]</code></li>
-        <li><code>n == 4</code> → <code>num_list[a..b]</code> 구간에서 간격 <code>c</code>로 추출</li>
-      </ul>
-      <p>
-        구현 포인트는 두 가지다. 첫째, <code>Arrays.copyOfRange(arr, from, to)</code>는
-        <code>from &le; i &lt; to</code> 범위를 반환하므로, 상한 <code>b</code>를 포함하려면
-        <code>to = b + 1</code>로 지정해야 한다. 둘째, 간격 <code>c</code>가 필요한
-        <code>n == 4</code>의 경우에는 범용 슬라이서가 없으므로 <code>for (int i = a; i &le; b; i += c)</code>로
-        직접 인덱스를 건너뛰며 선택하고, 임시 리스트에 담았다가 <code>int[]</code>로 변환한다.
+        풀이 방식은 단순하다. 먼저 <code>start</code>와 <code>end</code>를 <code>-1</code>로 초기화하여
+        아직 <code>2</code>를 발견하지 못한 상태를 표시한다. 
+        배열을 왼쪽부터 순회하면서 값이 <code>2</code>인 원소를 만날 때마다,
+        <code>start</code>가 <code>-1</code>인 경우라면 첫 번째 등장이므로 <code>start</code>를 기록하고,
+        이후로는 계속 <code>end</code>를 갱신하여 마지막 <code>2</code>의 위치를 추적한다.
       </p>
       <p>
-        시간 복잡도는 잘라내는 구간 길이를 <code>m</code>이라 할 때 각 경우 모두 <code>O(m)</code>,
-        추가 공간은 반환 배열에 해당하는 <code>O(m)</code>이다.
+        순회를 마치고 <code>start == -1</code>이라면 배열에 <code>2</code>가 한 번도 없다는 뜻이므로 <code>[-1]</code>을 반환한다. 
+        그렇지 않다면 <code>Arrays.copyOfRange(arr, start, end + 1)</code>을 이용해 
+        <code>start</code>부터 <code>end</code>까지 구간을 잘라 반환한다.
+        이때 <code>copyOfRange</code>는 상한이 미포함이므로 반드시 <code>end + 1</code>을 지정해야 한다.
+      </p>
+      <p>
+        시간 복잡도는 배열을 한 번 도는 <code>O(n)</code>, 
+        추가 공간은 결과 배열 크기 <code>O(k)</code> (여기서 <code>k = end - start + 1</code>)이다.
       </p>
       
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
