@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-09-25 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 카운트 다운</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181899">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        주어진 구간 <code>[start_num, end_num]</code>에서 <code>start_num</code>부터 1씩 감소시키며 
+        배열에 담아 반환하는 문제다.
+      </p>
+      <p>
+        두 수의 차이를 이용해 결과 배열의 크기를 먼저 계산할 수 있다. 
+        구체적으로 <code>start_num - end_num + 1</code>개의 원소가 필요하므로, 
+        이 길이를 가진 배열을 미리 생성한다.
+      </p>
+      <p>
+        이후 <code>for</code>문을 돌면서 <code>start_num</code>에서 시작해 
+        매 반복마다 1씩 줄여가며 배열에 채워 넣으면 된다. 
+        인덱스 <code>i</code>번째 원소에는 <code>start_num - i</code>를 저장하는 식으로 구현하면 깔끔하다.
+      </p>
+      <p>
+        시간 복잡도는 배열을 한 번 채우는 <code>O(n)</code>, 
+        추가 공간은 결과 배열 <code>O(n)</code>으로 충분하다.
+      </p>
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 가까운 1 찾기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181898">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        주어진 배열 <code>arr</code>과 시작 위치 <code>idx</code>가 있을 때, 
+        <code>idx</code> 이후에서 가장 가까운 값이 <code>1</code>인 원소의 인덱스를 반환하는 문제다.
+      </p>
+      <p>
+        풀이 방법은 간단하다. 먼저 <code>idx</code>부터 배열 끝까지 순회하면서 
+        원소가 <code>1</code>인 지점을 찾는다. 
+        가장 먼저 발견되는 순간 그 인덱스를 반환하면 된다.
+      </p>
+      <p>
+        만약 끝까지 순회했는데 <code>1</code>을 발견하지 못했다면, 
+        조건에 맞는 값이 없으므로 <code>-1</code>을 반환한다.
+      </p>
+      <p>
+        시간 복잡도는 최악의 경우 배열 전체를 한 번 도는 <code>O(n)</code>, 
+        추가 공간은 사용하지 않으므로 <code>O(1)</code>이다.
+      </p>
+
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 리스트 자르기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181897">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_0925_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        주어진 배열 <code>num_list</code>에서 슬라이싱 정보를 담은 <code>slicer = {a, b, c}</code>와 모드 <code>n</code>에 따라
+        부분 배열을 잘라 반환하는 문제다. 파이썬의 슬라이싱 문법과 달리 자바에서는
+        <code>Arrays.copyOfRange()</code>와 직접 순회를 조합해 구현한다.
+      </p>
+      <p>
+        규칙은 다음과 같다.
+      </p>
+      <ul>
+        <li><code>n == 1</code> → <code>num_list[0..b]</code></li>
+        <li><code>n == 2</code> → <code>num_list[a..끝]</code></li>
+        <li><code>n == 3</code> → <code>num_list[a..b]</code></li>
+        <li><code>n == 4</code> → <code>num_list[a..b]</code> 구간에서 간격 <code>c</code>로 추출</li>
+      </ul>
+      <p>
+        구현 포인트는 두 가지다. 첫째, <code>Arrays.copyOfRange(arr, from, to)</code>는
+        <code>from &le; i &lt; to</code> 범위를 반환하므로, 상한 <code>b</code>를 포함하려면
+        <code>to = b + 1</code>로 지정해야 한다. 둘째, 간격 <code>c</code>가 필요한
+        <code>n == 4</code>의 경우에는 범용 슬라이서가 없으므로 <code>for (int i = a; i &le; b; i += c)</code>로
+        직접 인덱스를 건너뛰며 선택하고, 임시 리스트에 담았다가 <code>int[]</code>로 변환한다.
+      </p>
+      <p>
+        시간 복잡도는 잘라내는 구간 길이를 <code>m</code>이라 할 때 각 경우 모두 <code>O(m)</code>,
+        추가 공간은 반환 배열에 해당하는 <code>O(m)</code>이다.
+      </p>
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
