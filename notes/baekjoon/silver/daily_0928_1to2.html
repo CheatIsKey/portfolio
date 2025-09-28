@@ -87,48 +87,21 @@
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 1부터 <code>N</code>까지의 수 중에서
-      <em>가장 큰 소인수</em>(Largest Prime Factor, LPF)가 <code>K</code> 이하인 수만 세면 된다.
-      특별히 <code>1</code>은 소인수가 없으므로 항상 포함한다.</p>
+      <p><strong>핵심 아이디어</strong> — 1부터 N까지의 수를 모두 확인하면서, 각 수의 가장 큰 소인수(LPF, Largest Prime Factor)가 K 이하인 경우만 세면 된다. 특별히 1은 소인수가 없으므로 항상 포함한다.</p>
 
-      <p><strong>입력 파싱</strong> — 첫 줄에 <code>N</code>, 둘째 줄에 <code>K</code>가 주어진다.
-      구현에서는 <code>readLine()</code>으로 각 줄을 읽어 정수로 변환한다.</p>
-
+      <p><strong>입력 파싱</strong> — 첫째 줄에는 N, 둘째 줄에는 K가 주어진다. 구현에서는 <code>readLine()</code>으로 각 줄을 읽어 정수로 변환하였다.</p>
+      
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li><code>count = 0</code></li>
-        <li><code>x = 1..N</code>에 대해 반복:
-          <ul>
-            <li><code>x == 1</code>이면 LPF를 1로 보고 카운트</li>
-            <li>그 외에는 <code>largestPrimeFactor(x)</code>로 LPF 계산:
-              <ul>
-                <li><code>tmp = x</code>, <code>largest = 1</code></li>
-                <li><code>j = 2</code>부터 <code>j*j ≤ tmp</code> 동안:
-                  <ul>
-                    <li><code>tmp % j == 0</code>인 동안 <code>tmp /= j</code>, <code>largest = j</code></li>
-                  </ul>
-                </li>
-                <li>루프 종료 후 <code>tmp &gt; 1</code>이면 남은 값이 소수이므로 <code>largest = max(largest, tmp)</code></li>
-              </ul>
-            </li>
-            <li>LPF ≤ <code>K</code>이면 <code>count++</code></li>
-          </ul>
-        </li>
-        <li>최종적으로 <code>count</code> 출력</li>
+        <li>1부터 N까지 수를 순회한다.</li>
+        <li>x = 1이면 LPF = 1로 간주하고 카운트한다.</li>
+        <li>그 외의 경우는 소인수분해를 통해 가장 큰 소인수를 구한다. 2부터 √x까지 나누면서 인수를 제거할 때마다 largest를 갱신하고, 마지막에 tmp가 1보다 크면 그것을 largest로 설정한다.</li>
+        <li>LPF ≤ K이면 카운트를 증가시킨다.</li>
       </ul>
-
-      <p><strong>시간·공간 복잡도</strong> — 각 <code>x</code>마다 최대 <code>√x</code>까지만 나눠 보므로
-      최악의 경우 시간 복잡도는 대략 <code>O(∑√x) ≈ O(N√N)</code>.
-      실제로는 인수로 나눌 때마다 <code>tmp</code>가 빠르게 줄어 더 빠르게 동작한다.
-      추가 공간은 상수로 <code>O(1)</code>.</p>
-
-      <p><strong>정리</strong></p>
-      <ul>
-        <li>핵심은 “가장 큰 소인수 ≤ K” 여부 판단</li>
-        <li><code>j*j ≤ tmp</code> 조건으로 불필요한 나눗셈을 줄임</li>
-        <li>마지막에 <code>tmp &gt; 1</code>이면 그 값이 가장 큰 소인수</li>
-        <li><code>1</code>은 항상 포함</li>
-      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 각 수에 대해 √x까지만 확인하므로 전체 시간 복잡도는 O(N√N) 정도다. N은 100,000 이하라서 충분히 계산 가능하다. 추가 공간은 O(1)이다.</p>
+      
+      <p><strong>정리</strong> — 문제의 핵심은 “가장 큰 소인수 ≤ K”인지 확인하는 것이며, 제곱근까지만 나누면 충분하다. 마지막에 남는 값이 있다면 그 자체가 가장 큰 소인수라는 점도 중요하다.</p>
 
       
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
