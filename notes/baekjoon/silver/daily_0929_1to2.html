@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-09-28 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1417 — 국회의원 선거</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1417">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_0928_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p><strong>핵심 아이디어</strong> — 다솜(0번 후보)이 다른 모든 후보보다 표를 많이 얻도록 
+      표를 옮기는 최소 횟수를 구하는 문제이다. 
+      방법은 단순히 “현재 최다 득표자를 찾아서 표 1장을 빼고, 다솜에게 1장을 더한다”를 반복하면 된다. 
+      다솜의 표가 모든 후보의 표보다 커지면 종료한다.</p>
+
+      <p><strong>입력 파싱</strong> — 첫 줄은 후보 수 <code>n</code>, 
+      이어서 각 후보의 득표수가 한 줄씩 주어진다. 
+      배열에 저장하되, 다솜의 표는 변수 <code>dasom</code>으로 관리하고,
+      나머지 후보들은 배열에 그대로 둔다.</p>
+
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li><code>dasom</code> ← 첫 번째 후보의 득표수</li>
+        <li>반복:
+          <ul>
+            <li>다른 후보들 중 최댓값을 찾는다.</li>
+            <li><code>dasom</code>이 그 값보다 크면 종료.</li>
+            <li>최댓값을 가진 후보에서 표 1을 빼고, <code>dasom</code>에 1을 더한다.</li>
+            <li>횟수를 1 증가시킨다.</li>
+          </ul>
+        </li>
+        <li>최종적으로 횟수를 출력한다.</li>
+      </ul>
+
+      <p><strong>시간·공간 복잡도</strong> — 후보 수는 최대 50명이므로,
+      각 반복에서 선형 탐색으로 최댓값을 찾는 O(<code>n</code>) 연산을 수행해도 충분하다. 
+      최악의 경우 총 이동 횟수는 후보 표 수 합에 비례하므로, 전체 복잡도는 O(<code>n × 이동횟수</code>)이며
+      제한 내에서 문제없이 동작한다. 추가 메모리는 배열 O(<code>n</code>).</p>
+
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>다솜이 항상 1등이 될 때까지 최다 득표자에서 표를 뺏어온다.</li>
+        <li>후보 수가 1이면 바로 0 출력.</li>
+        <li>배열 선형 탐색으로 구현해도 충분히 빠르다.</li>
+      </ul>
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1418 — K-세준수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1418">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_0928_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p><strong>핵심 아이디어</strong> — 1부터 N까지의 수를 모두 확인하면서, 각 수의 가장 큰 소인수(LPF, Largest Prime Factor)가 K 이하인 경우만 세면 된다. 특별히 1은 소인수가 없으므로 항상 포함한다.</p>
+
+      <p><strong>입력 파싱</strong> — 첫째 줄에는 N, 둘째 줄에는 K가 주어진다. 구현에서는 <code>readLine()</code>으로 각 줄을 읽어 정수로 변환하였다.</p>
+      
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li>1부터 N까지 수를 순회한다.</li>
+        <li>x = 1이면 LPF = 1로 간주하고 카운트한다.</li>
+        <li>그 외의 경우는 소인수분해를 통해 가장 큰 소인수를 구한다. 2부터 √x까지 나누면서 인수를 제거할 때마다 largest를 갱신하고, 마지막에 tmp가 1보다 크면 그것을 largest로 설정한다.</li>
+        <li>LPF ≤ K이면 카운트를 증가시킨다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 각 수에 대해 √x까지만 확인하므로 전체 시간 복잡도는 O(N√N) 정도다. N은 100,000 이하라서 충분히 계산 가능하다. 추가 공간은 O(1)이다.</p>
+      
+      <p><strong>정리</strong> — 문제의 핵심은 “가장 큰 소인수 ≤ K”인지 확인하는 것이며, 제곱근까지만 나누면 충분하다. 마지막에 남는 값이 있다면 그 자체가 가장 큰 소인수라는 점도 중요하다.</p>
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
