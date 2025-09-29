@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[03] 코딩 — Shop — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+    .sidebar{position:sticky;top:68px;align-self:start}
+    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    .toc a{display:block;padding:6px 8px;border-radius:6px;text-decoration:none}
+    .toc a:hover{background:var(--card)}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+    .thumb{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
+    .thumb img{width:100%;height:200px;object-fit:cover;display:block}
+    .thumb figcaption{padding:8px;font-size:.9rem;color:var(--muted)}
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 03 코딩</div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="card"><div class="card-head"><strong>목차</strong></div><nav class="toc"><ul id="toc-list"></ul></nav></div>
+      <div class="card" style="margin-top:10px"><div class="card-head"><strong>Shop — 챕터</strong></div><nav id="chapters"></nav></div>
+    </aside>
+
+    <article class="prose" id="content">
+      <h1 class="section">코딩</h1>
+      <p class="muted">코드 스냅샷(이미지)과 구현 의도/설명을 정리합니다.</p>
+
+      <h2 class="section">핵심 구현 스냅샷</h2>
+      <div class="gallery">
+        <figure class="thumb">
+          <img src="/assets/projects/shop/coding/code-검색조건-01.png" alt="검색 조건 조립" loading="lazy">
+          <figcaption>QueryDSL 동적 조건 조립</figcaption>
+        </figure>
+        <!-- 추가 이미지 계속 -->
+      </div>
+
+      <h2 class="section">구현 설명</h2>
+      <ul>
+        <li>DTO 분리: API·뷰 모델과 엔티티 의존 차단</li>
+        <li>N+1 회피 전략: fetch join + batch_size</li>
+        <li>정렬/페이징: order spec 조합</li>
+      </ul>
+
+      <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+    </article>
+  </div>
+
+  <div class="card" style="margin-top:16px;padding:12px">
+    <div style="display:flex;justify-content:space-between">
+      <a class="btn ghost" id="prev">이전</a>
+      <a class="btn" id="next">다음 →</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const CH = [
+  {id:'01-requirements', title:'요구사항'},
+  {id:'02-design',       title:'설계'},
+  {id:'03-coding',       title:'코딩'},
+  {id:'04-testing',      title:'테스트'},
+  {id:'05-maintenance',  title:'유지보수'}
+];
+const CURRENT = '03-coding';
+const hrefOf = id => `/projects/shop/${id}/`;
+document.getElementById('chapters').innerHTML =
+  CH.map((c,i)=>`<a class="list-item" href="${hrefOf(c.id)}" ${c.id===CURRENT?'style="font-weight:600"':''}>
+    <span class="title">${String(i+1).padStart(2,'0')}. ${c.title}</span>
+  </a>`).join('');
+(function(){
+  const i = CH.findIndex(c=>c.id===CURRENT);
+  const prev = CH[i-1], next = CH[i+1];
+  const $prev = document.getElementById('prev'), $next = document.getElementById('next');
+  if(prev){ $prev.href=hrefOf(prev.id); $prev.textContent=`← ${prev.title}`; }
+  if(next){ $next.href=hrefOf(next.id); $next.textContent=`${next.title} →`; } else { $next.style.visibility='hidden'; }
+})();
+(function(){
+  const article = document.getElementById('content');
+  const headers = [...article.querySelectorAll('h2.section, h3.section')];
+  const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+  headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent); });
+  document.getElementById('toc-list').innerHTML = headers.map(h=>{
+    const indent = h.tagName==='H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
+    return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>
