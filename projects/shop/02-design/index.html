@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[02] 설계 — Shop — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+    .sidebar{position:sticky;top:68px;align-self:start}
+    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    .toc a{display:block;padding:6px 8px;border-radius:6px;text-decoration:none}
+    .toc a:hover{background:var(--card)}
+    .figure{border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--card)}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+    .thumb{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
+    .thumb img{width:100%;height:200px;object-fit:cover;display:block}
+    .thumb figcaption{padding:8px;font-size:.9rem;color:var(--muted)}
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 02 설계</div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="card"><div class="card-head"><strong>목차</strong></div><nav class="toc"><ul id="toc-list"></ul></nav></div>
+      <div class="card" style="margin-top:10px"><div class="card-head"><strong>Shop — 챕터</strong></div><nav id="chapters"></nav></div>
+    </aside>
+
+    <article class="prose" id="content">
+      <h1 class="section">설계</h1>
+      <p class="muted">클래스 다이어그램, ERD, 주요 아키텍처 결정을 정리합니다.</p>
+
+      <h2 class="section">클래스 다이어그램</h2>
+      <div class="figure">
+        <img src="/assets/projects/shop/class-diagram.png" alt="클래스 다이어그램" style="max-width:100%;height:auto"/>
+      </div>
+
+      <h2 class="section">ERD (있다면)</h2>
+      <div class="gallery">
+        <!-- 필요 시 이미지 추가 -->
+      </div>
+
+      <h2 class="section">아키텍처 결정(ADR 요약)</h2>
+      <ul>
+        <li>레이어드 아키텍처: Controller → Service → Repository</li>
+        <li>조회 전용 DTO 분리, 컬렉션 페치 페이징 금지 → batch_size</li>
+        <li>QueryDSL로 동적 검색 조립</li>
+      </ul>
+
+      <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+    </article>
+  </div>
+
+  <div class="card" style="margin-top:16px;padding:12px">
+    <div style="display:flex;justify-content:space-between">
+      <a class="btn ghost" id="prev">이전</a>
+      <a class="btn" id="next">다음 →</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const CH = [
+  {id:'01-requirements', title:'요구사항'},
+  {id:'02-design',       title:'설계'},
+  {id:'03-coding',       title:'코딩'},
+  {id:'04-testing',      title:'테스트'},
+  {id:'05-maintenance',  title:'유지보수'}
+];
+const CURRENT = '02-design';
+const hrefOf = id => `/projects/shop/${id}/`;
+document.getElementById('chapters').innerHTML =
+  CH.map((c,i)=>`<a class="list-item" href="${hrefOf(c.id)}" ${c.id===CURRENT?'style="font-weight:600"':''}>
+    <span class="title">${String(i+1).padStart(2,'0')}. ${c.title}</span>
+  </a>`).join('');
+(function(){
+  const i = CH.findIndex(c=>c.id===CURRENT);
+  const prev = CH[i-1], next = CH[i+1];
+  const $prev = document.getElementById('prev'), $next = document.getElementById('next');
+  if(prev){ $prev.href=hrefOf(prev.id); $prev.textContent=`← ${prev.title}`; }
+  if(next){ $next.href=hrefOf(next.id); $next.textContent=`${next.title} →`; } else { $next.style.visibility='hidden'; }
+})();
+(function(){
+  const article = document.getElementById('content');
+  const headers = [...article.querySelectorAll('h2.section, h3.section')];
+  const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+  headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent); });
+  document.getElementById('toc-list').innerHTML = headers.map(h=>{
+    const indent = h.tagName==='H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
+    return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>
