@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[01] 요구사항 분석 — Shop — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* 레이아웃: Notes의 좌측 TOC 느낌 유지 */
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+    .sidebar{position:sticky;top:68px;align-self:start}
+
+    /* 갤러리 */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .thumb{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
+    .thumb img{width:100%;height:180px;object-fit:cover;display:block}
+    .thumb figcaption{padding:8px;font-size:.9rem;color:var(--muted)}
+    .figure{border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--card)}
+
+    /* 라이트박스(바닐라) */
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:9999}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:92vw;max-height:86vh}
+    .lightbox .meta{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:#fff;font-size:.95rem;opacity:.85}
+    .lb-nav{position:fixed;inset:0;display:flex;justify-content:space-between;align-items:center}
+    .lb-btn{cursor:pointer;color:#fff;font-size:28px;padding:20px;opacity:.75}
+    .lb-btn:hover{opacity:1}
+    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    details.summary-card{border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:var(--card)}
+    details.summary-card>summary{cursor:pointer;font-weight:600}
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 01 요구사항</div>
+
+  <div class="layout">
+    <!-- 좌측 TOC: Notes 스타일 유지 -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-head"><strong>목차</strong></div>
+        <nav class="toc">
+          <ul id="toc-list"></ul>
+        </nav>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <div class="card-head"><strong>Shop — 챕터</strong></div>
+        <nav id="chapters"></nav>
+      </div>
+    </aside>
+
+    <!-- 본문 -->
+    <article class="prose" id="content">
+      <h1 class="section">요구사항 분석</h1>
+      <p class="muted">유스케이스/명세서/시퀀스 다이어그램을 중심으로 핵심 시나리오를 정리합니다.</p>
+
+      <!-- 1. 유스케이스(대표) -->
+      <h2 class="section">유스케이스 개요</h2>
+      <div class="figure">
+        <img data-lb
+             src="/assets/projects/shop/requirements/usecase/01-overview.png"
+             alt="유스케이스 다이어그램(개요)" style="max-width:100%;height:auto"/>
+        <div class="muted">고객/관리자 액터, 주문/문의/카테고리 관리의 상위 흐름</div>
+      </div>
+
+      <!-- 2. 명세서(표 스캔본) — 접기/펼치기로 묶기 -->
+      <h2 class="section">유스케이스 명세서</h2>
+      <details class="summary-card" open>
+        <summary>상품 주문 · 주문 취소 · 상품 검색 등 (요약 보기/접기)</summary>
+        <div class="gallery" data-gallery="specs">
+          <!-- 썸네일(캡션) 목록 — 파일만 교체하면 됨 -->
+          <figure class="thumb">
+            <img data-lb src="/assets/projects/shop/requirements/specs/specs-상품주문-01.png" alt="명세서-상품주문-01" loading="lazy">
+            <figcaption>상품 주문 — 기본 흐름</figcaption>
+          </figure>
+          <figure class="thumb">
+            <img data-lb src="/assets/projects/shop/requirements/specs/specs-상품주문-02.png" alt="명세서-상품주문-02" loading="lazy">
+            <figcaption>상품 주문 — 예외/대안 흐름</figcaption>
+          </figure>
+          <figure class="thumb">
+            <img data-lb src="/assets/projects/shop/requirements/specs/specs-주문취소-01.png" alt="명세서-주문취소-01" loading="lazy">
+            <figcaption>주문 취소</figcaption>
+          </figure>
+          <!-- …필요만큼 계속 추가 -->
+        </div>
+      </details>
+
+      <!-- 3. 시퀀스 다이어그램 — 주제별로 섹션 나눠 썸네일 그리드 -->
+      <h2 class="section">시퀀스 다이어그램</h2>
+      <h3 class="section">주문 흐름</h3>
+      <div class="gallery" data-gallery="seq-order">
+        <figure class="thumb">
+          <img data-lb src="/assets/projects/shop/requirements/sequence/seq-주문-01.png" alt="주문-01" loading="lazy">
+          <figcaption>장바구니 → 주문 생성</figcaption>
+        </figure>
+        <figure class="thumb">
+          <img data-lb src="/assets/projects/shop/requirements/sequence/seq-주문-02.png" alt="주문-02" loading="lazy">
+          <figcaption>결제 승인</figcaption>
+        </figure>
+        <!-- … -->
+      </div>
+
+      <h3 class="section">문의/답변 흐름</h3>
+      <div class="gallery" data-gallery="seq-support">
+        <figure class="thumb">
+          <img data-lb src="/assets/projects/shop/requirements/sequence/seq-문의-01.png" alt="문의-01" loading="lazy">
+          <figcaption>문의 등록</figcaption>
+        </figure>
+        <!-- … -->
+      </div>
+
+      <!-- 4. 품질 요구(요약) -->
+      <h2 class="section">품질 요구(비기능)</h2>
+      <ul>
+        <li>조회 성능: N+1 방지, 동적 검색, 안정적 페이징</li>
+        <li>운영성: 로그 상관관계, 장애 시 롤백/재처리 명확화</li>
+        <li>보안: 관리자 권한 분리, 입력 검증, 감춰야 할 정보 마스킹</li>
+      </ul>
+
+      <p class="muted"><a href="/projects/shop/">← Shop 챕터 목록으로</a></p>
+    </article>
+  </div>
+
+  <!-- 이전/다음 -->
+  <div class="card" style="margin-top:16px;padding:12px">
+    <div style="display:flex;justify-content:space-between">
+      <a class="btn ghost" id="prev" style="visibility:hidden">이전</a>
+      <a class="btn" id="next">다음 →</a>
+    </div>
+  </div>
+</main>
+
+<!-- 라이트박스 & TOC & 챕터 네비 스크립트 -->
+<script>
+  // --- 공통 챕터 네비 (프로젝트 전체 일관성) ---
+  const CH = [
+    {id:'01-requirements', title:'요구사항'},
+    {id:'02-analysis',     title:'분석'},
+    {id:'03-design',       title:'설계'},
+    {id:'04-implementation',title:'구현/개발 기록'},
+    {id:'05-testing',      title:'테스트'},
+    {id:'06-operations',   title:'배포/운영'},
+    {id:'07-retrospective',title:'회고'}
+  ];
+  const CURRENT = '01-requirements';
+  const $chap = document.getElementById('chapters');
+  $chap.innerHTML = CH.map((c,i)=>{
+    const num = String(i+1).padStart(2,'0');
+    const active = c.id===CURRENT ? 'style="font-weight:600"' : '';
+    return `<a ${active} class="list-item" href="/projects/shop/${c.id}.html">
+      <span class="title">${num}. ${c.title}</span>
+    </a>`;
+  }).join('');
+  // Prev/Next
+  (function(){
+    const i = CH.findIndex(c=>c.id===CURRENT);
+    const prev = CH[i-1], next = CH[i+1];
+    const $prev = document.getElementById('prev'), $next = document.getElementById('next');
+    if(prev){ $prev.style.visibility='visible'; $prev.href=`/projects/shop/${prev.id}.html`; $prev.textContent=`← ${prev.title}`; }
+    if(next){ $next.href=`/projects/shop/${next.id}.html`; $next.textContent=`${next.title} →`; }
+    else { $next.style.visibility='hidden'; }
+  })();
+
+  // --- 좌측 TOC: h2.section & h3.section만 자동 수집 (Notes와 동일 UX) ---
+  (function(){
+    const article = document.getElementById('content');
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g,'-').slice(0,64);
+    headers.forEach(h=>{ if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = headers.map(h=>{
+      const indent = h.tagName === 'H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
+      return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
+    }).join('');
+  })();
+
+  // --- 라이트박스: 모든 data-lb 이미지 클릭 확대 + 키보드 ←/→/ESC ---
+  (function(){
+    const imgs = [...document.querySelectorAll('img[data-lb]')];
+    if(!imgs.length) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.innerHTML = `
+      <div class="lb-nav">
+        <div class="lb-btn" data-act="prev">❮</div>
+        <div class="lb-btn" data-act="next">❯</div>
+      </div>
+      <img alt="preview"/>
+      <div class="meta"></div>
+    `;
+    document.body.appendChild(overlay);
+
+    let idx = 0;
+    const show = i=>{
+      idx = (i+imgs.length)%imgs.length;
+      const el = imgs[idx];
+      overlay.querySelector('img').src = el.src;
+      overlay.querySelector('img').alt = el.alt||'';
+      overlay.querySelector('.meta').textContent = el.alt||'';
+      overlay.classList.add('open');
+    };
+
+    imgs.forEach((img,i)=> img.addEventListener('click', ()=>show(i)));
+    overlay.addEventListener('click', (e)=>{
+      if(e.target.dataset.act==='prev') show(idx-1);
+      else if(e.target.dataset.act==='next') show(idx+1);
+      else if(e.target.classList.contains('lightbox')) overlay.classList.remove('open');
+    });
+    document.addEventListener('keydown', (e)=>{
+      if(!overlay.classList.contains('open')) return;
+      if(e.key==='Escape') overlay.classList.remove('open');
+      if(e.key==='ArrowLeft') show(idx-1);
+      if(e.key==='ArrowRight') show(idx+1);
+    });
+  })();
+</script>
+</body>
+</html>
