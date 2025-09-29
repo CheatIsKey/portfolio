@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[04] 테스트 — Shop — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}}
+    .sidebar{position:sticky;top:68px;align-self:start}
+    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    .toc a{display:block;padding:6px 8px;border-radius:6px;text-decoration:none}
+    .toc a:hover{background:var(--card)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid var(--border);padding:8px;text-align:left}
+    th{background:var(--card)}
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 04 테스트</div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="card"><div class="card-head"><strong>목차</strong></div><nav class="toc"><ul id="toc-list"></ul></nav></div>
+      <div class="card" style="margin-top:10px"><div class="card-head"><strong>Shop — 챕터</strong></div><nav id="chapters"></nav></div>
+    </aside>
+
+    <article class="prose" id="content">
+      <h1 class="section">테스트</h1>
+      <p class="muted">기능별 테스트 케이스와 전략을 정리합니다.</p>
+
+      <h2 class="section">전략</h2>
+      <ul>
+        <li>도메인 단위 테스트: 핵심 비즈니스 규칙</li>
+        <li>리포지토리 통합 테스트: 쿼리/성능</li>
+        <li>컨트롤러 슬라이스/인수(E2E): 주요 시나리오</li>
+      </ul>
+
+      <h2 class="section">테스트 케이스 표</h2>
+      <table>
+        <thead><tr><th>기능</th><th>시나리오</th><th>기대 결과</th></tr></thead>
+        <tbody>
+          <tr><td>상품 검색</td><td>카테고리+가격 범위</td><td>정렬·페이징 정상, N+1 없음</td></tr>
+          <tr><td>주문 생성</td><td>재고 부족</td><td>예외 처리 & 트랜잭션 롤백</td></tr>
+          <tr><td>주문 취소</td><td>배송 시작 이후</td><td>취소 불가</td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">커버리지/스냅샷(선택)</h2>
+      <p>리포트 이미지/스샷을 첨부하세요.</p>
+
+      <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+    </article>
+  </div>
+
+  <div class="card" style="margin-top:16px;padding:12px">
+    <div style="display:flex;justify-content:space-between">
+      <a class="btn ghost" id="prev">이전</a>
+      <a class="btn" id="next">다음 →</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const CH = [
+  {id:'01-requirements', title:'요구사항'},
+  {id:'02-design',       title:'설계'},
+  {id:'03-coding',       title:'코딩'},
+  {id:'04-testing',      title:'테스트'},
+  {id:'05-maintenance',  title:'유지보수'}
+];
+const CURRENT = '04-testing';
+const hrefOf = id => `/projects/shop/${id}/`;
+document.getElementById('chapters').innerHTML =
+  CH.map((c,i)=>`<a class="list-item" href="${hrefOf(c.id)}" ${c.id===CURRENT?'style="font-weight:600"':''}>
+    <span class="title">${String(i+1).padStart(2,'0')}. ${c.title}</span>
+  </a>`).join('');
+(function(){
+  const i = CH.findIndex(c=>c.id===CURRENT);
+  const prev = CH[i-1], next = CH[i+1];
+  const $prev = document.getElementById('prev'), $next = document.getElementById('next');
+  if(prev){ $prev.href=hrefOf(prev.id); $prev.textContent=`← ${prev.title}`; }
+  if(next){ $next.href=hrefOf(next.id); $next.textContent=`${next.title} →`; } else { $next.style.visibility='hidden'; }
+})();
+(function(){
+  const article = document.getElementById('content');
+  const headers = [...article.querySelectorAll('h2.section, h3.section')];
+  const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+  headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent); });
+  document.getElementById('toc-list').innerHTML = headers.map(h=>{
+    const indent = h.tagName==='H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
+    return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>
