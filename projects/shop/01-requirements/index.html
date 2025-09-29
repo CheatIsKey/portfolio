@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shop — Projects — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .chapters{display:grid;gap:10px;margin-top:16px}
+    .chapter{display:flex;justify-content:space-between;align-items:center;
+      padding:12px 14px;border:1px solid var(--border);border-radius:8px}
+    .chapter .meta{color:var(--muted);font-size:.9rem}
+    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+    .aside{background:var(--card);padding:12px;border-radius:8px}
+    @media(min-width:920px){.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}}
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="crumb"><a href="/projects/">Projects</a> / Shop</div>
+
+  <section class="hero">
+    <h1>Shop 서비스</h1>
+    <p class="subtitle">Spring Boot · Spring Data JPA · QueryDSL — SDLC 기반 문서</p>
+    <div class="hero-actions">
+      <a class="btn" href="/projects/shop/01-requirements.html">처음부터 읽기</a>
+      <a class="btn ghost" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">라이브 데모</a>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section>
+      <h2 class="section-title">챕터</h2>
+      <div class="chapters" id="chapters"></div>
+    </section>
+
+    <aside class="aside">
+      <strong>빠른 링크</strong>
+      <ul>
+        <li><a href="/projects/shop/01-requirements.html">요구사항</a></li>
+        <li><a href="/assets/projects/shop/usecase.png" target="_blank">유스케이스(대표)</a></li>
+        <li><a href="/assets/projects/shop/class-diagram.png" target="_blank">클래스 다이어그램</a></li>
+      </ul>
+    </aside>
+  </div>
+</main>
+
+<script>
+const CHAPTERS = [
+  { id:'01-requirements',  title:'요구사항 분석',     meta:'유스케이스/명세서/시퀀스' },
+  { id:'02-analysis',      title:'분석',             meta:'도메인/흐름/경계' },
+  { id:'03-design',        title:'설계',             meta:'아키텍처/ERD/클래스' },
+  { id:'04-implementation',title:'구현/개발 기록',   meta:'핵심 코드/변경 로그' },
+  { id:'05-testing',       title:'테스트',           meta:'전략/케이스/커버리지' },
+  { id:'06-operations',    title:'배포/운영',        meta:'인프라/릴리즈/체크' },
+  { id:'07-retrospective', title:'회고',             meta:'성과/한계/다음 단계' }
+];
+document.getElementById('chapters').innerHTML =
+  CHAPTERS.map((c,i)=>`<a class="chapter" href="${c.id}.html">
+    <div><strong>${String(i+1).padStart(2,'0')}. ${c.title}</strong><div class="meta">${c.meta}</div></div>
+    <span aria-hidden="true">→</span>
+  </a>`).join('');
+</script>
+</body>
+</html>
