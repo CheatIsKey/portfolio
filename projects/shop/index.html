@@ -6,13 +6,26 @@
   <title>Shop — Projects — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    .chapters{display:grid;gap:10px;margin-top:16px}
-    .chapter{display:flex;justify-content:space-between;align-items:center;
-      padding:12px 14px;border:1px solid var(--border);border-radius:8px}
-    .chapter .meta{color:var(--muted);font-size:.9rem}
+    .hero h1{margin-bottom:.2rem}
+    .hero .subtitle{margin-top:.4rem;color:var(--muted)}
     .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
-    .aside{background:var(--card);padding:12px;border-radius:8px}
-    @media(min-width:920px){.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}}
+    .grid{display:grid;gap:18px}
+    @media(min-width:980px){.grid{grid-template-columns:2fr 1fr}}
+    .section-title{margin:6px 0 10px}
+    .chapters{display:grid;gap:10px;margin-top:6px}
+    a.chapter{display:flex;align-items:center;gap:12px;padding:12px 14px;
+      border:1px solid var(--border);border-radius:10px;background:var(--card);
+      text-decoration:none;color:inherit;transition:.15s ease}
+    a.chapter:hover{transform:translateY(-1px);box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .no{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;font-weight:700}
+    .ctitle{font-weight:600;margin:0}
+    .cmeta{font-size:.92rem;color:var(--muted)}
+    .chev{margin-left:auto;opacity:.5}
+    .aside{background:var(--card);padding:14px;border-radius:10px}
+    .aside ul{list-style:none;padding-left:0;margin:8px 0 0}
+    .aside li{margin:6px 0}
+    .aside a{text-decoration:none}
   </style>
 </head>
 <body>
@@ -30,9 +43,9 @@
 
   <section class="hero">
     <h1>Shop 서비스</h1>
-    <p class="subtitle">Spring Boot · Spring Data JPA · QueryDSL — SDLC 기반 문서</p>
+    <p class="subtitle">Spring Boot · Spring Data JPA · QueryDSL — SDLC 문서</p>
     <div class="hero-actions">
-      <a class="btn" href="/projects/shop/01-requirements.html">처음부터 읽기</a>
+      <a class="btn" href="/projects/shop/01-requirements/">처음부터 읽기</a>
       <a class="btn ghost" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">라이브 데모</a>
     </div>
   </section>
@@ -46,7 +59,7 @@
     <aside class="aside">
       <strong>빠른 링크</strong>
       <ul>
-        <li><a href="/projects/shop/01-requirements.html">요구사항</a></li>
+        <li><a href="/projects/shop/01-requirements/">요구사항</a></li>
         <li><a href="/assets/projects/shop/usecase.png" target="_blank">유스케이스(대표)</a></li>
         <li><a href="/assets/projects/shop/class-diagram.png" target="_blank">클래스 다이어그램</a></li>
       </ul>
@@ -56,19 +69,21 @@
 
 <script>
 const CHAPTERS = [
-  { id:'01-requirements',  title:'요구사항 분석',     meta:'유스케이스/명세서/시퀀스' },
-  { id:'02-analysis',      title:'분석',             meta:'도메인/흐름/경계' },
-  { id:'03-design',        title:'설계',             meta:'아키텍처/ERD/클래스' },
-  { id:'04-implementation',title:'구현/개발 기록',   meta:'핵심 코드/변경 로그' },
-  { id:'05-testing',       title:'테스트',           meta:'전략/케이스/커버리지' },
-  { id:'06-operations',    title:'배포/운영',        meta:'인프라/릴리즈/체크' },
-  { id:'07-retrospective', title:'회고',             meta:'성과/한계/다음 단계' }
+  { id:'01-requirements', title:'요구사항 분석', meta:'유스케이스/시퀀스/시스템/요구 목록' },
+  { id:'02-design',       title:'설계',         meta:'클래스/ERD/아키텍처 결정' },
+  { id:'03-coding',       title:'코딩',         meta:'구현 스냅샷/설명' },
+  { id:'04-testing',      title:'테스트',       meta:'케이스/전략/커버리지' },
+  { id:'05-maintenance',  title:'유지보수',     meta:'배포/운영/회고/개선' }
 ];
+const to = id => `/projects/shop/${id}/`;
 document.getElementById('chapters').innerHTML =
-  CHAPTERS.map((c,i)=>`<a class="chapter" href="${c.id}.html">
-    <div><strong>${String(i+1).padStart(2,'0')}. ${c.title}</strong><div class="meta">${c.meta}</div></div>
-    <span aria-hidden="true">→</span>
-  </a>`).join('');
+  CHAPTERS.map((c,i)=>`
+    <a class="chapter" href="${to(c.id)}">
+      <div class="no">${String(i+1).padStart(2,'0')}</div>
+      <div><div class="ctitle">${c.title}</div><div class="cmeta">${c.meta}</div></div>
+      <div class="chev">→</div>
+    </a>
+  `).join('');
 </script>
 </body>
 </html>
