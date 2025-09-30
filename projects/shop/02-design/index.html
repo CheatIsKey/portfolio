@@ -6,17 +6,73 @@
   <title>[02] 설계 — Shop — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
-    @media (max-width:980px){.layout{grid-template-columns:1fr}}
-    .sidebar{position:sticky;top:68px;align-self:start}
-    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
-    .toc a{display:block;padding:6px 8px;border-radius:6px;text-decoration:none}
-    .toc a:hover{background:var(--card)}
-    .figure{border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--card)}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
-    .thumb{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
-    .thumb img{width:100%;height:200px;object-fit:cover;display:block}
-    .thumb figcaption{padding:8px;font-size:.9rem;color:var(--muted)}
+    /* ===== 레이아웃: 좌 TOC / 우 본문 (반응형) ===== */
+    .article { display:grid; grid-template-columns: 260px 1fr; gap: 18px; }
+    @media (max-width: 980px){ .article { grid-template-columns: 1fr; } }
+
+    /* ===== TOC ===== */
+    .toc { position: sticky; top: 68px; align-self: start; }
+    .toc-title { font-weight: 700; margin: 6px 0 8px; color: var(--muted); }
+    .toc ul { list-style: none; margin: 0; padding: 0; }
+    .toc li { margin: 6px 0; }
+    .toc a {
+      display: block; padding: 6px 10px; border-radius: 8px; text-decoration: none; color: inherit;
+      transition: .15s ease;
+    }
+    .toc a:hover { background: var(--card); transform: translateX(2px); }
+
+    /* ===== 타이포 리듬 ===== */
+    .prose h1 { margin-bottom: .3rem; }
+    .prose .muted { color: var(--muted); }
+    .prose h2.section { margin-top: 1.6rem; }
+    .prose h3.section { margin-top: 1.1rem; }
+
+    /* ===== 대형 이미지 블록(.figure) ===== */
+    .figure {
+      border: 1px solid var(--border); border-radius: 12px; background: var(--card); overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,.04);
+      margin-top: 8px;
+    }
+    .figure img { display:block; width:100%; height:auto; }
+    .figure figcaption { padding:10px 12px; font-size:.92rem; color: var(--muted); }
+
+    /* ===== 갤러리 카드(.gallery-notes) ===== */
+    .gallery-notes {
+      display:grid; gap:12px; margin-top: 6px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .gallery-notes figure{
+      position:relative; border:1px solid var(--border); border-radius: 12px; background: var(--card);
+      overflow:hidden; transition:.15s ease; box-shadow: 0 2px 10px rgba(0,0,0,.03);
+    }
+    .gallery-notes figure:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+    .gallery-notes img{ width:100%; height:200px; object-fit:cover; display:block; }
+    .gallery-notes figcaption{
+      padding:8px 10px; font-size:.92rem; color:var(--muted);
+      border-top:1px solid var(--border); background:linear-gradient(to bottom, transparent, rgba(0,0,0,.02));
+    }
+
+    /* ===== 콜아웃 ===== */
+    .callout{
+      border:1px solid var(--border); border-radius: 12px; background: var(--card);
+      padding:14px; box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    }
+    .callout ul{ margin:0; padding-left: 18px; }
+    .small { font-size: .92rem; }
+
+    /* ===== 라이트박스 ===== */
+    .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.92); z-index:9999; }
+    .lightbox.open{ display:flex; }
+    .lightbox img{ max-width: 92vw; max-height: 86vh; border-radius: 8px; }
+    .lightbox .meta{ position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      color:#fff; font-size:.95rem; opacity:.85; }
+    .lb-nav{ position:fixed; inset:0; display:flex; justify-content:space-between; align-items:center; }
+    .lb-btn{ cursor:pointer; color:#fff; font-size:32px; padding:24px; opacity:.75; user-select:none; }
+    .lb-btn:hover{ opacity:1; }
+
+    /* ===== 앵커 오프셋 (고정 헤더 대비) ===== */
+    :target { scroll-margin-top: 72px; }
   </style>
 </head>
 <body>
@@ -29,79 +85,154 @@
   </nav>
 </header>
 
-<main class="container">
-  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 02 설계</div>
+<main class="container article">
+  <!-- 좌측 목차: H2(.section) 자동 수집 -->
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-title">섹션 목차</div>
+    <ul id="toc-list"></ul>
+  </aside>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="card"><div class="card-head"><strong>목차</strong></div><nav class="toc"><ul id="toc-list"></ul></nav></div>
-      <div class="card" style="margin-top:10px"><div class="card-head"><strong>Shop — 챕터</strong></div><nav id="chapters"></nav></div>
-    </aside>
+  <article class="prose">
+    <h1>설계</h1>
+    <p class="muted">도메인 모델(클래스 다이어그램)과 런타임/스토리지/배포 토폴로지(시스템 다이어그램)를 정리합니다. 요구/명세/시퀀스는 01장에서, 테스트/운영 이슈는 04~05장에서 다룹니다.</p>
 
-    <article class="prose" id="content">
-      <h1 class="section">설계</h1>
-      <p class="muted">클래스 다이어그램, ERD, 주요 아키텍처 결정을 정리합니다.</p>
+    <!-- 1) 클래스 다이어그램 -->
+    <h2 class="section">클래스 다이어그램</h2>
+    <figure class="figure">
+      <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_클래스다이어그램.png" alt="클래스 다이어그램(전체 도메인)" loading="lazy">
+      <figcaption class="muted">회원(User) · 상품(Item) · 카테고리(Category) · 장바구니(Cart) · 주문(Order) · 주문상품(OrderItem) · 배송(Delivery) · 주소(Address)</figcaption>
+    </figure>
 
-      <h2 class="section">클래스 다이어그램</h2>
-      <div class="figure">
-        <img src="/assets/projects/shop/class-diagram.png" alt="클래스 다이어그램" style="max-width:100%;height:auto"/>
-      </div>
+    <h3 class="section">도메인 요약</h3>
+    <ul>
+      <li><b>Order ↔ Delivery (1:1)</b>: FK는 <code>orders.delivery_id</code>에 귀속(필요 시 NULL, <code>ON DELETE SET NULL</code>).</li>
+      <li><b>연관 일관성</b>: <code>Order#setDelivery()</code>, <code>Delivery#assignOrder()</code>로 양방향 동기화 보호.</li>
+      <li><b>OrderItem</b>: 가격×수량 합산을 도메인 메서드로 보유(<code>getTotalPrice()</code>), <code>Order#totalPrice()</code>에서 총합.</li>
+      <li><b>Category–Item</b>: 중간 매핑 엔티티로 다대다 관리, 정적 팩토리/편의 메서드로 일관성 유지.</li>
+      <li><b>엔티티 설계</b>: setter 최소화, 정적 팩토리/생성자 보호, 지연 로딩 기본.</li>
+    </ul>
 
-      <h2 class="section">ERD (있다면)</h2>
-      <div class="gallery">
-        <!-- 필요 시 이미지 추가 -->
-      </div>
+    <h3 class="section">조회 전략(요약/상세 분리)</h3>
+    <ul>
+      <li><b>주문 목록(마이페이지)</b>: 배송만 fetch(요약 화면).</li>
+      <li><b>주문 상세</b>: 배송 + 주문아이템 + 상품까지 fetch로 N+1 방지.</li>
+      <li><b>파생 쿼리 한계</b>: <i>withItems</i>류는 파싱 불가 → <code>@EntityGraph</code> 또는 JPQL fetch join 사용.</li>
+    </ul>
 
-      <h2 class="section">아키텍처 결정(ADR 요약)</h2>
-      <ul>
-        <li>레이어드 아키텍처: Controller → Service → Repository</li>
-        <li>조회 전용 DTO 분리, 컬렉션 페치 페이징 금지 → batch_size</li>
-        <li>QueryDSL로 동적 검색 조립</li>
-      </ul>
+    <!-- 2) 시스템 다이어그램 -->
+    <h2 class="section">시스템 다이어그램</h2>
+    <p class="muted">Cloud Run(앱) ↔ Cloud SQL(DB) ↔ GCS(이미지) 중심의 단순/안정 구성을 채택합니다. 빌드/마이그레이션은 Cloud Build + Flyway.</p>
 
-      <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
-    </article>
-  </div>
-
-  <div class="card" style="margin-top:16px;padding:12px">
-    <div style="display:flex;justify-content:space-between">
-      <a class="btn ghost" id="prev">이전</a>
-      <a class="btn" id="next">다음 →</a>
+    <div class="gallery-notes">
+      <figure>
+        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_시스템_다이어그램.png" alt="시스템 다이어그램(상위)" loading="lazy">
+        <figcaption>상위 토폴로지: Web → Cloud Run → Cloud SQL · GCS</figcaption>
+      </figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_배포_내부구조_다이어그램.png" alt="배포 내부구조 다이어그램" loading="lazy">
+        <figcaption>배포 내부구조: GitHub → Cloud Build → Artifact → Cloud Run</figcaption>
+      </figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_서비스to저장소_다이어그램.png" alt="서비스↔저장소 연계 다이어그램" loading="lazy">
+        <figcaption>서비스↔저장소: 이미지 업로드(GCS), DB 연결(Cloud SQL)</figcaption>
+      </figure>
     </div>
-  </div>
+
+    <h3 class="section">운영 구성(핵심)</h3>
+    <ul>
+      <li><b>프로필</b>: <code>SPRING_PROFILES_ACTIVE=cloud</code>, <code>SPRING_JPA_OPEN_IN_VIEW=false</code>.</li>
+      <li><b>DB</b>: Cloud SQL(PostgreSQL). Flyway로 이관/검증(필요 시 일시 완화 플래그로 부팅 안정화 후 제거).</li>
+      <li><b>스토리지</b>: GCS에 이미지 업로드(버킷/권한/URL 저장).</li>
+      <li><b>빌드·배포</b>: Cloud Build에서 컨테이너 이미지 태그 → Cloud Run 배포, 환경변수로 커넥션/버킷/업로드 경로 주입.</li>
+      <li><b>관측성</b>: P6Spy SQL 로깅 + 요청 상관관계 로깅.</li>
+    </ul>
+
+    <h2 class="section">아키텍처 결정(요지)</h2>
+    <div class="callout">
+      <ul>
+        <li><b>ADR-01 · 주문–배송 매핑</b>: 1:1을 <code>orders.delivery_id</code>로 귀속. 도메인 메서드로 양방향 일관성 보장.</li>
+        <li><b>ADR-02 · 조회 최적화</b>: 화면 별 fetch 구분(요약=배송만, 상세=배송+아이템+상품), N+1 방지 원칙.</li>
+        <li><b>ADR-03 · PRG 패턴</b>: POST 성공 후 Redirect를 강제(화이트라벨/중복 제출 방지).</li>
+        <li><b>ADR-04 · 보안</b>: 로그인 성공 시 <code>changeSessionId()</code> 적용, ADMIN/USER 경로 분리 및 인터셉터.</li>
+        <li><b>ADR-05 · 마이그레이션</b>: Flyway로 스키마 이관, 과거 FK 구조 정리 및 히스토리 관리.</li>
+      </ul>
+    </div>
+
+    <h2 class="section">데이터 접근 설계</h2>
+    <ul>
+      <li><b>리포지토리</b>: 요약/상세 전용 메서드 분리. 파생 쿼리로 표현 불가한 연관 로딩은 <code>@EntityGraph</code> 또는 JPQL.</li>
+      <li><b>서비스</b>: 뷰 모델(DTO)로 변환 후 전달. 뷰에서 지연 컬렉션 직접 순회 금지.</li>
+    </ul>
+
+    <h2 class="section">릴리스 & 인프라</h2>
+    <ul>
+      <li><b>파이프라인</b>: GitHub → Cloud Build → Cloud Run. 리비전 로그로 부팅/마이그레이션 상태 점검.</li>
+      <li><b>설정</b>: DB 접속(유저/패스/DB명), Cloud SQL 연결명, 버킷명, 업로드 디렉토리 등 환경변수 관리.</li>
+    </ul>
+
+    <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+  </article>
 </main>
 
+<footer class="container site-footer">
+  <span>© spring-jpa.dev</span>
+  <span class="muted">Built with Spring • JPA • QueryDSL</span>
+</footer>
+
+<!-- TOC(H2) + 라이트박스 스크립트 -->
 <script>
-const CH = [
-  {id:'01-requirements', title:'요구사항'},
-  {id:'02-design',       title:'설계'},
-  {id:'03-coding',       title:'코딩'},
-  {id:'04-testing',      title:'테스트'},
-  {id:'05-maintenance',  title:'유지보수'}
-];
-const CURRENT = '02-design';
-const hrefOf = id => `/projects/shop/${id}/`;
-document.getElementById('chapters').innerHTML =
-  CH.map((c,i)=>`<a class="list-item" href="${hrefOf(c.id)}" ${c.id===CURRENT?'style="font-weight:600"':''}>
-    <span class="title">${String(i+1).padStart(2,'0')}. ${c.title}</span>
-  </a>`).join('');
-(function(){
-  const i = CH.findIndex(c=>c.id===CURRENT);
-  const prev = CH[i-1], next = CH[i+1];
-  const $prev = document.getElementById('prev'), $next = document.getElementById('next');
-  if(prev){ $prev.href=hrefOf(prev.id); $prev.textContent=`← ${prev.title}`; }
-  if(next){ $next.href=hrefOf(next.id); $next.textContent=`${next.title} →`; } else { $next.style.visibility='hidden'; }
-})();
-(function(){
-  const article = document.getElementById('content');
-  const headers = [...article.querySelectorAll('h2.section, h3.section')];
-  const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
-  headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent); });
-  document.getElementById('toc-list').innerHTML = headers.map(h=>{
-    const indent = h.tagName==='H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
-    return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
-  }).join('');
-})();
+  // --- TOC(H2만) + 현재 섹션 하이라이트 ---
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+    headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent) });
+
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = headers.map(h => `<li><a href="#${h.id}">${h.textContent.trim()}</a></li>`).join('');
+
+    const links = [...toc.querySelectorAll('a')];
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        const i = headers.indexOf(e.target);
+        if(i<0) return;
+        const a = links[i];
+        if(e.isIntersecting) a.style.background = 'var(--card)';
+        else a.style.background = '';
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 });
+    headers.forEach(h => io.observe(h));
+  })();
+
+  // --- 라이트박스 ---
+  (function(){
+    const imgs = [...document.querySelectorAll('img[data-lb], .gallery-notes img, .figure img')];
+    if(!imgs.length) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.innerHTML = `
+      <div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div>
+      <img alt="preview"/><div class="meta"></div>`;
+    document.body.appendChild(overlay);
+    let idx = 0;
+
+    const views = imgs.map(img => ({src: img.src, alt: img.alt || ''}));
+    const show = i => { idx=(i+views.length)%views.length; const v=views[idx];
+      overlay.querySelector('img').src=v.src; overlay.querySelector('.meta').textContent=v.alt; overlay.classList.add('open'); };
+    imgs.forEach((img,i)=> img.addEventListener('click', ()=>show(i)));
+    overlay.addEventListener('click', e=>{
+      if(e.target.dataset.act==='prev') show(idx-1);
+      else if(e.target.dataset.act==='next') show(idx+1);
+      else if(e.target.classList.contains('lightbox')) overlay.classList.remove('open');
+    });
+    document.addEventListener('keydown', e=>{
+      if(!overlay.classList.contains('open')) return;
+      if(e.key==='Escape') overlay.classList.remove('open');
+      if(e.key==='ArrowLeft') show(idx-1);
+      if(e.key==='ArrowRight') show(idx+1);
+    });
+  })();
 </script>
 </body>
 </html>
