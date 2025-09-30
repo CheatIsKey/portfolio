@@ -1,205 +1,134 @@
 <h1 class="section">요구사항 분석</h1>
-<p class="muted">유스케이스 · 유스케이스 명세서 · 시퀀스/시스템 다이어그램을 한곳에 모아, 핵심 요구/규칙/품질 요구까지 연결해 설명합니다. (이미지 경로: <code>/assets/projects/shop/requirements/{usecase|specs|sequence|etc}/파일명.png</code>)</p>
+<p class="muted">유스케이스·명세서·시퀀스 다이어그램을 통해 기능적 요구를 정리합니다. 클래스/시스템 다이어그램은 설계 챕터에 포함됩니다.</p>
 
-<h2 class="section">다이어그램 인덱스</h2>
+<h2 class="section">프로젝트 범위</h2>
 <ul>
-  <li>Use Case: 1개</li>
-  <li>Specs(유스케이스 명세서): 19개</li>
-  <li>Sequence: 7개</li>
-  <li>기타(시스템/배포/스토리지): 3개</li>
+  <li>고객: 상품 검색/조회, 장바구니, 주문 생성·취소, 주문 내역 조회</li>
+  <li>관리자: 상품/카테고리 등록·관리, 사용자/문의 관리</li>
+  <li>품질: N+1 방지, 권한 분리, 안정적 페이징, 로그 상관관계 확보</li>
 </ul>
 
-<h2 class="section">유스케이스(대표)</h2>
-<div class="gallery" data-gallery="usecase">
+<h2 class="section">유스케이스 다이어그램</h2>
+<p class="muted">고객·관리자 액터와 로그인 관계를 포함한 상위 흐름을 한눈에 보여줍니다.</p>
+<div class="gallery">
   <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/usecase/쇼핑몰_유스케이스.png" alt="유스케이스" loading="lazy">
-    <figcaption>유스케이스</figcaption>
+    <img data-lb src="/assets/projects/shop/requirements/usecase/쇼핑몰_유스케이스.png" alt="유스케이스 다이어그램" loading="lazy">
+    <figcaption>유스케이스 다이어그램</figcaption>
   </figure>
 </div>
 
-<h2 class="section">유스케이스 명세서(그룹별)</h2>
+<h2 class="section">유스케이스 명세서 (22)</h2>
 
 <h3 class="section">인증/회원</h3>
+<p class="muted">로그인·로그아웃, 회원정보수정, 마이페이지, 관리자 사용자 관리 등 인증과 계정 관련 기능.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그인_명세서.png" alt="로그인 명세서" loading="lazy">
-    <figcaption>로그인 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그아웃_명세서.png" alt="로그아웃 명세서" loading="lazy">
-    <figcaption>로그아웃 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_사용자관리_명세서.png" alt="사용자관리 명세서" loading="lazy">
-    <figcaption>사용자관리 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_마이페이지_명세서.png" alt="마이페이지 명세서" loading="lazy">
-    <figcaption>마이페이지 명세서</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그인_명세서.png" alt="로그인" loading="lazy"><figcaption>로그인</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그아웃_명세서.png" alt="로그아웃" loading="lazy"><figcaption>로그아웃</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_회원정보수정_명세서.png" alt="회원정보수정" loading="lazy"><figcaption>회원정보수정</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_마이페이지_명세서.png" alt="마이페이지" loading="lazy"><figcaption>마이페이지</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_사용자관리_명세서.png" alt="사용자관리" loading="lazy"><figcaption>사용자관리(관리자)</figcaption></figure>
 </div>
 
 <h3 class="section">카탈로그/검색/상품</h3>
+<p class="muted">카테고리·키워드 검색, 상품 목록과 상세 조회.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품검색_명세서.png" alt="상품검색 명세서" loading="lazy">
-    <figcaption>상품검색 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리검색_명세서.png" alt="카테고리검색 명세서" loading="lazy">
-    <figcaption>카테고리검색 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품목록_명세서.png" alt="상품목록 명세서" loading="lazy">
-    <figcaption>상품목록 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품상세_명세서.png" alt="상품상세 명세서" loading="lazy">
-    <figcaption>상품상세 명세서</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품검색_명세서.png" alt="상품검색" loading="lazy"><figcaption>상품검색</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리검색_명세서.png" alt="카테고리검색" loading="lazy"><figcaption>카테고리검색</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품목록_명세서.png" alt="상품목록" loading="lazy"><figcaption>상품목록</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품상세_명세서.png" alt="상품상세" loading="lazy"><figcaption>상품상세</figcaption></figure>
 </div>
 
 <h3 class="section">장바구니</h3>
+<p class="muted">수량 0 → 삭제, 재고 초과 → 자동 보정 + 안내 메시지. “담긴 수량 + 추가 수량 ≤ 재고” 보장을 서버에서 강제.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_장바구니_명세서.png" alt="장바구니 명세서" loading="lazy">
-    <figcaption>장바구니 명세서</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_장바구니_명세서.png" alt="장바구니" loading="lazy"><figcaption>장바구니</figcaption></figure>
 </div>
 
 <h3 class="section">주문</h3>
+<p class="muted">주문 생성 후 리다이렉트, 목록/상세 조회, 조건 충족 시 취소. 배송 완료된 주문은 취소 불가.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문_명세서.png" alt="주문 명세서" loading="lazy">
-    <figcaption>주문 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문목록_명세서.png" alt="주문목록 명세서" loading="lazy">
-    <figcaption>주문목록 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문상세_명세서.png" alt="주문상세 명세서" loading="lazy">
-    <figcaption>주문상세 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문취소_명세서.png" alt="주문취소 명세서" loading="lazy">
-    <figcaption>주문취소 명세서</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문_명세서.png" alt="주문" loading="lazy"><figcaption>주문</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문목록_명세서.png" alt="주문목록" loading="lazy"><figcaption>주문목록</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문상세_명세서.png" alt="주문상세" loading="lazy"><figcaption>주문상세</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문취소_명세서.png" alt="주문취소" loading="lazy"><figcaption>주문취소</figcaption></figure>
 </div>
 
 <h3 class="section">문의/고객센터</h3>
+<p class="muted">문의 작성·조회·답변·종결. 관리자 전용 조회도 포함.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의작성_명세서.png" alt="문의작성 명세서" loading="lazy">
-    <figcaption>문의작성 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회_명세서.png" alt="문의글조회 명세서" loading="lazy">
-    <figcaption>문의글조회 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회(관리자)_명세서.png" alt="문의글조회(관리자) 명세서" loading="lazy">
-    <figcaption>문의글조회(관리자) 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글답변_명세서.png" alt="문의글답변 명세서" loading="lazy">
-    <figcaption>문의글답변 명세서</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글종결_명세서.png" alt="문의글종결 명세서" loading="lazy">
-    <figcaption>문의글종결 명세서</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의작성_명세서.png" alt="문의작성" loading="lazy"><figcaption>문의작성</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회_명세서.png" alt="문의글조회" loading="lazy"><figcaption>문의글조회</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회(관리자)_명세서.png" alt="문의글조회(관리자)" loading="lazy"><figcaption>문의글조회(관리자)</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글답변_명세서.png" alt="문의글답변" loading="lazy"><figcaption>문의글답변</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글종결_명세서.png" alt="문의글종결" loading="lazy"><figcaption>문의글종결</figcaption></figure>
 </div>
 
-<h2 class="section">시퀀스 다이어그램(그룹별)</h2>
+<h3 class="section">상품/카테고리 관리</h3>
+<p class="muted">상품 등록, 카테고리 등록/삭제. 정적 팩토리와 연관관계 편의 메서드로 일관성 유지.</p>
+<div class="gallery">
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품등록_명세서.png" alt="상품등록" loading="lazy"><figcaption>상품등록</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리등록_명세서.png" alt="카테고리등록" loading="lazy"><figcaption>카테고리등록</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리삭제_명세서.png" alt="카테고리삭제" loading="lazy"><figcaption>카테고리삭제</figcaption></figure>
+</div>
+
+<h2 class="section">시퀀스 다이어그램 (7)</h2>
 
 <h3 class="section">인증/회원</h3>
+<p class="muted">로그인 시 세션 발급, 사용자 권한 검증 및 내비게이션 분기.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_인증세션_순차.png" alt="인증세션 순차" loading="lazy">
-    <figcaption>인증세션 순차</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_사용자기능_순차.png" alt="사용자기능 순차" loading="lazy">
-    <figcaption>사용자기능 순차</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_인증세션_순차.png" alt="인증세션" loading="lazy"><figcaption>인증세션</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_사용자기능_순차.png" alt="사용자기능" loading="lazy"><figcaption>사용자기능</figcaption></figure>
 </div>
 
 <h3 class="section">카탈로그/장바구니</h3>
+<p class="muted">상품 탐색→장바구니 담기/수량 검증/총액 반영.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_카탈로그_장바구니_순차.png" alt="카탈로그 장바구니 순차" loading="lazy">
-    <figcaption>카탈로그 → 장바구니 순차</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_카탈로그_장바구니_순차.png" alt="카탈로그 장바구니" loading="lazy"><figcaption>카탈로그→장바구니</figcaption></figure>
 </div>
 
 <h3 class="section">주문</h3>
+<p class="muted">장바구니 → 주문 생성 → 상세 확인(리다이렉트).</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_주문_순차.png" alt="주문 순차" loading="lazy">
-    <figcaption>장바구니 → 주문 생성 순차</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_주문_순차.png" alt="주문" loading="lazy"><figcaption>주문</figcaption></figure>
 </div>
 
-<h3 class="section">상품 등록(관리)</h3>
+<h3 class="section">상품/관리자</h3>
+<p class="muted">관리자 전용 상품 등록, 사용자 관리 플로우.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_상품등록_순차.png" alt="상품등록 순차" loading="lazy">
-    <figcaption>상품 등록 순차</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_관리자기능_순차.png" alt="관리자기능 순차" loading="lazy">
-    <figcaption>관리자 기능 순차</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_상품등록_순차.png" alt="상품등록" loading="lazy"><figcaption>상품등록</figcaption></figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_관리자기능_순차.png" alt="관리자기능" loading="lazy"><figcaption>관리자기능</figcaption></figure>
 </div>
 
 <h3 class="section">고객센터</h3>
+<p class="muted">문의 작성→답변→종결.</p>
 <div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_고객센터_순차.png" alt="고객센터 순차" loading="lazy">
-    <figcaption>고객센터 순차</figcaption>
-  </figure>
+  <figure class="thumb"><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_고객센터_순차.png" alt="고객센터" loading="lazy"><figcaption>고객센터</figcaption></figure>
 </div>
 
-<h2 class="section">시스템/배포 다이어그램</h2>
-<div class="gallery">
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_시스템_다이어그램.png" alt="시스템 다이어그램" loading="lazy">
-    <figcaption>시스템 다이어그램</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_배포_내부구조_다이어그램.png" alt="배포 내부구조 다이어그램" loading="lazy">
-    <figcaption>배포 내부구조 다이어그램</figcaption>
-  </figure>
-  <figure class="thumb">
-    <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_서비스to저장소_다이어그램.png" alt="서비스to저장소 다이어그램" loading="lazy">
-    <figcaption>서비스→저장소 다이어그램</figcaption>
-  </figure>
-</div>
-
-<h2 class="section">핵심 기능 요구</h2>
+<h2 class="section">요구사항 총정리</h2>
+<h3 class="section">기능 요구</h3>
 <ul>
-  <li>회원가입/로그인/로그아웃, 마이페이지(주문 내역). 세션 고정 방지 및 내비게이션 분기.</li>
-  <li>카테고리/키워드 기반 검색, 목록/상세, 이미지 업로드, 관리자 상품/카테고리 관리.</li>
-  <li>장바구니 담기/변경/삭제/비우기(재고 초과 자동 보정, Flash 메시지).</li>
-  <li>주문 생성/목록/상세/취소(배송 완료 전 취소 허용), 본인 주문만 조회.</li>
-  <li>고객 문의: 작성/조회/답변/종결, 관리자 조회.</li>
+  <li><b>고객</b>: 상품 탐색·검색, 장바구니, 주문 생성/취소/조회, 마이페이지, 문의 등록</li>
+  <li><b>관리자</b>: 상품/카테고리 관리, 회원 조회, 문의 관리</li>
 </ul>
 
-<h2 class="section">비즈니스 규칙(발췌)</h2>
+<h3 class="section">비즈니스 규칙</h3>
 <ul>
-  <li>장바구니: 담긴 수량 + 추가 수량 ≤ 재고, 0 이하면 품목 삭제, 초과 시 자동 보정 + 메시지.</li>
-  <li>주문: 배송 상태가 <code>COMP</code>면 취소 불가. 총액은 도메인 메서드로 계산.</li>
-  <li>POST 성공 후 반드시 Redirect. 뷰에서 지연 컬렉션 직접 순회 금지.</li>
-  <li>조회: 목록/상세에 맞춘 fetch 전략(요약: 배송만, 상세: 배송+아이템+상품).</li>
+  <li>장바구니: 수량 0 → 삭제, 재고 초과 → 보정 + 안내 메시지</li>
+  <li>주문: 배송 완료(<code>COMP</code>) 상태면 취소 불가</li>
 </ul>
 
-<h2 class="section">품질/운영 요구</h2>
+<h3 class="section">품질/운영 요구</h3>
 <ul>
-  <li>JPA N+1 방지(EntityGraph/Fetch Join), Repository 메서드는 파생 쿼리 한계 고려.</li>
-  <li>권한 분리(ADMIN/USER), 인터셉터로 접근 제어, 세션에는 DTO만 저장.</li>
-  <li>Flyway 마이그레이션으로 스키마 정합성 유지, 레거시 컬럼 정리.</li>
-  <li>Cloud Build/Run 배포 파이프라인, Cloud SQL, GCS(이미지) 연동.</li>
+  <li>N+1 방지(fetch join/EntityGraph), 권한 분리, 안정적 페이징</li>
+  <li>POST 후 Redirect, Lazy 컬렉션은 서비스에서 DTO로 완비</li>
+  <li>로그 상관관계, P6Spy SQL 로깅</li>
+</ul>
+
+<h3 class="section">남은 과제</h3>
+<ul>
+  <li>주문 상세 API 개선, 금액 Formatter 적용</li>
+  <li>Address 정적 팩토리 도입 및 파라미터 순서 통일</li>
 </ul>
 
 <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
