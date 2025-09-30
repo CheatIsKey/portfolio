@@ -29,6 +29,14 @@
     .callout{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:12px;box-shadow:0 2px 12px rgba(0,0,0,.03)}
     .small{font-size:.92rem}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+    /* 매핑 요약(2열) */
+    .map-list{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:12px;box-shadow:0 2px 12px rgba(0,0,0,.03);display:grid;gap:6px}
+    .map{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start}
+    .map .k{font-weight:700}
+    .map .v{}
+
+    /* 라이트박스 */
     .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);z-index:9999}
     .lightbox.open{display:flex}
     .lightbox img{max-width:92vw;max-height:86vh;border-radius:8px}
@@ -57,7 +65,7 @@
 
   <article class="prose">
     <h1>코딩</h1>
-    <p class="muted">01·02장의 다이어그램을 바탕으로 구현한 <b>대표 코드 스냅샷</b>을 정리합니다. (길고 반복적인 코드는 저장소에서 확인하도록 링크/경로만 제시)</p>
+    <p class="muted">01·02장의 다이어그램을 바탕으로 구현한 <b>대표 코드 스냅샷</b>을 정리합니다. (긴 원본 코드는 저장소에서 확인하도록 링크/경로만 제시)</p>
 
     <!-- A. 도메인 엔티티 -->
     <h2 class="section">A. 도메인 엔티티</h2>
@@ -81,6 +89,10 @@
       <figure><img data-lb src="/assets/projects/shop/coding/domain/attachment.png" alt="Attachment 엔티티"><figcaption>Attachment — 파일 메타</figcaption></figure>
     </div>
 
+    <div class="callout small">
+      <b>포인트</b> — Setter 최소화, 정적 팩토리/편의 메서드, 연관 양방향 동기화(주문↔배송/아이템), 값 타입 Address 임베드.
+    </div>
+
     <!-- B. 서비스 -->
     <h2 class="section">B. 서비스 계층</h2>
     <h3 class="section">B-1. OrderService</h3>
@@ -91,12 +103,12 @@
 
     <h3 class="section">B-2. CartService</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/service/cart-service.png" alt="CartService"><figcaption>CartService — 수량 0 삭제/재고 초과 보정</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/service/cart-service.png" alt="CartService"><figcaption>수량 0 삭제 / 재고 초과 보정</figcaption></figure>
     </div>
 
     <h3 class="section">B-3. SupportService</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/service/support-service.png" alt="SupportService"><figcaption>SupportService — 문의 라이프사이클</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/service/support-service.png" alt="SupportService"><figcaption>문의 라이프사이클 — OPEN→ANSWERED→CLOSED</figcaption></figure>
     </div>
 
     <!-- C. 리포지토리 -->
@@ -111,38 +123,37 @@
     <h2 class="section">D. 웹 계층</h2>
     <h3 class="section">D-1. OrderController</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-create.png" alt="OrderController create"><figcaption>OrderController — PRG 패턴</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-cancel.png" alt="OrderController cancel"><figcaption>OrderController — 본인 주문 취소</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-create.png" alt="OrderController create"><figcaption>PRG — POST → Redirect(Get)</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-cancel.png" alt="OrderController cancel"><figcaption>취소 — 본인 주문 검증</figcaption></figure>
     </div>
 
     <h3 class="section">D-2. SupportController</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/web/support-controller.png" alt="SupportController"><figcaption>SupportController — 문의 작성/답변/종결</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/support-controller.png" alt="SupportController"><figcaption>문의 작성/답변/종결</figcaption></figure>
     </div>
 
     <h3 class="section">D-3. 예외/검증</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/web/exception-handler.png" alt="GlobalExceptionHandler"><figcaption>예외 핸들러 — @ControllerAdvice</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/web/validation.png" alt="DTO 검증"><figcaption>DTO 검증 — @Valid, BindingResult</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/exception-handler.png" alt="GlobalExceptionHandler"><figcaption>@ControllerAdvice — 예외 매핑</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/validation.png" alt="DTO 검증"><figcaption>DTO @Valid + BindingResult</figcaption></figure>
     </div>
 
     <!-- E. 보안 -->
     <h2 class="section">E. 보안</h2>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/security/security-config.png" alt="SecurityConfig"><figcaption>SecurityConfig — 세션 고정 방지, 권한 분리</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/security/security-config.png" alt="SecurityConfig"><figcaption>changeSessionId(), ADMIN/USER 경로 분리</figcaption></figure>
       <figure><img data-lb src="/assets/projects/shop/coding/security/login-flow.png" alt="Login Flow"><figcaption>로그인 흐름 — 시퀀스와 일치</figcaption></figure>
     </div>
 
+    <!-- F. 코드 ↔ 다이어그램 매핑 요약 (2열로 정리) -->
     <h2 class="section">F. 코드 ↔ 다이어그램 매핑 요약</h2>
-    <div class="callout small">
-      <ul>
-        <li><b>유스케이스: 주문/취소</b> → <span class="mono">OrderService</span>, <span class="mono">OrderController</span></li>
-        <li><b>시퀀스: 장바구니→주문</b> → <span class="mono">CartService</span>, <span class="mono">OrderService</span></li>
-        <li><b>클래스: Order–OrderItem–Delivery</b> → 연관 매핑 + 합계/상태 전이 메서드</li>
-        <li><b>고객센터</b> → <span class="mono">SupportService/Controller</span> + ENUM 상태 전이</li>
-        <li><b>조회 최적화</b> → <span class="mono">OrderRepository</span>(목록/상세 분리)</li>
-        <li><b>보안</b> → <span class="mono">SecurityConfig</span> (세션·권한)</li>
-      </ul>
+    <div class="map-list">
+      <div class="map"><div class="k">유스케이스</div><div class="v">주문/취소 → <span class="mono">OrderService</span>, <span class="mono">OrderController</span></div></div>
+      <div class="map"><div class="k">시퀀스</div><div class="v">장바구니→주문 → <span class="mono">CartService</span>, <span class="mono">OrderService</span></div></div>
+      <div class="map"><div class="k">클래스</div><div class="v"><b>Order–OrderItem–Delivery</b> → 연관 매핑 + 합계/상태 전이 메서드</div></div>
+      <div class="map"><div class="k">고객센터</div><div class="v"><span class="mono">SupportService/Controller</span> + ENUM 상태 전이</div></div>
+      <div class="map"><div class="k">조회 최적화</div><div class="v"><span class="mono">OrderRepository</span> (목록/상세 분리)</div></div>
+      <div class="map"><div class="k">보안</div><div class="v"><span class="mono">SecurityConfig</span> (세션·권한)</div></div>
     </div>
 
     <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
@@ -176,8 +187,8 @@
     overlay.innerHTML=`<div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div><img alt="preview"/><div class="meta"></div>`;
     document.body.appendChild(overlay);
     let idx=0;const views=imgs.map(img=>({src:img.src,alt:img.alt||''}));
-    const show=i=>{idx=(i+views.length)%views.length;const v=views[idx];
-      overlay.querySelector('img').src=v.src;overlay.querySelector('.meta').textContent=v.alt;overlay.classList.add('open');};
+    const show=i=>{ idx=(i+views.length)%views.length; const v=views[idx];
+      overlay.querySelector('img').src=v.src; overlay.querySelector('.meta').textContent=v.alt; overlay.classList.add('open'); };
     imgs.forEach((img,i)=>img.addEventListener('click',()=>show(i)));
     overlay.addEventListener('click',e=>{
       if(e.target.dataset.act==='prev')show(idx-1);
