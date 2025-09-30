@@ -143,8 +143,18 @@
     <h2 class="section">D. 웹 계층</h2>
     <h3 class="section">D-1. OrderController</h3>
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-create.png" alt="OrderController create"><figcaption>PRG — POST → Redirect(Get)</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-cancel.png" alt="OrderController cancel"><figcaption>취소 — 본인 주문 검증</figcaption></figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/coding/web/order-controller-place.png" alt="OrderController.placeOrder — PRG, 장바구니 검증">
+        <figcaption>placeOrder — PRG / 장바구니 검증 / 주소 생성 / Flash 메시지</figcaption>
+      </figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/coding/web/order-controller-my.png" alt="OrderController.myOrders — DTO 반환">
+        <figcaption>myOrders — 서비스에서 DTO(<span class="mono">myOrderRows</span>) 반환</figcaption>
+      </figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/coding/web/order-controller-detail.png" alt="OrderController.detail — 본인 검증·예외 처리">
+        <figcaption>detail — 본인 검증 / 존재하지 않음·권한 예외 → Flash 후 리다이렉트</figcaption>
+      </figure>
     </div>
 
     <h3 class="section">D-2. SupportController</h3>
@@ -152,18 +162,15 @@
       <figure><img data-lb src="/assets/projects/shop/coding/web/support-controller.png" alt="SupportController"><figcaption>문의 작성/답변/종결</figcaption></figure>
     </div>
 
-    <h3 class="section">D-3. 예외/검증</h3>
-    <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/web/exception-handler.png" alt="GlobalExceptionHandler"><figcaption>@ControllerAdvice — 예외 매핑</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/web/validation.png" alt="DTO 검증"><figcaption>DTO @Valid + BindingResult</figcaption></figure>
-    </div>
-
     <!-- E. 보안 -->
     <h2 class="section">E. 보안</h2>
-    <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/security/security-config.png" alt="SecurityConfig"><figcaption>changeSessionId(), ADMIN/USER 경로 분리</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/security/login-flow.png" alt="Login Flow"><figcaption>로그인 흐름 — 시퀀스와 일치</figcaption></figure>
-    </div>
+    <figure class="figure">
+      <img data-lb src="/assets/projects/shop/coding/security/security-config.png" alt="SecurityConfig — 필터체인/인가/폼로그인 비활성화">
+      <figcaption>
+        <span class="mono">SecurityConfig</span> — CSRF 비활성화(초기 단계), 정적 리소스/공개 경로 <b>permitAll</b>, 나머지는 현재 <b>permitAll</b> 후
+        애플리케이션 레벨 인터셉터로 인증 처리. <span class="mono">formLogin/httpBasic</span>은 비활성화, <span class="mono">BCryptPasswordEncoder</span> 빈 제공.
+      </figcaption>
+    </figure>
 
     <!-- F. 코드 ↔ 다이어그램 매핑 요약 (2열로 정리) -->
     <h2 class="section">F. 코드 ↔ 다이어그램 매핑 요약</h2>
