@@ -36,6 +36,12 @@
     .figure img { display:block; width:100%; height:auto; }
     .figure figcaption { padding:10px 12px; font-size:.92rem; color: var(--muted); }
 
+    /* ===== 표 스타일(간결) ===== */
+    .tbl { width:100%; border-collapse: collapse; margin-top:8px; }
+    .tbl th, .tbl td { border:1px solid var(--border); padding:8px 10px; vertical-align: top; }
+    .tbl th { background: var(--card); white-space: nowrap; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
     /* ===== 갤러리 카드(.gallery-notes) ===== */
     .gallery-notes {
       display:grid; gap:12px; margin-top: 6px;
@@ -94,34 +100,130 @@
 
   <article class="prose">
     <h1>설계</h1>
-    <p class="muted">도메인 모델(클래스 다이어그램)과 런타임/스토리지/배포 토폴로지(시스템 다이어그램)를 정리합니다. 요구/명세/시퀀스는 01장에서, 테스트/운영 이슈는 04~05장에서 다룹니다.</p>
+    <p class="muted">클래스 다이어그램(도메인 모델)과 시스템 다이어그램(런타임·스토리지·배포)을 정리합니다. 요구/명세/시퀀스는 01장에서, 테스트/운영 이슈는 04~05장에서 다룹니다.</p>
 
-    <!-- 1) 클래스 다이어그램 -->
+    <!-- ===================== 1) 클래스 다이어그램 ===================== -->
     <h2 class="section">클래스 다이어그램</h2>
     <figure class="figure">
       <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_클래스다이어그램.png" alt="클래스 다이어그램(전체 도메인)" loading="lazy">
-      <figcaption class="muted">회원(User) · 상품(Item) · 카테고리(Category) · 장바구니(Cart) · 주문(Order) · 주문상품(OrderItem) · 배송(Delivery) · 주소(Address)</figcaption>
+      <figcaption class="muted">User · Item · Category · Cart(생략) · Order · OrderItem · Delivery · Address(Value) · SupportTicket · SupportReply · Attachment · ItemDetail · ItemImage · CategoryItem(매핑)</figcaption>
     </figure>
 
-    <h3 class="section">도메인 요약</h3>
+    <h3 class="section">엔티티 개요(필드/연관/카디널리티)</h3>
+    <table class="tbl">
+      <thead><tr><th>엔티티</th><th>핵심 필드</th><th>연관/카디널리티</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>User</b></td>
+          <td class="mono">id, name, phone, userid, password, address: Address, role: UserRole</td>
+          <td>Order(1..*), SupportTicket(1..*)</td>
+          <td>역할: <span class="mono">CLIENT | ADMIN</span></td>
+        </tr>
+        <tr>
+          <td><b>Order</b></td>
+          <td class="mono">id, orderDate: Date, status: OrderStatus</td>
+          <td>User(1), OrderItem(*), Delivery(1)</td>
+          <td>상태: <span class="mono">ORDER | CANCEL</span></td>
+        </tr>
+        <tr>
+          <td><b>OrderItem</b></td>
+          <td class="mono">id, orderPrice: int, count: int</td>
+          <td>Order(1), Item(1)</td>
+          <td>합계 계산은 도메인 메서드에서 수행</td>
+        </tr>
+        <tr>
+          <td><b>Delivery</b></td>
+          <td class="mono">id, address: Address, status: DeliveryStatus</td>
+          <td>Order(1)</td>
+          <td>상태: <span class="mono">READY | COMP</span></td>
+        </tr>
+        <tr>
+          <td><b>Item</b></td>
+          <td class="mono">id, name, price, stockQuantity, imageUrl, detail: ItemDetail(0..1)</td>
+          <td>CategoryItem(*), ItemImage(*), OrderItem(*)</td>
+          <td>이미지 다중, 상세 정보 0..1</td>
+        </tr>
+        <tr>
+          <td><b>ItemImage</b></td>
+          <td class="mono">id, url, fileName, sortOrder</td>
+          <td>Item(1)</td>
+          <td>정렬 순서 보유</td>
+        </tr>
+        <tr>
+          <td><b>ItemDetail</b></td>
+          <td class="mono">id, description: Text, spec: Text</td>
+          <td>Item(1)</td>
+          <td>상세/스펙 별도 테이블</td>
+        </tr>
+        <tr>
+          <td><b>Category</b></td>
+          <td class="mono">id, name, parent, childList</td>
+          <td>Category(자기참조 1..*), CategoryItem(*)</td>
+          <td>계층 구조</td>
+        </tr>
+        <tr>
+          <td><b>CategoryItem</b></td>
+          <td class="mono">id</td>
+          <td>Category(1) ↔ Item(1)</td>
+          <td>다대다 매핑 엔티티</td>
+        </tr>
+        <tr>
+          <td><b>SupportTicket</b></td>
+          <td class="mono">id, title, category: TicketCategory, content, isPrivate, status: TicketStatus, createdAt</td>
+          <td>User(1), SupportReply(*), Attachment(*)</td>
+          <td>카테고리/상태 ENUM 보유</td>
+        </tr>
+        <tr>
+          <td><b>SupportReply</b></td>
+          <td class="mono">id, content, isStaffReply, createdAt</td>
+          <td>SupportTicket(1), User(1)</td>
+          <td>사용자/관리자 구분 플래그</td>
+        </tr>
+        <tr>
+          <td><b>Attachment</b></td>
+          <td class="mono">id, fileName, uri, mimeType, size</td>
+          <td>SupportTicket(1)</td>
+          <td>첨부파일 메타</td>
+        </tr>
+        <tr>
+          <td><b>Address (Value)</b></td>
+          <td class="mono">city, state, street, zip</td>
+          <td>Order(임베드), Delivery(임베드)</td>
+          <td>값 타입(임베디드)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="section">열거형(ENUM)</h3>
+    <div class="callout">
+      <ul>
+        <li><b>UserRole</b>: <span class="mono">CLIENT, ADMIN</span></li>
+        <li><b>OrderStatus</b>: <span class="mono">ORDER, CANCEL</span></li>
+        <li><b>DeliveryStatus</b>: <span class="mono">READY, COMP</span></li>
+        <li><b>TicketCategory</b>: <span class="mono">ORDER, PAYMENT, DELIVERY, ITEM, ACCOUNT, OTHER</span></li>
+        <li><b>TicketStatus</b>: <span class="mono">OPEN, ANSWERED, CLOSED</span></li>
+      </ul>
+    </div>
+
+    <h3 class="section">연관 및 제약(다이어그램 기준)</h3>
     <ul>
-      <li><b>Order ↔ Delivery (1:1)</b>: FK는 <code>orders.delivery_id</code>에 귀속(필요 시 NULL, <code>ON DELETE SET NULL</code>).</li>
-      <li><b>연관 일관성</b>: <code>Order#setDelivery()</code>, <code>Delivery#assignOrder()</code>로 양방향 동기화 보호.</li>
-      <li><b>OrderItem</b>: 가격×수량 합산을 도메인 메서드로 보유(<code>getTotalPrice()</code>), <code>Order#totalPrice()</code>에서 총합.</li>
-      <li><b>Category–Item</b>: 중간 매핑 엔티티로 다대다 관리, 정적 팩토리/편의 메서드로 일관성 유지.</li>
-      <li><b>엔티티 설계</b>: setter 최소화, 정적 팩토리/생성자 보호, 지연 로딩 기본.</li>
+      <li><b>Order–Delivery</b>는 <b>1:1</b>이며, FK는 <span class="mono">orders.delivery_id</span>로 표기되어 있음.</li>
+      <li><b>Category</b>는 자기참조 트리(부모 1 : 자식 N) 구조.</li>
+      <li><b>Item–Category</b>는 <b>CategoryItem</b>을 통한 다대다.</li>
+      <li><b>Item</b>은 <b>ItemImage</b> 다중(1:N)과 <b>ItemDetail</b> 단일(0..1)을 가짐.</li>
+      <li><b>SupportTicket</b>는 <b>SupportReply</b>와 <b>Attachment</b>를 1:N으로 가짐.</li>
     </ul>
 
     <h3 class="section">조회 전략(요약/상세 분리)</h3>
     <ul>
-      <li><b>주문 목록(마이페이지)</b>: 배송만 fetch(요약 화면).</li>
-      <li><b>주문 상세</b>: 배송 + 주문아이템 + 상품까지 fetch로 N+1 방지.</li>
-      <li><b>파생 쿼리 한계</b>: <i>withItems</i>류는 파싱 불가 → <code>@EntityGraph</code> 또는 JPQL fetch join 사용.</li>
+      <li><b>주문 목록</b>: 배송만 로딩(요약 화면).</li>
+      <li><b>주문 상세</b>: 배송 + 주문아이템 + 상품까지 로딩(N+1 방지).</li>
+      <li><b>권장</b>: 파생 쿼리로 표현 불가한 로딩은 <span class="mono">@EntityGraph</span> 또는 JPQL fetch join.</li>
     </ul>
 
-    <!-- 2) 시스템 다이어그램 -->
+    <!-- ===================== 2) 시스템 다이어그램 ===================== -->
     <h2 class="section">시스템 다이어그램</h2>
-    <p class="muted">Cloud Run(앱) ↔ Cloud SQL(DB) ↔ GCS(이미지) 중심의 단순/안정 구성을 채택합니다. 빌드/마이그레이션은 Cloud Build + Flyway.</p>
+    <p class="muted">Cloud Run(앱) ↔ Cloud SQL(DB) ↔ GCS(이미지) 중심의 구성. 빌드/마이그레이션은 Cloud Build + Flyway.</p>
 
     <div class="gallery-notes">
       <figure>
@@ -140,35 +242,23 @@
 
     <h3 class="section">운영 구성(핵심)</h3>
     <ul>
-      <li><b>프로필</b>: <code>SPRING_PROFILES_ACTIVE=cloud</code>, <code>SPRING_JPA_OPEN_IN_VIEW=false</code>.</li>
-      <li><b>DB</b>: Cloud SQL(PostgreSQL). Flyway로 이관/검증(필요 시 일시 완화 플래그로 부팅 안정화 후 제거).</li>
-      <li><b>스토리지</b>: GCS에 이미지 업로드(버킷/권한/URL 저장).</li>
-      <li><b>빌드·배포</b>: Cloud Build에서 컨테이너 이미지 태그 → Cloud Run 배포, 환경변수로 커넥션/버킷/업로드 경로 주입.</li>
+      <li><b>프로필</b>: <span class="mono">SPRING_PROFILES_ACTIVE=cloud</span>, <span class="mono">SPRING_JPA_OPEN_IN_VIEW=false</span></li>
+      <li><b>DB</b>: Cloud SQL(PostgreSQL) + Flyway(검증/이관).</li>
+      <li><b>스토리지</b>: GCS(이미지), URL/파일명/정렬 정보는 <span class="mono">ItemImage</span>에 저장.</li>
+      <li><b>빌드·배포</b>: Cloud Build → Cloud Run, 환경변수로 커넥션/버킷/업로드 경로 주입.</li>
       <li><b>관측성</b>: P6Spy SQL 로깅 + 요청 상관관계 로깅.</li>
     </ul>
 
     <h2 class="section">아키텍처 결정(요지)</h2>
     <div class="callout">
       <ul>
-        <li><b>ADR-01 · 주문–배송 매핑</b>: 1:1을 <code>orders.delivery_id</code>로 귀속. 도메인 메서드로 양방향 일관성 보장.</li>
-        <li><b>ADR-02 · 조회 최적화</b>: 화면 별 fetch 구분(요약=배송만, 상세=배송+아이템+상품), N+1 방지 원칙.</li>
-        <li><b>ADR-03 · PRG 패턴</b>: POST 성공 후 Redirect를 강제(화이트라벨/중복 제출 방지).</li>
-        <li><b>ADR-04 · 보안</b>: 로그인 성공 시 <code>changeSessionId()</code> 적용, ADMIN/USER 경로 분리 및 인터셉터.</li>
-        <li><b>ADR-05 · 마이그레이션</b>: Flyway로 스키마 이관, 과거 FK 구조 정리 및 히스토리 관리.</li>
+        <li><b>ADR-01 · 주문–배송 1:1</b>: FK를 <span class="mono">orders.delivery_id</span>에 두고, 양방향 편의 메서드로 정합성 보장.</li>
+        <li><b>ADR-02 · 조회 최적화</b>: 화면 별 fetch 구분(요약/상세), N+1 방지.</li>
+        <li><b>ADR-03 · PRG 패턴</b>: POST 후 Redirect(중복 제출/화이트라벨 방지).</li>
+        <li><b>ADR-04 · 권한/세션</b>: <span class="mono">changeSessionId()</span> 도입, ADMIN/USER 경로 분리.</li>
+        <li><b>ADR-05 · 고객센터 서브도메인</b>: Ticket/Reply/Attachment를 독립 집합으로 설계(ENUM 중심 상태 전이).</li>
       </ul>
     </div>
-
-    <h2 class="section">데이터 접근 설계</h2>
-    <ul>
-      <li><b>리포지토리</b>: 요약/상세 전용 메서드 분리. 파생 쿼리로 표현 불가한 연관 로딩은 <code>@EntityGraph</code> 또는 JPQL.</li>
-      <li><b>서비스</b>: 뷰 모델(DTO)로 변환 후 전달. 뷰에서 지연 컬렉션 직접 순회 금지.</li>
-    </ul>
-
-    <h2 class="section">릴리스 & 인프라</h2>
-    <ul>
-      <li><b>파이프라인</b>: GitHub → Cloud Build → Cloud Run. 리비전 로그로 부팅/마이그레이션 상태 점검.</li>
-      <li><b>설정</b>: DB 접속(유저/패스/DB명), Cloud SQL 연결명, 버킷명, 업로드 디렉토리 등 환경변수 관리.</li>
-    </ul>
 
     <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
   </article>
