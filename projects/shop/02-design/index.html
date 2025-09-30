@@ -15,70 +15,56 @@
     .toc-title { font-weight: 700; margin: 6px 0 8px; color: var(--muted); }
     .toc ul { list-style: none; margin: 0; padding: 0; }
     .toc li { margin: 6px 0; }
-    .toc a {
-      display: block; padding: 6px 10px; border-radius: 8px; text-decoration: none; color: inherit;
-      transition: .15s ease;
-    }
+    .toc a { display:block; padding:6px 10px; border-radius:8px; text-decoration:none; color:inherit; transition:.15s ease; }
     .toc a:hover { background: var(--card); transform: translateX(2px); }
 
     /* ===== 타이포 리듬 ===== */
-    .prose h1 { margin-bottom: .3rem; }
+    .prose h1 { margin-bottom:.3rem; }
     .prose .muted { color: var(--muted); }
-    .prose h2.section { margin-top: 1.6rem; }
-    .prose h3.section { margin-top: 1.1rem; }
+    .prose h2.section { margin-top:1.6rem; }
+    .prose h3.section { margin-top:1.1rem; }
 
-    /* ===== 대형 이미지 블록(.figure) ===== */
-    .figure {
-      border: 1px solid var(--border); border-radius: 12px; background: var(--card); overflow: hidden;
-      box-shadow: 0 2px 14px rgba(0,0,0,.04);
-      margin-top: 8px;
-    }
+    /* ===== 대형 이미지(.figure) ===== */
+    .figure { border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden;
+      box-shadow:0 2px 14px rgba(0,0,0,.04); margin-top:8px; }
     .figure img { display:block; width:100%; height:auto; }
-    .figure figcaption { padding:10px 12px; font-size:.92rem; color: var(--muted); }
+    .figure figcaption { padding:10px 12px; font-size:.92rem; color:var(--muted); }
 
-    /* ===== 표 스타일(간결) ===== */
-    .tbl { width:100%; border-collapse: collapse; margin-top:8px; }
-    .tbl th, .tbl td { border:1px solid var(--border); padding:8px 10px; vertical-align: top; }
-    .tbl th { background: var(--card); white-space: nowrap; }
+    /* ===== 표 ===== */
+    .tbl { width:100%; border-collapse:collapse; margin-top:8px; }
+    .tbl th, .tbl td { border:1px solid var(--border); padding:8px 10px; vertical-align:top; }
+    .tbl th { background:var(--card); white-space:nowrap; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 
-    /* ===== 갤러리 카드(.gallery-notes) ===== */
-    .gallery-notes {
-      display:grid; gap:12px; margin-top: 6px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
-    .gallery-notes figure{
-      position:relative; border:1px solid var(--border); border-radius: 12px; background: var(--card);
-      overflow:hidden; transition:.15s ease; box-shadow: 0 2px 10px rgba(0,0,0,.03);
-    }
-    .gallery-notes figure:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-    .gallery-notes img{ width:100%; height:200px; object-fit:cover; display:block; }
-    .gallery-notes figcaption{
-      padding:8px 10px; font-size:.92rem; color:var(--muted);
-      border-top:1px solid var(--border); background:linear-gradient(to bottom, transparent, rgba(0,0,0,.02));
-    }
+    /* ===== 갤러리 카드 ===== */
+    .gallery-notes { display:grid; gap:12px; margin-top:6px; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); }
+    .gallery-notes figure { position:relative; border:1px solid var(--border); border-radius:12px; background:var(--card);
+      overflow:hidden; transition:.15s ease; box-shadow:0 2px 10px rgba(0,0,0,.03); }
+    .gallery-notes figure:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    .gallery-notes img { width:100%; height:200px; object-fit:cover; display:block; }
+    .gallery-notes figcaption { padding:8px 10px; font-size:.92rem; color:var(--muted);
+      border-top:1px solid var(--border); background:linear-gradient(to bottom, transparent, rgba(0,0,0,.02)); }
 
-    /* ===== 콜아웃 ===== */
-    .callout{
-      border:1px solid var(--border); border-radius: 12px; background: var(--card);
-      padding:14px; box-shadow: 0 2px 12px rgba(0,0,0,.03);
-    }
-    .callout ul{ margin:0; padding-left: 18px; }
-    .small { font-size: .92rem; }
+    /* ===== ADR(아키텍처 결정) — 그리드형 카드 ===== */
+    .adr-list { border:1px solid var(--border); border-radius:12px; background:var(--card); padding:12px; display:grid; gap:10px;
+      box-shadow:0 2px 12px rgba(0,0,0,.03); }
+    .adr { display:grid; grid-template-columns:92px 1fr; gap:10px; align-items:start; }
+    .adr .k { font-weight:700; letter-spacing:.2px; }
+    .adr .v { margin:0; }
+    .adr .v b { font-weight:700; }
+    .small { font-size:.92rem; }
 
     /* ===== 라이트박스 ===== */
-    .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-      background:rgba(0,0,0,.92); z-index:9999; }
+    .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.92); z-index:9999; }
     .lightbox.open{ display:flex; }
-    .lightbox img{ max-width: 92vw; max-height: 86vh; border-radius: 8px; }
-    .lightbox .meta{ position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-      color:#fff; font-size:.95rem; opacity:.85; }
+    .lightbox img{ max-width:92vw; max-height:86vh; border-radius:8px; }
+    .lightbox .meta{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); color:#fff; font-size:.95rem; opacity:.85; }
     .lb-nav{ position:fixed; inset:0; display:flex; justify-content:space-between; align-items:center; }
     .lb-btn{ cursor:pointer; color:#fff; font-size:32px; padding:24px; opacity:.75; user-select:none; }
     .lb-btn:hover{ opacity:1; }
 
-    /* ===== 앵커 오프셋 (고정 헤더 대비) ===== */
-    :target { scroll-margin-top: 72px; }
+    /* ===== 앵커 오프셋 ===== */
+    :target { scroll-margin-top:72px; }
   </style>
 </head>
 <body>
@@ -92,7 +78,6 @@
 </header>
 
 <main class="container article">
-  <!-- 좌측 목차: H2(.section) 자동 수집 -->
   <aside class="toc" aria-label="Table of contents">
     <div class="toc-title">섹션 목차</div>
     <ul id="toc-list"></ul>
@@ -102,116 +87,49 @@
     <h1>설계</h1>
     <p class="muted">클래스 다이어그램(도메인 모델)과 시스템 다이어그램(런타임·스토리지·배포)을 정리합니다. 요구/명세/시퀀스는 01장에서, 테스트/운영 이슈는 04~05장에서 다룹니다.</p>
 
-    <!-- ===================== 1) 클래스 다이어그램 ===================== -->
+    <!-- 1) 클래스 다이어그램 -->
     <h2 class="section">클래스 다이어그램</h2>
     <figure class="figure">
       <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_클래스다이어그램.png" alt="클래스 다이어그램(전체 도메인)" loading="lazy">
-      <figcaption class="muted">User · Item · Category · Cart(생략) · Order · OrderItem · Delivery · Address(Value) · SupportTicket · SupportReply · Attachment · ItemDetail · ItemImage · CategoryItem(매핑)</figcaption>
+      <figcaption class="muted">User · Item · Category · Order · OrderItem · Delivery · Address(Value) · SupportTicket · SupportReply · Attachment · ItemDetail · ItemImage · CategoryItem(매핑)</figcaption>
     </figure>
 
     <h3 class="section">엔티티 개요(필드/연관/카디널리티)</h3>
     <table class="tbl">
       <thead><tr><th>엔티티</th><th>핵심 필드</th><th>연관/카디널리티</th><th>비고</th></tr></thead>
       <tbody>
-        <tr>
-          <td><b>User</b></td>
-          <td class="mono">id, name, phone, userid, password, address: Address, role: UserRole</td>
-          <td>Order(1..*), SupportTicket(1..*)</td>
-          <td>역할: <span class="mono">CLIENT | ADMIN</span></td>
-        </tr>
-        <tr>
-          <td><b>Order</b></td>
-          <td class="mono">id, orderDate: Date, status: OrderStatus</td>
-          <td>User(1), OrderItem(*), Delivery(1)</td>
-          <td>상태: <span class="mono">ORDER | CANCEL</span></td>
-        </tr>
-        <tr>
-          <td><b>OrderItem</b></td>
-          <td class="mono">id, orderPrice: int, count: int</td>
-          <td>Order(1), Item(1)</td>
-          <td>합계 계산은 도메인 메서드에서 수행</td>
-        </tr>
-        <tr>
-          <td><b>Delivery</b></td>
-          <td class="mono">id, address: Address, status: DeliveryStatus</td>
-          <td>Order(1)</td>
-          <td>상태: <span class="mono">READY | COMP</span></td>
-        </tr>
-        <tr>
-          <td><b>Item</b></td>
-          <td class="mono">id, name, price, stockQuantity, imageUrl, detail: ItemDetail(0..1)</td>
-          <td>CategoryItem(*), ItemImage(*), OrderItem(*)</td>
-          <td>이미지 다중, 상세 정보 0..1</td>
-        </tr>
-        <tr>
-          <td><b>ItemImage</b></td>
-          <td class="mono">id, url, fileName, sortOrder</td>
-          <td>Item(1)</td>
-          <td>정렬 순서 보유</td>
-        </tr>
-        <tr>
-          <td><b>ItemDetail</b></td>
-          <td class="mono">id, description: Text, spec: Text</td>
-          <td>Item(1)</td>
-          <td>상세/스펙 별도 테이블</td>
-        </tr>
-        <tr>
-          <td><b>Category</b></td>
-          <td class="mono">id, name, parent, childList</td>
-          <td>Category(자기참조 1..*), CategoryItem(*)</td>
-          <td>계층 구조</td>
-        </tr>
-        <tr>
-          <td><b>CategoryItem</b></td>
-          <td class="mono">id</td>
-          <td>Category(1) ↔ Item(1)</td>
-          <td>다대다 매핑 엔티티</td>
-        </tr>
-        <tr>
-          <td><b>SupportTicket</b></td>
-          <td class="mono">id, title, category: TicketCategory, content, isPrivate, status: TicketStatus, createdAt</td>
-          <td>User(1), SupportReply(*), Attachment(*)</td>
-          <td>카테고리/상태 ENUM 보유</td>
-        </tr>
-        <tr>
-          <td><b>SupportReply</b></td>
-          <td class="mono">id, content, isStaffReply, createdAt</td>
-          <td>SupportTicket(1), User(1)</td>
-          <td>사용자/관리자 구분 플래그</td>
-        </tr>
-        <tr>
-          <td><b>Attachment</b></td>
-          <td class="mono">id, fileName, uri, mimeType, size</td>
-          <td>SupportTicket(1)</td>
-          <td>첨부파일 메타</td>
-        </tr>
-        <tr>
-          <td><b>Address (Value)</b></td>
-          <td class="mono">city, state, street, zip</td>
-          <td>Order(임베드), Delivery(임베드)</td>
-          <td>값 타입(임베디드)</td>
-        </tr>
+        <tr><td><b>User</b></td><td class="mono">id, name, phone, userid, password, address: Address, role: UserRole</td><td>Order(1..*), SupportTicket(1..*)</td><td>역할: <span class="mono">CLIENT | ADMIN</span></td></tr>
+        <tr><td><b>Order</b></td><td class="mono">id, orderDate: Date, status: OrderStatus</td><td>User(1), OrderItem(*), Delivery(1)</td><td>상태: <span class="mono">ORDER | CANCEL</span></td></tr>
+        <tr><td><b>OrderItem</b></td><td class="mono">id, orderPrice: int, count: int</td><td>Order(1), Item(1)</td><td>합계 계산은 도메인 메서드</td></tr>
+        <tr><td><b>Delivery</b></td><td class="mono">id, address: Address, status: DeliveryStatus</td><td>Order(1)</td><td>상태: <span class="mono">READY | COMP</span></td></tr>
+        <tr><td><b>Item</b></td><td class="mono">id, name, price, stockQuantity, imageUrl, detail: ItemDetail(0..1)</td><td>CategoryItem(*), ItemImage(*), OrderItem(*)</td><td>이미지 다중, 상세 0..1</td></tr>
+        <tr><td><b>ItemImage</b></td><td class="mono">id, url, fileName, sortOrder</td><td>Item(1)</td><td>정렬 순서</td></tr>
+        <tr><td><b>ItemDetail</b></td><td class="mono">id, description: Text, spec: Text</td><td>Item(1)</td><td>상세/스펙 별도 테이블</td></tr>
+        <tr><td><b>Category</b></td><td class="mono">id, name, parent, childList</td><td>Category(자기참조 1..*), CategoryItem(*)</td><td>계층 구조</td></tr>
+        <tr><td><b>CategoryItem</b></td><td class="mono">id</td><td>Category(1) ↔ Item(1)</td><td>다대다 매핑 엔티티</td></tr>
+        <tr><td><b>SupportTicket</b></td><td class="mono">id, title, category: TicketCategory, content, isPrivate, status: TicketStatus, createdAt</td><td>User(1), SupportReply(*), Attachment(*)</td><td>카테고리/상태 ENUM</td></tr>
+        <tr><td><b>SupportReply</b></td><td class="mono">id, content, isStaffReply, createdAt</td><td>SupportTicket(1), User(1)</td><td>사용자/관리자 구분</td></tr>
+        <tr><td><b>Attachment</b></td><td class="mono">id, fileName, uri, mimeType, size</td><td>SupportTicket(1)</td><td>첨부파일 메타</td></tr>
+        <tr><td><b>Address (Value)</b></td><td class="mono">city, state, street, zip</td><td>Order/Delivery에 임베드</td><td>값 타입</td></tr>
       </tbody>
     </table>
 
     <h3 class="section">열거형(ENUM)</h3>
-    <div class="callout">
-      <ul>
-        <li><b>UserRole</b>: <span class="mono">CLIENT, ADMIN</span></li>
-        <li><b>OrderStatus</b>: <span class="mono">ORDER, CANCEL</span></li>
-        <li><b>DeliveryStatus</b>: <span class="mono">READY, COMP</span></li>
-        <li><b>TicketCategory</b>: <span class="mono">ORDER, PAYMENT, DELIVERY, ITEM, ACCOUNT, OTHER</span></li>
-        <li><b>TicketStatus</b>: <span class="mono">OPEN, ANSWERED, CLOSED</span></li>
-      </ul>
+    <div class="adr-list">
+      <div class="adr"><div class="k">UserRole</div><p class="v mono">CLIENT, ADMIN</p></div>
+      <div class="adr"><div class="k">OrderStatus</div><p class="v mono">ORDER, CANCEL</p></div>
+      <div class="adr"><div class="k">DeliveryStatus</div><p class="v mono">READY, COMP</p></div>
+      <div class="adr"><div class="k">TicketCategory</div><p class="v mono">ORDER, PAYMENT, DELIVERY, ITEM, ACCOUNT, OTHER</p></div>
+      <div class="adr"><div class="k">TicketStatus</div><p class="v mono">OPEN, ANSWERED, CLOSED</p></div>
     </div>
 
     <h3 class="section">연관 및 제약(다이어그램 기준)</h3>
     <ul>
-      <li><b>Order–Delivery</b>는 <b>1:1</b>이며, FK는 <span class="mono">orders.delivery_id</span>로 표기되어 있음.</li>
-      <li><b>Category</b>는 자기참조 트리(부모 1 : 자식 N) 구조.</li>
+      <li><b>Order–Delivery</b>는 <b>1:1</b>, FK는 <span class="mono">orders.delivery_id</span>.</li>
+      <li><b>Category</b>는 자기참조 트리(부모 1 : 자식 N).</li>
       <li><b>Item–Category</b>는 <b>CategoryItem</b>을 통한 다대다.</li>
-      <li><b>Item</b>은 <b>ItemImage</b> 다중(1:N)과 <b>ItemDetail</b> 단일(0..1)을 가짐.</li>
-      <li><b>SupportTicket</b>는 <b>SupportReply</b>와 <b>Attachment</b>를 1:N으로 가짐.</li>
+      <li><b>Item</b>은 <b>ItemImage</b> 다중(1:N), <b>ItemDetail</b> 단일(0..1).</li>
+      <li><b>SupportTicket</b>는 <b>SupportReply</b>, <b>Attachment</b>를 1:N으로 가짐.</li>
     </ul>
 
     <h3 class="section">조회 전략(요약/상세 분리)</h3>
@@ -221,43 +139,23 @@
       <li><b>권장</b>: 파생 쿼리로 표현 불가한 로딩은 <span class="mono">@EntityGraph</span> 또는 JPQL fetch join.</li>
     </ul>
 
-    <!-- ===================== 2) 시스템 다이어그램 ===================== -->
+    <!-- 2) 시스템 다이어그램 -->
     <h2 class="section">시스템 다이어그램</h2>
     <p class="muted">Cloud Run(앱) ↔ Cloud SQL(DB) ↔ GCS(이미지) 중심의 구성. 빌드/마이그레이션은 Cloud Build + Flyway.</p>
 
     <div class="gallery-notes">
-      <figure>
-        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_시스템_다이어그램.png" alt="시스템 다이어그램(상위)" loading="lazy">
-        <figcaption>상위 토폴로지: Web → Cloud Run → Cloud SQL · GCS</figcaption>
-      </figure>
-      <figure>
-        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_배포_내부구조_다이어그램.png" alt="배포 내부구조 다이어그램" loading="lazy">
-        <figcaption>배포 내부구조: GitHub → Cloud Build → Artifact → Cloud Run</figcaption>
-      </figure>
-      <figure>
-        <img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_서비스to저장소_다이어그램.png" alt="서비스↔저장소 연계 다이어그램" loading="lazy">
-        <figcaption>서비스↔저장소: 이미지 업로드(GCS), DB 연결(Cloud SQL)</figcaption>
-      </figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_시스템_다이어그램.png" alt="시스템 다이어그램(상위)" loading="lazy"><figcaption>상위 토폴로지: Web → Cloud Run → Cloud SQL · GCS</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_배포_내부구조_다이어그램.png" alt="배포 내부구조 다이어그램" loading="lazy"><figcaption>배포 내부구조: GitHub → Cloud Build → Artifact → Cloud Run</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/etc/쇼핑몰_서비스to저장소_다이어그램.png" alt="서비스↔저장소 연계 다이어그램" loading="lazy"><figcaption>서비스↔저장소: 이미지 업로드(GCS), DB 연결(Cloud SQL)</figcaption></figure>
     </div>
 
-    <h3 class="section">운영 구성(핵심)</h3>
-    <ul>
-      <li><b>프로필</b>: <span class="mono">SPRING_PROFILES_ACTIVE=cloud</span>, <span class="mono">SPRING_JPA_OPEN_IN_VIEW=false</span></li>
-      <li><b>DB</b>: Cloud SQL(PostgreSQL) + Flyway(검증/이관).</li>
-      <li><b>스토리지</b>: GCS(이미지), URL/파일명/정렬 정보는 <span class="mono">ItemImage</span>에 저장.</li>
-      <li><b>빌드·배포</b>: Cloud Build → Cloud Run, 환경변수로 커넥션/버킷/업로드 경로 주입.</li>
-      <li><b>관측성</b>: P6Spy SQL 로깅 + 요청 상관관계 로깅.</li>
-    </ul>
-
     <h2 class="section">아키텍처 결정(요지)</h2>
-    <div class="callout">
-      <ul>
-        <li><b>ADR-01 · 주문–배송 1:1</b>: FK를 <span class="mono">orders.delivery_id</span>에 두고, 양방향 편의 메서드로 정합성 보장.</li>
-        <li><b>ADR-02 · 조회 최적화</b>: 화면 별 fetch 구분(요약/상세), N+1 방지.</li>
-        <li><b>ADR-03 · PRG 패턴</b>: POST 후 Redirect(중복 제출/화이트라벨 방지).</li>
-        <li><b>ADR-04 · 권한/세션</b>: <span class="mono">changeSessionId()</span> 도입, ADMIN/USER 경로 분리.</li>
-        <li><b>ADR-05 · 고객센터 서브도메인</b>: Ticket/Reply/Attachment를 독립 집합으로 설계(ENUM 중심 상태 전이).</li>
-      </ul>
+    <div class="adr-list">
+      <div class="adr"><div class="k">ADR-01</div><p class="v"><b>주문–배송 1:1</b>: FK를 <span class="mono">orders.delivery_id</span>에 두고, 양방향 편의 메서드로 정합성 보장.</p></div>
+      <div class="adr"><div class="k">ADR-02</div><p class="v"><b>조회 최적화</b>: 화면 별 fetch 구분(요약/상세), N+1 방지.</p></div>
+      <div class="adr"><div class="k">ADR-03</div><p class="v"><b>PRG 패턴</b>: POST 후 Redirect(중복 제출/화이트라벨 방지).</p></div>
+      <div class="adr"><div class="k">ADR-04</div><p class="v"><b>권한/세션</b>: <span class="mono">changeSessionId()</span> 도입, ADMIN/USER 경로 분리.</p></div>
+      <div class="adr"><div class="k">ADR-05</div><p class="v"><b>고객센터 서브도메인</b>: Ticket/Reply/Attachment를 독립 집합으로 설계(ENUM 중심 상태 전이).</p></div>
     </div>
 
     <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
@@ -269,46 +167,33 @@
   <span class="muted">Built with Spring • JPA • QueryDSL</span>
 </footer>
 
-<!-- TOC(H2) + 라이트박스 스크립트 -->
+<!-- TOC(H2) + 라이트박스 -->
 <script>
-  // --- TOC(H2만) + 현재 섹션 하이라이트 ---
   (function(){
-    const article = document.querySelector('article.prose');
-    if(!article) return;
+    const article = document.querySelector('article.prose'); if(!article) return;
     const headers = [...article.querySelectorAll('h2.section')];
     const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
     headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent) });
-
     const toc = document.getElementById('toc-list');
     toc.innerHTML = headers.map(h => `<li><a href="#${h.id}">${h.textContent.trim()}</a></li>`).join('');
-
     const links = [...toc.querySelectorAll('a')];
     const io = new IntersectionObserver(entries=>{
       entries.forEach(e=>{
-        const i = headers.indexOf(e.target);
-        if(i<0) return;
-        const a = links[i];
-        if(e.isIntersecting) a.style.background = 'var(--card)';
-        else a.style.background = '';
+        const i=headers.indexOf(e.target); if(i<0) return;
+        const a=links[i]; a.style.background = e.isIntersecting ? 'var(--card)' : '';
       });
     }, { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 });
     headers.forEach(h => io.observe(h));
   })();
-
-  // --- 라이트박스 ---
   (function(){
-    const imgs = [...document.querySelectorAll('img[data-lb], .gallery-notes img, .figure img')];
+    const imgs=[...document.querySelectorAll('img[data-lb], .gallery-notes img, .figure img')];
     if(!imgs.length) return;
-    const overlay = document.createElement('div');
-    overlay.className = 'lightbox';
-    overlay.innerHTML = `
-      <div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div>
-      <img alt="preview"/><div class="meta"></div>`;
+    const overlay=document.createElement('div');
+    overlay.className='lightbox';
+    overlay.innerHTML=`<div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div><img alt="preview"/><div class="meta"></div>`;
     document.body.appendChild(overlay);
-    let idx = 0;
-
-    const views = imgs.map(img => ({src: img.src, alt: img.alt || ''}));
-    const show = i => { idx=(i+views.length)%views.length; const v=views[idx];
+    let idx=0; const views=imgs.map(img=>({src:img.src, alt:img.alt||''}));
+    const show=i=>{ idx=(i+views.length)%views.length; const v=views[idx];
       overlay.querySelector('img').src=v.src; overlay.querySelector('.meta').textContent=v.alt; overlay.classList.add('open'); };
     imgs.forEach((img,i)=> img.addEventListener('click', ()=>show(i)));
     overlay.addEventListener('click', e=>{
