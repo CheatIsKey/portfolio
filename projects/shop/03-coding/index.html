@@ -111,13 +111,33 @@
       <figure><img data-lb src="/assets/projects/shop/coding/service/support-service.png" alt="SupportService"><figcaption>문의 라이프사이클 — OPEN→ANSWERED→CLOSED</figcaption></figure>
     </div>
 
-    <!-- C. 리포지토리 -->
+    <!-- C. 리포지토리 & 조회 최적화 -->
     <h2 class="section">C. 리포지토리 & 조회 최적화</h2>
+    <p class="small muted">
+      Spring Data JPA의 JPQL(fetch join)으로 N+1을 방지합니다. 현재 구현은 <span class="mono">OrderRepository</span> 하나에
+      <span class="mono">findSummaryByUserId()</span> / <span class="mono">findDetailById()</span> 두 메서드로 구성되어 있으므로,
+      캡처도 이 두 메서드 기준으로만 전시합니다.
+    </p>
+    
     <div class="gallery">
-      <figure><img data-lb src="/assets/projects/shop/coding/repo/order-repo-with-delivery.png" alt="OrderRepository 목록"><figcaption>OrderRepository — 목록용 fetch(배송만)</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/repo/order-repo-detail-fetch.png" alt="OrderRepository 상세"><figcaption>OrderRepository — 상세용 fetch(배송+아이템+상품)</figcaption></figure>
-      <figure><img data-lb src="/assets/projects/shop/coding/repo/item-repo-category.png" alt="ItemRepository"><figcaption>ItemRepository — 카테고리 조인/페이징</figcaption></figure>
+      <figure>
+        <img data-lb src="/assets/projects/shop/coding/repo/order-repo-summary.png"
+             alt="OrderRepository.findSummaryByUserId — 배송/아이템 fetch(목록)">
+        <figcaption>
+          <span class="mono">findSummaryByUserId(userId)</span> — 목록: <b>delivery</b>, <b>orderItems→item</b>까지 fetch.
+          총액 계산/목록 합산을 한 번에 처리(중복 방지용 <span class="mono">distinct</span>).
+        </figcaption>
+      </figure>
+    
+      <figure>
+        <img data-lb src="/assets/projects/shop/coding/repo/order-repo-detail.png"
+             alt="OrderRepository.findDetailById — 배송/아이템 fetch(상세)">
+        <figcaption>
+          <span class="mono">findDetailById(id)</span> — 상세: 목록과 동일한 연관을 fetch하여 N+1 없이 상세 화면 제공.
+        </figcaption>
+      </figure>
     </div>
+
 
     <!-- D. 컨트롤러 -->
     <h2 class="section">D. 웹 계층</h2>
