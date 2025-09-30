@@ -1,166 +1,321 @@
-<h1 class="section">요구사항 분석</h1>
-<p class="muted">유스케이스 · 유스케이스 명세서(22) · 시퀀스 다이어그램(7)로 기능 요구를 정리합니다. (클래스/시스템 다이어그램은 02 설계에서 다룹니다.)</p>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[01] 요구사항 분석 — Shop — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* ===== 레이아웃: 좌 TOC / 우 본문 (반응형) ===== */
+    .article { display:grid; grid-template-columns: 260px 1fr; gap: 18px; }
+    @media (max-width: 980px){ .article { grid-template-columns: 1fr; } }
 
-<!-- =========================================================
-  1) 유스케이스 다이어그램
-========================================================= -->
-<h2 class="section">유스케이스 다이어그램</h2>
-<figure class="figure">
-  <img data-lb src="/assets/projects/shop/requirements/usecase/쇼핑몰_유스케이스.png" alt="유스케이스 다이어그램(대표)">
-  <figcaption class="muted">고객/관리자 액터, 로그인 관계, 대표 유스케이스 상관관계</figcaption>
-</figure>
-<p>
-  고객은 카탈로그 탐색→장바구니→주문/취소→내역조회 흐름을 갖고, 관리자는 상품·카테고리·문의·사용자를 관리합니다.
-  인증 후 권한(고객/관리자)에 따라 노출 기능이 분리됩니다.
-</p>
+    /* ===== TOC ===== */
+    .toc { position: sticky; top: 68px; align-self: start; }
+    .toc-title { font-weight: 700; margin: 6px 0 8px; color: var(--muted); }
+    .toc ul { list-style: none; margin: 0; padding: 0; }
+    .toc li { margin: 6px 0; }
+    .toc a {
+      display: block; padding: 6px 10px; border-radius: 8px; text-decoration: none; color: inherit;
+      transition: .15s ease;
+    }
+    .toc a:hover { background: var(--card); transform: translateX(2px); }
 
-<!-- =========================================================
-  2) 유스케이스 명세서 (총 22)
-     - 그룹별로 묶고, 각 그룹 아래에 요약 설명을 배치
-========================================================= -->
-<h2 class="section">유스케이스 명세서 (총 22)</h2>
+    /* ===== 타이포 리듬 ===== */
+    .prose h1 { margin-bottom: .3rem; }
+    .prose .muted { color: var(--muted); }
+    .prose h2.section { margin-top: 1.6rem; }
+    .prose h3.section { margin-top: 1.1rem; }
 
-<h3 class="section">인증 · 회원</h3>
-<p class="muted">
-  로그인/로그아웃, 회원정보수정, 마이페이지, (관리자) 사용자 관리 등 인증과 계정 수명주기를 정의합니다.
-  세션 고정 방지(changeSessionId), 권한 분기(ADMIN/USER), 본인 정보·주문만 접근 같은 보안 요구가 포함됩니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그인_명세서.png" alt="로그인 명세서"><figcaption>로그인</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그아웃_명세서.png" alt="로그아웃 명세서"><figcaption>로그아웃</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_회원정보수정_명세서.png" alt="회원정보수정 명세서"><figcaption>회원정보수정</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_마이페이지_명세서.png" alt="마이페이지 명세서"><figcaption>마이페이지</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_사용자관리_명세서.png" alt="사용자관리(관리자) 명세서"><figcaption>사용자관리(관리자)</figcaption></figure>
-</div>
+    /* ===== 대형 이미지 블록(.figure) ===== */
+    .figure {
+      border: 1px solid var(--border); border-radius: 12px; background: var(--card); overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,.04);
+      margin-top: 8px;
+    }
+    .figure img { display:block; width:100%; height:auto; }
+    .figure figcaption { padding:10px 12px; font-size:.92rem; color: var(--muted); }
 
-<h3 class="section">카탈로그 · 검색 · 상품</h3>
-<p class="muted">
-  카테고리/키워드 기반 동적 검색과 목록/상세 UX를 정의합니다. 성능 요구(N+1 방지)를 반영해,
-  화면에서는 지연 컬렉션을 직접 펼치지 않고 서비스 계층에서 DTO/Fetch 전략으로 완비해 전달합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품검색_명세서.png" alt="상품검색 명세서"><figcaption>상품검색</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리검색_명세서.png" alt="카테고리검색 명세서"><figcaption>카테고리검색</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품목록_명세서.png" alt="상품목록 명세서"><figcaption>상품목록</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품상세_명세서.png" alt="상품상세 명세서"><figcaption>상품상세</figcaption></figure>
-</div>
+    /* ===== 갤러리 카드(.gallery-notes) ===== */
+    .gallery-notes {
+      display:grid; gap:12px; margin-top: 6px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .gallery-notes figure{
+      position:relative; border:1px solid var(--border); border-radius: 12px; background: var(--card);
+      overflow:hidden; transition:.15s ease; box-shadow: 0 2px 10px rgba(0,0,0,.03);
+    }
+    .gallery-notes figure:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+    .gallery-notes img{ width:100%; height:190px; object-fit:cover; display:block; }
+    .gallery-notes figcaption{
+      padding:8px 10px; font-size:.92rem; color:var(--muted);
+      border-top:1px solid var(--border); background:linear-gradient(to bottom, transparent, rgba(0,0,0,.02));
+    }
 
-<h3 class="section">장바구니</h3>
-<p class="muted">
-  수량 0 → 품목 삭제, 재고 초과 → 서버가 자동 보정 + 안내 메시지. “담긴 수량 + 추가 수량 ≤ 재고”를 항상 보장하여
-  주문 시 재고 불일치로 인한 예외를 최소화합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_장바구니_명세서.png" alt="장바구니 명세서"><figcaption>장바구니</figcaption></figure>
-</div>
+    /* ===== 콜아웃 ===== */
+    .callout{
+      border:1px solid var(--border); border-radius: 12px; background: var(--card);
+      padding:14px; box-shadow: 0 2px 12px rgba(0,0,0,.03);
+    }
+    .callout ul{ margin:0; padding-left: 18px; }
+    .small { font-size: .92rem; }
 
-<h3 class="section">주문</h3>
-<p class="muted">
-  장바구니 기반 주문 생성, 주문 목록/상세 조회, 조건 충족 시 취소. 배송 완료(<code>COMP</code>) 상태면 취소 불가.
-  POST 이후에는 반드시 Redirect로 이동하여 화이트라벨/새로고침 중복 문제를 방지합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문_명세서.png" alt="주문 명세서"><figcaption>주문</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문목록_명세서.png" alt="주문목록 명세서"><figcaption>주문목록</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문상세_명세서.png" alt="주문상세 명세서"><figcaption>주문상세</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문취소_명세서.png" alt="주문취소 명세서"><figcaption>주문취소</figcaption></figure>
-</div>
+    /* ===== 본문 이미지 공통 개선 ===== */
+    img[loading="lazy"]{ transform: translateZ(0); }
+    .prose img{ border-radius: 0; } /* figure/card가 보더 관리 */
 
-<h3 class="section">문의 · 고객센터</h3>
-<p class="muted">
-  문의 작성→조회→답변→종결의 라이프사이클. 관리자 전용 조회·필터가 포함되어 SLA에 맞춘 대응을 지원합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의작성_명세서.png" alt="문의작성 명세서"><figcaption>문의작성</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회_명세서.png" alt="문의글조회 명세서"><figcaption>문의조회</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회(관리자)_명세서.png" alt="문의글조회(관리자) 명세서"><figcaption>문의조회(관리자)</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글답변_명세서.png" alt="문의글답변 명세서"><figcaption>문의답변</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글종결_명세서.png" alt="문의글종결 명세서"><figcaption>문의종결</figcaption></figure>
-</div>
+    /* ===== 라이트박스 ===== */
+    .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.92); z-index:9999; }
+    .lightbox.open{ display:flex; }
+    .lightbox img{ max-width: 92vw; max-height: 86vh; border-radius: 8px; }
+    .lightbox .meta{ position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      color:#fff; font-size:.95rem; opacity:.85; }
+    .lb-nav{ position:fixed; inset:0; display:flex; justify-content:space-between; align-items:center; }
+    .lb-btn{ cursor:pointer; color:#fff; font-size:32px; padding:24px; opacity:.75; user-select:none; }
+    .lb-btn:hover{ opacity:1; }
 
-<!-- =========================================================
-  3) 시퀀스 다이어그램 (총 7)
-========================================================= -->
-<h2 class="section">시퀀스 다이어그램 (총 7)</h2>
+    /* ===== 앵커 오프셋 (고정 헤더 대비) ===== */
+    :target { scroll-margin-top: 72px; }
+  </style>
+</head>
+<body>
+<header class="site-header container">
+  <a class="brand" href="/">spring-jpa.dev</a>
+  <nav class="nav">
+    <a class="active" href="/projects/">Projects</a>
+    <a href="/notes/">Notes</a>
+    <a class="cta" href="https://shop.spring-jpa.dev" target="_blank" rel="noreferrer">Shop Demo →</a>
+  </nav>
+</header>
 
-<h3 class="section">인증 · 회원</h3>
-<p class="muted">
-  로그인 시 세션 발급 및 권한 검증, 네비게이션 분기까지의 호출 흐름을 시각화합니다.
-  실패·만료 케이스 처리(리다이렉트/메시지)도 반영합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_인증세션_순차.png" alt="인증세션 순차"><figcaption>인증세션</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_사용자기능_순차.png" alt="사용자기능 순차"><figcaption>사용자기능</figcaption></figure>
-</div>
+<main class="container article">
+  <!-- 좌측 목차: H2(.section) 자동 수집 -->
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-title">섹션 목차</div>
+    <ul id="toc-list"></ul>
+  </aside>
 
-<h3 class="section">카탈로그 · 장바구니</h3>
-<p class="muted">
-  상품 탐색→장바구니 담기/수량 변경→총액 반영까지의 상호작용을 단계별로 표현합니다.
-  재고 상한 검증과 메시지 처리(Flash)가 포함됩니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_카탈로그_장바구니_순차.png" alt="카탈로그→장바구니 순차"><figcaption>카탈로그→장바구니</figcaption></figure>
-</div>
+  <article class="prose">
+    <h1>요구사항 분석</h1>
+    <p class="muted">유스케이스 · 유스케이스 명세서(22) · 시퀀스 다이어그램(7)로 기능 요구를 정리합니다. (클래스/시스템 다이어그램은 02 설계에서 다룹니다.)</p>
 
-<h3 class="section">주문</h3>
-<p class="muted">
-  장바구니에서 주소 수집→주문 생성→상세 페이지로 Redirect. 중복 제출 방지를 위해 PRG(Post/Redirect/Get)를 준수합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_주문_순차.png" alt="주문 순차"><figcaption>주문</figcaption></figure>
-</div>
+    <!-- 1) 유스케이스 다이어그램 -->
+    <h2 class="section">유스케이스 다이어그램</h2>
+    <figure class="figure">
+      <img data-lb src="/assets/projects/shop/requirements/usecase/쇼핑몰_유스케이스.png" alt="유스케이스 다이어그램(대표)" loading="lazy">
+      <figcaption class="muted">고객/관리자 액터, 로그인 관계, 대표 유스케이스 상관관계</figcaption>
+    </figure>
+    <p>
+      고객은 카탈로그 탐색→장바구니→주문/취소→내역조회 흐름을 갖고, 관리자는 상품·카테고리·문의·사용자를 관리합니다.
+      인증 후 권한(고객/관리자)에 따라 노출 기능이 분리됩니다.
+    </p>
 
-<h3 class="section">상품/관리자 · 고객센터</h3>
-<p class="muted">
-  관리자 상품 등록/관리, 사용자 조회(검색·페이징), 고객센터 문의 처리(답변/종결) 등 백오피스 흐름을 정리합니다.
-</p>
-<div class="gallery-notes">
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_상품등록_순차.png" alt="상품등록 순차"><figcaption>상품등록</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_관리자기능_순차.png" alt="관리자기능 순차"><figcaption>관리자기능</figcaption></figure>
-  <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_고객센터_순차.png" alt="고객센터 순차"><figcaption>고객센터</figcaption></figure>
-</div>
+    <!-- 2) 유스케이스 명세서 -->
+    <h2 class="section">유스케이스 명세서 (총 22)</h2>
 
-<!-- =========================================================
-  4) 요구사항 종합 (길게)
-========================================================= -->
-<h2 class="section">요구사항 종합</h2>
+    <h3 class="section">인증 · 회원</h3>
+    <p class="muted">
+      로그인/로그아웃, 회원정보수정, 마이페이지, (관리자) 사용자 관리 등 인증과 계정 수명주기를 정의합니다.
+      세션 고정 방지(changeSessionId), 권한 분기(ADMIN/USER), 본인 정보·주문만 접근 같은 보안 요구가 포함됩니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그인_명세서.png" alt="로그인 명세서" loading="lazy"><figcaption>로그인</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_로그아웃_명세서.png" alt="로그아웃 명세서" loading="lazy"><figcaption>로그아웃</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_회원정보수정_명세서.png" alt="회원정보수정 명세서" loading="lazy"><figcaption>회원정보수정</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_마이페이지_명세서.png" alt="마이페이지 명세서" loading="lazy"><figcaption>마이페이지</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_사용자관리_명세서.png" alt="사용자관리(관리자) 명세서" loading="lazy"><figcaption>사용자관리(관리자)</figcaption></figure>
+    </div>
 
-<h3 class="section">기능 요구(Actors 기준)</h3>
-<ul>
-  <li><b>고객</b>: 카탈로그 탐색/검색, 상품 상세, 장바구니(담기/변경/삭제/비우기), 주문 생성·상세·목록, 주문 취소(제약 조건), 마이페이지 주문 내역, 문의 등록</li>
-  <li><b>관리자</b>: 상품 등록/관리(이미지 업로드 포함), 카테고리 등록/삭제/계층 관리, 사용자 조회(검색/페이징), 문의 조회·답변·종결</li>
-</ul>
+    <h3 class="section">카탈로그 · 검색 · 상품</h3>
+    <p class="muted">
+      카테고리/키워드 기반 동적 검색과 목록/상세 UX를 정의합니다. 성능 요구(N+1 방지)를 반영해,
+      화면에서는 지연 컬렉션을 직접 펼치지 않고 서비스 계층에서 DTO/Fetch 전략으로 완비해 전달합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품검색_명세서.png" alt="상품검색 명세서" loading="lazy"><figcaption>상품검색</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_카테고리검색_명세서.png" alt="카테고리검색 명세서" loading="lazy"><figcaption>카테고리검색</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품목록_명세서.png" alt="상품목록 명세서" loading="lazy"><figcaption>상품목록</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_상품상세_명세서.png" alt="상품상세 명세서" loading="lazy"><figcaption>상품상세</figcaption></figure>
+    </div>
 
-<h3 class="section">비즈니스 규칙</h3>
-<ul>
-  <li><b>장바구니 수량</b>: 담긴 수량 + 추가 수량 ≤ 재고(초과 시 자동 보정 + 안내 메시지), 수량 0 → 품목 삭제</li>
-  <li><b>주문 취소</b>: 배송 상태가 <code>COMP</code>면 취소 불가(도메인 규칙으로 강제)</li>
-  <li><b>접근 제어</b>: 본인 주문만 조회 가능(사용자와 주문의 소유자 일치 검사)</li>
-</ul>
+    <h3 class="section">장바구니</h3>
+    <p class="muted">
+      수량 0 → 품목 삭제, 재고 초과 → 서버가 자동 보정 + 안내 메시지. “담긴 수량 + 추가 수량 ≤ 재고”를 항상 보장하여
+      주문 시 재고 불일치로 인한 예외를 최소화합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_장바구니_명세서.png" alt="장바구니 명세서" loading="lazy"><figcaption>장바구니</figcaption></figure>
+    </div>
 
-<h3 class="section">화면·흐름 규칙</h3>
-<ul>
-  <li><b>PRG 패턴</b>: POST 성공 후 반드시 Redirect(화이트라벨 및 새로고침 중복 방지)</li>
-  <li><b>데이터 전달</b>: 지연 컬렉션은 뷰에서 직접 순회 금지, 서비스 계층에서 DTO/Fetch로 완비 후 전달</li>
-</ul>
+    <h3 class="section">주문</h3>
+    <p class="muted">
+      장바구니 기반 주문 생성, 주문 목록/상세 조회, 조건 충족 시 취소. 배송 완료(<code>COMP</code>) 상태면 취소 불가.
+      POST 이후에는 반드시 Redirect로 이동하여 화이트라벨/새로고침 중복 문제를 방지합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문_명세서.png" alt="주문 명세서" loading="lazy"><figcaption>주문</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문목록_명세서.png" alt="주문목록 명세서" loading="lazy"><figcaption>주문목록</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문상세_명세서.png" alt="주문상세 명세서" loading="lazy"><figcaption>주문상세</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_주문취소_명세서.png" alt="주문취소 명세서" loading="lazy"><figcaption>주문취소</figcaption></figure>
+    </div>
 
-<h3 class="section">성능·품질 요구</h3>
-<ul>
-  <li><b>N+1 방지</b>: 요약/상세 화면별로 Fetch 전략을 분리(목록: delivery만, 상세: delivery+orderItems+item)</li>
-  <li><b>Repository 설계</b>: 파생 쿼리 네이밍의 한계를 인지하고 EntityGraph/JPQL(fetch join)로 대응</li>
-  <li><b>로그 상관관계</b>: 요청 단위의 추적 가능성 확보(SQL/애플리케이션 로그)</li>
-</ul>
+    <h3 class="section">문의 · 고객센터</h3>
+    <p class="muted">
+      문의 작성→조회→답변→종결의 라이프사이클. 관리자 전용 조회·필터가 포함되어 SLA에 맞춘 대응을 지원합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의작성_명세서.png" alt="문의작성 명세서" loading="lazy"><figcaption>문의작성</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회_명세서.png" alt="문의글조회 명세서" loading="lazy"><figcaption>문의조회</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글조회(관리자)_명세서.png" alt="문의글조회(관리자) 명세서" loading="lazy"><figcaption>문의조회(관리자)</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글답변_명세서.png" alt="문의글답변 명세서" loading="lazy"><figcaption>문의답변</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/specs/쇼핑몰_문의글종결_명세서.png" alt="문의글종결 명세서" loading="lazy"><figcaption>문의종결</figcaption></figure>
+    </div>
 
-<h3 class="section">보안·인증 요구</h3>
-<ul>
-  <li><b>세션 고정 방지</b>: 로그인 성공 시 <code>changeSessionId()</code></li>
-  <li><b>권한 분리</b>: ADMIN/USER 메뉴 및 라우팅 분리, 인터셉터로 접근 제어</li>
-</ul>
+    <!-- 3) 시퀀스 다이어그램 -->
+    <h2 class="section">시퀀스 다이어그램 (총 7)</h2>
 
-<h3 class="section">남은 과제</h3>
-<ul>
-  <li>주문 상세 데이터 로딩 검증(본인 주문 검증 포함), 금액 Formatter 적용</li>
-  <li>Address 정적 팩토리 도입 및 파라미터 순서 일치</li>
-</ul>
+    <h3 class="section">인증 · 회원</h3>
+    <p class="muted">
+      로그인 시 세션 발급 및 권한 검증, 네비게이션 분기까지의 호출 흐름을 시각화합니다.
+      실패·만료 케이스 처리(리다이렉트/메시지)도 반영합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_인증세션_순차.png" alt="인증세션 순차" loading="lazy"><figcaption>인증세션</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_사용자기능_순차.png" alt="사용자기능 순차" loading="lazy"><figcaption>사용자기능</figcaption></figure>
+    </div>
 
-<p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+    <h3 class="section">카탈로그 · 장바구니</h3>
+    <p class="muted">
+      상품 탐색→장바구니 담기/수량 변경→총액 반영까지의 상호작용을 단계별로 표현합니다.
+      재고 상한 검증과 메시지 처리(Flash)가 포함됩니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_카탈로그_장바구니_순차.png" alt="카탈로그→장바구니 순차" loading="lazy"><figcaption>카탈로그→장바구니</figcaption></figure>
+    </div>
+
+    <h3 class="section">주문</h3>
+    <p class="muted">
+      장바구니에서 주소 수집→주문 생성→상세 페이지로 Redirect. 중복 제출 방지를 위해 PRG(Post/Redirect/Get)를 준수합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_주문_순차.png" alt="주문 순차" loading="lazy"><figcaption>주문</figcaption></figure>
+    </div>
+
+    <h3 class="section">상품/관리자 · 고객센터</h3>
+    <p class="muted">
+      관리자 상품 등록/관리, 사용자 조회(검색·페이징), 고객센터 문의 처리(답변/종결) 등 백오피스 흐름을 정리합니다.
+    </p>
+    <div class="gallery-notes">
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_상품등록_순차.png" alt="상품등록 순차" loading="lazy"><figcaption>상품등록</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_관리자기능_순차.png" alt="관리자기능 순차" loading="lazy"><figcaption>관리자기능</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/requirements/sequence/쇼핑몰_고객센터_순차.png" alt="고객센터 순차" loading="lazy"><figcaption>고객센터</figcaption></figure>
+    </div>
+
+    <!-- 4) 요구사항 종합 -->
+    <h2 class="section">요구사항 종합</h2>
+
+    <h3 class="section">기능 요구(Actors 기준)</h3>
+    <ul>
+      <li><b>고객</b>: 카탈로그 탐색/검색, 상품 상세, 장바구니(담기/변경/삭제/비우기), 주문 생성·상세·목록, 주문 취소(제약 조건), 마이페이지 주문 내역, 문의 등록</li>
+      <li><b>관리자</b>: 상품 등록/관리(이미지 업로드 포함), 카테고리 등록/삭제/계층 관리, 사용자 조회(검색/페이징), 문의 조회·답변·종결</li>
+    </ul>
+
+    <h3 class="section">비즈니스 규칙</h3>
+    <ul>
+      <li><b>장바구니 수량</b>: 담긴 수량 + 추가 수량 ≤ 재고(초과 시 자동 보정 + 안내 메시지), 수량 0 → 품목 삭제</li>
+      <li><b>주문 취소</b>: 배송 상태가 <code>COMP</code>면 취소 불가(도메인 규칙으로 강제)</li>
+      <li><b>접근 제어</b>: 본인 주문만 조회 가능(사용자와 주문의 소유자 일치 검사)</li>
+    </ul>
+
+    <h3 class="section">화면·흐름 규칙</h3>
+    <ul>
+      <li><b>PRG 패턴</b>: POST 성공 후 반드시 Redirect(화이트라벨 및 새로고침 중복 방지)</li>
+      <li><b>데이터 전달</b>: 지연 컬렉션은 뷰에서 직접 순회 금지, 서비스 계층에서 DTO/Fetch로 완비 후 전달</li>
+    </ul>
+
+    <h3 class="section">성능·품질 요구</h3>
+    <ul>
+      <li><b>N+1 방지</b>: 요약/상세 화면별로 Fetch 전략을 분리(목록: delivery만, 상세: delivery+orderItems+item)</li>
+      <li><b>Repository 설계</b>: 파생 쿼리 네이밍의 한계를 인지하고 EntityGraph/JPQL(fetch join)로 대응</li>
+      <li><b>로그 상관관계</b>: 요청 단위의 추적 가능성 확보(SQL/애플리케이션 로그)</li>
+    </ul>
+
+    <h3 class="section">보안·인증 요구</h3>
+    <ul>
+      <li><b>세션 고정 방지</b>: 로그인 성공 시 <code>changeSessionId()</code></li>
+      <li><b>권한 분리</b>: ADMIN/USER 메뉴 및 라우팅 분리, 인터셉터로 접근 제어</li>
+    </ul>
+
+    <h3 class="section">남은 과제</h3>
+    <ul>
+      <li>주문 상세 데이터 로딩 검증(본인 주문 검증 포함), 금액 Formatter 적용</li>
+      <li>Address 정적 팩토리 도입 및 파라미터 순서 일치</li>
+    </ul>
+
+    <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+  </article>
+</main>
+
+<footer class="container site-footer">
+  <span>© spring-jpa.dev</span>
+  <span class="muted">Built with Spring • JPA • QueryDSL</span>
+</footer>
+
+<!-- TOC(H2) + 라이트박스 스크립트 -->
+<script>
+  // --- TOC(H2만) + 현재 섹션 하이라이트 ---
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+    headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent) });
+
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = headers.map(h => `<li><a href="#${h.id}">${h.textContent.trim()}</a></li>`).join('');
+
+    const links = [...toc.querySelectorAll('a')];
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        const i = headers.indexOf(e.target);
+        if(i<0) return;
+        const a = links[i];
+        if(e.isIntersecting) a.style.background = 'var(--card)';
+        else a.style.background = '';
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0.01 });
+    headers.forEach(h => io.observe(h));
+  })();
+
+  // --- 라이트박스 ---
+  (function(){
+    const imgs = [...document.querySelectorAll('img[data-lb], .gallery-notes img, .figure img')];
+    if(!imgs.length) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.innerHTML = `
+      <div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div>
+      <img alt="preview"/><div class="meta"></div>`;
+    document.body.appendChild(overlay);
+    let idx = 0;
+
+    const views = imgs.map(img => ({src: img.src, alt: img.alt || ''}));
+    const show = i => { idx=(i+views.length)%views.length; const v=views[idx];
+      overlay.querySelector('img').src=v.src; overlay.querySelector('.meta').textContent=v.alt; overlay.classList.add('open'); };
+    imgs.forEach((img,i)=> img.addEventListener('click', ()=>show(i)));
+    overlay.addEventListener('click', e=>{
+      if(e.target.dataset.act==='prev') show(idx-1);
+      else if(e.target.dataset.act==='next') show(idx+1);
+      else if(e.target.classList.contains('lightbox')) overlay.classList.remove('open');
+    });
+    document.addEventListener('keydown', e=>{
+      if(!overlay.classList.contains('open')) return;
+      if(e.key==='Escape') overlay.classList.remove('open');
+      if(e.key==='ArrowLeft') show(idx-1);
+      if(e.key==='ArrowRight') show(idx+1);
+    });
+  })();
+</script>
+</body>
+</html>
