@@ -45,7 +45,7 @@
     .gallery-notes figcaption { padding:8px 10px; font-size:.92rem; color:var(--muted);
       border-top:1px solid var(--border); background:linear-gradient(to bottom, transparent, rgba(0,0,0,.02)); }
 
-    /* ===== ADR(아키텍처 결정) — 그리드형 카드 ===== */
+    /* ===== ADR(아키텍처 결정) — 그리드 카드 ===== */
     .adr-list { border:1px solid var(--border); border-radius:12px; background:var(--card); padding:12px; display:grid; gap:10px;
       box-shadow:0 2px 12px rgba(0,0,0,.03); }
     .adr { display:grid; grid-template-columns:92px 1fr; gap:10px; align-items:start; }
@@ -53,6 +53,15 @@
     .adr .v { margin:0; }
     .adr .v b { font-weight:700; }
     .small { font-size:.92rem; }
+
+    /* ===== ENUM 섹션(겹침 방지용 2열 레이아웃) ===== */
+    .enum-list {
+      border:1px solid var(--border); border-radius:12px; background:var(--card);
+      padding:12px; box-shadow:0 2px 12px rgba(0,0,0,.03); display:grid; gap:6px;
+    }
+    .enum { display:grid; grid-template-columns:140px 1fr; gap:10px; align-items:start; }
+    .enum .k { font-weight:700; }
+    .enum .v { word-break:break-word; }
 
     /* ===== 라이트박스 ===== */
     .lightbox{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.92); z-index:9999; }
@@ -114,13 +123,14 @@
       </tbody>
     </table>
 
+    <!-- 개선된 ENUM: 2열 레이아웃 -->
     <h3 class="section">열거형(ENUM)</h3>
-    <div class="adr-list">
-      <div class="adr"><div class="k">UserRole</div><p class="v mono">CLIENT, ADMIN</p></div>
-      <div class="adr"><div class="k">OrderStatus</div><p class="v mono">ORDER, CANCEL</p></div>
-      <div class="adr"><div class="k">DeliveryStatus</div><p class="v mono">READY, COMP</p></div>
-      <div class="adr"><div class="k">TicketCategory</div><p class="v mono">ORDER, PAYMENT, DELIVERY, ITEM, ACCOUNT, OTHER</p></div>
-      <div class="adr"><div class="k">TicketStatus</div><p class="v mono">OPEN, ANSWERED, CLOSED</p></div>
+    <div class="enum-list">
+      <div class="enum"><span class="k">UserRole</span><span class="v mono">CLIENT, ADMIN</span></div>
+      <div class="enum"><span class="k">OrderStatus</span><span class="v mono">ORDER, CANCEL</span></div>
+      <div class="enum"><span class="k">DeliveryStatus</span><span class="v mono">READY, COMP</span></div>
+      <div class="enum"><span class="k">TicketCategory</span><span class="v mono">ORDER, PAYMENT, DELIVERY, ITEM, ACCOUNT, OTHER</span></div>
+      <div class="enum"><span class="k">TicketStatus</span><span class="v mono">OPEN, ANSWERED, CLOSED</span></div>
     </div>
 
     <h3 class="section">연관 및 제약(다이어그램 기준)</h3>
