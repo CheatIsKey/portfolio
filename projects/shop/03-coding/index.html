@@ -6,16 +6,37 @@
   <title>[03] 코딩 — Shop — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    .layout{display:grid;grid-template-columns:260px 1fr;gap:16px}
-    @media (max-width:980px){.layout{grid-template-columns:1fr}}
-    .sidebar{position:sticky;top:68px;align-self:start}
-    .crumb{font-size:.9rem;color:var(--muted);margin-bottom:6px}
-    .toc a{display:block;padding:6px 8px;border-radius:6px;text-decoration:none}
-    .toc a:hover{background:var(--card)}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
-    .thumb{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)}
-    .thumb img{width:100%;height:200px;object-fit:cover;display:block}
-    .thumb figcaption{padding:8px;font-size:.9rem;color:var(--muted)}
+    .article{display:grid;grid-template-columns:260px 1fr;gap:18px}
+    @media(max-width:980px){.article{grid-template-columns:1fr}}
+    .toc{position:sticky;top:68px;align-self:start}
+    .toc-title{font-weight:700;margin:6px 0 8px;color:var(--muted)}
+    .toc ul{list-style:none;margin:0;padding:0}
+    .toc li{margin:6px 0}
+    .toc a{display:block;padding:6px 10px;border-radius:8px;text-decoration:none;color:inherit;transition:.15s ease}
+    .toc a:hover{background:var(--card);transform:translateX(2px)}
+    .prose h1{margin-bottom:.3rem}
+    .prose .muted{color:var(--muted)}
+    .prose h2.section{margin-top:1.6rem}
+    .prose h3.section{margin-top:1.1rem}
+    .figure{border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.04);margin-top:8px}
+    .figure img{display:block;width:100%;height:auto}
+    .figure figcaption{padding:10px 12px;font-size:.92rem;color:var(--muted)}
+    .gallery{display:grid;gap:12px;margin-top:6px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .gallery figure{border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden;transition:.15s ease;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+    .gallery figure:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .gallery img{width:100%;height:200px;object-fit:cover;display:block}
+    .gallery figcaption{padding:8px 10px;font-size:.92rem;color:var(--muted);border-top:1px solid var(--border);background:linear-gradient(to bottom,transparent,rgba(0,0,0,.02))}
+    .callout{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:12px;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+    .small{font-size:.92rem}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);z-index:9999}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:92vw;max-height:86vh;border-radius:8px}
+    .lightbox .meta{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:#fff;font-size:.95rem;opacity:.85}
+    .lb-nav{position:fixed;inset:0;display:flex;justify-content:space-between;align-items:center}
+    .lb-btn{cursor:pointer;color:#fff;font-size:32px;padding:24px;opacity:.75;user-select:none}
+    .lb-btn:hover{opacity:1}
+    :target{scroll-margin-top:72px}
   </style>
 </head>
 <body>
@@ -28,78 +49,147 @@
   </nav>
 </header>
 
-<main class="container">
-  <div class="crumb"><a href="/projects/">Projects</a> / <a href="/projects/shop/">Shop</a> / 03 코딩</div>
+<main class="container article">
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-title">섹션 목차</div>
+    <ul id="toc-list"></ul>
+  </aside>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="card"><div class="card-head"><strong>목차</strong></div><nav class="toc"><ul id="toc-list"></ul></nav></div>
-      <div class="card" style="margin-top:10px"><div class="card-head"><strong>Shop — 챕터</strong></div><nav id="chapters"></nav></div>
-    </aside>
+  <article class="prose">
+    <h1>코딩</h1>
+    <p class="muted">01·02장의 다이어그램을 바탕으로 구현한 <b>대표 코드 스냅샷</b>을 정리합니다. (길고 반복적인 코드는 저장소에서 확인하도록 링크/경로만 제시)</p>
 
-    <article class="prose" id="content">
-      <h1 class="section">코딩</h1>
-      <p class="muted">코드 스냅샷(이미지)과 구현 의도/설명을 정리합니다.</p>
-
-      <h2 class="section">핵심 구현 스냅샷</h2>
-      <div class="gallery">
-        <figure class="thumb">
-          <img src="/assets/projects/shop/coding/code-검색조건-01.png" alt="검색 조건 조립" loading="lazy">
-          <figcaption>QueryDSL 동적 조건 조립</figcaption>
-        </figure>
-        <!-- 추가 이미지 계속 -->
-      </div>
-
-      <h2 class="section">구현 설명</h2>
-      <ul>
-        <li>DTO 분리: API·뷰 모델과 엔티티 의존 차단</li>
-        <li>N+1 회피 전략: fetch join + batch_size</li>
-        <li>정렬/페이징: order spec 조합</li>
-      </ul>
-
-      <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
-    </article>
-  </div>
-
-  <div class="card" style="margin-top:16px;padding:12px">
-    <div style="display:flex;justify-content:space-between">
-      <a class="btn ghost" id="prev">이전</a>
-      <a class="btn" id="next">다음 →</a>
+    <!-- A. 도메인 엔티티 -->
+    <h2 class="section">A. 도메인 엔티티</h2>
+    <h3 class="section">A-1. 주문 집합</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/order-entity.png" alt="Order 엔티티"><figcaption>Order — 연관 매핑 + totalPrice/cancel</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/orderitem-entity.png" alt="OrderItem 엔티티"><figcaption>OrderItem — getTotalPrice()</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/delivery-entity.png" alt="Delivery 엔티티"><figcaption>Delivery — Address 임베드 + DeliveryStatus</figcaption></figure>
     </div>
-  </div>
+
+    <h3 class="section">A-2. 카탈로그</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/item-entity.png" alt="Item 엔티티"><figcaption>Item — 이미지 다중, 상세 0..1</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/category-entity.png" alt="Category 엔티티"><figcaption>Category — 자기참조 트리</figcaption></figure>
+    </div>
+
+    <h3 class="section">A-3. 고객센터</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/support-ticket.png" alt="SupportTicket 엔티티"><figcaption>SupportTicket — ENUM 상태 전이</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/support-reply.png" alt="SupportReply 엔티티"><figcaption>SupportReply — 사용자/관리자 구분</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/domain/attachment.png" alt="Attachment 엔티티"><figcaption>Attachment — 파일 메타</figcaption></figure>
+    </div>
+
+    <!-- B. 서비스 -->
+    <h2 class="section">B. 서비스 계층</h2>
+    <h3 class="section">B-1. OrderService</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/service/order-service-order.png" alt="OrderService#order"><figcaption>주문 생성 — 장바구니→주문, 재고 차감</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/service/order-service-cancel.png" alt="OrderService#cancel"><figcaption>주문 취소 — 배송 완료면 불가</figcaption></figure>
+    </div>
+
+    <h3 class="section">B-2. CartService</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/service/cart-service.png" alt="CartService"><figcaption>CartService — 수량 0 삭제/재고 초과 보정</figcaption></figure>
+    </div>
+
+    <h3 class="section">B-3. SupportService</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/service/support-service.png" alt="SupportService"><figcaption>SupportService — 문의 라이프사이클</figcaption></figure>
+    </div>
+
+    <!-- C. 리포지토리 -->
+    <h2 class="section">C. 리포지토리 & 조회 최적화</h2>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/repo/order-repo-with-delivery.png" alt="OrderRepository 목록"><figcaption>OrderRepository — 목록용 fetch(배송만)</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/repo/order-repo-detail-fetch.png" alt="OrderRepository 상세"><figcaption>OrderRepository — 상세용 fetch(배송+아이템+상품)</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/repo/item-repo-category.png" alt="ItemRepository"><figcaption>ItemRepository — 카테고리 조인/페이징</figcaption></figure>
+    </div>
+
+    <!-- D. 컨트롤러 -->
+    <h2 class="section">D. 웹 계층</h2>
+    <h3 class="section">D-1. OrderController</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-create.png" alt="OrderController create"><figcaption>OrderController — PRG 패턴</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/order-controller-cancel.png" alt="OrderController cancel"><figcaption>OrderController — 본인 주문 취소</figcaption></figure>
+    </div>
+
+    <h3 class="section">D-2. SupportController</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/web/support-controller.png" alt="SupportController"><figcaption>SupportController — 문의 작성/답변/종결</figcaption></figure>
+    </div>
+
+    <h3 class="section">D-3. 예외/검증</h3>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/web/exception-handler.png" alt="GlobalExceptionHandler"><figcaption>예외 핸들러 — @ControllerAdvice</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/web/validation.png" alt="DTO 검증"><figcaption>DTO 검증 — @Valid, BindingResult</figcaption></figure>
+    </div>
+
+    <!-- E. 보안 -->
+    <h2 class="section">E. 보안</h2>
+    <div class="gallery">
+      <figure><img data-lb src="/assets/projects/shop/coding/security/security-config.png" alt="SecurityConfig"><figcaption>SecurityConfig — 세션 고정 방지, 권한 분리</figcaption></figure>
+      <figure><img data-lb src="/assets/projects/shop/coding/security/login-flow.png" alt="Login Flow"><figcaption>로그인 흐름 — 시퀀스와 일치</figcaption></figure>
+    </div>
+
+    <h2 class="section">F. 코드 ↔ 다이어그램 매핑 요약</h2>
+    <div class="callout small">
+      <ul>
+        <li><b>유스케이스: 주문/취소</b> → <span class="mono">OrderService</span>, <span class="mono">OrderController</span></li>
+        <li><b>시퀀스: 장바구니→주문</b> → <span class="mono">CartService</span>, <span class="mono">OrderService</span></li>
+        <li><b>클래스: Order–OrderItem–Delivery</b> → 연관 매핑 + 합계/상태 전이 메서드</li>
+        <li><b>고객센터</b> → <span class="mono">SupportService/Controller</span> + ENUM 상태 전이</li>
+        <li><b>조회 최적화</b> → <span class="mono">OrderRepository</span>(목록/상세 분리)</li>
+        <li><b>보안</b> → <span class="mono">SecurityConfig</span> (세션·권한)</li>
+      </ul>
+    </div>
+
+    <p class="muted"><a href="/projects/shop/">← 챕터 목록으로</a></p>
+  </article>
 </main>
 
+<footer class="container site-footer">
+  <span>© spring-jpa.dev</span>
+  <span class="muted">Built with Spring • JPA • QueryDSL</span>
+</footer>
+
 <script>
-const CH = [
-  {id:'01-requirements', title:'요구사항'},
-  {id:'02-design',       title:'설계'},
-  {id:'03-coding',       title:'코딩'},
-  {id:'04-testing',      title:'테스트'},
-  {id:'05-maintenance',  title:'유지보수'}
-];
-const CURRENT = '03-coding';
-const hrefOf = id => `/projects/shop/${id}/`;
-document.getElementById('chapters').innerHTML =
-  CH.map((c,i)=>`<a class="list-item" href="${hrefOf(c.id)}" ${c.id===CURRENT?'style="font-weight:600"':''}>
-    <span class="title">${String(i+1).padStart(2,'0')}. ${c.title}</span>
-  </a>`).join('');
-(function(){
-  const i = CH.findIndex(c=>c.id===CURRENT);
-  const prev = CH[i-1], next = CH[i+1];
-  const $prev = document.getElementById('prev'), $next = document.getElementById('next');
-  if(prev){ $prev.href=hrefOf(prev.id); $prev.textContent=`← ${prev.title}`; }
-  if(next){ $next.href=hrefOf(next.id); $next.textContent=`${next.title} →`; } else { $next.style.visibility='hidden'; }
-})();
-(function(){
-  const article = document.getElementById('content');
-  const headers = [...article.querySelectorAll('h2.section, h3.section')];
-  const slug = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
-  headers.forEach(h=>{ if(!h.id) h.id = slug(h.textContent); });
-  document.getElementById('toc-list').innerHTML = headers.map(h=>{
-    const indent = h.tagName==='H3' ? ' style="margin-left:12px;font-size:.95em"' : '';
-    return `<li${indent}><a href="#${h.id}">${h.textContent.trim()}</a></li>`;
-  }).join('');
-})();
+  (function(){
+    const article=document.querySelector('article.prose'); if(!article) return;
+    const headers=[...article.querySelectorAll('h2.section')];
+    const slug=s=>s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'').trim().replace(/\s+/g,'-').slice(0,64);
+    headers.forEach(h=>{ if(!h.id) h.id=slug(h.textContent) });
+    const toc=document.getElementById('toc-list');
+    toc.innerHTML=headers.map(h=>`<li><a href="#${h.id}">${h.textContent.trim()}</a></li>`).join('');
+    const links=[...toc.querySelectorAll('a')];
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{const i=headers.indexOf(e.target); if(i<0)return; links[i].style.background=e.isIntersecting?'var(--card)':'';});
+    },{rootMargin:'-40% 0px -55% 0px',threshold:0.01});
+    headers.forEach(h=>io.observe(h));
+  })();
+  (function(){
+    const imgs=[...document.querySelectorAll('.gallery img, .figure img')];
+    if(!imgs.length)return;
+    const overlay=document.createElement('div');
+    overlay.className='lightbox';
+    overlay.innerHTML=`<div class="lb-nav"><div class="lb-btn" data-act="prev">❮</div><div class="lb-btn" data-act="next">❯</div></div><img alt="preview"/><div class="meta"></div>`;
+    document.body.appendChild(overlay);
+    let idx=0;const views=imgs.map(img=>({src:img.src,alt:img.alt||''}));
+    const show=i=>{idx=(i+views.length)%views.length;const v=views[idx];
+      overlay.querySelector('img').src=v.src;overlay.querySelector('.meta').textContent=v.alt;overlay.classList.add('open');};
+    imgs.forEach((img,i)=>img.addEventListener('click',()=>show(i)));
+    overlay.addEventListener('click',e=>{
+      if(e.target.dataset.act==='prev')show(idx-1);
+      else if(e.target.dataset.act==='next')show(idx+1);
+      else if(e.target.classList.contains('lightbox'))overlay.classList.remove('open');});
+    document.addEventListener('keydown',e=>{
+      if(!overlay.classList.contains('open'))return;
+      if(e.key==='Escape')overlay.classList.remove('open');
+      if(e.key==='ArrowLeft')show(idx-1);
+      if(e.key==='ArrowRight')show(idx+1);
+    });
+  })();
 </script>
 </body>
 </html>
