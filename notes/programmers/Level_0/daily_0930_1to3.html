@@ -24,141 +24,108 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-29 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 홀수 vs 짝수</h2>
+      <h2 class="section">문제 1 — n보다 커질 때까지 더하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181887">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181884">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0929_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-            <h3 class="section">해설</h3>
       <p>
-        주어진 배열 <code>num_list</code>에서 
-        인덱스가 짝수인 원소들의 합과 홀수인 원소들의 합을 구한 뒤,
-        두 값 중 더 큰 값을 반환하는 문제다.
+        주어진 정수 배열 <code>numbers</code>의 원소들을 앞에서부터 차례대로 더하다가, 
+        누적합이 <code>n</code>보다 커지는 순간의 합을 반환하는 문제다.
       </p>
       <ul>
-        <li>인덱스가 짝수(<code>i % 2 == 0</code>)일 때는 <code>odd</code>에 누적한다.</li>
-        <li>인덱스가 홀수(<code>i % 2 == 1</code>)일 때는 <code>even</code>에 누적한다.</li>
-        <li>마지막에 두 합 중 더 큰 값을 반환한다. (<code>Math.max(odd, even)</code>)</li>
+        <li>배열을 순서대로 순회하면서 <code>sum</code>에 값을 더한다.</li>
+        <li><code>sum</code>이 <code>n</code>보다 커지는 즉시 반복문을 종료한다.</li>
+        <li>종료 시점의 <code>sum</code>을 반환한다.</li>
       </ul>
       <p>
-        구현은 일반적인 <code>for</code> 루프를 돌며 조건문으로 짝수/홀수를 구분해 합을 누적하는 방식이다.
-        이 경우 배열을 한 번만 순회하면 되므로 시간 복잡도는 <code>O(n)</code>이고, 
-        추가적인 자료구조 없이 정수 변수 두 개만 사용하므로 공간 복잡도는 <code>O(1)</code>이다.
+        구현은 간단히 <code>for-each</code> 문을 이용해 배열을 순회하면서 누적합을 구하고,
+        조건을 만족하면 <code>break</code>로 탈출하는 방식이다.
+        배열을 한 번만 확인하므로 시간 복잡도는 <code>O(n)</code>, 
+        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
       </p>
       <p>
-        참고로, 같은 로직을 <code>향상된 for</code>문으로도 구현할 수 있다.
-        이때는 별도의 인덱스 변수를 두고 <code>idx % 2</code>로 짝수/홀수를 판별한다는 점만 다르다.
-      </p>
-      <pre><code class="language-java">int odd = 0, even = 0;
-int idx = 0;
-for (int num : num_list) {
-    if (idx % 2 == 0) odd += num;
-    else even += num;
-    idx++;
-}
-return Math.max(odd, even);
-      </code></pre>
-      <p>
-        두 방식 모두 직관적이며, 배열의 길이에 비례해 선형적으로 동작한다.
+        직관적이고 가장 단순한 접근 방식이며, 불필요한 조건문이나 자료구조 없이 효율적으로 해결할 수 있다.
       </p>
 
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 5명씩</h2>
+      <h2 class="section">문제 2 — 수열과 구간 쿼리 1</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181886">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181883">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0929_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        학생들의 이름이 담긴 배열 <code>names</code>에서 
-        앞에서부터 5명마다 한 명씩 뽑아 배열로 반환하는 문제다.
-        예를 들어 <code>["a","b","c","d","e","f","g"]</code>라면,
-        0번째(<code>"a"</code>)와 5번째(<code>"f"</code>)가 선택된다.
+        주어진 배열 <code>arr</code>에 대해, 각 쿼리 <code>[start, end]</code> 범위 안의 원소들을 모두 1씩 증가시키는 문제다.  
+        모든 쿼리를 순서대로 처리한 후 최종 배열을 반환한다.
       </p>
       <ul>
-        <li>인덱스를 0부터 시작해, 5의 배수 위치(<code>i % 5 == 0</code>)에 있는 원소를 선택한다.</li>
-        <li>선택된 원소들은 리스트에 담아두고, 마지막에 배열로 변환한다.</li>
+        <li>먼저 입력 배열을 <code>List&lt;Integer&gt;</code>로 변환해 원소를 갱신하기 쉽게 만든다.</li>
+        <li>각 쿼리를 읽어 <code>start</code>부터 <code>end</code>까지 순회하며 <code>list.set(i, list.get(i) + 1)</code>로 값을 1씩 증가시킨다.</li>
+        <li>모든 쿼리를 처리한 뒤 최종 리스트를 다시 <code>int[]</code>로 변환해 반환한다.</li>
       </ul>
       <p>
-        구현은 간단히 <code>for</code> 루프에서 5칸씩 건너뛰며 
-        해당 원소를 리스트에 추가하는 방식으로 할 수 있다. 
-        이렇게 하면 불필요한 조건문 없이 바로 원하는 원소만 선택할 수 있다.
+        이 방식은 배열을 직접 다루기보다는 리스트의 <code>set</code> 메서드를 활용하는 점이 특징이다.  
+        직관적이고 구현이 명확하지만, 변환 과정이 있어 배열을 직접 수정하는 것보다 살짝 비효율적일 수 있다.
       </p>
-      <pre><code class="language-java">class Solution {
-    public String[] solution(String[] names) {
-        List&lt;String&gt; list = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; names.length; i += 5) {
-            list.add(names[i]);
-        }
-        return list.toArray(new String[0]);
-    }
-}
-      </code></pre>
       <p>
-        시간 복잡도는 선택된 원소 개수에 비례하는 <code>O(n/5)</code>, 즉 전체 길이에 대해 선형적으로 동작한다.
-        공간 복잡도는 결과 배열 크기 <code>O(m)</code>만큼만 필요하다.
+        시간 복잡도는 쿼리 개수를 <code>m</code>, 배열 길이를 <code>n</code>이라 할 때  
+        최악의 경우 <code>O(m·n)</code>이 될 수 있으며, 공간 복잡도는 <code>O(n)</code>이다.
       </p>
+      
+      <h4 class="section">추가적으로</h4>
+      <p>
+        배열을 <code>List</code>로 변환하지 않고, <code>arr</code>를 직접 수정하는 방식도 가능하다.  
+        이 경우 변환 과정이 사라져 코드가 더 간단하고 효율적이다.  
+        다만 문제 해결 아이디어 자체는 동일하다.
+      </p>
+
 
       
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 할 일 목록</h2>
+      <h2 class="section">문제 3 — 조건에 맞게 수열 변환하기 1</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181885">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181882">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0929_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        문자열 배열 <code>todo_list</code>와 동일 길이의 불리언 배열 <code>finished</code>가 주어졌을 때,
-        아직 완료되지 않은(<code>false</code>) 할 일만 순서대로 골라 배열로 반환하는 문제다.
+        배열 <code>arr</code>의 각 원소에 대해 조건에 따라 값을 변환하는 문제다.
       </p>
       <ul>
-        <li><code>finished[i] == false</code>이면 <code>todo_list[i]</code>를 결과에 포함한다.</li>
-        <li>입력 순서를 보존해야 하므로 앞에서부터 순차적으로 확인한다.</li>
+        <li>원소가 <code>50 이상</code>이고 <code>짝수</code>이면 2로 나눈다.</li>
+        <li>원소가 <code>50 미만</code>이고 <code>홀수</code>이면 2를 곱한다.</li>
+        <li>그 외의 경우는 값이 변하지 않는다.</li>
       </ul>
       <p>
-        구현은 단순히 <code>for</code> 루프로 인덱스를 순회하면서,
-        <code>finished[i]</code>가 <code>false</code>인 경우만 리스트에 추가한 뒤
-        마지막에 배열로 변환해 반환하면 된다. 추가 자료구조가 필요 없고 가장 직관적이다.
+        구현은 단순히 <code>for</code> 루프를 돌면서 각 원소를 조건문으로 판별해 바로 갱신하는 방식이다.  
+        따라서 배열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>, 
+        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
       </p>
-      <pre><code class="language-java">import java.util.*;
-
-class Solution {
-    public String[] solution(String[] todo_list, boolean[] finished) {
-        List&lt;String&gt; list = new ArrayList&lt;&gt;();
-
-        for (int i = 0; i &lt; todo_list.length; i++) {
-            if (!finished[i]) list.add(todo_list[i]);
-        }
-
-        return list.toArray(new String[0]);
-    }
-}
-      </code></pre>
       <p>
-        시간 복잡도는 배열을 한 번 순회하므로 <code>O(n)</code>,
-        공간 복잡도는 미완료 항목 개수를 <code>m</code>이라 할 때 결과 배열 크기만큼 <code>O(m)</code>이 필요하다.
+        조건 분기만 정확히 구현하면 되며, 별도의 자료구조나 추가적인 최적화는 필요 없는 직관적인 문제다.
       </p>
 
 
