@@ -24,42 +24,61 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 1676 — 팩토리얼 0의 개수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1676">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1004_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — 팩토리얼 값의 끝자리 0의 개수는 <em>10이 몇 번 곱해졌는가</em>와 같다. 
+      즉, 인수 분해 시 2와 5가 짝을 이룰 때마다 10이 하나씩 만들어진다. 
+      팩토리얼은 2의 배수가 훨씬 많으므로, <strong>5의 배수 개수</strong>만 세면 된다. 
+      실제 팩토리얼 계산(<code>BigInteger</code> 등)을 할 필요 없이 5의 거듭제곱 단위로 나누어 합산하는 것이 정석적이고 효율적인 방법이다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 한 줄에 정수 <code>N</code>이 주어진다 (<code>0 ≤ N ≤ 500</code>). 
+      문자열을 정수로 변환해 그대로 사용한다.</p>
       
-      <p><strong>알고리즘</strong></p>
+      <p><strong>잘못된 접근</strong> — 위 코드처럼 <code>BigInteger</code>로 <code>N!</code> 전체를 구한 뒤 10으로 나누어 떨어지는 횟수를 세는 방식은 
+      문제의 의도와 다르며, 큰 수일수록 연산 비용이 급격히 증가한다. 
+      이 문제는 단순한 <em>수학적 규칙</em>을 이용해야 효율적으로 해결된다.</p>
+      
+      <p><strong>정석 알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li>1부터 N까지의 수 중에서 5의 배수가 몇 개 있는지 세면 된다.
+          <ul>
+            <li><code>N / 5</code> → 5의 배수 개수 (예: 5, 10, 15, ...)</li>
+            <li><code>N / 25</code> → 25, 50, 75, ...처럼 5가 두 번 포함된 경우 추가 카운트</li>
+            <li><code>N / 125</code> → 125, 250, ...처럼 5가 세 번 포함된 경우 추가</li>
+          </ul>
+        </li>
+        <li>따라서 정답은 <code>N/5 + N/25 + N/125 + ...</code> (몫이 0이 될 때까지 반복)이다.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N = 10</code> → <code>10/5 = 2</code> → 0의 개수 2 (10!, 실제로 3628800)</li>
+        <li><code>N = 25</code> → <code>25/5 + 25/25 = 5 + 1 = 6</code> → 0의 개수 6</li>
+        <li><code>N = 100</code> → <code>100/5 + 100/25 = 20 + 4 = 24</code> → 0의 개수 24</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 반복은 <code>log₅(N)</code>회만 수행되므로 <code>O(log N)</code>, 
+      추가 메모리는 상수 크기로 <code>O(1)</code>이다.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li>팩토리얼의 끝 0 개수는 5의 배수 개수를 누적합으로 구한다.</li>
+        <li><code>BigInteger</code> 연산은 불필요하며, 수학적 규칙으로 해결 가능하다.</li>
+        <li>공식: <code>count = N/5 + N/25 + N/125 + ...</code> (정수 나눗셈, 몫이 0일 때 종료)</li>
       </ul>
+
 
 
 
@@ -69,47 +88,66 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 1769 — 3의 배수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1769">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1004_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 임의의 수가 3의 배수인지 판별하는 방법은 <strong>각 자리 숫자의 합</strong>이 3의 배수인지 확인하는 것이다. 
+      이 문제는 그 원리를 반복 적용하며, 주어진 수가 한 자리 수가 될 때까지 자릿수 합을 계속 구한 뒤, 
+      변환 횟수와 최종 결과가 3의 배수인지 여부를 출력하는 문제다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 매우 큰 수(최대 1,000,000자리)가 입력될 수 있으므로, 정수형으로 변환하지 않고 <code>String</code>으로 읽는다. 
+      각 자리 숫자 접근 시 <code>charAt(i) - '0'</code>을 이용해 정수값으로 변환한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li><code>count = 0</code>으로 초기화한다.</li>
+        <li><code>X</code>의 길이가 1보다 큰 동안(즉, 아직 한 자리 수가 아닐 때):
+          <ul>
+            <li>문자열의 각 자리 숫자를 더해 <code>sum</code>을 계산한다.</li>
+            <li><code>X = Integer.toString(sum)</code>으로 자릿수 합을 새로운 문자열로 변환한다.</li>
+            <li><code>count++</code> (변환 횟수 증가).</li>
+          </ul>
+        </li>
+        <li>루프 종료 시 <code>X</code>는 한 자리 수 문자열이 된다.</li>
+        <li><code>count</code>를 출력하고, 마지막 한 자리(<code>int last = X.charAt(0) - '0'</code>)가 3의 배수인지 판별:
+          <ul>
+            <li>3의 배수면 <code>YES</code></li>
+            <li>아니면 <code>NO</code></li>
+          </ul>
+        </li>
       </ul>
       
       <p><strong>예시</strong></p>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li><code>X = "1234567"</code><br>
+            → 1+2+3+4+5+6+7 = 28 → (1회)<br>
+            → 2+8 = 10 → (2회)<br>
+            → 1+0 = 1 → (3회)<br>
+            최종값 1은 3의 배수가 아니므로<br>
+            출력: <code>3</code> / <code>NO</code></li>
+        <li><code>X = "9"</code> → 한 자리이므로 변환 횟수 0, 9는 3의 배수 → <code>0</code> / <code>YES</code></li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 각 단계에서 문자열 길이만큼 덧셈을 수행하므로 <code>O(L)</code> (L은 자릿수). 
+      변환 시 길이가 급격히 줄어들어 전체는 <code>O(L)</code>에 수렴한다. 
+      추가 메모리는 상수 크기의 변수 몇 개뿐이므로 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li>매 단계에서 자릿수 합을 반복하여 1자리 수가 될 때까지 계산한다.</li>
+        <li>반복 횟수(<code>count</code>)와 최종 숫자의 3의 배수 여부를 출력한다.</li>
+        <li>큰 수이므로 문자열 기반 연산을 해야 하며, 정수형 변환은 금지한다.</li>
+        <li>3의 배수 판정 규칙을 정확히 적용하면 깔끔하게 해결된다.</li>
       </ul>
+
 
 
 
