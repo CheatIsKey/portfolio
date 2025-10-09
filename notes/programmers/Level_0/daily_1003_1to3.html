@@ -24,108 +24,124 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-10-03 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — n보다 커질 때까지 더하기</h2>
+      <h2 class="section">문제 1 — 원하는 문자열 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181884">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181878">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1003_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 정수 배열 <code>numbers</code>의 원소들을 앞에서부터 차례대로 더하다가, 
-        누적합이 <code>n</code>보다 커지는 순간의 합을 반환하는 문제다.
+        주어진 문자열 <code>myString</code>이 특정 문자열 <code>pat</code>을 
+        (대소문자를 구분하지 않고) 포함하고 있는지를 판별하는 문제다.
       </p>
       <ul>
-        <li>배열을 순서대로 순회하면서 <code>sum</code>에 값을 더한다.</li>
-        <li><code>sum</code>이 <code>n</code>보다 커지는 즉시 반복문을 종료한다.</li>
-        <li>종료 시점의 <code>sum</code>을 반환한다.</li>
+        <li>두 문자열 모두 소문자로 변환해 비교하면, 
+            대소문자 구분 없이 동일한 조건으로 확인할 수 있다.</li>
+        <li><code>String.toLowerCase()</code> 메서드로 변환한 뒤, 
+            <code>contains()</code> 메서드를 사용해 부분 문자열 포함 여부를 검사한다.</li>
+        <li>포함되어 있다면 <code>1</code>, 아니라면 <code>0</code>을 반환한다.</li>
       </ul>
       <p>
-        구현은 간단히 <code>for-each</code> 문을 이용해 배열을 순회하면서 누적합을 구하고,
-        조건을 만족하면 <code>break</code>로 탈출하는 방식이다.
-        배열을 한 번만 확인하므로 시간 복잡도는 <code>O(n)</code>, 
-        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
+        예를 들어,  
+        <code>myString = "AbCdEfG"</code>, <code>pat = "aBc"</code>인 경우  
+        모두 소문자로 변환하면 <code>"abcdefg"</code>과 <code>"abc"</code>가 되어  
+        <code>contains()</code> 결과가 <code>true</code>이므로 <code>1</code>을 반환한다.
       </p>
       <p>
-        직관적이고 가장 단순한 접근 방식이며, 불필요한 조건문이나 자료구조 없이 효율적으로 해결할 수 있다.
+        문자열 내 포함 여부만 확인하므로 시간 복잡도는 <code>O(n)</code>이며,  
+        이는 문자열 길이에 비례한다.  
+        추가 메모리를 거의 사용하지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
       </p>
+      <p>
+        핵심은 “대소문자를 무시하고 부분 문자열 포함 여부를 판별”하는 점이며,  
+        Java의 기본 문자열 메서드만으로 간단하게 해결할 수 있는 직관적인 문제다.
+      </p>
+
 
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 수열과 구간 쿼리 1</h2>
+      <h2 class="section">문제 2 — 대문자로 바꾸기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181883">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181877">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1003_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 배열 <code>arr</code>에 대해, 각 쿼리 <code>[start, end]</code> 범위 안의 원소들을 모두 1씩 증가시키는 문제다.  
-        모든 쿼리를 순서대로 처리한 후 최종 배열을 반환한다.
+        주어진 문자열 <code>myString</code>의 모든 알파벳을 
+        대문자로 변환해 반환하는 문제다.
       </p>
       <ul>
-        <li>먼저 입력 배열을 <code>List&lt;Integer&gt;</code>로 변환해 원소를 갱신하기 쉽게 만든다.</li>
-        <li>각 쿼리를 읽어 <code>start</code>부터 <code>end</code>까지 순회하며 <code>list.set(i, list.get(i) + 1)</code>로 값을 1씩 증가시킨다.</li>
-        <li>모든 쿼리를 처리한 뒤 최종 리스트를 다시 <code>int[]</code>로 변환해 반환한다.</li>
+        <li>Java의 문자열 메서드 <code>toUpperCase()</code>를 사용하면 
+            문자열 내 알파벳을 손쉽게 모두 대문자로 변환할 수 있다.</li>
+        <li>영문 이외의 문자(숫자, 기호, 공백 등)는 영향을 받지 않고 그대로 유지된다.</li>
+        <li>변환된 결과 문자열을 그대로 반환하면 된다.</li>
       </ul>
       <p>
-        이 방식은 배열을 직접 다루기보다는 리스트의 <code>set</code> 메서드를 활용하는 점이 특징이다.  
-        직관적이고 구현이 명확하지만, 변환 과정이 있어 배열을 직접 수정하는 것보다 살짝 비효율적일 수 있다.
+        예를 들어, <code>myString = "Hello World"</code>라면  
+        <code>toUpperCase()</code> 호출 결과는 <code>"HELLO WORLD"</code>가 된다.
       </p>
       <p>
-        시간 복잡도는 쿼리 개수를 <code>m</code>, 배열 길이를 <code>n</code>이라 할 때  
-        최악의 경우 <code>O(m·n)</code>이 될 수 있으며, 공간 복잡도는 <code>O(n)</code>이다.
+        내부적으로는 각 문자를 순회하면서 알파벳의 유니코드 값을 이용해 변환하므로  
+        시간 복잡도는 문자열 길이에 비례하는 <code>O(n)</code>이다.  
+        새로운 문자열을 생성하기 때문에 공간 복잡도는 <code>O(n)</code>이다.
       </p>
-      
-      <h4 class="section">추가적으로</h4>
       <p>
-        배열을 <code>List</code>로 변환하지 않고, <code>arr</code>를 직접 수정하는 방식도 가능하다.  
-        이 경우 변환 과정이 사라져 코드가 더 간단하고 효율적이다.  
-        다만 문제 해결 아이디어 자체는 동일하다.
+        문제의 핵심은 문자열 내 문자의 대소문자 변환이며,  
+        Java 표준 메서드를 그대로 활용하면 가장 간결하고 효율적으로 해결할 수 있다.
       </p>
+
 
 
       
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 조건에 맞게 수열 변환하기 1</h2>
+      <h2 class="section">문제 3 — 소문자로 바꾸기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181882">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181876">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1003_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        배열 <code>arr</code>의 각 원소에 대해 조건에 따라 값을 변환하는 문제다.
+        주어진 문자열 <code>myString</code>의 모든 알파벳을  
+        소문자로 변환해 반환하는 문제다.
       </p>
       <ul>
-        <li>원소가 <code>50 이상</code>이고 <code>짝수</code>이면 2로 나눈다.</li>
-        <li>원소가 <code>50 미만</code>이고 <code>홀수</code>이면 2를 곱한다.</li>
-        <li>그 외의 경우는 값이 변하지 않는다.</li>
+        <li>Java의 문자열 메서드 <code>toLowerCase()</code>를 사용하면  
+            문자열 내 알파벳을 손쉽게 모두 소문자로 변환할 수 있다.</li>
+        <li>영문자가 아닌 문자(숫자, 기호, 공백 등)는 영향을 받지 않고 그대로 유지된다.</li>
+        <li>변환된 결과 문자열을 그대로 반환하면 된다.</li>
       </ul>
       <p>
-        구현은 단순히 <code>for</code> 루프를 돌면서 각 원소를 조건문으로 판별해 바로 갱신하는 방식이다.  
-        따라서 배열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>, 
-        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
+        예를 들어, <code>myString = "Hello World!"</code>라면  
+        <code>toLowerCase()</code>의 호출 결과는 <code>"hello world!"</code>가 된다.
       </p>
       <p>
-        조건 분기만 정확히 구현하면 되며, 별도의 자료구조나 추가적인 최적화는 필요 없는 직관적인 문제다.
+        내부적으로는 각 문자를 순회하면서 알파벳 문자를 소문자로 변환하므로  
+        시간 복잡도는 문자열 길이에 비례하는 <code>O(n)</code>이고,  
+        변환된 새 문자열을 생성하므로 공간 복잡도는 <code>O(n)</code>이다.
+      </p>
+      <p>
+        이 문제의 핵심은 문자열 내 알파벳을 모두 소문자로 변환하는 것이며,  
+        Java의 표준 문자열 메서드만으로 간단하고 직관적으로 해결할 수 있다.
       </p>
 
 
