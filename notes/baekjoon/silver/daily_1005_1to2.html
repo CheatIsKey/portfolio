@@ -24,42 +24,57 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-05 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 1789 — 수들의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1789">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1005_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — 1부터 시작하여 서로 다른 자연수를 더해 나갈 때, 그 합이 주어진 <code>S</code>를 넘지 않도록 만드는 
+      가장 큰 <code>n</code>을 찾는 문제다. 즉, <code>1 + 2 + 3 + ... + n ≤ S</code>를 만족하는 최대 <code>n</code>을 구하면 된다. 
+      이때 등차수열 합 공식 <code>n(n+1)/2 ≤ S</code>를 만족하는 최대 정수를 구하는 것과 같다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 단 하나의 정수 <code>S</code>(1 ≤ S ≤ 4,294,967,295)가 주어진다. 
+      <code>int</code> 범위를 초과할 수 있으므로 반드시 <code>long</code>형으로 받아야 한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li><code>sum = 0</code>, <code>n = 0</code>으로 초기화한다.</li>
+        <li>다음 수 <code>n + 1</code>을 더했을 때 <code>sum + (n + 1) ≤ S</code>인 동안 반복한다.
+          <ul>
+            <li>조건이 참이면 <code>n++</code>하고 <code>sum += n</code>을 수행한다.</li>
+            <li>조건이 거짓이면 합이 <code>S</code>를 초과하므로 루프를 종료한다.</li>
+          </ul>
+        </li>
+        <li>마지막으로 <code>n</code>을 출력한다.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>S = 200</code> → 1+2+...+19=190, 다음 수 20을 더하면 210>200 → <code>n=19</code></li>
+        <li><code>S = 55</code> → 1+2+...+10=55 → <code>n=10</code></li>
+        <li><code>S = 1</code> → 1+2=3>1 → <code>n=1</code></li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — <code>1 + 2 + ... + n ≈ n²/2</code>이므로 반복 횟수는 <code>O(√S)</code> 수준으로 매우 작다. 
+      공간 복잡도는 상수 크기 변수만 사용하므로 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li>등차수열 합 공식 <code>n(n+1)/2 ≤ S</code>를 만족하는 최대 <code>n</code>을 구하는 문제.</li>
+        <li>단순 반복문으로도 충분히 빠르게 계산 가능 (<code>S ≤ 4×10⁹</code>).</li>
+        <li>변수는 반드시 <code>long</code>형으로 선언해야 오버플로를 방지할 수 있다.</li>
+        <li>수학적으로 풀면 <code>n = ⌊(-1 + √(1 + 8S)) / 2⌋</code>이지만, 반복문 방식이 구현상 더 안전하다.</li>
       </ul>
+
 
 
 
@@ -69,47 +84,59 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 1813 — 논리학 교수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1813">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1005_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 배열 안에 여러 수가 주어졌을 때, <code>x</code>라는 정수가 “<em>자신과 같은 값을 가진 원소가 x개 있다</em>”를 만족하면 
+      그 수 <code>x</code>를 논리적으로 일관된 값이라 한다. 
+      즉, <code>count[x] == x</code>를 만족하는 모든 <code>x</code> 중 가장 큰 값을 찾으면 된다. 
+      만약 그런 수가 존재하지 않으면 <code>-1</code>을 출력한다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 첫 줄에 정수 <code>N</code>이 주어지고, 이어서 <code>N</code>개의 정수가 공백 또는 개행 단위로 주어진다. 
+      입력 형식이 여러 줄로 끊길 수 있으므로, <code>BufferedReader</code>와 <code>StringTokenizer</code>를 함께 사용해 모든 정수를 정확히 읽는다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li>입력받은 모든 정수를 배열 <code>arr</code>에 저장한다.</li>
+        <li>해시맵 <code>count</code>를 사용해 각 값의 등장 횟수를 센다.</li>
+        <li>문제 조건상 값은 0 이상 50 이하이므로, <code>i=0..50</code> 범위를 순회하며 다음을 검사한다:
+          <ul>
+            <li><code>count.getOrDefault(i, 0) == i</code>인 경우, 조건을 만족하므로 <code>answer = i</code>로 갱신한다.</li>
+          </ul>
+        </li>
+        <li>모든 확인 후 <code>answer</code>를 출력한다. 조건을 만족한 값이 없다면 초기값 <code>-1</code>이 그대로 출력된다.</li>
       </ul>
       
       <p><strong>예시</strong></p>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li>입력: <code>5</code><br><code>0 0 1 2 2</code><br>
+            → <code>count[0]=2</code>, <code>count[1]=1</code>, <code>count[2]=2</code><br>
+            → 조건 만족: <code>i=1</code> (1개 존재), <code>i=2</code> (2개 존재)<br>
+            → 가장 큰 <code>i=2</code> 출력</li>
+        <li>입력: <code>4</code><br><code>3 3 3 3</code><br>
+            → <code>count[3]=4</code>, 조건 <code>4==3</code> 불일치 → 정답 <code>-1</code></li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 해시맵 카운팅은 <code>O(N)</code>, 
+      이후 0~50 범위 탐색은 <code>O(1)</code> 수준이다. 
+      공간도 해시맵 크기(최대 51)로 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li><code>count[x] == x</code>를 만족하는 수를 찾는 단순 빈도 비교 문제.</li>
+        <li>조건을 만족하는 여러 값이 있을 경우, 가장 큰 값을 출력한다.</li>
+        <li>없으면 <code>-1</code>.</li>
+        <li>문제의 핵심은 “<em>값과 등장 횟수의 일치</em>”를 확인하는 것이다.</li>
       </ul>
+
 
 
 
