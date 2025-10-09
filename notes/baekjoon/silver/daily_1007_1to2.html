@@ -24,42 +24,62 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-07 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 1817 — 짐 챙기는 숌</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1817">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1007_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — 여러 개의 책(무게 주어짐)을 일정한 순서대로 상자에 넣을 때, 
+      한 상자의 최대 허용 무게 <code>M</code>을 초과하지 않도록 최소 상자 개수를 구하는 문제다. 
+      즉, 앞에서부터 차례로 책을 담되, 현재 상자에 넣을 수 없을 때 새로운 상자를 추가한다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 첫 줄에 책의 개수 <code>N</code>과 상자의 최대 허용 무게 <code>M</code>이 주어진다. 
+      <code>N</code>이 0이면 책이 없으므로 상자도 필요 없으며, <code>0</code>을 바로 출력한다. 
+      그 외에는 두 번째 줄에서 책의 무게 <code>N</code>개를 순서대로 읽는다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li><code>box = 1</code> (최소 1개 상자는 필요)로 시작하고, <code>sum = 0</code>으로 초기화한다.</li>
+        <li>책 무게 <code>w</code>를 순서대로 읽으며 다음을 수행한다:
+          <ul>
+            <li>현재 상자 무게 합 <code>sum + w</code>가 <code>M</code>을 초과하면 → 새 상자를 추가: <code>box++</code>, <code>sum = w</code>.</li>
+            <li>초과하지 않으면 → 현재 상자에 그대로 추가: <code>sum += w</code>.</li>
+          </ul>
+        </li>
+        <li>모든 책을 처리한 뒤, 누적된 <code>box</code> 개수를 출력한다.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N = 5, M = 10</code><br>
+            책 무게: 6 3 4 1 5<br>
+            <code>[6 3]</code>(합9) → 다음 4 추가 시 13&gt;10 → 새 상자<br>
+            <code>[4 1 5]</code>(합10)<br>
+            결과: <code>2</code></li>
+        <li><code>N = 0</code> → 책이 없으므로 상자 <code>0</code></li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 모든 책을 한 번씩만 처리하므로 <code>O(N)</code>, 
+      필요한 추가 메모리는 상수 크기의 변수 몇 개뿐이므로 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li>현재 상자의 누적 무게가 최대 허용 무게 <code>M</code>을 넘으면 새 상자를 시작한다.</li>
+        <li>초과하지 않는 한 계속 같은 상자에 담는다.</li>
+        <li><code>N == 0</code>이면 예외 처리로 0을 바로 출력한다.</li>
+        <li>단순한 누적합 기반의 그리디 알고리즘으로 해결 가능하다.</li>
       </ul>
+
+
 
 
 
@@ -69,47 +89,59 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 1996 — 지뢰 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1996">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1007_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 보드에는 빈칸(<code>'.'</code>)과 숫자(<code>'1'..'9'</code>)가 주어진다. 숫자는 그 칸이 ‘지뢰’이면서 해당 값(무게/세기)을 의미한다.
+      출력 규칙은 다음과 같다: 지뢰가 있는 칸은 <code>'*'</code>로 표기하고, 빈칸은 8방향 이웃에 있는 지뢰 숫자의 <strong>합</strong>을 쓴다. 이 합이 <code>10</code> 이상이면 <code>'M'</code>로 표기한다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 한 줄에 보드 크기 <code>N</code>, 이어서 <code>N</code>줄의 보드를 읽는다. 각 줄은 길이 <code>N</code>의 문자열로, 
+      <code>toCharArray()</code>로 바로 2차원 문자 배열에 담아 문자 비교/연산을 수행한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li>8방향 탐색을 위해 방향 배열을 준비한다:
+          <code>dx = {-1,-1,-1,0,0,1,1,1}</code>, <code>dy = {-1,0,1,-1,1,-1,0,1}</code>.</li>
+        <li>모든 칸 <code>(i,j)</code>을 순회한다.
+          <ul>
+            <li>지뢰 칸(<code>map[i][j] != '.'</code>)이면 결과에 <code>'*'</code>를 추가하고 다음 칸으로.</li>
+            <li>빈칸이면 8방향 이웃 <code>(nx, ny)</code>를 확인한다:
+              <ul>
+                <li>보드 밖은 건너뛴다.</li>
+                <li>이웃이 지뢰면(<code>map[nx][ny] != '.'</code>) 그 문자를 정수로 변환해(<code>map[nx][ny] - '0'</code>) <code>sum</code>에 누적한다.</li>
+              </ul>
+            </li>
+            <li>누적합 <code>sum</code>이 <code>&ge; 10</code>이면 <code>'M'</code>, 아니면 <code>sum</code>의 한 자리 숫자를 그대로 추가한다.</li>
+          </ul>
+        </li>
+        <li>행마다 개행을 붙여 완성 문자열을 출력한다(<code>StringBuilder</code> 사용).</li>
       </ul>
       
-      <p><strong>예시</strong></p>
+      <p><strong>주의/엣지 케이스</strong></p>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li>지뢰 칸은 값이 얼마든지 <code>'*'</code>로만 출력한다.</li>
+        <li>빈칸 주변 합이 0일 수 있으며, 그 경우 문자 <code>'0'</code>이 출력된다.</li>
+        <li>경계 체크(<code>nx, ny</code> 범위) 누락 시 예외/오동작 발생 가능 — 반드시 보드 범위 내에서만 합산.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 각 칸에서 최대 8칸을 확인하므로 전체 <code>O(N²)</code>. 
+      입력 보드와 출력 버퍼 외 추가 메모리는 상수여서 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li>지뢰 칸: <code>'*'</code>, 빈칸: 8방향 지뢰 숫자 합(합 <code>&ge;10</code>이면 <code>'M'</code>).</li>
+        <li>8방향 탐색 + 경계 체크 + 문자→정수 변환(<code>c - '0'</code>)이 핵심.</li>
+        <li>간단한 구현으로 문제 요구 형식을 정확히 만족한다.</li>
       </ul>
+
 
 
 
