@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-08 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 문자열 잘라서 정렬하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181866">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1008_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>myString</code>을 문자 <code>'x'</code> 기준으로 나누고,  
+        빈 문자열을 제외한 나머지 부분 문자열들을 사전순으로 정렬해  
+        배열 형태로 반환하는 문제다.
+      </p>
+      <ul>
+        <li><code>split("x")</code>으로 문자열을 <code>'x'</code> 기준으로 분리한다.</li>
+        <li>이때 <code>"xx"</code>처럼 <code>'x'</code>가 연속되면  
+            빈 문자열(<code>""</code>)이 생기므로 이를 제거해야 한다.</li>
+        <li><code>Arrays.stream(split)</code>을 통해 스트림으로 변환한 뒤,  
+            <code>filter(s -> !s.isEmpty())</code>로 빈 문자열을 걸러낸다.</li>
+        <li>그다음 <code>sorted()</code>를 호출해 문자열을 사전순으로 정렬하고,  
+            <code>toArray(String[]::new)</code>으로 다시 배열로 변환한다.</li>
+      </ul>
+      <p>
+        예를 들어, <code>myString = "axbxcxdx"</code>일 경우  
+        <code>split("x")</code> 결과는 <code>["a", "b", "c", "d", ""]</code>이며,  
+        빈 문자열을 제거하고 정렬하면 <code>["a", "b", "c", "d"]</code>가 된다.
+      </p>
+      <p>
+        문자열을 한 번 분리하고 정렬하기 때문에  
+        전체 시간 복잡도는 <code>O(n log n)</code>이며,  
+        분리된 문자열 배열을 저장하므로 공간 복잡도는 <code>O(n)</code>이다.
+      </p>
+      <p>
+        핵심은 <code>split()</code>으로 나눈 결과에서 빈 문자열을 제거하고,  
+        스트림 API의 <code>filter()</code>와 <code>sorted()</code>를  
+        적절히 조합해 간결하게 구현하는 점이다.
+      </p>
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 간단한 식 계산하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181865">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1008_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 형태의 간단한 수식 <code>binomial</code>이 주어질 때,  
+        덧셈(<code>+</code>), 뺄셈(<code>-</code>), 곱셈(<code>*</code>) 중 해당 연산을 수행한 결과를 반환하는 문제다.
+      </p>
+      <ul>
+        <li><code>split(" ")</code>을 사용해 공백을 기준으로 수식을 세 부분으로 나눈다.</li>
+        <li>왼쪽 피연산자 <code>a</code>, 연산자 <code>op</code>, 오른쪽 피연산자 <code>b</code>를 각각 추출한다.</li>
+        <li><code>Integer.parseInt()</code>로 문자열을 정수로 변환한 뒤,  
+            연산자에 따라 해당 산술 연산을 수행한다.</li>
+        <li>Java 14 이상에서 지원하는 <code>switch</code> 식을 사용해  
+            코드의 가독성을 높였다.</li>
+      </ul>
+      <p>
+        예를 들어, <code>binomial = "3 * 4"</code>인 경우  
+        <code>parts = ["3", "*", "4"]</code>로 분리되고,  
+        <code>a = 3</code>, <code>b = 4</code>, <code>op = "*"</code>가 되어  
+        연산 결과는 <code>12</code>가 된다.
+      </p>
+      <p>
+        문자열 분리와 간단한 산술 연산만 수행하므로  
+        시간 복잡도는 <code>O(1)</code>, 공간 복잡도도 <code>O(1)</code>이다.
+      </p>
+      <p>
+        핵심은 문자열에서 피연산자와 연산자를 정확히 분리하고,  
+        <code>switch</code> 문으로 연산을 명확하게 분기 처리하는 점이다.  
+        단, 문제에서 주어지지 않은 연산자가 등장할 경우 예외를 던지도록 구현하면 안전하다.
+      </p>
+
+
+
+      
+
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 문자열 바꿔서 찾기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181864">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1008_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>myString</code>의 모든 문자를 변환한 뒤,  
+        변환된 문자열 안에 부분 문자열 <code>pat</code>이 포함되어 있는지를 확인하는 문제다.
+      </p>
+      <ul>
+        <li><code>myString</code>의 각 문자를 순회하며 다음 규칙으로 변환한다:
+          <ul>
+            <li><code>'A'</code> → <code>'B'</code></li>
+            <li><code>'B'</code> → <code>'A'</code></li>
+          </ul>
+        </li>
+        <li>변환 결과를 <code>StringBuilder</code>에 차례대로 추가한다.</li>
+        <li>모든 문자를 처리한 뒤, 완성된 문자열에 대해  
+            <code>contains(pat)</code> 메서드를 사용해 <code>pat</code>이 포함되어 있는지 검사한다.</li>
+        <li>포함되어 있으면 <code>1</code>, 아니면 <code>0</code>을 반환한다.</li>
+      </ul>
+      <p>
+        예를 들어, <code>myString = "ABBA"</code>, <code>pat = "AA"</code>일 때  
+        문자 변환 결과는 <code>"BAAB"</code>이 되며,  
+        <code>"BAAB"</code> 안에는 <code>"AA"</code>가 포함되므로 결과는 <code>1</code>이다.
+      </p>
+      <p>
+        문자열을 한 번 순회하면서 새 문자열을 생성하므로  
+        시간 복잡도는 <code>O(n)</code>,  
+        변환된 문자열을 저장하기 위한 <code>StringBuilder</code>가 필요하므로  
+        공간 복잡도도 <code>O(n)</code>이다.
+      </p>
+      <p>
+        핵심은 문자 변환 규칙을 정확히 적용한 뒤,  
+        변환된 결과 문자열에서 부분 문자열 탐색을 수행하는 것이다.  
+        <code>StringBuilder</code>를 사용하면 매번 문자열을 새로 만드는 비효율을 줄일 수 있다.
+      </p>
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
