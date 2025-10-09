@@ -24,42 +24,63 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-08 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 2018 — 수들의 합 5</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2018">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1008_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — 1부터 시작하는 연속된 자연수의 합으로 <code>N</code>을 표현하는 경우의 수를 구하는 문제다. 
+      예를 들어 <code>N = 15</code>일 때 <code>1+2+3+4+5</code>, <code>4+5+6</code>, <code>7+8</code>, <code>15</code>의 네 가지가 존재한다. 
+      이는 <strong>투 포인터(two-pointer)</strong> 혹은 <strong>슬라이딩 윈도우</strong>로 해결할 수 있다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 한 줄에 정수 <code>N</code>(1 ≤ N ≤ 10,000)이 주어진다. 
+      연속된 수를 더해야 하므로 입력값은 정수 하나면 충분하다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li><strong>포인터 정의</strong> — <code>start</code>, <code>end</code>를 1로 시작하고, 현재 구간의 합을 <code>sum</code>으로 관리한다.</li>
+        <li><strong>초기 상태</strong> — <code>sum = 1</code>, <code>count = 1</code> (N 자체가 하나의 구간으로 성립하므로 초기값 1).</li>
+        <li><strong>루프 조건</strong> — <code>end != N</code>일 동안 다음을 반복한다:
+          <ul>
+            <li><code>sum == N</code> → 정답 하나 발견, <code>count++</code>; 다음 수(<code>end+1</code>)를 포함해 확장 (<code>end++</code>, <code>sum += end</code>).</li>
+            <li><code>sum < N</code> → 아직 부족하므로 오른쪽 확장 (<code>end++</code>, <code>sum += end</code>).</li>
+            <li><code>sum > N</code> → 초과하므로 왼쪽을 줄임 (<code>sum -= start</code>, <code>start++</code>).</li>
+          </ul>
+        </li>
+        <li>루프 종료 후 <code>count</code> 출력.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N = 15</code><br>
+            1+2+3+4+5 = 15 → count=2<br>
+            4+5+6 = 15 → count=3<br>
+            7+8 = 15 → count=4<br>
+            15 → count=5 (초기값 포함)<br>
+            정답 <code>4</code></li>
+        <li><code>N = 5</code> → (5), (2+3), (1+2+3−초과X) → 총 <code>2</code></li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 각 포인터가 1~N을 한 번씩만 이동하므로 <code>O(N)</code>, 
+      추가 공간은 상수 개의 변수만 사용해 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li>연속된 자연수의 합으로 N을 만드는 모든 경우의 수를 구한다.</li>
+        <li>슬라이딩 윈도우(투 포인터)로 효율적으로 처리 가능하다.</li>
+        <li>포인터는 오름차순으로 이동하며, <code>sum == N</code>일 때마다 <code>count</code>를 증가시킨다.</li>
+        <li>시간 복잡도 <code>O(N)</code>으로 충분히 빠르다.</li>
       </ul>
+
 
 
 
@@ -69,47 +90,72 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 2057 — 팩토리얼 분해</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2057">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1008_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 어떤 수 <code>N</code>이 여러 개의 서로 다른 팩토리얼(<code>k!</code>)의 합으로 표현 가능한지를 판별하는 문제다. 
+      즉, <code>N = a₁! + a₂! + ... + aₖ!</code> (단, <code>a₁ &lt; a₂ &lt; ... &lt; aₖ</code>) 형태로 나타낼 수 있으면 <code>YES</code>, 그렇지 않으면 <code>NO</code>를 출력한다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 입력은 단 하나의 정수 <code>N</code>이며, 범위는 64비트(<code>long</code>) 범위 내의 수다. 
+      <code>0</code>은 예외적으로 어떤 팩토리얼의 합으로도 표현할 수 없으므로 곧바로 <code>NO</code>를 출력한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li><strong>1️⃣ 팩토리얼 미리 계산</strong> — <code>0!</code>부터 <code>20!</code>까지를 배열에 저장한다. 
+            (<code>20!</code> ≈ 2.43×10¹⁸로 <code>long</code> 범위 내에서 표현 가능한 최대 팩토리얼이다.)</li>
+        <li><strong>2️⃣ 큰 팩토리얼부터 차감</strong> — 
+            <ul>
+              <li><code>i = 20</code>부터 <code>0</code>까지 역순으로 순회하며,</li>
+              <li><code>fact[i]</code> ≤ <code>N</code>이면 <code>N -= fact[i]</code>로 차감한다.</li>
+              <li>이 과정을 반복해 <code>N</code>이 0이 되면 정확히 팩토리얼들의 합으로 표현 가능.</li>
+            </ul>
+        </li>
+        <li><strong>3️⃣ 종료 조건</strong> — 루프 종료 후 <code>N == 0</code>이면 <code>YES</code>, 
+            아니라면 <code>NO</code>.</li>
       </ul>
       
       <p><strong>예시</strong></p>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li><code>N = 9</code><br>
+            3! = 6 → 남은 3<br>
+            2! = 2 → 남은 1<br>
+            1! = 1 → 남은 0 → <strong>YES</strong></li>
+        <li><code>N = 10</code><br>
+            3! = 6 → 남은 4<br>
+            2! = 2 → 남은 2<br>
+            1! = 1 → 남은 1<br>
+            0! = 1 → 남은 0 → <strong>YES</strong></li>
+        <li><code>N = 7</code><br>
+            3! = 6 → 남은 1<br>
+            1! = 1 → 남은 0 → <strong>YES</strong></li>
+        <li><code>N = 8</code><br>
+            3! = 6 → 남은 2<br>
+            2! = 2 → 남은 0 → <strong>YES</strong></li>
+        <li><code>N = 11</code><br>
+            3! = 6 → 남은 5<br>
+            2! = 2 → 남은 3<br>
+            1! = 1 → 남은 2 → <strong>NO</strong></li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 팩토리얼을 최대 21개만 미리 계산 후 한 번씩 확인하므로 
+      시간 복잡도는 <code>O(21)</code> = <code>O(1)</code>, 공간 복잡도도 <code>O(1)</code>이다.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li>팩토리얼 합 표현 여부를 <strong>큰 팩토리얼부터 탐욕적으로 차감</strong>해 판정한다.</li>
+        <li><code>20!</code>까지만 고려하면 <code>long</code> 범위 내에서 충분하다.</li>
+        <li><code>N == 0</code>은 예외 처리로 <code>NO</code>를 출력한다.</li>
+        <li>팩토리얼 합 분해 문제의 기본 패턴: “큰 항부터 차감하며 0 도달 여부 확인”.</li>
       </ul>
+
 
 
 
