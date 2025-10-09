@@ -24,109 +24,147 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-10-05 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — n보다 커질 때까지 더하기</h2>
+      <h2 class="section">문제 1 — 특정 문자열로 끝나는 가장 긴 부분 문자열 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181884">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181872">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1005_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 정수 배열 <code>numbers</code>의 원소들을 앞에서부터 차례대로 더하다가, 
-        누적합이 <code>n</code>보다 커지는 순간의 합을 반환하는 문제다.
+        문자열 <code>myString</code>에서 주어진 패턴 <code>pat</code>이  
+        마지막으로 등장하는 위치까지의 부분 문자열을 반환하는 문제다.
       </p>
       <ul>
-        <li>배열을 순서대로 순회하면서 <code>sum</code>에 값을 더한다.</li>
-        <li><code>sum</code>이 <code>n</code>보다 커지는 즉시 반복문을 종료한다.</li>
-        <li>종료 시점의 <code>sum</code>을 반환한다.</li>
+        <li><code>String.lastIndexOf(pat)</code> 메서드를 사용해  
+            <code>pat</code>이 <code>myString</code> 내에서 마지막으로 등장하는 인덱스를 찾는다.</li>
+        <li>찾은 인덱스를 <code>idx</code>라 할 때,  
+            패턴의 마지막 문자까지 포함해야 하므로  
+            <code>myString.substring(0, idx + pat.length())</code>을 반환한다.</li>
       </ul>
       <p>
-        구현은 간단히 <code>for-each</code> 문을 이용해 배열을 순회하면서 누적합을 구하고,
-        조건을 만족하면 <code>break</code>로 탈출하는 방식이다.
-        배열을 한 번만 확인하므로 시간 복잡도는 <code>O(n)</code>, 
-        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
+        예를 들어, <code>myString = "AbCdEabCdE"</code>, <code>pat = "dE"</code>일 경우  
+        <code>pat</code>이 마지막으로 등장하는 위치는 인덱스 7이다.  
+        따라서 <code>substring(0, 7 + 2)</code> → <code>"AbCdEabCdE"</code>를 그대로 반환하게 된다.
       </p>
       <p>
-        직관적이고 가장 단순한 접근 방식이며, 불필요한 조건문이나 자료구조 없이 효율적으로 해결할 수 있다.
+        만약 <code>pat</code>이 문자열에 한 번만 등장한다면,  
+        그 지점까지의 부분 문자열만 잘라 반환한다.  
+        <code>lastIndexOf()</code>가 패턴을 찾지 못하면 -1을 반환하지만,  
+        문제 조건상 항상 존재한다고 가정할 수 있다.
       </p>
+      <p>
+        문자열을 한 번 검색하고 부분 문자열을 추출하므로  
+        시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code>이다.
+      </p>
+      <p>
+        핵심은 <code>lastIndexOf()</code>와 <code>substring()</code>을 조합해  
+        “마지막 등장 지점까지 자르기” 로직을 간결하게 구현하는 것이다.
+      </p>
+
 
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 수열과 구간 쿼리 1</h2>
+      <h2 class="section">문제 2 — 문자열이 몇 번 등장하는지 세기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181883">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181871">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1005_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        주어진 배열 <code>arr</code>에 대해, 각 쿼리 <code>[start, end]</code> 범위 안의 원소들을 모두 1씩 증가시키는 문제다.  
-        모든 쿼리를 순서대로 처리한 후 최종 배열을 반환한다.
+        문자열 <code>myString</code> 안에서 부분 문자열 <code>pat</code>이  
+        겹치더라도 등장할 때마다 모두 세어 그 개수를 반환하는 문제다.
       </p>
       <ul>
-        <li>먼저 입력 배열을 <code>List&lt;Integer&gt;</code>로 변환해 원소를 갱신하기 쉽게 만든다.</li>
-        <li>각 쿼리를 읽어 <code>start</code>부터 <code>end</code>까지 순회하며 <code>list.set(i, list.get(i) + 1)</code>로 값을 1씩 증가시킨다.</li>
-        <li>모든 쿼리를 처리한 뒤 최종 리스트를 다시 <code>int[]</code>로 변환해 반환한다.</li>
+        <li><code>indexOf(pat, from)</code> 메서드를 이용해 
+            <code>from</code> 위치부터 <code>pat</code>이 등장하는 인덱스를 찾는다.</li>
+        <li>패턴이 발견되면(<code>idx != -1</code>),  
+            카운트를 1 증가시키고 <code>from = idx + 1</code>로 갱신해  
+            다음 위치부터 다시 탐색을 이어간다.</li>
+        <li><code>indexOf()</code>가 <code>-1</code>을 반환하면  
+            더 이상 패턴이 없다는 뜻이므로 반복을 종료한다.</li>
       </ul>
       <p>
-        이 방식은 배열을 직접 다루기보다는 리스트의 <code>set</code> 메서드를 활용하는 점이 특징이다.  
-        직관적이고 구현이 명확하지만, 변환 과정이 있어 배열을 직접 수정하는 것보다 살짝 비효율적일 수 있다.
+        예를 들어, <code>myString = "aaaa"</code>, <code>pat = "aa"</code>인 경우  
+        검색 과정은 다음과 같다:
+      </p>
+      <pre><code>index 0 → "aa" (1회)
+      index 1 → "aa" (2회)
+      index 2 → "aa" (3회)
+      </code></pre>
+      <p>
+        총 3번 등장하므로 <code>3</code>을 반환한다.  
+        즉, 겹치는 구간도 모두 세어주는 것이 특징이다.
       </p>
       <p>
-        시간 복잡도는 쿼리 개수를 <code>m</code>, 배열 길이를 <code>n</code>이라 할 때  
-        최악의 경우 <code>O(m·n)</code>이 될 수 있으며, 공간 복잡도는 <code>O(n)</code>이다.
+        문자열 전체를 순회하며 부분 문자열을 검색하므로  
+        시간 복잡도는 <code>O(n · m)</code> 정도가 되며  
+        (<code>n</code>: <code>myString</code> 길이, <code>m</code>: <code>pat</code> 길이),  
+        별도의 자료구조를 사용하지 않아 공간 복잡도는 <code>O(1)</code>이다.
       </p>
-      
-      <h4 class="section">추가적으로</h4>
       <p>
-        배열을 <code>List</code>로 변환하지 않고, <code>arr</code>를 직접 수정하는 방식도 가능하다.  
-        이 경우 변환 과정이 사라져 코드가 더 간단하고 효율적이다.  
-        다만 문제 해결 아이디어 자체는 동일하다.
+        핵심은 <code>indexOf()</code>의 두 번째 인자(<code>fromIndex</code>)를 활용해  
+        겹치는 패턴도 탐색할 수 있도록 매번 시작 위치를 1씩 옮겨주는 점이다.
       </p>
 
 
       
 
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 조건에 맞게 수열 변환하기 1</h2>
+      <h2 class="section">문제 3 — ad 제거하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181882">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181870">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_0930_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1005_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        배열 <code>arr</code>의 각 원소에 대해 조건에 따라 값을 변환하는 문제다.
+        문자열 배열 <code>strArr</code>에서  
+        원소 중에 <code>"ad"</code>라는 부분 문자열이 포함된 요소를 제거하고  
+        나머지만 남긴 배열을 반환하는 문제다.
       </p>
       <ul>
-        <li>원소가 <code>50 이상</code>이고 <code>짝수</code>이면 2로 나눈다.</li>
-        <li>원소가 <code>50 미만</code>이고 <code>홀수</code>이면 2를 곱한다.</li>
-        <li>그 외의 경우는 값이 변하지 않는다.</li>
+        <li>빈 리스트 <code>list</code>를 생성한다.</li>
+        <li>배열의 각 원소 <code>s</code>를 순회하면서  
+            <code>s.contains("ad")</code>로 “ad” 포함 여부를 검사한다.</li>
+        <li>만약 포함되어 있다면 <code>continue</code>로 건너뛰고,  
+            포함되어 있지 않다면 리스트에 추가한다.</li>
+        <li>모든 검사를 마친 후 <code>list.toArray(new String[0])</code>로  
+            리스트를 문자열 배열로 변환하여 반환한다.</li>
       </ul>
       <p>
-        구현은 단순히 <code>for</code> 루프를 돌면서 각 원소를 조건문으로 판별해 바로 갱신하는 방식이다.  
-        따라서 배열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>, 
-        추가 메모리를 쓰지 않으므로 공간 복잡도는 <code>O(1)</code>이다.
+        예를 들어, <code>strArr = ["apple", "bread", "car", "badge"]</code>인 경우  
+        <code>"bread"</code>와 <code>"badge"</code>는 “ad”를 포함하므로 제외되고,  
+        결과는 <code>["apple", "car"]</code>가 된다.
       </p>
       <p>
-        조건 분기만 정확히 구현하면 되며, 별도의 자료구조나 추가적인 최적화는 필요 없는 직관적인 문제다.
+        배열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>,  
+        새로운 리스트에 일부 문자열만 저장하므로  
+        공간 복잡도는 <code>O(n)</code>이다.
       </p>
+      <p>
+        핵심은 <code>String.contains()</code> 메서드를 이용해  
+        부분 문자열 포함 여부를 간단히 판별하고,  
+        필터링 결과를 새로운 배열로 반환하는 점이다.
+      </p>
+
 
 
 
