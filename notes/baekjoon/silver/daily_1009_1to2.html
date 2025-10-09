@@ -24,41 +24,58 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 2097 — 조약돌</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2097">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — N개의 격자점(조약돌)을 모두 포함하는 <em>축에 평행한</em> 최소 직사각형의 둘레를 최소화해야 한다. 
+      직사각형의 한 변에 포함되는 <em>격자점의 개수</em>를 각각 <code>a</code>, <code>b</code>(둘 다 ≥ 1)라 하면, 이 직사각형 안에 담을 수 있는 격자점의 최대 개수는 <code>a × b</code>이고, 실제 변의 길이는 <code>(a-1)</code>, <code>(b-1)</code>이므로 둘레는 
+      <code>2((a-1)+(b-1)) = 2a + 2b - 4</code>가 된다. 
+      따라서 <code>a×b ≥ N</code>을 만족하는 정수 <code>a, b</code> 중에서 <code>2a+2b-4</code>를 최소화하면 된다. 
+      둘레가 최소가 되려면 <code>a, b</code>가 가능한 한 서로 가깝도록(정사각형에 가깝게) 잡으면 되고, 
+      이를 위해 <code>m = ⌈√N⌉</code>을 기준으로 <code>(a,b) = (m,m)</code> 혹은 <code>(m,m-1)</code>만 비교하면 충분하다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 정수 <code>N</code> 하나가 주어진다(최대 5×10<sup>8</sup> 수준). 
+      계산 중 곱셈·제곱이 등장하므로 <code>long</code> 형을 사용한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li>예외 처리: <code>N ≤ 2</code>이면 1×1 또는 그 안에 2개까지 담을 수 있으나 문제 정의상 변의 길이는 최소 1이어야 하므로 최솟값은 <code>4</code>.</li>
+        <li><code>m = ⌈√N⌉</code>을 구한다(<code>long m = (long)Math.sqrt(N); if (m*m &lt; N) m++;</code>).</li>
+        <li>두 후보를 비교한다:
+          <ul>
+            <li>만약 <code>N ≤ m×(m-1)</code>이면 <code>(a,b) = (m, m-1)</code>가 가능 → 둘레 <code>= 2a+2b-4 = 4m-6</code></li>
+            <li>그 외에는 <code>(a,b) = (m, m)</code> → 둘레 <code>= 4m-4</code></li>
+          </ul>
+        </li>
+        <li>해당 값을 출력한다.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N=1</code> 또는 <code>N=2</code> → 정사각형 최소 변 길이 1 → 둘레 <code>4</code></li>
+        <li><code>N=5</code> → <code>m=3</code>, <code>m(m-1)=6 ≥ 5</code> → <code>(a,b)=(3,2)</code> → 둘레 <code>4m-6=6</code></li>
+        <li><code>N=9</code> → <code>m=3</code>, <code>m(m-1)=6 &lt; 9</code> → <code>(a,b)=(3,3)</code> → 둘레 <code>4m-4=8</code></li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 제곱근, 몇 번의 곱셈/비교만 수행하므로 <code>O(1)</code>, 추가 메모리도 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li>문제를 “<code>a×b ≥ N</code>에서 <code>2a+2b-4</code> 최소화”로 환원한다.</li>
+        <li><code>m = ⌈√N⌉</code> 기준으로 <code>(m,m-1)</code>과 <code>(m,m)</code> 둘만 검사하면 충분하다.</li>
+        <li>가장자리 격자점 수 공식이 곧 둘레: <code>2a+2b-4</code>.</li>
+        <li><code>N ≤ 2</code>는 예외적으로 항상 둘레 <code>4</code>.</li>
       </ul>
 
 
@@ -69,47 +86,71 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 2161 — 카드1</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2161">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 1부터 N까지의 카드가 순서대로 놓여 있고, 다음 과정을 반복하는 시뮬레이션 문제다.  
+      ① 맨 위 카드를 버리고, ② 그다음 카드를 맨 아래로 옮긴다.  
+      이 과정을 카드가 한 장 남을 때까지 수행하면서, 버린 카드의 순서를 출력하면 된다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 첫 줄에 카드 개수 <code>N</code>(1 ≤ N ≤ 1,000)이 주어진다.  
+      정수 하나만 읽으면 되며, <code>BufferedReader</code>와 <code>Integer.parseInt()</code>로 처리한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li><strong>자료구조 선택</strong> — 카드를 순서대로 넣고 빼야 하므로 <code>Queue&lt;Integer&gt;</code>를 사용한다.  
+        (<code>LinkedList</code>로 구현 가능)</li>
+        <li><strong>초기화</strong> — 1부터 N까지 큐에 삽입한다.</li>
+        <li><strong>반복 시뮬레이션</strong>
+          <ul>
+            <li>큐의 크기가 1보다 클 동안 반복한다.</li>
+            <li>맨 위 카드(<code>poll()</code>)를 꺼내어 버린 카드 목록(<code>StringBuilder</code>)에 추가한다.</li>
+            <li>그다음 카드(<code>poll()</code>)를 꺼내어 맨 아래(<code>add()</code>)에 다시 넣는다.</li>
+          </ul>
+        </li>
+        <li>모든 과정이 끝나면 마지막 남은 카드(<code>poll()</code>)를 출력 문자열의 마지막에 붙인다.</li>
       </ul>
       
       <p><strong>예시</strong></p>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li><code>N = 7</code>일 때 과정:</li>
+        <pre>
+        초기: [1 2 3 4 5 6 7]
+        버림: 1 → [2 3 4 5 6 7]
+        이동: 2 → [3 4 5 6 7 2]
+        버림: 3 → [4 5 6 7 2]
+        이동: 4 → [5 6 7 2 4]
+        버림: 5 → [6 7 2 4]
+        이동: 6 → [7 2 4 6]
+        버림: 7 → [2 4 6]
+        이동: 2 → [4 6 2]
+        버림: 4 → [6 2]
+        이동: 6 → [2 6]
+        버림: 2 → [6]
+        남은 카드: 6
+        </pre>
+        <p>출력: <code>1 3 5 7 4 2 6</code></p>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 각 카드를 한 번씩만 큐에서 꺼내거나 넣으므로 <code>O(N)</code>, 
+      큐에 N개의 카드만 저장하므로 <code>O(N)</code> 공간.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li>큐(<code>LinkedList</code>)를 이용한 간단한 시뮬레이션 문제.</li>
+        <li>패턴: “맨 위 버림 → 다음 카드 아래로 이동”.</li>
+        <li>출력은 버린 순서 + 마지막 남은 카드 순으로 공백 구분.</li>
+        <li>시간·공간 효율이 충분히 높고, 구현도 간결하다.</li>
       </ul>
+
 
 
 
