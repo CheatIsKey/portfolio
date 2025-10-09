@@ -24,42 +24,54 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-09-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1439 — 뒤집기</h2>
+      <h2 class="section">문제 1543 — 문서 검색</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1439">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1543">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1003_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 문자열을 이루는 0과 1을 연속된 묶음 단위로 나누어, 0 묶음의 개수와 1 묶음의 개수를 각각 센다. 
-      모두 0으로 통일하려면 1 묶음을 뒤집으면 되고, 모두 1로 통일하려면 0 묶음을 뒤집으면 된다. 따라서 두 묶음 개수 중 더 작은 값을 답으로 출력한다.</p>
+      <p><strong>핵심 아이디어</strong> — 문자열 <code>text</code> 안에서 부분 문자열 <code>str</code>이 등장하는 횟수를 <em>겹치지 않게</em> 세는 문제다. 
+      일반적인 <code>indexOf</code> 탐색을 이용하되, 한 번 발견된 위치 이후에는 <code>str.length()</code>만큼 인덱스를 건너뛰면 겹침 없이 세어낼 수 있다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열 그대로 처리해야 한다. 정수로 변환할 경우 앞자리 0이 사라질 수 있으므로 문자열을 유지한 채 인덱스로 접근한다.</p>
+      <p><strong>입력 파싱</strong> — 첫 번째 줄은 문서 전체 문자열(<code>text</code>), 두 번째 줄은 찾을 단어(<code>str</code>)이다. 
+      공백, 특수문자 포함 문자열이므로 <code>readLine()</code>으로 그대로 받아야 하며, <code>trim()</code> 등으로 불필요한 공백을 제거하지 않는다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>첫 문자가 0인지 1인지에 따라 초기 묶음 개수를 1 증가시킨다.</li>
-        <li>두 번째 문자부터 순회하며, 직전 문자와 다르면 새로운 묶음이 시작된 것으로 판단한다.</li>
-        <li>해당 문자가 0이면 <code>count0++</code>, 1이면 <code>count1++</code> 한다.</li>
-        <li>마지막에 <code>min(count0, count1)</code>을 출력한다.</li>
+        <li><code>count = 0</code>, <code>idx = 0</code>으로 초기화한다.</li>
+        <li><code>text.indexOf(str, idx)</code>로 현재 인덱스 <code>idx</code> 이후 첫 등장 위치를 찾는다.
+          <ul>
+            <li>결과가 <code>-1</code>이면 더 이상 등장하지 않으므로 루프 종료.</li>
+            <li>발견되면 <code>count++</code> 후 <code>idx += str.length()</code>로 건너뛴다(겹침 방지).</li>
+          </ul>
+        </li>
+        <li>루프가 끝나면 <code>count</code>를 출력한다.</li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열 전체를 한 번 순회하므로 O(N), 
-      추가 메모리는 묶음 개수 카운트를 위한 정수 변수 2개로 O(1).</p>
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>text = "abababa"</code>, <code>str = "aba"</code> → 인덱스 0, 4에서 등장 → 정답 2 (겹치는 인덱스 2~4는 무시)</li>
+        <li><code>text = "aaaaa"</code>, <code>str = "aa"</code> → 인덱스 0, 2, 4에서 겹치지 않게 세면 정답 2</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — <code>indexOf</code>는 내부적으로 O(N) 탐색을 수행하며, 각 호출 후 인덱스가 <code>str.length()</code>만큼 증가하므로 
+      전체 복잡도는 <code>O(N)</code>에 가깝다. 문자열 탐색 외 추가 메모리는 정수 몇 개뿐이므로 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문자열을 처음부터 끝까지 순회하면서 연속 구간을 카운트한다.</li>
-        <li>0 묶음 수와 1 묶음 수 중 작은 값을 답으로 사용한다.</li>
-        <li>간단한 구현으로도 교차 패턴(예: <code>0101</code>, <code>1010</code>)까지 정확히 처리할 수 있다.</li>
+        <li><code>indexOf(찾을문자열, 시작인덱스)</code>를 반복 호출해 간결하게 구현 가능.</li>
+        <li>발견 후 인덱스를 <code>+ str.length()</code>만큼 이동해 겹침을 피한다.</li>
+        <li>시간·공간 효율 모두 우수하며, 문자열 길이가 수천~수만이어도 충분히 빠르다.</li>
       </ul>
+
 
 
 
@@ -69,47 +81,65 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1475 — 방 번호</h2>
+      <h2 class="section">문제 1652 — 누울 자리를 찾아라</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1475">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1652">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_0930_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1003_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 각 숫자(0~9)의 등장 횟수를 세고, 6과 9는 서로 뒤집어 쓸 수 있으므로 <code>count[6] + count[9]</code>를 합친 뒤 
-      정수 올림으로 반 나누어 필요한 세트 수를 계산한다. 마지막으로 모든 숫자(0~9) 중 가장 많이 필요한 개수가 정답이 된다.</p>
+      <p><strong>핵심 아이디어</strong> — 방 구조를 나타내는 <code>N×N</code> 격자에서 연속된 빈칸(<code>'.'</code>)이 <strong>2칸 이상</strong> 이어지는 구간을 
+      가로와 세로 각각 따로 세면 된다. 벽(<code>'X'</code>)을 기준으로 구간이 끊기며, 한 구간마다 1개의 누울 자리로 계산한다.</p>
       
-      <p><strong>입력 파싱</strong> — 입력은 문자열로 받아 각 문자를 순회하면서 <code>count[c - '0']++</code>로 개수를 누적한다. 
-      정수 변환은 불필요하다.</p>
+      <p><strong>입력 파싱</strong> — 첫 줄에 방 크기 <code>N</code>이 주어지고, 이후 <code>N</code>줄에 걸쳐 <code>'.'</code>와 <code>'X'</code>로 이루어진 문자열이 주어진다. 
+      각 줄을 문자 배열로 처리하여 2차원 배열에 저장한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>배열 <code>count[10]</code>에 0~9 등장 횟수를 센다.</li>
-        <li>6과 9는 공유하므로, <code>shared = (count[6] + count[9] + 1) / 2</code>로 올림 나눗셈 처리한다.</li>
-        <li><code>count[6] = shared</code>, <code>count[9] = shared</code>로 치환해 동일 기준으로 맞춘다.</li>
-        <li>0~9 전체에서 <code>max(count[i])</code>를 구해 출력한다.</li>
+        <li><strong>가로 방향 탐색</strong>
+          <ul>
+            <li>각 행(<code>i</code>)을 순회하며, <code>sleep</code> 변수를 통해 연속된 <code>'.'</code> 개수를 센다.</li>
+            <li><code>'X'</code>를 만나면 지금까지의 <code>sleep</code> 값이 2 이상인지 확인 후 <code>row++</code> 증가, 이후 <code>sleep=0</code>으로 초기화한다.</li>
+            <li>행 끝에 도달했을 때도 <code>sleep>=2</code>라면 마지막 구간을 반영해 <code>row++</code> 한다.</li>
+          </ul>
+        </li>
+        <li><strong>세로 방향 탐색</strong>
+          <ul>
+            <li>각 열(<code>j</code>)을 순회하며, 행 단위로 <code>sleep</code>을 세는 동일한 방식으로 <code>column++</code>을 계산한다.</li>
+          </ul>
+        </li>
+        <li>최종적으로 <code>System.out.println(row + " " + column)</code>으로 출력한다.</li>
       </ul>
       
       <p><strong>예시</strong></p>
+      <pre>
+      ....X
+      ..XX.
+      .....
+      X....
+      XX..X
+      </pre>
       <ul>
-        <li><code>9999</code> → <code>count[9]=4</code>, <code>shared=(0+4+1)/2=2</code> → 정답 2</li>
-        <li><code>669</code> → <code>count[6]=2</code>, <code>count[9]=1</code>, <code>shared=(2+1+1)/2=2</code> → 정답 2</li>
-        <li><code>122</code> → 각 숫자 최댓값 2 → 정답 2</li>
+        <li>가로 기준: 1행(1), 2행(1), 3행(1), 4행(0), 5행(1) → 총 <code>4</code></li>
+        <li>세로 기준: 각 열 세면 총 <code>3</code></li>
+        <li>결과: <code>4 3</code></li>
       </ul>
       
-      <p><strong>시간·공간 복잡도</strong> — 문자열을 한 번 순회하므로 O(N), 
-      추가 메모리는 길이 10의 카운트 배열과 상수 변수로 O(1).</p>
+      <p><strong>시간·공간 복잡도</strong> — 모든 칸을 한 번씩 순회하므로 <code>O(N²)</code>, 
+      배열 크기도 <code>N×N</code>으로 동일하게 <code>O(N²)</code> 공간을 사용한다.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>카운트 배열로 각 숫자 빈도를 집계한다.</li>
-        <li>6과 9는 합쳐서 <em>올림</em> 반 나누기(<code>(a+b+1)/2</code>)로 필요한 세트 수를 구한다.</li>
-        <li>최종 답은 모든 숫자 중 최댓값.</li>
+        <li>연속된 <code>'.'</code> 구간의 길이가 2 이상일 때만 카운트한다.</li>
+        <li>가로/세로를 완전히 독립적으로 처리한다.</li>
+        <li>벽을 만날 때마다 구간이 끊기므로, 루프 종료 후 잔여 구간 확인을 반드시 수행해야 한다.</li>
+        <li>복잡도는 <code>O(N²)</code>로 충분히 빠르며, 단순 구현 문제의 전형적인 패턴이다.</li>
       </ul>
+
 
 
 
