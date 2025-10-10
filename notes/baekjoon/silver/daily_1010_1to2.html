@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2097 — 조약돌</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2097">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p><strong>핵심 아이디어</strong> — N개의 격자점(조약돌)을 모두 포함하는 <em>축에 평행한</em> 최소 직사각형의 둘레를 최소화해야 한다. 
+      직사각형의 한 변에 포함되는 <em>격자점의 개수</em>를 각각 <code>a</code>, <code>b</code>(둘 다 ≥ 1)라 하면, 이 직사각형 안에 담을 수 있는 격자점의 최대 개수는 <code>a × b</code>이고, 실제 변의 길이는 <code>(a-1)</code>, <code>(b-1)</code>이므로 둘레는 
+      <code>2((a-1)+(b-1)) = 2a + 2b - 4</code>가 된다. 
+      따라서 <code>a×b ≥ N</code>을 만족하는 정수 <code>a, b</code> 중에서 <code>2a+2b-4</code>를 최소화하면 된다. 
+      둘레가 최소가 되려면 <code>a, b</code>가 가능한 한 서로 가깝도록(정사각형에 가깝게) 잡으면 되고, 
+      이를 위해 <code>m = ⌈√N⌉</code>을 기준으로 <code>(a,b) = (m,m)</code> 혹은 <code>(m,m-1)</code>만 비교하면 충분하다.</p>
+      
+      <p><strong>입력 파싱</strong> — 정수 <code>N</code> 하나가 주어진다(최대 5×10<sup>8</sup> 수준). 
+      계산 중 곱셈·제곱이 등장하므로 <code>long</code> 형을 사용한다.</p>
+      
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li>예외 처리: <code>N ≤ 2</code>이면 1×1 또는 그 안에 2개까지 담을 수 있으나 문제 정의상 변의 길이는 최소 1이어야 하므로 최솟값은 <code>4</code>.</li>
+        <li><code>m = ⌈√N⌉</code>을 구한다(<code>long m = (long)Math.sqrt(N); if (m*m &lt; N) m++;</code>).</li>
+        <li>두 후보를 비교한다:
+          <ul>
+            <li>만약 <code>N ≤ m×(m-1)</code>이면 <code>(a,b) = (m, m-1)</code>가 가능 → 둘레 <code>= 2a+2b-4 = 4m-6</code></li>
+            <li>그 외에는 <code>(a,b) = (m, m)</code> → 둘레 <code>= 4m-4</code></li>
+          </ul>
+        </li>
+        <li>해당 값을 출력한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N=1</code> 또는 <code>N=2</code> → 정사각형 최소 변 길이 1 → 둘레 <code>4</code></li>
+        <li><code>N=5</code> → <code>m=3</code>, <code>m(m-1)=6 ≥ 5</code> → <code>(a,b)=(3,2)</code> → 둘레 <code>4m-6=6</code></li>
+        <li><code>N=9</code> → <code>m=3</code>, <code>m(m-1)=6 &lt; 9</code> → <code>(a,b)=(3,3)</code> → 둘레 <code>4m-4=8</code></li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 제곱근, 몇 번의 곱셈/비교만 수행하므로 <code>O(1)</code>, 추가 메모리도 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>문제를 “<code>a×b ≥ N</code>에서 <code>2a+2b-4</code> 최소화”로 환원한다.</li>
+        <li><code>m = ⌈√N⌉</code> 기준으로 <code>(m,m-1)</code>과 <code>(m,m)</code> 둘만 검사하면 충분하다.</li>
+        <li>가장자리 격자점 수 공식이 곧 둘레: <code>2a+2b-4</code>.</li>
+        <li><code>N ≤ 2</code>는 예외적으로 항상 둘레 <code>4</code>.</li>
+      </ul>
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2161 — 카드1</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2161">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p><strong>핵심 아이디어</strong> — 1부터 N까지의 카드가 순서대로 놓여 있고, 다음 과정을 반복하는 시뮬레이션 문제다.  
+      ① 맨 위 카드를 버리고, ② 그다음 카드를 맨 아래로 옮긴다.  
+      이 과정을 카드가 한 장 남을 때까지 수행하면서, 버린 카드의 순서를 출력하면 된다.</p>
+      
+      <p><strong>입력 파싱</strong> — 첫 줄에 카드 개수 <code>N</code>(1 ≤ N ≤ 1,000)이 주어진다.  
+      정수 하나만 읽으면 되며, <code>BufferedReader</code>와 <code>Integer.parseInt()</code>로 처리한다.</p>
+      
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li><strong>자료구조 선택</strong> — 카드를 순서대로 넣고 빼야 하므로 <code>Queue&lt;Integer&gt;</code>를 사용한다.  
+        (<code>LinkedList</code>로 구현 가능)</li>
+        <li><strong>초기화</strong> — 1부터 N까지 큐에 삽입한다.</li>
+        <li><strong>반복 시뮬레이션</strong>
+          <ul>
+            <li>큐의 크기가 1보다 클 동안 반복한다.</li>
+            <li>맨 위 카드(<code>poll()</code>)를 꺼내어 버린 카드 목록(<code>StringBuilder</code>)에 추가한다.</li>
+            <li>그다음 카드(<code>poll()</code>)를 꺼내어 맨 아래(<code>add()</code>)에 다시 넣는다.</li>
+          </ul>
+        </li>
+        <li>모든 과정이 끝나면 마지막 남은 카드(<code>poll()</code>)를 출력 문자열의 마지막에 붙인다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>N = 7</code>일 때 과정:</li>
+        <pre>
+        초기: [1 2 3 4 5 6 7]
+        버림: 1 → [2 3 4 5 6 7]
+        이동: 2 → [3 4 5 6 7 2]
+        버림: 3 → [4 5 6 7 2]
+        이동: 4 → [5 6 7 2 4]
+        버림: 5 → [6 7 2 4]
+        이동: 6 → [7 2 4 6]
+        버림: 7 → [2 4 6]
+        이동: 2 → [4 6 2]
+        버림: 4 → [6 2]
+        이동: 6 → [2 6]
+        버림: 2 → [6]
+        남은 카드: 6
+        </pre>
+        <p>출력: <code>1 3 5 7 4 2 6</code></p>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> — 각 카드를 한 번씩만 큐에서 꺼내거나 넣으므로 <code>O(N)</code>, 
+      큐에 N개의 카드만 저장하므로 <code>O(N)</code> 공간.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>큐(<code>LinkedList</code>)를 이용한 간단한 시뮬레이션 문제.</li>
+        <li>패턴: “맨 위 버림 → 다음 카드 아래로 이동”.</li>
+        <li>출력은 버린 순서 + 마지막 남은 카드 순으로 공백 구분.</li>
+        <li>시간·공간 효율이 충분히 높고, 구현도 간결하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
