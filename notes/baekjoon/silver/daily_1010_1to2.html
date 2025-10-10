@@ -24,59 +24,86 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-10 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 2097 — 조약돌</h2>
+      <h2 class="section">문제 2167 — 2차원 배열의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2097">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2167">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1010_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — N개의 격자점(조약돌)을 모두 포함하는 <em>축에 평행한</em> 최소 직사각형의 둘레를 최소화해야 한다. 
-      직사각형의 한 변에 포함되는 <em>격자점의 개수</em>를 각각 <code>a</code>, <code>b</code>(둘 다 ≥ 1)라 하면, 이 직사각형 안에 담을 수 있는 격자점의 최대 개수는 <code>a × b</code>이고, 실제 변의 길이는 <code>(a-1)</code>, <code>(b-1)</code>이므로 둘레는 
-      <code>2((a-1)+(b-1)) = 2a + 2b - 4</code>가 된다. 
-      따라서 <code>a×b ≥ N</code>을 만족하는 정수 <code>a, b</code> 중에서 <code>2a+2b-4</code>를 최소화하면 된다. 
-      둘레가 최소가 되려면 <code>a, b</code>가 가능한 한 서로 가깝도록(정사각형에 가깝게) 잡으면 되고, 
-      이를 위해 <code>m = ⌈√N⌉</code>을 기준으로 <code>(a,b) = (m,m)</code> 혹은 <code>(m,m-1)</code>만 비교하면 충분하다.</p>
+      <p><strong>핵심 아이디어</strong> — 
+      이 문제는 여러 번 주어지는 부분 영역 <code>(x₁, y₁) ~ (x₂, y₂)</code>의 합을 빠르게 구해야 한다. 
+      단순히 매번 합을 구하면 최대 <code>300×300×10,000</code>번 덧셈이 필요하므로 <code>O(NMK)</code>으로 매우 비효율적이다.  
+      이를 해결하기 위해 <strong>2차원 누적합(Prefix Sum)</strong>을 사용한다.</p>
       
-      <p><strong>입력 파싱</strong> — 정수 <code>N</code> 하나가 주어진다(최대 5×10<sup>8</sup> 수준). 
-      계산 중 곱셈·제곱이 등장하므로 <code>long</code> 형을 사용한다.</p>
+      <p>2차원 누적합 배열 <code>ps[i][j]</code>은 
+      “왼쪽 위 (1,1)부터 현재 좌표 (i,j)까지의 모든 원소 합”을 저장한다.  
+      이 배열을 한 번 구해두면, 임의의 사각형 합은 다음 한 줄 공식으로 바로 계산된다:</p>
+      
+      <pre><code>sum = ps[x₂][y₂] - ps[x₁-1][y₂] - ps[x₂][y₁-1] + ps[x₁-1][y₁-1];
+      </code></pre>
+      
+      <p>이는 ‘전체 영역 합 - 위쪽 영역 - 왼쪽 영역 + 겹친 영역 복구’의 원리다.  
+      이때 0행과 0열은 항상 0으로 초기화하여 인덱스 범위를 벗어나지 않게 한다.</p>
+      
+      <p><strong>입력 파싱</strong> — 
+      첫 줄에 행과 열 크기 <code>N, M</code>이 주어진다 (1 ≤ N, M ≤ 300).  
+      다음 <code>N</code>줄에는 M개의 정수가 주어지고, 
+      그 후 질의 개수 <code>K</code>와 K개의 구간 좌표 <code>x₁, y₁, x₂, y₂</code>가 입력된다.  
+      빠른 입출력을 위해 <code>BufferedReader</code>와 <code>StringTokenizer</code>를 사용한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>예외 처리: <code>N ≤ 2</code>이면 1×1 또는 그 안에 2개까지 담을 수 있으나 문제 정의상 변의 길이는 최소 1이어야 하므로 최솟값은 <code>4</code>.</li>
-        <li><code>m = ⌈√N⌉</code>을 구한다(<code>long m = (long)Math.sqrt(N); if (m*m &lt; N) m++;</code>).</li>
-        <li>두 후보를 비교한다:
-          <ul>
-            <li>만약 <code>N ≤ m×(m-1)</code>이면 <code>(a,b) = (m, m-1)</code>가 가능 → 둘레 <code>= 2a+2b-4 = 4m-6</code></li>
-            <li>그 외에는 <code>(a,b) = (m, m)</code> → 둘레 <code>= 4m-4</code></li>
-          </ul>
+        <li>1️⃣ 입력 배열 <code>ints</code>를 1-based 인덱스로 저장한다.</li>
+        <li>2️⃣ 누적합 배열 <code>ints1</code>을 계산한다:
+          <pre><code>ints1[i][j] = ints1[i-1][j] + ints1[i][j-1] - ints1[i-1][j-1] + ints[i][j];
+      </code></pre>
+          위 + 왼쪽 - 겹친 부분 + 현재값 으로 (1,1)~(i,j)까지 합을 구한다.
         </li>
-        <li>해당 값을 출력한다.</li>
+        <li>3️⃣ 각 질의에 대해 누적합 공식을 이용해 즉시 결과를 계산한다.
+          <pre><code>sum = ints1[x2][y2] - ints1[x1-1][y2] - ints1[x2][y1-1] + ints1[x1-1][y1-1];
+      </code></pre>
+        </li>
+        <li>4️⃣ 출력은 <code>StringBuilder</code>에 누적 후 한 번에 출력한다.</li>
       </ul>
       
       <p><strong>예시</strong></p>
-      <ul>
-        <li><code>N=1</code> 또는 <code>N=2</code> → 정사각형 최소 변 길이 1 → 둘레 <code>4</code></li>
-        <li><code>N=5</code> → <code>m=3</code>, <code>m(m-1)=6 ≥ 5</code> → <code>(a,b)=(3,2)</code> → 둘레 <code>4m-6=6</code></li>
-        <li><code>N=9</code> → <code>m=3</code>, <code>m(m-1)=6 &lt; 9</code> → <code>(a,b)=(3,3)</code> → 둘레 <code>4m-4=8</code></li>
-      </ul>
+      <pre><code>입력:
+      3 3
+      1 2 3
+      4 5 6
+      7 8 9
+      1
+      2 2 3 3
       
-      <p><strong>시간·공간 복잡도</strong> — 제곱근, 몇 번의 곱셈/비교만 수행하므로 <code>O(1)</code>, 추가 메모리도 <code>O(1)</code>.</p>
+      출력:
+      28
+      </code></pre>
+      <p>해설: 2행 2열~3행 3열의 합은 5+6+8+9=28.  
+      공식으로 계산하면 <code>ps[3][3]-ps[1][3]-ps[3][1]+ps[1][1] = 45-6-12+1=28</code>이다.</p>
+      
+      <p><strong>시간·공간 복잡도</strong> — 
+      누적합 계산이 <code>O(N×M)</code>,  
+      각 질의가 <code>O(1)</code>이므로 전체 <code>O(N×M + K)</code>.  
+      공간 복잡도도 <code>O(N×M)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>문제를 “<code>a×b ≥ N</code>에서 <code>2a+2b-4</code> 최소화”로 환원한다.</li>
-        <li><code>m = ⌈√N⌉</code> 기준으로 <code>(m,m-1)</code>과 <code>(m,m)</code> 둘만 검사하면 충분하다.</li>
-        <li>가장자리 격자점 수 공식이 곧 둘레: <code>2a+2b-4</code>.</li>
-        <li><code>N ≤ 2</code>는 예외적으로 항상 둘레 <code>4</code>.</li>
+        <li>2차원 누적합의 정의: <code>ps[i][j]=(1,1)~(i,j)</code>까지의 합.</li>
+        <li>누적합 공식: <code>ps[i][j]=ps[i-1][j]+ps[i][j-1]-ps[i-1][j-1]+a[i][j]</code>.</li>
+        <li>부분 구간 합 공식: <code>ps[x₂][y₂]-ps[x₁-1][y₂]-ps[x₂][y₁-1]+ps[x₁-1][y₁-1]</code>.</li>
+        <li>모든 질의를 상수 시간(<code>O(1)</code>)에 처리 가능.</li>
+        <li>전형적인 2차원 Prefix Sum 응용 문제.</li>
       </ul>
+
+
 
 
 
@@ -86,69 +113,81 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2161 — 카드1</h2>
+      <h2 class="section">문제 2238 — 경매</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2161">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2238">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1009_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1010_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 1부터 N까지의 카드가 순서대로 놓여 있고, 다음 과정을 반복하는 시뮬레이션 문제다.  
-      ① 맨 위 카드를 버리고, ② 그다음 카드를 맨 아래로 옮긴다.  
-      이 과정을 카드가 한 장 남을 때까지 수행하면서, 버린 카드의 순서를 출력하면 된다.</p>
-      
-      <p><strong>입력 파싱</strong> — 첫 줄에 카드 개수 <code>N</code>(1 ≤ N ≤ 1,000)이 주어진다.  
-      정수 하나만 읽으면 되며, <code>BufferedReader</code>와 <code>Integer.parseInt()</code>로 처리한다.</p>
-      
+
+      <p><strong>핵심 아이디어</strong> — 경매에서 여러 사람이 가격을 부르는 상황을 시뮬레이션한다.  
+      모든 입찰 내역 중에서 “<em>가장 적은 인원이 부른 금액</em>”을 찾고, 그런 금액이 여러 개면 “<em>가장 낮은 금액</em>”을 선택한다.  
+      최종적으로 그 금액을 <em>가장 먼저 제시한 사람</em>이 낙찰된다.</p>
+
+      <p><strong>입력 파싱</strong> —  
+      첫 줄에는 두 정수 <code>U</code>, <code>N</code>이 주어진다.  
+      <ul>
+        <li><code>U</code> — 입찰 가능한 금액의 상한 (1&nbsp;≤&nbsp;U&nbsp;≤&nbsp;10,000)</li>
+        <li><code>N</code> — 입찰 횟수 (1&nbsp;≤&nbsp;N&nbsp;≤&nbsp;100,000)</li>
+      </ul>
+      이후 <code>N</code>개의 줄에는 각 입찰자의 <code>이름</code>과 <code>금액</code>이 주어진다.  
+      한 사람이 여러 번 등장할 수 있으며, 모든 줄은 독립된 입찰로 처리된다.</p>
+
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li><strong>자료구조 선택</strong> — 카드를 순서대로 넣고 빼야 하므로 <code>Queue&lt;Integer&gt;</code>를 사용한다.  
-        (<code>LinkedList</code>로 구현 가능)</li>
-        <li><strong>초기화</strong> — 1부터 N까지 큐에 삽입한다.</li>
-        <li><strong>반복 시뮬레이션</strong>
+        <li>가격(1~U)을 인덱스로 하여 통계를 계산한다.</li>
+        <li><code>freq[price]</code>: 해당 가격을 제시한 횟수</li>
+        <li><code>firstName[price]</code>: 해당 가격을 가장 먼저 부른 사람</li>
+        <li><code>firstOrder[price]</code>: 그 가격이 처음 등장한 시점(줄 번호)</li>
+        <li>입력을 순서대로 읽으며:
           <ul>
-            <li>큐의 크기가 1보다 클 동안 반복한다.</li>
-            <li>맨 위 카드(<code>poll()</code>)를 꺼내어 버린 카드 목록(<code>StringBuilder</code>)에 추가한다.</li>
-            <li>그다음 카드(<code>poll()</code>)를 꺼내어 맨 아래(<code>add()</code>)에 다시 넣는다.</li>
+            <li><code>freq[price]++</code></li>
+            <li>아직 등장하지 않은 가격이면 <code>firstName</code>과 <code>firstOrder</code> 기록</li>
           </ul>
         </li>
-        <li>모든 과정이 끝나면 마지막 남은 카드(<code>poll()</code>)를 출력 문자열의 마지막에 붙인다.</li>
+        <li>모든 입력 후:
+          <ul>
+            <li><code>freq[p] &gt; 0</code>인 가격 중 최솟값 <code>minFreq</code>를 찾는다.</li>
+            <li><code>freq[p] == minFreq</code>인 가격 중 가장 작은 <code>price</code>를 선택한다.</li>
+            <li>그 가격을 가장 먼저 부른 <code>firstName[price]</code>을 함께 출력한다.</li>
+          </ul>
+        </li>
       </ul>
-      
+
       <p><strong>예시</strong></p>
-      <ul>
-        <li><code>N = 7</code>일 때 과정:</li>
-        <pre>
-        초기: [1 2 3 4 5 6 7]
-        버림: 1 → [2 3 4 5 6 7]
-        이동: 2 → [3 4 5 6 7 2]
-        버림: 3 → [4 5 6 7 2]
-        이동: 4 → [5 6 7 2 4]
-        버림: 5 → [6 7 2 4]
-        이동: 6 → [7 2 4 6]
-        버림: 7 → [2 4 6]
-        이동: 2 → [4 6 2]
-        버림: 4 → [6 2]
-        이동: 6 → [2 6]
-        버림: 2 → [6]
-        남은 카드: 6
-        </pre>
-        <p>출력: <code>1 3 5 7 4 2 6</code></p>
-      </ul>
+      <pre>
+      입력:
+      10 5
+      amy 3
+      bob 8
+      cindy 3
+      david 5
+      eric 8
       
-      <p><strong>시간·공간 복잡도</strong> — 각 카드를 한 번씩만 큐에서 꺼내거나 넣으므로 <code>O(N)</code>, 
-      큐에 N개의 카드만 저장하므로 <code>O(N)</code> 공간.</p>
+      과정:
+      가격별 빈도 → 3(2회), 5(1회), 8(2회)
+      → 가장 낮은 빈도는 1, 해당 금액은 5
+      → 5원을 가장 먼저 부른 사람은 david
       
+      출력:
+      david 5
+      </pre>
+
+      <p><strong>시간·공간 복잡도</strong> —  
+      모든 입력을 한 번씩만 처리하므로 <code>O(N + U)</code>,  
+      추가 메모리 또한 <code>O(U)</code>로 충분하다.</p>
+
       <p><strong>정리</strong></p>
       <ul>
-        <li>큐(<code>LinkedList</code>)를 이용한 간단한 시뮬레이션 문제.</li>
-        <li>패턴: “맨 위 버림 → 다음 카드 아래로 이동”.</li>
-        <li>출력은 버린 순서 + 마지막 남은 카드 순으로 공백 구분.</li>
-        <li>시간·공간 효율이 충분히 높고, 구현도 간결하다.</li>
+        <li>“가장 낮은 유일한 금액”이 아니라 “<em>가장 적은 인원이 부른 금액</em>”이 규칙의 핵심.</li>
+        <li>동일 가격이 여러 번 등장하더라도, <em>가장 먼저 제시한 사람</em>이 낙찰.</li>
+        <li>가격 상한 <code>U</code>은 인덱스 크기 한도로만 사용된다.</li>
+        <li>전체 복잡도는 <code>O(N)</code> 수준으로 충분히 효율적이다.</li>
       </ul>
 
 
