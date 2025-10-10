@@ -24,125 +24,237 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-09 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-10-10 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — rny_string</h2>
+      <h2 class="section">문제 1 — 빈 배열에 추가, 삭제하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181863">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181860">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1009_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1010_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        문자열 <code>rny_string</code> 안에서 모든 <code>'m'</code> 문자를  
-        문자열 <code>"rn"</code>으로 바꾼 결과를 반환하는 문제다.
+        주어진 정수 배열 <code>arr</code>과 불리언 배열 <code>flag</code>를 기반으로  
+        새로운 정수 배열을 생성하는 문제다.  
+        <code>flag[i]</code>가 <code>true</code>이면 <code>arr[i]</code>를 두 배(<code>arr[i] * 2</code>)만큼 리스트에 추가하고,  
+        <code>false</code>이면 리스트의 끝에서 <code>arr[i]</code>개의 원소를 제거한다.
       </p>
+      
       <ul>
-        <li><code>String.replaceAll()</code> 메서드를 사용해  
-            대상 문자와 대체 문자열을 지정하면 된다.</li>
-        <li>첫 번째 인자에는 바꿀 문자(<code>"m"</code>),  
-            두 번째 인자에는 대체 문자열(<code>"rn"</code>)을 전달한다.</li>
-        <li>모든 <code>'m'</code>이 <code>"rn"</code>으로 바뀐 새 문자열이 반환된다.</li>
+        <li>
+          <code>List&lt;Integer&gt;</code>를 사용해 동적으로 크기가 변하는 리스트를 선언한다.
+        </li>
+        <li>
+          반복문을 통해 각 인덱스 <code>i</code>를 순회하면서,  
+          <code>flag[i]</code>가 <code>true</code>일 경우 <code>for</code>문으로 <code>arr[i] * 2</code>번 반복하여  
+          리스트에 <code>arr[i]</code>를 추가한다.
+        </li>
+        <li>
+          반대로 <code>flag[i]</code>가 <code>false</code>이면,  
+          리스트의 끝에서 <code>arr[i]</code>개의 원소를 차례로 제거한다.
+        </li>
+        <li>
+          모든 반복이 끝난 후에는 리스트의 모든 값을  
+          <code>int[]</code> 배열로 변환하기 위해  
+          <code>list.stream().mapToInt(Integer::intValue).toArray()</code>를 사용한다.
+        </li>
       </ul>
+      
       <p>
-        예를 들어, <code>rny_string = "programmer"</code>라면  
-        <code>"programmer"</code> → <code>"prorngramrner"</code>로 변환되어 반환된다.
+        예를 들어, <code>arr = [3, 2, 4]</code>, <code>flag = [true, false, true]</code>인 경우를 살펴보자.
       </p>
+      
+      <pre><code>
+      i = 0 → flag[0] = true → 3을 6번 추가 → [3, 3, 3, 3, 3, 3]
+      i = 1 → flag[1] = false → 2개 제거 → [3, 3, 3, 3]
+      i = 2 → flag[2] = true → 4를 8번 추가 → [3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4]
+      최종 결과 → [3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4]
+      </code></pre>
+      
       <p>
-        문자열을 한 번만 순회하며 변환하므로 시간 복잡도는 <code>O(n)</code>,  
-        새로운 문자열을 생성하므로 공간 복잡도는 <code>O(n)</code>이다.
+        리스트에 원소를 추가하거나 제거하는 과정에서  
+        각 반복은 상수 시간(<code>O(1)</code>)에 수행되므로  
+        전체 시간 복잡도는 <code>O(n * k)</code> 정도가 된다.  
+        (여기서 <code>k</code>는 각 원소가 추가 또는 제거되는 횟수의 평균값이다.)
       </p>
+      
       <p>
-        핵심은 <code>replaceAll()</code>을 이용해 간단히 모든 <code>'m'</code>을  
-        <code>"rn"</code>으로 치환하는 것이며,  
-        정규식 기능을 활용하지만 이 경우 단순 문자열 치환으로 충분하다.
+        <code>stream()</code>을 이용해 한 줄로 배열 변환을 처리한 부분이 핵심이며,  
+        불필요한 <code>for</code>문 없이 깔끔하게 리스트를 정수 배열로 변환할 수 있다.
       </p>
+      
+      <p>
+        핵심은 <strong>조건에 따라 원소를 두 배로 추가하거나,  
+        그 개수만큼 제거하는 시뮬레이션</strong>을 구현하는 것이며,  
+        리스트를 활용한 동적 배열 관리로 문제를 단순하게 해결할 수 있다.
+      </p>
+
+
+
+
 
 
 
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 세 개의 구분자</h2>
+      <h2 class="section">문제 2 — 배열 만들기 6</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181862">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181859">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1009_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1010_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        문자열 <code>myStr</code>에서 구분자 <code>'a'</code>, <code>'b'</code>, <code>'c'</code>를 기준으로 나누고,  
-        비어 있지 않은 부분 문자열만 추출해 배열로 반환하는 문제다.  
-        만약 모든 부분이 빈 문자열이라면 <code>["EMPTY"]</code>를 반환한다.
+        주어진 정수 배열 <code>arr</code>에서,  
+        스택(Stack) 구조처럼 동작하는 리스트를 이용해  
+        인접한 동일 값이 등장할 때마다 마지막 값을 제거하는 문제다.  
+        결과적으로 짝지어 사라지는 값들을 모두 제거한 뒤 남은 배열을 반환한다.
       </p>
-      <ul>
-        <li><code>split("a|b|c")</code>를 사용하면 정규식 OR 패턴으로  
-            <code>'a'</code> 또는 <code>'b'</code> 또는 <code>'c'</code>를 기준으로 문자열이 분리된다.</li>
-        <li><code>Arrays.stream()</code>을 통해 분리된 문자열 배열을 스트림으로 변환한 뒤,  
-            <code>filter(s -> !s.isEmpty())</code>로 빈 문자열을 제거한다.</li>
-        <li>그 결과를 <code>toArray(String[]::new)</code>로 다시 문자열 배열로 변환한다.</li>
-        <li>만약 유효한 문자열이 하나도 없다면, 조건 연산자를 이용해  
-            <code>new String[]{"EMPTY"}</code>를 반환하도록 처리한다.</li>
-      </ul>
-      <p>
-        예를 들어, <code>myStr = "baconlettucetomato"</code>일 경우  
-        <code>"a"</code>, <code>"b"</code>, <code>"c"</code>를 기준으로 분리하면  
-        <code>["", "", "onlettu", "etom", "to"]</code>가 되고,  
-        빈 문자열을 제거하면 <code>["onlettu", "etom", "to"]</code>가 반환된다.
-      </p>
-      <p>
-        문자열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>,  
-        분리된 결과를 저장하기 위한 배열과 스트림이 필요하므로 공간 복잡도는 <code>O(n)</code>이다.
-      </p>
-      <p>
-        핵심은 정규식 분리(<code>split("a|b|c")</code>)와  
-        스트림 필터링(<code>filter</code>)을 조합해 간결하게  
-        불필요한 공백 문자열을 제거하고 결과를 정리하는 것이다.
-      </p>
-
-
-
-
       
-
-      <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 배열의 원소만큼 추가하기</h2>
-
-      <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181861">프로그래머스 문제 보기</a></p>
-
-      <h3 class="section">코드 (IDE 스크린샷)</h3>
-      <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1009_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
-      </figure>
-
-      <h3 class="section">해설</h3>
-      <p> 주어진 정수 배열 <code>arr</code>의 각 원소 <code>i</code>를, 그 값만큼 반복하여 새로운 배열로 만드는 문제다. </p>
       <ul>
-        <li><code>List&lt;Integer&gt;</code>를 사용해 임시로 값을 누적한다.</li>
-        <li>바깥 <code>for</code>문에서 배열의 각 원소 <code>i</code>를 순회하고, 내부 <code>for</code>문을 통해 <code>i</code>를 <code>i</code>번 반복하여 <code>list</code>에 추가한다.</li>
-        <li>모든 반복이 끝나면, 리스트의 크기만큼 정수 배열 <code>answer</code>를 생성한 뒤 <code>for</code>문으로 리스트의 값을 배열로 복사한다.</li>
-        <li>마지막에 완성된 배열을 반환한다.</li>
+        <li>
+          <code>List&lt;Integer&gt;</code>를 사용해 동적으로 크기가 변하는 리스트를 선언한다.
+        </li>
+        <li>
+          배열을 순회하며, 현재 값 <code>arr[i]</code>를 처리할 때  
+          리스트가 비어 있으면 그대로 추가한다.
+        </li>
+        <li>
+          리스트가 비어 있지 않다면, 마지막 원소(<code>list.get(list.size() - 1)</code>)와  
+          현재 값이 같은지 비교한다.
+        </li>
+        <li>
+          같으면 마지막 원소를 제거(<code>remove(list.size() - 1)</code>)하고,  
+          다르면 현재 값을 추가(<code>add(arr[i])</code>)한다.
+        </li>
+        <li>
+          모든 처리가 끝난 뒤 리스트가 비어 있으면 <code>[-1]</code>을,  
+          비어 있지 않으면 리스트를 <code>int[]</code>로 변환해 반환한다.
+        </li>
       </ul>
       
-      <pre><code>예를 들어, arr = [5, 1, 4]인 경우
-      5 → [5, 5, 5, 5, 5]
-      1 → [1]
-      4 → [4, 4, 4, 4]
-      이므로 최종 결과는 [5, 5, 5, 5, 5, 1, 4, 4, 4, 4]가 된다.
+      <p>
+        예를 들어, <code>arr = [0, 1, 1, 1, 0]</code>인 경우 과정을 살펴보면 다음과 같다.
+      </p>
+      
+      <pre><code>
+      i = 0 → [0]
+      i = 1 → [0, 1]
+      i = 2 → 마지막 값이 1과 같음 → [0]
+      i = 3 → [0, 1]
+      i = 4 → [0, 1, 0]
+      결과 → [0, 1, 0]
       </code></pre>
       
-      <p> 중첩 반복문을 사용하므로 시간 복잡도는 <code>O(n * m)</code> 정도로 볼 수 있으며(여기서 <code>m</code>은 원소의 평균 크기), 공간 복잡도는 최종 생성되는 배열의 크기에 비례하는 <code>O(k)</code>이다. </p>
-      <p> 핵심은 각 원소의 값을 그대로 그 횟수만큼 반복 추가하는 단순한 구현이며, 리스트를 사용해 동적으로 크기를 확장한 뒤 마지막에 배열로 변환하는 접근이 깔끔하다. </p>
+      <p>
+        만약 <code>arr = [1, 1, 1, 1]</code>이라면,  
+        모든 원소가 짝지어 제거되어 리스트가 비게 되므로  
+        최종적으로 <code>[-1]</code>이 반환된다.
+      </p>
+      
+      <p>
+        각 원소는 최대 한 번 추가되고 한 번 제거되므로  
+        전체 시간 복잡도는 <code>O(n)</code>,  
+        리스트에 저장되는 중간 결과에 따라 공간 복잡도는 <code>O(n)</code>이다.
+      </p>
+      
+      <p>
+        핵심은 리스트를 스택처럼 활용하여  
+        <strong>“마지막 값과 현재 값이 같으면 제거, 다르면 추가”</strong>라는  
+        단순한 규칙을 반복 적용하는 것이다.  
+        이를 통해 한 번의 순회로 모든 짝 제거 과정을 처리할 수 있다.
+      </p>
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 무작위로 K개의 수 뽑기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181858">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1010_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        주어진 정수 배열 <code>arr</code>에서 중복을 제거하면서  
+        <code>k</code>개의 고유한 원소를 앞에서부터 순서대로 추출하고,  
+        만약 그 개수가 <code>k</code>보다 적다면  
+        남은 자리는 <code>-1</code>로 채워 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li>
+          순서를 유지하며 중복을 제거하기 위해  
+          <code>LinkedHashSet&lt;Integer&gt;</code>을 사용한다.  
+          (<code>HashSet</code>은 삽입 순서를 보장하지 않으므로 사용 불가)
+        </li>
+        <li>
+          배열을 순회하면서 각 원소 <code>x</code>를 <code>set.add(x)</code>로 추가한다.  
+          이때 이미 존재하는 값이면 추가되지 않고,  
+          새로운 값이면 <code>true</code>가 반환되어 결과 배열에 저장된다.
+        </li>
+        <li>
+          새로운 고유 원소가 추가될 때마다 결과 배열 <code>answer</code>의  
+          다음 인덱스에 저장하고, <code>idx</code>를 1 증가시킨다.
+        </li>
+        <li>
+          만약 <code>idx</code>가 <code>k</code>에 도달하면  
+          이미 <code>k</code>개의 고유 원소를 채운 것이므로 반복을 종료한다.
+        </li>
+        <li>
+          반복이 끝났을 때 <code>idx &lt; k</code>라면  
+          남은 칸을 <code>Arrays.fill()</code>을 이용해 <code>-1</code>로 채운다.
+        </li>
+      </ul>
+      
+      <p>
+        예를 들어, <code>arr = [2, 3, 1, 2, 3, 4]</code>, <code>k = 5</code>일 경우를 살펴보면 다음과 같다.
+      </p>
+      
+      <pre><code>
+      초기: seen = {}, idx = 0
+      2 추가 → answer = [2], idx = 1
+      3 추가 → answer = [2, 3], idx = 2
+      1 추가 → answer = [2, 3, 1], idx = 3
+      2, 3은 이미 존재 → 건너뜀
+      4 추가 → answer = [2, 3, 1, 4], idx = 4
+      고유 원소가 4개이므로 남은 1칸을 -1로 채움
+      최종 결과 → [2, 3, 1, 4, -1]
+      </code></pre>
+      
+      <p>
+        배열을 한 번만 순회하므로 시간 복잡도는 <code>O(n)</code>,  
+        중복 체크를 위한 <code>LinkedHashSet</code>의 공간이 필요하므로  
+        공간 복잡도는 <code>O(min(n, k))</code>이다.
+      </p>
+      
+      <p>
+        핵심은 <strong>삽입 순서를 유지하는 <code>LinkedHashSet</code></strong>을 사용하여  
+        중복을 제거하면서 원래 배열의 등장 순서를 그대로 보존하는 것이다.  
+        이를 통해 조건에 맞는 <code>k</code>개의 고유 원소를 효율적으로 선택할 수 있다.
+      </p>
+
 
 
 
