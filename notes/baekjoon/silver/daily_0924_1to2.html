@@ -40,15 +40,15 @@
       <h3 class="section">해설</h3>
       <p><strong>핵심 아이디어</strong> — 날짜를 “그레고리력 기준 1년 1월 1일부터 몇 번째 날인지(ordinal)”로 바꿔두면 
       두 날짜의 차이는 <code>end - start</code>로 바로 구할 수 있다. 
-      또한 문제 조건상 <em>오늘 + 1000년 ≤ D-day</em>인 경우에는 결과가 무의미하므로 <code>gg</code>를 출력한다.</p>
+      또한 문제 조건상 오늘 + 1000년 ≤ D-day인 경우에는 결과가 무의미하므로 <code>gg</code>를 출력한다.</p>
       
       <p><strong>일수 변환(ordinal)</strong> — <code>isLeap(year)</code>로 윤년을 판단하고, 
       <code>daysBeforeYear(year)</code>로 직전 해까지의 총 일수를 더한 뒤, 
       <code>daysBeforeMonth(year, month)</code>로 그 해에서 해당 달 1일 전까지의 누적 일수를 더하고, 마지막에 <code>day</code>를 더한다. 
-      여기서 <code>cum = {0,31,59,90,120,151,181,212,243,273,304,334}</code>는 <em>평년 기준 각 달 시작 전 누적 일수</em>이며, 
+      여기서 <code>cum = {0,31,59,90,120,151,181,212,243,273,304,334}</code>는 평년 기준 각 달 시작 전 누적 일수이며, 
       윤년이고 <code>month &gt; 2</code>이면 하루를 추가로 더해 2월 29일을 보정한다.</p>
       
-      <p><strong>기한(1000년) 조건</strong> — <em>오늘 + 1000년</em>과 D-day를 (연 → 월 → 일) 순서로 비교한다. 
+      <p><strong>기한(1000년) 조건</strong> — 오늘 + 1000년과 D-day를 (연 → 월 → 일) 순서로 비교한다. 
       같은 날도 포함해서 <code>gg</code> 조건에 걸리도록 처리한다.</p>
       
       <p><strong>차이 계산과 출력</strong> — 두 날짜를 각각 <code>toOrdinal</code>로 일수로 바꾼 뒤 
@@ -63,7 +63,7 @@
       <ul>
         <li>윤년 규칙과 누적합(<code>cum</code>)으로 날짜→일수(ordinal) 변환</li>
         <li><code>cum</code>은 평년 기준 달 시작 전 누적 일수, 윤년 &amp; 3월 이후는 +1</li>
-        <li><em>오늘 + 1000년 ≤ D-day</em>이면 <code>gg</code> (같은 날 포함)</li>
+        <li>오늘 + 1000년 ≤ D-day이면 <code>gg</code> (같은 날 포함)</li>
         <li>차이 = <code>end - start</code> → <code>D-</code>와 함께 출력</li>
         <li>(추가) <code>java.time</code>으로 <code>LocalDate</code>, <code>plusYears</code>, <code>isBefore</code>, <code>ChronoUnit.DAYS.between</code> 활용 가능</li>
       </ul>
