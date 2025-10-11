@@ -29,7 +29,7 @@
 
       <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p><i>2025-08-17 기준</i> 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
+      <p>2025-08-17 기준 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
       오류 화면으로 이동한다. 이 과정에서 입력된 데이터는 사라진다.</p>
       <p>앞으로는 입력값을 유지하고, 어떤 오류가 있었는지 명확히 보여주는 방식으로 개선하려 한다.</p>
       <p>이전에 작성한 <b>스프링 부트</b> 챕터에서도 다뤘듯이, 컨트롤러는 들어온 HTTP 요청이 유효한지 검증해야 한다.
@@ -42,7 +42,7 @@
 
       <!-- 2. PRG (성공 흐름) -->
       <h2 class="section">PRG 패턴(성공 흐름)</h2>
-      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 <i>중복 제출</i>과 뒤로가기 문제를 막는 전형적인 패턴이다.
+      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 중복 제출과 뒤로가기 문제를 막는 전형적인 패턴이다.
       사용자가 <b>POST</b>로 데이터를 제출하면 서버는 저장을 마친 뒤 <b>Redirect</b> 응답을 보내고,
       브라우저는 최종 <b>GET</b>으로 결과 페이지를 조회한다. 따라서 새로고침을 해도 GET만 반복되어 데이터가 다시 저장되지 않는다.</p>
 
@@ -113,23 +113,16 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
     </article>
   </main>
 
-  <!-- TOC 자동 생성 + 현재 섹션 동기화 (정확도 개선 버전) -->
+  <!-- TOC 자동 생성 (JPQL 페이지와 동일 동작) -->
   <script>
-/* TOC 자동 생성 + 현재 섹션 하이라이트 (헤더 보정 포함) */
   (function(){
     const article = document.querySelector('article.prose');
     if(!article) return;
-
-    // h2/h3.section만 수집 (p 안에 넣지 말 것!)
     const headers = [...article.querySelectorAll('h2.section, h3.section')];
-
-    // 텍스트 기반 슬러그 (섹션 제목 바뀌어도 안정적)
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
-
-    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent) || `sec-${Math.random().toString(36).slice(2,8)}`; });
-
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
     const toc = document.getElementById('toc-list');
     toc.innerHTML = '';
     headers.forEach(h => {
@@ -140,43 +133,6 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
       a.textContent = h.textContent.trim();
       li.appendChild(a);
       toc.appendChild(li);
-    });
-
-    const links = [...toc.querySelectorAll('a')];
-    const linkById = new Map(links.map(a => [a.hash.slice(1), a]));
-    const setActive = id => {
-      links.forEach(a => a.classList.remove('active'));
-      const el = linkById.get(id);
-      if(el) el.classList.add('active');
-    };
-
-    // 클릭 시 부드럽게 스크롤 + URL 동기화
-    links.forEach(a => {
-      a.addEventListener('click', e => {
-        e.preventDefault();
-        const id = a.hash.slice(1);
-        const target = document.getElementById(id);
-        if(!target) return;
-        target.scrollIntoView({behavior:'smooth', block:'start'});
-        history.pushState(null, '', `#${id}`);
-        setActive(id);
-      });
-    });
-
-    // 스크롤 위치로 활성 섹션 계산 (헤더 높이 보정)
-    function onScroll(){
-      const y = window.scrollY + 100;   // 헤더/여백 보정
-      let current = headers[0]?.id;
-      for(const h of headers){
-        if(h.offsetTop <= y) current = h.id; else break;
-      }
-      setActive(current);
-    }
-    onScroll();
-    document.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('hashchange', () => {
-      const id = location.hash.slice(1);
-      if(id) setActive(id);
     });
   })();
   </script>
