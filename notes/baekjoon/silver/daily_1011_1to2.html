@@ -24,84 +24,101 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-10 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-11 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 2167 — 2차원 배열의 합</h2>
+      <h2 class="section">문제 2303 — 숫자 게임</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2167">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2303">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1010_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      <p><strong>핵심 아이디어</strong> — 
-      이 문제는 여러 번 주어지는 부분 영역 <code>(x₁, y₁) ~ (x₂, y₂)</code>의 합을 빠르게 구해야 한다. 
-      단순히 매번 합을 구하면 최대 <code>300×300×10,000</code>번 덧셈이 필요하므로 <code>O(NMK)</code>으로 매우 비효율적이다.  
-      이를 해결하기 위해 <strong>2차원 누적합(Prefix Sum)</strong>을 사용한다.</p>
       
-      <p>2차원 누적합 배열 <code>ps[i][j]</code>은 
-      “왼쪽 위 (1,1)부터 현재 좌표 (i,j)까지의 모든 원소 합”을 저장한다.  
-      이 배열을 한 번 구해두면, 임의의 사각형 합은 다음 한 줄 공식으로 바로 계산된다:</p>
+      <p><strong>핵심 아이디어</strong> —  
+      이 문제는 각 참가자가 가진 다섯 장의 카드 중 <strong>세 장을 선택해 만든 합의 일의 자리</strong>가 최대가 되도록 하는 간단한 완전 탐색 문제이다.  
+      모든 경우의 수(5C3=10가지)를 직접 계산해도 되지만,  
+      이를 효율적으로 처리하기 위해 <em>전체 합에서 두 장을 제외하는 방식</em>으로 접근할 수 있다.</p>
       
-      <pre><code>sum = ps[x₂][y₂] - ps[x₁-1][y₂] - ps[x₂][y₁-1] + ps[x₁-1][y₁-1];
+      <p><strong>아이디어 전개</strong> —  
+      한 사람이 가진 다섯 장의 합을 <code>sum</code>이라 할 때,  
+      세 장을 선택하는 것은 곧 <code>sum</code>에서 두 장을 버리는 것과 같다.  
+      즉, 가능한 모든 <code>(i, j)</code> 쌍(총 10가지)에 대해  
+      <code>three = sum - card[i] - card[j]</code>를 계산하고,  
+      그 결과의 일의 자리 <code>(three % 10)</code> 중 가장 큰 값을 해당 사람의 점수로 선택한다.</p>
+      
+      <p>이때 자바(Java)의 <code>%</code> 연산은 피연산자가 음수일 때 음수가 반환될 수 있으므로,  
+      항상 0~9 범위를 유지하기 위해 <code>((three % 10) + 10) % 10</code> 형태로 보정한다.</p>
+      
+      <p><strong>입력 파싱</strong> —  
+      첫 줄에 사람의 수 <code>N</code>이 주어지고,  
+      그다음 줄부터 각 사람의 카드 다섯 장이 주어진다.  
+      각 줄을 빠르게 처리하기 위해 <code>BufferedReader</code>와 <code>StringTokenizer</code>를 사용한다.  
+      입력은 다음과 같이 2차원 배열 <code>people[N][5]</code>에 저장된다.</p>
+      
+      <pre><code>for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          for (int j = 0; j &lt; 5; j++) {
+              people[i][j] = Integer.parseInt(st.nextToken());
+          }
+      }
       </code></pre>
-      
-      <p>이는 ‘전체 영역 합 - 위쪽 영역 - 왼쪽 영역 + 겹친 영역 복구’의 원리다.  
-      이때 0행과 0열은 항상 0으로 초기화하여 인덱스 범위를 벗어나지 않게 한다.</p>
-      
-      <p><strong>입력 파싱</strong> — 
-      첫 줄에 행과 열 크기 <code>N, M</code>이 주어진다 (1 ≤ N, M ≤ 300).  
-      다음 <code>N</code>줄에는 M개의 정수가 주어지고, 
-      그 후 질의 개수 <code>K</code>와 K개의 구간 좌표 <code>x₁, y₁, x₂, y₂</code>가 입력된다.  
-      빠른 입출력을 위해 <code>BufferedReader</code>와 <code>StringTokenizer</code>를 사용한다.</p>
       
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>1️⃣ 입력 배열 <code>ints</code>를 1-based 인덱스로 저장한다.</li>
-        <li>2️⃣ 누적합 배열 <code>ints1</code>을 계산한다:
-          <pre><code>ints1[i][j] = ints1[i-1][j] + ints1[i][j-1] - ints1[i-1][j-1] + ints[i][j];
-      </code></pre>
-          위 + 왼쪽 - 겹친 부분 + 현재값 으로 (1,1)~(i,j)까지 합을 구한다.
-        </li>
-        <li>3️⃣ 각 질의에 대해 누적합 공식을 이용해 즉시 결과를 계산한다.
-          <pre><code>sum = ints1[x2][y2] - ints1[x1-1][y2] - ints1[x2][y1-1] + ints1[x1-1][y1-1];
+        <li>1️⃣ 각 사람의 카드 합 <code>sum</code>을 미리 계산한다.</li>
+        <li>2️⃣ 두 장을 버리는 모든 조합(5C2=10쌍)에 대해:
+          <pre><code>three = sum - people[i][x] - people[i][y];
+      score = ((three % 10) + 10) % 10;
+      best = Math.max(best, score);
       </code></pre>
         </li>
-        <li>4️⃣ 출력은 <code>StringBuilder</code>에 누적 후 한 번에 출력한다.</li>
+        <li>3️⃣ 각 사람의 최고 점수 <code>best</code>를 구한 뒤,
+          현재까지의 최고 점수 <code>maxScore</code>와 비교한다.</li>
+        <li>4️⃣ 점수가 같을 경우 <strong>번호가 큰 사람이 승자</strong>이므로,
+          비교 조건은 <code>if (best &gt;= maxScore)</code>로 설정한다.
+          <pre><code>if (best &gt;= maxScore) {
+          maxScore = best;
+          win = i + 1;
+      }
+      </code></pre>
+        </li>
       </ul>
       
       <p><strong>예시</strong></p>
       <pre><code>입력:
-      3 3
-      1 2 3
-      4 5 6
-      7 8 9
-      1
-      2 2 3 3
+      3
+      1 2 3 4 5
+      2 3 3 2 10
+      1 1 1 1 1
       
       출력:
-      28
+      2
       </code></pre>
-      <p>해설: 2행 2열~3행 3열의 합은 5+6+8+9=28.  
-      공식으로 계산하면 <code>ps[3][3]-ps[1][3]-ps[3][1]+ps[1][1] = 45-6-12+1=28</code>이다.</p>
+      <p>해설:  
+      1번의 최대 일의 자리는 9,  
+      2번은 (2+3+10=15 → 5)보다 큰 조합 (3+3+10=16 → 6), (3+2+10=15 → 5), (3+2+3=8 → 8) 중 최댓값 8,  
+      3번은 항상 합이 3이므로 일의 자리 3.  
+      결국 최고 점수 9를 가진 1번과 8을 가진 2번 중 더 큰 점수는 9지만,  
+      만약 동점이었다면 <em>번호가 큰 사람</em>이 승자가 된다.</p>
       
-      <p><strong>시간·공간 복잡도</strong> — 
-      누적합 계산이 <code>O(N×M)</code>,  
-      각 질의가 <code>O(1)</code>이므로 전체 <code>O(N×M + K)</code>.  
-      공간 복잡도도 <code>O(N×M)</code>.</p>
+      <p><strong>시간·공간 복잡도</strong> —  
+      각 사람당 10가지 조합만 확인하므로 <code>O(N×10) = O(N)</code>이며,  
+      추가 메모리는 <code>O(1)</code> 수준으로 매우 효율적이다.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>2차원 누적합의 정의: <code>ps[i][j]=(1,1)~(i,j)</code>까지의 합.</li>
-        <li>누적합 공식: <code>ps[i][j]=ps[i-1][j]+ps[i][j-1]-ps[i-1][j-1]+a[i][j]</code>.</li>
-        <li>부분 구간 합 공식: <code>ps[x₂][y₂]-ps[x₁-1][y₂]-ps[x₂][y₁-1]+ps[x₁-1][y₁-1]</code>.</li>
-        <li>모든 질의를 상수 시간(<code>O(1)</code>)에 처리 가능.</li>
-        <li>전형적인 2차원 Prefix Sum 응용 문제.</li>
+        <li>모든 조합(5C3=10)을 직접 탐색해도 충분히 빠르다.</li>
+        <li>5C3 대신 5C2를 이용해 계산량을 단순화할 수 있다.</li>
+        <li>일의 자리 계산 시 <code>((x % 10) + 10) % 10</code> 보정이 필요하다.</li>
+        <li>동점일 경우 <strong>번호가 큰 참가자</strong>가 승리한다.</li>
+        <li>전형적인 완전 탐색(Brute Force) + 조건 비교 문제.</li>
       </ul>
+
 
 
 
@@ -113,82 +130,101 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2238 — 경매</h2>
+      <h2 class="section">문제 2508 — 사탕 박사 고창영</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2238">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2508">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1010_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
-      <p><strong>핵심 아이디어</strong> — 경매에서 여러 사람이 가격을 부르는 상황을 시뮬레이션한다.  
-      모든 입찰 내역 중에서 “<em>가장 적은 인원이 부른 금액</em>”을 찾고, 그런 금액이 여러 개면 “<em>가장 낮은 금액</em>”을 선택한다.  
-      최종적으로 그 금액을 <em>가장 먼저 제시한 사람</em>이 낙찰된다.</p>
-
+      <p><strong>핵심 아이디어</strong> —  
+      이 문제는 격자 형태의 상자 안에서 <strong>‘사탕(o)’이 포장된 개수</strong>를 찾는 문제이다.  
+      사탕은 막대기 모양의 포장으로 둘러싸여 있으며,  
+      가로 방향으로는 <code>&gt; o &lt;</code>, 세로 방향으로는 <code>v o ^</code> 형태로 주어진다.  
+      즉, <code>'o'</code>를 중심으로 양옆이 <code>'&gt;'</code>와 <code>'&lt;'</code>이거나,  
+      위아래가 <code>'v'</code>와 <code>'^'</code>인 경우를 찾아 세면 된다.</p>
+      
       <p><strong>입력 파싱</strong> —  
-      첫 줄에는 두 정수 <code>U</code>, <code>N</code>이 주어진다.  
-      <ul>
-        <li><code>U</code> — 입찰 가능한 금액의 상한 (1&nbsp;≤&nbsp;U&nbsp;≤&nbsp;10,000)</li>
-        <li><code>N</code> — 입찰 횟수 (1&nbsp;≤&nbsp;N&nbsp;≤&nbsp;100,000)</li>
-      </ul>
-      이후 <code>N</code>개의 줄에는 각 입찰자의 <code>이름</code>과 <code>금액</code>이 주어진다.  
-      한 사람이 여러 번 등장할 수 있으며, 모든 줄은 독립된 입찰로 처리된다.</p>
-
+      첫 줄에 테스트 케이스 수 <code>t</code>가 주어지고,  
+      각 테스트 케이스는 다음과 같은 형식으로 구성된다.</p>
+      
+      <pre><code>t
+      (빈 줄)
+      r c
+      (이후 r줄에 걸쳐 c개의 문자)
+      (빈 줄)
+      </code></pre>
+      
+      <p>각 테스트 케이스 사이에는 공백 줄이 존재하므로  
+      <code>br.readLine()</code>으로 한 줄을 건너뛰는 과정이 필요하다.  
+      상자의 문자 배열은 <code>char[][] box</code>에 저장하며,  
+      문자 그대로 비교하기 때문에 <code>int[][]</code>보다 <code>char[][]</code>가 적합하다.</p>
+      
+      <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+      int r = Integer.parseInt(st.nextToken());
+      int c = Integer.parseInt(st.nextToken());
+      
+      char[][] box = new char[r][c];
+      for (int j = 0; j &lt; r; j++) {
+          box[j] = br.readLine().toCharArray();
+      }
+      </code></pre>
+      
       <p><strong>알고리즘</strong></p>
       <ul>
-        <li>가격(1~U)을 인덱스로 하여 통계를 계산한다.</li>
-        <li><code>freq[price]</code>: 해당 가격을 제시한 횟수</li>
-        <li><code>firstName[price]</code>: 해당 가격을 가장 먼저 부른 사람</li>
-        <li><code>firstOrder[price]</code>: 그 가격이 처음 등장한 시점(줄 번호)</li>
-        <li>입력을 순서대로 읽으며:
+        <li>1️⃣ 모든 칸을 순회하며 <code>'o'</code>인 지점을 찾는다.</li>
+        <li>2️⃣ 해당 위치를 중심으로
           <ul>
-            <li><code>freq[price]++</code></li>
-            <li>아직 등장하지 않은 가격이면 <code>firstName</code>과 <code>firstOrder</code> 기록</li>
+            <li>세로 방향: 위가 <code>'v'</code>이고 아래가 <code>'^'</code>이면 사탕 1개.</li>
+            <li>가로 방향: 왼쪽이 <code>'&gt;'</code>이고 오른쪽이 <code>'&lt;'</code>이면 사탕 1개.</li>
           </ul>
         </li>
-        <li>모든 입력 후:
-          <ul>
-            <li><code>freq[p] &gt; 0</code>인 가격 중 최솟값 <code>minFreq</code>를 찾는다.</li>
-            <li><code>freq[p] == minFreq</code>인 가격 중 가장 작은 <code>price</code>를 선택한다.</li>
-            <li>그 가격을 가장 먼저 부른 <code>firstName[price]</code>을 함께 출력한다.</li>
-          </ul>
-        </li>
+        <li>3️⃣ 인덱스 범위를 벗어나지 않도록 <code>if</code> 조건으로 상하좌우 경계를 검사한다.</li>
       </ul>
-
-      <p><strong>예시</strong></p>
-      <pre>
-      입력:
-      10 5
-      amy 3
-      bob 8
-      cindy 3
-      david 5
-      eric 8
       
-      과정:
-      가격별 빈도 → 3(2회), 5(1회), 8(2회)
-      → 가장 낮은 빈도는 1, 해당 금액은 5
-      → 5원을 가장 먼저 부른 사람은 david
+      <pre><code>if (box[x][y] == 'o') {
+          if (x &gt; 0 &amp;&amp; x &lt; r - 1 &amp;&amp; box[x - 1][y] == 'v' &amp;&amp; box[x + 1][y] == '^') cnt++;
+          if (y &gt; 0 &amp;&amp; y &lt; c - 1 &amp;&amp; box[x][y - 1] == '&gt;' &amp;&amp; box[x][y + 1] == '&lt;') cnt++;
+      }
+      </code></pre>
+      
+      <p><strong>예시</strong></p>
+      <pre><code>입력:
+      1
+      
+      5 5
+      .....
+      .v.^.
+      .&gt;o&lt;.
+      .....
+      .....
       
       출력:
-      david 5
-      </pre>
-
+      2
+      </code></pre>
+      <p>해설:  
+      위쪽에 세로로 <code>v o ^</code> 한 개,  
+      가운데 줄에 가로로 <code>&gt; o &lt;</code> 한 개가 존재하므로  
+      총 2개의 사탕이 포장되어 있다.</p>
+      
       <p><strong>시간·공간 복잡도</strong> —  
-      모든 입력을 한 번씩만 처리하므로 <code>O(N + U)</code>,  
-      추가 메모리 또한 <code>O(U)</code>로 충분하다.</p>
-
+      격자의 모든 칸을 한 번씩만 확인하므로  
+      시간 복잡도는 <code>O(r×c)</code>,  
+      공간 복잡도는 <code>O(r×c)</code>이다.</p>
+      
       <p><strong>정리</strong></p>
       <ul>
-        <li>“가장 낮은 유일한 금액”이 아니라 “<em>가장 적은 인원이 부른 금액</em>”이 규칙의 핵심.</li>
-        <li>동일 가격이 여러 번 등장하더라도, <em>가장 먼저 제시한 사람</em>이 낙찰.</li>
-        <li>가격 상한 <code>U</code>은 인덱스 크기 한도로만 사용된다.</li>
-        <li>전체 복잡도는 <code>O(N)</code> 수준으로 충분히 효율적이다.</li>
+        <li>사탕 패턴은 <code>v o ^</code> 또는 <code>&gt; o &lt;</code> 두 가지뿐이다.</li>
+        <li>문자 비교는 아스키 코드 대신 리터럴 <code>'o'</code>, <code>'v'</code>, <code>'^'</code>, <code>'&gt;'</code>, <code>'&lt;'</code>를 그대로 사용한다.</li>
+        <li>테스트 케이스 사이 공백 줄(<code>br.readLine()</code>) 처리에 유의한다.</li>
+        <li>전형적인 2차원 완전 탐색 문제로, 각 셀의 주변 문자를 조건으로 검사하면 된다.</li>
       </ul>
+
 
 
 
