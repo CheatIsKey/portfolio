@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-11 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2303 — 숫자 게임</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2303">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      
+      <p><strong>핵심 아이디어</strong> —  
+      이 문제는 각 참가자가 가진 다섯 장의 카드 중 <strong>세 장을 선택해 만든 합의 일의 자리</strong>가 최대가 되도록 하는 간단한 완전 탐색 문제이다.  
+      모든 경우의 수(5C3=10가지)를 직접 계산해도 되지만,  
+      이를 효율적으로 처리하기 위해 전체 합에서 두 장을 제외하는 방식으로 접근할 수 있다.</p>
+      
+      <p><strong>아이디어 전개</strong> —  
+      한 사람이 가진 다섯 장의 합을 <code>sum</code>이라 할 때,  
+      세 장을 선택하는 것은 곧 <code>sum</code>에서 두 장을 버리는 것과 같다.  
+      즉, 가능한 모든 <code>(i, j)</code> 쌍(총 10가지)에 대해  
+      <code>three = sum - card[i] - card[j]</code>를 계산하고,  
+      그 결과의 일의 자리 <code>(three % 10)</code> 중 가장 큰 값을 해당 사람의 점수로 선택한다.</p>
+      
+      <p>이때 자바(Java)의 <code>%</code> 연산은 피연산자가 음수일 때 음수가 반환될 수 있으므로,  
+      항상 0~9 범위를 유지하기 위해 <code>((three % 10) + 10) % 10</code> 형태로 보정한다.</p>
+      
+      <p><strong>입력 파싱</strong> —  
+      첫 줄에 사람의 수 <code>N</code>이 주어지고,  
+      그다음 줄부터 각 사람의 카드 다섯 장이 주어진다.  
+      각 줄을 빠르게 처리하기 위해 <code>BufferedReader</code>와 <code>StringTokenizer</code>를 사용한다.  
+      입력은 다음과 같이 2차원 배열 <code>people[N][5]</code>에 저장된다.</p>
+      
+      <pre><code>for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          for (int j = 0; j &lt; 5; j++) {
+              people[i][j] = Integer.parseInt(st.nextToken());
+          }
+      }
+      </code></pre>
+      
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li>1️⃣ 각 사람의 카드 합 <code>sum</code>을 미리 계산한다.</li>
+        <li>2️⃣ 두 장을 버리는 모든 조합(5C2=10쌍)에 대해:
+          <pre><code>three = sum - people[i][x] - people[i][y];
+      score = ((three % 10) + 10) % 10;
+      best = Math.max(best, score);
+      </code></pre>
+        </li>
+        <li>3️⃣ 각 사람의 최고 점수 <code>best</code>를 구한 뒤,
+          현재까지의 최고 점수 <code>maxScore</code>와 비교한다.</li>
+        <li>4️⃣ 점수가 같을 경우 <strong>번호가 큰 사람이 승자</strong>이므로,
+          비교 조건은 <code>if (best &gt;= maxScore)</code>로 설정한다.
+          <pre><code>if (best &gt;= maxScore) {
+          maxScore = best;
+          win = i + 1;
+      }
+      </code></pre>
+        </li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <pre><code>입력:
+      3
+      1 2 3 4 5
+      2 3 3 2 10
+      1 1 1 1 1
+      
+      출력:
+      2
+      </code></pre>
+      <p>해설:  
+      1번의 최대 일의 자리는 9,  
+      2번은 (2+3+10=15 → 5)보다 큰 조합 (3+3+10=16 → 6), (3+2+10=15 → 5), (3+2+3=8 → 8) 중 최댓값 8,  
+      3번은 항상 합이 3이므로 일의 자리 3.  
+      결국 최고 점수 9를 가진 1번과 8을 가진 2번 중 더 큰 점수는 9지만,  
+      만약 동점이었다면 번호가 큰 사람이 승자가 된다.</p>
+      
+      <p><strong>시간·공간 복잡도</strong> —  
+      각 사람당 10가지 조합만 확인하므로 <code>O(N×10) = O(N)</code>이며,  
+      추가 메모리는 <code>O(1)</code> 수준으로 매우 효율적이다.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>모든 조합(5C3=10)을 직접 탐색해도 충분히 빠르다.</li>
+        <li>5C3 대신 5C2를 이용해 계산량을 단순화할 수 있다.</li>
+        <li>일의 자리 계산 시 <code>((x % 10) + 10) % 10</code> 보정이 필요하다.</li>
+        <li>동점일 경우 <strong>번호가 큰 참가자</strong>가 승리한다.</li>
+        <li>전형적인 완전 탐색(Brute Force) + 조건 비교 문제.</li>
+      </ul>
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2508 — 사탕 박사 고창영</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2508">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —  
+      이 문제는 격자 형태의 상자 안에서 <strong>‘사탕(o)’이 포장된 개수</strong>를 찾는 문제이다.  
+      사탕은 막대기 모양의 포장으로 둘러싸여 있으며,  
+      가로 방향으로는 <code>&gt; o &lt;</code>, 세로 방향으로는 <code>v o ^</code> 형태로 주어진다.  
+      즉, <code>'o'</code>를 중심으로 양옆이 <code>'&gt;'</code>와 <code>'&lt;'</code>이거나,  
+      위아래가 <code>'v'</code>와 <code>'^'</code>인 경우를 찾아 세면 된다.</p>
+      
+      <p><strong>입력 파싱</strong> —  
+      첫 줄에 테스트 케이스 수 <code>t</code>가 주어지고,  
+      각 테스트 케이스는 다음과 같은 형식으로 구성된다.</p>
+      
+      <pre><code>t
+      (빈 줄)
+      r c
+      (이후 r줄에 걸쳐 c개의 문자)
+      (빈 줄)
+      </code></pre>
+      
+      <p>각 테스트 케이스 사이에는 공백 줄이 존재하므로  
+      <code>br.readLine()</code>으로 한 줄을 건너뛰는 과정이 필요하다.  
+      상자의 문자 배열은 <code>char[][] box</code>에 저장하며,  
+      문자 그대로 비교하기 때문에 <code>int[][]</code>보다 <code>char[][]</code>가 적합하다.</p>
+      
+      <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+      int r = Integer.parseInt(st.nextToken());
+      int c = Integer.parseInt(st.nextToken());
+      
+      char[][] box = new char[r][c];
+      for (int j = 0; j &lt; r; j++) {
+          box[j] = br.readLine().toCharArray();
+      }
+      </code></pre>
+      
+      <p><strong>알고리즘</strong></p>
+      <ul>
+        <li>1️⃣ 모든 칸을 순회하며 <code>'o'</code>인 지점을 찾는다.</li>
+        <li>2️⃣ 해당 위치를 중심으로
+          <ul>
+            <li>세로 방향: 위가 <code>'v'</code>이고 아래가 <code>'^'</code>이면 사탕 1개.</li>
+            <li>가로 방향: 왼쪽이 <code>'&gt;'</code>이고 오른쪽이 <code>'&lt;'</code>이면 사탕 1개.</li>
+          </ul>
+        </li>
+        <li>3️⃣ 인덱스 범위를 벗어나지 않도록 <code>if</code> 조건으로 상하좌우 경계를 검사한다.</li>
+      </ul>
+      
+      <pre><code>if (box[x][y] == 'o') {
+          if (x &gt; 0 &amp;&amp; x &lt; r - 1 &amp;&amp; box[x - 1][y] == 'v' &amp;&amp; box[x + 1][y] == '^') cnt++;
+          if (y &gt; 0 &amp;&amp; y &lt; c - 1 &amp;&amp; box[x][y - 1] == '&gt;' &amp;&amp; box[x][y + 1] == '&lt;') cnt++;
+      }
+      </code></pre>
+      
+      <p><strong>예시</strong></p>
+      <pre><code>입력:
+      1
+      
+      5 5
+      .....
+      .v.^.
+      .&gt;o&lt;.
+      .....
+      .....
+      
+      출력:
+      2
+      </code></pre>
+      <p>해설:  
+      위쪽에 세로로 <code>v o ^</code> 한 개,  
+      가운데 줄에 가로로 <code>&gt; o &lt;</code> 한 개가 존재하므로  
+      총 2개의 사탕이 포장되어 있다.</p>
+      
+      <p><strong>시간·공간 복잡도</strong> —  
+      격자의 모든 칸을 한 번씩만 확인하므로  
+      시간 복잡도는 <code>O(r×c)</code>,  
+      공간 복잡도는 <code>O(r×c)</code>이다.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>사탕 패턴은 <code>v o ^</code> 또는 <code>&gt; o &lt;</code> 두 가지뿐이다.</li>
+        <li>문자 비교는 아스키 코드 대신 리터럴 <code>'o'</code>, <code>'v'</code>, <code>'^'</code>, <code>'&gt;'</code>, <code>'&lt;'</code>를 그대로 사용한다.</li>
+        <li>테스트 케이스 사이 공백 줄(<code>br.readLine()</code>) 처리에 유의한다.</li>
+        <li>전형적인 2차원 완전 탐색 문제로, 각 셀의 주변 문자를 조건으로 검사하면 된다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
