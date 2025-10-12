@@ -24,99 +24,78 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-11 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-12 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 2303 — 숫자 게임</h2>
+      <h2 class="section">문제 2535 — 아시아 정보올림피아드</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2303">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2535">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1012_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
-      
+
       <p><strong>핵심 아이디어</strong> —  
-      이 문제는 각 참가자가 가진 다섯 장의 카드 중 <strong>세 장을 선택해 만든 합의 일의 자리</strong>가 최대가 되도록 하는 간단한 완전 탐색 문제이다.  
-      모든 경우의 수(5C3=10가지)를 직접 계산해도 되지만,  
-      이를 효율적으로 처리하기 위해 전체 합에서 두 장을 제외하는 방식으로 접근할 수 있다.</p>
+      참가자들을 <strong>점수 내림차순</strong>으로 정렬한 뒤, 위에서부터 훑으면서 <strong>같은 나라에서 최대 2명</strong>만 선발하고 <strong>총 3명</strong>의 <code>(국가, 번호)</code>를 출력한다. 정렬 후 한 번의 선형 스캔으로 제약을 처리하므로 구현이 간단하고 효율적이다.</p>
       
       <p><strong>아이디어 전개</strong> —  
-      한 사람이 가진 다섯 장의 합을 <code>sum</code>이라 할 때,  
-      세 장을 선택하는 것은 곧 <code>sum</code>에서 두 장을 버리는 것과 같다.  
-      즉, 가능한 모든 <code>(i, j)</code> 쌍(총 10가지)에 대해  
-      <code>three = sum - card[i] - card[j]</code>를 계산하고,  
-      그 결과의 일의 자리 <code>(three % 10)</code> 중 가장 큰 값을 해당 사람의 점수로 선택한다.</p>
+      각 참가자를 <code>(country, num, score)</code> 형태로 모아 리스트에 저장한다.  
+      정렬 비교는 “점수가 큰 사람이 앞”이 되도록 내림차순을 사용한다.  
+      정렬이 끝나면, 나라별 선발 인원을 세는 맵(예: <code>country → count</code>)을 유지하면서 리스트를 앞에서부터 순회한다.  
+      어떤 참가자의 나라에서 이미 2명이 선발되었다면 건너뛰고, 아니라면 결과에 추가한다.  
+      이 과정을 통해 <strong>총 3명</strong>을 채우면 즉시 종료한다.</p>
       
-      <p>이때 자바(Java)의 <code>%</code> 연산은 피연산자가 음수일 때 음수가 반환될 수 있으므로,  
-      항상 0~9 범위를 유지하기 위해 <code>((three % 10) + 10) % 10</code> 형태로 보정한다.</p>
-      
-      <p><strong>입력 파싱</strong> —  
-      첫 줄에 사람의 수 <code>N</code>이 주어지고,  
-      그다음 줄부터 각 사람의 카드 다섯 장이 주어진다.  
-      각 줄을 빠르게 처리하기 위해 <code>BufferedReader</code>와 <code>StringTokenizer</code>를 사용한다.  
-      입력은 다음과 같이 2차원 배열 <code>people[N][5]</code>에 저장된다.</p>
-      
-      <pre><code>for (int i = 0; i &lt; N; i++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
-          for (int j = 0; j &lt; 5; j++) {
-              people[i][j] = Integer.parseInt(st.nextToken());
-          }
-      }
+      <h3 class="section">입력 형식</h3>
+      <pre><code>N
+      country₁ num₁ score₁
+      country₂ num₂ score₂
+      ...
+      countryₙ numₙ scoreₙ
       </code></pre>
+      <p>각 줄은 “국가 번호, 학생 번호, 점수”를 의미한다.</p>
       
-      <p><strong>알고리즘</strong></p>
+      <h3 class="section">알고리즘</h3>
       <ul>
-        <li>1️⃣ 각 사람의 카드 합 <code>sum</code>을 미리 계산한다.</li>
-        <li>2️⃣ 두 장을 버리는 모든 조합(5C2=10쌍)에 대해:
-          <pre><code>three = sum - people[i][x] - people[i][y];
-      score = ((three % 10) + 10) % 10;
-      best = Math.max(best, score);
-      </code></pre>
+        <li>1️⃣ 모든 참가자를 수집한다.</li>
+        <li>2️⃣ 점수 기준 <strong>내림차순</strong>으로 정렬한다.</li>
+        <li>3️⃣ 나라별 카운트를 저장하는 맵을 준비한다.</li>
+        <li>4️⃣ 정렬된 리스트를 앞에서부터 보며
+          <ul>
+            <li>해당 나라에서 이미 2명이면 건너뛰고,</li>
+            <li>아니면 결과에 추가하고 그 나라 카운트를 1 증가시킨다.</li>
+          </ul>
         </li>
-        <li>3️⃣ 각 사람의 최고 점수 <code>best</code>를 구한 뒤,
-          현재까지의 최고 점수 <code>maxScore</code>와 비교한다.</li>
-        <li>4️⃣ 점수가 같을 경우 <strong>번호가 큰 사람이 승자</strong>이므로,
-          비교 조건은 <code>if (best &gt;= maxScore)</code>로 설정한다.
-          <pre><code>if (best &gt;= maxScore) {
-          maxScore = best;
-          win = i + 1;
-      }
-      </code></pre>
-        </li>
+        <li>5️⃣ 총 3명을 선발하면 종료한다.</li>
       </ul>
       
-      <p><strong>예시</strong></p>
-      <pre><code>입력:
-      3
-      1 2 3 4 5
-      2 3 3 2 10
-      1 1 1 1 1
-      
-      출력:
-      2
-      </code></pre>
-      <p>해설:  
-      1번의 최대 일의 자리는 9,  
-      2번은 (2+3+10=15 → 5)보다 큰 조합 (3+3+10=16 → 6), (3+2+10=15 → 5), (3+2+3=8 → 8) 중 최댓값 8,  
-      3번은 항상 합이 3이므로 일의 자리 3.  
-      결국 최고 점수 9를 가진 1번과 8을 가진 2번 중 더 큰 점수는 9지만,  
-      만약 동점이었다면 번호가 큰 사람이 승자가 된다.</p>
-      
-      <p><strong>시간·공간 복잡도</strong> —  
-      각 사람당 10가지 조합만 확인하므로 <code>O(N×10) = O(N)</code>이며,  
-      추가 메모리는 <code>O(1)</code> 수준으로 매우 효율적이다.</p>
-      
-      <p><strong>정리</strong></p>
+      <h3 class="section">왜 이렇게 동작하나?</h3>
       <ul>
-        <li>모든 조합(5C3=10)을 직접 탐색해도 충분히 빠르다.</li>
-        <li>5C3 대신 5C2를 이용해 계산량을 단순화할 수 있다.</li>
-        <li>일의 자리 계산 시 <code>((x % 10) + 10) % 10</code> 보정이 필요하다.</li>
-        <li>동점일 경우 <strong>번호가 큰 참가자</strong>가 승리한다.</li>
-        <li>전형적인 완전 탐색(Brute Force) + 조건 비교 문제.</li>
+        <li>정렬 효과 — 내림차순 정렬 덕분에 “더 높은 점수”가 항상 먼저 고려되어, 제약만 통과하면 자연스럽게 상위 득점자들이 선발된다.</li>
+        <li>제약 처리 — 나라별 카운트를 즉시 갱신하며 선발 시점에 제한(≤2명)을 적용하면 별도의 후처리가 필요 없다.</li>
+        <li>조기 종료 — 3명을 뽑는 순간 순회를 멈춰 불필요한 비교를 피한다.</li>
+      </ul>
+      
+      <h3 class="section">엣지 케이스</h3>
+      <ul>
+        <li>동점자: 정렬 후 위에서부터 제약을 통과하는 선순으로 채택되므로 문제 없다.</li>
+        <li>한 나라 고득점자가 많을 때: 상위 2명까지만 선발되고, 나머지는 다른 나라로 기회가 넘어간다.</li>
+        <li>출력 형식: 각 줄에 <code>country</code>와 <code>num</code>을 공백으로 구분해 3줄을 출력한다.</li>
+      </ul>
+      
+      <h3 class="section">시간·공간 복잡도</h3>
+      <p>정렬이 지배적이므로 <code>O(N log N)</code>,  
+      정렬 후 스캔과 카운팅은 <code>O(N)</code>.  
+      추가 공간은 참가자 리스트 <code>O(N)</code> + 나라 카운트 맵 <code>O(국가 수)</code>.</p>
+      
+      <h3 class="section">정리</h3>
+      <ul>
+        <li><strong>점수 내림차순 정렬 → 나라별 최대 2명 제한 → 총 3명 선발</strong>의 3단계가 전부다.</li>
+        <li>제약은 선발 시점에 맵 카운팅으로 바로 걸어주는 것이 가장 단순하고 안전하다.</li>
+        <li>구현이 짧고 로직이 명확하여 검증과 디버깅이 쉽다.</li>
       </ul>
 
 
@@ -130,100 +109,70 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2508 — 사탕 박사 고창영</h2>
+      <h2 class="section">문제 2563 — 색종이</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2508">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2563">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1011_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1012_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —  
-      이 문제는 격자 형태의 상자 안에서 <strong>‘사탕(o)’이 포장된 개수</strong>를 찾는 문제이다.  
-      사탕은 막대기 모양의 포장으로 둘러싸여 있으며,  
-      가로 방향으로는 <code>&gt; o &lt;</code>, 세로 방향으로는 <code>v o ^</code> 형태로 주어진다.  
-      즉, <code>'o'</code>를 중심으로 양옆이 <code>'&gt;'</code>와 <code>'&lt;'</code>이거나,  
-      위아래가 <code>'v'</code>와 <code>'^'</code>인 경우를 찾아 세면 된다.</p>
+      이 문제는 색종이들이 덮은 <strong>검은 영역의 총 넓이(합집합)</strong>를 구하는 문제다.  
+      여러 장이 겹치더라도 중복해서 더하지 않고, 해당 칸이 한 번이라도 덮였으면 1로 취급한다.  
+      가장 간단하고 안전한 방법은 100×100 도화지를 <code>boolean</code> 격자로 두고, 색종이가 덮는 칸을 <code>true</code>로 마킹한 뒤 <code>true</code> 개수를 세는 것이다.</p>
       
-      <p><strong>입력 파싱</strong> —  
-      첫 줄에 테스트 케이스 수 <code>t</code>가 주어지고,  
-      각 테스트 케이스는 다음과 같은 형식으로 구성된다.</p>
+      <p><strong>아이디어 전개</strong> —  
+      각 색종이는 크기 10×10이며, 입력으로 주어지는 좌하단 좌표 <code>(x, y)</code>를 기준으로  
+      가로 <code>x..x+9</code>, 세로 <code>y..y+9</code> 영역을 덮는다.  
+      이 범위를 모두 <code>true</code>로 표시하면, 겹치는 칸은 이미 <code>true</code> 상태이므로 자동으로 한 번만 집계된다.  
+      마지막에 도화지 전체를 순회하여 <code>true</code>의 개수를 세면 그것이 곧 정답 면적이다.</p>
       
-      <pre><code>t
-      (빈 줄)
-      r c
-      (이후 r줄에 걸쳐 c개의 문자)
-      (빈 줄)
+      <h3 class="section">입력 형식</h3>
+      <pre><code>N
+      x₁ y₁
+      x₂ y₂
+      ...
+      xₙ yₙ
+      </code></pre>
+      <p>모든 색종이는 좌하단 기준 좌표 <code>(x, y)</code>가 주어지며, 도화지 크기는 100×100이다.</p>
+      
+      <h3 class="section">예시</h3>
+      <p><strong>개념 확인용</strong> — 아래는 “합집합 면적”을 구하는 형태의 예시이다. (문제의 대표 예시는 설명을 위한 도식이며, 핵심은 겹침을 한 번만 세는 것임)</p>
+      <pre><code>색종이 3장, 각 10×10
+      기본 합 = 300
+      겹친 총 면적 = 40
+      정답(합집합) = 300 - 40 = 260
       </code></pre>
       
-      <p>각 테스트 케이스 사이에는 공백 줄이 존재하므로  
-      <code>br.readLine()</code>으로 한 줄을 건너뛰는 과정이 필요하다.  
-      상자의 문자 배열은 <code>char[][] box</code>에 저장하며,  
-      문자 그대로 비교하기 때문에 <code>int[][]</code>보다 <code>char[][]</code>가 적합하다.</p>
-      
-      <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
-      int r = Integer.parseInt(st.nextToken());
-      int c = Integer.parseInt(st.nextToken());
-      
-      char[][] box = new char[r][c];
-      for (int j = 0; j &lt; r; j++) {
-          box[j] = br.readLine().toCharArray();
-      }
-      </code></pre>
-      
-      <p><strong>알고리즘</strong></p>
+      <h3 class="section">동작 과정</h3>
       <ul>
-        <li>1️⃣ 모든 칸을 순회하며 <code>'o'</code>인 지점을 찾는다.</li>
-        <li>2️⃣ 해당 위치를 중심으로
-          <ul>
-            <li>세로 방향: 위가 <code>'v'</code>이고 아래가 <code>'^'</code>이면 사탕 1개.</li>
-            <li>가로 방향: 왼쪽이 <code>'&gt;'</code>이고 오른쪽이 <code>'&lt;'</code>이면 사탕 1개.</li>
-          </ul>
-        </li>
-        <li>3️⃣ 인덱스 범위를 벗어나지 않도록 <code>if</code> 조건으로 상하좌우 경계를 검사한다.</li>
+        <li>중복 방지 — 같은 칸을 여러 장이 덮어도 <code>true</code>는 그대로이므로 겹친 영역이 여러 번 더해지지 않는다.</li>
+        <li>좌표계 — 입력은 좌하단 기준(<code>x</code>: 왼쪽에서의 거리, <code>y</code>: 아래에서의 거리). 배열 인덱스 관점에서 상하 방향이 바뀌더라도 “면적” 계산에는 영향이 없다.</li>
       </ul>
       
-      <pre><code>if (box[x][y] == 'o') {
-          if (x &gt; 0 &amp;&amp; x &lt; r - 1 &amp;&amp; box[x - 1][y] == 'v' &amp;&amp; box[x + 1][y] == '^') cnt++;
-          if (y &gt; 0 &amp;&amp; y &lt; c - 1 &amp;&amp; box[x][y - 1] == '&gt;' &amp;&amp; box[x][y + 1] == '&lt;') cnt++;
-      }
-      </code></pre>
-      
-      <p><strong>예시</strong></p>
-      <pre><code>입력:
-      1
-      
-      5 5
-      .....
-      .v.^.
-      .&gt;o&lt;.
-      .....
-      .....
-      
-      출력:
-      2
-      </code></pre>
-      <p>해설:  
-      위쪽에 세로로 <code>v o ^</code> 한 개,  
-      가운데 줄에 가로로 <code>&gt; o &lt;</code> 한 개가 존재하므로  
-      총 2개의 사탕이 포장되어 있다.</p>
-      
-      <p><strong>시간·공간 복잡도</strong> —  
-      격자의 모든 칸을 한 번씩만 확인하므로  
-      시간 복잡도는 <code>O(r×c)</code>,  
-      공간 복잡도는 <code>O(r×c)</code>이다.</p>
-      
-      <p><strong>정리</strong></p>
+      <h3 class="section">알고리즘</h3>
       <ul>
-        <li>사탕 패턴은 <code>v o ^</code> 또는 <code>&gt; o &lt;</code> 두 가지뿐이다.</li>
-        <li>문자 비교는 아스키 코드 대신 리터럴 <code>'o'</code>, <code>'v'</code>, <code>'^'</code>, <code>'&gt;'</code>, <code>'&lt;'</code>를 그대로 사용한다.</li>
-        <li>테스트 케이스 사이 공백 줄(<code>br.readLine()</code>) 처리에 유의한다.</li>
-        <li>전형적인 2차원 완전 탐색 문제로, 각 셀의 주변 문자를 조건으로 검사하면 된다.</li>
+        <li>1️⃣ 100×100 불리언 도화지를 <code>false</code>로 초기화한다.</li>
+        <li>2️⃣ 각 색종이의 좌표 <code>(x, y)</code>에 대해 <code>x..x+9</code>, <code>y..y+9</code> 범위를 <code>true</code>로 마킹한다.</li>
+        <li>3️⃣ 전체 도화지를 순회하며 <code>true</code>의 개수를 센다.</li>
+        <li>4️⃣ 그 개수를 출력한다.</li>
       </ul>
+      
+      <h3 class="section">엣지 케이스</h3>
+      <ul>
+        <li>경계 부착(예: <code>x=90</code> 또는 <code>y=90</code>)도 10칸이 정확히 도화지 안에 들어와 인덱스 초과가 없다.</li>
+        <li>완전히 같은 위치에 여러 장이 겹쳐도 면적은 한 번만 증가한다.</li>
+      </ul>
+      
+      <h3 class="section">시간·공간 복잡도</h3>
+      <p>색종이 한 장당 100칸 마킹이므로 <code>O(100×N)=O(N)</code>,  
+      최종 카운트는 100×100 상수 시간.  
+      공간은 <code>boolean[100][100]</code>로 상수 크기.</p>
 
 
 
