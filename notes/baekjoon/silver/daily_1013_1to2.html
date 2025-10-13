@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-12 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2535 — 아시아 정보올림피아드</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2535">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1012_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —  
+      참가자들을 <strong>점수 내림차순</strong>으로 정렬한 뒤, 위에서부터 훑으면서 <strong>같은 나라에서 최대 2명</strong>만 선발하고 <strong>총 3명</strong>의 <code>(국가, 번호)</code>를 출력한다. 정렬 후 한 번의 선형 스캔으로 제약을 처리하므로 구현이 간단하고 효율적이다.</p>
+      
+      <p><strong>아이디어 전개</strong> —  
+      각 참가자를 <code>(country, num, score)</code> 형태로 모아 리스트에 저장한다.  
+      정렬 비교는 “점수가 큰 사람이 앞”이 되도록 내림차순을 사용한다.  
+      정렬이 끝나면, 나라별 선발 인원을 세는 맵(예: <code>country → count</code>)을 유지하면서 리스트를 앞에서부터 순회한다.  
+      어떤 참가자의 나라에서 이미 2명이 선발되었다면 건너뛰고, 아니라면 결과에 추가한다.  
+      이 과정을 통해 <strong>총 3명</strong>을 채우면 즉시 종료한다.</p>
+      
+      <h3 class="section">입력 형식</h3>
+      <pre><code>N
+      country₁ num₁ score₁
+      country₂ num₂ score₂
+      ...
+      countryₙ numₙ scoreₙ
+      </code></pre>
+      <p>각 줄은 “국가 번호, 학생 번호, 점수”를 의미한다.</p>
+      
+      <h3 class="section">알고리즘</h3>
+      <ul>
+        <li>1️⃣ 모든 참가자를 수집한다.</li>
+        <li>2️⃣ 점수 기준 <strong>내림차순</strong>으로 정렬한다.</li>
+        <li>3️⃣ 나라별 카운트를 저장하는 맵을 준비한다.</li>
+        <li>4️⃣ 정렬된 리스트를 앞에서부터 보며
+          <ul>
+            <li>해당 나라에서 이미 2명이면 건너뛰고,</li>
+            <li>아니면 결과에 추가하고 그 나라 카운트를 1 증가시킨다.</li>
+          </ul>
+        </li>
+        <li>5️⃣ 총 3명을 선발하면 종료한다.</li>
+      </ul>
+      
+      <h3 class="section">왜 이렇게 동작하나?</h3>
+      <ul>
+        <li>정렬 효과 — 내림차순 정렬 덕분에 “더 높은 점수”가 항상 먼저 고려되어, 제약만 통과하면 자연스럽게 상위 득점자들이 선발된다.</li>
+        <li>제약 처리 — 나라별 카운트를 즉시 갱신하며 선발 시점에 제한(≤2명)을 적용하면 별도의 후처리가 필요 없다.</li>
+        <li>조기 종료 — 3명을 뽑는 순간 순회를 멈춰 불필요한 비교를 피한다.</li>
+      </ul>
+      
+      <h3 class="section">엣지 케이스</h3>
+      <ul>
+        <li>동점자: 정렬 후 위에서부터 제약을 통과하는 선순으로 채택되므로 문제 없다.</li>
+        <li>한 나라 고득점자가 많을 때: 상위 2명까지만 선발되고, 나머지는 다른 나라로 기회가 넘어간다.</li>
+        <li>출력 형식: 각 줄에 <code>country</code>와 <code>num</code>을 공백으로 구분해 3줄을 출력한다.</li>
+      </ul>
+      
+      <h3 class="section">시간·공간 복잡도</h3>
+      <p>정렬이 지배적이므로 <code>O(N log N)</code>,  
+      정렬 후 스캔과 카운팅은 <code>O(N)</code>.  
+      추가 공간은 참가자 리스트 <code>O(N)</code> + 나라 카운트 맵 <code>O(국가 수)</code>.</p>
+      
+      <h3 class="section">정리</h3>
+      <ul>
+        <li><strong>점수 내림차순 정렬 → 나라별 최대 2명 제한 → 총 3명 선발</strong>의 3단계가 전부다.</li>
+        <li>제약은 선발 시점에 맵 카운팅으로 바로 걸어주는 것이 가장 단순하고 안전하다.</li>
+        <li>구현이 짧고 로직이 명확하여 검증과 디버깅이 쉽다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2563 — 색종이</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2563">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1012_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —  
+      이 문제는 색종이들이 덮은 <strong>검은 영역의 총 넓이(합집합)</strong>를 구하는 문제다.  
+      여러 장이 겹치더라도 중복해서 더하지 않고, 해당 칸이 한 번이라도 덮였으면 1로 취급한다.  
+      가장 간단하고 안전한 방법은 100×100 도화지를 <code>boolean</code> 격자로 두고, 색종이가 덮는 칸을 <code>true</code>로 마킹한 뒤 <code>true</code> 개수를 세는 것이다.</p>
+      
+      <p><strong>아이디어 전개</strong> —  
+      각 색종이는 크기 10×10이며, 입력으로 주어지는 좌하단 좌표 <code>(x, y)</code>를 기준으로  
+      가로 <code>x..x+9</code>, 세로 <code>y..y+9</code> 영역을 덮는다.  
+      이 범위를 모두 <code>true</code>로 표시하면, 겹치는 칸은 이미 <code>true</code> 상태이므로 자동으로 한 번만 집계된다.  
+      마지막에 도화지 전체를 순회하여 <code>true</code>의 개수를 세면 그것이 곧 정답 면적이다.</p>
+      
+      <h3 class="section">입력 형식</h3>
+      <pre><code>N
+      x₁ y₁
+      x₂ y₂
+      ...
+      xₙ yₙ
+      </code></pre>
+      <p>모든 색종이는 좌하단 기준 좌표 <code>(x, y)</code>가 주어지며, 도화지 크기는 100×100이다.</p>
+      
+      <h3 class="section">예시</h3>
+      <p><strong>개념 확인용</strong> — 아래는 “합집합 면적”을 구하는 형태의 예시이다. (문제의 대표 예시는 설명을 위한 도식이며, 핵심은 겹침을 한 번만 세는 것임)</p>
+      <pre><code>색종이 3장, 각 10×10
+      기본 합 = 300
+      겹친 총 면적 = 40
+      정답(합집합) = 300 - 40 = 260
+      </code></pre>
+      
+      <h3 class="section">동작 과정</h3>
+      <ul>
+        <li>중복 방지 — 같은 칸을 여러 장이 덮어도 <code>true</code>는 그대로이므로 겹친 영역이 여러 번 더해지지 않는다.</li>
+        <li>좌표계 — 입력은 좌하단 기준(<code>x</code>: 왼쪽에서의 거리, <code>y</code>: 아래에서의 거리). 배열 인덱스 관점에서 상하 방향이 바뀌더라도 “면적” 계산에는 영향이 없다.</li>
+      </ul>
+      
+      <h3 class="section">알고리즘</h3>
+      <ul>
+        <li>1️⃣ 100×100 불리언 도화지를 <code>false</code>로 초기화한다.</li>
+        <li>2️⃣ 각 색종이의 좌표 <code>(x, y)</code>에 대해 <code>x..x+9</code>, <code>y..y+9</code> 범위를 <code>true</code>로 마킹한다.</li>
+        <li>3️⃣ 전체 도화지를 순회하며 <code>true</code>의 개수를 센다.</li>
+        <li>4️⃣ 그 개수를 출력한다.</li>
+      </ul>
+      
+      <h3 class="section">엣지 케이스</h3>
+      <ul>
+        <li>경계 부착(예: <code>x=90</code> 또는 <code>y=90</code>)도 10칸이 정확히 도화지 안에 들어와 인덱스 초과가 없다.</li>
+        <li>완전히 같은 위치에 여러 장이 겹쳐도 면적은 한 번만 증가한다.</li>
+      </ul>
+      
+      <h3 class="section">시간·공간 복잡도</h3>
+      <p>색종이 한 장당 100칸 마킹이므로 <code>O(100×N)=O(N)</code>,  
+      최종 카운트는 100×100 상수 시간.  
+      공간은 <code>boolean[100][100]</code>로 상수 크기.</p>
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
