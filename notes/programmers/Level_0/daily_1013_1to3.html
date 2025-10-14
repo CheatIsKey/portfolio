@@ -40,7 +40,7 @@
       <h3 class="section">해설</h3>
       <p>
         참석한 학생(<code>attendance[i] == true</code>) 중에서 <strong>등수(<code>rank[i]</code>)가 가장 낮은 값 3명</strong>
-        (즉, 숫자가 <em>작은</em> 3명)의 <strong>학생 번호(인덱스)</strong>를 찾아
+        (즉, 숫자가 작은 3명)의 <strong>학생 번호(인덱스)</strong>를 찾아
         <code>10000 * a + 100 * b + c</code>로 합성하는 문제다.
         등수로 정렬하면서도 학생 번호를 잃지 않도록
         <code>[rank, index]</code> 쌍을 리스트에 담아 정렬한다.
@@ -155,7 +155,7 @@
       <p>
         단순히 <code>(int) flo</code>로 캐스팅해도  
         양수일 때는 동일한 결과를 얻을 수 있지만,  
-        음수의 경우 <em>절삭(truncation)</em>이 일어나  
+        음수의 경우 절삭(truncation)이 일어나  
         <code>-1.2 → -1</code>이 되어 버린다.  
         따라서 이 문제에서는 **정확한 내림**을 보장하는  
         <code>Math.floor()</code> 사용이 안전하다.
