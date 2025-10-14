@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-13 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2622 — 삼각형만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2622">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1013_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      양의 정수 길이 <code>a ≤ b ≤ c</code> 세 변으로 삼각형을 만들 때, 이 문제가 요구하는 것은
+      <strong>세 변의 합이 정확히 <code>N</code>이면서</strong> 동시에 <strong>삼각형 부등식</strong> <code>a + b > c</code>를 만족하는
+      조합의 개수다. 직각 여부와는 무관하므로 피타고라스 정리는 쓰지 않는다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      세 변의 합 제약 <code>a + b + c = N</code>을 이용해 <code>c = N - a - b</code>로 바꾸면,
+      세 변을 모두 돌 필요 없이 <code>a</code>, <code>b</code>만 순회해도 된다.
+      또한 정렬 가정 <code>a ≤ b ≤ c</code>를 넣어 중복을 제거한다.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      아래 구현에서 <code>i</code>, <code>j</code>, <code>k</code>는 각각 <code>a</code>, <code>b</code>, <code>c</code>에 대응한다.</p>
+      
+      <ul>
+        <li><code>k = N - i - j</code> &nbsp;→&nbsp; 합 제약 <code>a + b + c = N</code> 적용</li>
+        <li><code>if (k &lt; j) break;</code> &nbsp;→&nbsp; <code>b ≤ c</code>가 깨지면 이후 <code>j</code> 증가 시 <code>k</code>는 더 작아지므로 조기 종료</li>
+        <li><code>if (k ≤ 0) continue;</code> &nbsp;→&nbsp; 모든 변은 양수</li>
+        <li><code>if (i + j &gt; k) cnt++;</code> &nbsp;→&nbsp; 삼각형 부등식 검증(<code>a + b &gt; c</code>)</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      정렬 제약 <code>a ≤ b ≤ c</code> 하에서는 삼각형 부등식 세 개 중 <code>a + b &gt; c</code>만 확인하면 충분하다.
+      또한 <code>c</code>를 명시적으로 돌지 않고 <code>c = N - a - b</code>로 두면, 탐색 공간이 <code>O(N³)</code>에서
+      <code>O(N²)</code>로 줄어든다. 중복(순열) 역시 <code>a ≤ b ≤ c</code>로 제거된다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li><code>N &lt; 3</code>이거나 <code>k ≤ 0</code>이면 삼각형 불가 → 자동으로 카운트되지 않음</li>
+        <li><code>k &lt; j</code>가 되는 순간 더 큰 <code>j</code>에서는 <code>k</code>가 더 작아지므로 내부 루프 <code>break</code>로 가지치기</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      바깥 <code>i</code>와 안쪽 <code>j</code>의 이중 루프이므로 <code>O(N²)</code>.
+      추가 공간은 상수 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>필요한 조건은 <strong>합 제약</strong> <code>a + b + c = N</code>과 <strong>삼각형 부등식</strong> <code>a + b &gt; c</code>뿐</li>
+        <li><code>c</code>를 식으로 대체하고 <code>a ≤ b ≤ c</code>를 활용해 <strong>중복 제거 + 조기 종료</strong>로 효율화</li>
+        <li>복잡도는 <code>O(N²)</code>로 충분히 빠르며, 구현이 간단하고 검증이 쉽다</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2628 — 종이자르기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2628">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1013_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      절단선들을 각각 <strong>가로 자름(0)</strong>과 <strong>세로 자름(1)</strong>으로 분리해 위치를 수집하고, <strong>0과 끝점(H, W)</strong>을 함께 넣어 정렬한다.
+      인접한 절단선 사이의 <strong>최대 세로 간격</strong>(높이)과 <strong>최대 가로 간격</strong>(너비)을 구해
+      최대 넓이를 <code>maxHeight × maxWidth</code>로 계산한다.</p>
+      
+      <p><strong>코드 핵심(변수 매핑)</strong> —<br>
+      입력 첫 줄 <code>W H</code>를 읽고, 이후 N개의 절단 정보를 처리한다.<br>
+      - <code>type == 0</code>: 가로로 자름 → 세로 길이 H를 분할하므로 <code>row</code>에 위치 추가<br>
+      - <code>type == 1</code>: 세로로 자름 → 가로 길이 W를 분할하므로 <code>column</code>에 위치 추가<br>
+      - 양 끝점을 꼭 포함: <code>row = {0, H}</code>, <code>column = {0, W}</code><br>
+      - 정렬 후 인접 차의 최댓값이 각각 <code>maxH</code>, <code>maxW</code></p>
+      
+      <ul>
+        <li><code>Collections.sort(row)</code> / <code>Collections.sort(column)</code></li>
+        <li><code>maxH = max(row[i] - row[i-1])</code> (1 ≤ i &lt; row.size())</li>
+        <li><code>maxW = max(column[i] - column[i-1])</code> (1 ≤ i &lt; column.size())</li>
+        <li>정답: <code>maxH * maxW</code></li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      절단선들은 종이를 여러 구간으로 나누며, 각 방향에서 가장 넓은 인접 구간이 해당 방향의 최대 길이가 된다.
+      면적은 가로×세로이므로, 두 방향의 최대 간격 곱이 가장 큰 직사각형 조각의 넓이다.
+      끝점을 포함하지 않으면 가장자리 조각이 누락되므로 반드시 <code>0</code>과 <code>W/H</code>를 넣어야 한다.</p>
+      
+      <p><strong>입력 형식</strong></p>
+      <pre><code>W H
+      N
+      type₁ pos₁
+      type₂ pos₂
+      ...
+      typeₙ posₙ
+      </code></pre>
+      <p><code>type</code>은 0(가로 절단), 1(세로 절단). <code>pos</code>는 절단선의 위치.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>절단선이 하나도 없는 경우: <code>maxH = H</code>, <code>maxW = W</code> → 면적 <code>W×H</code></li>
+        <li>가장자리(0, W/H)와 동일한 위치로 자르는 입력은 주어지지 않지만,
+            중복이 들어와도 정렬+차이 계산으로 자연스럽게 0 폭/높이가 되어 무해하다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      정렬이 지배적이므로 <code>O(N log N)</code>, 간격 계산은 <code>O(N)</code>. 추가 공간은 절단선 리스트 <code>O(N)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>절단선 분리(0/1) → <strong>끝점 포함</strong> → 정렬 → <strong>인접 차 최대</strong> 계산</li>
+        <li>정답은 <code>maxHeight × maxWidth</code></li>
+        <li>입력 첫 줄은 반드시 <code>StringTokenizer</code>로 <code>W, H</code>를 같은 줄에서 파싱</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
