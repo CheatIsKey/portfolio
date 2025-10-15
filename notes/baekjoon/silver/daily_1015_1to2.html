@@ -24,71 +24,82 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-14 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-15 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 2635 — 수 이어가기</h2>
+      <h2 class="section">문제 2740 — 행렬 곱셈</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2635">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2740">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1014_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1015_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      첫 번째 수 <code>N</code>과 두 번째 수 <code>k</code>를 정하면 이후 수열이 완전히 결정된다.
-      규칙은 <code>aₙ₊₂ = aₙ - aₙ₊₁</code>이며, 음수가 되는 순간 수열이 끝난다.
-      따라서 가능한 모든 <code>k(1 ≤ k ≤ N)</code>에 대해 시뮬레이션을 수행하고,
-      가장 긴 수열을 선택하면 된다.</p>
+      두 행렬 <code>A(N1×M1)</code>와 <code>B(N2×M2)</code>의 곱 <code>C</code>는
+      <code>M1 == N2</code>일 때에만 정의된다.
+      결과 행렬 <code>C</code>의 크기는 <code>N1×M2</code>이며,
+      각 원소는 “A의 i번째 행”과 “B의 j번째 열”의 내적(곱의 합)으로 계산한다:
+      <code>C[i][j] = Σ<sub>k=0..M1-1</sub> A[i][k] × B[k][j]</code>.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      모든 항은 음수가 되기 전까지 생성되고, 두 번째 수 <code>k</code>는 <code>1</code>부터 <code>N</code>까지의 정수이다.
-      각 시도에서 첫 번째 수 <code>a</code>와 두 번째 수 <code>b</code>로부터
-      다음 항 <code>c = a - b</code>를 구하며, <code>c &lt; 0</code>이면 종료한다.
-      즉, 한 번의 <code>k</code> 시도는 완전히 독립적인 수열 생성 실험이다.</p>
+      입력으로 먼저 <code>N1 M1</code>과 A의 원소들이 주어지고,
+      다음 줄에 <code>N2 M2</code>와 B의 원소들이 주어진다.
+      유효한 행렬 곱을 위해서는 <code>M1 == N2</code>가 성립해야 하며,
+      출력은 크기 <code>N1×M2</code>의 정수 행렬이다.</p>
       
       <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
-      <code>a</code>, <code>b</code>, <code>c</code>는 각각 현재 항, 바로 다음 항, 다음에 계산될 항을 의미한다.<br>
-      <code>tmp</code> 리스트는 현재 <code>k</code>로 생성한 수열을 담고,
-      <code>list</code>는 그중 가장 긴 수열을 저장한다.</p>
+      <code>N1, M1</code>: A의 행/열 크기 &nbsp;|&nbsp;
+      <code>N2, M2</code>: B의 행/열 크기 &nbsp;|&nbsp;
+      <code>i</code>: 결과 행 인덱스(=A의 행) &nbsp;|&nbsp;
+      <code>j</code>: 결과 열 인덱스(=B의 열) &nbsp;|&nbsp;
+      <code>k</code>: 곱하고 더하는 중간 인덱스(=A의 열, B의 행를 연결)</p>
       
       <ul>
-        <li><code>tmp.add(a)</code>, <code>tmp.add(b)</code> → 초기 두 항 저장</li>
-        <li><code>c = a - b</code> → 다음 항 계산</li>
-        <li><code>if (c &lt; 0) break;</code> → 음수가 되면 수열 종료</li>
-        <li><code>a = b; b = c;</code> → 다음 단계로 이동</li>
-        <li><code>if (tmp.size() &gt; list.size()) list = tmp;</code> → 최장 수열 갱신</li>
+        <li><code>int[][] A = new int[N1][M1];</code>, <code>int[][] B = new int[N2][M2];</code> → 입력 저장</li>
+        <li><code>int[][] result = new int[N1][M2];</code> → 결과 행렬 메모리 할당</li>
+        <li><code>result[i][j] += A[i][k] * B[k][j];</code> → 내적 누적합(핵심 연산)</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      각 <code>k</code>에 대해 수열을 만들어 보고,
-      그 길이가 가장 긴 경우를 <code>list</code>에 저장한다.
-      마지막에 수열의 길이와 항들을 공백으로 구분해 출력한다.
-      <code>StringBuilder</code>를 사용해 문자열 연결 비용을 줄였다.</p>
+      세 겹의 반복문으로 결과의 각 칸을 채운다.
+      바깥쪽 두 반복 <code>(i, j)</code>가 결과의 위치를 정하고,
+      안쪽 반복 <code>k</code>가 해당 위치의 값을
+      <code>A</code>의 i행과 <code>B</code>의 j열 원소들을 곱해 모두 더해 완성한다.</p>
+      
+      <pre><code>// i: A의 행(=결과 행), j: B의 열(=결과 열), k: 중간 인덱스
+      for (int i = 0; i &lt; N1; i++) {
+        for (int j = 0; j &lt; M2; j++) {
+          for (int k = 0; k &lt; M1; k++) { // (M1 == N2)
+            result[i][j] += A[i][k] * B[k][j];
+          }
+        }
+      }
+      </code></pre>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>N = 1</code>일 때 두 번째 수는 항상 1이므로 수열은 [1, 1, 0]</li>
-        <li><code>c</code>가 0이 되는 시점에서 다음 항은 음수가 되므로 자연스럽게 종료</li>
-        <li><code>N</code>이 커도 각 수열 길이가 제한적이므로 메모리 초과 우려 없음</li>
+        <li><code>M1 != N2</code>라면 행렬 곱이 정의되지 않음(문제 조건상 입력은 유효하게 주어짐).</li>
+        <li>입력 중 0이 포함되어도 결과 원소는 다른 항들의 합으로 0이 아닐 수 있음.</li>
+        <li>출력 형식: 각 행을 공백으로 구분해 출력하고 행마다 개행(맨 끝 공백은 허용됨).</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      두 번째 수 <code>k</code>를 1부터 <code>N</code>까지 완전 탐색하므로 <code>O(N)</code>번 반복.
-      각 시뮬레이션은 수열 길이만큼 <code>O(L)</code>이지만, <code>L</code>은 <code>O(N)</code>보다 작다.
-      따라서 전체 복잡도는 <code>O(N²)</code> 수준이며, 리스트 저장 공간은 상수(<code>O(1)</code>)에 가깝다.</p>
+      중첩 루프 3개로 계산하므로 시간복잡도는 <code>O(N1 × M2 × M1)</code>.<br>
+      추가 공간은 결과 행렬 <code>O(N1 × M2)</code>와 입력 저장 공간.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>두 번째 수 <code>k</code>를 1~N까지 전부 시도하여 최장 수열 탐색</li>
-        <li>규칙 <code>aₙ₊₂ = aₙ - aₙ₊₁</code>으로 수열 생성</li>
-        <li>가장 긴 수열의 길이와 항들을 출력 (<code>StringBuilder</code> 사용)</li>
-        <li>시간 복잡도 <code>O(N²)</code>, 공간 복잡도 <code>O(1)</code> (리스트 제외)</li>
+        <li>결과 크기: <code>(N1×M1) × (N2×M2)</code> → <code>N1×M2</code> (단, <code>M1 == N2</code>)</li>
+        <li>핵심 연산: <code>C[i][j] = Σ A[i][k] × B[k][j]</code> (행×열의 내적)</li>
+        <li>빠른 입출력: <code>BufferedReader</code>, <code>StringTokenizer</code> 사용</li>
+        <li>정확한 포맷으로 결과 행렬을 행 단위로 출력</li>
       </ul>
+
 
 
 
@@ -103,64 +114,75 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2628 — 종이자르기</h2>
+      <h2 class="section">문제 2751 — 수 정렬하기 2</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2628">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2751">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1014_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1015_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      좌표 평면을 1×1 격자로 보고, 입력으로 주어지는 네 개의 직사각형을
-      각 칸 단위로 칠해(<code>mark</code>) 합집합의 넓이를 카운트한다.
-      좌하단은 포함, 우상단은 <strong>미포함</strong> 범위 <code>[x1, x2) × [y1, y2)</code>로 칠하면
-      겹치는 부분을 중복 없이 정확히 처리할 수 있다.</p>
+      입력된 <code>N</code>개의 정수를 오름차순으로 정렬하는 문제다.
+      기본형 배열(<code>int[]</code>)에 저장한 뒤 <code>Arrays.sort()</code>를 사용하면
+      자바 내장 퀵소트(dual-pivot quicksort)가 실행되어 매우 빠르게 정렬된다.
+      정렬 후에는 <code>StringBuilder</code>로 결과를 한 번에 모아 출력하여
+      입출력 속도를 최적화한다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      좌표 범위가 0~100이므로 101×101 배열로 충분하다.
-      각 직사각형은 <code>x1 &lt; x2</code>, <code>y1 &lt; y2</code>를 만족하며,
-      칠할 때는 <code>x = x1 .. x2-1</code>, <code>y = y1 .. y2-1</code>만 포함한다
-      (우상단 경계 미포함).</p>
+      <code>1 ≤ N ≤ 1,000,000</code>이며, 각 수의 범위는 <code>-1,000,000 ≤ x ≤ 1,000,000</code>이다.
+      입력이 많기 때문에 단순한 <code>System.out.println()</code> 반복 출력은 시간 초과를 유발한다.
+      따라서 입력은 <code>BufferedReader</code>, 출력은 <code>StringBuilder</code>를 통해 묶어서 처리한다.</p>
       
       <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
-      <code>paper[x][y]</code>는 (x, y) 칸이 직사각형들 중 하나에 포함되면 1로 표시한다.<br>
-      입력은 네 줄을 각각 <code>StringTokenizer</code>로 읽고, 각 줄마다
-      직사각형 좌표 <code>(x1, y1, x2, y2)</code>를 받아 칠한다.</p>
+      <code>arr</code>: 입력된 정수들을 저장하는 배열<br>
+      <code>Arrays.sort(arr)</code>: 정렬 수행 (O(N log N))<br>
+      <code>sb</code>: 정렬된 결과를 한 문자열로 모으는 버퍼<br>
+      <code>System.out.println(sb)</code>: 최종 출력 (1회 I/O)</p>
       
       <ul>
-        <li><code>for (int x = x1; x &lt; x2; x++)</code>, <code>for (int y = y1; y &lt; y2; y++)</code> → <strong>우상단 경계 미포함</strong></li>
-        <li><code>paper[x][y] = 1;</code> → 포함 표시(겹침도 1로 그대로 유지)</li>
-        <li>모든 입력 처리 후, 격자 전체를 순회하며 <code>paper[x][y] == 1</code>인 칸을 카운트</li>
+        <li><code>int[] arr = new int[N];</code> → 박싱 없는 기본형 배열로 빠른 메모리 접근</li>
+        <li><code>Arrays.sort(arr);</code> → 효율적인 기본형 정렬</li>
+        <li><code>sb.append(num).append('\n');</code> → 반복 출력 대신 문자열 누적</li>
+        <li><code>System.out.println(sb.toString());</code> → 결과를 한 번에 출력</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      네 개의 직사각형을 순서대로 칠한다. 이미 칠해진 칸을 다시 칠해도 값은 1이므로
-      중복 면적이 추가로 더해지지 않는다.
-      마지막에 0~100 범위 전체를 훑으며 1로 표시된 칸 수를 합하면 합집합의 넓이가 된다.</p>
+      1. <code>BufferedReader</code>로 N과 N개의 정수를 입력받는다.<br>
+      2. 모든 정수를 <code>int[] arr</code>에 저장한다.<br>
+      3. <code>Arrays.sort()</code>로 배열을 정렬한다.<br>
+      4. 정렬된 값을 <code>StringBuilder</code>에 차례로 추가하고 개행한다.<br>
+      5. 마지막에 한 번만 출력하여 입출력 부담을 줄인다.</p>
+      
+      <p><strong>부가 설명 (List 방식)</strong> —<br>
+      <code>List&lt;Integer&gt;</code>를 이용해 <code>list.sort(Integer::compareTo)</code>로도 정렬 가능하지만,
+      <code>Integer</code>는 객체형(박싱 타입)이라 내부에서 언박싱 연산이 반복되어 속도가 느리다.
+      또한 <code>System.out.println()</code>을 반복 호출하면 I/O 비용이 커져 시간 초과가 발생할 수 있다.
+      따라서 대용량 입력에서는 <code>int[]</code> + <code>Arrays.sort()</code> + <code>StringBuilder</code> 조합이 필수적이다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li>직사각형들이 서로 겹치거나 맞닿아도 정확히 처리됨(중복 카운트 없음)</li>
-        <li>좌표가 0 또는 100인 경계에 놓여도, 배열 크기를 101로 잡아 안전</li>
-        <li>넓이가 0인 입력(<code>x1 == x2</code> 또는 <code>y1 == y2</code>)은 자연스럽게 아무 칸도 칠해지지 않음</li>
+        <li><code>N = 1</code>일 때 단일 수만 출력 (정렬 불필요)</li>
+        <li>모든 값이 같아도 정상 정렬됨</li>
+        <li>음수, 0, 양수가 섞여 있어도 <code>Arrays.sort()</code>가 정수 기준으로 자동 처리</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      칠하는 루프는 각 직사각형 범위 내에서만 수행되고,
-      최종 카운트는 101×101 전수 검사이므로 전체는 상수에 가까운 <code>O(10⁴)</code>.
-      공간은 <code>paper</code> 배열 <code>O(10⁴)</code>.</p>
+      정렬: <code>O(N log N)</code>, 출력: <code>O(N)</code><br>
+      추가 공간: <code>O(N)</code> (배열 + 출력 버퍼)</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>격자 마킹으로 합집합 면적을 직관적으로 계산</li>
-        <li><strong>[x1, x2), [y1, y2)</strong>로 우상단 경계 미포함을 지켜 중복·경계 오류 방지</li>
-        <li>마지막에 1로 칠해진 칸 수를 합산해 정답 출력</li>
+        <li>입력은 <code>BufferedReader</code>, 출력은 <code>StringBuilder</code>로 처리</li>
+        <li>기본형 배열 + <code>Arrays.sort()</code>로 빠른 정렬</li>
+        <li>모든 결과를 한 번에 출력하여 시간 초과 방지</li>
+        <li>시간 복잡도 <code>O(N log N)</code>, 공간 복잡도 <code>O(N)</code></li>
       </ul>
+
 
 
 
