@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-14 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2635 — 수 이어가기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2635">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1014_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      첫 번째 수 <code>N</code>과 두 번째 수 <code>k</code>를 정하면 이후 수열이 완전히 결정된다.
+      규칙은 <code>aₙ₊₂ = aₙ - aₙ₊₁</code>이며, 음수가 되는 순간 수열이 끝난다.
+      따라서 가능한 모든 <code>k(1 ≤ k ≤ N)</code>에 대해 시뮬레이션을 수행하고,
+      가장 긴 수열을 선택하면 된다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      모든 항은 음수가 되기 전까지 생성되고, 두 번째 수 <code>k</code>는 <code>1</code>부터 <code>N</code>까지의 정수이다.
+      각 시도에서 첫 번째 수 <code>a</code>와 두 번째 수 <code>b</code>로부터
+      다음 항 <code>c = a - b</code>를 구하며, <code>c &lt; 0</code>이면 종료한다.
+      즉, 한 번의 <code>k</code> 시도는 완전히 독립적인 수열 생성 실험이다.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>a</code>, <code>b</code>, <code>c</code>는 각각 현재 항, 바로 다음 항, 다음에 계산될 항을 의미한다.<br>
+      <code>tmp</code> 리스트는 현재 <code>k</code>로 생성한 수열을 담고,
+      <code>list</code>는 그중 가장 긴 수열을 저장한다.</p>
+      
+      <ul>
+        <li><code>tmp.add(a)</code>, <code>tmp.add(b)</code> → 초기 두 항 저장</li>
+        <li><code>c = a - b</code> → 다음 항 계산</li>
+        <li><code>if (c &lt; 0) break;</code> → 음수가 되면 수열 종료</li>
+        <li><code>a = b; b = c;</code> → 다음 단계로 이동</li>
+        <li><code>if (tmp.size() &gt; list.size()) list = tmp;</code> → 최장 수열 갱신</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      각 <code>k</code>에 대해 수열을 만들어 보고,
+      그 길이가 가장 긴 경우를 <code>list</code>에 저장한다.
+      마지막에 수열의 길이와 항들을 공백으로 구분해 출력한다.
+      <code>StringBuilder</code>를 사용해 문자열 연결 비용을 줄였다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li><code>N = 1</code>일 때 두 번째 수는 항상 1이므로 수열은 [1, 1, 0]</li>
+        <li><code>c</code>가 0이 되는 시점에서 다음 항은 음수가 되므로 자연스럽게 종료</li>
+        <li><code>N</code>이 커도 각 수열 길이가 제한적이므로 메모리 초과 우려 없음</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      두 번째 수 <code>k</code>를 1부터 <code>N</code>까지 완전 탐색하므로 <code>O(N)</code>번 반복.
+      각 시뮬레이션은 수열 길이만큼 <code>O(L)</code>이지만, <code>L</code>은 <code>O(N)</code>보다 작다.
+      따라서 전체 복잡도는 <code>O(N²)</code> 수준이며, 리스트 저장 공간은 상수(<code>O(1)</code>)에 가깝다.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>두 번째 수 <code>k</code>를 1~N까지 전부 시도하여 최장 수열 탐색</li>
+        <li>규칙 <code>aₙ₊₂ = aₙ - aₙ₊₁</code>으로 수열 생성</li>
+        <li>가장 긴 수열의 길이와 항들을 출력 (<code>StringBuilder</code> 사용)</li>
+        <li>시간 복잡도 <code>O(N²)</code>, 공간 복잡도 <code>O(1)</code> (리스트 제외)</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2628 — 종이자르기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2628">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1014_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      좌표 평면을 1×1 격자로 보고, 입력으로 주어지는 네 개의 직사각형을
+      각 칸 단위로 칠해(<code>mark</code>) 합집합의 넓이를 카운트한다.
+      좌하단은 포함, 우상단은 <strong>미포함</strong> 범위 <code>[x1, x2) × [y1, y2)</code>로 칠하면
+      겹치는 부분을 중복 없이 정확히 처리할 수 있다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      좌표 범위가 0~100이므로 101×101 배열로 충분하다.
+      각 직사각형은 <code>x1 &lt; x2</code>, <code>y1 &lt; y2</code>를 만족하며,
+      칠할 때는 <code>x = x1 .. x2-1</code>, <code>y = y1 .. y2-1</code>만 포함한다
+      (우상단 경계 미포함).</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>paper[x][y]</code>는 (x, y) 칸이 직사각형들 중 하나에 포함되면 1로 표시한다.<br>
+      입력은 네 줄을 각각 <code>StringTokenizer</code>로 읽고, 각 줄마다
+      직사각형 좌표 <code>(x1, y1, x2, y2)</code>를 받아 칠한다.</p>
+      
+      <ul>
+        <li><code>for (int x = x1; x &lt; x2; x++)</code>, <code>for (int y = y1; y &lt; y2; y++)</code> → <strong>우상단 경계 미포함</strong></li>
+        <li><code>paper[x][y] = 1;</code> → 포함 표시(겹침도 1로 그대로 유지)</li>
+        <li>모든 입력 처리 후, 격자 전체를 순회하며 <code>paper[x][y] == 1</code>인 칸을 카운트</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      네 개의 직사각형을 순서대로 칠한다. 이미 칠해진 칸을 다시 칠해도 값은 1이므로
+      중복 면적이 추가로 더해지지 않는다.
+      마지막에 0~100 범위 전체를 훑으며 1로 표시된 칸 수를 합하면 합집합의 넓이가 된다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>직사각형들이 서로 겹치거나 맞닿아도 정확히 처리됨(중복 카운트 없음)</li>
+        <li>좌표가 0 또는 100인 경계에 놓여도, 배열 크기를 101로 잡아 안전</li>
+        <li>넓이가 0인 입력(<code>x1 == x2</code> 또는 <code>y1 == y2</code>)은 자연스럽게 아무 칸도 칠해지지 않음</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      칠하는 루프는 각 직사각형 범위 내에서만 수행되고,
+      최종 카운트는 101×101 전수 검사이므로 전체는 상수에 가까운 <code>O(10⁴)</code>.
+      공간은 <code>paper</code> 배열 <code>O(10⁴)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>격자 마킹으로 합집합 면적을 직관적으로 계산</li>
+        <li><strong>[x1, x2), [y1, y2)</strong>로 우상단 경계 미포함을 지켜 중복·경계 오류 방지</li>
+        <li>마지막에 1로 칠해진 칸 수를 합산해 정답 출력</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

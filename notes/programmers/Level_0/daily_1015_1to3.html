@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-14 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 문자열을 정수로 변환하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181848">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1014_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열로 주어진 정수값 <code>n_str</code>을 실제 정수형(<code>int</code>)으로 변환하는 문제다.
+        자바에서는 내장 메서드 <code>Integer.parseInt()</code>를 이용하면
+        문자열을 손쉽게 정수로 변환할 수 있다.
+      </p>
+      
+      <ul>
+        <li>
+          <code>Integer.parseInt(n_str)</code>은 문자열이 정수 형태로만 구성되어 있다면  
+          해당 값을 <code>int</code> 타입으로 변환하여 반환한다.
+        </li>
+        <li>
+          예를 들어, <code>"1234"</code> → <code>1234</code>, <code>"007"</code> → <code>7</code> 이 된다.
+        </li>
+        <li>
+          만약 숫자가 아닌 문자가 포함된 경우(<code>"12a4"</code> 등)에는  
+          <code>NumberFormatException</code> 예외가 발생한다.
+        </li>
+        <li>
+          이 문제의 입력은 항상 숫자 문자열임이 보장되므로, 예외 처리를 따로 할 필요는 없다.
+        </li>
+      </ul>
+      
+      <pre><code>// 예시
+      n_str = "10"  →  Integer.parseInt("10") = 10
+      n_str = "00123" → Integer.parseInt("00123") = 123
+      n_str = "987654" → Integer.parseInt("987654") = 987654
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 문자열 길이에 비례하므로 <code>O(n)</code>,  
+        <strong>공간 복잡도</strong>는 상수 공간만 사용하므로 <code>O(1)</code>이다.
+      </p>
+      
+      <p>
+        <strong>주의</strong>
+      </p>
+      <ul>
+        <li><code>Integer.parseInt()</code>는 입력이 32비트 정수 범위를 넘어가면 예외를 던진다.</li>
+        <li>문자열이 음수일 경우(<code>"-5"</code> 등)도 올바르게 파싱되어 <code>-5</code>를 반환한다.</li>
+        <li>단순히 숫자로 구성된 문자열만 다루므로, 별도의 정규식 검증은 불필요하다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><code>Integer.valueOf(n_str)</code>를 사용하면 <code>int</code> 대신 <code>Integer</code> 객체를 반환한다.</li>
+          <li>스트림이나 람다를 쓸 이유는 없으며, 단일 호출이 가장 간단하고 효율적이다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 0 떼기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181847">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1014_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        숫자 문자열 <code>n_str</code>의 앞쪽에 붙은 <strong>선행 0(leading zero)</strong>을 모두 제거하고,
+        남은 숫자 부분만 반환하는 문제다.
+        문자열 전체가 '0'으로만 구성되어 있다면 결과는 <code>"0"</code>이 되어야 한다.
+      </p>
+      
+      <ul>
+        <li>
+          먼저 문자열을 처음부터 순회하면서,
+          <code>'0'</code>이 아닌 첫 번째 문자의 인덱스(<code>idx</code>)를 찾는다.
+          이 위치 이전의 모든 문자는 제거 대상이다.
+        </li>
+        <li>
+          인덱스를 찾은 뒤에는 해당 위치부터 문자열 끝까지
+          문자들을 <code>StringBuilder</code>에 순서대로 추가한다.
+        </li>
+        <li>
+          마지막으로 <code>sb.toString()</code>을 반환하여
+          선행 0이 제거된 문자열을 얻는다.
+        </li>
+        <li>
+          만약 문자열 전체가 <code>'0'</code>으로만 이루어져 있다면,
+          <code>for</code> 루프에서 조건을 만족하지 않으므로
+          결과적으로 <code>sb</code>가 비게 되고,
+          반환값은 빈 문자열이 아니라 <strong>"0"</strong>이 되어야 한다.
+          (이 부분은 추가 조건문으로 보완 가능하다.)
+        </li>
+      </ul>
+      
+      <pre><code>// 예시
+      n_str = "00123" → idx = 2 → sb = "123" → 결과: "123"
+      n_str = "0000"  → 모든 문자가 '0' → 결과: "0"
+      n_str = "100"   → idx = 0 → sb = "100" → 결과: "100"
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 문자열 길이에 비례하는 <code>O(n)</code>,
+        <strong>공간 복잡도</strong>는 <code>StringBuilder</code>를 사용하므로 <code>O(n)</code>이다.
+      </p>
+      
+      <p>
+        <strong>주의</strong>
+      </p>
+      <ul>
+        <li>문자열의 모든 문자가 '0'인 경우를 별도로 처리해야 한다.</li>
+        <li><code>StringBuilder</code> 대신 <code>substring()</code>을 활용하면 더 간단히 구현할 수 있다.</li>
+        <li>불필요한 <code>lastIndexOf()</code> 호출은 실제 로직에는 영향을 주지 않으므로 제거 가능하다.</li>
+      </ul>
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 두 수의 합</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181846">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1014_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        매우 큰 숫자 문자열 <code>a</code>, <code>b</code>가 주어졌을 때, 두 수의 <strong>합</strong>을 문자열로 반환하는 문제다.
+        내장 정수형(<code>int</code>, <code>long</code>)으로는 범위를 초과할 수 있으므로, <strong>문자열을 자릿수 단위로 더하면서 올림(carry)을 처리</strong>하는 방식으로 해결한다.
+      </p>
+      
+      <ul>
+        <li>
+          포인터 <code>i</code>, <code>j</code>를 각각 <code>a</code>, <code>b</code>의 마지막 인덱스(일의 자리)로 두고, <code>carry</code>를 0으로 초기화한다.
+        </li>
+        <li>
+          반복문에서 현재 자리의 숫자 <code>x</code>, <code>y</code>를 추출한다.
+          인덱스가 범위를 벗어나면 해당 자릿수는 <code>0</code>으로 간주한다.
+        </li>
+        <li>
+          <code>sum = x + y + carry</code>로 더하고, 현재 자릿수는 <code>sum % 10</code>을 <code>StringBuilder</code>에 추가한다.
+          다음 자릿수로 넘길 올림은 <code>carry = sum / 10</code>으로 갱신한다.
+        </li>
+        <li>
+          계산은 일의 자리부터 진행되므로 결과가 역순으로 쌓인다. 따라서 마지막에 <code>sb.reverse()</code>로 뒤집어 최종 문자열을 만든다.
+        </li>
+      </ul>
+      
+      <pre><code>// 예시 1
+      a = "12345", b = "678"
+      반복 진행(뒤에서부터):
+        5+8=13 → 자리수 3, carry 1
+        4+7+1=12 → 자리수 2, carry 1
+        3+6+1=10 → 자리수 0, carry 1
+        2+0+1=3  → 자리수 3, carry 0
+        1+0+0=1  → 자리수 1, carry 0
+      역순으로 쌓인 "32031"을 뒤집으면 결과 "13023"
+      </code></pre>
+      
+      <pre><code>// 예시 2 (긴 올림 체인)
+      a = "99999999999999999999"
+      b = "1"
+      매 자리마다 9+0+carry = 10 → 자리수 0, carry 1 반복
+      마지막에 carry 1을 추가 → 결과 "100000000000000000000"
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 두 문자열 길이 합에 비례하는 <code>O(n)</code>,
+        <strong>공간 복잡도</strong>는 결과 길이에 비례하는 <code>O(n)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li>덧셈은 반드시 <strong>오른쪽(일의 자리)</strong>부터 수행해야 올림을 정확히 전달할 수 있다.</li>
+        <li>두 문자열 길이가 달라도 인덱스가 음수인 자리는 <code>0</code>으로 처리해야 한다.</li>
+        <li>마지막 반복 후 <code>carry &gt; 0</code>이면 한 자리 더 추가해야 한다(루프 조건에서 이미 처리).</li>
+        <li>계산을 역순으로 추가하므로, 최종 반환 전에 <code>reverse()</code>를 호출해야 올바른 자릿수가 된다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
