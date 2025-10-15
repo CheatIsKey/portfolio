@@ -214,7 +214,7 @@
       
       <p>
         <strong>시간 복잡도</strong>는 내부 검색 알고리즘에 따라 달라질 수 있다.  
-        일반적으로 입력 길이에 비례하는 선형 시간에 가깝게 동작하지만(<em>확실하지 않음</em>),  
+        일반적으로 입력 길이에 비례하는 선형 시간에 가깝게 동작하지만,  
         최악의 경우 <code>O(N × M)</code>일 수 있다(<code>N</code>=<code>my_string</code> 길이, <code>M</code>=<code>target</code> 길이).  
         <strong>공간 복잡도</strong>는 추가 자료구조를 거의 쓰지 않으므로 <code>O(1)</code>이다.
       </p>
@@ -223,7 +223,7 @@
       <ul>
         <li><code>target</code>이 <code>null</code>이면 <code>NullPointerException</code>이 발생한다.</li>
         <li>대소문자를 무시해야 하는 요구사항이라면 <code>toLowerCase()</code>/<code>toUpperCase()</code>로 정규화 후 비교가 필요하다.</li>
-        <li>문자열의 유니코드 정규화(NFC/NFD)가 서로 다르면 동일하게 보이는 문자가 불일치할 수 있다(<em>특수 케이스</em>).</li>
+        <li>문자열의 유니코드 정규화(NFC/NFD)가 서로 다르면 동일하게 보이는 문자가 불일치할 수 있다.</li>
       </ul>
       
       <details>
