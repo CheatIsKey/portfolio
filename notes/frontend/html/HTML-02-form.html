@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HTML 기본기 — spring-jpa.dev</title>
+  <title>HTML 회원 등록 폼 — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -24,120 +24,110 @@
 
     <!-- 우측: 글 본문 -->
     <article class="prose">
-      <h1>HTML 핵심 개념</h1>
+      <h1>회원 등록 폼 만들기</h1>
       <p class="muted">작성일 2025-10-18 · 분류: HTML</p>
 
       <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p>웹페이지는 보통 <b>HTML</b>(구조) + <b>CSS</b>(스타일) + <b>JavaScript</b>(동작)의 조합으로 구성된다.
-      데이터베이스 연동이 없는 정적 환경이라면 이 세 가지로도 충분히 실습과 학습이 가능하다.</p>
+      <p>이 장에서는 <b>회원 등록</b> 폼을 직접 만들어보며 <code>&lt;div&gt;</code>, <code>&lt;form&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;label&gt;</code>, <code>&lt;button&gt;</code>의 기초를 익힌다.
+      HTML만으로도 많은 <b>기본 검증</b>(이메일 형식, 필수 입력 등)을 지원하며, CSS/JavaScript 없이도 어느 정도 UX를 확보할 수 있다.</p>
+
+      <!-- 2. div와 span -->
+      <h2 class="section">div와 span</h2>
       <ul>
-        <li><b>HTML</b>: 문서의 뼈대(제목, 문단, 목록, 링크, 이미지 등)와 의미(시맨틱)를 표현한다.</li>
-        <li><b>CSS</b>: 색상, 여백, 배치, 반응형 등 시각적 표현을 담당한다.</li>
-        <li><b>JavaScript</b>: 상호작용(폼 검증, 동적 콘텐츠, 이벤트 처리 등)을 구현한다.</li>
+        <li><b>&lt;div&gt;</b>: <b>블록 레벨</b> 요소. 기본적으로 가로 전체를 차지하고, 내용이 없으면 높이가 0에 가깝지만(패딩/보더가 없다면), <b>“자리” 자체는 차지</b>한다. 레이아웃 그룹핑에 사용.</li>
+        <li><b>&lt;span&gt;</b>: <b>인라인</b> 요소. 문장 흐름 안에서 일부 텍스트나 아이콘을 감싸는 데 사용.</li>
+      </ul>
+
+      <!-- 3. form의 핵심 속성 -->
+      <h2 class="section">form의 핵심 속성</h2>
+      <ul>
+        <li><code>action</code>: 데이터를 보낼 <b>URL</b>.</li>
+        <li><code>method</code>: HTTP 메서드(보통 <b>GET</b> 또는 <b>POST</b>).</li>
+        <li><code>enctype</code>: 전송 인코딩(파일 업로드 시 <code>multipart/form-data</code> 등).</li>
+      </ul>
+      <p class="muted">참고: 전통적인 HTML 폼은 주로 <code>application/x-www-form-urlencoded</code>로 전송된다. <b>JSON/XML 기반 REST API</b> 전송은 보통 <code>fetch()</code> 등 JS를 써서 구현한다(이 장에서는 폼 기본에 집중).</p>
+
+      <!-- 4. 회원 등록 폼 (접근성/자동완성 포함) -->
+      <h2 class="section">회원 등록 폼</h2>
+      <p>아래 예시는 <b>접근성</b>과 <b>자동완성</b>을 고려해 <code>id</code>/<code>for</code>/<code>name</code>/<code>autocomplete</code>를 명시하고, HTML5 기본 검증을 사용한다.</p>
+
+      <pre><code>&lt;form action="/signup" method="post"&gt;
+  &lt;h2&gt;회원등록&lt;/h2&gt;
+
+  &lt;div&gt;
+    &lt;label for="nickname"&gt;사용자 이름&lt;/label&gt;
+    &lt;input id="nickname" name="nickname" type="text" required
+           minlength="2" maxlength="20" autocomplete="nickname"&gt;
+    &lt;span aria-live="polite"&gt;알림&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label for="userEmail"&gt;이메일 주소&lt;/label&gt;
+    &lt;input id="userEmail" name="email" type="email" required
+           inputmode="email" autocomplete="email"&gt;
+    &lt;span aria-live="polite"&gt;알림&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label for="userPassword"&gt;비밀번호&lt;/label&gt;
+    &lt;input id="userPassword" name="password" type="password" required
+           minlength="8" autocomplete="new-password"&gt;
+    &lt;span aria-live="polite"&gt;알림&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label for="confirmPassword"&gt;비밀번호 확인&lt;/label&gt;
+    &lt;input id="confirmPassword" name="confirmPassword" type="password" required
+           minlength="8" autocomplete="new-password"&gt;
+    &lt;span aria-live="polite"&gt;알림&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;div&gt;
+    &lt;label for="phone"&gt;휴대폰번호&lt;/label&gt;
+    &lt;input id="phone" name="phone" type="tel"
+           inputmode="tel" autocomplete="tel-national"
+           placeholder="010-1234-5678"
+           pattern="^01[016789]-\\d{3,4}-\\d{4}$"&gt;
+    &lt;span&gt;예시: 010-1234-5678&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;button type="submit"&gt;등록&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+      <h3 class="section">포인트</h3>
+      <ul>
+        <li><b>label ↔ input 연결</b>: <code>for</code>와 <code>id</code>가 일치해야 포커스 이동/스크린리더에 유리.</li>
+        <li><b>name</b>: 서버가 받는 <b>파라미터 이름</b>. <code>name</code>이 없으면 데이터가 전송되지 않는다.</li>
+        <li><b>required/minlength/pattern</b>: HTML5 기본 검증. JS 없이도 브라우저가 형식을 체크한다.</li>
+        <li><b>autocomplete</b>: 브라우저 자동완성 힌트 제공(UX 향상).</li>
+        <li><b>type=email</b>: <code>@</code> 미포함 등 형식 오류 시 브라우저가 기본 메시지를 보여준다.</li>
+        <li><b>button type="submit"</b>: 폼 내부 제출 버튼은 <b>반드시</b> <code>type="submit"</code>으로.</li>
       </ul>
 
       <figure class="figure">
-        <img src="/assets/notes/frontend/html/HTML-01-basics/diagram-html-css-js.png" alt="HTML, CSS, JS 역할 다이어그램">
-        <figcaption>HTML(구조) · CSS(스타일) · JS(동작)의 역할 구분</figcaption>
+        <img src="/assets/notes/frontend/html/HTML-02-form/email-validation.png" alt="이메일 입력 형식 검증 예시 (브라우저 기본 에러 풍선)">
+        <figcaption>브라우저의 기본 이메일 형식 검증 예시</figcaption>
       </figure>
 
-      <!-- 2. 개발 준비물 -->
-      <h2 class="section">개발 준비물</h2>
-      <p><b>VS Code</b>를 사용한다. 추천 확장:</p>
-      <ul>
-        <li>HTML CSS Support</li>
-        <li>HTML/CSS/JavaScript Snippets</li>
-        <li>Live Server (저장 시 자동 새로고침로 빠른 피드백)</li>
-      </ul>
+      <!-- 5. 여러 필드 묶기 레이아웃 힌트 -->
+      <h2 class="section">여러 필드 묶기: 레이아웃 힌트</h2>
+      <p>지금은 스타일을 적용하지 않았지만, 다음 CSS 챕터에서 <code>&lt;div&gt;</code>들을 그리드/플렉스로 정렬하고 간격, 오류 스타일(<code>.is-invalid</code>) 등을 추가할 예정이다.</p>
 
-      <figure class="figure">
-        <img src="/assets/notes/frontend/html/HTML-01-basics/vscode-extensions.png" alt="VS Code 추천 확장 프로그램 목록 스크린샷">
-        <figcaption>VS Code와 추천 확장</figcaption>
-      </figure>
-
-      <!-- 3. HTML 문서의 골격 -->
-      <h2 class="section">HTML 문서의 골격</h2>
-      <p>현대 표준은 <b>HTML5</b>이며, 문서는 다음 구조를 기본으로 한다.</p>
-      <pre><code>&lt;!doctype html&gt;
-&lt;html lang="ko"&gt;
-&lt;head&gt;
-  &lt;meta charset="utf-8" /&gt;
-  &lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
-  &lt;title&gt;문서 제목&lt;/title&gt;
-  &lt;link rel="stylesheet" href="style.css" /&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;h1&gt;안녕하세요!&lt;/h1&gt;
-  &lt;p&gt;여기에 본문이 들어갑니다.&lt;/p&gt;
-
-  &lt;script src="javascript.js"&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
-
-      <ul>
-        <li><code>&lt;!doctype html&gt;</code>: 현재 문서가 HTML5 규격임을 명시하는 선언(약속).</li>
-        <li><code>&lt;html lang="ko"&gt;</code>: 문서 루트 요소. <code>lang</code>은 주요 언어(한국어) 표시로 접근성/검색에 도움.</li>
-        <li><code>&lt;head&gt;</code>: 문서 자체의 정보(메타데이터, 스타일, 제목 등).</li>
-        <li><code>&lt;body&gt;</code>: 화면에 표시될 실제 콘텐츠.</li>
-      </ul>
-
-      <!-- 4. head의 핵심 메타 -->
-      <h2 class="section">head의 핵심 메타</h2>
-      <h3 class="section">문자 인코딩: UTF-8</h3>
-      <p>컴퓨터가 사람의 문자를 올바르게 해석하도록 인코딩을 지정해야 한다. 한국어를 비롯한 대부분의 언어를 안전하게
-      표현하기 위해 <b>UTF-8</b>을 사용한다.</p>
-      <pre><code>&lt;meta charset="utf-8"&gt;</code></pre>
-
-      <h3 class="section">반응형 기본값: viewport</h3>
-      <p>모바일 화면에서도 제대로 보이도록 <code>viewport</code>를 설정한다. 화면 너비를 기기 너비에 맞추고 초기 확대 배율을 1로 둔다.</p>
-      <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></pre>
-
-      <h3 class="section">문서 제목과 정적 자원</h3>
-      <p><code>&lt;title&gt;</code>은 브라우저 탭 제목으로 쓰인다. 정적 파일은 보통 <code>link</code>와 <code>script</code>로 연결한다.</p>
-      <pre><code>&lt;title&gt;Frontend 연습&lt;/title&gt;
-&lt;link rel="stylesheet" href="style.css"&gt;
-&lt;script src="javascript.js" defer&gt;&lt;/script&gt;</code></pre>
-      <p class="muted">팁: <code>defer</code>는 HTML 파싱이 끝난 뒤 스크립트를 실행해 초기 렌더링을 막지 않는다.</p>
-
-      <!-- 5. body: 화면에 보이는 콘텐츠 -->
-      <h2 class="section">body: 화면에 보이는 콘텐츠</h2>
-      <p><code>&lt;body&gt;</code>에는 실제로 보일 텍스트, 이미지, 링크, 폼 등을 배치한다. HTML 요소는 대체로
-      <code>&lt;tag attr="값"&gt;내용&lt;/tag&gt;</code> 형태이며, 일부는 닫는 태그가 없는 빈 요소(self-closing)다.</p>
-      <pre><code>&lt;h1&gt;제목 1&lt;/h1&gt;
-&lt;p&gt;문단입니다.&lt;/p&gt;
-&lt;img src="logo.png" alt="사이트 로고"&gt;
-&lt;a href="https://example.com"&gt;외부 링크&lt;/a&gt;</code></pre>
-
-      <h3 class="section">시맨틱 태그</h3>
-      <p>HTML5는 의미가 담긴 태그를 제공한다. 이는 접근성, SEO, 유지보수에 유리하다.</p>
-      <ul>
-        <li><code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;footer&gt;</code></li>
-      </ul>
-
-      <!-- 6. 파일 구성 예시 -->
-      <h2 class="section">파일 구성 예시</h2>
-      <p>가장 기본적인 연습 구조는 다음과 같다.</p>
-      <pre><code>index.html
-style.css
-javascript.js</code></pre>
-
-      <p>이 구조만으로도 정적 페이지를 만들고, CSS로 스타일링하며, JS로 간단한 상호작용을 붙일 수 있다.</p>
-
-      <!-- 7. 정리 -->
+      <!-- 6. 요약 -->
       <h2 class="section">정리</h2>
       <ul>
-        <li>HTML은 구조, CSS는 스타일, JS는 동작을 담당한다.</li>
-        <li><code>&lt;!doctype html&gt;</code>, <code>lang</code>, <code>charset</code>, <code>viewport</code>는 HTML5의 기본 세팅이다.</li>
-        <li>시맨틱 태그를 쓰면 가독성과 접근성이 좋아진다.</li>
+        <li><code>&lt;form&gt;</code>은 서버 전송의 기본 단위다. <code>action</code>은 URL, <code>method</code>는 전송 방식.</li>
+        <li>HTML5 검증 속성으로 기본 UX를 확보하고, 상세 검증은 JS/서버에서 보완한다.</li>
+        <li>접근성을 위해 <code>label</code>–<code>input</code> 연결, <code>name</code> 지정, <code>autocomplete</code> 제공을 습관화한다.</li>
       </ul>
 
-      <p class="muted">다음: 간단한 <b>회원 등록</b> 페이지를 HTML로 만들어보며 폼 요소와 입력 검증 UX의 기초를 살펴본다.</p>
+      <p class="muted">다음: <b>CSS 챕터 1</b>에서 레이아웃과 폼 스타일링을 적용한다.</p>
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
-  <!-- TOC 자동 생성 (기존 Validation 페이지와 동일 동작) -->
+  <!-- TOC 자동 생성 -->
   <script>
   (function(){
     const article = document.querySelector('article.prose');
