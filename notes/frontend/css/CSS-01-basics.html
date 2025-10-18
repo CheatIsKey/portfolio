@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spring_Validation — spring-jpa.dev</title>
+  <title>CSS 기본 개념 — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -24,96 +24,183 @@
 
     <!-- 우측: 글 본문 -->
     <article class="prose">
-      <h1>Validation</h1>
-      <p class="muted">작성일 2025-08-17 · 분류: Spring Boot, Thymeleaf</p>
+      <h1>CSS 기본 개념</h1>
+      <p class="muted">작성일 2025-10-18 · 분류: CSS</p>
 
       <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p>2025-08-17 기준 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
-      오류 화면으로 이동한다. 이 과정에서 입력된 데이터는 사라진다.</p>
-      <p>앞으로는 입력값을 유지하고, 어떤 오류가 있었는지 명확히 보여주는 방식으로 개선하려 한다.</p>
-      <p>이전에 작성한 <b>스프링 부트</b> 챕터에서도 다뤘듯이, 컨트롤러는 들어온 HTTP 요청이 유효한지 검증해야 한다.
-      검증은 보통 두 축으로 나뉜다.</p>
+      <p>회원 등록 HTML 페이지는 구조만 있고 스타일이 없어 구식처럼 보인다. 여기에 <b>CSS</b>를 적용하면 우리가 평소 보는 깔끔한 폼과 레이아웃을 손쉽게 만들 수 있다. CSS는 HTML의 <b>표현(색, 여백, 배치, 반응형)</b>을 담당한다.</p>
+
+      <!-- 2. CSS를 적용하는 3가지 방법 -->
+      <h2 class="section">CSS 적용 방법: 3가지</h2>
+
+      <h3 class="section">1) 인라인 스타일 (inline style)</h3>
+      <p>태그 안의 <code>style</code> 속성에 직접 선언한다.</p>
+      <pre><code>&lt;label style="color: red;"&gt;이름&lt;/label&gt;</code></pre>
+
+      <h3 class="section">2) 내부 스타일 (internal stylesheet)</h3>
+      <p><code>&lt;head&gt;</code> 안의 <code>&lt;style&gt;</code> 블록에 선언한다.</p>
+      <pre><code>&lt;head&gt;
+  &lt;style&gt;
+    label { color: red; }   /* 내부 스타일 */
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;label&gt;아이디&lt;/label&gt;
+&lt;/body&gt;</code></pre>
+
+      <h3 class="section">3) 외부 스타일 (external stylesheet)</h3>
+      <p>별도의 <code>style.css</code> 파일을 링크한다.</p>
+      <pre><code>&lt;head&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;</code></pre>
+      <p><code>style.css</code> 파일에는 내부 스타일과 동일한 문법을 사용한다(예: <code>label { color: red; }</code>).</p>
+
+      <h3 class="section">장단점 요약</h3>
+      <table>
+        <thead>
+          <tr><th>방식</th><th>장점</th><th>단점</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>인라인 스타일</td>
+            <td>
+              <ul>
+                <li>아주 빠르게 한 요소만 수정 가능</li>
+                <li>CSS 파일 없이도 즉시 테스트</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>재사용/유지보수 어려움(혼잡)</li>
+                <li>우선순위가 강해 충돌 유발</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>내부 스타일</td>
+            <td>
+              <ul>
+                <li>한 문서 안에서 일관 관리 용이</li>
+                <li>구현/디버깅이 간단</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>다른 페이지와 스타일 공유 어려움</li>
+                <li>문서가 길어지면 가독성 저하</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>외부 스타일</td>
+            <td>
+              <ul>
+                <li>여러 페이지에서 재사용 가능</li>
+                <li>캐싱으로 성능 향상</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>파일 의존성(링크 깨지면 적용 실패)</li>
+                <li>초기 로드에 네트워크 의존</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">우선순위(특이성) 간단 정리</h3>
       <ul>
-        <li><b>클라이언트 검증(JavaScript)</b>: 빠르지만 우회해서 POST를 보내는 등 보안에 취약.</li>
-        <li><b>서버 검증</b>: 신뢰성은 높지만 사용자 경험이 떨어질 수 있음.</li>
-        <li><b>권장</b>: 클라이언트와 서버 검증을 적절히 조합해 보안과 UX를 동시에 확보.</li>
+        <li><b>인라인 &gt; 내부/외부</b> (단, <code>!important</code>와 구체적 선택자, 선언 순서의 영향도 받음)</li>
+        <li>선택자 특이성: <b>id</b> &gt; <b>class/속성/가상클래스</b> &gt; <b>태그/가상요소</b></li>
+        <li>동일 특이성일 때는 <b>나중에 선언된</b> 규칙이 이김</li>
       </ul>
 
-      <!-- 2. PRG (성공 흐름) -->
-      <h2 class="section">PRG 패턴(성공 흐름)</h2>
-      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 중복 제출과 뒤로가기 문제를 막는 전형적인 패턴이다.
-      사용자가 <b>POST</b>로 데이터를 제출하면 서버는 저장을 마친 뒤 <b>Redirect</b> 응답을 보내고,
-      브라우저는 최종 <b>GET</b>으로 결과 페이지를 조회한다. 따라서 새로고침을 해도 GET만 반복되어 데이터가 다시 저장되지 않는다.</p>
-
-      <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-01-PRG.png" alt="게시판 PRG 이미지">
-        <figcaption>성공적인 저장 과정 (PRG: Post → Redirect → Get)</figcaption>
-      </figure>
-
-      <!-- 3. 검증 실패 흐름 -->
-      <h2 class="section">검증 실패 흐름</h2>
-      <p>검증이 실패하면 <b>PRG로 가지 않고</b> 같은 폼 화면을 다시 렌더링한다. 이때 사용자가 입력했던 값과
-      필드별 오류 메시지를 함께 보여줘야 UX가 좋아진다.</p>
-
-      <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-02-Validation.png" alt="게시판 Validation 이미지">
-        <figcaption>검증 실패: 입력값 유지 + 오류 메시지 표시</figcaption>
-      </figure>
-
-      <!-- 4. Validation 구현 메모 (진행 중) -->
-      <h2 class="section">Validation 구현 메모 (진행 중)</h2>
-
-      <h3 class="section">BindingResult 기본</h3>
-      <p>컨트롤러에서 폼 객체 바로 뒤에 <code>BindingResult</code>를 두면 바인딩/검증 오류를 담을 수 있다.
-      오류가 있더라도 예외로 튀지 않고 같은 뷰를 다시 렌더링하는 데 활용한다.</p>
-      <pre><code>@PostMapping("/members/new")
-public String save(@Valid MemberForm form, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-        return "members/newForm"; // 입력값 + 오류 메시지 표시
-    }
-    // 저장 로직...
-    return "redirect:/members";
-}</code></pre>
-
-      <h3 class="section">addError()</h3>
-      <p>개별 필드가 아닌 <b>글로벌 오류</b>를 수동으로 추가할 때 쓴다. (또는 특정 상황에서 필드 오류를 직접 구성)</p>
-      <pre><code>if (form.getStartDate().isAfter(form.getEndDate())) {
-    bindingResult.addError(new ObjectError("form",
-        "종료일은 시작일보다 빠를 수 없습니다."));
-}</code></pre>
-
-      <h3 class="section">reject()</h3>
-      <p>글로벌 오류를 <b>메시지 코드</b> 기반으로 추가한다. <code>messages.properties</code>에 코드-문구를 매핑해두면
-      다국어 처리/문구 관리가 편해진다.</p>
-      <pre><code>if (!isBusinessOpen(form.getVisitTime())) {
-    bindingResult.reject("business.closed"); // 메시지 코드
-}</code></pre>
-
-      <h3 class="section">rejectValue()</h3>
-      <p><b>필드 오류</b>를 메시지 코드로 추가한다. 템플릿(Thymeleaf)에서는 <code>th:errors</code>/<code>#fields</code>로 표시.</p>
-      <pre><code>if (form.getEmail() == null || !EMAIL.matcher(form.getEmail()).matches()) {
-    bindingResult.rejectValue("email", "email.invalid");
-}</code></pre>
-
-      <h3 class="section">Thymeleaf에서 오류 표시</h3>
-      <pre><code>&lt;input type="text" th:field="*{email}"
-       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"&gt;
-&lt;div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">이메일 오류&lt;/div&gt;</code></pre>
-
-      <!-- 5. 정리 -->
-      <h2 class="section">정리</h2>
+      <!-- 3. 선택자: id vs class -->
+      <h2 class="section">선택자: id와 class</h2>
+      <pre><code>&lt;div id="wrapper" class="wrapper"&gt;...&lt;/div&gt;</code></pre>
       <ul>
-        <li>성공: PRG로 중복 제출 방지.</li>
-        <li>실패: 같은 폼 재렌더링(입력값 유지 + 오류 메시지).</li>
-        <li><code>BindingResult</code>로 오류 수집: <code>addError</code> / <code>reject</code> / <code>rejectValue</code>.</li>
+        <li><code>#wrapper</code> (id): 문서에서 <b>중복 불가</b>, 특정 하나를 정확히 지정</li>
+        <li><code>.wrapper</code> (class): <b>중복 허용</b>, 여러 요소에 공통 스타일</li>
+      </ul>
+
+      <!-- 4. CSS 박스 모델 -->
+      <h2 class="section">박스 모델(Box Model)</h2>
+      <p>모든 요소는 박스로 취급된다. 안쪽부터 <b>content → padding → border → margin</b> 순서다.</p>
+      <ul>
+        <li><b>content</b>: <code>width</code>, <code>height</code>로 크기 지정</li>
+        <li><b>padding</b>: 콘텐츠와 테두리 사이의 내부 여백(배경색 적용됨)</li>
+        <li><b>border</b>: 테두리 두께/선/색</li>
+        <li><b>margin</b>: 박스 바깥쪽 간격(요소 간 거리)</li>
+      </ul>
+
+      <!-- 5. 레이아웃: display와 position -->
+      <h2 class="section">레이아웃: display와 position</h2>
+      <h3 class="section">display</h3>
+      <ul>
+        <li><b>block</b>: 줄바꿈을 발생, 가로폭(가능한 영역)을 채움</li>
+        <li><b>inline</b>: 줄 안에 흐르며 내용 너비만 차지(폭/높이 직접 지정 어려움)</li>
+        <li><b>inline-block</b>: 줄 안에 흐르되 폭/높이 지정 가능</li>
+        <li><b>none</b>: 렌더 트리에서 제거(보이지 않음, 자리도 차지 X)</li>
+      </ul>
+
+      <h3 class="section">position</h3>
+      <ul>
+        <li><b>static</b>: 기본 흐름(좌표 속성 사용 불가)</li>
+        <li><b>relative</b>: 자기 원래 위치를 기준으로 이동(공간은 유지)</li>
+        <li><b>absolute</b>: 가장 가까운 <b>position이 static이 아닌</b> 조상 기준</li>
+        <li><b>fixed</b>: <b>뷰포트</b> 기준으로 고정(스크롤해도 고정 표시)</li>
+      </ul>
+
+      <!-- 6. Flexbox -->
+      <h2 class="section">Flexbox 핵심</h2>
+      <p>부모-자식 관계로 동작한다. 부모에 <code>display: flex;</code>를 선언하면 자식들이 유연하게 줄 바꿈/정렬된다.</p>
+      <pre><code>.form {
+  display: flex;
+  flex-direction: column;   /* row | column | row-reverse | column-reverse */
+  gap: 12px;
+}</code></pre>
+
+      <h3 class="section">주요 속성</h3>
+      <ul>
+        <li><b>flex-direction</b>: 주 축(main axis) 방향(<code>row</code>가 기본, <code>column</code>은 세로)</li>
+        <li><b>justify-content</b>: <b>주 축</b> 정렬(앞/가운데/끝, <code>space-between</code>/<code>around</code>/<code>evenly</code>)</li>
+        <li><b>align-items</b>: <b>교차 축</b>(cross axis) 정렬(상단/가운데/하단/늘이기)</li>
+        <li><b>align-content</b>: <b>여러 줄</b>로 래핑된 행들의 교차 축 정렬(복수 행에서만 의미)</li>
+      </ul>
+
+      <figure class="figure">
+        <!-- 이미지는 네가 첨부해줄 예정이므로, 프로젝트 자산 경로 예시를 잡아둔다 -->
+        <img src="/assets/notes/frontend/css/CSS-01-basics/flexbox-cheatsheet.png" alt="CSS Flexbox 속성 요약 이미지">
+        <figcaption>
+          CSS Flexbox 요약 이미지. 
+          <span class="muted">이미지 출처: 
+            <a href="https://medium.com/@MakeComputerScienceGreatAgain/understanding-flexbox-a-comprehensive-guide-992bcd5f04de" rel="nofollow noopener" target="_blank">
+              Understanding Flexbox — A Comprehensive Guide (Medium)
+            </a>
+          </span>
+        </figcaption>
+      </figure>
+
+      <p class="muted">권장 사용법: 저작권 표기를 <b>그림 바로 아래 캡션(figcaption)</b>에 링크와 함께 명시하고, 문서 끝의 “참고/출처” 섹션에도 동일 링크를 한 번 더 적어 두면 가장 안전하다.</p>
+
+      <!-- 7. 참고/출처 -->
+      <h2 class="section">참고/출처</h2>
+      <ul>
+        <li>
+          Flexbox 이미지: 
+          <a href="https://medium.com/@MakeComputerScienceGreatAgain/understanding-flexbox-a-comprehensive-guide-992bcd5f04de" rel="nofollow noopener" target="_blank">
+            Understanding Flexbox — A Comprehensive Guide (Medium)
+          </a>
+        </li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
-  <!-- TOC 자동 생성 (JPQL 페이지와 동일 동작) -->
+  <!-- TOC 자동 생성 (기존 페이지와 동일) -->
   <script>
   (function(){
     const article = document.querySelector('article.prose');
@@ -136,6 +223,5 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
     });
   })();
   </script>
-
 </body>
 </html>
