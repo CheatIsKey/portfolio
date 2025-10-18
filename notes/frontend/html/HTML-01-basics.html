@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spring_Validation — spring-jpa.dev</title>
+  <title>HTML 기본기 — spring-jpa.dev</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -24,96 +24,120 @@
 
     <!-- 우측: 글 본문 -->
     <article class="prose">
-      <h1>Validation</h1>
-      <p class="muted">작성일 2025-08-17 · 분류: Spring Boot, Thymeleaf</p>
+      <h1>HTML 핵심 개념</h1>
+      <p class="muted">작성일 2025-10-18 · 분류: HTML</p>
 
       <!-- 1. 개요 -->
       <h2 class="section">개요</h2>
-      <p>2025-08-17 기준 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
-      오류 화면으로 이동한다. 이 과정에서 입력된 데이터는 사라진다.</p>
-      <p>앞으로는 입력값을 유지하고, 어떤 오류가 있었는지 명확히 보여주는 방식으로 개선하려 한다.</p>
-      <p>이전에 작성한 <b>스프링 부트</b> 챕터에서도 다뤘듯이, 컨트롤러는 들어온 HTTP 요청이 유효한지 검증해야 한다.
-      검증은 보통 두 축으로 나뉜다.</p>
+      <p>웹페이지는 보통 <b>HTML</b>(구조) + <b>CSS</b>(스타일) + <b>JavaScript</b>(동작)의 조합으로 구성된다.
+      데이터베이스 연동이 없는 정적 환경이라면 이 세 가지로도 충분히 실습과 학습이 가능하다.</p>
       <ul>
-        <li><b>클라이언트 검증(JavaScript)</b>: 빠르지만 우회해서 POST를 보내는 등 보안에 취약.</li>
-        <li><b>서버 검증</b>: 신뢰성은 높지만 사용자 경험이 떨어질 수 있음.</li>
-        <li><b>권장</b>: 클라이언트와 서버 검증을 적절히 조합해 보안과 UX를 동시에 확보.</li>
+        <li><b>HTML</b>: 문서의 뼈대(제목, 문단, 목록, 링크, 이미지 등)와 의미(시맨틱)를 표현한다.</li>
+        <li><b>CSS</b>: 색상, 여백, 배치, 반응형 등 시각적 표현을 담당한다.</li>
+        <li><b>JavaScript</b>: 상호작용(폼 검증, 동적 콘텐츠, 이벤트 처리 등)을 구현한다.</li>
       </ul>
 
-      <!-- 2. PRG (성공 흐름) -->
-      <h2 class="section">PRG 패턴(성공 흐름)</h2>
-      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 중복 제출과 뒤로가기 문제를 막는 전형적인 패턴이다.
-      사용자가 <b>POST</b>로 데이터를 제출하면 서버는 저장을 마친 뒤 <b>Redirect</b> 응답을 보내고,
-      브라우저는 최종 <b>GET</b>으로 결과 페이지를 조회한다. 따라서 새로고침을 해도 GET만 반복되어 데이터가 다시 저장되지 않는다.</p>
-
       <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-01-PRG.png" alt="게시판 PRG 이미지">
-        <figcaption>성공적인 저장 과정 (PRG: Post → Redirect → Get)</figcaption>
+        <img src="/assets/notes/frontend/html/HTML-01-basics/diagram-html-css-js.png" alt="HTML, CSS, JS 역할 다이어그램">
+        <figcaption>HTML(구조) · CSS(스타일) · JS(동작)의 역할 구분</figcaption>
       </figure>
 
-      <!-- 3. 검증 실패 흐름 -->
-      <h2 class="section">검증 실패 흐름</h2>
-      <p>검증이 실패하면 <b>PRG로 가지 않고</b> 같은 폼 화면을 다시 렌더링한다. 이때 사용자가 입력했던 값과
-      필드별 오류 메시지를 함께 보여줘야 UX가 좋아진다.</p>
+      <!-- 2. 개발 준비물 -->
+      <h2 class="section">개발 준비물</h2>
+      <p><b>VS Code</b>를 사용한다. 추천 확장:</p>
+      <ul>
+        <li>HTML CSS Support</li>
+        <li>HTML/CSS/JavaScript Snippets</li>
+        <li>Live Server (저장 시 자동 새로고침로 빠른 피드백)</li>
+      </ul>
 
       <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-02-Validation.png" alt="게시판 Validation 이미지">
-        <figcaption>검증 실패: 입력값 유지 + 오류 메시지 표시</figcaption>
+        <img src="/assets/notes/frontend/html/HTML-01-basics/vscode-extensions.png" alt="VS Code 추천 확장 프로그램 목록 스크린샷">
+        <figcaption>VS Code와 추천 확장</figcaption>
       </figure>
 
-      <!-- 4. Validation 구현 메모 (진행 중) -->
-      <h2 class="section">Validation 구현 메모 (진행 중)</h2>
+      <!-- 3. HTML 문서의 골격 -->
+      <h2 class="section">HTML 문서의 골격</h2>
+      <p>현대 표준은 <b>HTML5</b>이며, 문서는 다음 구조를 기본으로 한다.</p>
+      <pre><code>&lt;!doctype html&gt;
+&lt;html lang="ko"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
+  &lt;title&gt;문서 제목&lt;/title&gt;
+  &lt;link rel="stylesheet" href="style.css" /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;안녕하세요!&lt;/h1&gt;
+  &lt;p&gt;여기에 본문이 들어갑니다.&lt;/p&gt;
 
-      <h3 class="section">BindingResult 기본</h3>
-      <p>컨트롤러에서 폼 객체 바로 뒤에 <code>BindingResult</code>를 두면 바인딩/검증 오류를 담을 수 있다.
-      오류가 있더라도 예외로 튀지 않고 같은 뷰를 다시 렌더링하는 데 활용한다.</p>
-      <pre><code>@PostMapping("/members/new")
-public String save(@Valid MemberForm form, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-        return "members/newForm"; // 입력값 + 오류 메시지 표시
-    }
-    // 저장 로직...
-    return "redirect:/members";
-}</code></pre>
+  &lt;script src="javascript.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
 
-      <h3 class="section">addError()</h3>
-      <p>개별 필드가 아닌 <b>글로벌 오류</b>를 수동으로 추가할 때 쓴다. (또는 특정 상황에서 필드 오류를 직접 구성)</p>
-      <pre><code>if (form.getStartDate().isAfter(form.getEndDate())) {
-    bindingResult.addError(new ObjectError("form",
-        "종료일은 시작일보다 빠를 수 없습니다."));
-}</code></pre>
+      <ul>
+        <li><code>&lt;!doctype html&gt;</code>: 현재 문서가 HTML5 규격임을 명시하는 선언(약속).</li>
+        <li><code>&lt;html lang="ko"&gt;</code>: 문서 루트 요소. <code>lang</code>은 주요 언어(한국어) 표시로 접근성/검색에 도움.</li>
+        <li><code>&lt;head&gt;</code>: 문서 자체의 정보(메타데이터, 스타일, 제목 등).</li>
+        <li><code>&lt;body&gt;</code>: 화면에 표시될 실제 콘텐츠.</li>
+      </ul>
 
-      <h3 class="section">reject()</h3>
-      <p>글로벌 오류를 <b>메시지 코드</b> 기반으로 추가한다. <code>messages.properties</code>에 코드-문구를 매핑해두면
-      다국어 처리/문구 관리가 편해진다.</p>
-      <pre><code>if (!isBusinessOpen(form.getVisitTime())) {
-    bindingResult.reject("business.closed"); // 메시지 코드
-}</code></pre>
+      <!-- 4. head의 핵심 메타 -->
+      <h2 class="section">head의 핵심 메타</h2>
+      <h3 class="section">문자 인코딩: UTF-8</h3>
+      <p>컴퓨터가 사람의 문자를 올바르게 해석하도록 인코딩을 지정해야 한다. 한국어를 비롯한 대부분의 언어를 안전하게
+      표현하기 위해 <b>UTF-8</b>을 사용한다.</p>
+      <pre><code>&lt;meta charset="utf-8"&gt;</code></pre>
 
-      <h3 class="section">rejectValue()</h3>
-      <p><b>필드 오류</b>를 메시지 코드로 추가한다. 템플릿(Thymeleaf)에서는 <code>th:errors</code>/<code>#fields</code>로 표시.</p>
-      <pre><code>if (form.getEmail() == null || !EMAIL.matcher(form.getEmail()).matches()) {
-    bindingResult.rejectValue("email", "email.invalid");
-}</code></pre>
+      <h3 class="section">반응형 기본값: viewport</h3>
+      <p>모바일 화면에서도 제대로 보이도록 <code>viewport</code>를 설정한다. 화면 너비를 기기 너비에 맞추고 초기 확대 배율을 1로 둔다.</p>
+      <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></pre>
 
-      <h3 class="section">Thymeleaf에서 오류 표시</h3>
-      <pre><code>&lt;input type="text" th:field="*{email}"
-       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"&gt;
-&lt;div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">이메일 오류&lt;/div&gt;</code></pre>
+      <h3 class="section">문서 제목과 정적 자원</h3>
+      <p><code>&lt;title&gt;</code>은 브라우저 탭 제목으로 쓰인다. 정적 파일은 보통 <code>link</code>와 <code>script</code>로 연결한다.</p>
+      <pre><code>&lt;title&gt;Frontend 연습&lt;/title&gt;
+&lt;link rel="stylesheet" href="style.css"&gt;
+&lt;script src="javascript.js" defer&gt;&lt;/script&gt;</code></pre>
+      <p class="muted">팁: <code>defer</code>는 HTML 파싱이 끝난 뒤 스크립트를 실행해 초기 렌더링을 막지 않는다.</p>
 
-      <!-- 5. 정리 -->
+      <!-- 5. body: 화면에 보이는 콘텐츠 -->
+      <h2 class="section">body: 화면에 보이는 콘텐츠</h2>
+      <p><code>&lt;body&gt;</code>에는 실제로 보일 텍스트, 이미지, 링크, 폼 등을 배치한다. HTML 요소는 대체로
+      <code>&lt;tag attr="값"&gt;내용&lt;/tag&gt;</code> 형태이며, 일부는 닫는 태그가 없는 빈 요소(self-closing)다.</p>
+      <pre><code>&lt;h1&gt;제목 1&lt;/h1&gt;
+&lt;p&gt;문단입니다.&lt;/p&gt;
+&lt;img src="logo.png" alt="사이트 로고"&gt;
+&lt;a href="https://example.com"&gt;외부 링크&lt;/a&gt;</code></pre>
+
+      <h3 class="section">시맨틱 태그</h3>
+      <p>HTML5는 의미가 담긴 태그를 제공한다. 이는 접근성, SEO, 유지보수에 유리하다.</p>
+      <ul>
+        <li><code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;footer&gt;</code></li>
+      </ul>
+
+      <!-- 6. 파일 구성 예시 -->
+      <h2 class="section">파일 구성 예시</h2>
+      <p>가장 기본적인 연습 구조는 다음과 같다.</p>
+      <pre><code>index.html
+style.css
+javascript.js</code></pre>
+
+      <p>이 구조만으로도 정적 페이지를 만들고, CSS로 스타일링하며, JS로 간단한 상호작용을 붙일 수 있다.</p>
+
+      <!-- 7. 정리 -->
       <h2 class="section">정리</h2>
       <ul>
-        <li>성공: PRG로 중복 제출 방지.</li>
-        <li>실패: 같은 폼 재렌더링(입력값 유지 + 오류 메시지).</li>
-        <li><code>BindingResult</code>로 오류 수집: <code>addError</code> / <code>reject</code> / <code>rejectValue</code>.</li>
+        <li>HTML은 구조, CSS는 스타일, JS는 동작을 담당한다.</li>
+        <li><code>&lt;!doctype html&gt;</code>, <code>lang</code>, <code>charset</code>, <code>viewport</code>는 HTML5의 기본 세팅이다.</li>
+        <li>시맨틱 태그를 쓰면 가독성과 접근성이 좋아진다.</li>
       </ul>
 
+      <p class="muted">다음: 간단한 <b>회원 등록</b> 페이지를 HTML로 만들어보며 폼 요소와 입력 검증 UX의 기초를 살펴본다.</p>
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
-  <!-- TOC 자동 생성 (JPQL 페이지와 동일 동작) -->
+  <!-- TOC 자동 생성 (기존 Validation 페이지와 동일 동작) -->
   <script>
   (function(){
     const article = document.querySelector('article.prose');
@@ -136,6 +160,5 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
     });
   })();
   </script>
-
 </body>
 </html>
