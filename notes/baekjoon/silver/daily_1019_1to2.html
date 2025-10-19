@@ -24,84 +24,68 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-18 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-19 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 2993 — 세 부분</h2>
+      <h2 class="section">문제 3054 — 피터팬 프레임</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2993">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3054">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1018_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1019_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      주어진 문자열 <code>s</code>를 두 개의 컷 포인트 <code>i</code>, <code>j</code>(<code>1 ≤ i &lt; j ≤ n-1</code>)로 세 부분으로 자른 뒤,
-      각 부분을 <strong>개별적으로 뒤집어</strong> 이어 붙인 모든 후보 중 <strong>사전순으로 가장 앞선</strong> 문자열을 고른다.
-      즉, 모든 <code>(i, j)</code> 쌍을 완전탐색 → 각 조각을 뒤집어 연결 → 후보 목록을 정렬해 최솟값을 출력한다.</p>
+      문자열의 각 문자 주위를 5×(4n+1) 격자에 <strong>다이아몬드 모양 프레임</strong>으로 그린다. 
+      기본 프레임 문자는 <code>#</code>이고, <strong>매 3번째 문자(1-기준)</strong>는 <code>*</code> 프레임을 사용한다. 
+      프레임이 겹치면 <code>*</code>가 <code>#</code>를 <strong>우선</strong>해서 덮어쓴다. 
+      각 문자의 중심 좌표를 <code>(r, c) = (2, 4i+2)</code>(0-기준 i)로 고정해 상하좌우 두 칸과 대각선 한 칸을 채워 규칙을 간단히 구현한다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력은 공백 없는 단일 문자열 <code>s</code>(알파벳 소문자).<br>
-      출력은 위 규칙으로 얻은 사전순 최소 문자열 한 줄.</p>
+      입력: 공백 없는 단일 문자열(문자 종류 무관).<br>
+      출력: 문제의 ‘피터팬 프레임’ 규칙에 맞춘 5행 문자 아트.</p>
       
       <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
-      <code>s</code>: 원본 문자열 &nbsp;|&nbsp;
-      <code>i, j</code>: 자를 위치(왼쪽 경계는 포함, 오른쪽 경계는 제외)<br>
-      <code>slice1, slice2, slice3</code>: 세 구간 <code>[0, i)</code>, <code>[i, j)</code>, <code>[j, n)</code>의 역순 문자열<br>
-      <code>list</code>: 모든 후보 문자열을 담는 리스트(정렬하여 최솟값 선택)</p>
+      <code>array</code>: 입력 문자 배열 &nbsp;|&nbsp; <code>n</code>: 길이<br>
+      <code>row = 5</code>, <code>column = 4n+1</code>: 전체 캔버스 크기<br>
+      <code>chars</code>: 2차원 캔버스(초기값 <code>'.'</code>)<br>
+      <code>i</code>: 현재 문자 인덱스(0-기준) → 중심 <code>(r, c) = (2, 4i+2)</code><br>
+      <code>chr</code>: 프레임 문자(기본 <code>#</code>, <code>(i+1) % 3 == 0</code>이면 <code>*</code>)<br>
+      <code>place()</code>: 경계 체크 + 겹침 시 <code>*</code> 우선 규칙 적용</p>
       
       <ul>
-        <li><code>i</code>는 <code>1</code>부터 <code>n-2</code>, <code>j</code>는 <code>i+1</code>부터 <code>n-1</code>까지 이중 루프</li>
-        <li>각 구간을 <code>substring</code>으로 잘라 <code>StringBuilder.reverse()</code>로 뒤집기</li>
-        <li>뒤집은 세 조각을 이어 붙여 후보를 <code>list</code>에 추가</li>
-        <li><code>list</code>를 사전순 정렬 → 첫 요소가 정답</li>
+        <li>프레임 좌표 패턴: <code>(r±2, c), (r, c±2), (r±1, c±1)</code> 채움 후, 중심 <code>(r, c)</code>에 실제 문자 배치</li>
+        <li>겹침 처리: 이미 값이 있어도 <code>*</code>는 무조건 기록, <code>#</code>는 해당 칸이 <code>*</code>가 아닐 때만 기록</li>
+        <li>캔버스 폭을 <code>4n+1</code>로 두어 양끝 문자 프레임도 항상 범위 내에 위치</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      세 부분으로 나눌 수 있는 모든 경우의 수는 <code>O(n²)</code>개다. 각 경우에 대해 세 조각을 뒤집고 연결하면 하나의 후보가 되고,
-      모든 후보를 정렬하면 사전순 최소값을 간단히 얻을 수 있다.</p>
-      
-      <pre><code>// 1) 입력
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      String s = br.readLine();
-      
-      // 2) 모든 (i, j) 쌍을 완전탐색하여 후보 생성
-      List&lt;String&gt; list = new ArrayList&lt;&gt;();
-      for (int i = 1; i &lt; s.length() - 1; i++) {
-          for (int j = i + 1; j &lt; s.length(); j++) {
-              String slice1 = new StringBuilder(s.substring(0, i)).reverse().toString();
-              String slice2 = new StringBuilder(s.substring(i, j)).reverse().toString();
-              String slice3 = new StringBuilder(s.substring(j)).reverse().toString();
-              list.add(slice1 + slice2 + slice3);
-          }
-      }
-      
-      // 3) 사전순 정렬 후, 첫 번째(최소) 출력
-      list.sort(String::compareTo);
-      System.out.println(list.get(0));
-      </code></pre>
+      1) 5×(4n+1) 캔버스를 <code>'.'</code>로 초기화 → 2) 각 문자에 대해 중심 좌표 계산 → 
+      3) <code>#/*</code> 결정 → 4) 패턴 좌표에 프레임 찍기(<code>place()</code>) → 
+      5) 중심에 문자 기록 → 6) 5행을 이어서 출력.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>n = 3</code>인 최소 길이: 자르는 위치는 <code>(i, j) = (1, 2)</code> 한 가지뿐이며 그대로 처리된다.</li>
-        <li>동일 후보 다수: 서로 다른 <code>(i, j)</code>로 같은 결과가 나와도 정렬 후 최솟값 선택에 영향 없음.</li>
+        <li>프레임 겹침: 인접 문자의 프레임이 교차하는 칸은 <code>*</code>가 우선 적용되어 규칙을 만족.</li>
+        <li>n=1: 단일 문자도 동일 패턴으로 안전하게 처리.</li>
+        <li>양끝 문자: 첫/마지막 문자의 프레임도 <code>4n+1</code> 폭으로 경계 이탈 없음.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      후보 개수 <code>M = O(n²)</code>. 각 후보 생성(세 구간 뒤집기/연결)은 <code>O(n)</code> → 생성 총합 <code>O(n³)</code>.<br>
-      후보 정렬은 <code>O(M log M)</code>회 비교 × 비교 비용 <code>O(n)</code> → <code>O(n³ log n)</code>.<br>
-      공간은 후보 <code>M</code>개 × 길이 <code>n</code> 문자열 저장으로 <code>O(M·n) = O(n³)</code> (구현 방식에 따라 상수는 달라질 수 있음).</p>
+      문자 1개당 상수 개의 좌표만 갱신하므로 전체 시간 <code>O(n)</code>.<br>
+      캔버스 크기 <code>5 × (4n+1)</code>에 비례하여 공간 <code>O(n)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>두 컷 포인트 <code>(i, j)</code>를 완전탐색해 세 조각을 역순으로 만든다.</li>
-        <li>모든 후보를 모아 사전순 정렬, 첫 번째를 출력한다.</li>
-        <li>구현은 간단하지만, 시간/공간은 <code>O(n³)</code> 수준(정렬 포함 시)임에 유의.</li>
+        <li>문자 i의 중심을 <code>(2, 4i+2)</code>로 정해 다이아몬드 프레임을 찍는다.</li>
+        <li>매 3번째 문자는 <code>*</code> 프레임, 겹칠 때는 <code>*</code>가 <code>#</code>보다 우선.</li>
+        <li>단순 규칙의 반복으로 선형 시간·공간에 구현 가능.</li>
       </ul>
+
 
 
 
@@ -119,84 +103,66 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 3049 — 다각형의 대각선</h2>
+      <h2 class="section">문제 3060 — 욕심쟁이 돼지</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3049">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3060">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/daily_1018_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/daily_1019_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      N개의 점으로 이루어진 다각형(볼록 n각형)에서, 서로 다른 네 꼭짓점을 연결해 만들 수 있는 모든 <strong>대각선 교차점의 개수</strong>를 구하는 문제다.  
-      즉, N개의 점 중 4개를 선택해 만들 수 있는 조합의 수 <code>C(N, 4)</code>가 곧 정답이다.</p>
+      여섯 마리의 초기 섭취량 합을 <code>S</code>라 하면, 하루가 지날 때마다 총 섭취량이 <strong>정확히 4배</strong>가 된다.
+      따라서 임계치 <code>N</code>에 대해 <code>S, 4S, 16S, ...</code>를 순차적으로 비교하여
+      <code>S · 4<sup>d-1</sup> &gt; N</code>을 처음 만족하는 최소 일수 <code>d</code>를 구하면 된다
+      (코드는 반복문으로 구현).</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력은 정수 <code>N (3 ≤ N ≤ 1000)</code>.<br>
-      출력은 <code>C(N, 4)</code>의 결과값이며, 이는 다각형 내부의 대각선 교차점 개수와 같다.<br>
-      단, <code>N &lt; 4</code>인 경우 교차점이 존재하지 않으므로 <code>0</code>을 출력한다.</p>
+      입력: 테스트케이스 수 <code>T</code>.<br>
+      각 케이스: 정수 <code>N</code> (임계치), 이어서 6개의 초기 섭취량(정수).<br>
+      출력: 각 케이스마다 임계치를 처음 초과하는 <strong>최소 날짜</strong> <code>d</code> 한 줄.</p>
       
       <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
-      <code>N</code>: 꼭짓점의 개수 &nbsp;|&nbsp;
-      <code>n</code>: BigInteger로 변환된 N (오버플로우 방지)<br>
-      <code>result</code>: <code>C(N, 4) = N × (N-1) × (N-2) × (N-3) / 24</code> 계산 결과</p>
+      <code>T</code>: 테스트케이스 수 &nbsp;|&nbsp; <code>N</code>: 임계치<br>
+      <code>sum</code>: 6마리 초기 섭취량의 합 <code>S</code><br>
+      <code>day</code>: 현재 날짜(초기값 1) — <code>sum</code>이 <code>N</code>을 넘을 때의 날짜가 정답<br>
+      반복: <code>while (N &gt;= sum)</code> → <code>sum *= 4</code>, <code>day++</code></p>
       
       <ul>
-        <li><code>N &lt; 4</code>일 때는 0 출력 (교차점 불가)</li>
-        <li>그 외에는 조합 공식 <code>C(N, 4)</code>로 계산</li>
-        <li><code>long</code> 범위를 초과할 수 있으므로 <code>BigInteger</code>를 사용해 오버플로우 방지</li>
+        <li>초기 합 <code>sum = S</code>를 만든 뒤, <code>N</code> 이상인 동안 4배씩 키우며 날짜를 증가</li>
+        <li>루프 종료 시점의 <code>day</code>가 최소 일수 <code>d</code></li>
+        <li>수식 관점: <code>d = 1 + ⌊log<sub>4</sub>(N/S)⌋</code> (단, <code>S &gt; 0</code>)</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1. 입력으로 받은 N을 확인하고, N이 4 미만이면 곧바로 0을 출력한다.<br>
-      2. 그렇지 않다면, 조합 수식 <code>C(N, 4)</code>를 BigInteger 연산으로 계산한다.<br>
-      3. <code>n × (n-1) × (n-2) × (n-3) / 24</code>를 계산한 결과를 그대로 출력한다.</p>
-      
-      <pre><code>// 1) 입력
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      long N = Long.parseLong(br.readLine());
-      if (N &lt; 4) {
-          System.out.println(0);
-          return;
-      }
-      
-      // 2) BigInteger로 변환 후 조합 계산
-      BigInteger n = BigInteger.valueOf(N);
-      BigInteger result = n.multiply(BigInteger.valueOf(N - 1))
-              .multiply(BigInteger.valueOf(N - 2))
-              .multiply(BigInteger.valueOf(N - 3))
-              .divide(BigInteger.valueOf(24));
-      
-      // 3) 결과 출력
-      System.out.println(result);
-      </code></pre>
+      1) <code>sum</code>에 6개 초기값을 더해 <code>S</code> 계산 → 2) <code>day=1</code>로 시작 →
+      3) <code>sum</code>이 <code>N</code>을 초과할 때까지 <code>sum *= 4</code>와 <code>day++</code> 반복 →
+      4) <code>day</code> 출력.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>N &lt; 4</code>: 교차점이 존재하지 않으므로 결과는 0.</li>
-        <li><code>N = 4</code>: 4개의 점으로 만들 수 있는 교차점은 정확히 1개 → <code>C(4,4) = 1</code>.</li>
-        <li>큰 N (예: 1000): <code>C(1000, 4)</code>는 약 41,417,124,750 → long 오버플로우 발생 → <code>BigInteger</code> 필수.</li>
+        <li>즉시 초과: <code>S &gt; N</code>이면 정답은 <code>1</code>.</li>
+        <li>경계 동일: <code>S == N</code>이면 다음 날에야 초과하므로 <code>2</code>.</li>
+        <li>오버플로(주의): 반복 중 <code>sum</code>이 커질 수 있음. 제약에 따라 <code>long</code> 사용 권장
+          <span>(원문 한도 미확인 시 — 확실하지 않음)</span>.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      계산은 상수 시간(<code>O(1)</code>), <code>BigInteger</code> 연산도 입력 크기와 무관하게 빠름.<br>
-      공간 복잡도도 <code>O(1)</code> (고정된 변수 몇 개만 사용).</p>
+      각 케이스에 대해 반복 횟수는 <code>O(log(N/S))</code> (밑은 4). 덧셈 6회는 상수.
+      따라서 시간은 <code>O(T + Σ log(N/S))</code>, 추가 공간은 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>볼록 N각형에서 대각선 교차점 수 = <code>C(N, 4)</code></li>
-        <li>단순히 팩토리얼로 계산하면 long 범위를 초과하므로 <code>BigInteger</code> 사용</li>
-        <li><code>N &lt; 4</code>이면 0, 그 이상은 조합 공식으로 직접 계산</li>
+        <li>총합이 매일 4배가 되는 점을 이용해 기하급수 수열로 모델링한다.</li>
+        <li><code>sum</code>이 <code>N</code>을 처음 <strong>초과</strong>하는 시점의 <code>day</code>가 정답.</li>
+        <li>간단한 반복문으로 구현 가능하며, 로그 시간에 수렴.</li>
       </ul>
-      
-      <p><strong>구현 시 실수 포인트</strong> —<br>
-      처음에는 <code>long</code>을 사용해 <code>(N * (N-1) * (N-2) * (N-3)) / 24</code>로 구현했으나,
-      <code>N = 1000</code>일 때 <code>long</code> 범위를 초과해 오버플로우가 발생했다.
-      이를 방지하기 위해 <code>BigInteger</code>를 사용하도록 수정하였다.</p>
+
+
 
 
 
