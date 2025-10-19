@@ -50,8 +50,8 @@ html{ box-sizing: border-box; }</code></pre>
       <details>
         <summary><b>box-sizing 차이 정확히 이해하기</b></summary>
         <ul>
-          <li><b>content-box</b> (기본): <code>width</code>는 <em>content</em>만 의미. 여기에 <em>padding</em>과 <em>border</em>가 더해져 <b>실제 박스 폭</b>이 커진다.</li>
-          <li><b>border-box</b>: <code>width</code>가 <em>content + padding + border</em>를 통틀어 의미. 수치 관리가 단순해짐.</li>
+          <li><b>content-box</b> (기본): <code>width</code>는 content만 의미. 여기에 padding과 border가 더해져 <b>실제 박스 폭</b>이 커진다.</li>
+          <li><b>border-box</b>: <code>width</code>가 content + padding + border를 통틀어 의미. 수치 관리가 단순해짐.</li>
         </ul>
       </details>
       <p class="muted">참고: <b>&lt;head&gt;</b>는 문서의 <i>정보</i>를 담는 영역이므로 <b>style.css에서 제외</b>하는 게 자연스럽다(스타일 대상은 화면에 렌더되는 <b>&lt;body&gt;</b> 이하).</p>
@@ -82,7 +82,7 @@ h2{
   text-align: center;
   margin-top: 20px;
 }</code></pre>
-      <p><b>box-shadow 파라미터</b>는 순서대로 <em>수평 오프셋</em>, <em>수직 오프셋</em>, <em>흐림 반경</em>, <em>색상</em>이다.
+      <p><b>box-shadow 파라미터</b>는 순서대로 수평 오프셋, 수직 오프셋, 흐림 반경, 색상이다.
       예) <code>0 4px 14px rgba(0,0,0,.25)</code> → 아래로 4px 떨어진 부드러운 그림자.</p>
 
       <!-- 5 -->
@@ -151,9 +151,6 @@ h2{
       <h2 class="section">결과 스크린샷</h2>
       <figure class="figure">
         <img src="/assets/notes/frontend/css/CSS-02-form-styled/registration-form-styled.png" alt="스타일 적용된 회원가입 폼 미리보기">
-        <figcaption>
-          완성된 화면 예시 — <b>이미지 파일명은</b> <code>registration-form-styled.png</code> 로 저장해 주세요.
-        </figcaption>
       </figure>
 
       <!-- 10 -->
