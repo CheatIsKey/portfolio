@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CSS 기본 개념 — spring-jpa.dev</title>
+  <title>CSS 실습 — 회원가입 폼 스타일링</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -16,208 +16,119 @@
   </header>
 
   <main class="container article">
-    <!-- 좌측: 자동 생성 목차 -->
     <aside class="toc" aria-label="Table of contents">
       <div class="toc-title">목차</div>
       <ul id="toc-list"></ul>
     </aside>
 
-    <!-- 우측: 글 본문 -->
     <article class="prose">
-      <h1>CSS 기본 개념</h1>
-      <p class="muted">작성일 2025-10-18 · 분류: CSS</p>
+      <h1>CSS 실습: 회원가입 폼 스타일링</h1>
+      <p class="muted">작성일 2025-10-19 · 분류: CSS</p>
 
-      <!-- 1. 개요 -->
-      <h2 class="section">개요</h2>
-      <p>회원 등록 HTML 페이지는 구조만 있고 스타일이 없어 구식처럼 보인다. 여기에 <b>CSS</b>를 적용하면 우리가 평소 보는 깔끔한 폼과 레이아웃을 손쉽게 만들 수 있다. CSS는 HTML의 <b>표현(색, 여백, 배치, 반응형)</b>을 담당한다.</p>
+      <!-- 1. 준비 -->
+      <h2 class="section">준비</h2>
+      <p>HTML에는 <code>id</code>와 <code>class</code> 선택자를 지정했고, <code>&lt;head&gt;</code>에서 외부 스타일시트 <code>style.css</code>를 연결했다.</p>
+      <pre><code>&lt;link rel="stylesheet" href="style.css"&gt;</code></pre>
 
-      <!-- 2. CSS를 적용하는 3가지 방법 -->
-      <h2 class="section">CSS 적용 방법: 3가지</h2>
-
-      <h3 class="section">1) 인라인 스타일 (inline style)</h3>
-      <p>태그 안의 <code>style</code> 속성에 직접 선언한다.</p>
-      <pre><code>&lt;label style="color: red;"&gt;이름&lt;/label&gt;</code></pre>
-
-      <h3 class="section">2) 내부 스타일 (internal stylesheet)</h3>
-      <p><code>&lt;head&gt;</code> 안의 <code>&lt;style&gt;</code> 블록에 선언한다.</p>
-      <pre><code>&lt;head&gt;
-  &lt;style&gt;
-    label { color: red; }   /* 내부 스타일 */
-  &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;label&gt;아이디&lt;/label&gt;
-&lt;/body&gt;</code></pre>
-
-      <h3 class="section">3) 외부 스타일 (external stylesheet)</h3>
-      <p>별도의 <code>style.css</code> 파일을 링크한다.</p>
-      <pre><code>&lt;head&gt;
-  &lt;link rel="stylesheet" href="style.css"&gt;
-&lt;/head&gt;</code></pre>
-      <p><code>style.css</code> 파일에는 내부 스타일과 동일한 문법을 사용한다(예: <code>label { color: red; }</code>).</p>
-
-      <h3 class="section">장단점 요약</h3>
-      <table>
-        <thead>
-          <tr><th>방식</th><th>장점</th><th>단점</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>인라인 스타일</td>
-            <td>
-              <ul>
-                <li>아주 빠르게 한 요소만 수정 가능</li>
-                <li>CSS 파일 없이도 즉시 테스트</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>재사용/유지보수 어려움(혼잡)</li>
-                <li>우선순위가 강해 충돌 유발</li>
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td>내부 스타일</td>
-            <td>
-              <ul>
-                <li>한 문서 안에서 일관 관리 용이</li>
-                <li>구현/디버깅이 간단</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>다른 페이지와 스타일 공유 어려움</li>
-                <li>문서가 길어지면 가독성 저하</li>
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td>외부 스타일</td>
-            <td>
-              <ul>
-                <li>여러 페이지에서 재사용 가능</li>
-                <li>캐싱으로 성능 향상</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>파일 의존성(링크 깨지면 적용 실패)</li>
-                <li>초기 로드에 네트워크 의존</li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">우선순위(특이성) 간단 정리</h3>
+      <!-- 2. 전역: 변수, 박스 모델 -->
+      <h2 class="section">전역: 변수와 박스 모델</h2>
+      <p><code>:root</code>에 색상 변수를 선언하고, 문서 전체 박스 계산을 <code>border-box</code>로 설정한다.</p>
+      <pre><code>:root{
+  --primaryColor:green;
+  --errorColor:red;
+  --backgroundColor:rgb(67, 144, 233);
+}
+html{ box-sizing: border-box; }</code></pre>
       <ul>
-        <li><b>인라인 &gt; 내부/외부</b> (단, <code>!important</code>와 구체적 선택자, 선언 순서의 영향도 받음)</li>
-        <li>선택자 특이성: <b>id</b> &gt; <b>class/속성/가상클래스</b> &gt; <b>태그/가상요소</b></li>
-        <li>동일 특이성일 때는 <b>나중에 선언된</b> 규칙이 이김</li>
+        <li><b>content-box</b>: <em>padding</em>, <em>border</em> 제외한 콘텐츠만 폭/높이에 반영.</li>
+        <li><b>border-box</b>: <em>padding</em>, <em>border</em> 포함해 계산(이번 실습에서 사용).</li>
       </ul>
 
-      <!-- 3. 선택자: id vs class -->
-      <h2 class="section">선택자: id와 class</h2>
-      <pre><code>&lt;div id="wrapper" class="wrapper"&gt;...&lt;/div&gt;</code></pre>
-      <ul>
-        <li><code>#wrapper</code> (id): 문서에서 <b>중복 불가</b>, 특정 하나를 정확히 지정</li>
-        <li><code>.wrapper</code> (class): <b>중복 허용</b>, 여러 요소에 공통 스타일</li>
-      </ul>
-
-      <!-- 4. CSS 박스 모델 -->
-      <h2 class="section">박스 모델(Box Model)</h2>
-      <p>모든 요소는 박스로 취급된다. 안쪽부터 <b>content → padding → border → margin</b> 순서다.</p>
-      <ul>
-        <li><b>content</b>: <code>width</code>, <code>height</code>로 크기 지정</li>
-        <li><b>padding</b>: 콘텐츠와 테두리 사이의 내부 여백(배경색 적용됨)</li>
-        <li><b>border</b>: 테두리 두께/선/색</li>
-        <li><b>margin</b>: 박스 바깥쪽 간격(요소 간 거리)</li>
-      </ul>
-
-      <!-- 5. 레이아웃: display와 position -->
-      <h2 class="section">레이아웃: display와 position</h2>
-      <h3 class="section">display</h3>
-      <ul>
-        <li><b>block</b>: 줄바꿈을 발생, 가로폭(가능한 영역)을 채움</li>
-        <li><b>inline</b>: 줄 안에 흐르며 내용 너비만 차지(폭/높이 직접 지정 어려움)</li>
-        <li><b>inline-block</b>: 줄 안에 흐르되 폭/높이 지정 가능</li>
-        <li><b>none</b>: 렌더 트리에서 제거(보이지 않음, 자리도 차지 X)</li>
-      </ul>
-
-      <h3 class="section">position</h3>
-      <ul>
-        <li><b>static</b>: 기본 흐름(좌표 속성 사용 불가)</li>
-        <li><b>relative</b>: 자기 원래 위치를 기준으로 이동(공간은 유지)</li>
-        <li><b>absolute</b>: 가장 가까운 <b>position이 static이 아닌</b> 부모 요소 기준</li>
-        <li><b>fixed</b>: <b>뷰포트</b> 기준으로 고정(스크롤해도 고정 표시)</li>
-      </ul>
-
-      <!-- 6. Flexbox -->
-      <h2 class="section">Flexbox 핵심</h2>
-      <p>부모-자식 관계로 동작한다. 부모에 <code>display: flex;</code>를 선언하면 자식들이 유연하게 줄 바꿈/정렬된다.</p>
-      <pre><code>.form {
-  display: flex;
-  flex-direction: column;   /* row | column | row-reverse | column-reverse */
-  gap: 12px;
+      <!-- 3. 레이아웃 -->
+      <h2 class="section">레이아웃: 화면 중앙 정렬</h2>
+      <p><code>body</code>를 플렉스 컨테이너로 만들어 자식(래퍼)을 가로·세로 중앙에 배치한다. <code>min-height:100vh</code>로 뷰포트에 맞춘다.</p>
+      <pre><code>body{
+  display:flex;
+  align-items:center;     /* 수직 중앙 */
+  justify-content:center; /* 수평 중앙 */
+  min-height:100vh;
+  background-color:white;
 }</code></pre>
 
-      <h3 class="section">주요 속성</h3>
-      <ul>
-        <li><b>flex-direction</b>: 주 축(main axis) 방향(<code>row</code>가 기본, <code>column</code>은 세로)</li>
-        <li><b>justify-content</b>: <b>주 축</b> 정렬(앞/가운데/끝, <code>space-between</code>/<code>around</code>/<code>evenly</code>)</li>
-        <li><b>align-items</b>: <b>교차 축</b>(cross axis) 정렬(상단/가운데/하단/늘이기)</li>
-        <li><b>align-content</b>: <b>여러 줄</b>로 래핑된 행들의 교차 축 정렬(복수 행에서만 의미)</li>
-      </ul>
+      <!-- 4. 카드와 타이틀 -->
+      <h2 class="section">카드와 타이틀</h2>
+      <p><code>#wrapper</code>에 그림자(<code>box-shadow</code>)를 주어 카드 형태를 만든다.</p>
+      <pre><code>#wrapper{
+  width:420px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+h2{ text-align:center; margin-top:20px; }</code></pre>
 
+      <!-- 5. 입력 그룹 -->
+      <h2 class="section">입력 그룹과 상태</h2>
+      <p>각 필드는 <code>.inputGroup</code>으로 묶고, 라벨/인풋은 한 줄씩 보이도록 <code>display:block</code>을 사용한다.</p>
+      <pre><code>.inputGroup{ padding:8px 12px; }
+.inputGroup label{ display:block; padding:12px 0; }
+.inputGroup input{
+  display:block; width:93%;
+  padding:12px; border:2px solid #aaa9a9; font-size:16px;
+}
+.inputGroup input:focus{ outline:none; border-color:#777; }</code></pre>
+
+      <h3 class="section">valid / invalid 상태</h3>
+      <p>JS에서 <code>.inputGroup</code>에 <code>.valid</code> 또는 <code>.invalid</code> 클래스를 붙여 테두리 색을 바꾼다. 헬퍼 텍스트는 올바를 때 숨기고, 틀릴 때만 표시한다.</p>
+      <pre><code>.inputGroup.valid  input{ border-color:var(--primaryColor); }
+.inputGroup.invalid input{ border-color:var(--errorColor); }
+
+.inputGroup .helperText{ display:block; padding-top:8px; }
+.inputGroup.valid  .helperText{ visibility:hidden; }
+.inputGroup.invalid .helperText{ color:var(--errorColor); }</code></pre>
+
+      <!-- 6. 버튼 -->
+      <h2 class="section">버튼</h2>
+      <p>버튼은 래퍼 안에서 중앙 배치하고, 테마 색 변수를 사용한다.</p>
+      <pre><code>#wrapper button{
+  display:block; width:50%; height:50px;
+  margin:auto; margin-bottom:25px;
+  font-size:18px; cursor:pointer;
+  background-color:var(--backgroundColor);
+  border:2px solid var(--backgroundColor);
+  color:white;
+}</code></pre>
+
+      <!-- 7. 완성 스크린샷 -->
+      <h2 class="section">완성 스크린샷</h2>
       <figure class="figure">
-        <img src="/assets/notes/frontend/css/CSS-01-basics/flexbox-cheatsheet.png" alt="CSS Flexbox 속성 요약 이미지">
-        <figcaption>
-          CSS Flexbox 요약 이미지. 
-          <span class="muted">이미지 출처: 
-            <a href="https://medium.com/@MakeComputerScienceGreatAgain/understanding-flexbox-a-comprehensive-guide-992bcd5f04de" rel="nofollow noopener" target="_blank">
-              Understanding Flexbox — A Comprehensive Guide (Medium)
-            </a>
-          </span>
-        </figcaption>
+        <img src="/assets/notes/frontend/css/CSS-02-form-styled/registration-form-styled.png" alt="스타일 적용된 회원가입 폼 미리보기">
+        <figcaption>결과</figcaption>
       </figure>
 
-
-      <!-- 7. 참고/출처 -->
-      <h2 class="section">참고/출처</h2>
+      <!-- 8. 정리 -->
+      <h2 class="section">정리</h2>
       <ul>
-        <li>
-          Flexbox 이미지: 
-          <a href="https://medium.com/@MakeComputerScienceGreatAgain/understanding-flexbox-a-comprehensive-guide-992bcd5f04de" rel="nofollow noopener" target="_blank">
-            Understanding Flexbox — A Comprehensive Guide (Medium)
-          </a>
-        </li>
+        <li><code>:root</code> 변수로 색 테마를 한 곳에서 관리.</li>
+        <li><code>border-box</code>로 폭 계산 단순화.</li>
+        <li>플렉스로 화면 중앙 정렬.</li>
+        <li><code>.valid</code>/<code>.invalid</code> 상태 클래스로 검증 UI 표현.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
-  <!-- TOC 자동 생성 (기존 페이지와 동일) -->
+  <!-- TOC 자동 생성 -->
   <script>
   (function(){
-    const article = document.querySelector('article.prose');
-    if(!article) return;
+    const article = document.querySelector('article.prose'); if(!article) return;
     const headers = [...article.querySelectorAll('h2.section, h3.section')];
-    const slugify = s => s.toLowerCase()
-      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
-      .trim().replace(/\s+/g, '-').slice(0,64);
-    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
-    const toc = document.getElementById('toc-list');
-    toc.innerHTML = '';
-    headers.forEach(h => {
-      const li = document.createElement('li');
-      if(h.tagName === 'H3') li.classList.add('level-3');
-      const a = document.createElement('a');
-      a.href = `#${h.id}`;
-      a.textContent = h.textContent.trim();
-      li.appendChild(a);
-      toc.appendChild(li);
+    const slugify = s => s.toLowerCase().replace(/[^\p{Letter}\p{Number}\s-]/gu,'')
+      .trim().replace(/\s+/g,'-').slice(0,64);
+    headers.forEach(h=>{ if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list'); toc.innerHTML='';
+    headers.forEach(h=>{
+      const li=document.createElement('li'); if(h.tagName==='H3') li.classList.add('level-3');
+      const a=document.createElement('a'); a.href=`#${h.id}`; a.textContent=h.textContent.trim();
+      li.appendChild(a); toc.appendChild(li);
     });
   })();
   </script>
