@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-18 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 그림 확대</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181836">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1018_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열로 구성된 그림 <code>picture</code>가 주어졌을 때,  
+        각 문자를 가로와 세로로 <code>k</code>배 확대한 그림을 반환하는 문제다.  
+        문자열 조작과 반복문을 활용하여 간단히 해결할 수 있다.
+      </p>
+      
+      <ul>
+        <li>
+          각 문자열(행)에 대해,  
+          문자 하나하나를 <code>String.valueOf(c).repeat(k)</code>으로  
+          <strong>가로로 k배</strong> 확장한다.
+        </li>
+        <li>
+          이렇게 완성된 문자열을 <strong>세로로 k번</strong> 반복하여  
+          동일한 행을 여러 번 추가한다.
+        </li>
+        <li>
+          모든 행에 대해 위 과정을 수행한 뒤,  
+          결과를 <code>List&lt;String&gt;</code>에 저장하고  
+          마지막에 배열로 변환해 반환한다.
+        </li>
+      </ul>
+      
+      <pre><code>// 예시
+      String[] picture = {"x.x", ".x."};
+      int k = 3;
+      System.out.println(Arrays.toString(new Solution().solution(picture, k)));
+      
+      // 출력 결과:
+      // [xxx...xxx, xxx...xxx, xxx...xxx,
+      //  ...xxx...,
+      //  ...xxx...,
+      //  ...xxx...]
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 각 문자마다 <code>k</code>번 반복하며,  
+        각 행을 다시 <code>k</code>번 추가하므로  
+        <code>O(n * m * k²)</code> (n=행 수, m=열 수)이다.  
+        <strong>공간 복잡도</strong>는 생성되는 결과 문자열 크기에 비례해 <code>O(n * m * k²)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><code>StringBuilder</code>를 사용하면 문자열 덧셈보다 효율적으로 처리할 수 있다.</li>
+        <li><code>String.repeat(k)</code> 메서드는 Java 11 이상에서만 사용 가능하다.</li>
+        <li>출력 순서를 보장하기 위해 입력 순서를 그대로 유지해야 한다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li>2차원 문자 배열로 변환 후 직접 인덱싱하며 복제할 수도 있다.</li>
+          <li>Stream API를 사용하면 한 줄로도 표현 가능하지만 가독성이 떨어질 수 있다.</li>
+          <li>메모리 사용을 줄이려면 중간 문자열을 즉시 출력하거나 버퍼링을 최소화할 수 있다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 조건에 맞게 수열 변환하기 3</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181835">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1018_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        정수 배열 <code>arr</code>과 정수 <code>k</code>가 주어졌을 때,  
+        <code>k</code>의 홀짝 여부에 따라 배열의 각 원소를 다르게 변환하는 문제다.  
+        단순한 반복문과 조건문으로 쉽게 해결할 수 있다.
+      </p>
+      
+      <ul>
+        <li>
+          <strong><code>k</code>가 홀수</strong>이면,  
+          각 원소에 <code>arr[i] *= k</code> — 즉 <strong>k를 곱한다</strong>.
+        </li>
+        <li>
+          <strong><code>k</code>가 짝수</strong>이면,  
+          각 원소에 <code>arr[i] += k</code> — 즉 <strong>k를 더한다</strong>.
+        </li>
+        <li>
+          모든 요소에 대해 이 연산을 수행한 뒤,  
+          변환된 배열을 그대로 반환한다.
+        </li>
+      </ul>
+      
+      <pre><code>// 예시
+      int[] arr = {1, 2, 3};
+      int k = 3; // 홀수
+      System.out.println(Arrays.toString(new Solution().solution(arr, k)));
+      // [3, 6, 9]  (각 원소에 3을 곱함)
+      
+      arr = new int[]{1, 2, 3};
+      k = 4; // 짝수
+      System.out.println(Arrays.toString(new Solution().solution(arr, k)));
+      // [5, 6, 7]  (각 원소에 4를 더함)
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 배열의 길이를 <code>n</code>이라 할 때  
+        모든 원소를 한 번씩만 순회하므로 <code>O(n)</code>이다.  
+        <strong>공간 복잡도</strong>는 입력 배열을 직접 수정하므로  
+        추가 메모리를 사용하지 않아 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li>입력 배열 <code>arr</code>의 값이 크고 <code>k</code>도 큰 경우, 곱셈 시 오버플로우에 주의해야 한다.</li>
+        <li>입력 배열을 그대로 수정하므로, 원본 배열이 필요하다면 복사본을 만들어야 한다.</li>
+        <li>홀짝 판별은 <code>k % 2 == 0</code>으로 간단히 확인할 수 있다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li>스트림(<code>IntStream</code>)을 사용하면 함수형 방식으로 한 줄로 구현할 수도 있다.</li>
+          <li>삼항 연산자를 활용하면 <code>arr[i] = (k % 2 == 0 ? arr[i] + k : arr[i] * k)</code> 형태로 더 간결하게 작성할 수 있다.</li>
+          <li>배열이 아닌 리스트로 처리할 경우, <code>set()</code> 메서드로 값을 갱신할 수 있다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — l로 만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181834">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1018_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <h3 class="section">해설</h3>
+      <p>
+        주어진 문자열 <code>myString</code>에서  
+        알파벳 순서상 <code>'l'</code>보다 앞에 있는 모든 문자를  
+        <strong>'l'</strong>로 바꾼 뒤, 변환된 문자열을 반환하는 문제다.  
+        문자를 직접 비교하며 수정하는 간단한 문자열 처리 문제다.
+      </p>
+      
+      <ul>
+        <li>
+          문자열을 문자 배열로 변환한다.  
+          (<code>char[] array = myString.toCharArray();</code>)
+        </li>
+        <li>
+          각 문자를 순회하면서,  
+          <code>'l'</code>보다 <strong>앞에 있는 문자</strong>(즉, <code>array[i] &lt; 'l'</code>)일 경우  
+          해당 문자를 <code>'l'</code>로 바꾼다.
+        </li>
+        <li>
+          모든 문자를 검사한 뒤,  
+          수정된 배열을 문자열로 다시 변환해 반환한다.
+        </li>
+      </ul>
+      
+      <pre><code>// 예시
+      String myString = "abcdevwxyz";
+      System.out.println(new Solution().solution(myString));
+      // "lllllvwxyz"  ('l'보다 앞인 a~e → 'l'로 변경)
+      
+      myString = "hello";
+      System.out.println(new Solution().solution(myString));
+      // "llllo"
+      </code></pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 문자열 길이를 <code>n</code>이라 할 때  
+        각 문자를 한 번씩만 확인하므로 <code>O(n)</code>이다.  
+        <strong>공간 복잡도</strong>는 문자 배열로 한 번 변환하므로 <code>O(n)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li>입력 문자열이 이미 모두 <code>'l'</code> 이상인 경우, 변화 없이 그대로 반환된다.</li>
+        <li>영문 소문자 외의 문자가 포함될 경우, 비교 결과가 의도와 다를 수 있다.</li>
+        <li>대문자는 <code>'A' &lt; 'l'</code>로 처리되므로 모두 'l'로 바뀔 수 있다 — 문제에서는 모든 입력이 소문자였다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><code>StringBuilder</code>를 사용해 직접 문자를 덧붙이는 방식으로도 구현할 수 있다.</li>
+          <li>Stream API와 <code>map</code>을 이용해 함수형으로 처리할 수도 있다.</li>
+          <li>정규식을 활용하여 <code>[a-k]</code> 패턴을 <code>'l'</code>로 치환하는 방법도 있다. (<code>myString.replaceAll("[a-k]", "l")</code>)</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
