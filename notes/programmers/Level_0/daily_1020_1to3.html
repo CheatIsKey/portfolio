@@ -24,91 +24,58 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-19 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-10-20 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 특별한 이차원 배열 1</h2>
+      <h2 class="section">문제 1 — 정사각형으로 만들기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181833">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181830">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1019_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        정수 <code>n</code>이 주어졌을 때, <code>n × n</code> 크기의 2차원 배열을 생성하고
-        주대각선(<code>i == j</code>) 위치만 <code>1</code>로 채우며 나머지는 <code>0</code>으로 두는 문제다.
-        Java의 기본형 배열은 기본값으로 <code>0</code>으로 초기화되므로,
-        대각선 위치만 <code>1</code>로 설정하면 손쉽게 정답을 만들 수 있다.
+        2차원 정수 배열 <code>arr</code>이 주어졌을 때,  
+        <strong>가장 긴 행의 길이</strong>와 <strong>행의 개수</strong> 중 더 큰 값을 한 변의 길이로 하여  
+        <strong>정사각형 크기</strong>의 새 배열을 만들고, 기존 원소를 같은 위치에 복사해 반환하는 문제다.
+        부족한 칸은 기본값 <code>0</code>으로 채워진다(자바의 배열 초기화 특성).
       </p>
       
       <ul>
-        <li><code>int[][] array = new int[n][n];</code>으로 2차원 배열을 생성한다. (모든 값은 기본적으로 <code>0</code>.)</li>
-        <li>이중 반복문을 돌며 <code>i == j</code>인 경우에만 <code>array[i][j] = 1;</code>을 대입한다.</li>
-        <li>완성된 배열을 그대로 반환한다.</li>
+        <li><code>row</code> = <code>arr.length</code>로 행의 개수를 구한다.</li>
+        <li>모든 행을 돌며 <code>column</code> = 각 행 길이의 최댓값을 계산한다(자바의 2차원 배열은 가변 길이일 수 있음).</li>
+        <li><code>size</code> = <code>max(row, column)</code>로 목표 정사각형 한 변의 길이를 정한다.</li>
+        <li><code>size × size</code> 새 배열을 생성한다(새 배열의 나머지 칸은 자동으로 <code>0</code>).</li>
+        <li>원본 배열의 유효 범위(<code>i &lt; row</code>, <code>j &lt; arr[i].length</code>)만 순회하며 값을 그대로 복사한다.</li>
       </ul>
       
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int[][] solution(int n) {
-              int[][] array = new int[n][n];
-              for (int i = 0; i &lt; array.length; i++) {
-                  for (int j = 0; j &lt; array.length; j++) {
-                      if (i == j) array[i][j] = 1;
-                  }
-              }
-              return array;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int n = 4;
-              int[][] result = new Solution().solution(n);
-              System.out.println(Arrays.deepToString(result));
-              // 출력: [[1, 0, 0, 0],
-              //       [0, 1, 0, 0],
-              //       [0, 0, 1, 0],
-              //       [0, 0, 0, 1]]
-          }
-      }
-      </code></pre>
-      
       <p>
-        <strong>시간 복잡도</strong>는 이중 반복문을 사용하므로 <code>O(n²)</code>이고,  
-        <strong>공간 복잡도</strong>는 결과 배열 크기에 비례하여 <code>O(n²)</code>이다.
+        <strong>시간 복잡도</strong>는 한 번의 최대 길이 탐색과 한 번의 복사로,  
+        <code>O(R + S)</code> (여기서 <code>R</code>은 행 수, <code>S</code>는 모든 원소 수의 합)이며,  
+        보통 <code>O(R · C<sub>max</sub>)</code>로 볼 수 있다.  
+        <strong>공간 복잡도</strong>는 결과 배열 크기에 비례해 <code>O(size²)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>Java의 기본형 배열(<code>int</code>)은 <code>0</code>으로 자동 초기화된다. 별도 초기화가 필요 없다.</li>
-        <li>인덱스 범위는 <code>0 ≤ i, j &lt; n</code>을 벗어나지 않도록 한다.</li>
-        <li><code>n</code>이 <code>0</code>인 경우에도 빈 2차원 배열(<code>new int[0][0]</code>)을 반환하는 것이 자연스럽다.</li>
+        <li>자바의 2차원 배열은 jagged 구조일 수 있으므로, 각 행마다 <code>arr[i].length</code>를 사용해 인덱스 범위를 확인한다.</li>
+        <li>복사 시 인덱스 조건을 명확히 해 <code>ArrayIndexOutOfBoundsException</code>을 방지한다.</li>
+        <li>빈 배열(<code>arr.length == 0</code>)이나 빈 행(<code>arr[i].length == 0</code>)이 있어도 로직이 자연스럽게 처리되도록 한다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li>이중 반복문 대신 단일 반복문으로 대각선만 채우기:
-            <pre><code>// 동일한 결과, 더 간결 (쓰기 연산은 O(n))
-      int[][] array = new int[n][n]; // 모두 0
-      for (int i = 0; i &lt; n; i++) {
-          array[i][i] = 1;
-      }
-      </code></pre>
-          </li>
-          <li><code>IntStream</code>을 사용한 간결한 표현(가독성은 호불호):
-            <pre><code>int[][] array = new int[n][n];
-      java.util.stream.IntStream.range(0, n).forEach(i -&gt; array[i][i] = 1);
-      </code></pre>
-          </li>
+          <li>각 행을 <code>Arrays.copyOf</code>로 <code>size</code> 길이까지 확장한 뒤, 부족한 행 수만큼 길이 <code>size</code>의 0-배열을 추가해도 된다.</li>
+          <li>행 복사에는 <code>System.arraycopy</code>를 써서 미세한 성능 향상을 노릴 수 있다(유효 범위만 복사).</li>
+          <li>불변성을 강조하려면, 원본을 건드리지 않고 항상 새 배열을 만들어 반환하는 방식을 유지한다.</li>
         </ul>
       </details>
+
 
 
 
@@ -125,111 +92,58 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 정수를 나선형으로 배치하기</h2>
+      <h2 class="section">문제 2 — 이차원 배열 대각선 순회하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181832">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181829">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1019_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        정수 <code>n</code>이 주어졌을 때,  
-        <strong>1부터 n²까지의 수</strong>를 <strong>달팽이(spiral) 형태</strong>로  
-        <code>n × n</code> 크기의 2차원 배열에 채워 반환하는 문제다.  
-        배열의 경계를 단계적으로 좁혀가며 한 방향씩 숫자를 채워 넣는 방식으로 해결할 수 있다.
+        2차원 정수 배열 <code>board</code>와 정수 <code>k</code>가 주어졌을 때,  
+        <strong>행 인덱스와 열 인덱스의 합이 <code>k</code> 이하인 위치</strong>의 원소들만 골라  
+        그 값을 모두 더한 결과를 반환하는 문제다.
       </p>
       
       <ul>
-        <li>처음에 <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>로 경계를 설정한다.</li>
-        <li>위쪽 행(<code>top</code>)을 왼쪽→오른쪽으로 채운 뒤 <code>top++</code>한다.</li>
-        <li>오른쪽 열(<code>right</code>)을 위→아래로 채운 뒤 <code>right--</code>한다.</li>
-        <li>아래쪽 행(<code>bottom</code>)을 오른쪽→왼쪽으로 채운 뒤 <code>bottom--</code>한다.</li>
-        <li>왼쪽 열(<code>left</code>)을 아래→위로 채운 뒤 <code>left++</code>한다.</li>
-        <li>위 과정을 <code>cnt ≤ n²</code>일 동안 반복한다.</li>
+        <li>이중 반복문을 이용해 배열의 모든 좌표 <code>(i, j)</code>를 순회한다.</li>
+        <li>각 좌표마다 <code>i + j ≤ k</code>이면 해당 원소를 합산한다.</li>
+        <li>모든 원소를 확인한 후 누적된 합을 반환한다.</li>
       </ul>
       
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int[][] solution(int n) {
-      
-              int[][] array = new int[n][n];
-              int cnt = 1;
-              int top = 0, bottom = n - 1;
-              int left = 0, right = n - 1;
-              int end = n * n;
-      
-              while (cnt &lt;= end) {
-                  for (int i = left; i &lt;= right &amp;&amp; cnt &lt;= end; i++) array[top][i] = cnt++;
-                  top++;
-      
-                  for (int i = top; i &lt;= bottom &amp;&amp; cnt &lt;= end; i++) array[i][right] = cnt++;
-                  right--;
-      
-                  for (int i = right; i &gt;= left &amp;&amp; cnt &lt;= end; i--) array[bottom][i] = cnt++;
-                  bottom--;
-      
-                  for (int i = bottom; i &gt;= top &amp;&amp; cnt &lt;= end; i--) array[i][left] = cnt++;
-                  left++;
-              }
-      
-              return array;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int n = 4;
-              int[][] result = new Solution().solution(n);
-              System.out.println(Arrays.deepToString(result));
-              // 출력:
-              // [[1, 2, 3, 4],
-              //  [12, 13, 14, 5],
-              //  [11, 16, 15, 6],
-              //  [10, 9, 8, 7]]
-          }
-      }
-      </code></pre>
-      
       <p>
-        <strong>시간 복잡도</strong>는 배열의 모든 칸을 한 번씩 채우므로 <code>O(n²)</code>이며,  
-        <strong>공간 복잡도</strong>는 결과 배열에 비례해 <code>O(n²)</code>이다.
+        <strong>시간 복잡도</strong>는 배열의 모든 칸을 한 번씩 확인하므로 <code>O(n × m)</code>이고,  
+        <strong>공간 복잡도</strong>는 추가 변수 <code>sum</code>만 사용하므로 <code>O(1)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>각 방향의 반복문마다 <code>cnt &lt;= end</code> 조건을 넣어 배열 범위를 넘지 않게 해야 한다.</li>
-        <li>경계 포인터(<code>top, bottom, left, right</code>)를 갱신하지 않으면 무한 루프가 발생할 수 있다.</li>
-        <li>배열 크기가 <code>1</code>인 경우도 정상적으로 동작해야 한다.</li>
+        <li>조건은 <code>i + j ≤ k</code>이므로, 대각선 형태로 제한된 영역만 합산된다.</li>
+        <li><code>k</code>가 충분히 크면 전체 배열의 합과 동일해질 수 있다.</li>
+        <li>빈 배열이나 열의 길이가 불규칙한 경우(jagged array)에도 인덱스 접근 시 예외가 발생하지 않도록 유효 범위를 확인한다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li>방향 벡터를 이용해 현재 이동 방향을 관리하며 조건에 따라 회전하는 방식도 가능하다.
-            <pre><code>// 예: 방향 벡터 방식
-      int[][] dir = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-      int d = 0, x = 0, y = 0;
-      for (int i = 1; i &lt;= n*n; i++) {
-          array[x][y] = i;
-          int nx = x + dir[d][0], ny = y + dir[d][1];
-          if (nx &lt; 0 || nx &gt;= n || ny &lt; 0 || ny &gt;= n || array[nx][ny] != 0) {
-              d = (d + 1) % 4; // 방향 전환
-              nx = x + dir[d][0];
-              ny = y + dir[d][1];
-          }
-          x = nx; y = ny;
-      }
-      </code></pre>
+          <li>이중 반복문 대신 <code>IntStream</code>을 이용해 조건 필터링 및 합산을 간결하게 표현할 수 있다.
+            <pre><code>// 예시
+      int sum = IntStream.range(0, board.length)
+          .map(i -> IntStream.range(0, board[i].length)
+              .filter(j -> i + j <= k)
+              .map(j -> board[i][j])
+              .sum())
+          .sum();
+            </code></pre>
           </li>
-          <li>이 방법은 경계 변수 없이도 방향만으로 달팽이 패턴을 구현할 수 있다.</li>
+          <li>단, 반복문 방식이 더 명확하고 성능상 유리하다.</li>
         </ul>
       </details>
+
 
 
 
@@ -248,97 +162,58 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 특별한 이차원 배열 2</h2>
+      <h2 class="section">문제 3 — 옹알이 (1)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181831">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120956">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1019_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        2차원 정수 배열 <code>arr</code>이 주어졌을 때,  
-        이 배열이 <strong>대칭 행렬(symmetric matrix)</strong>인지 판별하는 문제다.  
-        즉, 모든 원소에 대해 <code>arr[i][j] == arr[j][i]</code>가 성립하면 1을,  
-        그렇지 않으면 0을 반환하면 된다.
+        문자열 배열 <code>babbling</code>이 주어졌을 때,  
+        각 문자열이 <strong>"aya", "ye", "woo", "ma"</strong> 네 가지 발음만으로 구성되어 있다면  
+        그 문자열을 발음할 수 있다고 판단하여,  
+        <strong>발음 가능한 문자열의 개수</strong>를 세어 반환하는 문제다.
       </p>
       
       <ul>
-        <li>이중 반복문을 통해 모든 좌표 <code>(i, j)</code>를 순회한다.</li>
-        <li><code>arr[i][j]</code>와 <code>arr[j][i]</code>가 다르면,  
-            대칭이 아니므로 <code>result = 0</code>으로 변경한다.</li>
-        <li>끝까지 검사 후 <code>result</code>를 반환한다.  
-            (모든 쌍이 동일하면 <code>result</code>는 1로 유지된다.)</li>
+        <li>가능한 발음 목록을 <code>{"aya", "ye", "woo", "ma"}</code>로 정의한다.</li>
+        <li>각 문자열 <code>s</code>에 대해 모든 발음을 순회하며 <code>s.replace(word, " ")</code>로 해당 발음을 제거한다.</li>
+        <li>모든 발음을 제거한 후 남은 문자열의 공백을 제거한다(<code>s.replace(" ", "")</code>).</li>
+        <li>결과 문자열이 빈 문자열(<code>""</code>)이라면,  
+            해당 단어는 네 가지 발음만으로 이루어진 것이므로 카운트를 증가시킨다.</li>
       </ul>
       
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int solution(int[][] arr) {
-              int result = 1;
-      
-              for (int i = 0; i &lt; arr.length; i++) {
-                  for (int j = 0; j &lt; arr[i].length; j++) {
-                      if (arr[i][j] == arr[j][i]) continue;
-                      else result = 0;
-                  }
-              }
-      
-              return result;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int[][] arr1 = {
-                  {1, 2, 3},
-                  {2, 1, 4},
-                  {3, 4, 1}
-              };
-              int[][] arr2 = {
-                  {1, 0, 2},
-                  {0, 1, 0},
-                  {3, 0, 1}
-              };
-      
-              System.out.println(new Solution().solution(arr1)); // 출력: 1 (대칭)
-              System.out.println(new Solution().solution(arr2)); // 출력: 0 (비대칭)
-          }
-      }
-      </code></pre>
-      
       <p>
-        <strong>시간 복잡도</strong>는 모든 원소 쌍을 검사하므로 <code>O(n²)</code>,  
-        <strong>공간 복잡도</strong>는 상수 공간만 사용하므로 <code>O(1)</code>이다.
+        <strong>시간 복잡도</strong>는 각 단어마다 4개의 발음을 검사하므로  
+        대략 <code>O(N × M)</code> (여기서 <code>N</code>은 단어 수, <code>M</code>은 평균 문자열 길이)이다.  
+        <strong>공간 복잡도</strong>는 문자열 복사에 비례하지만, 보조 변수 외엔 추가 공간이 없어 <code>O(1)</code>로 볼 수 있다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li><code>arr[i][j]</code>와 <code>arr[j][i]</code>의 인덱스가 범위를 벗어나지 않도록 <code>n × n</code> 정사각 행렬임을 가정한다.</li>
-        <li>불필요한 비교를 줄이려면 <code>i &lt; j</code>인 경우만 검사해도 충분하다.</li>
-        <li>대칭이 깨진 시점에 <code>break</code>로 조기 종료하면 효율을 높일 수 있다.</li>
+        <li>이 방식은 연속해서 같은 발음이 반복된 경우(예: <code>"ayaaya"</code>)도 유효하게 처리한다.</li>
+        <li>문제의 확장 버전에서는 같은 발음을 연속해서 사용할 수 없다는 제약이 있으므로, 그 경우엔 별도의 검증 로직이 필요하다.</li>
+        <li>문자열 치환 시 공백을 다른 문자로 바꾸더라도 무방하지만, 이후 <code>replace(" ", "")</code>로 일관되게 제거해야 한다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li>조기 종료 버전:
-            <pre><code>for (int i = 0; i &lt; arr.length; i++) {
-          for (int j = i + 1; j &lt; arr.length; j++) {
-              if (arr[i][j] != arr[j][i]) return 0;
-          }
-      }
-      return 1;
-      </code></pre>
+          <li><code>String.replaceAll()</code>과 정규식을 사용해 한 번에 처리할 수도 있다.
+            <pre><code>// 예시
+      s = s.replaceAll("aya|ye|woo|ma", "");
+      if (s.isEmpty()) cnt++;
+            </code></pre>
           </li>
-          <li>Stream API로 간단히 표현 가능하지만 가독성은 떨어진다.</li>
-          <li>Math.abs()를 활용할 필요는 없으며, 단순 비교만으로 충분하다.</li>
+          <li>정규식 사용 시 코드가 간결해지지만, 반복 발음 검증을 세밀하게 제어하기는 어렵다.</li>
         </ul>
       </details>
+
 
 
 
