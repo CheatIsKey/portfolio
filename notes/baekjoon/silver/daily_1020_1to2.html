@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-19 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 3054 — 피터팬 프레임</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3054">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1019_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      문자열의 각 문자 주위를 5×(4n+1) 격자에 <strong>다이아몬드 모양 프레임</strong>으로 그린다. 
+      기본 프레임 문자는 <code>#</code>이고, <strong>매 3번째 문자(1-기준)</strong>는 <code>*</code> 프레임을 사용한다. 
+      프레임이 겹치면 <code>*</code>가 <code>#</code>를 <strong>우선</strong>해서 덮어쓴다. 
+      각 문자의 중심 좌표를 <code>(r, c) = (2, 4i+2)</code>(0-기준 i)로 고정해 상하좌우 두 칸과 대각선 한 칸을 채워 규칙을 간단히 구현한다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 공백 없는 단일 문자열(문자 종류 무관).<br>
+      출력: 문제의 ‘피터팬 프레임’ 규칙에 맞춘 5행 문자 아트.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>array</code>: 입력 문자 배열 &nbsp;|&nbsp; <code>n</code>: 길이<br>
+      <code>row = 5</code>, <code>column = 4n+1</code>: 전체 캔버스 크기<br>
+      <code>chars</code>: 2차원 캔버스(초기값 <code>'.'</code>)<br>
+      <code>i</code>: 현재 문자 인덱스(0-기준) → 중심 <code>(r, c) = (2, 4i+2)</code><br>
+      <code>chr</code>: 프레임 문자(기본 <code>#</code>, <code>(i+1) % 3 == 0</code>이면 <code>*</code>)<br>
+      <code>place()</code>: 경계 체크 + 겹침 시 <code>*</code> 우선 규칙 적용</p>
+      
+      <ul>
+        <li>프레임 좌표 패턴: <code>(r±2, c), (r, c±2), (r±1, c±1)</code> 채움 후, 중심 <code>(r, c)</code>에 실제 문자 배치</li>
+        <li>겹침 처리: 이미 값이 있어도 <code>*</code>는 무조건 기록, <code>#</code>는 해당 칸이 <code>*</code>가 아닐 때만 기록</li>
+        <li>캔버스 폭을 <code>4n+1</code>로 두어 양끝 문자 프레임도 항상 범위 내에 위치</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 5×(4n+1) 캔버스를 <code>'.'</code>로 초기화 → 2) 각 문자에 대해 중심 좌표 계산 → 
+      3) <code>#/*</code> 결정 → 4) 패턴 좌표에 프레임 찍기(<code>place()</code>) → 
+      5) 중심에 문자 기록 → 6) 5행을 이어서 출력.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>프레임 겹침: 인접 문자의 프레임이 교차하는 칸은 <code>*</code>가 우선 적용되어 규칙을 만족.</li>
+        <li>n=1: 단일 문자도 동일 패턴으로 안전하게 처리.</li>
+        <li>양끝 문자: 첫/마지막 문자의 프레임도 <code>4n+1</code> 폭으로 경계 이탈 없음.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      문자 1개당 상수 개의 좌표만 갱신하므로 전체 시간 <code>O(n)</code>.<br>
+      캔버스 크기 <code>5 × (4n+1)</code>에 비례하여 공간 <code>O(n)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>문자 i의 중심을 <code>(2, 4i+2)</code>로 정해 다이아몬드 프레임을 찍는다.</li>
+        <li>매 3번째 문자는 <code>*</code> 프레임, 겹칠 때는 <code>*</code>가 <code>#</code>보다 우선.</li>
+        <li>단순 규칙의 반복으로 선형 시간·공간에 구현 가능.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3060 — 욕심쟁이 돼지</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3060">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1019_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      여섯 마리의 초기 섭취량 합을 <code>S</code>라 하면, 하루가 지날 때마다 총 섭취량이 <strong>정확히 4배</strong>가 된다.
+      따라서 임계치 <code>N</code>에 대해 <code>S, 4S, 16S, ...</code>를 순차적으로 비교하여
+      <code>S · 4<sup>d-1</sup> &gt; N</code>을 처음 만족하는 최소 일수 <code>d</code>를 구하면 된다
+      (코드는 반복문으로 구현).</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 테스트케이스 수 <code>T</code>.<br>
+      각 케이스: 정수 <code>N</code> (임계치), 이어서 6개의 초기 섭취량(정수).<br>
+      출력: 각 케이스마다 임계치를 처음 초과하는 <strong>최소 날짜</strong> <code>d</code> 한 줄.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>T</code>: 테스트케이스 수 &nbsp;|&nbsp; <code>N</code>: 임계치<br>
+      <code>sum</code>: 6마리 초기 섭취량의 합 <code>S</code><br>
+      <code>day</code>: 현재 날짜(초기값 1) — <code>sum</code>이 <code>N</code>을 넘을 때의 날짜가 정답<br>
+      반복: <code>while (N &gt;= sum)</code> → <code>sum *= 4</code>, <code>day++</code></p>
+      
+      <ul>
+        <li>초기 합 <code>sum = S</code>를 만든 뒤, <code>N</code> 이상인 동안 4배씩 키우며 날짜를 증가</li>
+        <li>루프 종료 시점의 <code>day</code>가 최소 일수 <code>d</code></li>
+        <li>수식 관점: <code>d = 1 + ⌊log<sub>4</sub>(N/S)⌋</code> (단, <code>S &gt; 0</code>)</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) <code>sum</code>에 6개 초기값을 더해 <code>S</code> 계산 → 2) <code>day=1</code>로 시작 →
+      3) <code>sum</code>이 <code>N</code>을 초과할 때까지 <code>sum *= 4</code>와 <code>day++</code> 반복 →
+      4) <code>day</code> 출력.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>즉시 초과: <code>S &gt; N</code>이면 정답은 <code>1</code>.</li>
+        <li>경계 동일: <code>S == N</code>이면 다음 날에야 초과하므로 <code>2</code>.</li>
+        <li>오버플로(주의): 반복 중 <code>sum</code>이 커질 수 있음. 제약에 따라 <code>long</code> 사용 권장
+          <span>(원문 한도 미확인 시 — 확실하지 않음)</span>.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      각 케이스에 대해 반복 횟수는 <code>O(log(N/S))</code> (밑은 4). 덧셈 6회는 상수.
+      따라서 시간은 <code>O(T + Σ log(N/S))</code>, 추가 공간은 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>총합이 매일 4배가 되는 점을 이용해 기하급수 수열로 모델링한다.</li>
+        <li><code>sum</code>이 <code>N</code>을 처음 <strong>초과</strong>하는 시점의 <code>day</code>가 정답.</li>
+        <li>간단한 반복문으로 구현 가능하며, 로그 시간에 수렴.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
