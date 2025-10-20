@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spring_Validation — spring-jpa.dev</title>
+  <title>JS 기초 — 변수와 타입</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -22,98 +22,127 @@
       <ul id="toc-list"></ul>
     </aside>
 
-    <!-- 우측: 글 본문 -->
+    <!-- 우측: 본문 -->
     <article class="prose">
-      <h1>Validation</h1>
-      <p class="muted">작성일 2025-08-17 · 분류: Spring Boot, Thymeleaf</p>
+      <h1>JS 기초: 변수와 타입</h1>
+      <p class="muted">작성일 2025-10-20 · 분류: JavaScript</p>
 
-      <!-- 1. 개요 -->
+      <!-- 1 -->
       <h2 class="section">개요</h2>
-      <p>2025-08-17 기준 진행 중인 게시판 프로젝트는 사용자가 회원가입/로그인 등 폼 입력에 오류가 발생하면
-      오류 화면으로 이동한다. 이 과정에서 입력된 데이터는 사라진다.</p>
-      <p>앞으로는 입력값을 유지하고, 어떤 오류가 있었는지 명확히 보여주는 방식으로 개선하려 한다.</p>
-      <p>이전에 작성한 <b>스프링 부트</b> 챕터에서도 다뤘듯이, 컨트롤러는 들어온 HTTP 요청이 유효한지 검증해야 한다.
-      검증은 보통 두 축으로 나뉜다.</p>
+      <p>이 문서는 <b>자바스크립트 변수 선언</b>(<code>var</code>, <code>let</code>, <code>const</code>)과 <b>데이터 타입</b>, <b>템플릿 리터럴</b>, <b>null / undefined</b>, <b>타입 변환</b>의 기초를 정리한다. 모든 예제는 콘솔 기준이다.</p>
+
+      <!-- 2 -->
+      <h2 class="section">변수 선언: var / let / const</h2>
+      <p>자바스크립트는 <b>동적 타이핑</b> 언어다. 즉, 변수의 타입은 <b>대입된 값</b>에 의해 결정되며 <code>var</code>, <code>let</code>, <code>const</code> 어느 키워드로든 어떤 타입의 값을 담을 수 있다.</p>
+      <pre><code>// let: 블록 스코프 변수
+let age = 20;         // number
+age = "스무살";       // string (동적 타이핑)
+
+// var: 함수 스코프 변수 (같은 스코프 내 재선언 가능)
+var nickname = "jay";
+var nickname = "kim"; // 가능
+
+// const: 바인딩(식별자→값) 불변 — 반드시 초기화 필요, 재할당 불가
+const API_KEY = "abc123";
+// API_KEY = "def";   // ✗ 재할당 불가
+</code></pre>
+      <div class="callout">
+        <p><b>메모</b>: <code>const</code>는 “바인딩”이 불변일 뿐, <b>참조한 객체/배열의 내부 값</b>은 바뀔 수 있다.</p>
+        <pre><code>const user = { name: "Kim" };
+user.name = "Lee"; // ✓ 내부 변경은 가능
+// user = {}        // ✗ 재할당은 불가</code></pre>
+      </div>
       <ul>
-        <li><b>클라이언트 검증(JavaScript)</b>: 빠르지만 우회해서 POST를 보내는 등 보안에 취약.</li>
-        <li><b>서버 검증</b>: 신뢰성은 높지만 사용자 경험이 떨어질 수 있음.</li>
-        <li><b>권장</b>: 클라이언트와 서버 검증을 적절히 조합해 보안과 UX를 동시에 확보.</li>
+        <li><b>스코프</b>: <code>var</code>는 <b>함수 스코프</b>, <code>let/const</code>는 <b>블록 스코프</b>.</li>
+        <li><b>재선언</b>: 같은 스코프에서 <code>var</code>는 재선언 가능, <code>let/const</code>는 불가.</li>
+        <li><b>호이스팅 &amp; TDZ</b>: 모두 호이스팅되지만 <code>let/const</code>는 <b>TDZ</b> 때문에 선언 전 접근 시 에러.</li>
       </ul>
 
-      <!-- 2. PRG (성공 흐름) -->
-      <h2 class="section">PRG 패턴(성공 흐름)</h2>
-      <p><b>PRG(Post → Redirect → Get)</b>은 폼 제출 후 새로고침으로 인한 중복 제출과 뒤로가기 문제를 막는 전형적인 패턴이다.
-      사용자가 <b>POST</b>로 데이터를 제출하면 서버는 저장을 마친 뒤 <b>Redirect</b> 응답을 보내고,
-      브라우저는 최종 <b>GET</b>으로 결과 페이지를 조회한다. 따라서 새로고침을 해도 GET만 반복되어 데이터가 다시 저장되지 않는다.</p>
-
-      <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-01-PRG.png" alt="게시판 PRG 이미지">
-        <figcaption>성공적인 저장 과정 (PRG: Post → Redirect → Get)</figcaption>
-      </figure>
-
-      <!-- 3. 검증 실패 흐름 -->
-      <h2 class="section">검증 실패 흐름</h2>
-      <p>검증이 실패하면 <b>PRG로 가지 않고</b> 같은 폼 화면을 다시 렌더링한다. 이때 사용자가 입력했던 값과
-      필드별 오류 메시지를 함께 보여줘야 UX가 좋아진다.</p>
-
-      <figure class="figure">
-        <img src="/assets/notes/spring-boot/basics/Validation/SNAPSHOT-02-Validation.png" alt="게시판 Validation 이미지">
-        <figcaption>검증 실패: 입력값 유지 + 오류 메시지 표시</figcaption>
-      </figure>
-
-      <!-- 4. Validation 구현 메모 (진행 중) -->
-      <h2 class="section">Validation 구현 메모 (진행 중)</h2>
-
-      <h3 class="section">BindingResult 기본</h3>
-      <p>컨트롤러에서 폼 객체 바로 뒤에 <code>BindingResult</code>를 두면 바인딩/검증 오류를 담을 수 있다.
-      오류가 있더라도 예외로 튀지 않고 같은 뷰를 다시 렌더링하는 데 활용한다.</p>
-      <pre><code>@PostMapping("/members/new")
-public String save(@Valid MemberForm form, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-        return "members/newForm"; // 입력값 + 오류 메시지 표시
-    }
-    // 저장 로직...
-    return "redirect:/members";
-}</code></pre>
-
-      <h3 class="section">addError()</h3>
-      <p>개별 필드가 아닌 <b>글로벌 오류</b>를 수동으로 추가할 때 쓴다. (또는 특정 상황에서 필드 오류를 직접 구성)</p>
-      <pre><code>if (form.getStartDate().isAfter(form.getEndDate())) {
-    bindingResult.addError(new ObjectError("form",
-        "종료일은 시작일보다 빠를 수 없습니다."));
-}</code></pre>
-
-      <h3 class="section">reject()</h3>
-      <p>글로벌 오류를 <b>메시지 코드</b> 기반으로 추가한다. <code>messages.properties</code>에 코드-문구를 매핑해두면
-      다국어 처리/문구 관리가 편해진다.</p>
-      <pre><code>if (!isBusinessOpen(form.getVisitTime())) {
-    bindingResult.reject("business.closed"); // 메시지 코드
-}</code></pre>
-
-      <h3 class="section">rejectValue()</h3>
-      <p><b>필드 오류</b>를 메시지 코드로 추가한다. 템플릿(Thymeleaf)에서는 <code>th:errors</code>/<code>#fields</code>로 표시.</p>
-      <pre><code>if (form.getEmail() == null || !EMAIL.matcher(form.getEmail()).matches()) {
-    bindingResult.rejectValue("email", "email.invalid");
-}</code></pre>
-
-      <h3 class="section">Thymeleaf에서 오류 표시</h3>
-      <pre><code>&lt;input type="text" th:field="*{email}"
-       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"&gt;
-&lt;div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">이메일 오류&lt;/div&gt;</code></pre>
-
-      <!-- 5. 정리 -->
-      <h2 class="section">정리</h2>
+      <!-- 3 -->
+      <h2 class="section">데이터 타입 개요</h2>
+      <p>주요 타입을 실무 친화적으로 분류하면 다음과 같다.</p>
       <ul>
-        <li>성공: PRG로 중복 제출 방지.</li>
-        <li>실패: 같은 폼 재렌더링(입력값 유지 + 오류 메시지).</li>
-        <li><code>BindingResult</code>로 오류 수집: <code>addError</code> / <code>reject</code> / <code>rejectValue</code>.</li>
+        <li><b>원시 타입(primitive)</b>: <code>number</code>, <code>string</code>, <code>boolean</code>, <code>undefined</code>, <code>null</code> (<span class="muted">그리고 확장으로 <code>symbol</code>, <code>bigint</code></span>)</li>
+        <li><b>객체 타입(object)</b>: 객체 리터럴, <b>배열</b>(배열은 <i>객체의 한 종류</i>), 함수, 날짜 등</li>
+      </ul>
+      <pre><code>let n = 42;                   // number
+let s = "hello";              // string
+let ok = true;                // boolean
+let empty = null;             // 의도적으로 "없음"을 표현하는 값
+let notSet;                   // undefined (선언했지만 초기화X)
+
+let user = { name: "Kim" };   // object
+let list = [1, "a", false];   // array (object의 한 종류)</code></pre>
+
+      <!-- 4 -->
+      <h2 class="section">템플릿 리터럴(백틱)과 보간</h2>
+      <p>백틱(<code>` `</code>)으로 문자열을 감싸고 <code>${식}</code> 형태로 값을 끼워 넣는다.</p>
+      <pre><code>const name = "Jae";
+const score = 95;
+const msg = `이름: ${name}, 점수: ${score}`;
+console.log(msg); // "이름: Jae, 점수: 95"</code></pre>
+
+      <!-- 5 -->
+      <h2 class="section">객체와 배열</h2>
+      <p>객체는 <code>{키:값}</code> 쌍의 집합이며, 배열은 <code>[]</code>로 초기화하는 순서 있는 컬렉션이다. 배열에는 숫자/문자열/불린/객체/배열 등 <b>서로 다른 타입을 혼합</b>해서 담을 수 있다.</p>
+      <pre><code>// 객체
+const person = { name: "Lee", age: 28 };
+// 배열
+const mixed = [123, "abc", true, { x: 1 }, [1, 2, 3]];
+
+console.log(person.name); // "Lee"
+console.log(mixed[3].x);  // 1</code></pre>
+
+      <!-- 6 -->
+      <h2 class="section">null vs undefined</h2>
+      <ul>
+        <li><b>null</b>: 값 그 자체로 <b>비어있음</b>을 표현하는 <b>의도적 값</b>.</li>
+        <li><b>undefined</b>: 변수를 <b>선언만</b> 하고 초기화하지 않았거나, 존재하지 않는 프로퍼티 접근 결과.</li>
+      </ul>
+      <pre><code>let a = null;   // 비어있음을 명시
+let b;          // 선언만 함 → undefined
+console.log(a, b); // null undefined</code></pre>
+
+      <!-- 7 -->
+      <h2 class="section">타입 변환: 암시적 vs 명시적</h2>
+      <p>자바스크립트의 형 변환은 <b>크고/작은 타입</b> 개념이 아니라 <b>문맥</b>에 의해 결정된다.</p>
+      <ul>
+        <li><b>암시적 변환</b>: 연산/비교 등 문맥에서 엔진이 자동 변환.</li>
+        <li><b>명시적 변환</b>: <code>Number(...)</code>, <code>String(...)</code>, <code>Boolean(...)</code> 같은 <b>함수 호출</b>로 직접 변환.</li>
+      </ul>
+      <pre><code>// 암시적 변환 예시
+1 + "2"      // "12"  (문자열 결합 방향)
+"5" * 2      // 10    (숫자 산술 방향)
+"10" - 3     // 7
+"10px" - 3   // NaN   (숫자로 해석 실패)
+
+// 명시적 변환 예시
+let str = "123";
+let num = 123;
+
+Number(str)  // 123 (number)
+String(num)  // "123" (string)
+Boolean("")  // false
+Boolean("a") // true</code></pre>
+      <div class="callout">
+        <p><b>주의</b>: 서로 다른 타입을 연산하면 자동 변환이 일어나지만, <b>항상 “큰 타입으로 승격”되는 규칙은 없다</b>. 덧셈은 문자열이 끼면 보통 문자열 결합, 산술 연산은 보통 숫자 변환이 일어난다.</p>
+      </div>
+
+      <!-- 8 -->
+      <h2 class="section">핵심 개념 요약</h2>
+      <ul>
+        <li><b>동적 타이핑</b>: 변수 타입은 <b>대입값</b>으로 결정된다.</li>
+        <li><b>var/let/const</b>: 스코프/재선언/TDZ 차이를 이해하고, <code>const</code>는 <b>초기화 필수·재할당 불가</b>(단, 참조 객체의 내부 변경은 가능).</li>
+        <li><b>데이터 타입</b>: 원시 타입(숫자/문자열/불린/undefined/null <span class="muted">(+ symbol/bigint)</span>)과 객체 타입. <b>배열은 객체의 한 종류</b>.</li>
+        <li><b>템플릿 리터럴</b>: 백틱과 <code>${}</code>로 값 보간.</li>
+        <li><b>타입 변환</b>: 암시적(문맥 기반) / 명시적(함수 호출 기반). “큰/작은 타입” 개념은 사용하지 않는다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
-  <!-- TOC 자동 생성 (JPQL 페이지와 동일 동작) -->
+  <!-- TOC 자동 생성 -->
   <script>
   (function(){
     const article = document.querySelector('article.prose');
@@ -124,6 +153,7 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
       .trim().replace(/\s+/g, '-').slice(0,64);
     headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
     const toc = document.getElementById('toc-list');
+    if (!toc) return;
     toc.innerHTML = '';
     headers.forEach(h => {
       const li = document.createElement('li');
@@ -136,6 +166,5 @@ public String save(@Valid MemberForm form, BindingResult bindingResult) {
     });
   })();
   </script>
-
 </body>
 </html>
