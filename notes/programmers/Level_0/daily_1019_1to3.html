@@ -51,34 +51,6 @@
         <li>완성된 배열을 그대로 반환한다.</li>
       </ul>
       
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int[][] solution(int n) {
-              int[][] array = new int[n][n];
-              for (int i = 0; i &lt; array.length; i++) {
-                  for (int j = 0; j &lt; array.length; j++) {
-                      if (i == j) array[i][j] = 1;
-                  }
-              }
-              return array;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int n = 4;
-              int[][] result = new Solution().solution(n);
-              System.out.println(Arrays.deepToString(result));
-              // 출력: [[1, 0, 0, 0],
-              //       [0, 1, 0, 0],
-              //       [0, 0, 1, 0],
-              //       [0, 0, 0, 1]]
-          }
-      }
-      </code></pre>
-      
       <p>
         <strong>시간 복잡도</strong>는 이중 반복문을 사용하므로 <code>O(n²)</code>이고,  
         <strong>공간 복잡도</strong>는 결과 배열 크기에 비례하여 <code>O(n²)</code>이다.
@@ -151,50 +123,6 @@
         <li>왼쪽 열(<code>left</code>)을 아래→위로 채운 뒤 <code>left++</code>한다.</li>
         <li>위 과정을 <code>cnt ≤ n²</code>일 동안 반복한다.</li>
       </ul>
-      
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int[][] solution(int n) {
-      
-              int[][] array = new int[n][n];
-              int cnt = 1;
-              int top = 0, bottom = n - 1;
-              int left = 0, right = n - 1;
-              int end = n * n;
-      
-              while (cnt &lt;= end) {
-                  for (int i = left; i &lt;= right &amp;&amp; cnt &lt;= end; i++) array[top][i] = cnt++;
-                  top++;
-      
-                  for (int i = top; i &lt;= bottom &amp;&amp; cnt &lt;= end; i++) array[i][right] = cnt++;
-                  right--;
-      
-                  for (int i = right; i &gt;= left &amp;&amp; cnt &lt;= end; i--) array[bottom][i] = cnt++;
-                  bottom--;
-      
-                  for (int i = bottom; i &gt;= top &amp;&amp; cnt &lt;= end; i--) array[i][left] = cnt++;
-                  left++;
-              }
-      
-              return array;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int n = 4;
-              int[][] result = new Solution().solution(n);
-              System.out.println(Arrays.deepToString(result));
-              // 출력:
-              // [[1, 2, 3, 4],
-              //  [12, 13, 14, 5],
-              //  [11, 16, 15, 6],
-              //  [10, 9, 8, 7]]
-          }
-      }
-      </code></pre>
       
       <p>
         <strong>시간 복잡도</strong>는 배열의 모든 칸을 한 번씩 채우므로 <code>O(n²)</code>이며,  
@@ -273,43 +201,6 @@
         <li>끝까지 검사 후 <code>result</code>를 반환한다.  
             (모든 쌍이 동일하면 <code>result</code>는 1로 유지된다.)</li>
       </ul>
-      
-      <pre><code>// 예시
-      import java.util.*;
-      
-      class Solution {
-          public int solution(int[][] arr) {
-              int result = 1;
-      
-              for (int i = 0; i &lt; arr.length; i++) {
-                  for (int j = 0; j &lt; arr[i].length; j++) {
-                      if (arr[i][j] == arr[j][i]) continue;
-                      else result = 0;
-                  }
-              }
-      
-              return result;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) {
-              int[][] arr1 = {
-                  {1, 2, 3},
-                  {2, 1, 4},
-                  {3, 4, 1}
-              };
-              int[][] arr2 = {
-                  {1, 0, 2},
-                  {0, 1, 0},
-                  {3, 0, 1}
-              };
-      
-              System.out.println(new Solution().solution(arr1)); // 출력: 1 (대칭)
-              System.out.println(new Solution().solution(arr2)); // 출력: 0 (비대칭)
-          }
-      }
-      </code></pre>
       
       <p>
         <strong>시간 복잡도</strong>는 모든 원소 쌍을 검사하므로 <code>O(n²)</code>,  
