@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JS 기초 — 변수와 타입</title>
+  <title>JS 기초 — 연산자·제어문·함수·객체</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -24,117 +24,171 @@
 
     <!-- 우측: 본문 -->
     <article class="prose">
-      <h1>JS 기초: 변수와 타입</h1>
-      <p class="muted">작성일 2025-10-20 · 분류: JavaScript</p>
+      <h1>JS 기초: 연산자·제어문·함수·객체</h1>
+      <p class="muted">작성일 2025-10-21 · 분류: JavaScript</p>
 
       <!-- 1 -->
-      <h2 class="section">개요</h2>
-      <p>이 문서는 <b>자바스크립트 변수 선언</b>(<code>var</code>, <code>let</code>, <code>const</code>)과 <b>데이터 타입</b>, <b>템플릿 리터럴</b>, <b>null / undefined</b>, <b>타입 변환</b>의 기초를 정리한다. 모든 예제는 콘솔 기준이다.</p>
+      <h2 class="section">동등/일치 연산자: == vs ===</h2>
+      <p>자바스크립트의 <code>==</code>는 <b>타입을 암시적으로 변환</b>한 뒤 값만 비교한다. <code>===</code>는 <b>타입과 값</b>을 모두 비교한다.</p>
+      <pre><code>5 == "5"   // true  (문자열 "5" → 숫자 5 로 변환 후 비교)
+5 === "5"  // false (타입이 다르므로 불일치)
+0 == false // true  (암시적 변환 때문에 헷갈릴 수 있음)
+0 === false // false</code></pre>
+      <div class="callout">
+        <p><b>권장</b>: 예측 가능성을 위해 <code>===</code>와 <code>!==</code> 사용을 기본으로 하자.</p>
+      </div>
 
       <!-- 2 -->
-      <h2 class="section">변수 선언: var / let / const</h2>
-      <p>자바스크립트는 <b>동적 타이핑</b> 언어다. 즉, 변수의 타입은 <b>대입된 값</b>에 의해 결정되며 <code>var</code>, <code>let</code>, <code>const</code> 어느 키워드로든 어떤 타입의 값을 담을 수 있다.</p>
-      <pre><code>// let: 블록 스코프 변수
-let age = 20;         // number
-age = "스무살";       // string (동적 타이핑)
+      <h2 class="section">조건문: if / else if / else</h2>
+      <p>기본 형태는 자바와 유사하다. 조건은 <b>truthy/falsy</b> 규칙을 따른다(예: <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>은 falsy).</p>
+      <pre><code>const score = 81;
 
-// var: 함수 스코프 변수 (같은 스코프 내 재선언 가능)
-var nickname = "jay";
-var nickname = "kim"; // 가능
-
-// const: 바인딩(식별자→값) 불변 — 반드시 초기화 필요, 재할당 불가
-const API_KEY = "abc123";
-// API_KEY = "def";   // ✗ 재할당 불가
-</code></pre>
-      <div class="callout">
-        <p><b>메모</b>: <code>const</code>는 “바인딩”이 불변일 뿐, <b>참조한 객체/배열의 내부 값</b>은 바뀔 수 있다.</p>
-        <pre><code>const user = { name: "Kim" };
-user.name = "Lee"; // ✓ 내부 변경은 가능
-// user = {}        // ✗ 재할당은 불가</code></pre>
-      </div>
-      <ul>
-        <li><b>스코프</b>: <code>var</code>는 <b>함수 스코프</b>, <code>let/const</code>는 <b>블록 스코프</b>.</li>
-        <li><b>재선언</b>: 같은 스코프에서 <code>var</code>는 재선언 가능, <code>let/const</code>는 불가.</li>
-      </ul>
+if (score >= 90) {
+  console.log("A");
+} else if (score >= 80) {
+  console.log("B"); // 81 → "B"
+} else {
+  console.log("C");
+}</code></pre>
 
       <!-- 3 -->
-      <h2 class="section">데이터 타입 개요</h2>
-      <p>주요 타입을 실무 친화적으로 분류하면 다음과 같다.</p>
-      <ul>
-        <li><b>원시 타입(primitive)</b>: <code>number</code>, <code>string</code>, <code>boolean</code>, <code>undefined</code>, <code>null</code> (<span class="muted">그리고 확장으로 <code>symbol</code>, <code>bigint</code></span>)</li>
-        <li><b>객체 타입(object)</b>: 객체 리터럴, <b>배열</b>(배열은 객체의 한 종류), 함수, 날짜 등</li>
-      </ul>
-      <pre><code>let n = 42;                   // number
-let s = "hello";              // string
-let ok = true;                // boolean
-let empty = null;             // 의도적으로 "없음"을 표현하는 값
-let notSet;                   // undefined (선언했지만 초기화X)
+      <h2 class="section">switch 문</h2>
+      <p><code>switch</code>는 <b>엄격 비교(===)</b>를 사용한다. 즉, 타입이 다르면 매칭되지 않는다.</p>
+      <pre><code>const v = "2";
 
-let user = { name: "Kim" };   // object
-let list = [1, "a", false];   // array (object의 한 종류)</code></pre>
+switch (v) {
+  case 2:           // 매칭 안 됨 (number 2)
+    console.log("num 2");
+    break;
+  case "2":         // 매칭됨 (string "2")
+    console.log("str 2");
+    break;
+  default:
+    console.log("기타");
+}</code></pre>
 
       <!-- 4 -->
-      <h2 class="section">템플릿 리터럴(백틱)과 보간</h2>
-      <p>백틱(<code>` `</code>)으로 문자열을 감싸고 <code>${식}</code> 형태로 값을 끼워 넣는다.</p>
-      <pre><code>const name = "Jae";
-const score = 95;
-const msg = `이름: ${name}, 점수: ${score}`;
-console.log(msg); // "이름: Jae, 점수: 95"</code></pre>
+      <h2 class="section">반복문: for (전통)</h2>
+      <p>전통적인 <code>for</code>문은 인덱스로 순회한다.</p>
+      <pre><code>const arr = ["a", "b", "c"];
+for (let i = 0; i &lt; arr.length; i++) {
+  console.log(i, arr[i]); // 0 "a" / 1 "b" / 2 "c"
+}</code></pre>
 
       <!-- 5 -->
-      <h2 class="section">객체와 배열</h2>
-      <p>객체는 <code>{키:값}</code> 쌍의 집합이며, 배열은 <code>[]</code>로 초기화하는 순서 있는 컬렉션이다. 배열에는 숫자/문자열/불린/객체/배열 등 <b>서로 다른 타입을 혼합</b>해서 담을 수 있다.</p>
-      <pre><code>// 객체
-const person = { name: "Lee", age: 28 };
-// 배열
-const mixed = [123, "abc", true, { x: 1 }, [1, 2, 3]];
+      <h2 class="section">반복문: for...of (값 순회)</h2>
+      <p><code>for...of</code>는 <b>배열 등 이터러블의 값</b>을 순회한다. <b>일반 객체에는 바로 사용하지 않는다</b> (객체는 이터러블이 아님).</p>
+      <pre><code>const arr = [10, 20, 30];
+for (const v of arr) {
+  console.log(v); // 10 / 20 / 30
+}
 
-console.log(person.name); // "Lee"
-console.log(mixed[3].x);  // 1</code></pre>
+// 객체에 값을 돌고 싶다면:
+const user = { name: "Kim", age: 30 };
+// for (const v of user) { ... } // ✗ 에러
+for (const v of Object.values(user)) {
+  console.log(v); // "Kim", 30
+}</code></pre>
 
       <!-- 6 -->
-      <h2 class="section">null vs undefined</h2>
-      <ul>
-        <li><b>null</b>: 값 그 자체로 <b>비어있음</b>을 표현하는 <b>의도적 값</b>.</li>
-        <li><b>undefined</b>: 변수를 <b>선언만</b> 하고 초기화하지 않았거나, 존재하지 않는 프로퍼티 접근 결과.</li>
-      </ul>
-      <pre><code>let a = null;   // 비어있음을 명시
-let b;          // 선언만 함 → undefined
-console.log(a, b); // null undefined</code></pre>
+      <h2 class="section">반복문: for...in (키 순회)</h2>
+      <p><code>for...in</code>은 <b>객체의 열거 가능한 키</b>를 순회한다. 자신의 키만 보려면 <code>Object.hasOwn()</code> 체크를 해 주는 습관을 들이자.</p>
+      <pre><code>const user = { name: "Lee", age: 28 };
+for (const key in user) {
+  if (Object.hasOwn(user, key)) {
+    console.log(key, user[key]); // name "Lee" / age 28
+  }
+}</code></pre>
 
       <!-- 7 -->
-      <h2 class="section">타입 변환: 암시적 vs 명시적</h2>
-      <p>자바스크립트의 형 변환은 <b>크고/작은 타입</b> 개념이 아니라 <b>문맥</b>에 의해 결정된다.</p>
-      <ul>
-        <li><b>암시적 변환</b>: 연산/비교 등 문맥에서 엔진이 자동 변환.</li>
-        <li><b>명시적 변환</b>: <code>Number(...)</code>, <code>String(...)</code>, <code>Boolean(...)</code> 같은 <b>함수 호출</b>로 직접 변환.</li>
-      </ul>
-      <pre><code>// 암시적 변환 예시
-1 + "2"      // "12"  (문자열 결합 방향)
-"5" * 2      // 10    (숫자 산술 방향)
-"10" - 3     // 7
-"10px" - 3   // NaN   (숫자로 해석 실패)
+      <h2 class="section">반복문: while / do...while</h2>
+      <p><code>while</code>은 먼저 조건을 평가하고, <code>do...while</code>은 <b>한 번은 무조건 실행</b>한 뒤 조건을 평가한다.</p>
+      <pre><code>// while
+let n = 3;
+while (n &gt; 0) {
+  console.log(n); // 3, 2, 1
+  n--;
+}
 
-// 명시적 변환 예시
-let str = "123";
-let num = 123;
-
-Number(str)  // 123 (number)
-String(num)  // "123" (string)
-Boolean("")  // false
-Boolean("a") // true</code></pre>
-      <div class="callout">
-        <p><b>주의</b>: 서로 다른 타입을 연산하면 자동 변환이 일어나지만, <b>항상 “큰 타입으로 승격”되는 규칙은 없다</b>. 덧셈은 문자열이 끼면 보통 문자열 결합, 산술 연산은 보통 숫자 변환이 일어난다.</p>
-      </div>
+// do...while
+let m = 0;
+do {
+  console.log("최소 1번은 실행"); // 이 줄은 항상 한 번 실행됨
+  m++;
+} while (m &lt; 0);</code></pre>
 
       <!-- 8 -->
-      <h2 class="section">핵심 개념 요약</h2>
+      <h2 class="section">함수: 선언문 vs 표현식</h2>
+      <p>함수는 <b>정의</b>하고 <b>호출</b>한다. 자바스크립트는 동적 타이핑이므로 매개변수에 타입을 적지 않는다.</p>
+      <pre><code>// 함수 선언문 (Declaration) — 전체가 호이스팅되어 어디서든 호출 가능
+console.log(add(1, 2)); // 3
+function add(a, b) {
+  return a + b;
+}
+
+// 함수 표현식 (Expression) — 값으로 변수에 담는다
+// 권장: 재할당 방지를 위해 const 사용
+const mul = function (a, b) {
+  return a * b;
+};
+console.log(mul(2, 3)); // 6
+
+// 주의: var로 함수 표현식을 선언하면 호이스팅/재선언 이슈가 있다 (지양).
+// let도 가능하지만 보통 const를 써서 의도치 않은 재할당을 막는다.</code></pre>
+      <div class="callout">
+        <p><b>호이스팅</b>: 함수 <b>선언문</b>은 정의 자체가 호이스팅되어 선언 위치보다 위에서 호출 가능하다. 함수 <b>표현식</b>은 변수에 할당되기 전에는 사용할 수 없다.</p>
+      </div>
+
+      <!-- 9 -->
+      <h2 class="section">객체와 this</h2>
+      <p>객체는 <code>{키:값}</code> 형태다. 값에는 숫자/문자열/불린/함수(메서드) 등이 올 수 있다. <code>this</code>는 <b>호출 방식</b>에 따라 달라진다.</p>
+      <pre><code>const counter = {
+  value: 0,
+  inc: function () {
+    this.value++; // 메서드로 호출되면 this → counter
+  }
+};
+
+counter.inc();
+console.log(counter.value); // 1
+
+function showThis() {
+  "use strict";
+  console.log(this);
+}
+showThis(); // 엄격 모드: undefined (비엄격 모드 브라우저에선 window)</code></pre>
+      <p><b>생성자 함수</b>는 <code>new</code>와 함께 호출해 인스턴스를 만든다. 내부에서 <code>this</code>로 프로퍼티를 설정한다.</p>
+      <pre><code>function User(name, age) {
+  this.name = name;
+  this.age = age;
+}
+const u = new User("Kim", 30);
+console.log(u.name, u.age); // "Kim" 30</code></pre>
+
+      <!-- 10 -->
+      <h2 class="section">프로토타입과 프로토타입 체인</h2>
+      <p>생성자 함수로 만든 인스턴스는 <code>생성자함수.prototype</code>에 연결되어 있다. 여기에 메서드를 정의하면 모든 인스턴스가 공유해서 사용한다.</p>
+      <pre><code>function User(name) { this.name = name; }
+User.prototype.sayHi = function () {
+  console.log(`Hi, ${this.name}`);
+};
+
+const a = new User("Lee");
+const b = new User("Park");
+a.sayHi(); // Hi, Lee
+b.sayHi(); // Hi, Park</code></pre>
+      <div class="callout">
+        <p><b>프로토타입 체인</b>: 객체에 없는 프로퍼티/메서드를 찾을 때 자바스크립트는 그 객체의 프로토타입, 그 위의 프로토타입… 순서로 탐색한다. <b><code>Object.prototype</code>을 임의로 수정하는 것은 지양</b>하자.</p>
+      </div>
+
+      <!-- 11 -->
+      <h2 class="section">요약</h2>
       <ul>
-        <li><b>동적 타이핑</b>: 변수 타입은 <b>대입값</b>으로 결정된다.</li>
-        <li><b>var/let/const</b>: 스코프/재선언 차이를 이해하고, <code>const</code>는 <b>초기화 필수·재할당 불가</b>(단, 참조 객체의 내부 변경은 가능).</li>
-        <li><b>데이터 타입</b>: 원시 타입(숫자/문자열/불린/undefined/null <span class="muted">(+ symbol/bigint)</span>)과 객체 타입. <b>배열은 객체의 한 종류</b>.</li>
-        <li><b>템플릿 리터럴</b>: 백틱과 <code>${}</code>로 값 보간.</li>
-        <li><b>타입 변환</b>: 암시적(문맥 기반) / 명시적(함수 호출 기반). “큰/작은 타입” 개념은 사용하지 않는다.</li>
+        <li><b>연산자</b>: <code>==</code>는 암시적 변환, <code>===</code>는 타입+값 비교(권장).</li>
+        <li><b>조건/분기</b>: <code>if</code>는 truthy/falsy, <code>switch</code>는 <code>===</code> 기반.</li>
+        <li><b>반복</b>: 전통 <code>for</code>(인덱스), <code>for...of</code>(값·이터러블), <code>for...in</code>(키·객체).</li>
+        <li><b>함수</b>: 선언문은 호이스팅, 표현식은 할당 후 사용. 표현식엔 <code>const</code> 권장.</li>
+        <li><b>객체/this</b>: 호출 방식에 따라 <code>this</code> 달라짐. 생성자+<code>prototype</code>으로 공통 메서드 공유.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
