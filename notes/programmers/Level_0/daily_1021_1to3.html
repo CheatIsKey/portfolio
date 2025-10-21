@@ -24,57 +24,57 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-20 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-10-21 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 정사각형으로 만들기</h2>
+      <h2 class="section">문제 1 — 다음에 올 숫자</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181830">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120924">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1021_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        2차원 정수 배열 <code>arr</code>이 주어졌을 때,  
-        <strong>가장 긴 행의 길이</strong>와 <strong>행의 개수</strong> 중 더 큰 값을 한 변의 길이로 하여  
-        <strong>정사각형 크기</strong>의 새 배열을 만들고, 기존 원소를 같은 위치에 복사해 반환하는 문제다.
-        부족한 칸은 기본값 <code>0</code>으로 채워진다(자바의 배열 초기화 특성).
+        정수 수열 <code>common</code>이 주어졌을 때,  
+        이 수열이 <strong>등차수열</strong>인지 <strong>등비수열</strong>인지 판별하고  
+        다음에 올 항을 구해 반환하는 문제다.
       </p>
       
       <ul>
-        <li><code>row</code> = <code>arr.length</code>로 행의 개수를 구한다.</li>
-        <li>모든 행을 돌며 <code>column</code> = 각 행 길이의 최댓값을 계산한다(자바의 2차원 배열은 가변 길이일 수 있음).</li>
-        <li><code>size</code> = <code>max(row, column)</code>로 목표 정사각형 한 변의 길이를 정한다.</li>
-        <li><code>size × size</code> 새 배열을 생성한다(새 배열의 나머지 칸은 자동으로 <code>0</code>).</li>
-        <li>원본 배열의 유효 범위(<code>i &lt; row</code>, <code>j &lt; arr[i].length</code>)만 순회하며 값을 그대로 복사한다.</li>
+        <li><code>common[1] - common[0]</code>과 <code>common[2] - common[1]</code>이 같으면 <strong>등차수열</strong>이다.</li>
+        <li>그렇지 않으면 <strong>등비수열</strong>이다.</li>
+        <li>등차수열일 경우, 다음 항은 마지막 항 + 공차(<code>common[1] - common[0]</code>).</li>
+        <li>등비수열일 경우, 다음 항은 마지막 항 × 공비(<code>common[1] / common[0]</code>).</li>
+        <li>모든 연산은 정수형으로 처리되며, 입력이 항상 등차 또는 등비 중 하나임이 보장된다.</li>
       </ul>
       
       <p>
-        <strong>시간 복잡도</strong>는 한 번의 최대 길이 탐색과 한 번의 복사로,  
-        <code>O(R + S)</code> (여기서 <code>R</code>은 행 수, <code>S</code>는 모든 원소 수의 합)이며,  
-        보통 <code>O(R · C<sub>max</sub>)</code>로 볼 수 있다.  
-        <strong>공간 복잡도</strong>는 결과 배열 크기에 비례해 <code>O(size²)</code>이다.
+        <strong>시간 복잡도</strong>는 배열의 길이에 관계없이  
+        일정한 연산만 수행하므로 <code>O(1)</code>이다.  
+        <strong>공간 복잡도</strong>도 추가적인 자료구조를 사용하지 않아 <code>O(1)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>자바의 2차원 배열은 jagged 구조일 수 있으므로, 각 행마다 <code>arr[i].length</code>를 사용해 인덱스 범위를 확인한다.</li>
-        <li>복사 시 인덱스 조건을 명확히 해 <code>ArrayIndexOutOfBoundsException</code>을 방지한다.</li>
-        <li>빈 배열(<code>arr.length == 0</code>)이나 빈 행(<code>arr[i].length == 0</code>)이 있어도 로직이 자연스럽게 처리되도록 한다.</li>
+        <li>정수 나눗셈(<code>/</code>)을 사용할 때, 입력이 항상 등비수열 조건을 만족하므로  
+          정수 결과가 나온다고 가정할 수 있다.</li>
+        <li>길이가 3 이상인 수열에서 첫 세 항만으로도 수열의 성격을 판별할 수 있다.</li>
+        <li>문제 조건상 0으로 나누는 경우는 주어지지 않는다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li>각 행을 <code>Arrays.copyOf</code>로 <code>size</code> 길이까지 확장한 뒤, 부족한 행 수만큼 길이 <code>size</code>의 0-배열을 추가해도 된다.</li>
-          <li>행 복사에는 <code>System.arraycopy</code>를 써서 미세한 성능 향상을 노릴 수 있다(유효 범위만 복사).</li>
-          <li>불변성을 강조하려면, 원본을 건드리지 않고 항상 새 배열을 만들어 반환하는 방식을 유지한다.</li>
+          <li>if-else 대신 <code>삼항 연산자(?:)</code>를 사용해 한 줄로 간결하게 표현할 수 있다.</li>
+          <li>등차/등비 판별을 함수로 분리하면 가독성이 향상된다.</li>
+          <li>향후 실수 연산이 포함되는 경우, <code>double</code> 타입을 사용하도록 확장할 수 있다.</li>
         </ul>
       </details>
+
 
 
 
@@ -92,57 +92,52 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 이차원 배열 대각선 순회하기</h2>
+      <h2 class="section">문제 2 — 연속된 수의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181829">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120923">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1021_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        2차원 정수 배열 <code>board</code>와 정수 <code>k</code>가 주어졌을 때,  
-        <strong>행 인덱스와 열 인덱스의 합이 <code>k</code> 이하인 위치</strong>의 원소들만 골라  
-        그 값을 모두 더한 결과를 반환하는 문제다.
+        연속된 정수 <code>num</code>개의 합이 <code>total</code>이 되도록 하는  
+        <strong>수열을 찾는 문제</strong>다.  
+        즉, 길이 <code>num</code>의 등차수열을 찾아야 하며,  
+        이때 공차는 <code>1</code>로 고정되어 있다.
       </p>
       
       <ul>
-        <li>이중 반복문을 이용해 배열의 모든 좌표 <code>(i, j)</code>를 순회한다.</li>
-        <li>각 좌표마다 <code>i + j ≤ k</code>이면 해당 원소를 합산한다.</li>
-        <li>모든 원소를 확인한 후 누적된 합을 반환한다.</li>
+        <li>연속된 정수의 합은 <code>시작값 × num + (0 + 1 + ... + (num - 1))</code>과 같다.</li>
+        <li>등차수열의 합 공식을 이용하면, <code>시작값 = (total - num × (num - 1) / 2) / num</code>이다.</li>
+        <li>계산된 시작값 <code>n</code>을 기준으로 <code>n, n+1, n+2, ..., n+num-1</code>을 배열에 채운다.</li>
+        <li>결과적으로 합이 <code>total</code>이 되는 길이 <code>num</code>의 연속된 정수 배열이 완성된다.</li>
       </ul>
       
       <p>
-        <strong>시간 복잡도</strong>는 배열의 모든 칸을 한 번씩 확인하므로 <code>O(n × m)</code>이고,  
-        <strong>공간 복잡도</strong>는 추가 변수 <code>sum</code>만 사용하므로 <code>O(1)</code>이다.
+        <strong>시간 복잡도</strong>는 배열을 한 번 순회하며 채우므로 <code>O(num)</code>이다.  
+        <strong>공간 복잡도</strong>는 결과 배열 크기에 비례하므로 <code>O(num)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>조건은 <code>i + j ≤ k</code>이므로, 대각선 형태로 제한된 영역만 합산된다.</li>
-        <li><code>k</code>가 충분히 크면 전체 배열의 합과 동일해질 수 있다.</li>
-        <li>빈 배열이나 열의 길이가 불규칙한 경우(jagged array)에도 인덱스 접근 시 예외가 발생하지 않도록 유효 범위를 확인한다.</li>
+        <li><code>total</code>과 <code>num</code>의 부호 관계에 따라 <code>시작값 n</code>이 음수가 될 수 있다.</li>
+        <li>모든 계산은 정수형 범위 내에서 수행되며, 나눗셈 결과도 정수로 떨어진다.</li>
+        <li><code>num</code>이 1인 경우, 결과는 <code>[total]</code>이 된다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li>이중 반복문 대신 <code>IntStream</code>을 이용해 조건 필터링 및 합산을 간결하게 표현할 수 있다.
-            <pre><code>// 예시
-      int sum = IntStream.range(0, board.length)
-          .map(i -> IntStream.range(0, board[i].length)
-              .filter(j -> i + j <= k)
-              .map(j -> board[i][j])
-              .sum())
-          .sum();
-            </code></pre>
-          </li>
-          <li>단, 반복문 방식이 더 명확하고 성능상 유리하다.</li>
+          <li>등차수열의 중앙값을 이용해 <code>중앙값 = total / num</code>에서 시작값을 역산할 수도 있다.</li>
+          <li>스트림(<code>IntStream.range</code>)을 이용하면 더 간결하게 배열을 생성할 수 있다.</li>
+          <li>수학적 접근 외에도 브루트포스로 합을 맞춰보는 방법이 있으나, 효율성에서 불리하다.</li>
         </ul>
       </details>
+
 
 
 
@@ -162,57 +157,54 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 옹알이 (1)</h2>
+      <h2 class="section">문제 3 — 종이 자르기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120956">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120922">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1020_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1021_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        문자열 배열 <code>babbling</code>이 주어졌을 때,  
-        각 문자열이 <strong>"aya", "ye", "woo", "ma"</strong> 네 가지 발음만으로 구성되어 있다면  
-        그 문자열을 발음할 수 있다고 판단하여,  
-        <strong>발음 가능한 문자열의 개수</strong>를 세어 반환하는 문제다.
+        <code>M × N</code> 크기의 종이를 <strong>1×1 조각</strong>으로 모두 자르기 위해  
+        필요한 <strong>최소 자르기 횟수</strong>를 구하는 문제다.  
+        각 자를 때마다 종이는 여러 조각으로 나뉘며, 모든 조각이 독립적으로 잘릴 수 있다.
       </p>
       
       <ul>
-        <li>가능한 발음 목록을 <code>{"aya", "ye", "woo", "ma"}</code>로 정의한다.</li>
-        <li>각 문자열 <code>s</code>에 대해 모든 발음을 순회하며 <code>s.replace(word, " ")</code>로 해당 발음을 제거한다.</li>
-        <li>모든 발음을 제거한 후 남은 문자열의 공백을 제거한다(<code>s.replace(" ", "")</code>).</li>
-        <li>결과 문자열이 빈 문자열(<code>""</code>)이라면,  
-            해당 단어는 네 가지 발음만으로 이루어진 것이므로 카운트를 증가시킨다.</li>
+        <li>종이를 한 번 자를 때마다 조각 수가 1개 증가한다.</li>
+        <li>따라서 최종적으로 <code>M × N</code>개의 조각을 얻으려면,  
+          <strong>(조각 수 - 1)</strong>번의 자르기가 필요하다.</li>
+        <li>결과적으로 필요한 최소 자르기 횟수는 <code>M × N - 1</code>이다.</li>
       </ul>
       
       <p>
-        <strong>시간 복잡도</strong>는 각 단어마다 4개의 발음을 검사하므로  
-        대략 <code>O(N × M)</code> (여기서 <code>N</code>은 단어 수, <code>M</code>은 평균 문자열 길이)이다.  
-        <strong>공간 복잡도</strong>는 문자열 복사에 비례하지만, 보조 변수 외엔 추가 공간이 없어 <code>O(1)</code>로 볼 수 있다.
+        <strong>시간 복잡도</strong>는 단순한 산술 연산만 수행하므로 <code>O(1)</code>이다.  
+        <strong>공간 복잡도</strong> 또한 추가 메모리를 사용하지 않아 <code>O(1)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>이 방식은 연속해서 같은 발음이 반복된 경우(예: <code>"ayaaya"</code>)도 유효하게 처리한다.</li>
-        <li>문제의 확장 버전에서는 같은 발음을 연속해서 사용할 수 없다는 제약이 있으므로, 그 경우엔 별도의 검증 로직이 필요하다.</li>
-        <li>문자열 치환 시 공백을 다른 문자로 바꾸더라도 무방하지만, 이후 <code>replace(" ", "")</code>로 일관되게 제거해야 한다.</li>
+        <li><code>M</code>과 <code>N</code>이 1인 경우, 자를 필요가 없으므로 결과는 <code>0</code>이다.</li>
+        <li>모든 계산은 정수 범위 내에서 수행된다.</li>
+        <li>문제 조건상 <code>M</code>과 <code>N</code>은 1 이상의 자연수다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li><code>String.replaceAll()</code>과 정규식을 사용해 한 번에 처리할 수도 있다.
-            <pre><code>// 예시
-      s = s.replaceAll("aya|ye|woo|ma", "");
-      if (s.isEmpty()) cnt++;
-            </code></pre>
-          </li>
-          <li>정규식 사용 시 코드가 간결해지지만, 반복 발음 검증을 세밀하게 제어하기는 어렵다.</li>
+          <li>자르기 과정을 시각적으로 생각하면,  
+            가로로 <code>M - 1</code>번, 세로로 <code>N - 1</code>번 자르는 과정을 합산해  
+            <code>(M - 1) + M × (N - 1) = M × N - 1</code>로도 유도할 수 있다.</li>
+          <li>이 공식은 재귀적 접근(<code>f(M, N) = f(M-1, N) + N</code>)으로도 동일하게 도출된다.</li>
+          <li>문제는 본질적으로 조각 수의 증가 규칙을 단순화한 형태이므로,  
+            수학적 귀납으로도 손쉽게 증명할 수 있다.</li>
         </ul>
       </details>
+
 
 
 
