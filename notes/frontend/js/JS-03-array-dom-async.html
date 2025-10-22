@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JS 기초 — 배열 · DOM · 비동기 프로그래밍</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측: 자동 생성 목차 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">목차</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <!-- 우측: 본문 -->
+    <article class="prose">
+      <h1>JS 기초: 배열 · DOM · 비동기 프로그래밍</h1>
+      <p class="muted">작성일 2025-10-22 · 분류: JavaScript</p>
+
+      <!-- 1 -->
+      <h2 class="section">배열 요소 조작</h2>
+      <p>배열은 <code>splice()</code>, <code>pop()</code>, <code>delete</code> 등을 통해 요소를 수정·삭제할 수 있다.</p>
+      <pre><code>const arr = ["a", "b", "c", "d"];
+
+// 1) splice(index, count) — 삭제
+arr.splice(1, 1);  // 1번 인덱스("b") 삭제 → ["a", "c", "d"]
+
+// 2) splice(index, 0, 값) — 추가
+arr.splice(1, 0, "x"); // ["a", "x", "c", "d"]
+
+// 3) pop() — 마지막 요소 제거
+arr.pop(); // ["a", "x", "c"]
+
+// 4) delete arr[index] — 값만 삭제, 빈칸(undefined) 남음
+delete arr[1]; // ["a", empty, "c"]
+console.log(arr[1]); // undefined</code></pre>
+      <div class="callout">
+        <p><b>주의</b>: <code>delete</code>는 배열의 인덱스 공간을 유지한 채 값을 지워서 <b>희소 배열</b>을 만든다. 일반적으로 <code>splice()</code>를 사용하는 것이 더 안전하다.</p>
+      </div>
+
+      <!-- 2 -->
+      <h2 class="section">DOM(Document Object Model)</h2>
+      <p><b>DOM</b>은 HTML 문서를 자바스크립트가 이해할 수 있도록 <b>객체 트리 구조</b>로 표현한 것이다. 각 HTML 요소(태그)는 DOM 객체로 변환되어 JS에서 접근·조작이 가능하다.</p>
+      <pre><code>// HTML의 &lt;img&gt;, &lt;p&gt;, &lt;button&gt; 같은 요소를 JS에서 객체로 다룰 수 있다.
+document.body.style.backgroundColor = "beige";</code></pre>
+
+      <!-- 3 -->
+      <h2 class="section">DOM 선택자와 접근</h2>
+
+      <h3 class="section">1) 태그 선택</h3>
+      <pre><code>document.querySelector("p"); // 첫 번째 &lt;p&gt; 요소를 선택</code></pre>
+
+      <h3 class="section">2) ID 선택자</h3>
+      <pre><code>document.getElementById("mainTitle");  // ID로 접근
+document.querySelector("#mainTitle");  // 동일한 결과 (CSS 선택자 방식)</code></pre>
+
+      <h3 class="section">3) 클래스 선택자</h3>
+      <pre><code>document.getElementsByClassName("item"); // 여러 요소 → HTMLCollection(유사 배열)
+document.querySelector(".item");         // 첫 번째 요소만 반환</code></pre>
+      <div class="callout">
+        <p><b>주의</b>: <code>getElementsByClassName()</code>은 여러 요소를 반환하므로 직접 스타일을 지정하려면 인덱스로 접근해야 한다.</p>
+      </div>
+      <pre><code>const boxes = document.getElementsByClassName("box");
+boxes[0].style.backgroundColor = "skyblue"; // 첫 번째 요소만 변경</code></pre>
+
+      <!-- 4 -->
+      <h2 class="section">DOM 스타일 조작</h2>
+      <p>선택한 요소에 <code>.style.속성명</code>을 지정하면 CSS 속성을 JS로 제어할 수 있다.</p>
+      <pre><code>document.querySelector("img").style.border = "2px solid black";
+document.getElementById("title").style.color = "red";</code></pre>
+
+      <!-- 5 -->
+      <h2 class="section">비동기 프로그래밍 개념</h2>
+      <p><b>동기(Synchronous)</b>는 작업이 순차적으로 진행되어 <b>하나가 끝나야 다음으로 넘어간다</b>.  
+         <b>비동기(Asynchronous)</b>는 한 작업이 끝나지 않아도 <b>다른 작업이 병행</b>되어 효율이 높다.</p>
+      <pre><code>// 예시 (흐름 설명용)
+console.log("A 시작");
+setTimeout(()=> console.log("B (지연 작업)"), 1000);
+console.log("C 종료");
+
+// 출력 순서: A → C → (1초 뒤) B</code></pre>
+      <div class="callout">
+        <p>자바스크립트는 단일 스레드 언어지만, 비동기 처리를 통해 <b>UI 멈춤 없이</b> 여러 작업을 동시에 다루는 것처럼 동작한다.</p>
+      </div>
+
+      <!-- 6 -->
+      <h2 class="section">콜백 함수 (Callback)</h2>
+      <p>콜백 함수는 다른 함수의 <b>인자로 전달되어, 작업이 끝난 후 실행</b>되는 함수다.</p>
+      <pre><code>function greet(name, callback){
+  console.log("안녕, " + name);
+  callback(); // 완료 후 실행
+}
+
+function done(){
+  console.log("인사 완료!");
+}
+
+greet("지민", done); // "안녕, 지민" → "인사 완료!"</code></pre>
+      <p>대표적인 비동기 함수인 <code>setTimeout</code>은 콜백을 이용한다.</p>
+      <pre><code>setTimeout(() => {
+  console.log("3초 후 실행");
+}, 3000);</code></pre>
+
+      <!-- 7 -->
+      <h2 class="section">Promise</h2>
+      <p><code>Promise</code>는 비동기 작업의 성공(<code>resolve</code>) 또는 실패(<code>reject</code>)를 표현한다.</p>
+      <pre><code>const test = new Promise((resolve, reject) => {
+  const isTrue = true;
+  if (isTrue) {
+    resolve("성공!");
+  } else {
+    reject("실패!");
+  }
+});
+
+test
+  .then((message) => console.log(message)) // 성공 시
+  .catch((error) => console.error(error)); // 실패 시</code></pre>
+      <div class="callout">
+        <p><b>Promise 체이닝</b>: <code>.then()</code>은 순차 실행, <code>.catch()</code>는 에러 처리에 사용한다.</p>
+      </div>
+
+      <!-- 8 -->
+      <h2 class="section">async / await</h2>
+      <p><code>async</code> 함수 안에서 <code>await</code>는 Promise가 <b>완료될 때까지 기다린 뒤</b> 다음 코드를 실행한다.</p>
+      <pre><code>function delay(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function run(){
+  console.log("시작");
+  await delay(2000);  // 2초 기다림
+  console.log("2초 후 실행");
+}
+run();</code></pre>
+      <p>즉, <code>await</code>는 <b>Promise의 결과가 반환될 때까지</b> 기다리는 키워드다. 비동기 흐름을 <b>동기식처럼 읽기 쉽게</b> 만든다.</p>
+
+      <!-- 9 -->
+      <h2 class="section">요약</h2>
+      <ul>
+        <li><b>배열 조작</b>: <code>splice()</code>(추가/삭제/수정), <code>pop()</code>(마지막 삭제), <code>delete</code>(값만 삭제·인덱스 유지).</li>
+        <li><b>DOM</b>: HTML 문서를 JS 객체 트리로 표현한 것.</li>
+        <li><b>요소 선택</b>: <code>getElementById</code> / <code>getElementsByClassName</code> / <code>querySelector</code>.</li>
+        <li><b>비동기</b>: <code>callback</code> → <code>Promise</code> → <code>async/await</code> 순으로 발전.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <!-- TOC 자동 생성 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    if (!toc) return;
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      if(h.tagName === 'H3') li.classList.add('level-3');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
