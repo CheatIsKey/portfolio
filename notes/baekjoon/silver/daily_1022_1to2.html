@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-21 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 3227 — MO</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3227">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1021_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      길이 <code>P</code>의 1차원 보드(1-indexed)에서 흰색과 검은색이 번갈아 말을 둔다.<br>
+      매 턴 현재 색 <code>c</code>가 위치 <code>pos</code>에 말을 놓은 뒤, 왼쪽과 오른쪽 각각에 대해 연속된 상대색 구간이 자신의 말로 양끝이 감싸져 있으면 그 구간의 상대 말을 <strong>모두 제거</strong>한다(뒤집지 않음).<br>
+      즉, 한쪽 방향에서 <code>... c (상대)* c ...</code> 형태가 되면 가운데 상대 말들이 사라진다. 두 방향은 서로 독립적으로 처리된다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 첫 줄 <code>P N</code>, 이어서 <code>N</code>개의 수(여러 줄에 걸쳐 있을 수 있음)로 각 턴의 착수 위치 <code>pos</code>.<br>
+      턴 순서: 0번째(첫 턴)는 흰색, 1번째는 검은색이며 짝수 턴은 흰색, 홀수 턴은 검은색.<br>
+      출력: 모든 턴을 처리한 뒤 보드 위에 남아 있는 흰/검 말의 개수 <code>"white black"</code>.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>board[1..P]</code>: 각 칸의 상태 (0=EMPTY, 1=WHITE, 2=BLACK)<br>
+      <code>whiteCnt, blackCnt</code>: 현재 보드에 남은 말의 개수 집계<br>
+      <code>color</code>/<code>opp</code>: 이번 턴의 내 색 / 상대 색 (턴 번호로 결정)<br>
+      착수 후 양방향 처리 규칙은 다음과 같다.</p>
+      
+      <ul>
+        <li>왼쪽: <code>i = pos-1</code>에서 시작해 연속된 상대 말을 건너뛴 뒤, 첫 비상대 칸 <code>i</code>가 내 색이면 <code>(i+1 .. pos-1)</code> 구간의 상대 말을 <strong>제거</strong>한다.</li>
+        <li>오른쪽: <code>j = pos+1</code>에서 동일하게 진행하며, 내 말로 닫히면 <code>(pos+1 .. j-1)</code> 구간의 상대 말을 제거한다.</li>
+      </ul>
+      
+      <ul>
+        <li>착수: <code>board[pos] = color</code>로 말을 놓고 해당 색 개수를 +1 한다.</li>
+        <li>제거: 상대 말을 <code>EMPTY</code>로 바꾸고 상대 색 개수를 감소시킨다.</li>
+        <li>왼쪽과 오른쪽은 독립적으로 모두 처리할 수 있다.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 각 턴에서 착수 위치 <code>pos</code>를 읽고 현재 색을 결정한다(짝수=흰, 홀수=검).<br>
+      2) 말을 놓고(<code>board[pos]=color</code>) 개수를 갱신한다.<br>
+      3) 왼쪽 방향을 스캔하여 상대 연속 구간이 내 말로 닫혀 있으면 그 사이 말을 제거한다.<br>
+      4) 오른쪽 방향에서도 동일한 방식으로 처리한다.<br>
+      5) 모든 턴이 끝나면 최종적으로 <code>whiteCnt blackCnt</code>를 출력한다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>보드 끝까지 가도 내 말로 닫히지 않으면 제거되지 않는다(중간에 빈칸이 있거나 경계에 닿으면 실패).</li>
+        <li>양쪽 방향이 모두 조건을 만족하면 두 구간에서 각각 제거가 일어난다.</li>
+        <li>착수 위치 주변이 즉시 내 말로 둘러싸인 경우(상대가 0개)에는 제거가 발생하지 않는다.</li>
+        <li>입력의 착수 위치는 항상 유효하고 비어 있다고 가정한다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      공간 복잡도는 보드 배열 <code>O(P)</code>와 상수 변수만 사용하므로 <code>O(P)</code>.<br>
+      시간 복잡도는 각 턴마다 좌우로 선형 스캔을 수행하므로 최악의 경우 <code>O(P)</code>, 전체는 <code>O(N·P)</code>.<br>
+      단, 실제 입력 분포에서는 각 말이 최대 한 번만 제거되므로 평균적으로는 더 작을 수 있다.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>착수 후 왼쪽·오른쪽 각각에서 “상대 연속 구간이 내 말로 닫히면 해당 구간 제거”.</li>
+        <li>제거는 뒤집기가 아니라 보드에서 비우기이므로 개수도 즉시 차감된다.</li>
+        <li>최종 출력은 남은 흰/검 개수 <code>whiteCnt blackCnt</code>이다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3230 — 금메달, 은메달, 동메달은 누가?</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3230">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1021_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      1라운드에서는 각 선수의 최종 순위 위치가 주어진다. 이 정보를 이용해 “순위 → 선수 번호” 형태의 순위를 복원한다.<br>
+      그다음 상위 <code>M</code>명을 결선 진출자로 뽑고, 결선 입력은 각 결선 선수가 최종 순위표에서 설 위치를 의미한다.<br>
+      이때 결선 진출자를 뒤에서부터 하나씩 꺼내 주어진 위치에 삽입하면, 인덱스 밀림 없이 정확한 최종 순위를 재구성할 수 있다.<br>
+      최종 순위표의 1, 2, 3번째 선수가 각각 금·은·동메달을 차지한다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 첫 줄에 <code>N M</code> (전체 선수 수, 결선 진출자 수)이 주어진다.<br>
+      이후 길이 <code>N</code>의 수열이 주어지며, 각 값은 선수 <code>i</code>가 1라운드 순위표에서 설 위치 <code>x</code>(1-based)를 의미한다.<br>
+      다음으로 길이 <code>M</code>의 수열이 주어지며, 이는 결선 진출자가 최종 순위표에서 설 위치를 나타낸다.<br>
+      출력: 최종 순위 1, 2, 3위 선수 번호를 각각 한 줄에 출력한다.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>round1</code>: 1라운드 최종 순위표(1등부터 순서대로 선수 번호를 저장한 리스트)<br>
+      <code>top</code>: 결선 진출자 배열(1라운드 상위 <code>M</code>명)<br>
+      <code>finalOrder</code>: 최종 순위표를 복원하기 위한 리스트<br>
+      주요 처리 단계는 다음과 같다.</p>
+      
+      <ul>
+        <li>1라운드 입력 시: 선수 <code>i</code>를 순위표의 <code>x-1</code> 위치에 <code>add</code>하여 “순위 → 선수” 구조를 만든다.</li>
+        <li>결선 대상 추출: <code>round1</code>의 앞쪽 <code>M</code>명을 <code>top</code> 배열에 저장한다.</li>
+        <li>결선 복원: 결선 입력을 순회하며, <code>top</code>의 뒤쪽부터 결선 선수를 하나씩 꺼내 주어진 위치 <code>x-1</code>에 삽입한다.</li>
+        <li>메달 결정: 최종 순위 리스트의 0, 1, 2번째 선수를 각각 금, 은, 동메달로 출력한다.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) <code>N, M</code>을 입력받는다.<br>
+      2) <code>N</code>개의 1라운드 순위를 읽어 각 위치에 선수 번호를 삽입한다.<br>
+      3) <code>round1</code>의 상위 <code>M</code>명을 <code>top</code> 배열에 복사한다.<br>
+      4) <code>M</code>개의 결선 입력을 순회하며, <code>top</code>의 뒤쪽 선수부터 주어진 위치에 삽입한다.<br>
+      5) 완성된 <code>finalOrder</code> 리스트의 앞 세 명을 출력한다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li><code>M = 3</code>인 최소 결선 규모에서도 동일한 로직으로 처리된다.</li>
+        <li>결선 입력의 <code>x</code>가 1이거나 현재 길이+1인 경우에도 정상적으로 앞이나 뒤에 삽입된다.</li>
+        <li>문제에서 모든 입력이 순열 형태로 주어진다고 보장하므로 인덱스 오류는 발생하지 않는다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      리스트의 <code>add(index, value)</code> 연산은 내부적으로 요소를 한 칸씩 밀어내므로 평균적으로 선형 시간이 걸린다.<br>
+      1라운드 복원은 <code>O(N²)</code>, 결선 복원은 <code>O(M²)</code>이 소요된다.<br>
+      따라서 전체 시간 복잡도는 <code>O(N² + M²)</code>, 공간 복잡도는 <code>O(N)</code>이다.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>1라운드 입력으로 “순위 → 선수” 구조를 복원한다.</li>
+        <li>결선 입력은 뒤에서부터 순회하며 주어진 위치에 결선 선수를 삽입한다.</li>
+        <li>최종 순위의 상위 세 선수가 금·은·동메달 수상자가 된다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
