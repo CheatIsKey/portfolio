@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JS 기초 — Fetch · Storage · Scope · Hoisting</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">목차</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>JS 기초: Fetch · Storage · Scope · Hoisting</h1>
+      <p class="muted">작성일 2025-10-23 · 분류: JavaScript</p>
+
+      <!-- 1 -->
+      <h2 class="section">프론트엔드와 백엔드 구조</h2>
+      <p>웹 애플리케이션은 기본적으로 <b>프론트엔드</b>와 <b>백엔드</b> 두 서버로 구성된다.</p>
+      <ul>
+        <li><b>프론트엔드</b>: <code>HTML</code>, <code>CSS</code>, <code>JavaScript</code>를 사용하는 <b>클라이언트(화면)</b> 쪽 서버.</li>
+        <li><b>백엔드</b>: <code>Java</code>, <code>Spring Boot</code>, <code>내장 Tomcat</code> 등을 사용하는 <b>서버(로직/DB)</b> 쪽.</li>
+      </ul>
+      <p>두 서버 간에 데이터를 주고받을 때 사용하는 대표적인 함수가 <b>fetch()</b>이다.</p>
+
+      <!-- 2 -->
+      <h2 class="section">fetch() — 프론트엔드 ↔ 백엔드 통신</h2>
+      <p><code>fetch()</code>는 HTTP 요청을 보내고, <b>Promise</b> 객체를 반환한다.  
+      기본 구조는 다음과 같다.</p>
+
+      <pre><code>fetch(url, options)
+  .then(response => response.json())
+  .then(data => console.log("성공:", data))
+  .catch(error => console.error("에러:", error));</code></pre>
+
+      <p><code>options</code>에는 <b>HTTP 메서드</b>와 <b>요청 헤더, 본문(body)</b> 등을 지정할 수 있다.</p>
+      <pre><code>fetch("http://localhost:8080/api/register", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ name: "Jin", age: 25 })
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error(error));</code></pre>
+
+      <div class="callout">
+        <p><b>참고</b>: <code>fetch()</code>는 비동기로 동작하며, 항상 <code>Promise</code>를 반환한다.</p>
+      </div>
+
+      <!-- 3 -->
+      <h2 class="section">HTTP 메서드 요약</h2>
+      <ul>
+        <li><b>GET</b> — 서버의 데이터를 조회할 때 사용. <b>URL 쿼리</b>(?key=value) 형태로 데이터가 보인다.</li>
+        <li><b>POST</b> — 데이터를 서버로 보낼 때 사용(회원가입, 로그인 등). <b>body</b>에 포함되므로 URL에 노출되지 않는다.</li>
+        <li><b>PUT</b> — 기존 데이터를 통째로 수정(덮어쓰기)할 때 사용.</li>
+        <li><b>DELETE</b> — 데이터를 삭제할 때 사용. 일반적으로 URL에 대상 식별자를 포함한다.</li>
+      </ul>
+      <pre><code>// GET 예시
+fetch("/api/users?id=3");
+
+// POST 예시
+fetch("/api/users", {
+  method: "POST",
+  body: JSON.stringify({ name: "Lee" }),
+  headers: { "Content-Type": "application/json" }
+});</code></pre>
+
+      <!-- 4 -->
+      <h2 class="section">웹 스토리지(Web Storage)</h2>
+      <p>웹 스토리지는 <b>브라우저(프론트엔드)</b>에서 데이터를 저장하는 기능이다.  
+      서버 세션(Session)과는 완전히 다르며, 사용자의 브라우저 내부에 데이터가 저장된다.</p>
+
+      <h3 class="section">1) localStorage</h3>
+      <p>브라우저나 컴퓨터를 꺼도 데이터가 유지된다.  
+      각 도메인(URL)마다 별도의 저장소를 가진다.</p>
+
+      <pre><code>// 저장
+localStorage.setItem("user", "Kim");
+
+// 읽기
+const name = localStorage.getItem("user");
+console.log(name); // "Kim"
+
+// 수정 (같은 key를 덮어쓰기)
+localStorage.setItem("user", "Lee");
+
+// 삭제
+localStorage.removeItem("user");
+
+// 전체 삭제
+localStorage.clear();</code></pre>
+
+      <h3 class="section">2) sessionStorage</h3>
+      <p>브라우저 탭이 닫히면 데이터가 사라진다.  
+      도메인별로 별도의 저장소를 갖는다.</p>
+      <pre><code>sessionStorage.setItem("temp", "123");
+console.log(sessionStorage.getItem("temp")); // "123"
+sessionStorage.clear(); // 탭 닫거나 수동 삭제 시 초기화</code></pre>
+
+      <div class="callout">
+        <p><b>정리</b>:  
+        <code>localStorage</code> — 브라우저를 꺼도 유지  
+        <br>
+        <code>sessionStorage</code> — 탭을 닫으면 삭제</p>
+      </div>
+
+      <!-- 5 -->
+      <h2 class="section">var / let / const 비교</h2>
+      <p>자바스크립트에서 변수 선언 방식은 세 가지다.</p>
+      <pre><code>// var — 재선언 가능 (지양)
+var a = 1;
+var a = 2; // 에러 없음, 기존 값 덮어씀
+
+// let — 재선언 불가, 재할당 가능
+let b = 1;
+// let b = 2; // ✗ 재선언 불가
+b = 3;       // ✓ 재할당 가능
+
+// const — 재선언/재할당 모두 불가
+const c = 1;
+// c = 2; // ✗ 불가능</code></pre>
+      <div class="callout">
+        <p><b>요약</b>:  
+        <code>var</code>은 <b>함수 스코프</b>, <code>let</code>과 <code>const</code>는 <b>블록 스코프</b>를 가진다.  
+        실무에서는 주로 <code>const</code> (불변) 또는 <code>let</code> (변경 필요 시)만 사용한다.</p>
+      </div>
+
+      <!-- 6 -->
+      <h2 class="section">스코프(Scope)</h2>
+      <p><b>스코프</b>는 변수에 접근할 수 있는 <b>유효 범위</b>를 뜻한다.</p>
+      <ul>
+        <li><b>전역 스코프(Global)</b>: 어디서든 접근 가능.</li>
+        <li><b>함수 스코프(Function)</b>: <code>function</code> 내부에서만 유효.</li>
+        <li><b>블록 스코프(Block)</b>: <code>{ }</code> 내부에서만 유효 (<code>let</code>, <code>const</code>에만 적용).</li>
+      </ul>
+      <pre><code>let x = 10; // 전역
+
+function foo() {
+  let y = 20; // 함수 스코프
+  if (true) {
+    let z = 30; // 블록 스코프
+    console.log(x, y, z); // 가능
+  }
+  // console.log(z); // ✗ 접근 불가
+}
+foo();</code></pre>
+
+      <!-- 7 -->
+      <h2 class="section">호이스팅(Hoisting)</h2>
+      <p>자바스크립트는 변수나 함수의 <b>선언부를 스코프의 최상단으로 끌어올린다</b>. 이를 <b>호이스팅</b>이라 한다.</p>
+
+      <h3 class="section">1) 함수 선언문 — 호이스팅 적용</h3>
+      <pre><code>sayHi(); // 호출 가능
+
+function sayHi(){
+  console.log("안녕!");
+}</code></pre>
+
+      <h3 class="section">2) 함수 표현식 — 호이스팅 미적용</h3>
+      <pre><code>// greet(); // ✗ ReferenceError
+
+const greet = function(){
+  console.log("Hello!");
+};
+greet(); // 실행 가능</code></pre>
+
+      <p><code>const</code>로 선언한 함수 표현식은 변수 자체가 호이스팅되지 않아, 반드시 <b>정의 아래에서 호출</b>해야 한다.</p>
+
+      <div class="callout">
+        <p><b>정리</b>:  
+        함수 선언문 — 호이스팅 O  
+        <br>
+        함수 표현식 — 호이스팅 X  
+        <br>
+        (이 때문에 실무에서는 함수 표현식 + <code>const</code> 조합을 권장한다.)</p>
+      </div>
+
+      <!-- 8 -->
+      <h2 class="section">요약</h2>
+      <ul>
+        <li><b>fetch()</b> — HTTP 통신 함수 (Promise 기반).</li>
+        <li><b>HTTP 메서드</b> — GET(조회), POST(등록), PUT(수정), DELETE(삭제).</li>
+        <li><b>localStorage / sessionStorage</b> — 브라우저 내 데이터 저장소.</li>
+        <li><b>var / let / const</b> — 스코프 및 재선언 여부 차이.</li>
+        <li><b>스코프</b> — 변수의 유효 범위 (전역 / 함수 / 블록).</li>
+        <li><b>호이스팅</b> — 선언이 최상단으로 끌어올려지는 JS의 동작 방식.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <!-- TOC 자동 생성 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    if (!toc) return;
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      if(h.tagName === 'H3') li.classList.add('level-3');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
