@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-22 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 문자열 밀기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120921">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1022_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        두 문자열 <code>A</code>와 <code>B</code>가 주어졌을 때,  
+        문자열 <code>A</code>를 오른쪽으로 몇 번 회전하면 <code>B</code>가 되는지를  
+        구하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>B</code>를 두 번 이어붙여 <code>B + B</code>를 만든다.</li>
+        <li>이 문자열 안에 <code>A</code>가 포함되어 있다면,  
+          그 시작 인덱스가 바로 회전 횟수다.</li>
+        <li>포함되어 있지 않다면, <code>-1</code>을 반환한다.</li>
+      </ul>
+      
+      <p>
+        예를 들어, <code>A = "hello"</code>, <code>B = "ohell"</code>일 때,  
+        <code>B + B = "ohellohell"</code> 안에서 <code>A</code>는 인덱스 <code>1</code>에 위치하므로  
+        정답은 <code>1</code>이다.
+      </p>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 문자열 탐색에 걸리는 시간으로  
+        <code>O(N)</code>이다 (<code>N</code>은 문자열의 길이).  
+        <strong>공간 복잡도</strong>는 <code>B + B</code>를 저장하므로 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><code>indexOf()</code>는 찾는 문자열이 없을 경우 <code>-1</code>을 반환한다.</li>
+        <li>문자열 길이가 다르면 어떤 회전으로도 같아질 수 없으므로,  
+          이 경우에도 <code>-1</code>을 반환해야 한다.</li>
+        <li>문자열 비교는 대소문자를 구분하므로, 입력이 동일한 형식으로 주어진다고 가정한다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li>직접 회전을 반복하며 비교하는 방법도 가능하지만,  
+            문자열 연결(<code>B + B</code>) 방식이 훨씬 효율적이다.</li>
+          <li>Java의 <code>contains()</code>를 이용해 포함 여부만 판별할 수도 있다.</li>
+          <li>회전 횟수를 찾지 않고 단순히 가능 여부만 판단하는 문제라면  
+            <code>B.concat(B).contains(A)</code> 한 줄로 해결 가능하다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 잘라서 배열로 저장하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120913">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1022_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>my_str</code>을 길이 <code>n</code>으로 잘라서  
+        순서대로 문자열 배열로 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li>문자열을 앞에서부터 <code>n</code>개씩 잘라 <code>List</code>에 저장한다.</li>
+        <li>마지막 부분은 문자열의 길이가 <code>n</code>으로 나누어떨어지지 않더라도  
+          남은 부분만큼 잘라서 포함시킨다.</li>
+        <li>모든 조각을 저장한 후, <code>List</code>를 <code>String[]</code> 배열로 변환하여 반환한다.</li>
+      </ul>
+      
+      <p>
+        예를 들어, <code>my_str = "abc1Addfggg4556b"</code>, <code>n = 6</code>이라면  
+        문자열은 아래와 같이 잘린다.
+      </p>
+      
+      <pre>
+      ["abc1Ad", "dfggg4", "556b"]
+      </pre>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 문자열을 한 번 순회하므로 <code>O(N)</code>이며,  
+        <strong>공간 복잡도</strong>는 잘린 문자열을 저장하는 리스트에 비례하여 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><code>substring(i, end)</code>에서 <code>end</code> 인덱스는 포함되지 않으므로  
+          자르기 구간을 정확히 지정해야 한다.</li>
+        <li>문자열 길이가 <code>n</code>보다 작을 경우,  
+          전체 문자열이 한 조각으로 반환된다.</li>
+        <li>빈 문자열 입력은 주어지지 않는다고 가정한다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><code>for</code>문 대신 <code>Stream</code> API를 사용해  
+            함수형 스타일로 구현할 수도 있다.</li>
+          <li>직접 배열 크기를 계산 후,  
+            <code>String[] result = new String[(my_str.length() + n - 1) / n]</code> 형태로  
+            배열에 바로 저장하는 방법도 있다.</li>
+          <li>성능 차이는 미미하므로,  
+            가독성이 높은 현재 방식이 일반적으로 더 선호된다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 7의 개수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120912">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1022_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        정수 배열 <code>array</code>가 주어졌을 때,  
+        배열의 모든 원소를 확인하여 숫자 <code>7</code>이 등장하는 횟수를  
+        세어 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 원소를 하나씩 확인하면서, 숫자에 <code>7</code>이 포함되어 있으면  
+          개수를 증가시킨다.</li>
+        <li>한 자리 수가 <code>7</code>인 경우는 바로 카운트한다.</li>
+        <li>그 외의 경우에는 각 자리수를 나누어(<code>i % 10</code>)  
+          일의 자리부터 순차적으로 검사한다.</li>
+        <li><code>i /= 10</code>으로 자릿수를 줄이며 모든 자리를 확인한다.</li>
+      </ul>
+      
+      <p>
+        예를 들어, <code>array = [7, 77, 17]</code>일 경우  
+        <code>7</code>은 1회, <code>77</code>은 2회, <code>17</code>은 1회 등장하므로  
+        총 <code>4</code>를 반환한다.
+      </p>
+      
+      <p>
+        <strong>시간 복잡도</strong>는 배열의 길이를 <code>N</code>,  
+        각 숫자의 자릿수를 최대 <code>K</code>라 할 때 <code>O(N × K)</code>이다.  
+        <strong>공간 복잡도</strong>는 추가적인 자료구조를 사용하지 않으므로 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li>각 원소가 0인 경우는 자릿수 검사 루프(<code>while (i > 0)</code>)에 들어가지 않으므로  
+          별도로 고려할 필요가 없다.</li>
+        <li>음수 입력은 문제 조건상 주어지지 않는다.</li>
+        <li>숫자를 문자열로 변환하지 않고,  
+          나눗셈과 나머지 연산으로 자릿수를 직접 확인하기 때문에  
+          불필요한 객체 생성이 없다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li>각 숫자를 문자열로 변환해  
+            <code>String.valueOf(i).chars()</code>로 검사할 수도 있다.</li>
+          <li>하지만 현재 방식은 문자열 변환 없이 연산하므로  
+            성능 면에서 더 효율적이다.</li>
+          <li>간단한 문제에서는 <code>Arrays.stream(array)</code>와  
+            <code>filter</code>를 조합한 함수형 접근도 가능하다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

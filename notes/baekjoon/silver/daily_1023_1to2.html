@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-22 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 3279 — DOLLARS</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3279">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1022_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      N일 동안 주어지는 일일 환율 <code>rate[i]</code>(정수, 소수 둘째 자리 고정: 예 123 → 1.23)로 달러(USD)와 마르크(MARK) 사이를 자유롭게 교환할 수 있을 때, 시작 자산 <code>$100.00</code>에서 출발해 마지막 날 이후 보유 가능한 달러의 최댓값을 구한다.<br>
+      핵심은 “지금 달러를 들고 있을 때의 최적값(USD 상태)”과 “지금 마르크를 들고 있을 때의 최적값(MARK 상태)”을 하루씩 갱신하는 <strong>2상태 DP</strong>이다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 첫 줄에 <code>N</code>. 이어서 <code>N</code>개의 줄에 각 날짜의 환율 <code>rate</code> (정수, 소수 둘째 자리까지).<br>
+      해석: <code>rate</code>는 “마르크/달러”를 100배 한 값이므로 실수 환율은 <code>r = rate / 100.0</code>.<br>
+      출력: 최대로 만들 수 있는 달러 금액을 <code>소수 둘째 자리</code>까지 출력.</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>usd</code>: i일까지 고려했을 때 <strong>달러를 보유</strong>하고 달성 가능한 최대 금액(달러 단위).<br>
+      <code>mark</code>: i일까지 고려했을 때 <strong>마르크를 보유</strong>하고 달성 가능한 최대 금액(마르크 단위).<br>
+      초기화: <code>usd = 100.0</code>, <code>mark = 0.0</code> (처음엔 달러만 보유).<br>
+      하루 갱신 규칙(환율 <code>r = rate/100</code>):</p>
+      
+      <ul>
+        <li><code>mark = max(mark, usd * r)</code> — 오늘 달러를 전부 마르크로 바꿔 보는 것이 이득이면 교환.</li>
+        <li><code>usd = max(usd, mark / r)</code> — 오늘 마르크를 전부 달러로 바꿔 보는 것이 이득이면 교환.</li>
+      </ul>
+      
+      <p>구현 상 정수 <code>rate</code>로 주어지므로 <code>usd * rate / 100.0</code>, <code>mark * 100.0 / rate</code> 형태로 계산한다.</p>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) <code>N</code>을 읽고 <code>usd=100.0</code>, <code>mark=0.0</code>으로 시작한다.<br>
+      2) 각 날짜의 <code>rate</code>를 읽어 <code>mark</code>를 먼저 갱신(달러→마르크), 이어 <code>usd</code>를 갱신(마르크→달러)한다.<br>
+      3) 모든 날짜를 처리한 뒤 <code>usd</code>가 “마지막에 달러로 보유할 때의 최댓값”이므로 이를 소수 둘째 자리까지 출력한다(<code>System.out.printf("%.2f", usd)</code>).</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>환율이 단조 하락(상승)만 해도 중간 교환이 손해라면 자연스럽게 교환이 발생하지 않는다(상태 최대값 유지).</li>
+        <li>같은 날에 달러→마르크→달러 “왕복”이 이득이면 위의 두 식이 연쇄적으로 그 이득을 반영한다(수수료 없음 가정).</li>
+        <li>부동소수점 오차를 피하려 중간 반올림을 하지 않고 마지막에만 <code>%.2f</code>로 출력한다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      매일 상수 번 연산만 하므로 시간 복잡도 <code>O(N)</code>.<br>
+      추가 메모리는 <code>usd</code>, <code>mark</code> 두 실수 변수뿐이므로 공간 복잡도 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>두 상태(USD/MARK) 최댓값을 하루씩 갱신하는 2상태 DP(또는 무제한 교환 그리디)로 해결.</li>
+        <li><code>mark = max(mark, usd * rate/100)</code>, <code>usd = max(usd, mark * 100/rate)</code>만 올바르게 누적하면 된다.</li>
+        <li>최종 답은 <code>usd</code>를 소수 둘째 자리까지 출력.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3280 — CARDS</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3280">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/daily_1022_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      카드를 <code>3</code>열로 <code>row = N/3</code>행에 깔고, 매 라운드마다 관찰자가 “정답 카드가 들어 있는 열”을 <code>first/second/third</code>로 알려 준다.<br>
+      매 라운드에 대해 “그 열에 있지 않은 카드”를 후보군에서 제거하고, 그 다음 라운드 진행을 위해 문제의 재배치 규칙(열 단위 집어서 다시 위에서부터 좌→우로 채우기)을 그대로 시뮬레이션한다.<br>
+      모든 라운드를 통과해 끝까지 “매번 지정된 열에 있었던 카드들”이 최종 후보가 된다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 첫 줄 <code>N</code>(카드 개수, 문제에서 3의 배수), 다음 줄 <code>D</code>(라운드 수), 이어서 <code>D</code>개의 줄에 각 라운드에서 정답 카드가 있는 열: <code>"first"</code>, <code>"second"</code>, <code>"third"</code>.<br>
+      출력: 가능한 카드 번호(오름차순, 공백 구분).</p>
+      
+      <p><strong>코드 핵심 (변수 매핑)</strong> —<br>
+      <code>row = N/3</code>: 행의 개수.<br>
+      <code>field[row][3]</code>: 현재 배치된 카드 번호(행-주기 저장). 초기에는 1부터 N까지를 위에서 아래, 왼→오 순으로 채움.<br>
+      <code>check[1..N]</code>: 각 카드가 “끝까지 후보인지” 여부(초깃값 <code>true</code>).<br>
+      <code>line</code>: 이번 라운드에서 정답 카드가 들어 있는 열 인덱스(0: first, 1: second, 2: third).</p>
+      
+      <ul>
+        <li><strong>후보 걸러내기</strong>: 각 행에 대해, 이번 라운드의 지정 열이 아닌 두 열의 카드 번호를 <code>check[번호] = false</code>로 표기.</li>
+        <li><strong>재배치 시뮬레이션</strong>: 문제의 규칙을 그대로 구현.
+          <ul>
+            <li>열 단위로(왼→오, 각 열은 위→아래) 카드를 1차 배열 <code>next</code>로 이어 붙임.</li>
+            <li><code>next</code>를 다시 위→아래, 왼→오 순으로 <code>field</code>에 채워 다음 라운드 배치를 만든다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) <code>N</code>, <code>D</code>를 읽고 <code>field</code>를 1..N으로 초기화, <code>check</code>는 모두 <code>true</code>로 설정.<br>
+      2) 각 라운드에 대해 열 이름을 <code>line</code>으로 매핑(0/1/2).<br>
+      3) 모든 행에 대해 지정 열이 아닌 칸들의 카드를 후보에서 제거(<code>check[..]=false</code>).<br>
+      4) 열→배열→행주입 순서로 재배치를 시뮬레이션.<br>
+      5) 모든 라운드 종료 후 <code>check[i]==true</code>인 카드 번호를 오름차순 출력.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>같은 라운드에서 여러 행에 대해 같은 열이 지정되므로, 지정 열 외 카드는 그 라운드에서 전부 후보 탈락.</li>
+        <li>라운드가 진행될수록 후보는 단조 감소하며(되살아나지 않음), 끝까지 모든 라운드에서 지정 열에 속했던 카드만 남음.</li>
+        <li>부정확한 입력(예: <code>N</code>이 3의 배수가 아님)은 문제 보장으로 배제.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      라운드마다 후보 제거는 <code>O(N)</code>, 재배치도 <code>O(N)</code>이므로 총 <code>O(D·N)</code>.<br>
+      추가 배열 <code>field</code>(크기 <code>N</code>), <code>next</code>(크기 <code>N</code>), <code>check</code>(크기 <code>N</code>)를 사용하므로 공간은 <code>O(N)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>“지정 열에 없던 카드”는 라운드마다 즉시 탈락 → <strong>필터링</strong>.</li>
+        <li>문제의 <strong>재배치 규칙</strong>(열로 모아 이어 붙인 뒤 행-주입)을 정확히 시뮬레이션.</li>
+        <li>최종적으로 끝까지 조건을 만족한 카드 번호를 출력한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
