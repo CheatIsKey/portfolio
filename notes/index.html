@@ -14,6 +14,10 @@
     .group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .items{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
     .count{color:var(--muted)}
+    /* 그룹 헤더 내 필터(작은 셀렉트) */
+    .mini-filters{display:flex;gap:8px;align-items:center}
+    .mini-filters .input{padding:6px 8px;height:auto;min-height:32px}
+    .mini-filters label{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -54,9 +58,18 @@
   // • 스프링 부트
   // • JPA · Spring Data JPA · QueryDSL
   // • 코딩 테스트(프로그래머스)
+  // • 코딩 테스트(백준 알고리즘)
 
   const NOTES = [
 
+
+
+
+
+
+
+
+    
     { title: 'HTML 기본기 정리', url: '/notes/frontend/html/HTML-01-basics.html',
       meta: '문서 골격 · 메타 · 시맨틱 · 파일 구성',
       category: 'HTML', date: '2025-10-18' },
@@ -70,14 +83,30 @@
 
 
 
-    
 
+
+
+
+
+    
     { title: 'CSS 기본 개념', url: '/notes/frontend/css/CSS-01-basics.html',
       meta: '적용 방법 · 특이성 · 박스 모델 · display/position · Flexbox',
       category: 'CSS', date: '2025-10-18' },
     { title: 'CSS 실습: 회원가입 폼 스타일링', url: '/notes/frontend/css/CSS-02-form-styled.html',
       meta: '변수 · 박스모델 · 중앙 정렬 · 상태 스타일',
       category: 'CSS', date: '2025-10-19' },
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -105,18 +134,21 @@
 
 
 
-    
-
-
-
-    
 
 
 
 
 
 
-    
+
+
+
+
+
+
+
+
+
 
     
     { title: 'JPA 기본 개념 정리', url: '/notes/jpa/basics/JPA-01-basics.html',
@@ -136,118 +168,107 @@
 
 
 
-    
-    
 
+
+
+
+
+
+
+
+
+
+
+    
     { title: 'Validation', url: '/notes/spring-boot/basics/Basic-Validation.html',
       meta: 'springboot · Thymeleaf',
       category: '스프링 부트', date: '2025-08-17' },
+
+
+
+
+
+
+
+
+
+
+
+
     
 
-
-
-
-
-    
-    
-    
-
+    /* ==== 백준: 현재 모두 Silver V(사용자 제공 사실) ==== */
     { title: '백준 알고리즘 - Silver V - 1010번, 1094번', url: '/notes/baekjoon/silver/daily_0921_1to2.html',
-      meta: '1010번, 1094번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-21' },
+      meta: '1010번, 1094번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-21' },
     { title: '백준 알고리즘 - Silver V - 1181번, 1193번', url: '/notes/baekjoon/silver/daily_0922_1to2.html',
-      meta: '1181번, 1193번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-22' },
+      meta: '1181번, 1193번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-22' },
     { title: '백준 알고리즘 - Silver V - 1251번, 1268번', url: '/notes/baekjoon/silver/daily_0923_1to2.html',
-      meta: '1251번, 1268번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-23' },
+      meta: '1251번, 1268번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-23' },
     { title: '백준 알고리즘 - Silver V - 1308번, 1312번', url: '/notes/baekjoon/silver/daily_0924_1to2.html',
-      meta: '1308번, 1312번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-24' },
+      meta: '1308번, 1312번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-24' },
     { title: '백준 알고리즘 - Silver V - 1316번, 1340번', url: '/notes/baekjoon/silver/daily_0925_1to2.html',
-      meta: '1316번, 1340번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-25' },
+      meta: '1316번, 1340번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-25' },
     { title: '백준 알고리즘 - Silver V - 1343번, 1380번', url: '/notes/baekjoon/silver/daily_0926_1to2.html',
-      meta: '1343번, 1380번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-26' },
+      meta: '1343번, 1380번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-26' },
     { title: '백준 알고리즘 - Silver V - 1384번, 1402번', url: '/notes/baekjoon/silver/daily_0927_1to2.html',
-      meta: '1384번, 1402번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-27' },
+      meta: '1384번, 1402번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-27' },
     { title: '백준 알고리즘 - Silver V - 1417번, 1418번', url: '/notes/baekjoon/silver/daily_0928_1to2.html',
-      meta: '1417번, 1418번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-28' },
+      meta: '1417번, 1418번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-28' },
     { title: '백준 알고리즘 - Silver V - 1427번, 1436번', url: '/notes/baekjoon/silver/daily_0929_1to2.html',
-      meta: '1427번, 1436번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-29' },
+      meta: '1427번, 1436번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-29' },
     { title: '백준 알고리즘 - Silver V - 1439번, 1475번', url: '/notes/baekjoon/silver/daily_0930_1to2.html',
-      meta: '1439번, 1475번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-09-30' },
+      meta: '1439번, 1475번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-30' },
     { title: '백준 알고리즘 - Silver V - 1476번, 1531번', url: '/notes/baekjoon/silver/daily_1002_1to2.html',
-      meta: '1476번, 1531번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-02' },
+      meta: '1476번, 1531번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-02' },
     { title: '백준 알고리즘 - Silver V - 1543번, 1652번', url: '/notes/baekjoon/silver/daily_1003_1to2.html',
-      meta: '1543번, 1652번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-03' },
+      meta: '1543번, 1652번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-03' },
     { title: '백준 알고리즘 - Silver V - 1676번, 1769번', url: '/notes/baekjoon/silver/daily_1004_1to2.html',
-      meta: '1676번, 1769번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-04' },
+      meta: '1676번, 1769번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-04' },
     { title: '백준 알고리즘 - Silver V - 1789번, 1813번', url: '/notes/baekjoon/silver/daily_1005_1to2.html',
-      meta: '1789번, 1813번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-05' },
+      meta: '1789번, 1813번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-05' },
     { title: '백준 알고리즘 - Silver V - 1817번, 1996번', url: '/notes/baekjoon/silver/daily_1007_1to2.html',
-      meta: '1817번, 1996번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-07' },
+      meta: '1817번, 1996번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-07' },
     { title: '백준 알고리즘 - Silver V - 2018번, 2057번', url: '/notes/baekjoon/silver/daily_1008_1to2.html',
-      meta: '2018번, 2057번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-08' },
+      meta: '2018번, 2057번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-08' },
     { title: '백준 알고리즘 - Silver V - 2097번, 2161번', url: '/notes/baekjoon/silver/daily_1009_1to2.html',
-      meta: '2097번, 2161번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-09' },
+      meta: '2097번, 2161번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-09' },
     { title: '백준 알고리즘 - Silver V - 2167번, 2238번', url: '/notes/baekjoon/silver/daily_1010_1to2.html',
-      meta: '2167번, 2238번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-10' },
+      meta: '2167번, 2238번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-10' },
     { title: '백준 알고리즘 - Silver V - 2303번, 2508번', url: '/notes/baekjoon/silver/daily_1011_1to2.html',
-      meta: '2303번, 2508번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-11' },
+      meta: '2303번, 2508번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-11' },
     { title: '백준 알고리즘 - Silver V - 2535번, 2563번', url: '/notes/baekjoon/silver/daily_1012_1to2.html',
-      meta: '2535번, 2563번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-12' },
+      meta: '2535번, 2563번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-12' },
     { title: '백준 알고리즘 - Silver V - 2622번, 2628번', url: '/notes/baekjoon/silver/daily_1013_1to2.html',
-      meta: '2622번, 2628번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-13' },
+      meta: '2622번, 2628번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-13' },
     { title: '백준 알고리즘 - Silver V - 2635번, 2669번', url: '/notes/baekjoon/silver/daily_1014_1to2.html',
-      meta: '2635번, 2669번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-14' },
+      meta: '2635번, 2669번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-14' },
     { title: '백준 알고리즘 - Silver V - 2740번, 2751번', url: '/notes/baekjoon/silver/daily_1015_1to2.html',
-      meta: '2740번, 2751번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-15' },
+      meta: '2740번, 2751번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-15' },
     { title: '백준 알고리즘 - Silver V - 2822번, 2828번', url: '/notes/baekjoon/silver/daily_1016_1to2.html',
-      meta: '2822번, 2828번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-16' },
+      meta: '2822번, 2828번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-16' },
     { title: '백준 알고리즘 - Silver V - 2890번, 2941번', url: '/notes/baekjoon/silver/daily_1017_1to2.html',
-      meta: '2890번, 2941번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-17' },
+      meta: '2890번, 2941번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-17' },
     { title: '백준 알고리즘 - Silver V - 2993번, 3049번', url: '/notes/baekjoon/silver/daily_1018_1to2.html',
-      meta: '2993번, 3049번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-18' },
+      meta: '2993번, 3049번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-18' },
     { title: '백준 알고리즘 - Silver V - 3054번, 3060번', url: '/notes/baekjoon/silver/daily_1019_1to2.html',
-      meta: '3054번, 3060번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-19' },
+      meta: '3054번, 3060번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-19' },
     { title: '백준 알고리즘 - Silver V - 3135번, 3211번', url: '/notes/baekjoon/silver/daily_1020_1to2.html',
-      meta: '3135번, 3211번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-20' },
+      meta: '3135번, 3211번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-20' },
     { title: '백준 알고리즘 - Silver V - 3227번, 3230번', url: '/notes/baekjoon/silver/daily_1021_1to2.html',
-      meta: '3227번, 3230번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-21' },
+      meta: '3227번, 3230번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-21' },
     { title: '백준 알고리즘 - Silver V - 3279번, 3280번', url: '/notes/baekjoon/silver/daily_1022_1to2.html',
-      meta: '3279번, 3280번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-22' },
+      meta: '3279번, 3280번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-22' },
     { title: '백준 알고리즘 - Silver V - 3281번, 3288번', url: '/notes/baekjoon/silver/daily_1023_1to2.html',
-      meta: '3281번, 3288번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-23' },
+      meta: '3281번, 3288번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-23' },
     { title: '백준 알고리즘 - Silver V - 3553번, 3711번', url: '/notes/baekjoon/silver/daily_1024_1to2.html',
-      meta: '3553번, 3711번',
-      category: '코딩 테스트(백준 알고리즘)', date: '2025-10-24' },
+      meta: '3553번, 3711번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-24' },
+
+
+
+
+
+
+
 
 
 
@@ -256,147 +277,119 @@
 
 
     
-
-
-
-
-
-    
-    
-    
-
+    /* ==== 프로그래머스: 레벨 0만 있는 상태 ==== */
     { title: '프로그래머스 - Level 0 - PCCE 1번 ~ 5번', url: '/notes/programmers/Level_0/zero_pcce_1to5.html',
-      meta: '1번 ~ 5번',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-09' },
+      meta: '1번 ~ 5번', category: '코딩 테스트(프로그래머스)', date: '2025-09-09' },
     { title: '프로그래머스 - Level 0 - PCCE 6번 ~ 8번', url: '/notes/programmers/Level_0/zero_pcce_6to8.html',
-      meta: '6번 ~ 8번',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-10' },
+      meta: '6번 ~ 8번', category: '코딩 테스트(프로그래머스)', date: '2025-09-10' },
     { title: '프로그래머스 - Level 0 - PCCE_1 1번 ~ 5번', url: '/notes/programmers/Level_0/zero_pcce_1_1to5.html',
-      meta: '1번 ~ 5번',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-11' },
+      meta: '1번 ~ 5번', category: '코딩 테스트(프로그래머스)', date: '2025-09-11' },
     { title: '프로그래머스 - Level 0 - PCCE_1 6번 ~ 8번', url: '/notes/programmers/Level_0/zero_pcce_1_6to8.html',
-      meta: '6번 ~ 8번',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-11' },
+      meta: '6번 ~ 8번', category: '코딩 테스트(프로그래머스)', date: '2025-09-11' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0912_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-12' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-12' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0913_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-13' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-13' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0914_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-14' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-14' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0915_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-15' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-15' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0916_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-16' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-16' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0917_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-17' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-17' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0918_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-18' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-18' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0919_1to5.html',
-      meta: '5문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-19' },
+      meta: '5문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-19' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0921_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-21' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-21' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0922_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-22' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-22' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0923_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-23' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-23' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0924_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-24' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-24' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0925_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-25' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-25' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0926_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-26' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-26' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0927_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-27' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-27' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0928_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-28' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-28' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0929_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-29' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-29' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_0930_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-09-30' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-09-30' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1002_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-02' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-02' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1003_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-03' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-03' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1004_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-04' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-04' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1005_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-05' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-05' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1007_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-07' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-07' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1008_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-08' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-08' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1009_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-09' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-09' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1010_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-10' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-10' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1011_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-11' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-11' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1012_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-12' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-12' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1013_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-13' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-13' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1014_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-14' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-14' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1015_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-15' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-15' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1016_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-16' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-16' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1017_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-17' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-17' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1018_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-18' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-18' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1019_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-19' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-19' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1020_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-20' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-20' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1021_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-21' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-21' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1022_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-22' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-22' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1023_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-23' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-23' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1024_1to3.html',
-      meta: '3문제',
-      category: '코딩 테스트(프로그래머스)', date: '2025-10-24' },
+      meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-24' },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -404,10 +397,6 @@
 
 
     
-
-    // 예시)
-    // { title: '프로젝트 X 회고', url: '/notes/projects/x-postmortem.html', meta: '운영 이슈 · 배운 점', category: '프로젝트 실습', date: '2024-04-01' },
-    // { title: '프로그래머스 - 기능개발', url: '/notes/ps/programmers-feature-dev.html', meta: '스택/큐', category: '코딩 테스트(프로그래머스)', date: '2024-04-12' },
   ];
 
   const CATEGORIES = [
@@ -420,14 +409,55 @@
     'JavaScript'
   ];
 
-  const state = { q:'', cat:'', sort:'newest' };
+  // --- 상태
+  const state = {
+    q:'', cat:'', sort:'newest',
+    // 백준 전용
+    baekTier:'',            // Bronze/Silver/Gold/Platinum/Diamond/Ruby
+    baekRank:'',            // V/IV/III/II/I
+    // 프로그래머스 전용
+    progLevel:''            // 0~5
+  };
 
+  // DOM
   const $q = document.getElementById('q');
   const $groups = document.getElementById('groups');
   const $empty = document.getElementById('empty');
   const $cat = document.getElementById('cat');
   const $sort = document.getElementById('sort');
 
+  // --- 유틸: 백준/프로그래머스 메타 파싱 -----------------------
+  const BAEK_TIER_MAP = {
+    bronze:'Bronze', silver:'Silver', gold:'Gold',
+    platinum:'Platinum', diamond:'Diamond', ruby:'Ruby'
+  };
+  const BAEK_RANKS = ['V','IV','III','II','I'];
+
+  function parseBaekMeta(url){
+    // 기대 경로: /notes/baekjoon/{tier}/{rank}/daily_...html
+    // 과거 데이터: /notes/baekjoon/{tier}/daily_...html  (rank 없음)
+    const parts = url.split('/').filter(Boolean);
+    const i = parts.indexOf('baekjoon');
+    if (i === -1 || !parts[i+1]) return null;
+    const tierKey = (parts[i+1] || '').toLowerCase();
+    const tier = BAEK_TIER_MAP[tierKey] || null;
+    let rank = null;
+    const maybeRank = parts[i+2]; // 새 구조일 때
+    if (maybeRank && BAEK_RANKS.includes(maybeRank)) rank = maybeRank;
+
+    // 랭크가 비어 있고, 사용자 제공 사실: 현재 데이터는 모두 Silver V
+    if (!rank && tier === 'Silver') rank = 'V';
+
+    return tier ? {tier, rank} : null;
+  }
+
+  function parseProgrammersLevel(url){
+    // 기대 경로: /notes/programmers/Level_{n}/...
+    const m = /\/programmers\/Level_(\d)\//i.exec(url);
+    return m ? m[1] : null;
+  }
+
+  // --- 카테고리 옵션 렌더
   function renderCatOptions(){
     $cat.innerHTML = `<option value="">전체 카테고리</option>` +
       CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
@@ -436,17 +466,31 @@
   const byDateDesc = (a,b)=> new Date(b.date) - new Date(a.date);
   const byDateAsc  = (a,b)=> new Date(a.date) - new Date(b.date);
 
+  // --- 필터 적용
   function applyFilters(){
     const q = state.q.trim().toLowerCase();
     let rows = NOTES.filter(n=>{
       const inQ = !q || `${n.title} ${n.meta}`.toLowerCase().includes(q);
       const inCat = !state.cat || state.cat === n.category;
-      return inQ && inCat;
+      if (!(inQ && inCat)) return false;
+
+      // 카테고리별 추가 필터
+      if (n.category === '코딩 테스트(백준 알고리즘)'){
+        const meta = parseBaekMeta(n.url);
+        if (state.baekTier && (!meta || meta.tier !== state.baekTier)) return false;
+        if (state.baekRank && (!meta || meta.rank !== state.baekRank)) return false;
+      }
+      if (n.category === '코딩 테스트(프로그래머스)'){
+        const level = parseProgrammersLevel(n.url);
+        if (state.progLevel && level !== state.progLevel) return false;
+      }
+      return true;
     });
     rows.sort(state.sort==='newest' ? byDateDesc : byDateAsc);
     return rows;
   }
 
+  // --- 그룹 렌더
   function renderGroups(rows){
     const byCat = {};
     rows.forEach(n=>{ (byCat[n.category] ||= []).push(n) });
@@ -459,23 +503,81 @@
 
     $groups.innerHTML = cats.map(c=>{
       const items = byCat[c];
+      const count = items.length;
+
+      // 카테고리 전용 미니 필터 UI
+      let extraFilters = '';
+      if (c === '코딩 테스트(백준 알고리즘)'){
+        extraFilters = `
+          <div class="mini-filters">
+            <span class="count">${count}개</span>
+            <label for="baek-tier">등급</label>
+            <select id="baek-tier" class="input" aria-label="백준 등급">
+              <option value="">전체</option>
+              ${Object.values(BAEK_TIER_MAP).map(v=>`<option value="${v}" ${state.baekTier===v?'selected':''}>${v}</option>`).join('')}
+            </select>
+            <label for="baek-rank">난이도</label>
+            <select id="baek-rank" class="input" aria-label="백준 난이도">
+              <option value="">전체</option>
+              ${BAEK_RANKS.map(v=>`<option value="${v}" ${state.baekRank===v?'selected':''}>${v}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      } else if (c === '코딩 테스트(프로그래머스)'){
+        extraFilters = `
+          <div class="mini-filters">
+            <span class="count">${count}개</span>
+            <label for="prog-level">레벨</label>
+            <select id="prog-level" class="input" aria-label="프로그래머스 레벨">
+              <option value="">전체</option>
+              ${['0','1','2','3','4','5'].map(v=>`<option value="${v}" ${state.progLevel===v?'selected':''}>${v}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      } else {
+        extraFilters = `<span class="count">${count}개</span>`;
+      }
+
       return `<section class="card">
         <div class="group-header">
           <div class="card-head" style="margin:0;padding:0;border:none">
             <strong>${c}</strong>
           </div>
-          <span class="count">${items.length}개</span>
+          ${extraFilters}
         </div>
         <div class="items">
           ${items.map(itemTpl).join('')}
         </div>
       </section>`
     }).join('');
+
+    // 그룹 헤더 안의 동적 셀렉트 이벤트 바인딩(존재할 때만)
+    const $baekTier = document.getElementById('baek-tier');
+    if ($baekTier){
+      $baekTier.addEventListener('change', (e)=>{ state.baekTier = e.target.value; render(); });
+    }
+    const $baekRank = document.getElementById('baek-rank');
+    if ($baekRank){
+      $baekRank.addEventListener('change', (e)=>{ state.baekRank = e.target.value; render(); });
+    }
+    const $progLevel = document.getElementById('prog-level');
+    if ($progLevel){
+      $progLevel.addEventListener('change', (e)=>{ state.progLevel = e.target.value; render(); });
+    }
   }
 
   function itemTpl(n){
+    // (선택) 타이틀 옆에 등급/레벨 배지 살짝 붙여 가독성 ↑
+    let badge = '';
+    if (n.category === '코딩 테스트(백준 알고리즘)'){
+      const m = parseBaekMeta(n.url);
+      if (m) badge = ` <span class="muted">· ${m.tier}${m.rank?(' '+m.rank):''}</span>`;
+    } else if (n.category === '코딩 테스트(프로그래머스)'){
+      const lv = parseProgrammersLevel(n.url);
+      if (lv != null) badge = ` <span class="muted">· Lv.${lv}</span>`;
+    }
     return `<a class="list-item" href="${n.url}">
-      <span class="title">${n.title}</span>
+      <span class="title">${n.title}${badge}</span>
       <span class="meta">${n.meta}</span>
     </a>`
   }
@@ -487,7 +589,13 @@
 
   // 이벤트
   $q.addEventListener('input', (e)=>{ state.q = e.target.value; render(); });
-  $cat.addEventListener('change', (e)=>{ state.cat = e.target.value; render(); });
+  $cat.addEventListener('change', (e)=>{
+    state.cat = e.target.value;
+    // 카테고리 바뀔 때 전용 필터는 유지하되, 필요시 초기화 원하면 아래 주석 해제
+    // if (state.cat !== '코딩 테스트(백준 알고리즘)'){ state.baekTier=''; state.baekRank=''; }
+    // if (state.cat !== '코딩 테스트(프로그래머스)'){ state.progLevel=''; }
+    render();
+  });
   $sort.addEventListener('change', (e)=>{ state.sort = e.target.value; render(); });
 
   // init
