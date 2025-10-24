@@ -14,10 +14,17 @@
     .group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .items{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
     .count{color:var(--muted)}
-    /* 그룹 헤더 내 필터(작은 셀렉트) */
-    .mini-filters{display:flex;gap:8px;align-items:center}
-    .mini-filters .input{padding:6px 8px;height:auto;min-height:32px}
-    .mini-filters label{font-size:12px;color:var(--muted)}
+
+    /* 그룹 헤더 내 필터(작은 셀렉트) — 정렬/가독성 개선 */
+    .mini-filters{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .mini-filters .count{color:var(--muted);margin-right:4px}
+    .mini-filters .pair{display:flex;align-items:center;gap:6px}
+    .mini-filters .pair label{
+      display:inline-block;font-size:12px;color:var(--muted);line-height:1;
+    }
+    .mini-filters .input{
+      padding:6px 10px;height:32px;min-height:32px;line-height:20px;
+    }
   </style>
 </head>
 <body>
@@ -61,15 +68,6 @@
   // • 코딩 테스트(백준 알고리즘)
 
   const NOTES = [
-
-
-
-
-
-
-
-
-    
     { title: 'HTML 기본기 정리', url: '/notes/frontend/html/HTML-01-basics.html',
       meta: '문서 골격 · 메타 · 시맨틱 · 파일 구성',
       category: 'HTML', date: '2025-10-18' },
@@ -77,18 +75,6 @@
       meta: 'form · input · label · 기본 검증 · 접근성',
       category: 'HTML', date: '2025-10-18' },
 
-
-
-
-
-
-
-
-
-
-
-
-    
     { title: 'CSS 기본 개념', url: '/notes/frontend/css/CSS-01-basics.html',
       meta: '적용 방법 · 특이성 · 박스 모델 · display/position · Flexbox',
       category: 'CSS', date: '2025-10-18' },
@@ -96,27 +82,6 @@
       meta: '변수 · 박스모델 · 중앙 정렬 · 상태 스타일',
       category: 'CSS', date: '2025-10-19' },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     { title: 'JS 기초: 변수와 타입', url: '/notes/frontend/js/JS-01-basics.html',
       meta: '변수 선언 · 데이터 타입 · null/undefined · 형 변환',
       category: 'JavaScript', date: '2025-10-20' },
@@ -130,27 +95,6 @@
       meta: 'fetch · HTTP 메서드 · localStorage · var/let/const · 호이스팅',
       category: 'JavaScript', date: '2025-10-23' },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     { title: 'JPA 기본 개념 정리', url: '/notes/jpa/basics/JPA-01-basics.html',
       meta: '영속성 컨텍스트 · 플러시 · 엔티티 생명주기',
       category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-01-10' },
@@ -164,40 +108,11 @@
       meta: '프로젝션 · 조인 · 페이징 · 서브쿼리 · 경로 · 함수 · 페치 조인 · 벌크',
       category: 'JPA · Spring Data JPA · QueryDSL', date: '2024-02-02' },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     { title: 'Validation', url: '/notes/spring-boot/basics/Basic-Validation.html',
       meta: 'springboot · Thymeleaf',
       category: '스프링 부트', date: '2025-08-17' },
 
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    /* ==== 백준: 현재 모두 Silver V(사용자 제공 사실) ==== */
+    /* ==== 백준: 현재 모두 Silver V ==== */
     { title: '백준 알고리즘 - Silver V - 1010번, 1094번', url: '/notes/baekjoon/silver/V/daily_0921_1to2.html',
       meta: '1010번, 1094번', category: '코딩 테스트(백준 알고리즘)', date: '2025-09-21' },
     { title: '백준 알고리즘 - Silver V - 1181번, 1193번', url: '/notes/baekjoon/silver/V/daily_0922_1to2.html',
@@ -263,20 +178,6 @@
     { title: '백준 알고리즘 - Silver V - 3553번, 3711번', url: '/notes/baekjoon/silver/V/daily_1024_1to2.html',
       meta: '3553번, 3711번', category: '코딩 테스트(백준 알고리즘)', date: '2025-10-24' },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     /* ==== 프로그래머스: 레벨 0만 있는 상태 ==== */
     { title: '프로그래머스 - Level 0 - PCCE 1번 ~ 5번', url: '/notes/programmers/Level_0/zero_pcce_1to5.html',
       meta: '1번 ~ 5번', category: '코딩 테스트(프로그래머스)', date: '2025-09-09' },
@@ -366,37 +267,6 @@
       meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-23' },
     { title: '프로그래머스 - Level 0 - Daily 문제 묶음', url: '/notes/programmers/Level_0/daily_1024_1to3.html',
       meta: '3문제', category: '코딩 테스트(프로그래머스)', date: '2025-10-24' },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
   ];
 
   const CATEGORIES = [
@@ -435,7 +305,7 @@
 
   function parseBaekMeta(url){
     // 기대 경로: /notes/baekjoon/{tier}/{rank}/daily_...html
-    // 과거 데이터: /notes/baekjoon/{tier}/daily_...html  (rank 없음)
+    // 과거 데이터: /notes/baekjoon/{tier}/daily_...html (rank 없음 → 현재는 V 폴더 사용)
     const parts = url.split('/').filter(Boolean);
     const i = parts.indexOf('baekjoon');
     if (i === -1 || !parts[i+1]) return null;
@@ -444,10 +314,6 @@
     let rank = null;
     const maybeRank = parts[i+2]; // 새 구조일 때
     if (maybeRank && BAEK_RANKS.includes(maybeRank)) rank = maybeRank;
-
-    // 랭크가 비어 있고, 사용자 제공 사실: 현재 데이터는 모두 Silver V
-    if (!rank && tier === 'Silver') rank = 'V';
-
     return tier ? {tier, rank} : null;
   }
 
@@ -490,52 +356,67 @@
     return rows;
   }
 
-  // --- 그룹 렌더
+  // --- 그룹 렌더 (0개여도 카드 유지)
   function renderGroups(rows){
     const byCat = {};
     rows.forEach(n=>{ (byCat[n.category] ||= []).push(n) });
-    const cats = (state.cat? [state.cat] : CATEGORIES).filter(c=>byCat[c]);
 
-    if (rows.length === 0){
-      $groups.innerHTML = ''; $empty.style.display = 'block'; return;
+    // 필터가 켜진 카테고리는 항목 0개여도 강제 표시
+    const FORCE_SHOW = new Set();
+    if (state.baekTier || state.baekRank) FORCE_SHOW.add('코딩 테스트(백준 알고리즘)');
+    if (state.progLevel) FORCE_SHOW.add('코딩 테스트(프로그래머스)');
+    if (state.cat) FORCE_SHOW.add(state.cat);
+
+    const catsSource = state.cat ? [state.cat] : CATEGORIES;
+    const cats = catsSource.filter(c => byCat[c] || FORCE_SHOW.has(c));
+
+    if (cats.length === 0){
+      $groups.innerHTML = '';
+      $empty.style.display = 'block';
+      return;
     }
     $empty.style.display = 'none';
 
     $groups.innerHTML = cats.map(c=>{
-      const items = byCat[c];
+      const items = byCat[c] || [];
       const count = items.length;
 
-      // 카테고리 전용 미니 필터 UI
       let extraFilters = '';
       if (c === '코딩 테스트(백준 알고리즘)'){
         extraFilters = `
           <div class="mini-filters">
             <span class="count">${count}개</span>
-            <label for="baek-tier">등급</label>
-            <select id="baek-tier" class="input" aria-label="백준 등급">
-              <option value="">전체</option>
-              ${Object.values(BAEK_TIER_MAP).map(v=>`<option value="${v}" ${state.baekTier===v?'selected':''}>${v}</option>`).join('')}
-            </select>
-            <label for="baek-rank">난이도</label>
-            <select id="baek-rank" class="input" aria-label="백준 난이도">
-              <option value="">전체</option>
-              ${BAEK_RANKS.map(v=>`<option value="${v}" ${state.baekRank===v?'selected':''}>${v}</option>`).join('')}
-            </select>
+            <div class="pair">
+              <label for="baek-tier">등급</label>
+              <select id="baek-tier" class="input" aria-label="백준 등급">
+                <option value="">전체</option>
+                ${Object.values(BAEK_TIER_MAP).map(v=>`<option value="${v}" ${state.baekTier===v?'selected':''}>${v}</option>`).join('')}
+              </select>
+            </div>
+            <div class="pair">
+              <label for="baek-rank">난이도</label>
+              <select id="baek-rank" class="input" aria-label="백준 난이도">
+                <option value="">전체</option>
+                ${BAEK_RANKS.map(v=>`<option value="${v}" ${state.baekRank===v?'selected':''}>${v}</option>`).join('')}
+              </select>
+            </div>
           </div>
         `;
       } else if (c === '코딩 테스트(프로그래머스)'){
         extraFilters = `
           <div class="mini-filters">
             <span class="count">${count}개</span>
-            <label for="prog-level">레벨</label>
-            <select id="prog-level" class="input" aria-label="프로그래머스 레벨">
-              <option value="">전체</option>
-              ${['0','1','2','3','4','5'].map(v=>`<option value="${v}" ${state.progLevel===v?'selected':''}>${v}</option>`).join('')}
-            </select>
+            <div class="pair">
+              <label for="prog-level">레벨</label>
+              <select id="prog-level" class="input" aria-label="프로그래머스 레벨">
+                <option value="">전체</option>
+                ${['0','1','2','3','4','5'].map(v=>`<option value="${v}" ${state.progLevel===v?'selected':''}>${v}</option>`).join('')}
+              </select>
+            </div>
           </div>
         `;
       } else {
-        extraFilters = `<span class="count">${count}개</span>`;
+        extraFilters = `<div class="mini-filters"><span class="count">${count}개</span></div>`;
       }
 
       return `<section class="card">
@@ -548,26 +429,20 @@
         <div class="items">
           ${items.map(itemTpl).join('')}
         </div>
-      </section>`
+      </section>`;
     }).join('');
 
-    // 그룹 헤더 안의 동적 셀렉트 이벤트 바인딩(존재할 때만)
+    // 동적 셀렉트 이벤트 바인딩
     const $baekTier = document.getElementById('baek-tier');
-    if ($baekTier){
-      $baekTier.addEventListener('change', (e)=>{ state.baekTier = e.target.value; render(); });
-    }
+    if ($baekTier){ $baekTier.addEventListener('change', e=>{ state.baekTier = e.target.value; render(); }); }
     const $baekRank = document.getElementById('baek-rank');
-    if ($baekRank){
-      $baekRank.addEventListener('change', (e)=>{ state.baekRank = e.target.value; render(); });
-    }
+    if ($baekRank){ $baekRank.addEventListener('change', e=>{ state.baekRank = e.target.value; render(); }); }
     const $progLevel = document.getElementById('prog-level');
-    if ($progLevel){
-      $progLevel.addEventListener('change', (e)=>{ state.progLevel = e.target.value; render(); });
-    }
+    if ($progLevel){ $progLevel.addEventListener('change', e=>{ state.progLevel = e.target.value; render(); }); }
   }
 
   function itemTpl(n){
-    // (선택) 타이틀 옆에 등급/레벨 배지 살짝 붙여 가독성 ↑
+    // 타이틀 옆에 등급/레벨 배지
     let badge = '';
     if (n.category === '코딩 테스트(백준 알고리즘)'){
       const m = parseBaekMeta(n.url);
@@ -589,13 +464,7 @@
 
   // 이벤트
   $q.addEventListener('input', (e)=>{ state.q = e.target.value; render(); });
-  $cat.addEventListener('change', (e)=>{
-    state.cat = e.target.value;
-    // 카테고리 바뀔 때 전용 필터는 유지하되, 필요시 초기화 원하면 아래 주석 해제
-    // if (state.cat !== '코딩 테스트(백준 알고리즘)'){ state.baekTier=''; state.baekRank=''; }
-    // if (state.cat !== '코딩 테스트(프로그래머스)'){ state.progLevel=''; }
-    render();
-  });
+  $cat.addEventListener('change', (e)=>{ state.cat = e.target.value; render(); });
   $sort.addEventListener('change', (e)=>{ state.sort = e.target.value; render(); });
 
   // init
