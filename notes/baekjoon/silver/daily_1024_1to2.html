@@ -40,69 +40,56 @@
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      휴대폰 T9 키패드에서 각 알파벳은 특정 숫자(2–9)에 매핑된다. 메시지는 <code>1</code>로 구분되는 단어들의 연속이며, 각 단어는 해당 숫자열(시그니처)과 사전에 있는 단어의 시그니처를 대조해 <strong>가장 먼저(사전순 첫 번째)</strong> 일치하는 단어로 치환된다. 일치하는 단어가 없으면 단어 길이만큼 <code>'*'</code>로 출력한다.<br>
-      주어진 사전이 <strong>이미 오름차순</strong>으로 정렬되어 있으므로, 같은 시그니처를 가진 여러 단어 중 <strong>첫 등장 단어만 저장</strong>해 두면 곧바로 “첫 매칭 우선” 규칙을 만족한다.</p>
+      길이가 정확히 <code>n</code>자리인 정수들 중에서 <code>D</code>로 나누어떨어지는 가장 작은 수를 찾는 문제다. 
+      <code>n = 1</code>이면 최솟값은 <code>1</code>, 그 외에는 최솟값 <code>min = 10^(n-1)</code>, 상한(배제) <code>max = 10^n</code>으로 두고, 
+      <code>min</code> 이상에서의 <code>D</code>의 <strong>최초 배수</strong> <code>M</code>을 계산한다. 
+      이는 <code>M = ceil(min / D) * D</code> 와 동일하며, <code>M &lt; max</code>면 답이고, 아니면 <code>No solution</code>이다.
+      큰 자릿수를 다루기 위해 Java의 <code>BigInteger</code>를 사용한다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 첫 줄 <code>M</code>(1 ≤ M ≤ 100) — 사전 단어 수. 다음 <code>M</code>줄 — 대문자(A–Z) 단어(길이 ≤ 100, 오름차순 정렬).<br>
-      다음 줄 <code>N</code>(1 ≤ N ≤ 100) — 키 입력 개수. 그 다음 줄 — <code>N</code>개의 키(1–9) 공백 구분.<br>
-      출력: T9 규칙으로 얻은 메시지 한 줄. <code>1</code>은 단어 경계(공백)로 해석. 일치 단어가 없으면 해당 단어를 <code>'*'</code>로 대체.</p>
+      입력: 정수 <code>n</code>(자릿수), 정수 <code>D</code>.<br>
+      출력: <code>D</code>로 나누어떨어지는 가장 작은 <code>n</code>자리 수가 존재하면 그 수, 없으면 <code>No solution</code>.<br>
+      정확한 범위(예: <code>n</code>, <code>D</code>의 상한)는 원문을 따름 <em>(확실하지 않음)</em>.</p>
       
-      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —<br>
-      키패드 매핑:</p>
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li>2: ABC, 3: DEF, 4: GHI, 5: JKL, 6: MNO, 7: PQRS, 8: TUV, 9: WXYZ</li>
-        <li><code>Map&lt;Character,Integer&gt; map</code> — 문자 → 숫자 키.</li>
-      </ul>
-      <p>사전 전처리:</p>
-      <ul>
-        <li>단어를 숫자 시그니처로 변환 후 <code>Map&lt;String,String&gt; dict</code>에 <code>putIfAbsent</code>로 저장.</li>
-        <li>사전이 오름차순이므로 같은 시그니처의 <strong>첫 단어</strong>만 보존 ⇒ “첫 매칭” 보장.</li>
-      </ul>
-      <p>런타임 처리:</p>
-      <ul>
-        <li><code>StringBuilder buf</code> — 현재 단어의 숫자열 누적.</li>
-        <li><code>StringBuilder out</code> — 최종 출력 메시지.</li>
-        <li>키를 왼쪽부터 차례로 읽음:
-          <ul>
-            <li><code>key == 1</code>: 단어 경계 — <code>buf</code>를 사전 조회해 출력(또는 <code>*</code> 반복), <code>buf</code> 초기화, 공백 추가.</li>
-            <li><code>key ∈ {2..9}</code>: <code>buf</code>에 숫자 추가.</li>
-          </ul>
-        </li>
-        <li>모든 키 처리 후 <code>buf</code>에 남은 마지막 단어를 동일 규칙으로 출력.</li>
+        <li><code>BigInteger min</code>: <code>n==1</code>이면 <code>1</code>, 아니면 <code>10^(n-1)</code></li>
+        <li><code>BigInteger max</code>: <code>10^n</code> (상한, <em>배제</em>)</li>
+        <li><code>BigInteger d</code>: <code>D</code>의 BigInteger 표현</li>
+        <li><code>tmp = min.mod(d)</code>, <code>M = (tmp==0) ? min : min + (d - tmp)</code>: <code>min</code> 이상 최초의 <code>D</code> 배수</li>
+        <li>판정: <code>M.compareTo(max) &lt; 0</code> 이면 <code>M</code> 출력, 아니면 <code>No solution</code></li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) 키패드 문자→숫자 매핑 테이블 구성.<br>
-      2) 사전의 각 단어를 숫자 시그니처로 변환해 <code>dict[시그니처] = 첫 단어</code>로 저장.<br>
-      3) 입력 키열을 순회하며 <code>1</code>에서 단어를 끊고 출력, 마지막에 <code>buf</code> 잔여 처리.<br>
-      4) 사전에 없으면 <code>buf.length()</code>만큼 <code>'*'</code>를 출력.</p>
+      1) <code>min</code>과 <code>max</code>를 설정한다(자릿수 경계값 계산).<br>
+      2) <code>min</code>을 <code>D</code>로 나눈 나머지 <code>tmp</code>를 구한다.<br>
+      3) <code>tmp==0</code>이면 <code>min</code> 자체가 답 후보, 아니면 <code>d - tmp</code>만큼 올려 최초 배수 <code>M</code>을 만든다.<br>
+      4) <code>M &lt; max</code>면 <code>M</code>은 <code>n</code>자리이므로 출력, 아니면 존재하지 않으므로 <code>No solution</code>.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      사전이 오름차순 정렬이므로 동일 시그니처 최초 등장 단어가 T9의 “첫 단어” 규칙과 일치한다. <code>putIfAbsent</code>로 최초 단어만 보존하여 규칙을 그대로 구현한다.</p>
+      정수의 배수 집합은 등차수열이므로, <code>min</code> 이상에서의 최초 배수는 나머지 보정 <code>(d - (min mod d))</code>를 더해 얻는 값과 일치한다. 
+      또한 <code>n</code>자리 수의 범위는 <code>[10^(n-1), 10^n)</code>이므로, <code>M</code>이 이 구간에 속하는지(<code>M &lt; 10^n</code>)만 확인하면 충분하다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li>사전에 없는 시그니처: 해당 길이만큼 <code>*</code> 출력.</li>
-        <li>연속된 1: 코드상 <code>' '</code>가 연속 추가되어 다중 공백이 생긴다. 입력이 “단어는 한 공백으로 분리”라면 연속 1이 등장하지 않는 것이 자연스럽다.</li>
-        <li>사전에 동일 시그니처 다수: <code>putIfAbsent</code>로 첫 단어만 유지.</li>
-        <li>마지막 키가 1이 아님: 루프 종료 후 <code>buf</code> 잔여 단어를 처리.</li>
+        <li><code>n = 1</code>: <code>min = 1</code>로 시작(0은 1자리 자연수로 취급하지 않음 가정).</li>
+        <li><code>D = 1</code>: 항상 해 존재, 답은 <code>min</code>.</li>
+        <li><code>M = max</code>가 되는 경우: <code>max</code>는 <code>n+1</code>자리의 경계값이므로 <code>n</code>자리가 아니어서 <code>No solution</code>이 맞다.</li>
+        <li>아주 큰 <code>n</code>: <code>10^n</code> 구성 및 출력 비용이 커질 수 있음 <em>(환경 의존, 확실하지 않음)</em>.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      사전 전처리: 각 단어 길이를 L이라 할 때 총 <code>O(∑L)</code>.<br>
-      입력 처리: 키 수 <code>N</code>에 대해 <code>O(N)</code>.<br>
-      공간: 시그니처→단어 해시맵 크기 <code>O(사전 시그니처 수)</code> + 보조 버퍼(미미) .</p>
+      자릿수 길이를 <code>L ≈ n</code>이라 보면, <code>10^(n-1)</code>, <code>10^n</code> 생성과 나머지/덧셈/비교 같은 BigInteger 연산은 자릿수에 선형~준선형으로 비례한다. 
+      따라서 전체는 BigInteger 산술 기준으로 <code>O(L)</code>~<code>O(L log L)</code> 수준이며, 출력도 <code>O(L)</code>가 된다 <em>(상수·구현 세부는 JVM/라이브러리 의존)</em>.</p>
       
-      <p><strong>코드 스니펫 (핵심 구현 포인트)</strong> —<br>
-      아래 구현은 위 아이디어를 그대로 따른다. 사전은 시그니처→첫 단어만 저장, <code>1</code>에서 단어 확정, 없으면 <code>*</code> 반복.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>알파벳→숫자 매핑으로 사전 단어를 시그니처화하고, 같은 시그니처의 <strong>첫 단어만</strong> 저장.</li>
-        <li>입력 숫자열을 순회하며 <code>1</code>에서 단어를 끊고 매핑된 단어 또는 <code>*</code>로 출력.</li>
-        <li>사전 정렬 특성을 이용해 T9의 “첫 매칭 우선”을 간결히 만족.</li>
+        <li><code>n</code>자리 구간을 <code>[10^(n-1), 10^n)</code>로 잡고, 그 안에서의 <code>D</code>의 첫 배수 <code>M</code>을 계산.</li>
+        <li><code>M &lt; 10^n</code>이면 답, 아니면 존재하지 않으므로 <code>No solution</code>.</li>
+        <li>큰 자릿수를 다루기 위해 <code>BigInteger</code> 연산으로 안전하게 처리.</li>
       </ul>
+
 
 
 
@@ -173,10 +160,6 @@
       
       <p><strong>시간·공간 복잡도</strong> —<br>
       병 개수 <code>M = N(N+1)/2 ≤ 55</code>. 각 병 최대 3회 회전이므로 시간 <code>O(M)</code> (상수 작음), 공간은 그리드와 출력 버퍼로 <code>O(M)</code> .</p>
-      
-      <p><strong>코드 스니펫 (핵심 구현 포인트)</strong> —<br>
-      아래 구현은 입력을 아래행 기준 인덱싱으로 재배치하고, 각 칸에서 필요한 만큼만 회전하며 출력한다.</p>
-      
       
       <p><strong>정리</strong></p>
       <ul>
