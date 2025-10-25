@@ -24,71 +24,82 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-24 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-25 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 3553 — Dragon’s Question</h2>
+      <h2 class="section">문제 3787 — Count on Canton</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3553">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3787">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1024_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1025_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      길이가 정확히 <code>n</code>자리인 정수들 중에서 <code>D</code>로 나누어떨어지는 가장 작은 수를 찾는 문제다. 
-      <code>n = 1</code>이면 최솟값은 <code>1</code>, 그 외에는 최솟값 <code>min = 10^(n-1)</code>, 상한(배제) <code>max = 10^n</code>으로 두고, 
-      <code>min</code> 이상에서의 <code>D</code>의 <strong>최초 배수</strong> <code>M</code>을 계산한다. 
-      이는 <code>M = ceil(min / D) * D</code> 와 동일하며, <code>M &lt; max</code>면 답이고, 아니면 <code>No solution</code>이다.
-      큰 자릿수를 다루기 위해 Java의 <code>BigInteger</code>를 사용한다.</p>
+      양의 유리수들을 대각선(1, 2, 3, …번째 대각선)에 따라 지그재그로 나열했을 때, 주어진 순번 <code>N</code>이 어느 대각선 <code>k</code>에 속하는지를 먼저 찾는다.
+      대각선 <code>k</code>의 마지막 인덱스는 삼각수 <code>T_k = k(k+1)/2</code>이고, <code>T_{k-1} &lt;= N &lt;= T_k</code>를 만족하는 <code>k</code>를 구하면
+      해당 대각선 내에서의 상대적 위치 <code>offset = N - T_{k-1}</code>가 정해진다.
+      대각선의 방향은 <code>k</code>의 짝·홀에 따라 바뀌며,</p>
+      <ul>
+        <li><code>k</code>가 짝수면 위에서 아래로: <code>(num, den) = (offset, k - offset + 1)</code></li>
+        <li><code>k</code>가 홀수면 아래서 위로: <code>(num, den) = (k - offset + 1, offset)</code></li>
+      </ul>
+      <p>이를 그대로 구현하여 <code>TERM N IS num/den</code> 형태로 출력한다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 정수 <code>n</code>(자릿수), 정수 <code>D</code>.<br>
-      출력: <code>D</code>로 나누어떨어지는 가장 작은 <code>n</code>자리 수가 존재하면 그 수, 없으면 <code>No solution</code>.<br>
-      정확한 범위(예: <code>n</code>, <code>D</code>의 상한)는 원문을 따름.</p>
+      입력: 하나 이상의 정수 <code>N</code> (줄 구분 없이 공백으로 여러 개 주어질 수 있음, EOF까지 처리).<br>
+      출력: 각 <code>N</code>에 대해 대응하는 기약 분수 <code>num/den</code>를 <code>TERM N IS num/den</code> 형식으로 출력.<br>
+      수의 범위는 문제 원문을 따르며, 구현은 <code>long</code>으로 안전하게 누적한다.</p>
       
       <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li><code>BigInteger min</code>: <code>n==1</code>이면 <code>1</code>, 아니면 <code>10^(n-1)</code></li>
-        <li><code>BigInteger max</code>: <code>10^n</code> (상한, 배제)</li>
-        <li><code>BigInteger d</code>: <code>D</code>의 BigInteger 표현</li>
-        <li><code>tmp = min.mod(d)</code>, <code>M = (tmp==0) ? min : min + (d - tmp)</code>: <code>min</code> 이상 최초의 <code>D</code> 배수</li>
-        <li>판정: <code>M.compareTo(max) &lt; 0</code> 이면 <code>M</code> 출력, 아니면 <code>No solution</code></li>
+        <li><code>long sum</code>: 현재 대각선 <code>k</code>까지의 누적 길이, 즉 <code>T_k</code></li>
+        <li><code>long k</code>: <code>N</code>이 위치한 대각선 번호</li>
+        <li><code>long prevSum = sum - k</code>: 이전 대각선까지의 누적, 즉 <code>T_{k-1}</code></li>
+        <li><code>long offset = N - prevSum</code>: 대각선 <code>k</code> 내에서의 1-based 위치</li>
+        <li>방향 판정: <code>(k &amp; 1) == 0</code>이면 짝수 대각선, 아니면 홀수 대각선</li>
+        <li>분수 결정:
+          <ul>
+            <li>짝수 대각선: <code>num = offset</code>, <code>den = k - offset + 1</code></li>
+            <li>홀수 대각선: <code>num = k - offset + 1</code>, <code>den = offset</code></li>
+          </ul>
+        </li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) <code>min</code>과 <code>max</code>를 설정한다(자릿수 경계값 계산).<br>
-      2) <code>min</code>을 <code>D</code>로 나눈 나머지 <code>tmp</code>를 구한다.<br>
-      3) <code>tmp==0</code>이면 <code>min</code> 자체가 답 후보, 아니면 <code>d - tmp</code>만큼 올려 최초 배수 <code>M</code>을 만든다.<br>
-      4) <code>M &lt; max</code>면 <code>M</code>은 <code>n</code>자리이므로 출력, 아니면 존재하지 않으므로 <code>No solution</code>.</p>
+      1) 입력 스트림을 EOF까지 읽으며 공백 기준으로 <code>N</code>을 파싱한다.<br>
+      2) <code>sum</code>과 <code>k</code>를 0에서 시작해 <code>sum &lt; N</code>인 동안 <code>k</code>를 1씩 늘리고 <code>sum += k</code>로 갱신하여, <code>T_k &gt;= N</code>이 되는 최소 <code>k</code>를 찾는다.<br>
+      3) <code>prevSum = sum - k</code>, <code>offset = N - prevSum</code>를 계산한다.<br>
+      4) <code>k</code>의 짝·홀에 따라 <code>(num, den)</code>를 위 규칙대로 결정한다.<br>
+      5) 포맷에 맞춰 <code>TERM N IS num/den</code>을 출력한다.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      정수의 배수 집합은 등차수열이므로, <code>min</code> 이상에서의 최초 배수는 나머지 보정 <code>(d - (min mod d))</code>를 더해 얻는 값과 일치한다. 
-      또한 <code>n</code>자리 수의 범위는 <code>[10^(n-1), 10^n)</code>이므로, <code>M</code>이 이 구간에 속하는지(<code>M &lt; 10^n</code>)만 확인하면 충분하다.</p>
+      대각선별 원소 수는 1, 2, 3, …으로 증가하므로 누적 길이는 삼각수 <code>T_k</code>이며, 임의의 <code>N</code>은 유일하게 <code>T_{k-1} &lt; N &lt;= T_k</code>를 만족하는 하나의 <code>k</code>에 속한다.
+      대각선 내 상대 위치 <code>offset</code> 역시 유일하며, 열거 방향이 대각선마다 교차하므로 짝·홀에 따른 분수 규칙으로 정확히 매핑된다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>n = 1</code>: <code>min = 1</code>로 시작.</li>
-        <li><code>D = 1</code>: 항상 해 존재, 답은 <code>min</code>.</li>
-        <li><code>M = max</code>가 되는 경우: <code>max</code>는 <code>n+1</code>자리의 경계값이므로 <code>n</code>자리가 아니어서 <code>No solution</code>이 맞다.</li>
-        <li>아주 큰 <code>n</code>: <code>10^n</code> 구성 및 출력 비용이 커질 수 있음.</li>
+        <li><code>N = 1</code>: <code>k = 1</code>, <code>offset = 1</code>로 <code>1/1</code>.</li>
+        <li>대량 입력: 라인 단위가 아닌 토큰 단위 파싱 및 EOF 처리로 연속 입력 지원.</li>
+        <li>큰 <code>N</code>: 누적 합과 대각선 번호를 <code>long</code>으로 관리해 오버플로를 회피.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      자릿수 길이를 <code>L ≈ n</code>이라 보면, <code>10^(n-1)</code>, <code>10^n</code> 생성과 나머지/덧셈/비교 같은 BigInteger 연산은 자릿수에 선형~준선형으로 비례한다. 
-      따라서 전체는 BigInteger 산술 기준으로 <code>O(L)</code>~<code>O(L log L)</code> 수준이며, 출력도 <code>O(L)</code>가 된다 (상수·구현 세부는 JVM/라이브러리 의존).</p>
-      
+      <code>k(k+1)/2 ≈ N</code>이므로 <code>k ≈ Θ(√N)</code>. 단순 누적으로 <code>k</code>를 찾으므로 각 쿼리당 시간 복잡도는 <code>O(√N)</code>, 공간 복잡도는 <code>O(1)</code>.
+      (필요시 이분 탐색이나 근사식을 이용해 <code>k</code> 도출을 <code>O(1)</code>/<code>O(log N)</code>로 개선 가능하지만, 현 구현으로도 충분하다.)</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li><code>n</code>자리 구간을 <code>[10^(n-1), 10^n)</code>로 잡고, 그 안에서의 <code>D</code>의 첫 배수 <code>M</code>을 계산.</li>
-        <li><code>M &lt; 10^n</code>이면 답, 아니면 존재하지 않으므로 <code>No solution</code>.</li>
-        <li>큰 자릿수를 다루기 위해 <code>BigInteger</code> 연산으로 안전하게 처리.</li>
+        <li><code>N</code>이 속한 대각선 <code>k</code>를 삼각수 누적으로 결정.</li>
+        <li><code>offset = N - T_{k-1}</code>를 구해 대각선 내부 위치를 확정.</li>
+        <li><code>k</code>의 짝·홀에 따라 분수 <code>(num, den)</code>를 지그재그 규칙으로 계산.</li>
+        <li>형식: <code>TERM N IS num/den</code>.</li>
       </ul>
+
 
 
 
@@ -113,14 +124,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 3711 — 학번</h2>
+      <h2 class="section">문제 3845 — 잔디깎기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3711">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3845">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1024_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1025_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
