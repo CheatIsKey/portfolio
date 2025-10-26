@@ -24,81 +24,79 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-25 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-26 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 3787 — Count on Canton</h2>
+      <h2 class="section">문제 3863 — 행복한 전화 통화</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3787">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3863">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1025_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      양의 유리수들을 대각선(1, 2, 3, …번째 대각선)에 따라 지그재그로 나열했을 때, 주어진 순번 <code>N</code>이 어느 대각선 <code>k</code>에 속하는지를 먼저 찾는다.
-      대각선 <code>k</code>의 마지막 인덱스는 삼각수 <code>T_k = k(k+1)/2</code>이고, <code>T_{k-1} &lt;= N &lt;= T_k</code>를 만족하는 <code>k</code>를 구하면
-      해당 대각선 내에서의 상대적 위치 <code>offset = N - T_{k-1}</code>가 정해진다.
-      대각선의 방향은 <code>k</code>의 짝·홀에 따라 바뀌며,</p>
-      <ul>
-        <li><code>k</code>가 짝수면 위에서 아래로: <code>(num, den) = (offset, k - offset + 1)</code></li>
-        <li><code>k</code>가 홀수면 아래서 위로: <code>(num, den) = (k - offset + 1, offset)</code></li>
-      </ul>
-      <p>이를 그대로 구현하여 <code>TERM N IS num/den</code> 형태로 출력한다.</p>
+      각 통화는 <code>[cs, cs + cd)</code> 구간, 각 문의는 <code>[qs, qs + qd)</code> 구간으로 본다. 
+      두 구간이 한 번이라도 겹치면(교집합이 비어있지 않으면) 해당 통화가 카운트된다.<br>
+      구간 겹침 판정은 반열린구간 기준으로 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code> (여기서 <code>qe = qs + qd</code>, <code>ce = cs + cd</code>) 이면 참이다.
+      끝점만 맞닿는 경우(<code>ce == qs</code> 또는 <code>qe == cs</code>)는 겹치지 않는 것으로 처리된다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 하나 이상의 정수 <code>N</code> (줄 구분 없이 공백으로 여러 개 주어질 수 있음, EOF까지 처리).<br>
-      출력: 각 <code>N</code>에 대해 대응하는 기약 분수 <code>num/den</code>를 <code>TERM N IS num/den</code> 형식으로 출력.<br>
-      수의 범위는 문제 원문을 따르며, 구현은 <code>long</code>으로 안전하게 누적한다.</p>
+      입력: 여러 테스트 케이스. 각 케이스마다 <code>N M</code> (통화 수, 문의 수). <code>N = 0, M = 0</code>이면 종료.<br>
+      다음 <code>N</code>줄: <code>a b cs cd</code> (발신 번호, 수신 번호, 통화 시작 시각, 통화 길이). 번호 두 값은 계산에 사용하지 않음.<br>
+      다음 <code>M</code>줄: <code>qs qd</code> (문의 시작 시각, 길이).<br>
+      출력: 각 문의마다 해당 구간과 겹치는 통화의 개수.</p>
       
       <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li><code>long sum</code>: 현재 대각선 <code>k</code>까지의 누적 길이, 즉 <code>T_k</code></li>
-        <li><code>long k</code>: <code>N</code>이 위치한 대각선 번호</li>
-        <li><code>long prevSum = sum - k</code>: 이전 대각선까지의 누적, 즉 <code>T_{k-1}</code></li>
-        <li><code>long offset = N - prevSum</code>: 대각선 <code>k</code> 내에서의 1-based 위치</li>
-        <li>방향 판정: <code>(k &amp; 1) == 0</code>이면 짝수 대각선, 아니면 홀수 대각선</li>
-        <li>분수 결정:
+        <li><code>long[][] callInfo = new long[N][4]</code>: 통화 정보 저장. 실제 계산에는 <code>callInfo[i][2] = cs</code>, <code>callInfo[i][3] = cd</code>만 사용.</li>
+        <li>문의 처리:
           <ul>
-            <li>짝수 대각선: <code>num = offset</code>, <code>den = k - offset + 1</code></li>
-            <li>홀수 대각선: <code>num = k - offset + 1</code>, <code>den = offset</code></li>
+            <li><code>qs, qd</code> → <code>qe = qs + qd</code></li>
+            <li>통화별 <code>cs, cd</code> → <code>ce = cs + cd</code></li>
+            <li>겹침 조건: <code>if (cs &lt; qe &amp;&amp; qs &lt; ce) cnt++;</code></li>
           </ul>
         </li>
+        <li>입력 루프: <code>(N, M) = (0, 0)</code> 또는 EOF까지 반복.</li>
+        <li>출력 누적: <code>StringBuilder sb</code>에 줄 단위로 카운트 결과 추가 후 마지막에 일괄 출력.</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) 입력 스트림을 EOF까지 읽으며 공백 기준으로 <code>N</code>을 파싱한다.<br>
-      2) <code>sum</code>과 <code>k</code>를 0에서 시작해 <code>sum &lt; N</code>인 동안 <code>k</code>를 1씩 늘리고 <code>sum += k</code>로 갱신하여, <code>T_k &gt;= N</code>이 되는 최소 <code>k</code>를 찾는다.<br>
-      3) <code>prevSum = sum - k</code>, <code>offset = N - prevSum</code>를 계산한다.<br>
-      4) <code>k</code>의 짝·홀에 따라 <code>(num, den)</code>를 위 규칙대로 결정한다.<br>
-      5) 포맷에 맞춰 <code>TERM N IS num/den</code>을 출력한다.</p>
+      1) 한 케이스의 <code>N</code>과 <code>M</code>을 읽는다.<br>
+      2) <code>N</code>개의 통화에 대해 <code>cs</code>, <code>cd</code>를 저장한다(번호 두 값은 건너뜀).<br>
+      3) <code>M</code>개의 문의에 대해:
+         <br>&nbsp;&nbsp;• <code>qe = qs + qd</code>를 계산하고,<br>
+         &nbsp;&nbsp;• 모든 통화에 대해 <code>ce = cs + cd</code>를 만든 뒤,<br>
+         &nbsp;&nbsp;• <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>면 카운트.<br>
+      4) 각 문의의 카운트를 출력 버퍼에 추가한다.<br>
+      5) 다음 케이스를 이어서 처리한다.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      대각선별 원소 수는 1, 2, 3, …으로 증가하므로 누적 길이는 삼각수 <code>T_k</code>이며, 임의의 <code>N</code>은 유일하게 <code>T_{k-1} &lt; N &lt;= T_k</code>를 만족하는 하나의 <code>k</code>에 속한다.
-      대각선 내 상대 위치 <code>offset</code> 역시 유일하며, 열거 방향이 대각선마다 교차하므로 짝·홀에 따른 분수 규칙으로 정확히 매핑된다.</p>
+      반열린구간 <code>[s, e)</code>에서 두 구간 <code>[a, b)</code>, <code>[c, d)</code>의 겹침은 <code>a &lt; d</code> 그리고 <code>c &lt; b</code>와 동치다. 
+      이에 따라 끝점만 맞닿는 경우는 제외되고, 실제로 시간이 공유되는 경우만 카운트된다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>N = 1</code>: <code>k = 1</code>, <code>offset = 1</code>로 <code>1/1</code>.</li>
-        <li>대량 입력: 라인 단위가 아닌 토큰 단위 파싱 및 EOF 처리로 연속 입력 지원.</li>
-        <li>큰 <code>N</code>: 누적 합과 대각선 번호를 <code>long</code>으로 관리해 오버플로를 회피.</li>
+        <li>끝점 접촉: <code>ce == qs</code> 또는 <code>qe == cs</code> → 겹침 아님.</li>
+        <li>문의/통화 길이가 0인 입력: 반열린구간에서 길이 0이면 실질 겹침 없음(카운트 증가 없음).</li>
+        <li>여러 케이스/EOF: <code>0 0</code>이나 EOF 처리로 안전하게 종료.</li>
+        <li>큰 값: 합산 시 <code>long</code> 사용으로 범위 여유.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      <code>k(k+1)/2 ≈ N</code>이므로 <code>k ≈ Θ(√N)</code>. 단순 누적으로 <code>k</code>를 찾으므로 각 쿼리당 시간 복잡도는 <code>O(√N)</code>, 공간 복잡도는 <code>O(1)</code>.
-      (필요시 이분 탐색이나 근사식을 이용해 <code>k</code> 도출을 <code>O(1)</code>/<code>O(log N)</code>로 개선 가능하지만, 현 구현으로도 충분하다.)</p>
+      각 케이스에서 문의마다 모든 통화를 선형 스캔하므로 <code>O(NM)</code>. 추가 메모리는 통화 저장에 <code>O(N)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li><code>N</code>이 속한 대각선 <code>k</code>를 삼각수 누적으로 결정.</li>
-        <li><code>offset = N - T_{k-1}</code>를 구해 대각선 내부 위치를 확정.</li>
-        <li><code>k</code>의 짝·홀에 따라 분수 <code>(num, den)</code>를 지그재그 규칙으로 계산.</li>
-        <li>형식: <code>TERM N IS num/den</code>.</li>
+        <li>통화/문의 모두 반열린구간 <code>[start, start+duration)</code>으로 통일.</li>
+        <li>겹침 판정은 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>.</li>
+        <li>문의마다 모든 통화를 검사해 카운트하고, 케이스별로 이어서 처리.</li>
       </ul>
+
 
 
 
@@ -124,70 +122,94 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 3845 — 잔디깎기</h2>
+      <h2 class="section">문제 3974 — Absurd prices</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3845">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3974">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1025_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      잔디밭을 가로(X)·세로(Y) 방향으로 각각 완전히 덮을 수 있는지 확인하는 문제다. 각 잔디깎기 경로는 중심 좌표를 기준으로 폭 <code>w</code>의 띠를 만들며, 이는 구간 <code>[pos - w/2, pos + w/2]</code>로 표현된다. <br>
-      가로 방향은 <code>[0, 75]</code>, 세로 방향은 <code>[0, 100]</code> 범위를 각각 덮어야 한다. 좌표들을 정렬한 뒤, 왼쪽부터 겹치거나 맞닿도록 이어지며 덮이는지를 그리디로 확인한다. 모든 구간을 순회한 뒤 최종 덮임 끝점이 경계에 도달하면 해당 축은 “덮기 성공”이다. 두 축 모두 성공하면 <code>YES</code>, 아니면 <code>NO</code>.</p>
+      가격 <code>c</code>의 “기괴함(absurdity)”을 먼저 계산한다. 규칙은 다음과 같다:
+      <ol>
+        <li><code>c</code>에서 뒤쪽의 0(자릿수 말단의 0)을 모두 제거해 양의 정수 <code>x</code>를 만든다.</li>
+        <li><code>x</code>의 자릿수를 <code>a</code>라 하고, 마지막 자리(최하위) 숫자를 <code>d</code>라 한다.</li>
+        <li><code>d = 5</code>이면 기괴함은 <code>2·a − 1</code>, 그 외에는 <code>2·a</code>.</li>
+      </ol>
+      이제 닫힌 구간 <code>[0.95·c, 1.05·c]</code> 안에 기괴함이 <code>c</code>보다 작은 정수 <code>e</code>가 하나라도 존재하면 <code>c</code>는 “absurd”, 없으면 “not absurd”.<br>
+      구간 경계는 정수로 올림/내림해 <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>로 잡는다(<code>low = (19c+19)/20</code>, <code>high = (21c)/20</code>).</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 정수 <code>nx</code>, <code>ny</code>, 실수 <code>w</code>; 이어서 길이 <code>nx</code>의 X좌표들, 길이 <code>ny</code>의 Y좌표들. <br>
-      종료 조건: <code>nx = 0</code>, <code>ny = 0</code>, <code>w = 0</code>일 때 입력 종료. <br>
-      출력: 각 케이스마다 <code>YES</code> 또는 <code>NO</code>.</p>
+      입력: 테스트케이스 수 <code>t</code>, 이어서 각 줄에 가격 <code>c</code>(cent 단위), <code>1 ≤ c ≤ 10<sup>9</sup></code>.<br>
+      출력: 각 <code>c</code>에 대해 <code>absurd</code> 또는 <code>not absurd</code>.</p>
       
       <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li><code>double EPS = 1e-7</code>: 부동소수 오차 허용치</li>
-        <li><code>double half = w / 2.0</code>: 각 띠의 반폭</li>
-        <li><code>double[] x, y</code>: 가로/세로 방향 중심 좌표</li>
-        <li><code>Arrays.sort(x/y)</code>: 좌표 정렬</li>
-        <li><code>double covered</code>: 현재까지 연속적으로 덮인 오른쪽 끝점</li>
-        <li>가로 판정 범위: <code>[0.0, 75.0]</code> / 세로 판정 범위: <code>[0.0, 100.0]</code></li>
-        <li>각 좌표 <code>pos</code>에 대해 실제 기여 구간
+        <li><code>static int absurd(long x)</code>: 위 규칙대로 기괴함을 계산.
           <ul>
-            <li><code>left = max(0.0, pos - half)</code></li>
-            <li><code>right = min(BOUND, pos + half)</code> (BOUND는 75 또는 100)</li>
+            <li>뒤 0 제거: <code>while (clean % 10 == 0) clean /= 10;</code></li>
+            <li>마지막 자리: <code>lastDigit = clean % 10</code></li>
+            <li>자릿수: <code>cnt</code>를 증가시키며 <code>clean</code>을 10으로 나눠 0이 될 때까지 반복</li>
+            <li>반환: <code>(lastDigit == 5) ? 2*cnt - 1 : 2*cnt</code></li>
           </ul>
         </li>
+        <li><code>long[] p10</code>: <code>10^k</code> 프리컴퓨트(<code>k=0..11</code>)</li>
+        <li>구간 경계:
+          <ul>
+            <li><code>low  = (19L * c + 19) / 20</code> (올림)</li>
+            <li><code>high = (21L * c) / 20</code> (내림)</li>
+          </ul>
+        </li>
+        <li>후보 생성/검사:
+          <ul>
+            <li><code>step1 = 10^k</code>와 <code>step2 = 5·10^k</code>를 단위로, <code>c</code> 근처의 배수들을 확인</li>
+            <li><code>m = c / step</code> 근방의 <code>m + d</code> (<code>d ∈ [-2..2]</code>)만 검사 → 후보 <code>num = (m+d)·step</code></li>
+            <li>후보가 <code>[low, high]</code>에 있고 양수이면, 기괴함 비교: <code>absurd(num) &lt; absurd(c)</code>면 “absurd” 판정</li>
+          </ul>
+        </li>
+        <li>출력: 후보가 발견되면 즉시 종료하고 <code>absurd</code>, 끝까지 못 찾으면 <code>not absurd</code>.</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) 한 줄에 들어온 <code>nx ny w</code>를 읽고 종료 조건이면 종료한다.<br>
-      2) X좌표 <code>nx</code>개, Y좌표 <code>ny</code>개를 각각 읽어 정렬한다.<br>
-      3) 가로 검증: <code>covered = 0</code>에서 시작하여, 각 구간의 <code>left</code>가 <code>covered + EPS</code>보다 크면 틈이 생긴 것이므로 실패. 아니면 <code>covered = max(covered, right)</code>로 확장. 최종 <code>covered &gt;= 75 - EPS</code>면 성공.<br>
-      4) 세로 검증: 같은 로직으로 <code>BOUND = 100</code>을 사용해 판정.<br>
-      5) 두 검증이 모두 성공이면 <code>YES</code>, 하나라도 실패면 <code>NO</code>를 출력 버퍼에 추가한다.</p>
+      1) <code>t</code>를 읽고, <code>10^k</code> 테이블을 준비한다.<br>
+      2) 각 <code>c</code>에 대해:
+         <br>&nbsp;&nbsp;• <code>absurdity = absurd(c)</code> 계산<br>
+         &nbsp;&nbsp;• <code>low</code>, <code>high</code> 산출<br>
+         &nbsp;&nbsp;• 각 <code>k</code>에 대해 <code>step ∈ {10^k, 5·10^k}</code>:
+         <br>&nbsp;&nbsp;&nbsp;&nbsp;– <code>m = c / step</code> 근방의 배수 5개(<code>±2</code>)를 생성<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;– 구간 포함 &amp; 양수 체크 후 기괴함 비교<br>
+         &nbsp;&nbsp;• 더 작은 기괴함 후보를 찾으면 즉시 “absurd”, 없으면 “not absurd”.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      정렬 후 왼쪽부터 겹치도록 이어 붙이는 그리디는 구간 덮개(covering)에서 표준적이고 최적이다. 각 구간이 만들 수 있는 최좌측 덮임을 항상 선택해 <code>covered</code>를 확장하므로, 임의의 해가 존재한다면 이 절차로도 경계까지 도달한다. 경계 클리핑(<code>[0, BOUND]</code>로 제한)과 <code>EPS</code> 허용은 실수 오차로 인한 위·아래 편차를 안정적으로 처리한다.</p>
+      기괴함은 뒤 0 제거 후의 자릿수(<code>a</code>)에 비례하고, 마지막 자리가 5면 1만큼 더 유리하다. 
+      따라서 “작은 기괴함”을 갖는 수는 <code>10^k</code> 또는 <code>5·10^k</code>의 배수처럼 뒤에 많은 0을 갖는 수(혹은 5로 끝나는 수) 근방에서 잘 나타난다. 
+      <code>c</code>를 해당 단위로 나눠 근처 배수(<code>±2</code>)만 검사해도 <code>[0.95c, 1.05c]</code> 구간 내에서 필요한 후보를 충분히 커버한다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li><code>w</code>가 매우 작아 틈이 생기는 경우: <code>left &gt; covered + EPS</code>에서 즉시 실패.</li>
-        <li>양 끝 처리: 최초 구간의 <code>left</code>가 0을 덮지 못하거나, 최종 <code>covered</code>가 경계(<code>75</code>, <code>100</code>)에 도달하지 못하면 실패.</li>
-        <li>좌표가 없는 축(<code>nx=0</code> 또는 <code>ny=0</code>): 어떤 구간도 없으므로 덮기 실패.</li>
-        <li>겹치는 구간 다수: <code>covered</code>를 넓히는 데 불리하지 않으며, 그리디가 자동으로 최댓값을 취함.</li>
+        <li>경계 포함: <code>low</code>와 <code>high</code>는 각각 올림/내림으로 계산하므로 닫힌 구간을 정확히 반영.</li>
+        <li>후보의 유효성: <code>num &gt; 0</code> 확인으로 0 이하 후보 배제.</li>
+        <li>큰 값 처리: <code>c ≤ 10^9</code>, <code>step ≤ 5·10^11</code> 범위에서 <code>long</code> 연산 안전.</li>
+        <li>즉시 종료: 더 작은 기괴함을 찾는 순간 탐색을 중단해 불필요한 계산 제거.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      정렬이 지배적이므로 각 케이스에 대해 <code>O(nx log nx + ny log ny)</code>, 선형 스캔은 <code>O(nx + ny)</code>. 추가 공간은 정렬 및 입력 저장에 <code>O(nx + ny)</code>.</p>
+      각 테스트에서 <code>k</code>는 최대 12, 각 <code>k</code>당 후보는 최대 10개(두 단위 × 5개)이며, 후보 하나의 기괴함 계산은 자릿수 길이에 비례. 
+      따라서 시간 복잡도는 대략 <code>O(120 · log₁₀ c)</code> 수준(상수에 가까움), 공간은 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>각 좌표는 폭 <code>w</code>의 덮임 구간을 만든다(<code>[pos - w/2, pos + w/2]</code>).</li>
-        <li>가로는 <code>[0, 75]</code>, 세로는 <code>[0, 100]</code>을 대상으로 정렬+그리디로 연속 덮임 여부를 판정.</li>
-        <li>두 축 모두 경계까지 도달하면 <code>YES</code>, 아니면 <code>NO</code>.</li>
+        <li>기괴함 계산: 뒤 0 제거 → 자릿수/마지막 자리로 <code>2a</code> 또는 <code>2a−1</code>.</li>
+        <li>구간: <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>.</li>
+        <li>후보: <code>10^k</code> 및 <code>5·10^k</code> 배수의 근방(<code>±2</code>)만 검사.</li>
+        <li>더 작은 기괴함이 구간 내에 존재하면 <code>absurd</code>, 아니면 <code>not absurd</code>.</li>
       </ul>
+
 
 
 
