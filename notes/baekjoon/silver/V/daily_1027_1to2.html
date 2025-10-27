@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-26 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 3863 — 행복한 전화 통화</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3863">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      각 통화는 <code>[cs, cs + cd)</code> 구간, 각 문의는 <code>[qs, qs + qd)</code> 구간으로 본다. 
+      두 구간이 한 번이라도 겹치면(교집합이 비어있지 않으면) 해당 통화가 카운트된다.<br>
+      구간 겹침 판정은 반열린구간 기준으로 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code> (여기서 <code>qe = qs + qd</code>, <code>ce = cs + cd</code>) 이면 참이다.
+      끝점만 맞닿는 경우(<code>ce == qs</code> 또는 <code>qe == cs</code>)는 겹치지 않는 것으로 처리된다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 여러 테스트 케이스. 각 케이스마다 <code>N M</code> (통화 수, 문의 수). <code>N = 0, M = 0</code>이면 종료.<br>
+      다음 <code>N</code>줄: <code>a b cs cd</code> (발신 번호, 수신 번호, 통화 시작 시각, 통화 길이). 번호 두 값은 계산에 사용하지 않음.<br>
+      다음 <code>M</code>줄: <code>qs qd</code> (문의 시작 시각, 길이).<br>
+      출력: 각 문의마다 해당 구간과 겹치는 통화의 개수.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>long[][] callInfo = new long[N][4]</code>: 통화 정보 저장. 실제 계산에는 <code>callInfo[i][2] = cs</code>, <code>callInfo[i][3] = cd</code>만 사용.</li>
+        <li>문의 처리:
+          <ul>
+            <li><code>qs, qd</code> → <code>qe = qs + qd</code></li>
+            <li>통화별 <code>cs, cd</code> → <code>ce = cs + cd</code></li>
+            <li>겹침 조건: <code>if (cs &lt; qe &amp;&amp; qs &lt; ce) cnt++;</code></li>
+          </ul>
+        </li>
+        <li>입력 루프: <code>(N, M) = (0, 0)</code> 또는 EOF까지 반복.</li>
+        <li>출력 누적: <code>StringBuilder sb</code>에 줄 단위로 카운트 결과 추가 후 마지막에 일괄 출력.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 한 케이스의 <code>N</code>과 <code>M</code>을 읽는다.<br>
+      2) <code>N</code>개의 통화에 대해 <code>cs</code>, <code>cd</code>를 저장한다(번호 두 값은 건너뜀).<br>
+      3) <code>M</code>개의 문의에 대해:
+         <br>&nbsp;&nbsp;• <code>qe = qs + qd</code>를 계산하고,<br>
+         &nbsp;&nbsp;• 모든 통화에 대해 <code>ce = cs + cd</code>를 만든 뒤,<br>
+         &nbsp;&nbsp;• <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>면 카운트.<br>
+      4) 각 문의의 카운트를 출력 버퍼에 추가한다.<br>
+      5) 다음 케이스를 이어서 처리한다.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      반열린구간 <code>[s, e)</code>에서 두 구간 <code>[a, b)</code>, <code>[c, d)</code>의 겹침은 <code>a &lt; d</code> 그리고 <code>c &lt; b</code>와 동치다. 
+      이에 따라 끝점만 맞닿는 경우는 제외되고, 실제로 시간이 공유되는 경우만 카운트된다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>끝점 접촉: <code>ce == qs</code> 또는 <code>qe == cs</code> → 겹침 아님.</li>
+        <li>문의/통화 길이가 0인 입력: 반열린구간에서 길이 0이면 실질 겹침 없음(카운트 증가 없음).</li>
+        <li>여러 케이스/EOF: <code>0 0</code>이나 EOF 처리로 안전하게 종료.</li>
+        <li>큰 값: 합산 시 <code>long</code> 사용으로 범위 여유.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      각 케이스에서 문의마다 모든 통화를 선형 스캔하므로 <code>O(NM)</code>. 추가 메모리는 통화 저장에 <code>O(N)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>통화/문의 모두 반열린구간 <code>[start, start+duration)</code>으로 통일.</li>
+        <li>겹침 판정은 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>.</li>
+        <li>문의마다 모든 통화를 검사해 카운트하고, 케이스별로 이어서 처리.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3974 — Absurd prices</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3974">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      가격 <code>c</code>의 “기괴함(absurdity)”을 먼저 계산한다. 규칙은 다음과 같다:
+      <ol>
+        <li><code>c</code>에서 뒤쪽의 0(자릿수 말단의 0)을 모두 제거해 양의 정수 <code>x</code>를 만든다.</li>
+        <li><code>x</code>의 자릿수를 <code>a</code>라 하고, 마지막 자리(최하위) 숫자를 <code>d</code>라 한다.</li>
+        <li><code>d = 5</code>이면 기괴함은 <code>2·a − 1</code>, 그 외에는 <code>2·a</code>.</li>
+      </ol>
+      이제 닫힌 구간 <code>[0.95·c, 1.05·c]</code> 안에 기괴함이 <code>c</code>보다 작은 정수 <code>e</code>가 하나라도 존재하면 <code>c</code>는 “absurd”, 없으면 “not absurd”.<br>
+      구간 경계는 정수로 올림/내림해 <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>로 잡는다(<code>low = (19c+19)/20</code>, <code>high = (21c)/20</code>).</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 테스트케이스 수 <code>t</code>, 이어서 각 줄에 가격 <code>c</code>(cent 단위), <code>1 ≤ c ≤ 10<sup>9</sup></code>.<br>
+      출력: 각 <code>c</code>에 대해 <code>absurd</code> 또는 <code>not absurd</code>.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>static int absurd(long x)</code>: 위 규칙대로 기괴함을 계산.
+          <ul>
+            <li>뒤 0 제거: <code>while (clean % 10 == 0) clean /= 10;</code></li>
+            <li>마지막 자리: <code>lastDigit = clean % 10</code></li>
+            <li>자릿수: <code>cnt</code>를 증가시키며 <code>clean</code>을 10으로 나눠 0이 될 때까지 반복</li>
+            <li>반환: <code>(lastDigit == 5) ? 2*cnt - 1 : 2*cnt</code></li>
+          </ul>
+        </li>
+        <li><code>long[] p10</code>: <code>10^k</code> 프리컴퓨트(<code>k=0..11</code>)</li>
+        <li>구간 경계:
+          <ul>
+            <li><code>low  = (19L * c + 19) / 20</code> (올림)</li>
+            <li><code>high = (21L * c) / 20</code> (내림)</li>
+          </ul>
+        </li>
+        <li>후보 생성/검사:
+          <ul>
+            <li><code>step1 = 10^k</code>와 <code>step2 = 5·10^k</code>를 단위로, <code>c</code> 근처의 배수들을 확인</li>
+            <li><code>m = c / step</code> 근방의 <code>m + d</code> (<code>d ∈ [-2..2]</code>)만 검사 → 후보 <code>num = (m+d)·step</code></li>
+            <li>후보가 <code>[low, high]</code>에 있고 양수이면, 기괴함 비교: <code>absurd(num) &lt; absurd(c)</code>면 “absurd” 판정</li>
+          </ul>
+        </li>
+        <li>출력: 후보가 발견되면 즉시 종료하고 <code>absurd</code>, 끝까지 못 찾으면 <code>not absurd</code>.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) <code>t</code>를 읽고, <code>10^k</code> 테이블을 준비한다.<br>
+      2) 각 <code>c</code>에 대해:
+         <br>&nbsp;&nbsp;• <code>absurdity = absurd(c)</code> 계산<br>
+         &nbsp;&nbsp;• <code>low</code>, <code>high</code> 산출<br>
+         &nbsp;&nbsp;• 각 <code>k</code>에 대해 <code>step ∈ {10^k, 5·10^k}</code>:
+         <br>&nbsp;&nbsp;&nbsp;&nbsp;– <code>m = c / step</code> 근방의 배수 5개(<code>±2</code>)를 생성<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;– 구간 포함 &amp; 양수 체크 후 기괴함 비교<br>
+         &nbsp;&nbsp;• 더 작은 기괴함 후보를 찾으면 즉시 “absurd”, 없으면 “not absurd”.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      기괴함은 뒤 0 제거 후의 자릿수(<code>a</code>)에 비례하고, 마지막 자리가 5면 1만큼 더 유리하다. 
+      따라서 “작은 기괴함”을 갖는 수는 <code>10^k</code> 또는 <code>5·10^k</code>의 배수처럼 뒤에 많은 0을 갖는 수(혹은 5로 끝나는 수) 근방에서 잘 나타난다. 
+      <code>c</code>를 해당 단위로 나눠 근처 배수(<code>±2</code>)만 검사해도 <code>[0.95c, 1.05c]</code> 구간 내에서 필요한 후보를 충분히 커버한다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>경계 포함: <code>low</code>와 <code>high</code>는 각각 올림/내림으로 계산하므로 닫힌 구간을 정확히 반영.</li>
+        <li>후보의 유효성: <code>num &gt; 0</code> 확인으로 0 이하 후보 배제.</li>
+        <li>큰 값 처리: <code>c ≤ 10^9</code>, <code>step ≤ 5·10^11</code> 범위에서 <code>long</code> 연산 안전.</li>
+        <li>즉시 종료: 더 작은 기괴함을 찾는 순간 탐색을 중단해 불필요한 계산 제거.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      각 테스트에서 <code>k</code>는 최대 12, 각 <code>k</code>당 후보는 최대 10개(두 단위 × 5개)이며, 후보 하나의 기괴함 계산은 자릿수 길이에 비례. 
+      따라서 시간 복잡도는 대략 <code>O(120 · log₁₀ c)</code> 수준(상수에 가까움), 공간은 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>기괴함 계산: 뒤 0 제거 → 자릿수/마지막 자리로 <code>2a</code> 또는 <code>2a−1</code>.</li>
+        <li>구간: <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>.</li>
+        <li>후보: <code>10^k</code> 및 <code>5·10^k</code> 배수의 근방(<code>±2</code>)만 검사.</li>
+        <li>더 작은 기괴함이 구간 내에 존재하면 <code>absurd</code>, 아니면 <code>not absurd</code>.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
