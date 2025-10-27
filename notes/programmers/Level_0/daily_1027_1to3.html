@@ -45,68 +45,60 @@
 
       <h3 class="section">해설</h3>
       <p>
-        공백(<code>" "</code>)으로 구분된 간단한 사칙연산 수식 문자열 <code>my_string</code>을
-        왼쪽부터 순차적으로 평가하여 정수 결과를 반환하는 문제다.
-        이 풀이에서는 <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> 네 가지 연산자를 인식하고,
-        <code>"="</code>가 등장하면 계산을 즉시 종료한다.
+        정수 <code>n</code>의 <strong>모든 약수</strong>를 오름차순의 정수 배열로 반환하는 문제다.
+        이 풀이에서는 자바의 <code>IntStream</code>을 사용해
+        <code>1</code>부터 <code>n</code>까지의 구간을 순회하며
+        <code>n % i == 0</code>인 값만 걸러내어 <code>int[]</code>로 변환한다.
+        (문제의 기본 전제는 <strong>양의 정수 n</strong>이다.)
       </p>
       
       <ul>
-        <li><code>split(" ")</code>으로 수식을 토큰 단위(피연산자와 연산자)로 분리한다.</li>
-        <li>현재 연산자를 저장하는 변수 <code>operator</code>를 <code>"+"</code>로 초기화한다.</li>
-        <li>
-          토큰을 앞에서부터 순회하며
-          <ul>
-            <li>정수로 파싱 가능한 경우(피연산자): 현재 <code>operator</code>에 따라 누적값 <code>sum</code>에 적용한다.</li>
-            <li>정수로 파싱 불가한 경우(연산자/기호): 
-              <code>"="</code>이면 반복을 종료하고, 
-              <code>"+", "-", "*", "/"</code> 중 하나면 <code>operator</code>를 갱신한다.
-            </li>
-          </ul>
-        </li>
-        <li>모든 처리가 끝나면 누적값 <code>sum</code>을 반환한다.</li>
+        <li><code>IntStream.rangeClosed(1, n)</code>으로 <code>1..n</code> 구간의 정수를 생성한다.</li>
+        <li><code>.filter(i -&gt; n % i == 0)</code>로 <code>n</code>을 나누어 떨어뜨리는 값(<strong>약수</strong>)만 통과시킨다.</li>
+        <li><code>.toArray()</code>로 결과를 <code>int[]</code>로 수집한다. (입력 구간이 오름차순이므로 <strong>정렬 추가 작업이 필요 없다</strong>.)</li>
       </ul>
       
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>n = 24</code> ⟶ <code>[1, 2, 3, 4, 6, 8, 12, 24]</code></li>
+        <li><code>n = 13</code> (소수) ⟶ <code>[1, 13]</code></li>
+        <li><code>n = 1</code> ⟶ <code>[1]</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
       <p>
-        예를 들어, <code>my_string = "3 + 4 * 2 ="</code>라면  
-        토큰을 왼쪽부터 순차 적용하여  
-        <code>(((0 + 3) + 4) * 2) = 14</code>가 결과로 반환된다.
-        (이 풀이는 <strong>연산자 우선순위를 적용하지 않고</strong> 좌에서 우로만 계산한다.)
+        <code>1</code>부터 <code>n</code>까지 한 번씩만 검사하므로 <code>O(n)</code>이다.
       </p>
       
+      <p><strong>공간 복잡도</strong></p>
       <p>
-        <strong>시간 복잡도</strong>는 토큰의 개수를 <code>T</code>라 할 때  
-        각 토큰을 한 번씩만 처리하므로 <code>O(T)</code>다.
-      </p>
-      
-      <p>
-        <strong>공간 복잡도</strong>는 입력 분할을 위한 배열과 상수 크기의 변수를 사용하므로  
-        <code>O(T)</code> (토큰 배열) / 추가 작업 변수는 <code>O(1)</code>이다.
+        출력 배열의 크기를 <code>k</code>(약수의 개수)라 하면 결과 저장에 <code>O(k)</code>가 필요하다.
+        스트림 파이프라인 자체의 추가 공간은 상수(<code>O(1)</code>) 수준이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li><code>"/"</code> 연산에서 피연산자가 0이면 <code>ArithmeticException</code>이 발생한다.</li>
-        <li>이 로직은 <strong>연산자 우선순위</strong>(예: 곱셈·나눗셈 우선)를 고려하지 않고, 입력 순서대로 계산한다.</li>
-        <li><code>int</code> 범위를 벗어나는 큰 수는 오버플로가 발생할 수 있다.</li>
-        <li>정수가 아닌 토큰은 <code>NumberFormatException</code>으로 분기 처리한다. (알 수 없는 문자는 경고 출력)</li>
-        <li><code>"="</code>이 없는 경우 끝까지 계산한 누적값을 반환한다.</li>
-        <li><code>"/"</code>는 자바의 <code>int</code> 나눗셈이므로 <strong>버림</strong>이 적용된다.</li>
+        <li><code>rangeClosed(1, n)</code>는 <code>n &lt; 1</code>일 때 빈 스트림을 만들어 결과가 빈 배열이 될 수 있다. 
+            이 경우는 문제 조건 밖이므로 별도 방어 로직이 필요하다.</li>
+        <li>스트림을 사용하므로 <code>for</code> 루프 대비 미세한 오버헤드가 있을 수 있으나, 본 문제 규모에서는 무시 가능하다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li><strong>문제 조건이 <code>+</code>, <code>-</code>만이라면</strong>:
-            <code>*</code>, <code>/</code>, <code>"="</code> 처리를 제거하고, 
-            토큰을 <code>num, op, num, op, ...</code> 형태로 가정해 더 간결하게 구현할 수 있다.</li>
-          <li>스트림 사용:
-            <code>my_string.split(" ")</code>로 토큰화한 뒤, 
-            인덱스를 기준으로 홀/짝 토큰을 분리해 누적하는 방식으로도 구현 가능하다. 
-            (가독성은 취향 차이)</li>
-          <li>우선순위를 반영하려면 <strong>스택 기반</strong> 파서(또는 <code>Shunting Yard</code>)로 확장한다.</li>
+          <li><strong>루프 기반 구현</strong>: 
+            <code>for (int i = 1; i &lt;= n; i++)</code>로 순회하며 약수를 리스트에 담고, 
+            마지막에 배열로 변환하면 된다. 동작/복잡도는 동일.</li>
+          <li><strong>√n 최적화</strong>:
+            <code>i = 1..⌊√n⌋</code>만 검사하면서 
+            <code>i</code>가 약수면 <code>i</code>와 <code>n/i</code>를 함께 수집해 
+            평균적으로 검사 횟수를 절감(<code>O(√n)</code>)할 수 있다. 
+            단, 결과를 오름차순으로 만들려면 마지막에 정렬 또는 두 컨테이너 병합이 필요하다.</li>
+          <li><strong>박싱/언박싱 회피</strong>:
+            현재 풀이처럼 <code>IntStream</code>을 쓰면 <code>Stream&lt;Integer&gt;</code> 대비 박싱 오버헤드가 없다.</li>
         </ul>
       </details>
+
 
 
 
@@ -129,75 +121,73 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 가장 큰 수 찾기</h2>
+      <h2 class="section">문제 2 — 한 번만 등장한 문자</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120899">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120896">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1026_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1027_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        정수 배열 <code>array</code>가 주어졌을 때,  
-        배열에서 가장 큰 값(<code>최댓값</code>)과 그 값의 <code>인덱스</code>를 함께 반환하는 문제다.  
-        반환 형태는 <code>[최댓값, 인덱스]</code>이다.
+        문자열 <code>s</code>에서 <strong>한 번만 등장하는 문자</strong>를 찾아 
+        오름차순으로 이어붙인 문자열을 반환하는 문제다.  
+        문자는 모두 소문자(<code>'a' ~ 'z'</code>)로 제한되어 있으며, 
+        등장 횟수를 집계하여 1회 등장한 문자만 결과에 포함한다.
       </p>
       
       <ul>
-        <li>초기값으로 <code>max = array[0]</code>, <code>idx = 0</code>을 설정한다.</li>
-        <li><code>for</code>문으로 배열의 두 번째 원소(<code>i = 1</code>)부터 끝까지 순회한다.</li>
-        <li>현재 원소가 <code>max</code>보다 크면,  
-          <code>max</code>와 <code>idx</code>를 각각 현재 값과 인덱스로 갱신한다.</li>
-        <li>모든 탐색이 끝나면 <code>new int[]{max, idx}</code> 배열을 반환한다.</li>
+        <li><code>int[] cnt = new int[26];</code> — 알파벳 개수(26)만큼의 카운트 배열을 준비한다.</li>
+        <li><code>for (char c : s.toCharArray()) cnt[c - 'a']++;</code> — 각 문자의 빈도를 1씩 증가시킨다.</li>
+        <li><code>StringBuilder sb = new StringBuilder();</code> — 결과 문자열을 효율적으로 구성하기 위한 버퍼다.</li>
+        <li><code>for (int i = 0; i &lt; 26; i++)</code> 반복하며 <code>cnt[i] == 1</code>인 문자를 
+            <code>sb</code>에 추가한다.</li>
+        <li>마지막에 <code>sb.toString()</code>을 반환한다. (루프가 <code>'a' → 'z'</code> 순서로 진행되므로 결과는 자동으로 정렬된 형태다.)</li>
       </ul>
       
-      <p>
-        예를 들어, <code>array = [1, 8, 3]</code>일 때  
-        순회 과정은 다음과 같다.
-      </p>
-      
+      <p><strong>예시</strong></p>
       <ul>
-        <li>초기값: <code>max = 1</code>, <code>idx = 0</code></li>
-        <li><code>i = 1</code> → <code>array[1] = 8 &gt; 1</code> → <code>max = 8</code>, <code>idx = 1</code></li>
-        <li><code>i = 2</code> → <code>array[2] = 3 &lt; 8</code> → 변화 없음</li>
-        <li>결과: <code>[8, 1]</code></li>
+        <li><code>s = "abcabcadc"</code> ⟶ <code>"d"</code></li>
+        <li><code>s = "abdc"</code> ⟶ <code>"abcd"</code></li>
+        <li><code>s = "hello"</code> ⟶ <code>"eho"</code> (각 문자의 등장 횟수: h=1, e=1, l=2, o=1)</li>
       </ul>
       
+      <p><strong>시간 복잡도</strong></p>
       <p>
-        <strong>시간 복잡도</strong>는 배열을 한 번만 순회하므로  
-        <code>O(N)</code>이다. (<code>N</code>은 배열의 길이)
+        문자열 길이를 <code>N</code>이라 할 때, 한 번 순회하며 빈도를 세고(<code>O(N)</code>),
+        이후 26개의 문자를 확인하므로 전체 복잡도는 <code>O(N)</code>이다.
       </p>
       
+      <p><strong>공간 복잡도</strong></p>
       <p>
-        <strong>공간 복잡도</strong>는 상수 크기의 변수(<code>max</code>, <code>idx</code>)와  
-        반환 배열만 사용하므로 <code>O(1)</code>이다.
+        카운트 배열의 크기는 상수(<code>O(26)</code> = <code>O(1)</code>)이며,
+        입력 문자열과 출력 문자열 외의 추가 메모리는 거의 사용되지 않는다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li>배열의 길이가 1인 경우, 결과는 <code>[array[0], 0]</code>이다.</li>
-        <li>동일한 최댓값이 여러 개 존재할 경우,  
-          <strong>가장 먼저 등장한 인덱스</strong>를 반환한다.</li>
-        <li>빈 배열이 주어지면 <code>ArrayIndexOutOfBoundsException</code>이 발생하므로  
-          문제 조건상 입력 배열은 비어 있지 않아야 한다.</li>
+        <li>입력 문자열은 소문자만 포함한다고 가정한다. (대문자나 숫자 등이 포함되면 <code>c - 'a'</code> 계산이 잘못된다.)</li>
+        <li>결과가 빈 문자열(<code>""</code>)일 수도 있다. (모든 문자가 중복 등장할 때)</li>
+        <li>문자열 길이가 매우 길어도 카운트 배열은 고정 크기이므로 메모리 사용량이 일정하다.</li>
+        <li><code>StringBuilder</code>는 문자열 덧붙임(<code>+</code>)보다 효율적이다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li><strong>스트림 사용:</strong>  
-            <code>IntStream.range(0, array.length)</code>를 이용하여  
-            <code>max()</code>와 <code>indexOf()</code>를 조합할 수도 있다.</li>
-          <li><strong>Collections 사용:</strong>  
-            <code>Arrays.asList()</code>로 리스트 변환 후  
-            <code>Collections.max()</code>로 최댓값을 찾을 수도 있으나,  
-            기본형 <code>int[]</code>은 자동 박싱이 필요해 비효율적이다.</li>
-          <li>이 문제의 핵심은 <strong>단일 순회로 최댓값과 인덱스를 함께 추적</strong>하는 기본 로직이다.</li>
+          <li><strong>스트림 활용</strong>: 
+            <code>s.chars()</code>로 문자 스트림을 생성해 빈도수를 <code>Collectors.groupingBy</code>로 세고, 
+            1회 등장 문자만 필터링해 <code>sorted()</code> 후 <code>collect</code>로 이어붙일 수 있다.  
+            (단, 코드 길이는 길어지고 속도는 약간 느릴 수 있다.)</li>
+          <li><strong>HashMap 사용</strong>: 
+            알파벳 제한이 없거나 유니코드 문자까지 처리해야 한다면, 
+            <code>Map&lt;Character, Integer&gt;</code>로 일반화할 수 있다.</li>
         </ul>
       </details>
+
 
 
 
@@ -221,64 +211,73 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 편지</h2>
+      <h2 class="section">문제 3 — 인덱스 바꾸기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120898">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120895">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1026_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1027_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        문자열 <code>message</code>가 주어졌을 때,  
-        각 문자당 2cm의 폭을 차지한다고 가정하면  
-        전체 문장의 총 길이를 구하는 문제다.  
-        즉, <code>문자 개수 × 2</code>의 값을 반환한다.
+        문자열 <code>my_string</code>에서 주어진 두 인덱스 <code>num1</code>, <code>num2</code>의 문자를 
+        서로 <strong>교환(swap)</strong>한 뒤, 새로운 문자열로 반환하는 문제다.  
+        문자열은 불변(immutable)이므로 직접 수정이 불가능하므로, 
+        <code>char[]</code> 배열로 변환 후 교환한 뒤 다시 문자열로 변환한다.
       </p>
       
       <ul>
-        <li>변수 <code>result</code>를 0으로 초기화한다.</li>
-        <li><code>for</code>문을 이용해 문자열의 모든 문자(<code>i = 0</code>부터 <code>message.length() - 1</code>까지)를 순회한다.</li>
-        <li>각 문자마다 2cm를 더하므로, 루프마다 <code>result += 2;</code>를 수행한다.</li>
-        <li>모든 문자를 처리한 후 <code>result</code>를 반환한다.</li>
+        <li><code>char[] array = my_string.toCharArray();</code> — 문자열을 문자 배열로 변환한다.</li>
+        <li><code>char tmp = array[num1];</code> — <code>num1</code> 위치의 문자를 임시 변수에 저장한다.</li>
+        <li><code>array[num1] = array[num2]; array[num2] = tmp;</code> — 두 문자의 위치를 교환한다.</li>
+        <li><code>return new String(array);</code> — 수정된 문자 배열을 문자열로 변환해 반환한다.</li>
       </ul>
       
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>my_string = "hello", num1 = 1, num2 = 2</code> ⟶ <code>"hlelo"</code></li>
+        <li><code>my_string = "I love you", num1 = 3, num2 = 6</code> ⟶ <code>"I loev you"</code></li>
+        <li><code>my_string = "abcde", num1 = 0, num2 = 4</code> ⟶ <code>"ebcda"</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
       <p>
-        예를 들어, <code>message = "happy birthday!"</code>일 때  
-        총 문자의 수는 15개이므로  
-        <code>15 × 2 = 30</code>을 반환한다.
+        문자열 길이를 <code>N</code>이라 할 때, 
+        <code>toCharArray()</code>가 <code>O(N)</code>, 
+        교환 연산은 <code>O(1)</code>, 
+        새로운 문자열 생성도 <code>O(N)</code>이므로 
+        전체 복잡도는 <code>O(N)</code>이다.
       </p>
       
+      <p><strong>공간 복잡도</strong></p>
       <p>
-        <strong>시간 복잡도</strong>는 문자열의 길이를 <code>N</code>이라 할 때  
-        각 문자를 한 번씩 순회하므로 <code>O(N)</code>이다.
-      </p>
-      
-      <p>
-        <strong>공간 복잡도</strong>는 상수 크기의 변수 <code>result</code>만 사용하므로  
-        <code>O(1)</code>이다.
+        문자 배열이 입력 문자열 길이만큼 추가로 필요하므로 <code>O(N)</code>이다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li><code>message</code>가 빈 문자열이면 <code>result</code>는 0이 된다.</li>
-        <li>공백 문자(<code>' '</code>)나 특수문자도 1글자로 계산되어 동일하게 2cm로 더해진다.</li>
-        <li>문자열 길이를 직접 계산할 수 있으므로  
-          반복문 대신 <code>message.length() * 2</code>로 단순화 가능하다.</li>
+        <li><code>num1</code>과 <code>num2</code>는 반드시 <code>0 ≤ num &lt; my_string.length()</code> 범위에 있어야 한다. (그렇지 않으면 <code>ArrayIndexOutOfBoundsException</code> 발생)</li>
+        <li>두 인덱스가 같으면 교환 전후가 동일하므로 원본 문자열이 그대로 반환된다.</li>
+        <li>문자열이 불변이므로 원본 <code>my_string</code> 자체는 변경되지 않는다.</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li><strong>간결한 표현:</strong>  
-            <code>return message.length() * 2;</code> 로 한 줄로 구현 가능하다.</li>
-          <li>문제의 의도는 반복문을 통해 문자열의 길이를 직접 순회하며  
-            기본적인 문자열 처리 구조를 익히는 것이다.</li>
+          <li><strong>StringBuilder 사용</strong>:
+            <code>StringBuilder sb = new StringBuilder(my_string);</code>  
+            이후 <code>charAt()</code>과 <code>setCharAt()</code>으로 교환하면 
+            배열 변환 없이도 처리 가능하다. (성능 유사)</li>
+          <li><strong>스트림 방식</strong>: 
+            <code>IntStream.range(0, my_string.length())</code>로 인덱스를 순회하며 
+            교환된 위치의 문자를 조건식으로 처리해 <code>Collectors.joining()</code>으로 합칠 수 있다.  
+            하지만 코드 복잡도가 높아 권장되지 않는다.</li>
         </ul>
       </details>
+
 
 
 
