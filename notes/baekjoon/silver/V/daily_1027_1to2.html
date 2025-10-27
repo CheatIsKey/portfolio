@@ -24,78 +24,76 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-26 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-10-27 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 3863 — 행복한 전화 통화</h2>
+      <h2 class="section">문제 3982 — Soccer Bets</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3863">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/3982">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1027_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      각 통화는 <code>[cs, cs + cd)</code> 구간, 각 문의는 <code>[qs, qs + qd)</code> 구간으로 본다. 
-      두 구간이 한 번이라도 겹치면(교집합이 비어있지 않으면) 해당 통화가 카운트된다.<br>
-      구간 겹침 판정은 반열린구간 기준으로 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code> (여기서 <code>qe = qs + qd</code>, <code>ce = cs + cd</code>) 이면 참이다.
-      끝점만 맞닿는 경우(<code>ce == qs</code> 또는 <code>qe == cs</code>)는 겹치지 않는 것으로 처리된다.</p>
+      토너먼트의 경기 순서가 섞여 있어도 우승 팀은 한 번도 패하지 않는다는 성질은 변하지 않는다.  
+      총 16경기(16강~결승) 중 결승 우승팀만 패배가 0회이고, 나머지 팀은 최소 1패 이상을 기록한다(준결승 패자도 3위전 존재 여부와 관계없이 최소 1패).  
+      따라서 <u>모든 경기에서 패한 팀을 집합으로 모으고</u>, <u>등장한 모든 팀 집합에서 이를 뺀 팀</u>이 바로 우승팀이 된다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 여러 테스트 케이스. 각 케이스마다 <code>N M</code> (통화 수, 문의 수). <code>N = 0, M = 0</code>이면 종료.<br>
-      다음 <code>N</code>줄: <code>a b cs cd</code> (발신 번호, 수신 번호, 통화 시작 시각, 통화 길이). 번호 두 값은 계산에 사용하지 않음.<br>
-      다음 <code>M</code>줄: <code>qs qd</code> (문의 시작 시각, 길이).<br>
-      출력: 각 문의마다 해당 구간과 겹치는 통화의 개수.</p>
+      입력: 테스트 케이스 수 <code>c</code> (1 ≤ c ≤ 100).  
+      각 케이스는 임의 순서의 16경기 결과 <code>t1 t2 g1 g2</code>로 구성된다.<br>
+      팀명 <code>t1, t2</code>는 정확히 3글자 대문자이며, 득점 <code>g1, g2</code>는 0 ≤ g ≤ 10, <code>g1 ≠ g2</code>로 항상 승패가 존재한다.<br>
+      출력: 각 케이스마다 단 한 팀(무패 팀, 즉 우승팀)의 이름을 한 줄로 출력한다.</p>
       
       <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li><code>long[][] callInfo = new long[N][4]</code>: 통화 정보 저장. 실제 계산에는 <code>callInfo[i][2] = cs</code>, <code>callInfo[i][3] = cd</code>만 사용.</li>
-        <li>문의 처리:
+        <li><code>Set&lt;String&gt; teams</code>: 등장한 모든 팀 저장.</li>
+        <li><code>Set&lt;String&gt; lose</code>: 한 번이라도 패한 팀 저장.</li>
+        <li>각 경기 처리:
           <ul>
-            <li><code>qs, qd</code> → <code>qe = qs + qd</code></li>
-            <li>통화별 <code>cs, cd</code> → <code>ce = cs + cd</code></li>
-            <li>겹침 조건: <code>if (cs &lt; qe &amp;&amp; qs &lt; ce) cnt++;</code></li>
+            <li><code>teams.add(t1); teams.add(t2);</code> → 전체 팀 집합 갱신</li>
+            <li>득점 비교 후 패자만 <code>lose.add(loser);</code></li>
           </ul>
         </li>
-        <li>입력 루프: <code>(N, M) = (0, 0)</code> 또는 EOF까지 반복.</li>
-        <li>출력 누적: <code>StringBuilder sb</code>에 줄 단위로 카운트 결과 추가 후 마지막에 일괄 출력.</li>
+        <li>정답 도출: <code>teams</code> 순회 중 <code>!lose.contains(team)</code>인 유일한 팀 출력.</li>
+        <li>I/O 구성: <code>BufferedReader</code>로 입력, <code>StringTokenizer</code>로 파싱, <code>StringBuilder</code>로 결과 누적 출력.</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) 한 케이스의 <code>N</code>과 <code>M</code>을 읽는다.<br>
-      2) <code>N</code>개의 통화에 대해 <code>cs</code>, <code>cd</code>를 저장한다(번호 두 값은 건너뜀).<br>
-      3) <code>M</code>개의 문의에 대해:
-         <br>&nbsp;&nbsp;• <code>qe = qs + qd</code>를 계산하고,<br>
-         &nbsp;&nbsp;• 모든 통화에 대해 <code>ce = cs + cd</code>를 만든 뒤,<br>
-         &nbsp;&nbsp;• <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>면 카운트.<br>
-      4) 각 문의의 카운트를 출력 버퍼에 추가한다.<br>
-      5) 다음 케이스를 이어서 처리한다.</p>
+      1) 테스트 케이스 수 <code>t</code>를 읽는다.<br>
+      2) 각 케이스에서 16경기를 입력받고 팀 집합 및 패배 집합을 갱신한다.<br>
+      3) 입력이 끝나면 <code>lose</code>에 없는 팀(무패 팀)을 찾아 <code>StringBuilder</code>에 추가한다.<br>
+      4) 모든 케이스 처리가 끝나면 한 번에 결과를 출력한다.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      반열린구간 <code>[s, e)</code>에서 두 구간 <code>[a, b)</code>, <code>[c, d)</code>의 겹침은 <code>a &lt; d</code> 그리고 <code>c &lt; b</code>와 동치다. 
-      이에 따라 끝점만 맞닿는 경우는 제외되고, 실제로 시간이 공유되는 경우만 카운트된다.</p>
+      단일 엘리미네이션 구조에서 결승 우승팀만 패배가 0회이고, 나머지 팀은 모두 최소 1패를 갖는다.  
+      따라서 <code>전체 팀 − 패배 팀</code> 집합에는 정확히 하나의 팀만 남으며, 그 팀이 곧 우승팀이다.  
+      경기 순서가 섞여 있어도 이 불변식은 유지된다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li>끝점 접촉: <code>ce == qs</code> 또는 <code>qe == cs</code> → 겹침 아님.</li>
-        <li>문의/통화 길이가 0인 입력: 반열린구간에서 길이 0이면 실질 겹침 없음(카운트 증가 없음).</li>
-        <li>여러 케이스/EOF: <code>0 0</code>이나 EOF 처리로 안전하게 종료.</li>
-        <li>큰 값: 합산 시 <code>long</code> 사용으로 범위 여유.</li>
+        <li>무승부는 존재하지 않음: <code>g1 ≠ g2</code> 보장.</li>
+        <li>집합 순서 무관: <code>Set</code>은 순서가 없지만 무패 팀은 유일하므로 순회 순서와 무관하게 결과 동일.</li>
+        <li>토너먼트 완결 보장: 항상 16경기가 주어져 우승팀이 존재하고 유일함.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      각 케이스에서 문의마다 모든 통화를 선형 스캔하므로 <code>O(NM)</code>. 추가 메모리는 통화 저장에 <code>O(N)</code>.</p>
+      케이스당 경기 수는 고정(16)이므로 시간 복잡도는 <code>O(1)</code> 수준.<br>
+      일반화하면 경기 수 <code>M</code>에 대해 <code>O(M)</code>, 공간은 팀/패배 집합 저장에 <code>O(T)</code> (T ≤ 16).</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>통화/문의 모두 반열린구간 <code>[start, start+duration)</code>으로 통일.</li>
-        <li>겹침 판정은 <code>cs &lt; qe</code> 그리고 <code>qs &lt; ce</code>.</li>
-        <li>문의마다 모든 통화를 검사해 카운트하고, 케이스별로 이어서 처리.</li>
+        <li>모든 경기에서 패자를 기록해 집합으로 저장한다.</li>
+        <li>전체 팀 집합에서 패배 집합을 제외하면 남는 유일한 팀이 우승팀이다.</li>
+        <li>무승부 없음, 토너먼트 완결 보장으로 항상 정확한 결과 도출.</li>
       </ul>
+
+
 
 
 
@@ -122,93 +120,61 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 3974 — Absurd prices</h2>
+      <h2 class="section">문제 4028 — Chain of Fools</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3974">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4028">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1026_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1027_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
 
       <p><strong>핵심 아이디어</strong> —<br>
-      가격 <code>c</code>의 “기괴함(absurdity)”을 먼저 계산한다. 규칙은 다음과 같다:
-      <ol>
-        <li><code>c</code>에서 뒤쪽의 0(자릿수 말단의 0)을 모두 제거해 양의 정수 <code>x</code>를 만든다.</li>
-        <li><code>x</code>의 자릿수를 <code>a</code>라 하고, 마지막 자리(최하위) 숫자를 <code>d</code>라 한다.</li>
-        <li><code>d = 5</code>이면 기괴함은 <code>2·a − 1</code>, 그 외에는 <code>2·a</code>.</li>
-      </ol>
-      이제 닫힌 구간 <code>[0.95·c, 1.05·c]</code> 안에 기괴함이 <code>c</code>보다 작은 정수 <code>e</code>가 하나라도 존재하면 <code>c</code>는 “absurd”, 없으면 “not absurd”.<br>
-      구간 경계는 정수로 올림/내림해 <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>로 잡는다(<code>low = (19c+19)/20</code>, <code>high = (21c)/20</code>).</p>
+      부러진 톱니(prong)와 휘어진 링크(link)가 동시에 위치 0에 오면 체인이 이탈한다. 한 번 회전할 때마다 두 위치는 각각 1씩 전진하므로, 시점 <code>i</code>에서 위치는 <code>(p + i) % s</code>, <code>(l + i) % c</code>가 된다. 두 값이 모두 0이 되는 가장 작은 <code>i &gt; 0</code>을 찾으면 첫 실패 시점을 알 수 있다.</p>
       
       <p><strong>제약 정리</strong> —<br>
-      입력: 테스트케이스 수 <code>t</code>, 이어서 각 줄에 가격 <code>c</code>(cent 단위), <code>1 ≤ c ≤ 10<sup>9</sup></code>.<br>
-      출력: 각 <code>c</code>에 대해 <code>absurd</code> 또는 <code>not absurd</code>.</p>
+      입력: 각 테스트는 <code>s c p l</code>. <code>1 &lt; s &lt; 100</code>, <code>s &lt; c &lt; 200</code>, 초기에는 두 결함이 동시에 0이 아님. <code>0 0 0 0</code> 입력으로 종료.<br>
+      출력: 처음 실패까지 필요한 회전 수를 <code>r m/s</code> 형태로 출력하거나, 결코 일어나지 않으면 <code>Never</code>를 출력한다. 분모는 항상 <code>s</code>이며 기약분수가 아닐 수 있다. <code>m</code>이 0이어도 <code>r 0/s</code>로 출력한다.</p>
       
       <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
       <ul>
-        <li><code>static int absurd(long x)</code>: 위 규칙대로 기괴함을 계산.
-          <ul>
-            <li>뒤 0 제거: <code>while (clean % 10 == 0) clean /= 10;</code></li>
-            <li>마지막 자리: <code>lastDigit = clean % 10</code></li>
-            <li>자릿수: <code>cnt</code>를 증가시키며 <code>clean</code>을 10으로 나눠 0이 될 때까지 반복</li>
-            <li>반환: <code>(lastDigit == 5) ? 2*cnt - 1 : 2*cnt</code></li>
-          </ul>
-        </li>
-        <li><code>long[] p10</code>: <code>10^k</code> 프리컴퓨트(<code>k=0..11</code>)</li>
-        <li>구간 경계:
-          <ul>
-            <li><code>low  = (19L * c + 19) / 20</code> (올림)</li>
-            <li><code>high = (21L * c) / 20</code> (내림)</li>
-          </ul>
-        </li>
-        <li>후보 생성/검사:
-          <ul>
-            <li><code>step1 = 10^k</code>와 <code>step2 = 5·10^k</code>를 단위로, <code>c</code> 근처의 배수들을 확인</li>
-            <li><code>m = c / step</code> 근방의 <code>m + d</code> (<code>d ∈ [-2..2]</code>)만 검사 → 후보 <code>num = (m+d)·step</code></li>
-            <li>후보가 <code>[low, high]</code>에 있고 양수이면, 기괴함 비교: <code>absurd(num) &lt; absurd(c)</code>면 “absurd” 판정</li>
-          </ul>
-        </li>
-        <li>출력: 후보가 발견되면 즉시 종료하고 <code>absurd</code>, 끝까지 못 찾으면 <code>not absurd</code>.</li>
+        <li><code>s, c, p, l</code>: 톱니 수, 링크 수, 부러진 톱니 위치, 휘어진 링크 위치.</li>
+        <li><code>limit = s * c</code>: 주기 상한. 이 범위 내에서 만나지 않으면 영원히 만나지 않는다.</li>
+        <li>탐색 변수 <code>i</code>: 1부터 <code>limit</code>까지 증가.</li>
+        <li>만남 조건: <code>(p + i) % s == 0</code> 그리고 <code>(l + i) % c == 0</code>.</li>
+        <li>형식 변환: <code>r = i / s</code>, <code>m = i % s</code> → <code>r m/s</code>.</li>
       </ul>
       
       <p><strong>동작 과정</strong> —<br>
-      1) <code>t</code>를 읽고, <code>10^k</code> 테이블을 준비한다.<br>
-      2) 각 <code>c</code>에 대해:
-         <br>&nbsp;&nbsp;• <code>absurdity = absurd(c)</code> 계산<br>
-         &nbsp;&nbsp;• <code>low</code>, <code>high</code> 산출<br>
-         &nbsp;&nbsp;• 각 <code>k</code>에 대해 <code>step ∈ {10^k, 5·10^k}</code>:
-         <br>&nbsp;&nbsp;&nbsp;&nbsp;– <code>m = c / step</code> 근방의 배수 5개(<code>±2</code>)를 생성<br>
-         &nbsp;&nbsp;&nbsp;&nbsp;– 구간 포함 &amp; 양수 체크 후 기괴함 비교<br>
-         &nbsp;&nbsp;• 더 작은 기괴함 후보를 찾으면 즉시 “absurd”, 없으면 “not absurd”.</p>
+      1) 한 줄을 읽어 <code>s, c, p, l</code>을 파싱한다.<br>
+      2) <code>0 0 0 0</code>이면 종료한다.<br>
+      3) <code>i = 1..s×c</code>에 대해 만남 조건을 검사한다.<br>
+      4) 조건을 만족하면 <code>r, m</code>을 계산해 <code>r m/s</code>로 기록하고, 만족하지 못한 채 끝나면 <code>Never</code>로 기록한다.</p>
       
       <p><strong>정확성 근거</strong> —<br>
-      기괴함은 뒤 0 제거 후의 자릿수(<code>a</code>)에 비례하고, 마지막 자리가 5면 1만큼 더 유리하다. 
-      따라서 “작은 기괴함”을 갖는 수는 <code>10^k</code> 또는 <code>5·10^k</code>의 배수처럼 뒤에 많은 0을 갖는 수(혹은 5로 끝나는 수) 근방에서 잘 나타난다. 
-      <code>c</code>를 해당 단위로 나눠 근처 배수(<code>±2</code>)만 검사해도 <code>[0.95c, 1.05c]</code> 구간 내에서 필요한 후보를 충분히 커버한다.</p>
+      상대 위치의 상태공간 크기는 <code>s × c</code>이며, 시간에 따라 순환한다. 따라서 최소 만남 시점은 존재하면 <code>i ≤ lcm(s, c)</code>에 있고, 상한을 <code>s × c</code>로 잡아도 충분하다. 조건이 한 번도 성립하지 않으면 이후에도 성립하지 않는다.</p>
       
       <p><strong>엣지 케이스</strong></p>
       <ul>
-        <li>경계 포함: <code>low</code>와 <code>high</code>는 각각 올림/내림으로 계산하므로 닫힌 구간을 정확히 반영.</li>
-        <li>후보의 유효성: <code>num &gt; 0</code> 확인으로 0 이하 후보 배제.</li>
-        <li>큰 값 처리: <code>c ≤ 10^9</code>, <code>step ≤ 5·10^11</code> 범위에서 <code>long</code> 연산 안전.</li>
-        <li>즉시 종료: 더 작은 기괴함을 찾는 순간 탐색을 중단해 불필요한 계산 제거.</li>
+        <li>처음부터 동시 0은 없음(문제 보장).</li>
+        <li><code>m = 0</code>인 경우도 형식대로 <code>r 0/s</code>를 출력한다.</li>
+        <li>끝까지 조건 미성립이면 <code>Never</code>를 출력한다.</li>
       </ul>
       
       <p><strong>시간·공간 복잡도</strong> —<br>
-      각 테스트에서 <code>k</code>는 최대 12, 각 <code>k</code>당 후보는 최대 10개(두 단위 × 5개)이며, 후보 하나의 기괴함 계산은 자릿수 길이에 비례. 
-      따라서 시간 복잡도는 대략 <code>O(120 · log₁₀ c)</code> 수준(상수에 가까움), 공간은 <code>O(1)</code>.</p>
+      한 케이스당 최대 <code>O(s×c)</code> 검사(<code>s &lt; 100</code>, <code>c &lt; 200</code> → &lt; 20,000회). 추가 메모리는 <code>O(1)</code>.</p>
       
       <p><strong>정리</strong></p>
       <ul>
-        <li>기괴함 계산: 뒤 0 제거 → 자릿수/마지막 자리로 <code>2a</code> 또는 <code>2a−1</code>.</li>
-        <li>구간: <code>low = ⌈19c/20⌉</code>, <code>high = ⌊21c/20⌋</code>.</li>
-        <li>후보: <code>10^k</code> 및 <code>5·10^k</code> 배수의 근방(<code>±2</code>)만 검사.</li>
-        <li>더 작은 기괴함이 구간 내에 존재하면 <code>absurd</code>, 아니면 <code>not absurd</code>.</li>
+        <li>모듈러 이동을 이용해 두 결함이 동시에 0이 되는 최소 <code>i</code>를 선형 탐색한다.</li>
+        <li>발견 시 <code>i</code>를 <code>r m/s</code>로 변환해 출력하고, 없으면 <code>Never</code>를 출력한다.</li>
+        <li>주기 상한 <code>s×c</code> 내에서 항상 결론에 도달한다.</li>
       </ul>
+
+
 
 
 
