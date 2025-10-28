@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-27 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 3982 — Soccer Bets</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3982">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1027_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      토너먼트의 경기 순서가 섞여 있어도 우승 팀은 한 번도 패하지 않는다는 성질은 변하지 않는다.  
+      총 16경기(16강~결승) 중 결승 우승팀만 패배가 0회이고, 나머지 팀은 최소 1패 이상을 기록한다(준결승 패자도 3위전 존재 여부와 관계없이 최소 1패).  
+      따라서 <u>모든 경기에서 패한 팀을 집합으로 모으고</u>, <u>등장한 모든 팀 집합에서 이를 뺀 팀</u>이 바로 우승팀이 된다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 테스트 케이스 수 <code>c</code> (1 ≤ c ≤ 100).  
+      각 케이스는 임의 순서의 16경기 결과 <code>t1 t2 g1 g2</code>로 구성된다.<br>
+      팀명 <code>t1, t2</code>는 정확히 3글자 대문자이며, 득점 <code>g1, g2</code>는 0 ≤ g ≤ 10, <code>g1 ≠ g2</code>로 항상 승패가 존재한다.<br>
+      출력: 각 케이스마다 단 한 팀(무패 팀, 즉 우승팀)의 이름을 한 줄로 출력한다.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>Set&lt;String&gt; teams</code>: 등장한 모든 팀 저장.</li>
+        <li><code>Set&lt;String&gt; lose</code>: 한 번이라도 패한 팀 저장.</li>
+        <li>각 경기 처리:
+          <ul>
+            <li><code>teams.add(t1); teams.add(t2);</code> → 전체 팀 집합 갱신</li>
+            <li>득점 비교 후 패자만 <code>lose.add(loser);</code></li>
+          </ul>
+        </li>
+        <li>정답 도출: <code>teams</code> 순회 중 <code>!lose.contains(team)</code>인 유일한 팀 출력.</li>
+        <li>I/O 구성: <code>BufferedReader</code>로 입력, <code>StringTokenizer</code>로 파싱, <code>StringBuilder</code>로 결과 누적 출력.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 테스트 케이스 수 <code>t</code>를 읽는다.<br>
+      2) 각 케이스에서 16경기를 입력받고 팀 집합 및 패배 집합을 갱신한다.<br>
+      3) 입력이 끝나면 <code>lose</code>에 없는 팀(무패 팀)을 찾아 <code>StringBuilder</code>에 추가한다.<br>
+      4) 모든 케이스 처리가 끝나면 한 번에 결과를 출력한다.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      단일 엘리미네이션 구조에서 결승 우승팀만 패배가 0회이고, 나머지 팀은 모두 최소 1패를 갖는다.  
+      따라서 <code>전체 팀 − 패배 팀</code> 집합에는 정확히 하나의 팀만 남으며, 그 팀이 곧 우승팀이다.  
+      경기 순서가 섞여 있어도 이 불변식은 유지된다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>무승부는 존재하지 않음: <code>g1 ≠ g2</code> 보장.</li>
+        <li>집합 순서 무관: <code>Set</code>은 순서가 없지만 무패 팀은 유일하므로 순회 순서와 무관하게 결과 동일.</li>
+        <li>토너먼트 완결 보장: 항상 16경기가 주어져 우승팀이 존재하고 유일함.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      케이스당 경기 수는 고정(16)이므로 시간 복잡도는 <code>O(1)</code> 수준.<br>
+      일반화하면 경기 수 <code>M</code>에 대해 <code>O(M)</code>, 공간은 팀/패배 집합 저장에 <code>O(T)</code> (T ≤ 16).</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>모든 경기에서 패자를 기록해 집합으로 저장한다.</li>
+        <li>전체 팀 집합에서 패배 집합을 제외하면 남는 유일한 팀이 우승팀이다.</li>
+        <li>무승부 없음, 토너먼트 완결 보장으로 항상 정확한 결과 도출.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4028 — Chain of Fools</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4028">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1027_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      부러진 톱니(prong)와 휘어진 링크(link)가 동시에 위치 0에 오면 체인이 이탈한다. 한 번 회전할 때마다 두 위치는 각각 1씩 전진하므로, 시점 <code>i</code>에서 위치는 <code>(p + i) % s</code>, <code>(l + i) % c</code>가 된다. 두 값이 모두 0이 되는 가장 작은 <code>i &gt; 0</code>을 찾으면 첫 실패 시점을 알 수 있다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 각 테스트는 <code>s c p l</code>. <code>1 &lt; s &lt; 100</code>, <code>s &lt; c &lt; 200</code>, 초기에는 두 결함이 동시에 0이 아님. <code>0 0 0 0</code> 입력으로 종료.<br>
+      출력: 처음 실패까지 필요한 회전 수를 <code>r m/s</code> 형태로 출력하거나, 결코 일어나지 않으면 <code>Never</code>를 출력한다. 분모는 항상 <code>s</code>이며 기약분수가 아닐 수 있다. <code>m</code>이 0이어도 <code>r 0/s</code>로 출력한다.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>s, c, p, l</code>: 톱니 수, 링크 수, 부러진 톱니 위치, 휘어진 링크 위치.</li>
+        <li><code>limit = s * c</code>: 주기 상한. 이 범위 내에서 만나지 않으면 영원히 만나지 않는다.</li>
+        <li>탐색 변수 <code>i</code>: 1부터 <code>limit</code>까지 증가.</li>
+        <li>만남 조건: <code>(p + i) % s == 0</code> 그리고 <code>(l + i) % c == 0</code>.</li>
+        <li>형식 변환: <code>r = i / s</code>, <code>m = i % s</code> → <code>r m/s</code>.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 한 줄을 읽어 <code>s, c, p, l</code>을 파싱한다.<br>
+      2) <code>0 0 0 0</code>이면 종료한다.<br>
+      3) <code>i = 1..s×c</code>에 대해 만남 조건을 검사한다.<br>
+      4) 조건을 만족하면 <code>r, m</code>을 계산해 <code>r m/s</code>로 기록하고, 만족하지 못한 채 끝나면 <code>Never</code>로 기록한다.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      상대 위치의 상태공간 크기는 <code>s × c</code>이며, 시간에 따라 순환한다. 따라서 최소 만남 시점은 존재하면 <code>i ≤ lcm(s, c)</code>에 있고, 상한을 <code>s × c</code>로 잡아도 충분하다. 조건이 한 번도 성립하지 않으면 이후에도 성립하지 않는다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>처음부터 동시 0은 없음(문제 보장).</li>
+        <li><code>m = 0</code>인 경우도 형식대로 <code>r 0/s</code>를 출력한다.</li>
+        <li>끝까지 조건 미성립이면 <code>Never</code>를 출력한다.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      한 케이스당 최대 <code>O(s×c)</code> 검사(<code>s &lt; 100</code>, <code>c &lt; 200</code> → &lt; 20,000회). 추가 메모리는 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>모듈러 이동을 이용해 두 결함이 동시에 0이 되는 최소 <code>i</code>를 선형 탐색한다.</li>
+        <li>발견 시 <code>i</code>를 <code>r m/s</code>로 변환해 출력하고, 없으면 <code>Never</code>를 출력한다.</li>
+        <li>주기 상한 <code>s×c</code> 내에서 항상 결론에 도달한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

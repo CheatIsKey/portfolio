@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-27 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 약수 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120897">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1027_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        정수 <code>n</code>의 <strong>모든 약수</strong>를 오름차순의 정수 배열로 반환하는 문제다.
+        이 풀이에서는 자바의 <code>IntStream</code>을 사용해
+        <code>1</code>부터 <code>n</code>까지의 구간을 순회하며
+        <code>n % i == 0</code>인 값만 걸러내어 <code>int[]</code>로 변환한다.
+        (문제의 기본 전제는 <strong>양의 정수 n</strong>이다.)
+      </p>
+      
+      <ul>
+        <li><code>IntStream.rangeClosed(1, n)</code>으로 <code>1..n</code> 구간의 정수를 생성한다.</li>
+        <li><code>.filter(i -&gt; n % i == 0)</code>로 <code>n</code>을 나누어 떨어뜨리는 값(<strong>약수</strong>)만 통과시킨다.</li>
+        <li><code>.toArray()</code>로 결과를 <code>int[]</code>로 수집한다. (입력 구간이 오름차순이므로 <strong>정렬 추가 작업이 필요 없다</strong>.)</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>n = 24</code> ⟶ <code>[1, 2, 3, 4, 6, 8, 12, 24]</code></li>
+        <li><code>n = 13</code> (소수) ⟶ <code>[1, 13]</code></li>
+        <li><code>n = 1</code> ⟶ <code>[1]</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        <code>1</code>부터 <code>n</code>까지 한 번씩만 검사하므로 <code>O(n)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        출력 배열의 크기를 <code>k</code>(약수의 개수)라 하면 결과 저장에 <code>O(k)</code>가 필요하다.
+        스트림 파이프라인 자체의 추가 공간은 상수(<code>O(1)</code>) 수준이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><code>rangeClosed(1, n)</code>는 <code>n &lt; 1</code>일 때 빈 스트림을 만들어 결과가 빈 배열이 될 수 있다. 
+            이 경우는 문제 조건 밖이므로 별도 방어 로직이 필요하다.</li>
+        <li>스트림을 사용하므로 <code>for</code> 루프 대비 미세한 오버헤드가 있을 수 있으나, 본 문제 규모에서는 무시 가능하다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>루프 기반 구현</strong>: 
+            <code>for (int i = 1; i &lt;= n; i++)</code>로 순회하며 약수를 리스트에 담고, 
+            마지막에 배열로 변환하면 된다. 동작/복잡도는 동일.</li>
+          <li><strong>√n 최적화</strong>:
+            <code>i = 1..⌊√n⌋</code>만 검사하면서 
+            <code>i</code>가 약수면 <code>i</code>와 <code>n/i</code>를 함께 수집해 
+            평균적으로 검사 횟수를 절감(<code>O(√n)</code>)할 수 있다. 
+            단, 결과를 오름차순으로 만들려면 마지막에 정렬 또는 두 컨테이너 병합이 필요하다.</li>
+          <li><strong>박싱/언박싱 회피</strong>:
+            현재 풀이처럼 <code>IntStream</code>을 쓰면 <code>Stream&lt;Integer&gt;</code> 대비 박싱 오버헤드가 없다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 한 번만 등장한 문자</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120896">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1027_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>s</code>에서 <strong>한 번만 등장하는 문자</strong>를 찾아 
+        오름차순으로 이어붙인 문자열을 반환하는 문제다.  
+        문자는 모두 소문자(<code>'a' ~ 'z'</code>)로 제한되어 있으며, 
+        등장 횟수를 집계하여 1회 등장한 문자만 결과에 포함한다.
+      </p>
+      
+      <ul>
+        <li><code>int[] cnt = new int[26];</code> — 알파벳 개수(26)만큼의 카운트 배열을 준비한다.</li>
+        <li><code>for (char c : s.toCharArray()) cnt[c - 'a']++;</code> — 각 문자의 빈도를 1씩 증가시킨다.</li>
+        <li><code>StringBuilder sb = new StringBuilder();</code> — 결과 문자열을 효율적으로 구성하기 위한 버퍼다.</li>
+        <li><code>for (int i = 0; i &lt; 26; i++)</code> 반복하며 <code>cnt[i] == 1</code>인 문자를 
+            <code>sb</code>에 추가한다.</li>
+        <li>마지막에 <code>sb.toString()</code>을 반환한다. (루프가 <code>'a' → 'z'</code> 순서로 진행되므로 결과는 자동으로 정렬된 형태다.)</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>s = "abcabcadc"</code> ⟶ <code>"d"</code></li>
+        <li><code>s = "abdc"</code> ⟶ <code>"abcd"</code></li>
+        <li><code>s = "hello"</code> ⟶ <code>"eho"</code> (각 문자의 등장 횟수: h=1, e=1, l=2, o=1)</li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        문자열 길이를 <code>N</code>이라 할 때, 한 번 순회하며 빈도를 세고(<code>O(N)</code>),
+        이후 26개의 문자를 확인하므로 전체 복잡도는 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        카운트 배열의 크기는 상수(<code>O(26)</code> = <code>O(1)</code>)이며,
+        입력 문자열과 출력 문자열 외의 추가 메모리는 거의 사용되지 않는다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li>입력 문자열은 소문자만 포함한다고 가정한다. (대문자나 숫자 등이 포함되면 <code>c - 'a'</code> 계산이 잘못된다.)</li>
+        <li>결과가 빈 문자열(<code>""</code>)일 수도 있다. (모든 문자가 중복 등장할 때)</li>
+        <li>문자열 길이가 매우 길어도 카운트 배열은 고정 크기이므로 메모리 사용량이 일정하다.</li>
+        <li><code>StringBuilder</code>는 문자열 덧붙임(<code>+</code>)보다 효율적이다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>스트림 활용</strong>: 
+            <code>s.chars()</code>로 문자 스트림을 생성해 빈도수를 <code>Collectors.groupingBy</code>로 세고, 
+            1회 등장 문자만 필터링해 <code>sorted()</code> 후 <code>collect</code>로 이어붙일 수 있다.  
+            (단, 코드 길이는 길어지고 속도는 약간 느릴 수 있다.)</li>
+          <li><strong>HashMap 사용</strong>: 
+            알파벳 제한이 없거나 유니코드 문자까지 처리해야 한다면, 
+            <code>Map&lt;Character, Integer&gt;</code>로 일반화할 수 있다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 인덱스 바꾸기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120895">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1027_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>my_string</code>에서 주어진 두 인덱스 <code>num1</code>, <code>num2</code>의 문자를 
+        서로 <strong>교환(swap)</strong>한 뒤, 새로운 문자열로 반환하는 문제다.  
+        문자열은 불변(immutable)이므로 직접 수정이 불가능하므로, 
+        <code>char[]</code> 배열로 변환 후 교환한 뒤 다시 문자열로 변환한다.
+      </p>
+      
+      <ul>
+        <li><code>char[] array = my_string.toCharArray();</code> — 문자열을 문자 배열로 변환한다.</li>
+        <li><code>char tmp = array[num1];</code> — <code>num1</code> 위치의 문자를 임시 변수에 저장한다.</li>
+        <li><code>array[num1] = array[num2]; array[num2] = tmp;</code> — 두 문자의 위치를 교환한다.</li>
+        <li><code>return new String(array);</code> — 수정된 문자 배열을 문자열로 변환해 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>my_string = "hello", num1 = 1, num2 = 2</code> ⟶ <code>"hlelo"</code></li>
+        <li><code>my_string = "I love you", num1 = 3, num2 = 6</code> ⟶ <code>"I loev you"</code></li>
+        <li><code>my_string = "abcde", num1 = 0, num2 = 4</code> ⟶ <code>"ebcda"</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        문자열 길이를 <code>N</code>이라 할 때, 
+        <code>toCharArray()</code>가 <code>O(N)</code>, 
+        교환 연산은 <code>O(1)</code>, 
+        새로운 문자열 생성도 <code>O(N)</code>이므로 
+        전체 복잡도는 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        문자 배열이 입력 문자열 길이만큼 추가로 필요하므로 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><code>num1</code>과 <code>num2</code>는 반드시 <code>0 ≤ num &lt; my_string.length()</code> 범위에 있어야 한다. (그렇지 않으면 <code>ArrayIndexOutOfBoundsException</code> 발생)</li>
+        <li>두 인덱스가 같으면 교환 전후가 동일하므로 원본 문자열이 그대로 반환된다.</li>
+        <li>문자열이 불변이므로 원본 <code>my_string</code> 자체는 변경되지 않는다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>StringBuilder 사용</strong>:
+            <code>StringBuilder sb = new StringBuilder(my_string);</code>  
+            이후 <code>charAt()</code>과 <code>setCharAt()</code>으로 교환하면 
+            배열 변환 없이도 처리 가능하다. (성능 유사)</li>
+          <li><strong>스트림 방식</strong>: 
+            <code>IntStream.range(0, my_string.length())</code>로 인덱스를 순회하며 
+            교환된 위치의 문자를 조건식으로 처리해 <code>Collectors.joining()</code>으로 합칠 수 있다.  
+            하지만 코드 복잡도가 높아 권장되지 않는다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
