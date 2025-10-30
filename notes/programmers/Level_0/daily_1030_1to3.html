@@ -53,7 +53,7 @@
       <ul>
         <li><code>my_string.chars()</code>로 문자열을 <code>IntStream</code>으로 변환한다(코드 유닛 순서 유지).</li>
         <li><code>.mapToObj(c -&gt; (char) c)</code>로 각 정수 값을 <code>Character</code> 객체로 박싱한다.</li>
-        <li><code>.distinct()</code>가 <em>ordered stream</em>의 만남 순서(encounter order)를 보존하며
+        <li><code>.distinct()</code>가 ordered stream의 만남 순서(encounter order)를 보존하며
             최초로 등장한 문자만 통과시킨다.</li>
         <li><code>.map(String::valueOf)</code>로 각 문자를 문자열로 바꾸고
             <code>.collect(Collectors.joining())</code>으로 이어 붙여 최종 결과를 만든다.</li>
@@ -75,13 +75,13 @@
       
       <p><strong>공간 복잡도</strong></p>
       <p>
-        중복 제거를 위해 <em>서로 다른 문자 수</em>를 <code>K</code>라 할 때 방문 집합에 <code>O(K)</code>가 추가로 필요하다.
+        중복 제거를 위해 서로 다른 문자 수를 <code>K</code>라 할 때 방문 집합에 <code>O(K)</code>가 추가로 필요하다.
         결과 문자열 보관에도 <code>O(K)</code>가 든다.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li><strong>순서 보존</strong>: <code>distinct()</code>는 <em>ordered stream</em>에서 최초 등장을 남긴다. 본 코드는 <code>chars()</code>가
+        <li><strong>순서 보존</strong>: <code>distinct()</code>는 ordered stream에서 최초 등장을 남긴다. 본 코드는 <code>chars()</code>가
             입력 순서를 유지하므로 요구사항(등장 순서 보존)에 부합한다.</li>
       </ul>
       
@@ -297,7 +297,7 @@
       <p><strong>주의</strong></p>
       <ul>
         <li><strong>대소문자/공백/특수문자</strong>: 정렬 비교는 문자 값을 그대로 비교하므로
-            입력에 대소문자나 공백, 숫자, 특수문자가 포함되면 모두 <em>문자 그대로</em> 개수까지 동일해야 한다.</li>
+            입력에 대소문자나 공백, 숫자, 특수문자가 포함되면 모두 문자 그대로 개수까지 동일해야 한다.</li>
       </ul>
       
       <details>
