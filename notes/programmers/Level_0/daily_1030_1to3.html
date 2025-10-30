@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-29 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 369게임</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120891">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1029_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        양의 정수 <code>order</code>의 각 자릿수를 검사해
+        <code>3</code>, <code>6</code>, <code>9</code>가 등장한 횟수를 세어 반환하는 문제다.
+        이 풀이에서는 나눗셈과 나머지 연산을 이용해 자릿수를 뒤에서부터 하나씩 분리하며,
+        분리된 자릿수가 <code>3</code> 또는 <code>6</code> 또는 <code>9</code>인지 확인해 카운트를 증가시킨다.
+      </p>
+      
+      <ul>
+        <li><code>while (order &gt; 0)</code> 루프를 돌며 각 반복에서 <code>order % 10</code>으로 마지막 자릿수를 구한다.</li>
+        <li>자릿수가 <code>3</code>·<code>6</code>·<code>9</code> 중 하나면 <code>cnt++</code>로 증가시킨다.</li>
+        <li><code>order /= 10</code>으로 마지막 자릿수를 버리고 다음 자릿수로 진행한다.</li>
+        <li>모든 자릿수를 확인한 뒤 누적된 <code>cnt</code>를 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>order = 3</code> ⟶ 자릿수: <code>3</code> ⟶ 카운트: <code>1</code> ⟶ 반환: <code>1</code></li>
+        <li><code>order = 29423</code> ⟶ 자릿수: <code>3, 2, 4, 9, 2</code> ⟶ <code>3</code>과 <code>9</code> 2개 ⟶ 반환: <code>2</code></li>
+        <li><code>order = 999</code> ⟶ 자릿수: <code>9, 9, 9</code> ⟶ 카운트: <code>3</code> ⟶ 반환: <code>3</code></li>
+        <li><code>order = 0</code> ⟶ 루프 미진입 ⟶ 반환: <code>0</code> (0에는 3,6,9가 없음)</li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        자릿수 수를 <code>D</code>라 할 때 각 자릿수를 한 번씩 확인하므로 <code>O(D)</code>다.
+        (동치로 <code>O(log<sub>10</sub> order)</code>.)
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        상수 크기의 변수(<code>cnt</code> 등)만 사용하므로 추가 공간은 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>입력 범위</strong>: 문제 조건상 정수가 주어진다. <code>order = 0</code>인 경우 루프에 들어가지 않으나, 결과는 올바르게 <code>0</code>이다.</li>
+        <li><strong>조건식 평가</strong>: <code>(digit == 3 || digit == 6 || digit == 9)</code>는 상수 비교 3회로 충분히 가볍다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>문자열 변환</strong>:
+            <code>String s = String.valueOf(order);</code> 후
+            <code>for (char c : s.toCharArray())</code>에서
+            <code>c == '3' || c == '6' || c == '9'</code>인지 검사.
+            구현이 직관적이며 복잡도는 동일(<code>O(D)</code>).</li>
+          <li><strong>스트림 사용(Java 8+)</strong>:
+            <code>String.valueOf(order).chars().filter(ch -&gt; ch=='3'||ch=='6'||ch=='9').count()</code>로 구현.
+            코드가 짧아지나 가독성/선호는 팀 컨벤션에 따름.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 가까운 수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120890">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1029_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        정수 배열 <code>array</code>에서 주어진 수 <code>n</code>과의 차이가 가장 작은 원소를 찾는 문제다.
+        만약 차이가 같은 원소가 여러 개라면, 더 작은 수를 반환해야 한다.
+        이 풀이에서는 모든 원소를 순회하며 <code>n</code>과의 절댓값 차이를 계산하고,
+        최소 차이와 그때의 값을 갱신하는 방식으로 해결한다.
+      </p>
+      
+      <ul>
+        <li><code>min</code>에는 현재까지의 최소 차이를 저장하며 초기값은 <code>Integer.MAX_VALUE</code>로 설정한다.</li>
+        <li><code>result</code>에는 최소 차이를 가진 원소를 저장하며 초기값은 <code>Integer.MAX_VALUE</code>로 설정한다.</li>
+        <li><code>for (int i : array)</code> 루프로 각 원소를 순회하며 <code>tmp = Math.abs(i - n)</code>로 차이를 계산한다.</li>
+        <li>만약 <code>tmp &lt; min</code>이면 새로운 최소 차이를 발견한 것이므로 <code>min</code>과 <code>result</code>를 갱신한다.</li>
+        <li>또는 <code>tmp == min</code>인데 <code>i &lt; result</code>라면, 같은 거리의 더 작은 수이므로 <code>result</code>를 갱신한다.</li>
+        <li>모든 원소를 검사한 뒤 최종 <code>result</code>를 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>array = [3, 10, 28], n = 20</code> ⟶ 차이: <code>[17, 10, 8]</code> ⟶ 최소 차이 <code>8</code>인 <code>28</code> 반환</li>
+        <li><code>array = [10, 11, 12], n = 13</code> ⟶ 차이: <code>[3, 2, 1]</code> ⟶ 최소 차이 <code>1</code>인 <code>12</code> 반환</li>
+        <li><code>array = [7, 12, 15, 17], n = 14</code> ⟶ 차이: <code>[7, 2, 1, 3]</code> ⟶ 최소 차이 <code>1</code>인 <code>15</code> 반환</li>
+        <li><code>array = [4, 9, 8], n = 7</code> ⟶ 차이: <code>[3, 2, 1]</code> ⟶ 최소 차이 <code>1</code>인 <code>8</code> 반환</li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        배열의 길이를 <code>N</code>이라 할 때, 모든 원소를 한 번씩 순회하므로 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        고정 크기의 변수(<code>min</code>, <code>result</code>, <code>tmp</code>)만 사용하므로 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>동일 거리 처리</strong>: 같은 거리의 수가 둘 이상이면 더 작은 값을 선택해야 한다. (<code>tmp == min && i &lt; result</code>) 조건으로 처리.</li>
+        <li><strong>정렬 불필요</strong>: 단순 선형 탐색으로 충분하므로 배열을 정렬할 필요가 없다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>정렬 기반 접근</strong>:
+            배열을 정렬한 뒤 이진 탐색(<code>Arrays.binarySearch</code>)으로 <code>n</code>의 삽입 위치를 찾고,
+            양옆 원소 중 더 가까운 값을 선택하는 방법. 복잡도는 <code>O(N log N)</code>으로 증가하므로 단순 순회보다 비효율적이다.</li>
+          <li><strong>스트림 사용(Java 8+)</strong>:
+            <code>Arrays.stream(array).boxed().min(Comparator.comparingInt(i -&gt; Math.abs(i - n)).thenComparingInt(i -&gt; i)).get()</code>
+            와 같이 표현할 수 있다. 동작은 동일하나 가독성은 팀 선호에 따라 다르다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 삼각형의 완성조건 (1)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120889">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1029_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        세 변의 길이가 주어졌을 때 삼각형이 성립하는지 판별하는 문제다.
+        삼각형의 성립 조건은 ‘가장 긴 변의 길이가 나머지 두 변의 합보다 작을 것’이다.
+        이 풀이에서는 세 변을 정렬하여 가장 긴 변을 쉽게 찾고, 조건식으로 판별한다.
+      </p>
+      
+      <ul>
+        <li><code>Arrays.sort(sides)</code>로 세 변을 오름차순 정렬한다. (<code>sides[2]</code>가 가장 긴 변이 됨)</li>
+        <li>삼각형 조건 <code>sides[2] &lt; sides[0] + sides[1]</code>을 검사한다.</li>
+        <li>조건이 참이면 <code>1</code> (삼각형 가능), 거짓이면 <code>2</code> (불가능)을 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>sides = [1, 2, 3]</code> ⟶ 정렬 후 <code>[1, 2, 3]</code> ⟶ <code>3 &lt; 1 + 2</code> → 거짓 → 반환: <code>2</code></li>
+        <li><code>sides = [3, 6, 2]</code> ⟶ 정렬 후 <code>[2, 3, 6]</code> ⟶ <code>6 &lt; 2 + 3</code> → 거짓 → 반환: <code>2</code></li>
+        <li><code>sides = [3, 4, 5]</code> ⟶ 정렬 후 <code>[3, 4, 5]</code> ⟶ <code>5 &lt; 3 + 4</code> → 참 → 반환: <code>1</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        <code>Arrays.sort</code>로 인해 <code>O(N log N)</code>이지만, <code>N=3</code>이므로 상수 시간(<code>O(1)</code>)로 간주할 수 있다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        정렬 과정에서 사용하는 추가 메모리는 상수 크기이므로 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>정렬 필요성</strong>: 세 변 중 어떤 것이 가장 긴 변인지 확실히 하기 위해 정렬을 수행한다.</li>
+        <li><strong>경계 조건</strong>: 가장 긴 변의 길이가 정확히 나머지 두 변의 합과 같을 경우(<code>a + b == c</code>) 삼각형은 성립하지 않는다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>수학적 비교 직접 수행</strong>:
+            정렬 없이 <code>max</code>와 나머지 두 변의 합을 구해 비교할 수도 있다.
+            예: <code>int max = Math.max(sides[0], Math.max(sides[1], sides[2]));</code> 후
+            나머지 두 변의 합과 비교.</li>
+          <li><strong>스트림 사용(Java 8+)</strong>:
+            <code>int max = Arrays.stream(sides).max().getAsInt();</code>로 최댓값을 구하고,
+            합과 비교하는 방식으로도 가능하다.</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
