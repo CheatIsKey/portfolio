@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4335 — 숫자 맞추기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4335">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1030_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      스탠이 생각한 수의 가능 범위를 <code>[low, high]</code>로 유지한다(초기값 <code>[1, 10]</code>).<br>
+      올리의 말에 대한 스탠의 응답에 따라 범위를 점차 좁힌다:<br>
+      <code>"too high"</code> → <code>high = min(high, 추측값-1)</code><br>
+      <code>"too low"</code> → <code>low  = max(low,  추측값+1)</code><br>
+      <code>"right on"</code>이 나오면, 마지막 추측값이 현재 가능 범위 <code>[low, high]</code> 안에 있으면 스탠은 정직(<code>Stan may be honest</code>), 아니면 거짓(<code>Stan is dishonest</code>)으로 판정하고, 다음 게임을 위해 범위를 초기화한다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: 여러 개의 게임이 연속되어 주어진다. 각 게임은 (숫자, 응답)이 번갈아 등장하며, 숫자는 1 이상 10 이하의 정수.<br>
+      응답은 <code>"too high"</code>, <code>"too low"</code>, <code>"right on"</code> 중 하나. <code>"right on"</code>이 등장하면 그 게임은 종료.<br>
+      전체 입력 종료는 단독으로 등장하는 <code>0</code>.<br>
+      출력: 각 게임마다 스탠이 거짓말을 했는지 여부를 한 줄로 출력.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>BufferedReader br</code>: 입력 처리.</li>
+        <li><code>StringBuilder sb</code>: 각 게임 결과 누적 후 일괄 출력.</li>
+        <li><code>int low, high</code>: 스탠이 생각한 수의 가능한 최소/최대값(초기 <code>1</code>, <code>10</code>).</li>
+        <li><code>int num</code>: 올리가 방금 말한 숫자.</li>
+        <li><code>String answer</code>: 스탠의 응답(<code>too high</code>/<code>too low</code>/<code>right on</code>).</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 전체 루프에서 숫자 한 줄을 읽는다. <code>num == 0</code>이면 프로그램 종료.<br>
+      2) 이어서 응답 한 줄을 읽고, 응답에 따라 범위를 갱신한다.<br>
+      &nbsp;&nbsp;• <code>"too high"</code>: <code>high = Math.min(high, num - 1)</code><br>
+      &nbsp;&nbsp;• <code>"too low"</code>:  <code>low  = Math.max(low,  num + 1)</code><br>
+      3) <code>"right on"</code>이면 현재 범위 <code>[low, high]</code>에 <code>num</code>이 포함되는지 확인:<br>
+      &nbsp;&nbsp;• 포함되면 <code>Stan may be honest</code><br>
+      &nbsp;&nbsp;• 아니면 <code>Stan is dishonest</code><br>
+      4) 판정 후 다음 게임을 위해 <code>low=1</code>, <code>high=10</code>으로 초기화하고 계속.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      각 <code>"too high"</code>/<code>"too low"</code> 응답은 실제 정답이 될 수 있는 범위를 단조롭게 좁힌다. <code>"right on"</code> 시점에 마지막 추측값이 이 누적 제약을 모두 만족(<code>[low, high]</code> 내 포함)하면 스탠의 모든 응답과 모순이 없고, 벗어나면 적어도 한 번의 응답과 모순이 발생하므로 거짓말로 판정할 수 있다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>첫 추측이 곧바로 <code>"right on"</code>: 초기 범위 <code>[1,10]</code> 안이면 정직.</li>
+        <li>중간에 범위가 비게 되는 상황: 출력은 <code>"right on"</code>이 나올 때만 하며, 그때 마지막 추측이 범위 밖이므로 거짓 판정.</li>
+        <li>최댓값/최솟값 추측(예: 1, 10) 처리: 업데이트 식에 의해 자연스럽게 반영(<code>num-1</code>, <code>num+1</code>).</li>
+        <li>게임 종료 후 즉시 범위 초기화: 다음 게임에 전 게임의 제약이 섞이지 않도록 보장.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      각 입력 라인을 한 번씩만 처리하므로 전체 시간은 <code>O(L)</code>(<code>L</code>: 읽은 줄 수)이고, 범위 변수만 쓰므로 추가 공간은 <code>O(1)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>가능한 정답 구간 <code>[low, high]</code>을 유지하며 응답에 따라 축소.</li>
+        <li><code>"right on"</code> 시 마지막 추측이 구간 내면 정직, 아니면 거짓.</li>
+        <li>게임마다 구간을 초기화하여 독립적으로 판정.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4351 — Hay Points</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4351">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1030_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      주어진 Hay Point 사전을 기반으로, 각 직무 설명문에서 등장하는 단어의 점수 합을 계산한다.<br>
+      사전에 존재하지 않는 단어는 0점으로 간주하며, 한 직무 설명이 <code>"."</code> 한 줄로 끝날 때까지 점수를 누적한다.<br>
+      즉, <strong>사전(Map)을 이용한 단어-가치 매핑</strong>과 <strong>입력 스트림 처리</strong>가 핵심이다.</p>
+      
+      <p><strong>제약 정리</strong> —<br>
+      입력: <br>
+      첫 줄에 <code>m (≤1000)</code>, <code>n (≤100)</code>.<br>
+      이후 <code>m</code>개의 줄에 단어(최대 16자, 소문자)와 해당 가치(0~1,000,000).<br>
+      그다음 <code>n</code>개의 직무 설명이 주어지며, 각 설명은 여러 줄로 구성되고 <code>"."</code> 한 줄이 등장하면 종료.<br>
+      출력: 각 직무 설명마다 계산된 총 Hay Point 점수를 정수로 출력.</p>
+      
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>BufferedReader br</code>: 빠른 입력 처리용.</li>
+        <li><code>StringTokenizer st</code>: 한 줄의 단어를 분리하여 토큰 단위로 처리.</li>
+        <li><code>Map&lt;String, Integer&gt; map</code>: 단어 → 가치 매핑.</li>
+        <li><code>int m, n</code>: 사전 단어 수 / 직무 설명 수.</li>
+        <li><code>long score</code>: 현재 직무 설명의 총점.</li>
+      </ul>
+      
+      <p><strong>동작 과정</strong> —<br>
+      1) 첫 줄에서 <code>m, n</code>을 입력받는다.<br>
+      2) <code>m</code>개의 줄을 읽으며 <code>map.put(word, value)</code>로 사전을 구성한다.<br>
+      3) <code>n</code>개의 직무 설명에 대해 다음을 반복한다:<br>
+      &nbsp;&nbsp;• <code>score = 0</code>으로 초기화.<br>
+      &nbsp;&nbsp;• <code>"."</code>이 나올 때까지 각 줄을 읽어 단어 단위로 분리.<br>
+      &nbsp;&nbsp;• 각 단어마다 <code>map.getOrDefault(word, 0)</code>을 더해 점수를 누적.<br>
+      4) <code>"."</code>이 나오면 해당 설명의 총점을 출력하고 다음 설명으로 이동.</p>
+      
+      <p><strong>정확성 근거</strong> —<br>
+      모든 단어를 사전과 대조하므로, 사전에 없는 단어는 자동으로 0으로 처리된다.<br>
+      각 직무 설명은 입력상 <code>"."</code>으로 명확히 구분되며, 모든 단어는 공백으로만 분리되어 있어 추가 파싱 오류가 없다.<br>
+      <code>HashMap</code> 접근은 평균 <code>O(1)</code>이므로 빠르고 정확한 누적 합이 가능하다.</p>
+      
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>사전에 없는 단어만 있는 경우: 총점 0.</li>
+        <li>모든 단어가 사전에 존재하는 경우: 해당 단어 값의 총합 출력.</li>
+        <li>빈 줄 또는 공백만 있는 경우: 무시.</li>
+        <li><code>"."</code> 바로 등장 시: 점수 0으로 출력.</li>
+        <li>값이 매우 큰 경우: <code>long</code>으로 누적하여 오버플로 방지.</li>
+      </ul>
+      
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      사전 구축: <code>O(m)</code>.<br>
+      각 직무 설명 처리: 모든 단어 합쳐 <code>O(total_words)</code>.<br>
+      따라서 전체 시간 복잡도는 <code>O(m + total_words)</code>, 공간 복잡도는 <code>O(m)</code>.</p>
+      
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>사전(Map)에 단어-가치를 저장.</li>
+        <li>직무 설명을 한 줄씩 읽어 단어별 점수를 누적.</li>
+        <li><code>"."</code>을 만나면 합계를 출력 후 초기화.</li>
+        <li><code>HashMap</code>으로 빠른 검색, <code>BufferedReader</code>로 효율적 입력 처리.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

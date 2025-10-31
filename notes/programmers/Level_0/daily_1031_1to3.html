@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-29 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 중복된 문자 제거</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120888">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1030_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        문자열 <code>my_string</code>에서 중복 문자를 제거하되, <strong>등장 순서를 보존</strong>하여
+        한 번씩만 남기는 문제다. 제시한 풀이에서는 Java 스트림을 사용해 문자를 순서대로 흘려보내며
+        <code>distinct()</code>로 최초 등장만 남기고, 다시 이어 붙여 결과 문자열을 만든다.
+      </p>
+      
+      <ul>
+        <li><code>my_string.chars()</code>로 문자열을 <code>IntStream</code>으로 변환한다(코드 유닛 순서 유지).</li>
+        <li><code>.mapToObj(c -&gt; (char) c)</code>로 각 정수 값을 <code>Character</code> 객체로 박싱한다.</li>
+        <li><code>.distinct()</code>가 ordered stream의 만남 순서(encounter order)를 보존하며
+            최초로 등장한 문자만 통과시킨다.</li>
+        <li><code>.map(String::valueOf)</code>로 각 문자를 문자열로 바꾸고
+            <code>.collect(Collectors.joining())</code>으로 이어 붙여 최종 결과를 만든다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>my_string = "people"</code> ⟶ 순서: <code>p, e, o, p, l, e</code> ⟶ 남는 문자: <code>p, e, o, l</code> ⟶ 반환: <code>"peol"</code></li>
+        <li><code>my_string = "banana"</code> ⟶ 순서: <code>b, a, n, a, n, a</code> ⟶ 남는 문자: <code>b, a, n</code> ⟶ 반환: <code>"ban"</code></li>
+        <li><code>my_string = "abc"</code> ⟶ 중복 없음 ⟶ 반환: <code>"abc"</code></li>
+        <li><code>my_string = ""</code> ⟶ 빈 문자열 ⟶ 반환: <code>""</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        길이를 <code>N</code>이라 하면 각 문자를 한 번씩 지나며 <code>distinct()</code> 내부에서
+        해시 기반의 방문 체크가 이뤄지므로 평균 <code>O(N)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        중복 제거를 위해 서로 다른 문자 수를 <code>K</code>라 할 때 방문 집합에 <code>O(K)</code>가 추가로 필요하다.
+        결과 문자열 보관에도 <code>O(K)</code>가 든다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>순서 보존</strong>: <code>distinct()</code>는 ordered stream에서 최초 등장을 남긴다. 본 코드는 <code>chars()</code>가
+            입력 순서를 유지하므로 요구사항(등장 순서 보존)에 부합한다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong><code>LinkedHashSet</code> 사용(순서 보존)</strong>:<br>
+            <code>
+            var set = new LinkedHashSet&lt;Character&gt;();<br>
+            for (char ch : my_string.toCharArray()) set.add(ch);<br>
+            return set.stream().map(String::valueOf).collect(Collectors.joining());
+            </code><br>
+            명시적으로 순서 보존 집합을 사용한다. 복잡도는 동일(<code>O(N)</code>).
+          </li>
+          <li><strong><code>codePoints()</code>로 이모지 안전 처리</strong> (제약 없을 때):<br>
+            <code>
+            return my_string.codePoints()<br>
+            &nbsp;&nbsp;.distinct()<br>
+            &nbsp;&nbsp;.mapToObj(cp -&gt; new String(Character.toChars(cp)))<br>
+            &nbsp;&nbsp;.collect(Collectors.joining());
+            </code>
+          </li>
+          <li><strong>배열 방문 체크(입력이 소문자 a–z로 제한일 때)</strong>:<br>
+            <code>
+            boolean[] seen = new boolean[26];<br>
+            var sb = new StringBuilder();<br>
+            for (char c : my_string.toCharArray()) {<br>
+            &nbsp;&nbsp;int i = c - 'a';<br>
+            &nbsp;&nbsp;if (!seen[i]) { seen[i] = true; sb.append(c); }<br>
+            }<br>
+            return sb.toString();
+            </code>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — k의 개수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120887">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1030_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        정수 구간 <code>[i, j]</code> 내의 모든 숫자를 확인하며,
+        각 숫자에서 자릿수 <code>k</code>가 등장하는 횟수를 세어 합산하는 문제다.
+        이 풀이에서는 각 수를 10으로 나누어 자릿수를 하나씩 분리하고,
+        각 자릿수가 <code>k</code>와 일치하면 카운트를 증가시킨다.
+      </p>
+      
+      <ul>
+        <li><code>for (int s = i; s &lt;= j; s++)</code>로 구간의 모든 수를 순회한다.</li>
+        <li>각 수 <code>s</code>를 <code>tmp</code>에 복사한 뒤 <code>while (tmp &gt; 0)</code> 루프로 자릿수를 분리한다.</li>
+        <li><code>tmp % 10</code>으로 마지막 자릿수를 구하고,
+            이 값이 <code>k</code>와 같으면 <code>cnt++</code>로 카운트를 증가시킨다.</li>
+        <li><code>tmp /= 10</code>으로 마지막 자릿수를 버리고 다음 자릿수로 넘어간다.</li>
+        <li>모든 수를 검사한 뒤 누적된 <code>cnt</code>를 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>i = 1, j = 13, k = 1</code> ⟶ 검사 대상: <code>1~13</code><br>
+            <code>1, 10, 11, 12, 13</code>에서 총 6번 등장 ⟶ 반환: <code>6</code></li>
+        <li><code>i = 10, j = 50, k = 5</code> ⟶ <code>15, 25, 35, 45, 50</code> ⟶ 총 5번 등장 ⟶ 반환: <code>5</code></li>
+        <li><code>i = 3, j = 3, k = 3</code> ⟶ 한 수만 검사 ⟶ 자릿수 <code>3</code> 한 번 ⟶ 반환: <code>1</code></li>
+        <li><code>i = 20, j = 22, k = 1</code> ⟶ 모든 자릿수에 <code>1</code> 없음 ⟶ 반환: <code>0</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        구간 크기를 <code>N = j - i + 1</code>, 각 수의 자릿수를 <code>D</code>라 하면,
+        모든 수를 순회하며 각 자릿수를 확인하므로 전체 복잡도는 <code>O(N × D)</code>다.
+        (10진수 기준 <code>O(N × log₁₀(max(j)))</code>.)
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        상수 크기의 변수(<code>cnt</code>, <code>tmp</code> 등)만 사용하므로 추가 공간은 <code>O(1)</code>이다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>0 포함 처리</strong>: <code>tmp &gt; 0</code> 조건 때문에 <code>s == 0</code>인 경우 루프를 돌지 않는다.
+            단, 문제에서 <code>i</code>와 <code>j</code>는 양의 정수이므로 실제 입력에는 영향이 없다.</li>
+        <li><strong>한 자릿수 비교</strong>: <code>tmp % 10 == k</code> 비교 시 <code>k</code>는 0~9 범위의 정수이므로
+            형 변환이 필요 없다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>문자열 변환</strong>:
+            <code>
+            for (int s = i; s &lt;= j; s++) {<br>
+            &nbsp;&nbsp;String str = String.valueOf(s);<br>
+            &nbsp;&nbsp;for (char c : str.toCharArray())<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;if (c == ('0' + k)) cnt++;<br>
+            }
+            </code><br>
+            직관적이며 동일한 결과를 낸다. 복잡도도 동일 <code>O(N × D)</code>.
+          </li>
+          <li><strong>스트림 활용(Java 8+)</strong>:
+            <code>
+            return (int) IntStream.rangeClosed(i, j)<br>
+            &nbsp;&nbsp;.mapToObj(String::valueOf)<br>
+            &nbsp;&nbsp;.flatMapToInt(String::chars)<br>
+            &nbsp;&nbsp;.filter(ch -&gt; ch == ('0' + k))<br>
+            &nbsp;&nbsp;.count();
+            </code><br>
+            간결하지만, 내부적으로 문자열 변환 오버헤드가 있다.
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — A로 B 만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120886">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1030_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+      <p>
+        두 문자열 <code>before</code>와 <code>after</code>가 같은 문자들로 이루어졌는지(순서 무관, 개수 동일)를 판별하는 문제다.
+        제시한 풀이는 각 문자열을 문자 배열로 변환해 <code>Arrays.sort</code>로 정렬한 뒤,
+        정렬 결과가 동일한지 <code>Arrays.equals</code>로 비교한다. 정렬하면 동일한 멀티셋을 가진 문자열은 같은 배열이 된다.
+      </p>
+      
+      <ul>
+        <li><code>before.toCharArray()</code>, <code>after.toCharArray()</code>로 문자 배열을 만든다.</li>
+        <li><code>Arrays.sort(arr1)</code>, <code>Arrays.sort(arr2)</code>로 두 배열을 사전순 정렬한다.</li>
+        <li><code>Arrays.equals(arr1, arr2)</code>가 참이면 같은 멀티셋이므로 <code>1</code>, 아니면 <code>0</code>을 반환한다.</li>
+      </ul>
+      
+      <p><strong>예시</strong></p>
+      <ul>
+        <li><code>before = "olleh"</code>, <code>after = "hello"</code> ⟶ 정렬: <code>ehllo</code>, <code>ehllo</code> ⟶ 반환: <code>1</code></li>
+        <li><code>before = "allpe"</code>, <code>after = "apple"</code> ⟶ 정렬: <code>aellp</code>, <code>aelpp</code> ⟶ 반환: <code>0</code></li>
+        <li><code>before = "abc"</code>, <code>after = "abc"</code> ⟶ 이미 동일 ⟶ 정렬 동일 ⟶ 반환: <code>1</code></li>
+        <li><code>before = ""</code>, <code>after = ""</code> ⟶ 둘 다 빈 문자열 ⟶ 정렬 결과 동일 ⟶ 반환: <code>1</code></li>
+      </ul>
+      
+      <p><strong>시간 복잡도</strong></p>
+      <p>
+        길이를 <code>N</code>이라 하면 정렬이 지배적이므로 <code>O(N log N)</code>이다.
+      </p>
+      
+      <p><strong>공간 복잡도</strong></p>
+      <p>
+        <code>toCharArray()</code>로 만든 두 배열에 <code>O(N)</code> 추가 공간이 든다.
+        <code>Arrays.sort</code>는 원소 타입에 따라 내부 보조 공간을 사용할 수 있으나 전체적으로 상수~선형 수준이며,
+        본 문제 관점에서는 추가 공간을 <code>O(N)</code>로 본다.
+      </p>
+      
+      <p><strong>주의</strong></p>
+      <ul>
+        <li><strong>대소문자/공백/특수문자</strong>: 정렬 비교는 문자 값을 그대로 비교하므로
+            입력에 대소문자나 공백, 숫자, 특수문자가 포함되면 모두 문자 그대로 개수까지 동일해야 한다.</li>
+      </ul>
+      
+      <details>
+        <summary>대안 아이디어</summary>
+        <ul>
+          <li><strong>빈도 배열(영문 소문자 가정)</strong>:<br>
+            <code>
+            int[] cnt = new int[26];<br>
+            for (char c : before.toCharArray()) cnt[c - 'a']++;<br>
+            for (char c : after.toCharArray()) cnt[c - 'a']--;<br>
+            for (int v : cnt) if (v != 0) return 0;<br>
+            return 1;
+            </code><br>
+            선형 시간 <code>O(N)</code>에 가능하나, 문자 집합 제약이 필요하다.</li>
+          <li><strong><code>Map&lt;Character,Integer&gt;</code> 사용</strong> (문자 집합 제약 없음):<br>
+            해시맵으로 빈도를 세고 상쇄시키는 방식. 복잡도 <code>O(N)</code> 평균, 구현은 다소 장황.</li>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
