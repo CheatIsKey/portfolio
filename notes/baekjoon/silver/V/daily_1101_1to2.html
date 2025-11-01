@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-10-31 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4359 — Forests</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4359">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1031_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      각 사람(<code>1..P</code>)이 들었다고 한 나무 번호들의 집합을 만들고, 이 집합이 완전히 같은 사람들끼리는 동일한 의견으로 본다.<br>
+      따라서 “서로 다른 의견 수” = <code>{사람별 나무집합}</code>의 서로 다른 원소 개수이다. 집합 동등성은 원소 기준이므로 순서 무관.</p>
+    
+      <p><strong>제약 정리</strong> —<br>
+      입력: 여러 테스트케이스가 빈 줄로 구분되어 이어서 주어진다. 각 케이스는 첫 줄에 <code>P T</code> (사람 수, 나무 수) — <span style="color:#d00"><strong>주의: 문제 페이지 문구 오류로 보일 수 있으나 실제 입력은 <code>P, T</code> 순</strong></span> — 가 주어지고,<br>
+      이어지는 줄들에 <code>i j</code>가 주어지며 “사람 <code>i</code>가 나무 <code>j</code>의 넘어짐을 들었다”를 뜻한다. 동일한 쌍이 중복될 수 있다.<br>
+      출력: 해당 케이스에서 서로 다른 의견(=서로 다른 나무 집합) 개수.</p>
+    
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>BufferedReader br</code>: 표준 입력 처리.</li>
+        <li><code>Map&lt;Integer, Set&lt;Integer&gt;&gt; map</code>: 사람 번호 → 들었다고 한 나무들의 집합.</li>
+        <li><code>map.computeIfAbsent(person, ...)</code>: 사람별 집합 생성/갱신.</li>
+        <li><code>for (1..P) map.computeIfAbsent</code>: “아무 것도 못 들은 사람”도 <code>∅</code> 집합으로 포함.</li>
+        <li><code>Set&lt;Set&lt;Integer&gt;&gt; cnt</code>: 모든 사람의 집합들을 모아 중복 제거(자바의 <code>Set#equals</code>는 원소 기준이므로 적합).</li>
+      </ul>
+    
+      <p><strong>동작 과정</strong> —<br>
+      1) 한 케이스의 첫 줄을 읽어 <code>P</code>, <code>T</code>를 파싱한다. <span style="color:#d00"><strong>이때 순서가 <code>P</code>, <code>T</code>임에 유의</strong></span>.<br>
+      2) 이어지는 줄을 EOF 또는 빈 줄이 나올 때까지 읽으며 각 <code>(person, tree)</code>를 해당 사람의 집합에 추가한다.<br>
+      3) <code>1..P</code>를 순회하며 입력이 없던 사람에게도 빈 집합을 할당한다(“아무 것도 듣지 못함”이라는 의견 포함).<br>
+      4) <code>new HashSet&lt;&gt;(map.values())</code>로 서로 다른 집합의 개수를 구해 출력한다.<br>
+      5) EOF 전까지 위 과정을 반복한다.</p>
+    
+      <p><strong>정확성 근거</strong> —<br>
+      의견의 동치성은 “들었다고 한 나무들의 집합”의 완전 일치로 정의된다. 자바의 <code>Set</code>은 순서와 무관하게 원소 동등성으로 <code>equals/hashCode</code>를 정의하므로,<br>
+      <code>Set&lt;Set&lt;Integer&gt;&gt;</code>로 중복을 제거하면 서로 다른 의견 수가 정확히 계산된다. 입력에 중복 쌍이 있어도 집합 특성상 자동으로 제거된다.<br>
+      또한 아무 것도 듣지 못한 사람도 <code>∅</code>라는 의견으로 포함되므로 정의에 부합한다.</p>
+    
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>동일 쌍 다수 등장: 집합이므로 중복 무시.</li>
+        <li>어떤 사람은 입력에 전혀 등장하지 않음: 빈 집합(∅) 의견으로 반드시 포함.</li>
+        <li>빈 줄로 케이스 구분 / EOF로 종료: 코드에서 빈 줄을 만나면 해당 케이스 마감.</li>
+        <li>입력 첫 줄 파싱: <span style="color:#d00"><strong>P, T 순서</strong></span>로 읽지 않으면 오답 유발(문제 페이지 표기 혼동 주의).</li>
+      </ul>
+    
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      각 케이스에서 입력된 쌍 수를 <code>M</code>이라 하면, 집합 삽입이 평균 <code>O(1)</code>이므로 전체 <code>O(M + P)</code>.<br>
+      공간은 사람별 집합과 서로 다른 집합 보관에 <code>O(M + P)</code>.</p>
+    
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>사람별로 “들었다고 한 나무 번호”의 집합을 만든다.</li>
+        <li>등장하지 않은 사람은 빈 집합(∅) 의견으로 포함한다.</li>
+        <li><code>Set&lt;Set&lt;Integer&gt;&gt;</code>로 서로 다른 집합의 개수를 세면 “서로 다른 의견 수”.</li>
+        <li><span style="color:#d00"><strong>입력 첫 줄은 <code>P T</code> 순</strong></span> — 문제 페이지 문구와 달라 헤매기 쉬우니 반드시 주의.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4378 — 트ㅏㅊ;</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4378">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1031_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section">해설</h3>
+
+      <p><strong>핵심 아이디어</strong> —<br>
+      사용자가 실제로는 오른쪽으로 한 칸 밀린 손 위치로 타이핑했으므로, 입력의 각 문자에 대해 쿼티 자판에서의 왼쪽 이웃 키로 치환하면 원문이 복원된다.<br>
+      스페이스(공백)는 손이 밀려도 위치 영향을 받지 않으므로 그대로 출력한다.</p>
+    
+      <p><strong>제약 정리</strong> —<br>
+      입력: 여러 줄이며, 각 줄은 숫자, 공백, 알파벳 대문자, 그리고 쿼티 상단에 있는 기호로만 구성된다. <code>Q</code>, <code>A</code>, <code>Z</code> 또는 <code>`</code>(back-quote)처럼 맨 왼쪽 열의 키는 입력에 등장하지 않는다(문제 보장). 스페이스는 예외적으로 등장 가능하며 오타가 없다.<br>
+      출력: 각 줄마다, 각 문자를 해당 자판의 왼쪽 이웃 키로 치환(공백은 그대로)하여 복원된 문자열을 출력.</p>
+    
+      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+      <ul>
+        <li><code>BufferedReader br</code>: 표준 입력을 EOF까지 라인 단위로 읽는다.</li>
+        <li><code>StringBuilder sb</code>: 변환 결과 누적 후 한 번에 출력.</li>
+        <li><code>String[] rows</code>: 쿼티 자판의 4개 행을 왼→오 순서로 하드코딩.</li>
+        <li><code>Map&lt;Character, Character&gt; leftKey</code>: 현재 키 → 왼쪽 이웃 키 매핑 테이블.</li>
+      </ul>
+    
+      <p><strong>동작 과정</strong> —<br>
+      1) 자판 각 행에 대해 인덱스 <code>1..len-1</code>을 순회하며 <code>leftKey[row[i]] = row[i-1]</code>로 매핑을 채운다(맨 왼쪽 키는 매핑하지 않음).<br>
+      2) 입력을 한 줄씩 읽어 각 문자 <code>c</code>에 대해:<br>
+      &nbsp;&nbsp;• <code>c == ' '</code>이면 그대로 <code>' '</code>를 추가.<br>
+      &nbsp;&nbsp;• 아니면 <code>leftKey.getOrDefault(c, c)</code>로 변환하여 추가. (문제 조건상 대부분 매핑 존재)<br>
+      3) 각 줄 처리 후 개행을 추가한다.<br>
+      4) 모든 줄을 처리하면 누적된 결과를 출력한다.</p>
+    
+      <p><strong>정확성 근거</strong> —<br>
+      문제의 “손이 오른쪽으로 한 칸 이동”은 자판 상에서 입력된 문자가 실제 의도 문자보다 오른쪽에 위치함을 의미하므로, 역변환은 “왼쪽 이웃으로 이동”이다.<br>
+      각 행에서 왼쪽 이웃을 매핑하면 행 내에서의 치환이 정확히 일치하며, 맨 왼쪽 열 키는 입력에 등장하지 않으므로 미정의 매핑이 사용되지 않는다. 집합적 규칙(한 문자당 독립 치환)이므로 라인 길이 및 줄 수와 무관하게 올바르게 복원된다.</p>
+    
+      <p><strong>엣지 케이스</strong></p>
+      <ul>
+        <li>스페이스: 그대로 유지(변환 없음).</li>
+        <li>중복/연속 기호(예: <code>]]]]</code>): 각 문자를 독립적으로 왼쪽 이웃으로 치환.</li>
+        <li>맨 왼쪽 열 키: 문제에서 입력으로 주어지지 않는다고 보장(매핑 필요 없음).</li>
+        <li>EOF: 입력이 끝날 때까지 모든 줄을 변환(빈 줄도 개행 처리).</li>
+      </ul>
+    
+      <p><strong>시간·공간 복잡도</strong> —<br>
+      매핑 테이블 구성은 자판 크기에 상수 시간. 변환은 전체 문자 수를 <code>N</code>이라 할 때 <code>O(N)</code>, 추가 공간은 출력 버퍼와 매핑에 <code>O(N)</code> 및 <code>O(1)</code>(자판 크기 상수).</p>
+    
+      <p><strong>정리</strong></p>
+      <ul>
+        <li>쿼티 자판 4개 행을 하드코딩하고 “현재 키 → 왼쪽 이웃” 매핑을 만든다.</li>
+        <li>각 문자를 매핑으로 치환(공백은 그대로)하여 한 줄씩 복원한다.</li>
+        <li>문제 보장: 맨 왼쪽 열 키는 입력에 등장하지 않으므로 미매핑 문자로 인한 오류가 없다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
