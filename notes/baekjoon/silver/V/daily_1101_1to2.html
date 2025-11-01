@@ -326,49 +326,6 @@
         <li><code>AEIOUHWY</code>는 출력하지 않으며, <strong>연속성 리셋</strong> 역할</li>
         <li>한 단어 처리 비용 <code>O(L)</code>, 추가 공간 <code>O(1)</code></li>
       </ul>
-      
-      <!-- 원문 코드 참고용: 요청한 해결 방식과 정확히 일치 -->
-      <pre><code>
-      import java.io.*;
-      import java.util.*;
-      
-      public class Main {
-          public static void main(String[] args) throws Exception {
-              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-              StringBuilder sb = new StringBuilder();
-      
-              Map&lt;Character, Integer&gt; map = new HashMap&lt;&gt;();
-              for (char c : "BFPV".toCharArray()) map.put(c, 1);
-              for (char c : "CGJKQSXZ".toCharArray()) map.put(c, 2);
-              for (char c : "DT".toCharArray()) map.put(c, 3);
-              map.put('L', 4);
-              for (char c : "MN".toCharArray()) map.put(c, 5);
-              map.put('R', 6);
-      
-              String line;
-              while ((line = br.readLine()) != null) {
-                  if (line.isBlank()) continue;
-      
-                  int prev = 0;
-                  for (char c : line.toCharArray()) {
-                      int curr = map.getOrDefault(c, 0);
-      
-                      if (curr == 0) {
-                          prev = 0;
-                          continue;
-                      }
-                      if (curr != prev) {
-                          sb.append(curr);
-                          prev = curr;
-                      }
-                  }
-                  sb.append("\n");
-              }
-      
-              System.out.print(sb);
-          }
-      }
-      </code></pre>
 
 
 
