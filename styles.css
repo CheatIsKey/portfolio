@@ -1,9 +1,12 @@
 :root{
   --bg:#0b0c10; --panel:#111317; --text:#e8eaed; --muted:#9aa0a6; --line:#1f2229;
   --brand:#64ffda; --brand-ink:#0f3d38; --shadow: 0 8px 24px rgba(0,0,0,.24);
+  --line-strong:#9e9e9e; /* 추가: 진한 문제 구분선 색(다크 모드) */
 }
 @media (prefers-color-scheme: light){
-  :root{ --bg:#f8fafc; --panel:#ffffff; --text:#0f172a; --muted:#475569; --line:#e2e8f0; --brand:#0ea5e9; --brand-ink:#0b3a55; --shadow: 0 8px 24px rgba(2,6,23,.12); }
+  :root{ --bg:#f8fafc; --panel:#ffffff; --text:#0f172a; --muted:#475569; --line:#e2e8f0; --brand:#0ea5e9; --brand-ink:#0b3a55; --shadow: 0 8px 24px rgba(2,6,23,.12);
+    --line-strong:#64748b; /* 추가: 라이트 모드용 진한 선 색 */
+  }
 }
 
 *{box-sizing:border-box}
@@ -146,3 +149,16 @@ a{color:inherit}
 .prose p{ margin:10px 0 12px; }       /* 문단 간격 안정화 */
 .figure img{ display:block; max-width:80%; height:auto; margin:0 auto; }
 .figure figcaption{ text-align:center; }
+
+/* ==================== 추가: 문제 간 구분선 강화 ==================== */
+.prose h2.section:first-of-type {
+  padding-top: 0;
+  margin-top: 20px;
+}
+.prose h2.section:first-of-type::before {
+  content: none;
+}
+.prose h2.section:not(:first-of-type)::before {
+  height: 2px;
+  background: var(--line-strong);
+}
