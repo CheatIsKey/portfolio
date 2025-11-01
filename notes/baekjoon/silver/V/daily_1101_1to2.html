@@ -24,70 +24,157 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-31 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-01 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 4359 — Forests</h2>
+      <h2 class="section">문제 4383 — Forests</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4359">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4383">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1031_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1101_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
-      <h3 class="section">해설</h3>
 
-      <p><strong>핵심 아이디어</strong> —<br>
-      각 사람(<code>1..P</code>)이 들었다고 한 나무 번호들의 집합을 만들고, 이 집합이 완전히 같은 사람들끼리는 동일한 의견으로 본다.<br>
-      따라서 “서로 다른 의견 수” = <code>{사람별 나무집합}</code>의 서로 다른 원소 개수이다. 집합 동등성은 원소 기준이므로 순서 무관.</p>
-    
-      <p><strong>제약 정리</strong> —<br>
-      입력: 여러 테스트케이스가 빈 줄로 구분되어 이어서 주어진다. 각 케이스는 첫 줄에 <code>P T</code> (사람 수, 나무 수) — <span style="color:#d00"><strong>주의: 문제 페이지 문구 오류로 보일 수 있으나 실제 입력은 <code>P, T</code> 순</strong></span> — 가 주어지고,<br>
-      이어지는 줄들에 <code>i j</code>가 주어지며 “사람 <code>i</code>가 나무 <code>j</code>의 넘어짐을 들었다”를 뜻한다. 동일한 쌍이 중복될 수 있다.<br>
-      출력: 해당 케이스에서 서로 다른 의견(=서로 다른 나무 집합) 개수.</p>
-    
-      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Jolly jumper</strong>는 길이 <code>n</code>의 수열에서 인접한 두 수의 차의 절댓값들이
+        <code>{1, 2, ..., n-1}</code>를 정확히 한 번씩 모두 나타나는 수열을 말합니다(길이 1이면 항상 Jolly).
+        제시한 코드는 각 테스트 케이스마다 연속한 차이의 절댓값 <code>d = |a[i] - a[i+1]|</code>를 계산해
+        <code>d</code>가 <code>1 ≤ d ≤ n-1</code> 범위에 있고, <strong>중복 없이</strong> 한 번씩만 등장하는지를
+        불리언 배열로 체크합니다. 모든 차이가 조건을 만족하면 <code>Jolly</code>, 아니면 <code>Not jolly</code>를 출력합니다.
+      </p>
+      
       <ul>
-        <li><code>BufferedReader br</code>: 표준 입력 처리.</li>
-        <li><code>Map&lt;Integer, Set&lt;Integer&gt;&gt; map</code>: 사람 번호 → 들었다고 한 나무들의 집합.</li>
-        <li><code>map.computeIfAbsent(person, ...)</code>: 사람별 집합 생성/갱신.</li>
-        <li><code>for (1..P) map.computeIfAbsent</code>: “아무 것도 못 들은 사람”도 <code>∅</code> 집합으로 포함.</li>
-        <li><code>Set&lt;Set&lt;Integer&gt;&gt; cnt</code>: 모든 사람의 집합들을 모아 중복 제거(자바의 <code>Set#equals</code>는 원소 기준이므로 적합).</li>
+        <li>입력 파싱: 각 줄을 읽어 첫 토큰을 <code>n</code>으로, 이어서 <code>n</code>개의 정수를 수열로 취함(EOF까지 반복)</li>
+        <li>단건 예외: <code>n == 1</code>이면 무조건 <code>Jolly</code></li>
+        <li>차이 검증:
+          <ul>
+            <li><code>d = |a[i] - a[i+1]|</code> 계산</li>
+            <li><code>d</code>가 <code>1..n-1</code> 범위를 벗어나거나(<code>d == 0</code> 포함) 이미 본 적이 있으면 실패</li>
+            <li>그 외에는 <code>diff[d] = true</code>로 표시</li>
+          </ul>
+        </li>
+        <li>판정: 모든 인접쌍을 통과하면 <code>Jolly</code>, 중간에 한 번이라도 어기면 <code>Not jolly</code></li>
       </ul>
-    
-      <p><strong>동작 과정</strong> —<br>
-      1) 한 케이스의 첫 줄을 읽어 <code>P</code>, <code>T</code>를 파싱한다. <span style="color:#d00"><strong>이때 순서가 <code>P</code>, <code>T</code>임에 유의</strong></span>.<br>
-      2) 이어지는 줄을 EOF 또는 빈 줄이 나올 때까지 읽으며 각 <code>(person, tree)</code>를 해당 사람의 집합에 추가한다.<br>
-      3) <code>1..P</code>를 순회하며 입력이 없던 사람에게도 빈 집합을 할당한다(“아무 것도 듣지 못함”이라는 의견 포함).<br>
-      4) <code>new HashSet&lt;&gt;(map.values())</code>로 서로 다른 집합의 개수를 구해 출력한다.<br>
-      5) EOF 전까지 위 과정을 반복한다.</p>
-    
-      <p><strong>정확성 근거</strong> —<br>
-      의견의 동치성은 “들었다고 한 나무들의 집합”의 완전 일치로 정의된다. 자바의 <code>Set</code>은 순서와 무관하게 원소 동등성으로 <code>equals/hashCode</code>를 정의하므로,<br>
-      <code>Set&lt;Set&lt;Integer&gt;&gt;</code>로 중복을 제거하면 서로 다른 의견 수가 정확히 계산된다. 입력에 중복 쌍이 있어도 집합 특성상 자동으로 제거된다.<br>
-      또한 아무 것도 듣지 못한 사람도 <code>∅</code>라는 의견으로 포함되므로 정의에 부합한다.</p>
-    
-      <p><strong>엣지 케이스</strong></p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li>동일 쌍 다수 등장: 집합이므로 중복 무시.</li>
-        <li>어떤 사람은 입력에 전혀 등장하지 않음: 빈 집합(∅) 의견으로 반드시 포함.</li>
-        <li>빈 줄로 케이스 구분 / EOF로 종료: 코드에서 빈 줄을 만나면 해당 케이스 마감.</li>
-        <li>입력 첫 줄 파싱: <span style="color:#d00"><strong>P, T 순서</strong></span>로 읽지 않으면 오답 유발(문제 페이지 표기 혼동 주의).</li>
+        <li><code>4 1 4 2 3</code> → 인접 차이: <code>3, 2, 1</code> → <code>{1,2,3}</code> 모두 등장 → <strong>Jolly</strong></li>
+        <li><code>5 1 4 2 -1 6</code> → 인접 차이: <code>3, 2, 3, 7</code> → <code>7</code>은 범위 <code>1..4</code> 밖 → <strong>Not jolly</strong></li>
       </ul>
-    
-      <p><strong>시간·공간 복잡도</strong> —<br>
-      각 케이스에서 입력된 쌍 수를 <code>M</code>이라 하면, 집합 삽입이 평균 <code>O(1)</code>이므로 전체 <code>O(M + P)</code>.<br>
-      공간은 사람별 집합과 서로 다른 집합 보관에 <code>O(M + P)</code>.</p>
-    
-      <p><strong>정리</strong></p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        각 케이스에서 인접 차이는 <code>n-1</code>개만 확인하므로 <code>O(n)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        입력 수열 <code>O(n)</code>과 차이 체크용 불리언 배열 <code>O(n)</code> → 전체 <code>O(n)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li>사람별로 “들었다고 한 나무 번호”의 집합을 만든다.</li>
-        <li>등장하지 않은 사람은 빈 집합(∅) 의견으로 포함한다.</li>
-        <li><code>Set&lt;Set&lt;Integer&gt;&gt;</code>로 서로 다른 집합의 개수를 세면 “서로 다른 의견 수”.</li>
-        <li><span style="color:#d00"><strong>입력 첫 줄은 <code>P T</code> 순</strong></span> — 문제 페이지 문구와 달라 헤매기 쉬우니 반드시 주의.</li>
+        <li><strong>입력 형식</strong>: 이 문제는 “각 줄”이 하나의 케이스입니다. 제시한 코드는 <code>readLine()</code>으로 한 줄을 읽고 <code>StringTokenizer</code>로 파싱하므로 문제의 입력 형식과 정확히 일치합니다.</li>
+        <li><strong>중복/범위 체크</strong>: <code>d == 0</code>(같은 값이 연속)이나 <code>d ≥ n</code>이면 즉시 실패 처리하는 것이 핵심입니다.</li>
+        <li><strong>정수 범위</strong>: 입력 정수 범위가 매우 크다면 <code>Math.abs(a-b)</code>에서 이론상 오버플로우가 날 수도 있습니다(<code>Integer.MIN_VALUE</code>의 절댓값 등). 안전성을 더 높이고 싶다면 <code>long</code>으로 변환해 차이를 구해도 됩니다.</li>
       </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong><code>BitSet</code> 활용</strong> — 불리언 배열 대신 공간/연산을 조금 더 효율적으로 표현
+            <pre><code>
+      import java.io.*;
+      import java.util.*;
+      import java.util.BitSet;
+      
+      public class Main {
+          public static void main(String[] args) throws Exception {
+              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+              StringBuilder sb = new StringBuilder();
+              String line;
+              while ((line = br.readLine()) != null) {
+                  StringTokenizer st = new StringTokenizer(line);
+                  int n = Integer.parseInt(st.nextToken());
+                  int[] a = new int[n];
+                  for (int i = 0; i &lt; n; i++) a[i] = Integer.parseInt(st.nextToken());
+                  if (n == 1) { sb.append("Jolly\n"); continue; }
+      
+                  BitSet bs = new BitSet(n);
+                  boolean ok = true;
+                  for (int i = 0; i &lt; n - 1; i++) {
+                      long d = Math.abs((long)a[i] - a[i + 1]); // 오버플로 방지
+                      if (d &lt; 1 || d &gt;= n || bs.get((int)d)) { ok = false; break; }
+                      bs.set((int)d);
+                  }
+                  sb.append(ok ? "Jolly\n" : "Not jolly\n");
+              }
+              System.out.print(sb);
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">로직은 동일하며, <code>BitSet</code>을 사용해 비트 단위로 방문 여부를 기록합니다.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>정렬 기반 확인</strong> — 이해 목적(성능은 기존이 더 좋음)
+            <pre><code>
+      import java.io.*;
+      import java.util.*;
+      
+      public class Main {
+          public static void main(String[] args) throws Exception {
+              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+              StringBuilder sb = new StringBuilder();
+              String line;
+              while ((line = br.readLine()) != null) {
+                  StringTokenizer st = new StringTokenizer(line);
+                  int n = Integer.parseInt(st.nextToken());
+                  int[] a = new int[n];
+                  for (int i = 0; i &lt; n; i++) a[i] = Integer.parseInt(st.nextToken());
+                  if (n == 1) { sb.append("Jolly\n"); continue; }
+      
+                  int[] diff = new int[n - 1];
+                  for (int i = 0; i &lt; n - 1; i++) diff[i] = Math.abs(a[i] - a[i + 1]);
+                  Arrays.sort(diff); // O(n log n)
+      
+                  boolean ok = true;
+                  for (int i = 0; i &lt; n - 1; i++) {
+                      if (diff[i] != i + 1) { ok = false; break; }
+                  }
+                  sb.append(ok ? "Jolly\n" : "Not jolly\n");
+              }
+              System.out.print(sb);
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">차이들을 정렬해 <code>[1,2,...,n-1]</code>과 동일한지 비교합니다(<code>O(n log n)</code>).</p>
+          </li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>차이 <code>d</code>는 <code>1..n-1</code> 범위여야 하고, <strong>중복 없이</strong> 한 번씩 등장해야 함</li>
+        <li>불리언(또는 <code>BitSet</code>)으로 등장 여부를 O(1)로 체크 → 전체 <code>O(n)</code></li>
+        <li>문제 입력은 “각 줄 = 한 케이스” 형태 → 현재 파싱 방식이 정석</li>
+      </ul>
+
 
 
 
@@ -120,63 +207,169 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 4378 — 트ㅏㅊ;</h2>
+      <h2 class="section">문제 4402 — Soundex </h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4378">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4402">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1031_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1101_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
-      <h3 class="section">해설</h3>
 
-      <p><strong>핵심 아이디어</strong> —<br>
-      사용자가 실제로는 오른쪽으로 한 칸 밀린 손 위치로 타이핑했으므로, 입력의 각 문자에 대해 쿼티 자판에서의 왼쪽 이웃 키로 치환하면 원문이 복원된다.<br>
-      스페이스(공백)는 손이 밀려도 위치 영향을 받지 않으므로 그대로 출력한다.</p>
-    
-      <p><strong>제약 정리</strong> —<br>
-      입력: 여러 줄이며, 각 줄은 숫자, 공백, 알파벳 대문자, 그리고 쿼티 상단에 있는 기호로만 구성된다. <code>Q</code>, <code>A</code>, <code>Z</code> 또는 <code>`</code>(back-quote)처럼 맨 왼쪽 열의 키는 입력에 등장하지 않는다(문제 보장). 스페이스는 예외적으로 등장 가능하며 오타가 없다.<br>
-      출력: 각 줄마다, 각 문자를 해당 자판의 왼쪽 이웃 키로 치환(공백은 그대로)하여 복원된 문자열을 출력.</p>
-    
-      <p><strong>코드 핵심 (변수/구조 매핑)</strong> —</p>
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Soundex</strong>는 철자가 비슷해 발음이 유사한 단어를 같은 코드로 묶는 방식입니다. 각 알파벳을 아래 규칙으로 숫자로 치환하고,
+        <strong>같은 숫자가 연속되면 한 번만</strong> 출력하며, <code>A, E, I, O, U, H, W, Y</code>는 <strong>출력하지 않습니다</strong>.
+      </p>
       <ul>
-        <li><code>BufferedReader br</code>: 표준 입력을 EOF까지 라인 단위로 읽는다.</li>
-        <li><code>StringBuilder sb</code>: 변환 결과 누적 후 한 번에 출력.</li>
-        <li><code>String[] rows</code>: 쿼티 자판의 4개 행을 왼→오 순서로 하드코딩.</li>
-        <li><code>Map&lt;Character, Character&gt; leftKey</code>: 현재 키 → 왼쪽 이웃 키 매핑 테이블.</li>
+        <li>1: B F P V</li>
+        <li>2: C G J K Q S X Z</li>
+        <li>3: D T</li>
+        <li>4: L</li>
+        <li>5: M N</li>
+        <li>6: R</li>
       </ul>
-    
-      <p><strong>동작 과정</strong> —<br>
-      1) 자판 각 행에 대해 인덱스 <code>1..len-1</code>을 순회하며 <code>leftKey[row[i]] = row[i-1]</code>로 매핑을 채운다(맨 왼쪽 키는 매핑하지 않음).<br>
-      2) 입력을 한 줄씩 읽어 각 문자 <code>c</code>에 대해:<br>
-      &nbsp;&nbsp;• <code>c == ' '</code>이면 그대로 <code>' '</code>를 추가.<br>
-      &nbsp;&nbsp;• 아니면 <code>leftKey.getOrDefault(c, c)</code>로 변환하여 추가. (문제 조건상 대부분 매핑 존재)<br>
-      3) 각 줄 처리 후 개행을 추가한다.<br>
-      4) 모든 줄을 처리하면 누적된 결과를 출력한다.</p>
-    
-      <p><strong>정확성 근거</strong> —<br>
-      문제의 “손이 오른쪽으로 한 칸 이동”은 자판 상에서 입력된 문자가 실제 의도 문자보다 오른쪽에 위치함을 의미하므로, 역변환은 “왼쪽 이웃으로 이동”이다.<br>
-      각 행에서 왼쪽 이웃을 매핑하면 행 내에서의 치환이 정확히 일치하며, 맨 왼쪽 열 키는 입력에 등장하지 않으므로 미정의 매핑이 사용되지 않는다. 집합적 규칙(한 문자당 독립 치환)이므로 라인 길이 및 줄 수와 무관하게 올바르게 복원된다.</p>
-    
-      <p><strong>엣지 케이스</strong></p>
+      <p>
+        제시한 코드는 각 줄(단어)을 읽어 문자별로 매핑 숫자 <code>curr</code>를 구합니다. <code>curr == 0</code>(모음 등 비표기 문자)이면
+        출력하지 않고 <strong>연속 중복 방지를 초기화</strong>(<code>prev = 0</code>)합니다. <code>curr != 0</code>이고
+        <code>curr != prev</code>일 때만 출력하여 같은 코드가 연속될 경우 한 번만 나오도록 합니다.
+      </p>
+      
       <ul>
-        <li>스페이스: 그대로 유지(변환 없음).</li>
-        <li>중복/연속 기호(예: <code>]]]]</code>): 각 문자를 독립적으로 왼쪽 이웃으로 치환.</li>
-        <li>맨 왼쪽 열 키: 문제에서 입력으로 주어지지 않는다고 보장(매핑 필요 없음).</li>
-        <li>EOF: 입력이 끝날 때까지 모든 줄을 변환(빈 줄도 개행 처리).</li>
+        <li>입력: 대문자 단어가 한 줄에 하나씩 주어짐(EOF까지 반복)</li>
+        <li>치환/출력:
+          <ul>
+            <li><code>curr = map.getOrDefault(c, 0)</code>로 숫자 획득(없으면 0)</li>
+            <li><code>curr == 0</code>이면 출력 안 함 + <code>prev = 0</code>로 리셋</li>
+            <li><code>curr != 0</code>이고 <code>curr != prev</code>이면 출력하고 <code>prev = curr</code></li>
+          </ul>
+        </li>
       </ul>
-    
-      <p><strong>시간·공간 복잡도</strong> —<br>
-      매핑 테이블 구성은 자판 크기에 상수 시간. 변환은 전체 문자 수를 <code>N</code>이라 할 때 <code>O(N)</code>, 추가 공간은 출력 버퍼와 매핑에 <code>O(N)</code> 및 <code>O(1)</code>(자판 크기 상수).</p>
-    
-      <p><strong>정리</strong></p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li>쿼티 자판 4개 행을 하드코딩하고 “현재 키 → 왼쪽 이웃” 매핑을 만든다.</li>
-        <li>각 문자를 매핑으로 치환(공백은 그대로)하여 한 줄씩 복원한다.</li>
-        <li>문제 보장: 맨 왼쪽 열 키는 입력에 등장하지 않으므로 미매핑 문자로 인한 오류가 없다.</li>
+        <li><code>KHAWN</code> → K(2) H(0) A(0) W(0) N(5) → 연속 중복/비표기 처리 → <strong>25</strong></li>
+        <li><code>PFISTER</code> → P(1) F(1) I(0) S(2) T(3) E(0) R(6) → 11 → 모음으로 리셋 후 2,3,6 → <strong>1236</strong></li>
+        <li><code>BOBBY</code> → B(1) O(0) B(1) B(1) Y(0) → 1 / 리셋 / 1 / 연속중복무시 / 리셋 → <strong>11</strong></li>
       </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>각 단어 길이를 <code>L</code>이라 하면 문자당 O(1) 처리 → <code>O(L)</code> (한 줄당).</p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>고정 크기 매핑 테이블과 출력 버퍼만 사용 → <code>O(1)</code> (단, 출력 문자열은 결과 길이에 비례).</p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>리셋 규칙</strong>: 모음/비표기자(<code>AEIOUHWY</code>)를 만나면 <code>prev = 0</code>으로 리셋해야 이후 같은 숫자가 다시 나올 수 있습니다.</li>
+        <li><strong>연속 중복</strong>: 같은 코드가 연속되면 한 번만 출력합니다. (예: <code>PF</code>는 둘 다 1 → <code>1</code> 한 번)</li>
+        <li><strong>입력 공백</strong>: 빈 줄이 섞일 수 있으므로 <code>isBlank()</code> 체크로 건너뜁니다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>배열 매핑으로 성능/간결성 개선</strong> — 해시맵 대신 <code>int[26]</code> 사용
+            <pre><code>
+      import java.io.*;
+      import java.util.*;
+      
+      public class Main {
+          public static void main(String[] args) throws Exception {
+              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+              StringBuilder sb = new StringBuilder();
+              int[] code = new int[26];
+              for (char c : "BFPV".toCharArray()) code[c - 'A'] = 1;
+              for (char c : "CGJKQSXZ".toCharArray()) code[c - 'A'] = 2;
+              for (char c : "DT".toCharArray()) code[c - 'A'] = 3;
+              code['L' - 'A'] = 4;
+              for (char c : "MN".toCharArray()) code[c - 'A'] = 5;
+              code['R' - 'A'] = 6;
+      
+              String line;
+              while ((line = br.readLine()) != null) {
+                  if (line.isBlank()) continue;
+                  int prev = 0;
+                  for (int i = 0; i &lt; line.length(); i++) {
+                      int curr = code[line.charAt(i) - 'A'];
+                      if (curr == 0) { prev = 0; continue; }
+                      if (curr != prev) { sb.append(curr); prev = curr; }
+                  }
+                  sb.append('\n');
+              }
+              System.out.print(sb);
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">로직은 동일하고 상수 접근으로 약간 더 빠릅니다.</p>
+          </li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>문자 → 코드 치환 후, <strong>연속 동일 코드 1회 출력</strong></li>
+        <li><code>AEIOUHWY</code>는 출력하지 않으며, <strong>연속성 리셋</strong> 역할</li>
+        <li>한 단어 처리 비용 <code>O(L)</code>, 추가 공간 <code>O(1)</code></li>
+      </ul>
+      
+      <!-- 원문 코드 참고용: 요청한 해결 방식과 정확히 일치 -->
+      <pre><code>
+      import java.io.*;
+      import java.util.*;
+      
+      public class Main {
+          public static void main(String[] args) throws Exception {
+              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+              StringBuilder sb = new StringBuilder();
+      
+              Map&lt;Character, Integer&gt; map = new HashMap&lt;&gt;();
+              for (char c : "BFPV".toCharArray()) map.put(c, 1);
+              for (char c : "CGJKQSXZ".toCharArray()) map.put(c, 2);
+              for (char c : "DT".toCharArray()) map.put(c, 3);
+              map.put('L', 4);
+              for (char c : "MN".toCharArray()) map.put(c, 5);
+              map.put('R', 6);
+      
+              String line;
+              while ((line = br.readLine()) != null) {
+                  if (line.isBlank()) continue;
+      
+                  int prev = 0;
+                  for (char c : line.toCharArray()) {
+                      int curr = map.getOrDefault(c, 0);
+      
+                      if (curr == 0) {
+                          prev = 0;
+                          continue;
+                      }
+                      if (curr != prev) {
+                          sb.append(curr);
+                          prev = curr;
+                      }
+                  }
+                  sb.append("\n");
+              }
+      
+              System.out.print(sb);
+          }
+      }
+      </code></pre>
+
 
 
 
