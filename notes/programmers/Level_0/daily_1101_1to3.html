@@ -43,7 +43,7 @@
         <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
-      <h3 class="section">해설</h3>
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
         각 학생의 두 과목 점수의 <strong>평균</strong>(또는 합)을 기준으로 내림차순 정렬했을 때의 <strong>공동 순위</strong>를 구하는 문제다.
         제시한 코드는 학생 <code>i</code>의 평균 <code>avg[i]</code>를 계산한 뒤, <code>avg[j] &gt; avg[i]</code>인 학생 수를 세어
@@ -85,7 +85,7 @@
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
         <li><strong>부동소수 연산</strong>: 평균을 <code>double</code>로 계산해도 본 문제 범위에선 안전하나, 순위 기준은
-            <em>평균과 합이 완전히 동일한 순서를 만든다</em>. 따라서 <strong>정수 합</strong>(<code>score[i][0] + score[i][1]</code>)으로 비교하면
+            평균과 합이 완전히 동일한 순서를 만든다. 따라서 <strong>정수 합</strong>(<code>score[i][0] + score[i][1]</code>)으로 비교하면
             부동소수 오차 우려를 없앨 수 있다.</li>
         <li><strong>동일 점수</strong>: 비교 연산을 <code>&gt;</code>로 둬야 동점자가 같은 등수를 받는다(<code>&gt;=</code>가 되면 한쪽이 밀려
             잘못된 순위가 된다).</li>
@@ -175,93 +175,84 @@
 
 
 
+
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 치킨 쿠폰</h2>
+      <h2 class="section">문제 2 — 특이한 정렬</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120884">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120880">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
         <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
-      <h3 class="section">해설</h3>
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        서비스 치킨 주문 수 <code>chicken</code>이 주어질 때, 10마리 주문마다 1마리씩 <strong>쿠폰 보상 치킨</strong>을
-        받을 수 있다고 할 때, 받을 수 있는 총 서비스 치킨 수를 구하는 문제다.  
-        단, 서비스 치킨도 주문 치킨처럼 쿠폰을 제공하므로 <strong>재귀적(반복적) 교환</strong>이 가능하다.
-      </p>
-      
-      <p>
-        제시된 풀이에서는 “치킨 한 마리당 1장 쿠폰, 10장마다 1마리 서비스” 규칙을 다음과 같이
-        <strong>치킨 수를 9씩 줄이며</strong> 서비스 치킨 수를 센다.  
-        즉, 10마리를 주문하면 1마리 서비스(총 11마리)가 되므로, “10마리를 줄일 때마다 9마리만 실제 소비”한다는
-        성질을 이용한다.
+        기준값 <code>n</code>에 대해 각 원소 <code>x</code>의 <strong>거리</strong>(<code>|x - n|</code>)를 계산해
+        <strong>거리 오름차순</strong>으로 정렬하고, 거리가 같으면 <strong>값이 큰 수가 먼저</strong> 오도록 값 내림차순으로 타이브레이크하는 문제다.
+        풀이 요지는 각 원소를 <code>{값, 거리}</code>로 확장해 비교 규칙을 적용해 정렬한 뒤, 정렬된 원소의 <code>값</code>만 순서대로 반환하는 것이다.
       </p>
       
       <ul>
-        <li><code>while (chicken / 10 != 0)</code> — 쿠폰으로 교환 가능한 동안 반복한다.</li>
-        <li><code>cnt++</code> — 서비스 치킨을 한 마리 추가한다.</li>
-        <li><code>chicken -= 9</code> — 실제 쿠폰 교환 후 남는 쿠폰/치킨 수를 갱신한다.
-            (즉, 치킨 한 마리를 새로 얻지만 쿠폰은 10장 사용 → 순감 9장)</li>
-        <li>반복 종료 후 누적된 <code>cnt</code>가 총 서비스 치킨 수가 된다.</li>
+        <li>기본 키: <code>|x - n|</code> <strong>오름차순</strong></li>
+        <li>보조 키(동일 거리): <code>x</code> <strong>내림차순</strong></li>
+        <li>정렬 후: 확장 배열에서 원본 값만 추려 반환</li>
       </ul>
       
-      <p><strong>예시</strong></p>
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>chicken = 100</code><br>
-            ⟶ 100 → 91 → 82 → 73 → 64 → 55 → 46 → 37 → 28 → 19 → 10 → 1 → 종료<br>
-            총 <code>11</code>회 교환 → 반환: <code>11</code></li>
-        <li><code>chicken = 1081</code><br>
-            ⟶ 총 서비스 치킨 <code>120</code> (문제 예시 결과와 일치)</li>
+        <li><code>numlist = [1, 2, 3, 4, 5, 6], n = 4</code><br>
+            거리: <code>[3,2,1,0,1,2]</code> → 결과: <code>[4, 5, 3, 6, 2, 1]</code>
+            (거리 1에서 <code>5</code>와 <code>3</code> 중 <strong>값 큰</strong> <code>5</code>가 먼저)</li>
+        <li><code>numlist = [10, 12, 9, 8, 11], n = 10</code><br>
+            거리: <code>[0,2,1,2,1]</code> → 결과: <code>[10, 11, 9, 12, 8]</code>
+            (거리 1에서 <code>11</code> &gt; <code>9</code>)</li>
       </ul>
       
-      <p><strong>시간 복잡도</strong></p>
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        매 반복에서 치킨 수가 9 감소하므로 반복 횟수는 <code>O(chicken / 9)</code> 수준이다.
-        <code>chicken ≤ 10<sup>6</sup></code>이라면 충분히 빠르다.
+        정렬이 지배적이므로 <code>O(N log N)</code>.
       </p>
       
-      <p><strong>공간 복잡도</strong></p>
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        누적 카운터와 입력 변수를 제외하면 별도 자료구조를 사용하지 않으므로 <code>O(1)</code>.
+        <code>{값, 거리}</code> 확장 배열과 결과 배열 사용으로 <code>O(N)</code>.
       </p>
       
-      <p><strong>주의</strong></p>
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>정수 연산 정확성</strong>: <code>chicken / 10</code> 비교 대신 <code>chicken >= 10</code>을 써도 된다.  
-            (명시적으로 “쿠폰 10장 이상” 조건 표현 가능)</li>
-        <li><strong>직관성</strong>: 이 풀이의 핵심은 “10마리마다 1마리 서비스 → 9마리만 실제 소모” 관계를 수식화한 것.  
-            따라서 간단한 수식으로도 동일 결과를 구할 수 있다.</li>
+        <li><strong>타이브레이크 방향</strong>: “거리 같으면 <strong>값 큰 순</strong>”을 정확히 구현해야 한다(값 내림차순).</li>
+        <li><strong>뺄셈 비교 오버플로</strong>: <code>b - a</code> 같은 방식은 극단값에서 오버플로 가능.
+            <code>Integer.compare</code> / <code>Long.compare</code> 사용이 안전하다.</li>
+        <li><strong>절대값 계산</strong>: <code>|x - n|</code> 계산 시 경계값을 고려하면
+            <code>(long)x</code>로 승격해 절대값을 취하는 방식이 더 안전하다.</li>
       </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <details>
-        <summary>대안 아이디어</summary>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>정석적인 쿠폰 시뮬레이션</strong> (더 직관적)<br>
-            <code>
-            class Solution {<br>
-            &nbsp;&nbsp;public int solution(int chicken) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;int coupon = chicken;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;int service = 0;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;while (coupon &gt;= 10) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int newChick = coupon / 10;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;service += newChick;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;coupon = newChick + (coupon % 10);<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;return service;<br>
-            &nbsp;&nbsp;}<br>
-            }
-            </code><br>
-            쿠폰/치킨 교환 과정을 직접 모사한다. 복잡도는 동일 <code>O(chicken)</code>.
-          </li>
-          <li><strong>수학적 식</strong>으로 단순화:<br>
-            서비스 치킨 총합은 <code>chicken / 9</code>의 내림값과 동일하다.
-            (<code>int answer = chicken / 9;</code> 단, <code>chicken % 9 == 0</code>이면 1 줄여야 함은 없음)</li>
+          <li><strong>박싱 후 단일 Comparator</strong>:
+            <code>Integer[]</code>로 변환해 <code>dx = |x - n|, dy = |y - n|</code> 비교 →
+            거리 오름차순, 동률 시 값 내림차순.</li>
+          <li><strong>안정 정렬 2-pass</strong>:
+            ① 값 <strong>내림차순</strong> 정렬 → ② 안정 정렬로 거리 <strong>오름차순</strong>.
+            두 번째 정렬에서 동거리 그룹의 기존(값 내림차순) 순서가 유지된다.</li>
+          <li><strong>버킷 아이디어</strong> (값/거리 범위가 좁을 때):
+            거리에 대해 버킷을 만들고 각 버킷 내부를 값 내림차순으로 합치는 방식(개념적으로 <code>O(N + K)</code>).</li>
         </ul>
       </details>
+
+
 
 
 
@@ -290,110 +281,107 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 로그인 성공?</h2>
+      <h2 class="section">문제 3 — 유한소수 판별하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120883">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120878">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
         <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
-      <h3 class="section">해설</h3>
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        사용자 입력 정보 <code>id_pw</code>와 회원 데이터베이스 <code>db</code>가 주어졌을 때,  
-        입력한 <strong>ID와 비밀번호의 일치 여부</strong>를 판별하여 로그인 결과를 문자열로 반환하는 문제다.  
-        조건은 다음 세 가지 중 하나에 해당한다:
+        분수 <code>a/b</code>가 <strong>유한소수</strong>가 되려면, 기약분수로 만들었을 때의 분모가 <strong>2 또는 5의 거듭제곱으로만 구성</strong>되어야 한다.
+        즉, 기약분수의 분모에서 2와 5를 모두 제거했을 때 1이 되면 유한소수, 그렇지 않으면 무한소수이다.
       </p>
       
       <ul>
-        <li>ID와 PW 모두 일치 → <code>"login"</code></li>
-        <li>ID는 존재하지만 PW 불일치 → <code>"wrong pw"</code></li>
-        <li>ID 자체가 존재하지 않음 → <code>"fail"</code></li>
+        <li>① <strong>기약분수화</strong>: <code>gcd(a, b)</code>로 최대공약수를 구해 분모를 <code>b /= gcd</code>로 나눈다.</li>
+        <li>② <strong>2와 5 제거</strong>: <code>while (b % 2 == 0) b /= 2;</code>, <code>while (b % 5 == 0) b /= 5;</code></li>
+        <li>③ <strong>판정</strong>: <code>b == 1</code>이면 유한소수(<code>1</code>), 아니면 무한소수(<code>2</code>).</li>
       </ul>
       
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>a = 7, b = 20</code> → 기약분수 <code>7/20</code> → 분모 = 2²×5 → 유한소수 → <code>1</code></li>
+        <li><code>a = 12, b = 21</code> → 기약분수 <code>4/7</code> → 분모에 7 포함 → 무한소수 → <code>2</code></li>
+        <li><code>a = 11, b = 22</code> → 기약분수 <code>1/2</code> → 분모 = 2 → 유한소수 → <code>1</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        제시된 풀이에서는 데이터베이스를 순차 탐색하며 ID를 찾고, 비밀번호를 검증하는 구조로 구현했다.
+        최대공약수 계산은 유클리드 알고리즘으로 <code>O(log min(a, b))</code>,  
+        이후 소인수 제거 반복은 <code>O(log b)</code> 수준으로 전체 <code>O(log b)</code>.
       </p>
       
-      <ul>
-        <li><code>String id = id_pw[0]</code>, <code>String pw = id_pw[1]</code> — 입력 계정 정보를 분리한다.</li>
-        <li><code>for</code>문으로 <code>db</code>의 각 행을 순회하며 <code>db[i][0]</code>이 <code>id</code>와 일치하는지 확인한다.</li>
-        <li>일치하는 ID를 찾으면, <code>db[i][1]</code>과 <code>pw</code> 비교:
-          <ul>
-            <li>같으면 즉시 <code>"login"</code> 반환</li>
-            <li>다르면 즉시 <code>"wrong pw"</code> 반환</li>
-          </ul>
-        </li>
-        <li>끝까지 탐색했는데 일치하는 ID가 없다면 <code>"fail"</code> 반환</li>
-      </ul>
-      
-      <p><strong>예시</strong></p>
-      <ul>
-        <li><code>id_pw = ["meosseugi", "1234"]</code>, <code>db = [["rardss", "123"], ["yyoom", "1234"], ["meosseugi", "1234"]]</code><br>
-            → ID/PW 모두 일치 ⟶ <code>"login"</code></li>
-        <li><code>id_pw = ["programmer01", "15789"]</code>, <code>db = [["programmer02", "111111"], ["programmer01", "114514"]]</code><br>
-            → ID 일치, PW 불일치 ⟶ <code>"wrong pw"</code></li>
-        <li><code>id_pw = ["rabbit04", "98761"]</code>, <code>db = [["rabbit00", "11111"], ["rabbit01", "22222"]]</code><br>
-            → ID 없음 ⟶ <code>"fail"</code></li>
-      </ul>
-      
-      <p><strong>시간 복잡도</strong></p>
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        데이터베이스 크기를 <code>N</code>이라 하면, 최악의 경우 모든 항목을 순회하므로 <code>O(N)</code>.
-        각 비교 연산은 문자열 비교로 <code>O(L)</code>(L: 평균 문자열 길이)이지만, 일반적으로 매우 작아 상수 시간으로 간주 가능하다.
+        변수 몇 개와 재귀 호출 깊이만 사용하므로 <code>O(1)</code>.
       </p>
       
-      <p><strong>공간 복잡도</strong></p>
-      <p>
-        입력 외 추가 공간은 없으므로 <code>O(1)</code>.
-      </p>
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
-      <p><strong>주의</strong></p>
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>순차 탐색</strong>: 데이터베이스가 커질 경우 비효율적이므로, 실제 서비스에서는 <code>HashMap</code> 사용이 권장된다.</li>
-        <li><strong>즉시 반환 구조</strong>: 일치 여부가 판명되는 즉시 결과를 반환하므로 불필요한 반복을 수행하지 않는다.</li>
-        <li><strong>비밀번호 비교</strong>: <code>equals()</code>를 반드시 사용해야 한다. <code>==</code> 비교는 참조 비교로 오작동한다.</li>
+        <li><strong>기약분수화 누락</strong>: <code>gcd</code>로 약분하지 않으면 잘못된 판정이 나온다.</li>
+        <li><strong>소인수 제거 순서</strong>는 중요하지 않으나, <code>while</code>로 반복적으로 나눠야 한다.</li>
+        <li><strong>2와 5 외의 소인수</strong>가 남는 순간 결과는 무한소수(<code>2</code>).</li>
       </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <details>
-        <summary>대안 아이디어</summary>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong><code>HashMap</code> 사용 — 탐색 효율 개선</strong><br>
-            <code>
-            import java.util.*;<br>
-            <br>
-            class Solution {<br>
-            &nbsp;&nbsp;public String solution(String[] id_pw, String[][] db) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String, String&gt; map = new HashMap&lt;&gt;();<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;for (String[] pair : db) map.put(pair[0], pair[1]);<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;String id = id_pw[0], pw = id_pw[1];<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;if (!map.containsKey(id)) return "fail";<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;return map.get(id).equals(pw) ? "login" : "wrong pw";<br>
-            &nbsp;&nbsp;}<br>
-            }
-            </code><br>
-            해시 탐색을 사용하므로 평균 <code>O(1)</code> 시간에 결과를 얻을 수 있다.
+          <li><strong>BigInteger 활용</strong> — 큰 수 처리 가능<br>
+            <pre><code>
+      import java.math.BigInteger;
+      
+      class Solution {
+          public int solution(int a, int b) {
+              BigInteger A = BigInteger.valueOf(a);
+              BigInteger B = BigInteger.valueOf(b);
+              BigInteger gcd = A.gcd(B);
+              B = B.divide(gcd);
+              while (B.mod(BigInteger.TWO).equals(BigInteger.ZERO)) B = B.divide(BigInteger.TWO);
+              while (B.mod(BigInteger.valueOf(5)).equals(BigInteger.ZERO)) B = B.divide(BigInteger.valueOf(5));
+              return B.equals(BigInteger.ONE) ? 1 : 2;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">정수 오버플로 위험이 없으며, 임의 정밀도에서도 안전하게 판정 가능.</p>
           </li>
-          <li><strong>스트림 API 버전</strong> — 간결하지만 효율은 동일<br>
-            <code>
-            import java.util.*;<br>
-            import java.util.stream.*;<br>
-            <br>
-            class Solution {<br>
-            &nbsp;&nbsp;public String solution(String[] id_pw, String[][] db) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;return Arrays.stream(db)<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.filter(arr -&gt; arr[0].equals(id_pw[0]))<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.findFirst()<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.map(arr -&gt; arr[1].equals(id_pw[1]) ? "login" : "wrong pw")<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.orElse("fail");<br>
-            &nbsp;&nbsp;}<br>
-            }
-            </code>
+      
+          <li style="margin-top:1.2em;"><strong>소인수 분해 방식</strong> — 이론적 확장<br>
+            <pre><code>
+      class Solution {
+          public int solution(int a, int b) {
+              b /= gcd(a, b);
+              for (int p = 2; p * p &lt;= b; p++) {
+                  if (b % p == 0 &amp;&amp; p != 2 &amp;&amp; p != 5) return 2; // 다른 소인수 존재
+                  while (b % p == 0) b /= p;
+              }
+              return (b == 1 || b == 2 || b == 5) ? 1 : 2;
+          }
+      
+          private int gcd(int a, int b) {
+              return b == 0 ? a : gcd(b, a % b);
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">소인수를 직접 검사하여 동일한 판정을 수행. (<code>O(√b)</code>)</p>
           </li>
         </ul>
       </details>
+
+
+
 
 
 
