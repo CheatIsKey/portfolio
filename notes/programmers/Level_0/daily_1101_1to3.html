@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-10-31 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-01 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,105 +33,112 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 이진수 더하기</h2>
+      <h2 class="section">문제 1 — 등수 매기기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120885">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120882">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1031_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
       <p>
-        두 이진 문자열 <code>bin1</code>, <code>bin2</code>를 각각 2진수로 해석해 정수로 변환한 뒤,
-        합을 다시 2진 문자열로 바꿔 반환하는 풐다. 자바 표준 라이브러리의 진법 변환 API를 그대로
-        활용해 구현을 단순화한다.
+        각 학생의 두 과목 점수의 <strong>평균</strong>(또는 합)을 기준으로 내림차순 정렬했을 때의 <strong>공동 순위</strong>를 구하는 문제다.
+        제시한 코드는 학생 <code>i</code>의 평균 <code>avg[i]</code>를 계산한 뒤, <code>avg[j] &gt; avg[i]</code>인 학생 수를 세어
+        <code>rank[i] = (자기보다 평균이 높은 학생 수) + 1</code>로 순위를 정한다.
+        이는 동점자가 있을 때 같은 등수를 부여하는 요구와 정확히 일치한다.
       </p>
       
       <ul>
-        <li><code>Integer.parseInt(bin1, 2)</code> / <code>Integer.parseInt(bin2, 2)</code>로 각 문자열을
-            2진수 기준 정수(<code>int</code>)로 파싱한다.</li>
-        <li>두 정수를 더한다: <code>num1 + num2</code>.</li>
-        <li><code>Integer.toBinaryString(sum)</code>으로 합을 2진 문자열로 변환해 반환한다.
-            이 메서드는 <strong>선행 0을 자동으로 제거</strong>하므로 별도 처리 없이 요구 형식과 일치한다.</li>
+        <li>평균 계산: <code>avg[i] = (score[i][0] + score[i][1]) / 2.0</code></li>
+        <li>순위 산출: 모든 쌍 <code>(i, j)</code>에 대해 <code>avg[j] &gt; avg[i]</code>면 카운트하고, 그 개수에 1을 더해 <code>rank[i]</code>에 기록</li>
+        <li>반환: 각 학생의 순위를 담은 정수 배열</li>
       </ul>
       
       <p><strong>예시</strong></p>
       <ul>
-        <li><code>bin1 = "10"</code>, <code>bin2 = "11"</code> ⟶ 합: <code>5</code> ⟶ 반환: <code>"101"</code></li>
-        <li><code>bin1 = "0"</code>, <code>bin2 = "0"</code> ⟶ 합: <code>0</code> ⟶ 반환: <code>"0"</code></li>
-        <li><code>bin1 = "1010"</code>, <code>bin2 = "111"</code> ⟶ 합: <code>17</code> ⟶ 반환: <code>"10001"</code></li>
+        <li><code>score = [[80, 70], [90, 50], [40, 70], [50, 80]]</code><br>
+            평균(또는 합): <code>[75, 70], [80, 70], [55, 70], [65, 70]</code> → 순위: <code>[2, 1, 4, 3]</code></li>
+        <li><code>score = [[100, 100], [100, 100], [90, 90]]</code><br>
+            평균(또는 합): <code>[100, 100, 90]</code> → 동점 처리 → 순위: <code>[1, 1, 3]</code></li>
       </ul>
       
       <p><strong>시간 복잡도</strong></p>
       <p>
-        길이를 각각 <code>N</code>, <code>M</code>이라 하면 파싱과 변환이 각 자리(문자)를 한 번씩 훑으므로
-        전체적으로 <code>O(N + M)</code>이다.
+        평균 계산은 <code>O(N)</code>, 순위 산출은 모든 쌍을 비교하므로 <code>O(N^2)</code>. 전체는 <code>O(N^2)</code>.
       </p>
       
       <p><strong>공간 복잡도</strong></p>
       <p>
-        입력/출력을 제외한 추가 사용 공간은 상수 수준이므로 <code>O(1)</code>이다.
+        평균과 순위를 담는 배열 두 개만 추가로 사용하므로 <code>O(N)</code>.
       </p>
       
       <p><strong>주의</strong></p>
       <ul>
-        <li><strong>오버플로 가능성</strong>: <code>Integer.parseInt(..., 2)</code>는 32비트 부호 있는 정수 범위
-            (<code>-2<sup>31</sup></code> ~ <code>2<sup>31</sup>-1</code>)를 넘는 값을 파싱할 수 없다.
-            즉, 이진 문자열이 너무 길거나(대략 31비트 초과의 양수) 두 수의 <strong>합이</strong> int 범위를 넘으면
-            예외/잘못된 결과가 날 수 있다. 문제 제약이 int 범위 내라면 안전하지만, 그 외에는 아래 대안을 고려한다.</li>
-        <li><strong>선행 0</strong>: 결과에 선행 0이 필요 없다면(일반적인 요구사항) 현재 방식이 적합하다.
-            선행 0을 유지해야 하는 요구가 있다면 별도 처리 필요.</li>
+        <li><strong>부동소수 연산</strong>: 평균을 <code>double</code>로 계산해도 본 문제 범위에선 안전하나, 순위 기준은
+            평균과 합이 완전히 동일한 순서를 만든다. 따라서 <strong>정수 합</strong>(<code>score[i][0] + score[i][1]</code>)으로 비교하면
+            부동소수 오차 우려를 없앨 수 있다.</li>
+        <li><strong>동일 점수</strong>: 비교 연산을 <code>&gt;</code>로 둬야 동점자가 같은 등수를 받는다(<code>&gt;=</code>가 되면 한쪽이 밀려
+            잘못된 순위가 된다).</li>
       </ul>
       
       <details>
         <summary>대안 아이디어</summary>
         <ul>
-          <li><strong><code>BigInteger</code> 사용(임의 정밀)</strong><br>
-            <code>
-            import java.math.BigInteger;<br>
-            <br>
-            class Solution {<br>
-            &nbsp;&nbsp;public String solution(String bin1, String bin2) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;var a = new BigInteger(bin1, 2);<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;var b = new BigInteger(bin2, 2);<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;return a.add(b).toString(2);<br>
-            &nbsp;&nbsp;}<br>
-            }
-            </code><br>
-            입력 길이에 제한 없이 안전하다. 복잡도는 자리수 기준 <code>O(N + M)</code>.
+          <li><strong>정수 합으로 비교(부동소수 제거)</strong><br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int[][] score) {
+              int n = score.length;
+              int[] sum = new int[n];
+              int[] rank = new int[n];
+              for (int i = 0; i &lt; n; i++) sum[i] = score[i][0] + score[i][1];
+              for (int i = 0; i &lt; n; i++) {
+                  int r = 1;
+                  for (int j = 0; j &lt; n; j++) if (sum[j] &gt; sum[i]) r++;
+                  rank[i] = r;
+              }
+              return rank;
+          }
+      }
+            </code></pre>
+            시간/공간 복잡도는 기존과 동일하다(<code>O(N^2)</code>, <code>O(N)</code>).
           </li>
-          <li><strong>수동 자리올림(캐리) 덧셈</strong> — 문자열만으로 처리(외부 진법 변환 없이).<br>
-            <code>
-            class Solution {<br>
-            &nbsp;&nbsp;public String solution(String bin1, String bin2) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;int i = bin1.length() - 1, j = bin2.length() - 1, carry = 0;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;var sb = new StringBuilder();<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;while (i &gt;= 0 || j &gt;= 0 || carry != 0) {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int x = (i &gt;= 0) ? bin1.charAt(i--) - '0' : 0;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int y = (j &gt;= 0) ? bin2.charAt(j--) - '0' : 0;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int sum = x + y + carry;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sb.append(sum &amp; 1);<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carry = sum &gt;&gt; 1;<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;return sb.reverse().toString();<br>
-            &nbsp;&nbsp;}<br>
-            }
-            </code><br>
-            임의 길이에서도 <code>O(N + M)</code>로 동작하며 라이브러리 범위 제한이 없다.
+      
+          <li><strong>정렬로 <code>O(N log N)</code>에 순위 매기기</strong> — 큰 입력에서 유리<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int[][] score) {
+              int n = score.length;
+              int[] ans = new int[n];
+              int[][] a = new int[n][3]; // {sum, index, dummy}
+              for (int i = 0; i &lt; n; i++) a[i] = new int[]{score[i][0] + score[i][1], i, 0};
+              Arrays.sort(a, (x, y) -&gt; Integer.compare(y[0], x[0])); // 합 내림차순
+              int rank = 1;
+              for (int i = 0; i &lt; n; i++) {
+                  if (i &gt; 0 &amp;&amp; a[i][0] != a[i - 1][0]) rank = i + 1; // 동점 처리
+                  ans[a[i][1]] = rank;
+              }
+              return ans;
+          }
+      }
+            </code></pre>
+            정렬로 한 번에 순위를 배정하므로 <code>O(N log N)</code>.
           </li>
-          <li><strong><code>long</code> 사용(입력이 63비트 이내일 때만)</strong><br>
-            <code>
-            long a = Long.parseLong(bin1, 2);<br>
-            long b = Long.parseLong(bin2, 2);<br>
-            return Long.toBinaryString(a + b);
-            </code><br>
-            합이 <code>long</code> 범위를 넘지 않는다는 전제에서만 안전.
+      
+          <li><strong>빈도 맵으로 순위 매기기</strong> — 값 범위가 좁을 때 유용<br>
+            합 점수의 출현 빈도를 세어(예: <code>Map&lt;Integer, Integer&gt;</code>), 합 점수를 높은 순으로 누적해
+            시작 순위를 계산한 뒤 원래 인덱스에 해당 순위를 할당한다. 구현 난이도는 약간 높지만 <code>O(N log K)</code>(고유 합 개수 K)에 가능.
           </li>
         </ul>
       </details>
+
 
 
 
@@ -166,7 +173,7 @@
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1031_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
@@ -279,7 +286,7 @@
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1031_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
       <h3 class="section">해설</h3>
