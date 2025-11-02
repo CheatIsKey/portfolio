@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-01 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 등수 매기기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120882">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        각 학생의 두 과목 점수의 <strong>평균</strong>(또는 합)을 기준으로 내림차순 정렬했을 때의 <strong>공동 순위</strong>를 구하는 문제다.
+        제시한 코드는 학생 <code>i</code>의 평균 <code>avg[i]</code>를 계산한 뒤, <code>avg[j] &gt; avg[i]</code>인 학생 수를 세어
+        <code>rank[i] = (자기보다 평균이 높은 학생 수) + 1</code>로 순위를 정한다.
+        이는 동점자가 있을 때 같은 등수를 부여하는 요구와 정확히 일치한다.
+      </p>
+      
+      <ul>
+        <li>평균 계산: <code>avg[i] = (score[i][0] + score[i][1]) / 2.0</code></li>
+        <li>순위 산출: 모든 쌍 <code>(i, j)</code>에 대해 <code>avg[j] &gt; avg[i]</code>면 카운트하고, 그 개수에 1을 더해 <code>rank[i]</code>에 기록</li>
+        <li>반환: 각 학생의 순위를 담은 정수 배열</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>score = [[80, 70], [90, 50], [40, 70], [50, 80]]</code><br>
+            평균(또는 합): <code>[75, 70], [80, 70], [55, 70], [65, 70]</code> → 순위: <code>[2, 1, 4, 3]</code></li>
+        <li><code>score = [[100, 100], [100, 100], [90, 90]]</code><br>
+            평균(또는 합): <code>[100, 100, 90]</code> → 동점 처리 → 순위: <code>[1, 1, 3]</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        평균 계산은 <code>O(N)</code>, 순위 산출은 모든 쌍을 비교하므로 <code>O(N^2)</code>.  
+        전체적으로 <code>O(N^2)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        평균과 순위를 담는 배열 두 개만 추가로 사용하므로 <code>O(N)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>부동소수 연산</strong>: 평균을 <code>double</code>로 계산해도 본 문제 범위에선 안전하나, 순위 기준은
+            평균과 합이 완전히 동일한 순서를 만든다. 따라서 <strong>정수 합</strong>(<code>score[i][0] + score[i][1]</code>)으로 비교하면
+            부동소수 오차 우려를 없앨 수 있다.</li>
+        <li><strong>동일 점수</strong>: 비교 연산을 <code>&gt;</code>로 둬야 동점자가 같은 등수를 받는다(<code>&gt;=</code>가 되면 한쪽이 밀려
+            잘못된 순위가 된다).</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>정수 합으로 비교(부동소수 제거)</strong><br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int[][] score) {
+              int n = score.length;
+              int[] sum = new int[n];
+              int[] rank = new int[n];
+              for (int i = 0; i < n; i++) sum[i] = score[i][0] + score[i][1];
+              for (int i = 0; i < n; i++) {
+                  int r = 1;
+                  for (int j = 0; j < n; j++) if (sum[j] > sum[i]) r++;
+                  rank[i] = r;
+              }
+              return rank;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">시간/공간 복잡도는 기존과 동일하다 (<code>O(N^2)</code>, <code>O(N)</code>).</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>정렬로 <code>O(N log N)</code>에 순위 매기기</strong> — 큰 입력에서 유리<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int[][] score) {
+              int n = score.length;
+              int[] ans = new int[n];
+              int[][] a = new int[n][3]; // {sum, index, dummy}
+              for (int i = 0; i < n; i++) a[i] = new int[]{score[i][0] + score[i][1], i, 0};
+              Arrays.sort(a, (x, y) -> Integer.compare(y[0], x[0])); // 합 내림차순
+              int rank = 1;
+              for (int i = 0; i < n; i++) {
+                  if (i > 0 && a[i][0] != a[i - 1][0]) rank = i + 1; // 동점 처리
+                  ans[a[i][1]] = rank;
+              }
+              return ans;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">정렬로 한 번에 순위를 배정하므로 <code>O(N log N)</code>.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>빈도 맵으로 순위 매기기</strong> — 값 범위가 좁을 때 유용<br>
+            합 점수의 출현 빈도를 세어(예: <code>Map&lt;Integer, Integer&gt;</code>), 합 점수를 높은 순으로 누적해
+            시작 순위를 계산한 뒤 원래 인덱스에 해당 순위를 할당한다.  
+            구현 난이도는 약간 높지만 <code>O(N log K)</code>(고유 합 개수 K)에 가능.
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 특이한 정렬</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120880">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        기준값 <code>n</code>에 대해 각 원소 <code>x</code>의 <strong>거리</strong>(<code>|x - n|</code>)를 계산해
+        <strong>거리 오름차순</strong>으로 정렬하고, 거리가 같으면 <strong>값이 큰 수가 먼저</strong> 오도록 값 내림차순으로 타이브레이크하는 문제다.
+        풀이 요지는 각 원소를 <code>{값, 거리}</code>로 확장해 비교 규칙을 적용해 정렬한 뒤, 정렬된 원소의 <code>값</code>만 순서대로 반환하는 것이다.
+      </p>
+      
+      <ul>
+        <li>기본 키: <code>|x - n|</code> <strong>오름차순</strong></li>
+        <li>보조 키(동일 거리): <code>x</code> <strong>내림차순</strong></li>
+        <li>정렬 후: 확장 배열에서 원본 값만 추려 반환</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>numlist = [1, 2, 3, 4, 5, 6], n = 4</code><br>
+            거리: <code>[3,2,1,0,1,2]</code> → 결과: <code>[4, 5, 3, 6, 2, 1]</code>
+            (거리 1에서 <code>5</code>와 <code>3</code> 중 <strong>값 큰</strong> <code>5</code>가 먼저)</li>
+        <li><code>numlist = [10, 12, 9, 8, 11], n = 10</code><br>
+            거리: <code>[0,2,1,2,1]</code> → 결과: <code>[10, 11, 9, 12, 8]</code>
+            (거리 1에서 <code>11</code> &gt; <code>9</code>)</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        정렬이 지배적이므로 <code>O(N log N)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        <code>{값, 거리}</code> 확장 배열과 결과 배열 사용으로 <code>O(N)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>타이브레이크 방향</strong>: “거리 같으면 <strong>값 큰 순</strong>”을 정확히 구현해야 한다(값 내림차순).</li>
+        <li><strong>뺄셈 비교 오버플로</strong>: <code>b - a</code> 같은 방식은 극단값에서 오버플로 가능.
+            <code>Integer.compare</code> / <code>Long.compare</code> 사용이 안전하다.</li>
+        <li><strong>절대값 계산</strong>: <code>|x - n|</code> 계산 시 경계값을 고려하면
+            <code>(long)x</code>로 승격해 절대값을 취하는 방식이 더 안전하다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>박싱 후 단일 Comparator</strong>:
+            <code>Integer[]</code>로 변환해 <code>dx = |x - n|, dy = |y - n|</code> 비교 →
+            거리 오름차순, 동률 시 값 내림차순.</li>
+          <li><strong>안정 정렬 2-pass</strong>:
+            ① 값 <strong>내림차순</strong> 정렬 → ② 안정 정렬로 거리 <strong>오름차순</strong>.
+            두 번째 정렬에서 동거리 그룹의 기존(값 내림차순) 순서가 유지된다.</li>
+          <li><strong>버킷 아이디어</strong> (값/거리 범위가 좁을 때):
+            거리에 대해 버킷을 만들고 각 버킷 내부를 값 내림차순으로 합치는 방식(개념적으로 <code>O(N + K)</code>).</li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 유한소수 판별하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120878">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1101_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        분수 <code>a/b</code>가 <strong>유한소수</strong>가 되려면, 기약분수로 만들었을 때의 분모가 <strong>2 또는 5의 거듭제곱으로만 구성</strong>되어야 한다.
+        즉, 기약분수의 분모에서 2와 5를 모두 제거했을 때 1이 되면 유한소수, 그렇지 않으면 무한소수이다.
+      </p>
+      
+      <ul>
+        <li>① <strong>기약분수화</strong>: <code>gcd(a, b)</code>로 최대공약수를 구해 분모를 <code>b /= gcd</code>로 나눈다.</li>
+        <li>② <strong>2와 5 제거</strong>: <code>while (b % 2 == 0) b /= 2;</code>, <code>while (b % 5 == 0) b /= 5;</code></li>
+        <li>③ <strong>판정</strong>: <code>b == 1</code>이면 유한소수(<code>1</code>), 아니면 무한소수(<code>2</code>).</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>a = 7, b = 20</code> → 기약분수 <code>7/20</code> → 분모 = 2²×5 → 유한소수 → <code>1</code></li>
+        <li><code>a = 12, b = 21</code> → 기약분수 <code>4/7</code> → 분모에 7 포함 → 무한소수 → <code>2</code></li>
+        <li><code>a = 11, b = 22</code> → 기약분수 <code>1/2</code> → 분모 = 2 → 유한소수 → <code>1</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        최대공약수 계산은 유클리드 알고리즘으로 <code>O(log min(a, b))</code>,  
+        이후 소인수 제거 반복은 <code>O(log b)</code> 수준으로 전체 <code>O(log b)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        변수 몇 개와 재귀 호출 깊이만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>기약분수화 누락</strong>: <code>gcd</code>로 약분하지 않으면 잘못된 판정이 나온다.</li>
+        <li><strong>소인수 제거 순서</strong>는 중요하지 않으나, <code>while</code>로 반복적으로 나눠야 한다.</li>
+        <li><strong>2와 5 외의 소인수</strong>가 남는 순간 결과는 무한소수(<code>2</code>).</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>BigInteger 활용</strong> — 큰 수 처리 가능<br>
+            <pre><code>
+      import java.math.BigInteger;
+      
+      class Solution {
+          public int solution(int a, int b) {
+              BigInteger A = BigInteger.valueOf(a);
+              BigInteger B = BigInteger.valueOf(b);
+              BigInteger gcd = A.gcd(B);
+              B = B.divide(gcd);
+              while (B.mod(BigInteger.TWO).equals(BigInteger.ZERO)) B = B.divide(BigInteger.TWO);
+              while (B.mod(BigInteger.valueOf(5)).equals(BigInteger.ZERO)) B = B.divide(BigInteger.valueOf(5));
+              return B.equals(BigInteger.ONE) ? 1 : 2;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">정수 오버플로 위험이 없으며, 임의 정밀도에서도 안전하게 판정 가능.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>소인수 분해 방식</strong> — 이론적 확장<br>
+            <pre><code>
+      class Solution {
+          public int solution(int a, int b) {
+              b /= gcd(a, b);
+              for (int p = 2; p * p &lt;= b; p++) {
+                  if (b % p == 0 &amp;&amp; p != 2 &amp;&amp; p != 5) return 2; // 다른 소인수 존재
+                  while (b % p == 0) b /= p;
+              }
+              return (b == 1 || b == 2 || b == 5) ? 1 : 2;
+          }
+      
+          private int gcd(int a, int b) {
+              return b == 0 ? a : gcd(b, a % b);
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">소인수를 직접 검사하여 동일한 판정을 수행. (<code>O(√b)</code>)</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
