@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-02 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-03 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 겹치는 선분의 길이</h2>
+      <h2 class="section">문제 1 — 외계어 사전</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120876">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120869">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1102_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1103_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -48,49 +48,57 @@
 
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        세 개의 선분이 1차원 좌표축 위에 주어질 때, <strong>둘 이상</strong>의 선분이 겹쳐 덮는 전체 길이를 구하는 문제다.
-        제시한 코드는 좌표 범위가 <code>[-100, 100]</code>인 점을 이용해 크기 201의 배열을 준비하고,
-        각 선분의 구간 <code>[s, e)</code>에 대해 단위 구간(정수 좌표 사이 칸)에 덮임 횟수를 누적한다.
-        마지막에 누적값이 <code>&ge; 2</code>인 칸의 개수를 합하면 답(겹치는 총 길이)이 된다.
+        주어진 문자 배열 <code>spell</code>의 문자들을 <strong>모두 한 번씩만 사용</strong>해 사전 <code>dic</code>의 어떤 단어를 만들 수 있는지 판별하는 문제다.
+        제시한 풀이는 <strong>문자 멀티셋 동치</strong>를 정렬로 판정한다. 즉, <code>spell</code>의 문자들을 정렬한 문자열과,
+        길이가 같은 각 후보 단어의 문자들을 정렬한 문자열이 <code>equals</code>이면 성립한다.
       </p>
       
       <ul>
-        <li>정규화: 각 선분 <code>line = [a, b]</code>에 대해 <code>s = min(a, b)</code>, <code>e = max(a, b)</code></li>
-        <li>오프셋: 음수 좌표 처리를 위해 <code>offset = 100</code>을 더해 인덱싱</li>
-        <li>누적: 모든 정수 <code>i</code>에 대해 <code>i = s</code>부터 <code>i &lt; e</code>까지 <code>arr[i + offset]++</code>
-          <br><span style="font-size:0.95em;">※ <code>[s, e)</code>의 <strong>반열림 구간</strong>으로 처리해야 끝점 중복 없이 길이를 정확히 센다.</span></li>
-        <li>집계: 배열에서 값이 <code>&ge; 2</code>인 칸의 수를 세어 반환</li>
+        <li><strong>전처리</strong>: <code>spell</code>의 원소는 한 글자 문자열이므로 <code>charAt(0)</code>으로 문자 배열로 모은 후 정렬 → 기준 문자열 <code>s</code> 생성</li>
+        <li><strong>필터링</strong>: 후보 단어 <code>word</code>의 길이가 <code>spell.length</code>와 다르면 건너뜀 (문자 개수 불일치)</li>
+        <li><strong>동치 판정</strong>: <code>word</code>를 문자 배열로 바꿔 정렬하고 <code>s</code>와 비교 → 같으면 <code>1</code> 반환</li>
+        <li><strong>없으면</strong>: 모든 단어가 불일치 → <code>2</code> 반환</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심 아이디어</span></p>
+      <ul>
+        <li><strong>정렬 = 멀티셋 비교</strong> — 같은 문자들을 같은 개수만큼 가지면 정렬 결과가 동일해진다.</li>
+        <li><strong>길이 체크</strong> — 개수 조건을 빠르게 배제하여 불필요한 정렬을 줄인다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>lines = [[0, 2], [1, 5], [4, 6]]</code><br>
-            덮임(단위 칸 기준): <code>[1,2]</code>에서 2겹, <code>[4,5]</code>에서 2겹 → 결과: <code>2</code></li>
-        <li><code>lines = [[-1, 1], [1, 3], [2, 4]]</code><br>
-            <code>[2,3]</code>에서만 2겹 → 결과: <code>1</code></li>
+        <li><code>spell = ["p","o","s"]</code>, <code>dic = ["sod","eocd","qixm","adio","soo"]</code><br>
+            <code>"sod"</code> 정렬 ⇒ <code>"dos"</code>, <code>spell</code> 정렬 ⇒ <code>"ops"</code> (불일치)… 모든 단어 불일치 → 결과: <code>2</code></li>
+        <li><code>spell = ["z","d","x"]</code>, <code>dic = ["def","dww","dzx","loveaw"]</code><br>
+            <code>"dzx"</code> 정렬 ⇒ <code>"dxz"</code>, <code>spell</code> 정렬 ⇒ <code>"dxz"</code> (일치) → 결과: <code>1</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        각 선분 길이(<code>e - s</code>)만큼 배열을 증가시키므로 총합은 좌표 범위 내에서 <code>O(범위)</code>.  
-        본 문제의 범위(<code>[-100, 100]</code>)에선 상수에 가깝다.
+        <code>spell</code> 정렬: <code>O(k log k)</code> (<code>k = spell.length</code>) — 한 번.<br>
+        각 단어에 대해 길이 체크 후 정렬 비교: 최악 <code>O(n · k log k)</code> (<code>n = dic.length</code>).<br>
+        일반적인 입력 크기에서 충분히 빠르다.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        고정 크기 배열 201개 원소만 사용하므로 <code>O(범위)</code> (= 상수).
+        <code>spell</code> 문자 배열과 각 단어 정렬용 임시 배열로 <code>O(k)</code> (단어 처리 시 <code>O(k)</code> 추가).
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>경계 처리</strong>: 반드시 <code>i &lt; e</code>로 반복해 <code>[s, e)</code>를 사용해야 한다. <code>i &lt;= e</code>로 두면 길이가 1 더해져 오답.</li>
-        <li><strong>오프셋 가정</strong>: <code>offset = 100</code>은 좌표가 <code>[-100,100]</code>임을 전제로 한다. 입력 범위가 바뀌면 배열 크기/오프셋을 조정하거나 다른 기법을 써야 한다.</li>
+        <li><strong>중복 문자</strong>: 집합(<code>Set</code>) 비교는 개수를 무시하므로 부적절. 정렬 또는 빈도 비교가 필요하다.</li>
+        <li><strong>입력 가정</strong>: 문제에선 <code>spell</code>의 각 원소가 한 글자 문자열이다. 제시 코드의 <code>charAt(0)</code>은 이 가정을 전제로 한다.</li>
+        <li><strong>길이 불일치 조기 스킵</strong>: 불필요한 정렬을 줄여 성능을 개선한다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -98,42 +106,61 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>차분 배열(누적합)로 동일 로직 정리</strong> — 구현을 더 깔끔하게<br>
+          <li><strong>빈도 배열(알파벳 26가정) 비교</strong> — 정렬 없이 <code>O(k + |word|)</code><br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int[][] lines) {
-              int[] diff = new int[202]; // 인접 칸 수(201)보다 1 크게
-              int offset = 100;
+          public int solution(String[] spell, String[] dic) {
+              int[] target = new int[26];
+              for (String s : spell) target[s.charAt(0) - 'a']++;
       
-              for (int[] line : lines) {
-                  int s = Math.min(line[0], line[1]) + offset;
-                  int e = Math.max(line[0], line[1]) + offset;
-                  // [s, e) 구간에 +1
-                  diff[s]++; 
-                  diff[e]--;
+              for (String w : dic) {
+                  if (w.length() != spell.length) continue;
+                  if (matches(target, w)) return 1;
               }
+              return 2;
+          }
       
-              int ans = 0, cur = 0;
-              for (int i = 0; i &lt; 201; i++) { // 각 단위 칸에 대한 누적 덮임 수
-                  cur += diff[i];
-                  if (cur &gt;= 2) ans++;
+          private boolean matches(int[] target, String w) {
+              int[] cnt = new int[26];
+              for (int i = 0; i < w.length(); i++) {
+                  int idx = w.charAt(i) - 'a';
+                  if (++cnt[idx] > target[idx]) return false; // 조기 배제
               }
-              return ans;
+              return Arrays.equals(cnt, target);
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">동일한 아이디어를 누적합으로 표현. 가독성이 좋아지고, 경계(<code>[s,e)</code>) 표현이 명확해진다. 시간/공간 복잡도 동일.</p>
+            <p style="margin-top:0.5em;">정렬 비용 없이 문자 개수만 맞추므로 상수 계수가 작다.</p>
           </li>
       
-          <li style="margin-top:1.2em;"><strong>맵 기반 스위핑</strong> — 좌표 범위가 넓을 때 유용<br>
-            오프셋/고정 배열 대신 <code>TreeMap&lt;Integer,Integer&gt;</code>로 이벤트(<code>s:+1</code>, <code>e:-1</code>)를 기록하고
-            키 오름차순으로 누적값을 갱신하며 <code>겹침 ≥ 2</code>인 구간 길이를 합산한다.  
-            범위가 매우 클 때도 메모리 효율적이다.
+          <li style="margin-top:1.2em;"><strong>정렬 비교 (제시 풀이 요약)</strong> — 구현 간단, 직관적<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int solution(String[] spell, String[] dic) {
+              char[] chars = new char[spell.length];
+              for (int i = 0; i < spell.length; i++) chars[i] = spell[i].charAt(0);
+              Arrays.sort(chars);
+              String s = new String(chars);
+      
+              for (String word : dic) {
+                  if (word.length() != spell.length) continue;
+                  char[] arr = word.toCharArray();
+                  Arrays.sort(arr);
+                  if (s.equals(new String(arr))) return 1;
+              }
+              return 2;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">멀티셋 일치 여부를 정렬 결과 비교로 판정한다.</p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -165,14 +192,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 평행</h2>
+      <h2 class="section">문제 2 — 안전지대</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120875">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120866">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1102_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1103_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -180,49 +207,56 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        네 점이 주어질 때, 두 선분이 <strong>서로 평행</strong>한 경우가 있는지를 판별하는 문제다.
-        제시한 코드는 가능한 세 가지 짝짓기
-        <code>(0–1, 2–3)</code>, <code>(0–2, 1–3)</code>, <code>(0–3, 1–2)</code>에 대해
-        두 선분의 방향벡터를 구하고, 두 벡터의 <strong>외적</strong>(2D 크로스 곱) <code>x1*y2 - y1*x2</code>가 0인지로 평행 여부를 판단한다.
-        외적이 0이면 두 벡터가 같은 방향(또는 정반대 방향)이라 평행이다.
+        주어진 두 변 <code>sides</code>로 삼각형을 만들 수 있을 때, <strong>나머지 한 변</strong>이 될 수 있는 정수의 개수를 구하는 문제다.
+        조건은 삼각형의 성립 조건인 <code>두 변의 합 &gt; 나머지 한 변</code>을 활용한다.
+        제시한 풀이는 <code>sides</code>의 두 변을 정렬해 작은 변을 <code>a</code>, 큰 변을 <code>b</code>로 두고,
+        가능한 세 번째 변의 개수를 수학적으로 단순화해 <code>2 * a - 1</code>로 계산한다.
       </p>
       
       <ul>
-        <li>벡터 구성: <code>(x1, y1) = dot1 - dot</code>, <code>(x2, y2) = dot3 - dot2</code></li>
-        <li>평행 판정: <code>x1 * y2 - y1 * x2 == 0</code>이면 평행</li>
-        <li>정수 오버플로 방지: 곱 연산을 위해 <code>long</code>으로 형변환해 안전하게 계산</li>
-        <li>세 경우 중 하나라도 평행이면 <code>1</code> 반환, 아니면 <code>0</code></li>
+        <li><strong>정렬</strong>: <code>sides</code>를 오름차순 정렬 → <code>a = sides[0]</code>, <code>b = sides[1]</code></li>
+        <li><strong>조건 분리</strong>:
+          <ul>
+            <li>세 번째 변 <code>x</code>가 가장 긴 변일 경우: <code>x &lt; a + b</code> → 가능한 <code>x</code>는 <code>b</code>보다 크고 <code>a + b</code> 미만</li>
+            <li><code>b</code>가 가장 긴 변일 경우: <code>b &lt; a + x</code> → 가능한 <code>x</code>는 <code>a + b</code>보다 크거나 같고 <code>b</code> 이하</li>
+          </ul>
+        </li>
+        <li><strong>개수 합산</strong>: 두 경우의 가능한 정수 <code>x</code>의 개수 합 = <code>(a + b - 1 - b) + (b - (b - a + 1) + 1) = 2a - 1</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>dots = [[0,0],[3,3],[1,0],[4,3]]</code><br>
-            선분 <code>(0,0)-(3,3)</code>와 <code>(1,0)-(4,3)</code>의 방향벡터가 모두 <code>(1,1)</code> 계열 → 평행 → 결과: <code>1</code></li>
-        <li><code>dots = [[0,0],[1,2],[2,1],[3,3]]</code><br>
-            가능한 어떤 짝에서도 외적이 0이 아님 → 평행 없음 → 결과: <code>0</code></li>
+        <li><code>sides = [1, 2]</code><br>
+            가능한 세 번째 변 <code>x</code>: <code>2</code>가 가장 긴 변 → <code>x &gt; 1</code> ⇒ <code>x = 2</code> 가능<br>
+            <code>x</code>가 가장 긴 변 → <code>x &lt; 3</code>, <code>x &gt; 2</code> 불가능<br>
+            결과: <code>1</code>개 (수식으로도 <code>2*1 - 1 = 1</code>)</li>
+        <li><code>sides = [3, 6]</code><br>
+            가능한 <code>x</code>: 4, 5, 6, 7, 8 → <code>5</code>개<br>
+            수식으로도 <code>2*3 - 1 = 5</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        고정된 세 경우만 검사하므로 <code>O(1)</code>.
+        정렬: <code>O(1)</code> (배열 길이 2 고정).  
+        수식 계산만 수행하므로 전체 <code>O(1)</code>.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        추가 메모리 거의 없음 → <code>O(1)</code>.
+        추가 변수 <code>a</code>, <code>b</code> 두 개만 사용하므로 <code>O(1)</code>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>기울기 비교 대신 외적</strong>: 기울기(<code>y/x</code>)로 비교하면 <code>x=0</code>(수직선) 처리와 0으로 나누는 문제가 생긴다. 외적 0 판정은 이를 깔끔히 해결한다.</li>
-        <li><strong>오버플로</strong>: 좌표 범위가 크면 <code>x1*y2</code> 등이 <code>int</code>에서 넘칠 수 있다. 제시 코드처럼 <code>long</code> 캐스팅이 안전하다.</li>
-        <li><strong>퇴화 선분</strong>(길이 0): 한 선분의 양 끝점이 같으면 외적이 0이 되어 형식상 평행으로 판정될 수 있다. 문제에서 이런 입력이 있는지는 <span style="font-weight:bold;">확실하지 않음</span>. 필요하다면 벡터가 <code>(0,0)</code>인지 먼저 확인해 예외 처리하라.</li>
+        <li><strong>세 번째 변은 항상 정수</strong> — 문제 조건상 가능한 변의 <strong>정수 개수</strong>만 센다.</li>
+        <li><strong>음수/0 처리</strong> — 입력으로 주어지는 두 변은 항상 양수이므로 추가 검증 불필요.</li>
+        <li><strong>정렬 필수</strong> — <code>sides[0]</code>, <code>sides[1]</code> 순서가 보장되지 않기 때문에 반드시 정렬해야 한다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -230,63 +264,41 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>조합 루프로 일반화</strong> — 하드코딩 대신 모든 짝 자동 탐색<br>
+          <li><strong>직접 탐색형 구현</strong> — 수식을 도출하지 않고 범위를 직접 세는 방식<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int[][] dots) {
-              int[][] pair = {{0,1,2,3}, {0,2,1,3}, {0,3,1,2}};
-              for (int[] p : pair) {
-                  if (parallel(dots[p[0]], dots[p[1]], dots[p[2]], dots[p[3]])) return 1;
-              }
-              return 0;
-          }
-      
-          private boolean parallel(int[] a, int[] b, int[] c, int[] d) {
-              long x1 = b[0] - a[0], y1 = b[1] - a[1];
-              long x2 = d[0] - c[0], y2 = d[1] - c[1];
-              return x1 * y2 - y1 * x2 == 0;
+          public int solution(int[] sides) {
+              Arrays.sort(sides);
+              int a = sides[0], b = sides[1];
+              int count = 0;
+              for (int x = b - a + 1; x &lt; a + b; x++) count++;
+              return count;
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">논리는 동일하되, 조합을 표로 모아 가독성을 높인다.</p>
+            <p style="margin-top:0.5em;">직관적이지만, 수식 <code>2*a - 1</code>로 단순화 가능해 효율적이지는 않다.</p>
           </li>
       
-          <li style="margin-top:1.2em;"><strong>기울기를 기약분수로 비교</strong> — 수학적 명료성(단, 구현은 더 김)<br>
+          <li style="margin-top:1.2em;"><strong>수식형 (제시 풀이 요약)</strong> — 정렬 후 즉시 계산<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int[][] dots) {
-              int[][] pair = {{0,1,2,3}, {0,2,1,3}, {0,3,1,2}};
-              for (int[] p : pair) {
-                  if (sameSlope(dots[p[0]], dots[p[1]], dots[p[2]], dots[p[3]])) return 1;
-              }
-              return 0;
+          public int solution(int[] sides) {
+              Arrays.sort(sides);
+              int a = sides[0];
+              int b = sides[1];
+              return 2 * a - 1;
           }
-      
-          private boolean sameSlope(int[] a, int[] b, int[] c, int[] d) {
-              int dx1 = b[0] - a[0], dy1 = b[1] - a[1];
-              int dx2 = d[0] - c[0], dy2 = d[1] - c[1];
-              if (dx1 == 0 && dx2 == 0) return true;            // 둘 다 수직선
-              if (dx1 == 0 || dx2 == 0) return false;           // 하나만 수직선
-              int g1 = gcd(Math.abs(dx1), Math.abs(dy1));
-              int g2 = gcd(Math.abs(dx2), Math.abs(dy2));
-              dx1 /= g1; dy1 /= g1; dx2 /= g2; dy2 /= g2;
-              // 부호 정규화
-              if (dx1 < 0) { dx1 = -dx1; dy1 = -dy1; }
-              if (dx2 < 0) { dx2 = -dx2; dy2 = -dy2; }
-              return dx1 == dx2 && dy1 == dy2;
-          }
-      
-          private int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">외적법과 결과는 같지만, 기울기를 기약분수로 맞춰 비교한다. 연산량/코드는 더 복잡하다.</p>
+            <p style="margin-top:0.5em;">삼각형 부등식을 단순화해 상수 시간에 답을 구한다.</p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -318,14 +330,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 저주의 숫자 3</h2>
+      <h2 class="section">문제 3 — 안전지대</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120871">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120866">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1102_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1103_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -335,55 +347,50 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        3의 배수이거나 숫자에 <strong>3이 포함된 수</strong>를 모두 건너뛰며 1부터 차례로 세었을 때,  
-        <code>n</code>번째로 해당하는 수를 구하는 문제다.  
-        제시한 코드는 1씩 증가시키면서 건너뛸 조건을 <strong>while</strong>문으로 처리한다.
+        지뢰(값 <code>1</code>)가 설치된 칸과 그 <strong>인접 8방향</strong>(대각 포함) 칸들을 모두 위험 지역으로 표시하고,
+        위험하지 않은(<code>false</code>) 칸의 개수를 구하는 문제다.
+        제시한 풀이는 9개 방향(자기 자신 포함)의 델타 배열을 사용해 지뢰가 있는 위치에서 주변을 순회하며
+        <code>danger</code> 보조 배열을 <code>true</code>로 마킹한 뒤, <code>false</code>의 개수를 세어 반환한다.
       </p>
       
       <ul>
-        <li><strong>초기화</strong>: <code>answer = 0</code></li>
-        <li><strong>반복</strong>: <code>i = 0</code>부터 <code>n - 1</code>까지
-          <ul>
-            <li><code>answer++</code>로 다음 수 후보를 만든다.</li>
-            <li><code>while (answer % 3 == 0 || String.valueOf(answer).contains("3"))</code>  
-                → 3의 배수거나 숫자 3을 포함하면 계속 <code>answer++</code>로 건너뜀</li>
-          </ul>
-        </li>
-        <li>모든 반복 후 <code>answer</code> 반환 → 이것이 ‘3을 건너뛰며 센’ <code>n</code>번째 수</li>
+        <li><strong>델타 준비</strong>: <code>row</code>, <code>column</code>에 9개 방향(상·하·좌·우·대각선 + 자기 자신)을 정의</li>
+        <li><strong>마킹</strong>: 각 지뢰 칸 <code>(i, j)</code>에 대해 9방향 <code>(i + dr[k], j + dc[k])</code>가 격자 밖인지 검사 후 <code>danger</code>를 <code>true</code>로 설정</li>
+        <li><strong>카운트</strong>: 모든 칸을 순회하여 <code>!danger[i][j]</code>인 칸의 개수 합산</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>n = 1</code> → 1 (건너뛸 수 없음)</li>
-        <li><code>n = 5</code> → 순서대로 1, 2, 4, 5, 7 → 결과: <code>7</code></li>
-        <li><code>n = 10</code> → 1, 2, 4, 5, 7, 8, 10, 11, 14, 16 → 결과: <code>16</code></li>
+        <li><code>board = [[0,0,0],[0,1,0],[0,0,0]]</code><br>
+            중앙이 지뢰 → 3×3 전부 위험(<code>true</code>) → 안전 칸 개수: <code>0</code></li>
+        <li><code>board = [[1,0,0],[0,0,0],[0,0,0]]</code><br>
+            좌상단 지뢰 → 영향을 받는 칸: <code>(0,0),(0,1),(1,0),(1,1)</code> → 안전 칸 개수: <code>9 - 4 = 5</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        각 수를 검사하며, 건너뛰는 횟수가 많을수록 반복이 늘어나지만  
-        일반적으로 <code>O(n)</code>에 근사한다. (조건문 내부 <code>String.contains</code> 변환 포함)
+        격자 크기를 <code>H × W</code>, 지뢰 수를 <code>M</code>라 할 때,
+        각 지뢰마다 최대 9칸을 마킹하므로 <code>O(M)</code>(상수 9 배).  
+        이후 전체 순회로 <code>O(HW)</code>. 전체는 <code>O(HW)</code>.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        단일 정수 변수만 사용하므로 <code>O(1)</code>.
+        보조 배열 <code>danger</code>를 사용하므로 <code>O(HW)</code>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>3의 배수와 ‘3’ 포함 수</strong>는 모두 건너뛴다.  
-            두 조건을 <code>||</code>로 연결해야 하며, <code>&amp;&amp;</code>로 바꾸면 오답.</li>
-        <li><strong>문자열 변환 비용</strong>: <code>String.valueOf(answer)</code>는 매 반복마다 문자열 생성.  
-            입력 <code>n</code>이 매우 크면 약간의 성능 손실이 있을 수 있으나, 본 문제 범위에서는 무시 가능.</li>
-        <li><strong>while 조건 순서</strong>: 3의 배수 또는 ‘3’ 포함이 한 번이라도 참이면 다시 검사해야 하므로  
-            <code>while</code>로 처리하는 것이 정확하다 (<code>if</code>로는 연속 건너뛰기 불가능).</li>
+        <li><strong>경계 검사</strong>: 인접 칸이 격자 밖인지 반드시 체크(<code>0 ≤ r &lt; H</code>, <code>0 ≤ c &lt; W</code>).</li>
+        <li><strong>중복 마킹 허용</strong>: 같은 칸을 여러 번 <code>true</code>로 설정해도 부작용 없음(불리언 OR 효과).</li>
+        <li><strong>자기 자신 포함</strong>: 델타 배열에 <code>(0,0)</code>이 포함되어 있어 지뢰 칸도 위험 처리된다.
+            바로 아래에서 한 번 더 <code>danger[i][j] = true</code>를 수행하는 부분은 중복이지만 결과엔 영향이 없다(미세 최적화 여지).</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -391,32 +398,52 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>미리 ‘3 없는 수열’ 생성</strong> — 반복 조건 제거<br>
+          <li><strong>8방향만 사용(자기 자신 제외)</strong> — 중복 할당 제거, 의도 명확화<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int n) {
-              int num = 0, count = 0;
-              while (count &lt; n) {
-                  num++;
-                  if (num % 3 != 0 &amp;&amp; !String.valueOf(num).contains("3")) {
-                      count++;
+          private static final int[] DR = {-1,-1,-1, 0, 0, 1, 1, 1};
+          private static final int[] DC = {-1, 0, 1,-1, 1,-1, 0, 1};
+      
+          public int solution(int[][] board) {
+              int H = board.length, W = board[0].length;
+              boolean[][] danger = new boolean[H][W];
+      
+              for (int i = 0; i &lt; H; i++) {
+                  for (int j = 0; j &lt; W; j++) {
+                      if (board[i][j] == 1) {
+                          danger[i][j] = true; // 자기 자신
+                          for (int k = 0; k &lt; 8; k++) {
+                              int nr = i + DR[k], nc = j + DC[k];
+                              if (0 &lt;= nr &amp;&amp; nr &lt; H &amp;&amp; 0 &lt;= nc &amp;&amp; nc &lt; W) {
+                                  danger[nr][nc] = true;
+                              }
+                          }
+                      }
                   }
               }
-              return num;
+      
+              int cnt = 0;
+              for (int r = 0; r &lt; H; r++) {
+                  for (int c = 0; c &lt; W; c++) {
+                      if (!danger[r][c]) cnt++;
+                  }
+              }
+              return cnt;
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">조건을 만족하는 수만 셀 때마다 카운트를 올리는 방식. 논리는 동일하지만 가독성이 조금 더 높다.</p>
+            <p style="margin-top:0.5em;">의미가 분리되어 가독성이 좋고, 불필요한 중복 연산이 없다.</p>
           </li>
       
-          <li style="margin-top:1.2em;"><strong>문자열 검사 없이 3진법 변환 이용</strong> — 확장 아이디어<br>
-            ‘3 없는 수’를 3진법으로 변환해 3이 등장하지 않도록 만드는 방식(예: ‘369게임’의 역수열).  
-            하지만 이 문제에서는 단순 시뮬레이션이 더 효율적이므로 굳이 필요하지 않다.
+          <li style="margin-top:1.2em;"><strong>인접 지뢰 수 누적형</strong> — 위험도(개수)가 필요할 때 확장 가능<br>
+            지뢰 발견 시 인접 8칸의 카운트를 증가시키고, <code>&gt; 0</code>인 칸을 위험으로 간주하는 방식.
+            본 문제는 불리언만 필요하므로 현재 풀이가 더 단순하다.
           </li>
         </ul>
       </details>
+
 
 
 
