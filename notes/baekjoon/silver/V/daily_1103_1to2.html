@@ -24,17 +24,17 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-02 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 4418 — Request for Proposal</h2>
+      <h2 class="section">문제 4452 — Lightning Lessons</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4418">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4452">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1102_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1103_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -42,33 +42,25 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        <strong>Request for Proposal (RFP)</strong> 문제는 각 테스트 케이스마다 요구사항 수 <code>n</code>과 제안 수 <code>p</code>가 주어진다.
-        각 제안은 “가격(<code>price</code>)”과 “만족한 요구사항 수(<code>success</code>)”를 가지고, <strong>준수도</strong>(compliance)는
-        <code>success / n</code>으로 계산된다. 목표는
-        <span style="font-weight:600;">준수도가 가장 높은 제안</span>을 우선으로, 동률이면 <span style="font-weight:600;">가격이 더 낮은 제안</span>을,
-        그것마저 같으면 <span style="font-weight:600;">입력에서 먼저 등장한 제안</span>을 선택하는 것이다.
+        <strong>Lightning Lessons</strong>는 번개(수열)의 각 사이클에서 <span style="font-weight:600;">연속 차분</span>을 취해 길이를 1씩 줄여 나가며,
+        모든 원소가 0이 되는 순간 <strong>수렴(converge)</strong>으로 간주하고 그 전까지 거친 사이클 수만큼 <code>z</code>를 출력한 뒤 <code>ap!</code>를 붙인다.
+        반대로 길이가 1이 될 때까지 0이 아니면 <strong>발산(diverge)</strong>으로 간주하고, 마지막 단일 원소의 부호로 <code>*fizzle*</code>(양수) 또는 <code>*bunny*</code>(음수)를 출력한다.
       </p>
       
       <ul>
-        <li>입력 파싱:
+        <li>사이클 규칙:
           <ul>
-            <li><code>n p</code>를 읽고, <code>0 0</code>이면 종료</li>
-            <li>요구사항 <code>n</code>줄은 <strong>이름만 주어지고 계산에는 사용되지 않으므로</strong> 그대로 읽어서 버린다</li>
-            <li>각 제안은 제안명 1줄 → <code>price</code>와 <code>success</code> → 이어서 <code>success</code>줄의 “만족한 요구사항 이름”을 읽어 처리한다</li>
+            <li>현재 수열이 <code>a[0], a[1], ..., a[m-1]</code>라면 다음 수열은 <code>b[i] = a[i+1] - a[i]</code> (길이 <code>m-1</code>)</li>
+            <li>이 과정을 한 번 수행할 때마다 <strong>사이클 수</strong> <code>P</code>를 1 증가</li>
+            <li>어느 시점에든 모든 원소가 0이면 <strong>수렴 종료</strong> → <code>"z".repeat(P) + "ap!"</code></li>
+            <li>길이가 1이 되었는데 0이 아니면 <strong>발산 종료</strong> → 양수면 <code>*fizzle*</code>, 음수면 <code>*bunny*</code></li>
           </ul>
         </li>
-        <li>준수도 계산: <code>comp = success / n</code></li>
-        <li>선정 기준(우선순위 순서):
-          <ol>
-            <li><strong>준수도</strong> 내림차순(큰 값 우선)</li>
-            <li><strong>가격</strong> 오름차순(작은 값 우선)</li>
-            <li><strong>입력 순서</strong> 오름차순(먼저 입력된 제안 우선)</li>
-          </ol>
-        </li>
-        <li>출력 형식: 각 케이스마다
-          <pre style="margin:0;"><code>RFP #k
-      &lt;선정된 제안명&gt;</code></pre>
-          케이스 사이에는 <strong>빈 줄 1개</strong>를 출력
+        <li>초기 즉시 종료:
+          <ul>
+            <li>처음부터 모든 원소가 0이면 <code>P = 0</code>이므로 바로 <code>ap!</code></li>
+            <li>처음 길이가 1이라면 그 값의 부호/0 여부로 즉시 결정</li>
+          </ul>
         </li>
       </ul>
       
@@ -76,53 +68,83 @@
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
       <ul>
-        <li><code>while</code> 루프로 여러 RFP를 처리하며, <code>readLine()</code>이 공백 줄이면 건너뛴다</li>
-        <li>요구사항 <code>n</code>줄은 단순히 읽고 버린다</li>
-        <li>각 제안에 대해:
+        <li>입력 파싱:
           <ul>
-            <li>제안명과 <code>price</code>, <code>success</code>를 읽는다</li>
-            <li><code>success</code>줄의 “만족한 요구사항”은 읽기만 하고 저장하지 않는다</li>
-            <li><code>comp = success / n</code> 계산</li>
-            <li>현재 <code>bestComp</code>, <code>bestPrice</code>와 비교해 필요하면 갱신한다
-              (<code>1e-12</code> <strong>epsilon</strong>으로 부동소수 비교 안정화)</li>
+            <li>테스트 케이스 수 <code>N</code>을 읽고 각 케이스마다 길이 <code>M</code>과 초기 수열을 읽는다</li>
           </ul>
         </li>
-        <li>케이스 간 빈 줄은 <code>caseNum &gt; 1</code>일 때만 추가해 출력 포맷을 정확히 맞춘다</li>
+        <li><code>calculate(int[] init)</code> 로직:
+          <ul>
+            <li><code>allZero(init)</code> 면 즉시 <code>"ap!"</code> 반환</li>
+            <li>아닌 경우, 길이가 1 초과인 동안 다음을 반복:
+              <ul>
+                <li>연속 차분 수열 <code>ints[i] = init[i+1] - init[i]</code>를 만들고 사이클 카운트 <code>cnt++</code></li>
+                <li><code>ints</code>가 올제로 되면 <code>"z".repeat(cnt) + "ap!"</code> 반환(올제로 만든 그 사이클까지 센다)</li>
+                <li><code>ints.length == 1</code>이면 부호로 <code>*fizzle*</code> 또는 <code>*bunny*</code> 결정 후 반환</li>
+                <li>그 외에는 <code>init = ints</code>로 갱신하고 다음 사이클</li>
+              </ul>
+            </li>
+            <li>루프가 끝난 뒤(초기 길이 1 등) 값이 0이면 <code>ap!</code>, 양수면 <code>*fizzle*</code>, 음수면 <code>*bunny*</code></li>
+          </ul>
+        </li>
+        <li><code>allZero(int[])</code>는 배열의 모든 원소가 0인지 선형 확인</li>
+        <li>출력은 케이스별 결과를 줄바꿈으로 이어서 한번에 출력</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li>예제 입력의 RFP #1에서 <code>Cadillac</code>은 <code>success=4</code>, <code>n=6</code> → <code>comp ≈ 0.6667</code>.
-            다른 제안보다 <strong>준수도가 가장 높아</strong> 선택된다.</li>
-        <li>RFP #2에서는 <code>Starbucks</code>가 유일한 제안이라 <strong>자동으로 선정</strong>된다.</li>
+        <li><code>2 1 1</code> →
+          <ul>
+            <li>초기: [1, 1], 차분: [0] (P=1)</li>
+            <li>길이 1이자 0 → 수렴. 출력: <code>z</code> + <code>ap!</code> = <strong>zap!</strong></li>
+          </ul>
+        </li>
+        <li><code>5 1 3 6 10 15</code> →
+          <ul>
+            <li>차분 테이블이 두 사이클 후 전부 0 → <code>P=3</code> → <strong>zzzap!</strong></li>
+          </ul>
+        </li>
+        <li><code>5 1 2 4 8 16</code> →
+          <ul>
+            <li>길이 1이 될 때까지 0이 아님 → 마지막 값 양수 → <strong>*fizzle*</strong></li>
+          </ul>
+        </li>
+        <li><code>2 1 0</code> →
+          <ul>
+            <li>차분: [-1] (P=1), 마지막 값 음수 → <strong>*bunny*</strong></li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        요구사항 읽기 <code>O(n)</code>, 제안별로 헤더 1줄 + 만족 요구사항 <code>success</code>줄 읽기 → 전체 <code>O(n + Σ(success))</code>.
-        준수도 비교와 갱신은 상수 시간이다.
+        각 사이클마다 길이가 1 줄고 차분 계산에 O(현재 길이)가 든다. 최악(<code>M ≤ 20</code>)에서
+        <code>O(M + (M-1) + ... + 1) = O(M^2)</code>. 입력 제약이 작아 충분히 빠르다.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        누적 출력을 위한 <code>StringBuilder</code>와 몇 개의 변수만 사용하므로 <code>O(1)</code> (입력을 저장하지 않음).
+        차분 배열 하나만 추가로 만들며 길이가 사이클마다 감소하므로 <code>O(M)</code>. 그 외 보조 변수는 상수.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>부동소수 비교</strong>: <code>comp</code>와 <code>price</code> 비교 시 <code>1e-12</code> epsilon을 둬서 오차로 인한
-            잘못된 우선순위 판단을 막는다.</li>
-        <li><strong>입력 공백/빈 줄</strong>: 맨 앞에서 공백 줄을 건너뛰는 루프가 있어 변형 입력에도 안정적으로 동작한다.</li>
-        <li><strong>요구사항 이름</strong>: 선정에 직접 쓰이지 않으므로 저장하지 않고 읽기만 하는 편이 효율적이다.</li>
-        <li><strong>동률 처리</strong>: “같은 준수도 &amp; 더 낮은 가격”에서만 갱신하므로,
-            <code>comp</code>와 <code>price</code>가 모두 같을 때는 <strong>먼저 입력된 제안</strong>이 유지된다(문제 조건과 동일).</li>
-        <li><strong>출력 포맷</strong>: 케이스 사이에 반드시 <strong>빈 줄 1개</strong>를 추가해야 한다(마지막 개행 포함).</li>
+        <li><strong>차분 방향</strong>: 반드시 <code>다음 - 현재</code> (<code>a[i+1] - a[i]</code>) 순서로 계산해야 한다.</li>
+        <li><strong>사이클 카운트</strong>: 올제로 만들어낸 사이클까지 포함해 <code>P</code>를 센다(올제로 된 상태 자체는 카운트하지 않음).</li>
+        <li><strong>초기 특수 케이스</strong>:
+          <ul>
+            <li>처음부터 전부 0이면 바로 <code>ap!</code></li>
+            <li>처음 길이 1이면 값이 0인지/부호를 즉시 판정</li>
+          </ul>
+        </li>
+        <li><strong>정수 범위</strong>: 입력 절댓값 ≤ 1000, <code>M ≤ 20</code>이라 차분 누적도 int 범위를 안전하게 벗어나지 않는다.</li>
+        <li><strong>출력 정확도</strong>: 수렴 시 <code>"z".repeat(P) + "ap!"</code>, 발산 시 마지막 단일 원소의 부호로 문자열을 정확히 선택.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -130,68 +152,10 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>객체 정렬로 일괄 선정</strong> — 모든 제안을 리스트에 담고 정렬 기준을 명시
-            <pre><code>
-      import java.io.*;
-      import java.util.*;
-      
-      class Proposal {
-          String name;
-          double price, comp;
-          int idx; // 입력 순서
-          Proposal(String name, double price, int success, int n, int idx) {
-              this.name = name;
-              this.price = price;
-              this.comp  = n == 0 ? 0.0 : (double) success / n;
-              this.idx   = idx;
-          }
-      }
-      
-      public class Main {
-          public static void main(String[] args) throws Exception {
-              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-              StringBuilder sb = new StringBuilder();
-              final double EPS = 1e-12;
-              int tc = 1; String line;
-      
-              while (true) {
-                  do {
-                      line = br.readLine();
-                      if (line == null) return;
-                  } while (line.trim().isEmpty());
-      
-                  StringTokenizer st = new StringTokenizer(line);
-                  int n = Integer.parseInt(st.nextToken());
-                  int p = Integer.parseInt(st.nextToken());
-                  if (n == 0 && p == 0) break;
-      
-                  for (int i = 0; i &lt; n; i++) br.readLine();
-      
-                  List&lt;Proposal&gt; list = new ArrayList<>();
-                  for (int i = 0; i &lt; p; i++) {
-                      String name = br.readLine();
-                      st = new StringTokenizer(br.readLine());
-                      double price = Double.parseDouble(st.nextToken());
-                      int success = Integer.parseInt(st.nextToken());
-                      for (int j = 0; j &lt; success; j++) br.readLine();
-                      list.add(new Proposal(name, price, success, n, i));
-                  }
-      
-                  list.sort((a, b) -&gt; {
-                      if (Math.abs(b.comp - a.comp) &gt; EPS) return Double.compare(b.comp, a.comp); // 준수도 내림차순
-                      if (Math.abs(a.price - b.price) &gt; EPS) return Double.compare(a.price, b.price); // 가격 오름차순
-                      return Integer.compare(a.idx, b.idx); // 입력 순서
-                  });
-      
-                  if (tc &gt; 1) sb.append('\n');
-                  sb.append("RFP #").append(tc++).append('\n').append(list.get(0).name).append('\n');
-              }
-              System.out.print(sb);
-          }
-      }
-            </code></pre>
-            <p style="margin-top:0.5em;">정렬 기준을 명시해 가독성을 높이고, 문제의 우선순위를 명확히 표현한다.</p>
-          </li>
+          <li><strong>수학적 관찰</strong> — 수열이 차수가 <code>d</code>인 다항식에서 유도된 값이면 <code>(d+1)</code>차 차분은 0이 된다.
+            다만 본 문제는 일반 정수 수열이므로 직접 차분을 구현하는 현재 방식이 가장 단순·안전하다.</li>
+          <li><strong>제자리(in-place) 차분</strong> — 같은 배열을 앞에서부터 덮어쓰며 길이만 논리적으로 줄일 수도 있다.
+            구현은 복잡해지지만 추가 메모리 할당을 줄일 수 있다(본 제약에서는 이득이 미미).</li>
         </ul>
       </details>
       
@@ -199,11 +163,13 @@
       
       <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
       <ul>
-        <li><code>comp = success / n</code>을 기준으로 <strong>최대화</strong> → 동률이면 <strong>가격 최소화</strong> → 그래도 같으면 <strong>입력 순서</strong></li>
-        <li>요구사항 이름은 <strong>선정 로직에 필요하지 않음</strong> → 읽기만 수행</li>
-        <li>부동소수 오차 방지를 위해 <code>EPS</code>를 사용해 비교의 안정성을 확보</li>
-        <li>출력 포맷: 케이스 사이에는 <strong>빈 줄 1개</strong></li>
+        <li>각 사이클에서 <code>a[i+1] - a[i]</code>로 차분, 길이는 1씩 감소</li>
+        <li>올제로 되면 <code>P</code>개의 <code>z</code> 뒤에 <code>ap!</code> 출력</li>
+        <li>길이 1인데 0이 아니면 부호로 <code>*fizzle*</code>/<code>*bunny*</code> 결정</li>
+        <li>초기 전부 0이면 즉시 <code>ap!</code></li>
+        <li>시간 <code>O(M^2)</code>, 공간 <code>O(M)</code> — 제약 내 충분</li>
       </ul>
+
 
 
 
@@ -239,14 +205,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 4446 — ROT13</h2>
+      <h2 class="section">문제 4465 — Tales from DeCrypt</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4446">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4465">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1102_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1103_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -254,128 +220,116 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        <strong>ROT13 (BOJ 4446)</strong> 문제는 주어진 문자열의 알파벳을 특정 규칙에 따라 치환하는 문제다.
-        단순한 ROT13과 달리, <strong>모음(a, i, y, e, o, u)</strong>과 <strong>자음(b, k, x, z, n, h, d, c, w, g, p, v, j, q, t, s, r, l, m, f)</strong>을
-        서로 다른 고리(cyclic group)로 나누어 각각 회전시킨다.
+        <strong>Tales from DeCrypt</strong>는 7-bit 인쇄 가능 ASCII(0x20=' ' ~ 0x7e='~', 총 95개)에 대해
+        선형 합동 난수생성기(LCG)로부터 나온 난수로 <span style="font-weight:600;">회전 암호</span>를 적용한다.
+        암호화는 각 인쇄 가능한 문자 <code>c</code>를
+        <code>((c-32) + shift) mod 95 + 32</code>로 바꾸며,
+        여기서 <code>shift = ceil(95 - r*95)</code>, <code>r</code>은 LCG가 내놓는 <code>[0,1)</code> 난수이다.
+        복호화는 같은 <code>r</code> 순서를 재현해 <span style="font-weight:600;">동일한 shift를 빼는 것</span>으로 수행된다.
       </p>
       
       <ul>
-        <li><strong>모음</strong> 집합: <code>aiyeou</code> → 각 문자를 +3칸 회전</li>
-        <li><strong>자음</strong> 집합: <code>bkxznhdcwgpvjqtsrlmf</code> → 각 문자를 +10칸 회전</li>
-        <li>대소문자는 그대로 유지한다. (치환 후 원래의 대소문자 형태로 복원)</li>
-        <li>모음·자음이 아닌 문자는 변경하지 않는다.</li>
-      </ul>
-      
-      <p>
-        즉, 입력 문자의 종류에 따라 다음과 같이 치환된다.
-      </p>
-      
-      <ul>
-        <li><strong>모음</strong> 예시: a → e, i → o, y → u, e → a, o → i, u → y</li>
-        <li><strong>자음</strong> 예시: b → k, k → d, z → r, n → w, ... (10칸씩 회전)</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">코드 동작</span></p>
-      <ul>
-        <li><code>V</code>와 <code>C</code> 문자열을 통해 모음/자음 매핑 집합을 정의한다.</li>
-        <li><code>change(char c)</code> 함수는 다음 단계를 수행한다:
+        <li>난수 생성기 LCG (문제 정의 그대로):
+          <pre style="margin:0;"><code>val = (s mod m) / double(m)   // r ∈ [0, 1)
+      s   = (a * s + 1) mod m
+      return val
+      </code></pre>
           <ul>
-            <li>입력 문자가 대문자인지 여부를 저장(<code>upper</code>)</li>
-            <li>소문자로 변환해 인덱스를 찾는다.</li>
-            <li>모음이면 <code>(i + 3) % V.length()</code>로 회전</li>
-            <li>자음이면 <code>(i + 10) % C.length()</code>로 회전</li>
-            <li>회전 결과를 대문자/소문자 형태로 복원 후 반환</li>
-            <li>해당되지 않는 문자는 그대로 반환</li>
+            <li>입력 첫 줄에 <code>a m s</code>가 공백 구분으로 주어진다(<code>2 ≤ 값 ≤ 65536</code>).</li>
+            <li>각 문자마다 위 순서로 <code>val</code>을 구한 뒤 <code>s</code>를 갱신한다(암복호 동일).</li>
           </ul>
         </li>
-        <li><code>main()</code>에서는 입력을 한 줄씩 읽어 각 문자를 변환하고 출력 버퍼에 추가한다.</li>
+        <li>문자 처리 규칙:
+          <ul>
+            <li><strong>인쇄 가능 범위(32~126)</strong>면 회전 적용, 아니면(개행 등) <strong>그대로 통과</strong>.</li>
+            <li>암호화: <code>c' = ((c-32) + ceil(95 - r*95)) mod 95 + 32</code></li>
+            <li>복호화: <code>c = ((c'-32) - ceil(95 - r*95)) mod 95 + 32</code></li>
+            <li><code>r∈[0,1)</code>이므로 <code>shift = ceil(95(1-r))</code>는 <strong>1..95</strong> 범위.</li>
+          </ul>
+        </li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 파싱:
+          <ul>
+            <li>첫 줄에서 <code>a, m, seed</code>를 읽는다.</li>
+            <li>이후 파일 끝까지 줄 단위로 읽어 각 문자 처리.</li>
+          </ul>
+        </li>
+        <li>복호화 로직(인쇄 가능 문자일 때):
+          <ul>
+            <li><code>val = (seed % m) / (double)m</code>로 <code>r</code> 계산</li>
+            <li><code>seed = (a * seed + 1) % m</code>로 갱신(문제의 r()와 동일 순서)</li>
+            <li><code>shift = ceil(95 - val*95)</code></li>
+            <li><code>x = (code - 32) - shift</code> 후 <code>x %= 95</code> (음수면 <code>+95</code>)</li>
+            <li><code>code = x + 32</code>를 문자로 변환해 출력</li>
+          </ul>
+        </li>
+        <li>인쇄 불가/범위 밖 문자는 <strong>그대로 출력</strong>(개행 포함).</li>
+        <li>성능 향상을 위해 <code>StringBuilder</code>로 누적 출력.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>Hello</code> → <code>H</code>(자음→<code>R</code>), <code>e</code>(모음→<code>a</code>), <code>l</code>(자음→<code>m</code>) → <strong>Rammi</strong></li>
-        <li><code>Python</code> → <code>P</code>(자음→<code>V</code>), <code>y</code>(모음→<code>u</code>), <code>t</code>(자음→<code>s</code>) → <strong>Vuswot</strong></li>
+        <li>예제 입력의 첫 줄 <code>12343 65536 11</code>로 LCG를 초기화하고,
+            이후 각 라인의 인쇄 가능한 문자만 동일한 난수 시퀀스로 역이동 → 예제 출력의
+            <code>a.../b.../c.../d...</code>가 재현된다.</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        입력 문자열의 길이를 <code>L</code>이라 하면, 각 문자를 상수 시간(<code>O(1)</code>)에 처리하므로 전체 시간 복잡도는 <code>O(L)</code>.
+        각 문자를 상수 시간에 처리하므로 <code>O(L)</code> (L은 전체 문자 수).
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        고정 문자열 <code>V</code>, <code>C</code>와 <code>StringBuilder</code> 버퍼만 사용하므로 <code>O(1)</code>.
+        난수 상태(<code>seed</code>)와 보조 변수 몇 개, 출력 버퍼만 사용하므로 <code>O(1)</code> (+ 출력 길이).
       </p>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>대소문자 유지</strong>: 치환 후에도 원래 문자의 대소문자를 그대로 유지해야 한다.</li>
-        <li><strong>문자 범위</strong>: 알파벳 이외의 문자는 그대로 출력한다.</li>
-        <li><strong>인덱스 계산</strong>: 음수 회전이 없으므로 단순히 <code>+</code> 연산으로 처리해도 된다.</li>
+        <li><strong>LCG 호출 순서</strong>: 반드시 <code>val</code>을 먼저 계산하고 <code>seed</code>를 갱신해야 한다
+            (문제의 r()와 동일). 순서를 바꾸면 난수열이 어긋난다.</li>
+        <li><strong>shift 범위</strong>: <code>ceil(95 - r*95)</code>는 1~95. 모듈러 감산 후 <strong>음수 보정</strong>을 잊지 말 것.</li>
+        <li><strong>문자 범위 체크</strong>: <code>32 ≤ code ≤ 126</code>일 때만 회전. 그 외(개행 포함)는 <strong>원문 유지</strong>.</li>
+        <li><strong>정수 오버플로우</strong>: <code>(long)a * seed</code>로 곱한 뒤 <code>% m</code> 하는 방식이 안전하다(코드에서도 캐스팅 사용).</li>
+        <li><strong>줄 처리</strong>: 입력에서 줄 경계를 그대로 보존해야 하므로 라인 사이에 개행을 출력한다.</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>배열 기반 매핑</strong> — 문자열 탐색(<code>indexOf()</code>) 대신 배열 매핑으로 속도를 개선할 수 있다.
-            <pre><code>
-      import java.io.*;
-      import java.util.*;
-      
-      public class Main {
-          static final String V = "aiyeou";
-          static final String C = "bkxznhdcwgpvjqtsrlmf";
-          static final int[] map = new int[26];
-      
-          static char convert(char c) {
-              boolean upper = Character.isUpperCase(c);
-              char lower = Character.toLowerCase(c);
-      
-              int i = V.indexOf(lower);
-              if (i >= 0) return (char)(upper ? Character.toUpperCase(V.charAt((i + 3) % V.length())) : V.charAt((i + 3) % V.length()));
-      
-              i = C.indexOf(lower);
-              if (i >= 0) return (char)(upper ? Character.toUpperCase(C.charAt((i + 10) % C.length())) : C.charAt((i + 10) % C.length()));
-      
-              return c;
-          }
-      
-          public static void main(String[] args) throws Exception {
-              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-              StringBuilder sb = new StringBuilder();
-              String line;
-              while ((line = br.readLine()) != null) {
-                  for (char c : line.toCharArray()) sb.append(convert(c));
-                  sb.append('\n');
-              }
-              System.out.print(sb);
-          }
-      }
-            </code></pre>
-            <p style="margin-top:0.5em;">문자 집합을 배열화하면 <code>indexOf</code> 탐색을 없애서 실행 속도를 약간 높일 수 있다.</p>
-          </li>
-        </ul>
+          <li><strong>사전 생성</strong> — 같은 LCG 시드를 사용하므로,
+            전체 텍스트 길이가 미리 알려진다면 미리 <code>shift</code> 배열을 만들어
+            한 번에 적용할 수 있다(복잡도/메모리는 동일, 캐시 효율만 약간 개선될 수 있음).</li>
+          </ul>
       </details>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
       <ul>
-        <li>모음은 <code>+3</code>칸, 자음은 <code>+10</code>칸 회전</li>
-        <li>대소문자는 그대로 유지</li>
-        <li>모음·자음이 아닌 문자는 그대로 출력</li>
-        <li>한 문자 처리 시간 <code>O(1)</code>, 전체 <code>O(L)</code></li>
+        <li>LCG로 <code>r</code> 생성 → <code>shift = ceil(95 - r*95)</code></li>
+        <li>인쇄 가능 문자에만 적용:
+          <ul>
+            <li>암호화: <code>+shift</code>, 복호화: <code>-shift</code> (mod 95)</li>
+          </ul>
+        </li>
+        <li>LCG 순서(값 계산 → 상태 갱신) 일치가 핵심</li>
+        <li>시간 <code>O(L)</code>, 공간 <code>O(1)</code> (+ 출력 버퍼)</li>
       </ul>
+
 
 
 
