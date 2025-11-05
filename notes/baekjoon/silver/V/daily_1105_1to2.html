@@ -24,17 +24,17 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-05 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
       <!-- 문제 1 -->
-      <h2 class="section">문제 4542 — Blue Jeans</h2>
+      <h2 class="section">문제 4647 — Safecracker</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4542">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4647">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1104_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1105_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -42,24 +42,30 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        <strong>Blue Jeans</strong>는 길이 60의 DNA 문자열들(문자 집합 {A, C, G, T})이 주어질 때,
-        모든 문자열에 공통으로 등장하는 <span style="font-weight:600;">최장 공통 부분문자열(연속)</span>을 찾는 문제다.
-        최장 길이가 3 미만이면 <code>no significant commonalities</code>를 출력하고,
-        같은 최장 길이의 후보가 여러 개면 <strong>사전식으로 가장 앞선</strong> 문자열을 출력한다.
+        <strong>Safecracker</strong>는 목표 정수 <code>target</code>과 (중복 없는) 대문자 집합이 주어졌을 때,
+        다섯 글자 <code>v, w, x, y, z</code>를 골라 아래 식을 만족시키는 <strong>조합</strong> <code>vwxyz</code>를 찾는 문제다.
+        각 글자는 알파벳 순서를 값으로 매핑한다(<code>A=1</code>, <code>B=2</code>, …, <code>Z=26</code>).
+      </p>
+      <pre style="background:#fafafa; padding:10px; border-radius:8px;">v - w² + x³ - y⁴ + z⁵ = target</pre>
+      <p>
+        가능한 해가 여러 개면 <strong>사전식으로 가장 뒤(내림차순 기준 가장 큰)</strong> 조합을 출력하고,
+        없으면 <code>no solution</code>을 출력한다. 입력은 여러 줄로 주어지며, 마지막 줄 <code>0 END</code>가 종료 신호다.
       </p>
       
       <ul>
         <li>핵심 정의:
           <ul>
-            <li>부분문자열: 인접한 연속 구간(예: "TAGACC"의 "GAC").</li>
-            <li>모든 문자열에 등장: 각 문자열에서 <code>indexOf(s) != -1</code>가 성립.</li>
+            <li>각 문자는 한 번만 사용(입력 글자들이 모두 서로 다름).</li>
+            <li>목표: 식을 만족하는 다섯 글자의 <strong>사전식 최댓값</strong> 조합.</li>
+            <li>사전식 비교는 평범한 문자열 비교와 같다(예: <code>ZYYXX &gt; ZYYXW</code>).</li>
           </ul>
         </li>
         <li>전략 개요:
           <ul>
-            <li>후보 수를 줄이기 위해 <strong>가장 짧은 문자열</strong>을 기준(<code>base</code>)으로 선택.</li>
-            <li>길이 <code>j</code>를 <strong>큰 것부터</strong>(<code>len</code> → 3) 내려오며 검사, 첫 성공 시 바로 정답.</li>
-            <li>같은 길이의 후보들 중에는 <strong>사전식 최소</strong>를 선택.</li>
+            <li>입력 문자들을 <strong>내림차순</strong>으로 정렬.</li>
+            <li><strong>백트래킹(DFS)</strong>으로 <code>v→w→x→y→z</code> 순서로 한 글자씩 선택.</li>
+            <li>선택 시 매 단계 식의 부호와 거듭제곱을 즉시 누적해 목표와 일치하는지 검사.</li>
+            <li>내림차순 순회이므로 첫 해를 찾는 즉시 그것이 <strong>사전식 최댓값</strong>이 된다 → 즉시 종료.</li>
           </ul>
         </li>
       </ul>
@@ -70,29 +76,35 @@
       <ul>
         <li>입력 파싱:
           <ul>
-            <li>데이터셋 수 <code>n</code>을 읽고, 각 데이터셋마다 문자열 수 <code>m</code>과 길이 60의 DNA 문자열 <code>m</code>개를 읽는다.</li>
+            <li>각 줄에서 <code>target</code>과 대문자 문자열 <code>alpha</code>를 읽는다.</li>
+            <li><code>target==0 &amp;&amp; alpha.equals("END")</code>면 종료.</li>
           </ul>
         </li>
-        <li>기준 문자열 선택:
+        <li>문자 준비(내림차순):
           <ul>
-            <li>가장 짧은 문자열의 인덱스 <code>minIdx</code>를 찾아 <code>base = arr.get(minIdx)</code>로 설정.</li>
+            <li><code>array = alpha.toCharArray()</code> → <code>Arrays.sort()</code>로 오름차순 정렬 후 앞뒤를 뒤집어 <strong>내림차순</strong>으로 만든다.</li>
+            <li>내림차순으로 DFS를 돌리면 <strong>가장 큰(사전식 최댓값)</strong> 해를 가장 먼저 만난다.</li>
           </ul>
         </li>
-        <li>길이 내림차순 탐색:
+        <li>거듭제곱 전처리:
           <ul>
-            <li>for <code>j = base.length()</code> down to <code>3</code>:
-              <ul>
-                <li><code>HashSet&lt;String&gt;</code>에 <code>base</code>의 길이 <code>j</code> 모든 부분문자열을 <strong>중복 없이</strong> 수집.</li>
-                <li>각 후보 <code>s</code>에 대해 다른 모든 문자열에 <code>indexOf(s)</code>가 존재하는지 확인.</li>
-                <li>모두 포함되면 <code>TreeSet&lt;String&gt;</code>에 넣어 <strong>사전식 정렬</strong>.</li>
-              </ul>
-            </li>
-            <li><code>TreeSet</code>이 비어 있지 않으면 그 길이에서 <strong>사전식 첫 원소</strong>를 정답으로 채택하고 루프 종료.</li>
+            <li>각 문자 값 <code>val ∈ [1..26]</code>에 대해 <code>val¹, val², val³, val⁴, val⁵</code>를 미리 계산해 <code>pows[5][n]</code>에 저장.</li>
+            <li>계산 시 매번 거듭제곱을 하지 않고 <strong>상수 시간</strong> 조회.</li>
+          </ul>
+        </li>
+        <li>DFS(백트래킹):
+          <ul>
+            <li><code>dfs(i, sum, sb)</code>에서 <code>i</code>는 선택한 글자 개수(0~5).</li>
+            <li><code>SIGN = {+1,-1,+1,-1,+1}</code>로 단계별 부호를, <code>pows[i][j]</code>로 대응 거듭제곱을 적용해
+                <code>next = sum + SIGN[i] * pows[i][j]</code>를 누적.</li>
+            <li>깊이 5에서 <code>sum == target</code>이면 정답 문자열을 기록하고 <code>found=true</code>로 <strong>즉시 종료</strong>.</li>
+            <li><code>used[j]</code>로 중복 선택 방지, <code>StringBuilder</code>로 경로 누적/복원.</li>
+            <li><code>long</code>을 사용해 거듭제곱 누적 시 오버플로를 피한다.</li>
           </ul>
         </li>
         <li>출력:
           <ul>
-            <li>정답이 있으면 그 문자열, 없으면 <code>no significant commonalities</code> 출력.</li>
+            <li>해를 찾았으면 그 조합, 아니면 <code>no solution</code>을 출력.</li>
           </ul>
         </li>
       </ul>
@@ -101,37 +113,34 @@
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li>예제 1: 공통 부분문자열의 최장 길이가 3 미만 → <strong>no significant commonalities</strong>.</li>
-        <li>예제 2: 길이 6의 다수 후보 중 사전식으로 가장 앞선 <strong>AGATAC</strong> 선택.</li>
-        <li>예제 3: 세 문자열 모두에 등장하는 최장 공통 부분문자열은 <strong>CATCATCAT</strong>.</li>
+        <li>입력: <code>1 ABCDEFGHIJKL</code> → 가능한 해가 여럿이며 <strong>LKEBA</strong>가 사전식 최댓값.</li>
+        <li>입력: <code>11700519 ZAYEXIWOVU</code> → <strong>YOXUZ</strong>.</li>
+        <li>입력: <code>3072997 SOUGHT</code> → <strong>GHOST</strong>.</li>
+        <li>입력: <code>1234567 THEQUICKFROG</code> → <strong>no solution</strong>.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        기준 문자열 길이를 <code>L(≤60)</code>이라 하면,
-        각 길이 <code>j</code>에서 후보 수는 최대 <code>L-j+1 = O(L)</code>,
-        각 후보를 <code>m</code>개 문자열에 대해 <code>indexOf</code>(<code>O(L)</code>)로 검사하므로
-        총합 <code>O(m · L^3)</code> 내외. 제약이 작아 충분히 빠르다.
+        글자 수를 <code>n(5 ≤ n ≤ 12)</code>라 하면, 탐색 공간은 <code>P(n,5) = n·(n-1)·(n-2)·(n-3)·(n-4)</code>.<br>
+        최악의 경우 <code>P(12,5)=95,040</code>으로 매우 작고, 각 단계 연산은 전처리 덕분에 상수 시간에 가깝다.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        길이 <code>j</code>의 부분문자열 집합(최대 <code>O(L)</code>개)과 정렬용 <code>TreeSet</code> 등으로 <code>O(L)</code>~<code>O(L^2)</code> 정도.
-        <code>L=60</code>이므로 메모리 부담은 매우 작다.
+        <code>used[n]</code>, <code>pows[5][n]</code>, 재귀 깊이 최대 5 및 경로용 <code>StringBuilder</code>로 총합 <code>O(n)</code>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>연속성</strong>: LCS(최장 공통 부분수열)이 아니라 <strong>최장 공통 부분문자열</strong>(연속)임에 주의.</li>
-        <li><strong>기준 문자열</strong>: 가장 짧은 문자열을 기준으로 해야 후보 수가 최소화된다.</li>
-        <li><strong>중복 제거</strong>: 같은 길이에서 동일 부분문자열이 여러 번 나오지 않도록 <code>HashSet</code> 사용.</li>
-        <li><strong>사전식 우선</strong>: <code>TreeSet</code>으로 정렬 후 <code>first()</code>를 선택.</li>
-        <li><strong>조기 종료</strong>: 길이를 <strong>내림차순</strong>으로 돌며 처음 성공한 길이에서 즉시 종료해야 시간 절약.</li>
-        <li><strong>입력 공백</strong>: 각 라인은 <code>trim()</code> 후 사용(불필요한 공백 제거).</li>
+        <li><strong>사전식 최댓값 보장</strong>: 문자를 <strong>내림차순</strong>으로 순회하고 첫 해에서 즉시 종료해야 한다.</li>
+        <li><strong>부호·지수 매핑</strong>: 각 깊이에서 <code>{+1,-1,+1,-1,+1}</code>와 <code>{1,2,3,4,5}</code>의 대응을 혼동하지 말 것.</li>
+        <li><strong>오버플로</strong>: <code>z⁵</code>까지 포함되므로 누적형은 <code>long</code>을 사용(코드와 동일).</li>
+        <li><strong>중복 금지</strong>: 입력 문자는 모두 서로 다르지만, 선택 시 <code>used[]</code>로 재사용을 막아야 한다.</li>
+        <li><strong>조기 종료 플래그</strong>: <code>found</code>로 DFS 가지치기(이미 정답을 찾았으면 더 이상 탐색하지 않음).</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -139,9 +148,9 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>이진 탐색 + 해시(롤링)</strong>: 길이를 이진 탐색하며 각 길이에 대해 롤링 해시로 교집합 검증.
-            이론상 <code>O(m · L^2 log L)</code> 수준으로 줄일 수 있으나, <code>L=60</code>에서는 단순 구현이 더 간단하고 충분히 빠름.</li>
-          <li><strong>접미사 배열/트라이</strong>: 모든 문자열의 공통 부분문자열을 구조적으로 탐색. 구현 부담이 크고 본 문제 제약에선 과도.</li>
+          <li><strong>휴리스틱 가지치기</strong>: 남은 단계에서 만들 수 있는 최대/최소 기여(내림차순/오름차순 선택과 부호 반영)를 상한·하한으로 계산해
+            target 도달 불가능한 가지를 미리 컷. 본 제약에선 필수는 아님.</li>
+          <li><strong>비트마스크 DFS</strong>: <code>used</code>를 비트마스크로 바꾸고 반복문을 줄여 미세 최적화.</li>
         </ul>
       </details>
       
@@ -149,12 +158,12 @@
       
       <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
       <ul>
-        <li>가장 짧은 문자열을 기준으로 <strong>길이 내림차순</strong> 탐색</li>
-        <li>각 길이에서 후보 생성(중복 제거) → 모든 문자열 포함 여부 검사</li>
-        <li>성공 시 해당 길이의 <strong>사전식 최소</strong>를 정답</li>
-        <li>최장 길이 &lt; 3 이면 <code>no significant commonalities</code></li>
-        <li>시간 <code>O(m · L^3)</code>, 공간 <code>O(L)</code>~<code>O(L^2)</code> — 제약 내 충분</li>
+        <li>문자 집합을 <strong>내림차순</strong> 정렬 → DFS로 첫 해 = <strong>사전식 최댓값</strong>.</li>
+        <li><strong>전처리</strong>로 각 문자의 1~5제곱을 저장, 단계별 부호를 적용해 누적.</li>
+        <li>해를 찾는 즉시 <strong>조기 종료</strong>, 없으면 <code>no solution</code>.</li>
+        <li>시간 <code>O(P(n,5))</code>, 공간 <code>O(n)</code> — 제약 내 충분히 빠름.</li>
       </ul>
+
 
 
 
@@ -191,14 +200,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 4579 — Judges' Time Calculation</h2>
+      <h2 class="section">문제 4649 — Tanning Salon</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4579">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4649">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1104_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1105_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -206,30 +215,31 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        <strong>Judges' Time Calculation</strong>은 대회 시작 시각(<code>SH:SM</code>)과 지속 시간(<code>DH:DM</code>)이 주어질 때,
-        제출 시각의 <strong>시(hour)</strong> 별로 적용할 수 있는 <span style="font-weight:600;">경과 분(elapsed minutes)</span> 계산 공식을 표 형태로 만드는 문제다.
-        표의 각 행은 <code>H:XX | XX ± K</code> 꼴이며,
-        해당 시각대(예: 3:XX)에 제출된 분(<code>XX</code>, 0~59)을 대입하면 경과 분이 된다.
+        <strong>Tanning Salon</strong>은 침대 수 <code>N</code>과 고객 입퇴장 로그(대문자 시퀀스)가 주어질 때,
+        침대가 없어 돌아간(walked away) 고객 수를 구하는 시뮬레이션 문제다.
+        각 문자는 정확히 두 번 등장하며, 첫 등장은 <strong>도착</strong>, 두 번째 등장은 <strong>퇴장</strong>을 의미한다.
+        침대가 없을 때 도착한 고객은 즉시 돌아가며, 그런 고객의 두 번째 등장은 단순히 로그 상의 <q>퇴장</q> 표시일 뿐이므로 <strong>무시</strong>한다.
       </p>
       
       <ul>
-        <li>행의 범위:
+        <li>핵심 정의:
           <ul>
-            <li>가장 이른 제출은 <strong>시작 시각 그대로</strong>(경과 0분), 가장 늦은 제출은 <strong>정확히 지속 시간 경과 시각</strong>까지 포함.</li>
-            <li>따라서 시작 시각이 속한 시간대부터, 끝나는 시각이 속한 시간대까지 <strong>연속된 모든 시</strong>에 대해 한 줄씩 만든다.</li>
+            <li><code>N</code>개의 침대(최대 20), 로그 문자열의 길이는 문자쌍 수의 2배.</li>
+            <li>침대가 비어 있으면 도착 고객을 즉시 배정, 없으면 <strong>walk away</strong>로 카운트.</li>
+            <li>이미 돌아간 고객의 두 번째 문자는 아무 효과 없음(문제 조건: 돌아간 고객은 현재 이용 중인 고객보다 먼저 퇴장 처리됨).</li>
           </ul>
         </li>
-        <li>행별 공식:
+        <li>전략 개요:
           <ul>
-            <li>시작 시각 <code>SH:SM</code>에서 <strong>j번째 시간대</strong>(<code>j = 0,1,2,...</code>)의 분 오프셋은 <code>offset = 60*j - SM</code>.</li>
-            <li>따라서 그 시간대의 공식은
-              <code>XX</code>(offset=0), <code>XX + offset</code>(offset&gt;0), <code>XX - (-offset)</code>(offset&lt;0) 중 하나가 된다.</li>
-            </ul>
-        </li>
-        <li>12시간 표기:
-          <ul>
-            <li>시간은 <strong>1~12</strong>로 순환: <code>hour = ((SH - 1 + j) % 12) + 1</code>.</li>
-            <li>한 자리 시각(예: <code> 5:XX</code>)은 <strong>왼쪽에 공백 1칸</strong>을 넣는다. 헤더의 "time" 앞에도 공백 1칸을 둔다.</li>
+            <li>현재 사용 중인 고객 집합 <code>use</code>와 이미 돌아간 고객 집합 <code>walk</code>를 관리.</li>
+            <li>로그를 왼쪽부터 순차 스캔하며 문자 <code>c</code>에 대해
+              <ol>
+                <li><code>walk</code>에 있으면 <strong>무시</strong>;</li>
+                <li><code>use</code>에 있으면(퇴장) <code>use</code>에서 제거하고 <code>free++</code>;</li>
+                <li>둘 다 아니면(도착) <code>free&gt;0</code>이면 <code>use</code>에 넣고 <code>free--</code>, 아니면 <code>walk</code>에 넣고 <code>walkAway++</code>.</li>
+              </ol>
+            </li>
+            <li>모든 문자를 처리한 뒤 결과 문구를 정확한 형식으로 출력.</li>
           </ul>
         </li>
       </ul>
@@ -240,75 +250,63 @@
       <ul>
         <li>입력 파싱:
           <ul>
-            <li>테스트 케이스 수 <code>N</code>을 읽고, 각 케이스마다 <code>SH, SM, DH, DM</code>을 읽는다.</li>
+            <li>각 줄에서 <code>N</code>과 <code>log</code>를 읽는다. <code>N==0</code>이면 종료.</li>
           </ul>
         </li>
-        <li>행 개수 계산:
+        <li>상태 구조:
           <ul>
-            <li><code>total = 60*DH + DM</code> (총 지속 시간, 분)</li>
-            <li><code>rows = (SM + total) / 60 + 1</code> — 시작 분 <code>SM</code>에서 총 지속 분을 더해 <strong>몇 번 시간 경계를 넘는지</strong>를 구하고, 시작 시간대(0번째)를 포함해 +1.</li>
+            <li><code>Set&lt;Character&gt; use</code>: 현재 침대를 쓰는 고객들.</li>
+            <li><code>Set&lt;Character&gt; walk</code>: 도착했지만 침대를 못 받아 돌아간 고객들.</li>
+            <li><code>int free = N</code>: 남은 침대 수, <code>int walkAway</code>: 돌아간 인원 수.</li>
           </ul>
         </li>
-        <li>표 출력:
+        <li>로그 처리:
           <ul>
-            <li>상단/헤더/구분선은 예시 형식대로 출력.</li>
-            <li>각 <code>j = 0..rows-1</code>에 대해:
-              <ul>
-                <li><code>hour = ((SH - 1 + j) % 12) + 1</code></li>
-                <li><code>offset = 60*j - SM</code></li>
-                <li>한 자리 시각이면 선행 공백 1칸을 출력한 뒤 <code>&lt;hour&gt;:XX | </code>를 출력</li>
-                <li><code>offset</code> 부호에 따라 <code>XX</code> / <code>XX + k</code> / <code>XX - k</code>를 출력</li>
-              </ul>
-            </li>
+            <li>문자 <code>c</code>를 순회하며, <code>walk.contains(c)</code>면 패스(이미 돌아간 고객의 퇴장 토큰).</li>
+            <li><code>use.contains(c)</code>면 퇴장 처리(<code>use.remove(c)</code>, <code>free++</code>).</li>
+            <li>그 외(도착): <code>free&gt;0</code>이면 <code>use.add(c)</code>, <code>free--</code>, 아니면 <code>walk.add(c)</code>, <code>walkAway++</code>.</li>
           </ul>
         </li>
-        <li>모든 케이스에 대해 위 과정을 반복해 표를 이어서 출력.</li>
+        <li>출력:
+          <ul>
+            <li><code>walkAway==0</code>이면 <code>All customers tanned successfully.</code></li>
+            <li>아니면 <code>{walkAway} customer(s) walked away.</code></li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>12 30 5 0</code>:
-          <ul>
-            <li><code>total=300</code>, <code>rows=(30+300)/60+1=6</code> → <code>12,1,2,3,4,5</code> 시간대</li>
-            <li>offset: <code>-30, +30, +90, +150, +210, +270</code> → 예제와 동일</li>
-          </ul>
-        </li>
-        <li><code>7 0 2 59</code>:
-          <ul>
-            <li><code>total=179</code>, <code>rows=(0+179)/60+1=3</code> → <code>7,8,9</code> 시간대</li>
-            <li>offset: <code>0, +60, +120</code> → 예제와 동일</li>
-          </ul>
-        </li>
-        <li><code>9 59 4 1</code>:
-          <ul>
-            <li><code>total=241</code>, <code>rows=(59+241)/60+1=6</code> → <code>9,10,11,12,1,2</code> 시간대</li>
-            <li>offset: <code>-59, +1, +61, +121, +181, +241</code> → 예제와 동일</li>
-          </ul>
-        </li>
+        <li><code>N=2, log=ABBAJJKZKZ</code> → <strong>All customers tanned successfully.</strong></li>
+        <li><code>N=3, log=GACCBDDBAGEE</code> → <strong>1 customer(s) walked away.</strong></li>
+        <li><code>N=3, log=GACCBGDDBAEE</code> → <strong>All customers tanned successfully.</strong></li>
+        <li><code>N=1, log=ABCBCA</code> → <strong>2 customer(s) walked away.</strong></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        각 케이스마다 행 수는 최대 약 <code>11</code>(지속 ≤ 10:59). 매 행은 상수 시간에 출력하므로 <code>O(rows)</code>, 전체는 <code>O(N)</code>.
+        로그 길이를 <code>L</code>이라 하면 각 문자에 대해 <code>HashSet</code> 연산(평균 <code>O(1)</code>)을 한 번 수행하므로
+        전체 <code>O(L)</code>. <code>L</code>은 최대 알파벳 종류 수(≤26)의 두 배 범위 내에서 현실적으로 매우 작다.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        누적 출력을 위한 <code>StringBuilder</code> 정도만 사용하므로 <code>O(1)</code>.
+        <code>use</code>와 <code>walk</code>에 각 문자가 한 번씩만 들어가므로 <code>O(Σ)</code>(<code>Σ≤26</code>), 상수급.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>헤더/시각 정렬</strong>: 한 자리 시각 앞과 헤더의 <code>time</code> 앞에 <strong>공백 1칸</strong>이 있어야 한다.</li>
-        <li><strong>12시간 순환</strong>: <code>12 → 1</code>로 순환하는 12시간제 표기를 반드시 지켜야 한다.</li>
-        <li><strong>행 개수</strong>: <code>rows = (SM + total)/60 + 1</code> 공식으로 끝나는 시각이 정확히 시 경계일 때도 마지막 시간대를 포함한다.</li>
-        <li><strong>출력 공백</strong>: 채점이 엄격할 수 있으므로 헤더 등 <strong>후행 공백</strong>이 없도록 주의(예: <code>" time | elapsed"</code> 뒤 공백 없이 개행).</li>
+        <li><strong>중복 처리</strong>: 이미 <code>walk</code>에 있는 고객의 두 번째 등장은 반드시 <strong>무시</strong>해야 한다.</li>
+        <li><strong>퇴장 처리 순서</strong>: 문제 보장(돌아간 고객의 퇴장은 현재 이용 중인 고객보다 먼저) 덕분에
+            <code>walk</code> 체크를 <code>use</code>보다 <strong>먼저</strong> 수행하면 모순이 없다.</li>
+        <li><strong>상태 일관성</strong>: <code>use</code>에 있는 고객만 퇴장 시 <code>free++</code> 해야 한다.</li>
+        <li><strong>출력 형식</strong>: 문구와 구두점을 정확히 맞출 것(채점은 문자열 일치).</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -316,8 +314,8 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>직접 경과 분 계산식 유도</strong> — 각 시간대 시작 시각(분)을 절대 분으로 두고 <code>XX</code>를 더해 <code>경과 = (해당 절대 분) - (시작 절대 분)</code> 형태로
-            매번 재계산해도 되지만, 현재처럼 <code>offset = 60*j - SM</code>을 한 번 구해 표현하는 편이 단순·명확하다.</li>
+          <li><strong>고정 배열 사용</strong>: 문자 집합이 대문자 26개로 한정되므로 <code>boolean[26]</code> 두 개(<code>use</code>/<code>walk</code>)로 교체 가능 → 상수 인자 감소.</li>
+          <li><strong>카운터 한정</strong>: <code>N</code>이 작으므로 <code>free==0</code>인 구간만 빠르게 스킵하는 최적화도 가능하지만 이득은 미미.</li>
         </ul>
       </details>
       
@@ -325,12 +323,12 @@
       
       <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
       <ul>
-        <li><code>rows = (SM + 60·DH + DM)/60 + 1</code>로 행 수 결정</li>
-        <li><code>hour = ((SH - 1 + j) % 12) + 1</code>, <code>offset = 60j - SM</code></li>
-        <li>offset 부호에 따라 <code>XX</code> / <code>XX + k</code> / <code>XX - k</code>를 선택</li>
-        <li>한 자리 시간과 헤더의 <code>time</code> 앞에는 공백 1칸</li>
-        <li>시간 <code>O(N)</code>, 공간 <code>O(1)</code> — 구현 단순, 포맷 정확도 중요</li>
+        <li><code>use</code>(이용 중) / <code>walk</code>(돌아감) 집합과 <code>free</code> 카운터로 선형 시뮬레이션.</li>
+        <li>도착 시: 여유 있으면 배정, 없으면 <strong>walkAway++</strong> 및 <code>walk</code> 표시.</li>
+        <li>퇴장 시: <code>use</code>에 있을 때만 제거 및 <code>free++</code>.</li>
+        <li>형식에 맞춰 결과 문구 출력. 시간 <code>O(L)</code>, 공간 상수급.</li>
       </ul>
+
 
 
 
