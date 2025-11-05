@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4542 — Blue Jeans</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4542">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1104_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Blue Jeans</strong>는 길이 60의 DNA 문자열들(문자 집합 {A, C, G, T})이 주어질 때,
+        모든 문자열에 공통으로 등장하는 <span style="font-weight:600;">최장 공통 부분문자열(연속)</span>을 찾는 문제다.
+        최장 길이가 3 미만이면 <code>no significant commonalities</code>를 출력하고,
+        같은 최장 길이의 후보가 여러 개면 <strong>사전식으로 가장 앞선</strong> 문자열을 출력한다.
+      </p>
+      
+      <ul>
+        <li>핵심 정의:
+          <ul>
+            <li>부분문자열: 인접한 연속 구간(예: "TAGACC"의 "GAC").</li>
+            <li>모든 문자열에 등장: 각 문자열에서 <code>indexOf(s) != -1</code>가 성립.</li>
+          </ul>
+        </li>
+        <li>전략 개요:
+          <ul>
+            <li>후보 수를 줄이기 위해 <strong>가장 짧은 문자열</strong>을 기준(<code>base</code>)으로 선택.</li>
+            <li>길이 <code>j</code>를 <strong>큰 것부터</strong>(<code>len</code> → 3) 내려오며 검사, 첫 성공 시 바로 정답.</li>
+            <li>같은 길이의 후보들 중에는 <strong>사전식 최소</strong>를 선택.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 파싱:
+          <ul>
+            <li>데이터셋 수 <code>n</code>을 읽고, 각 데이터셋마다 문자열 수 <code>m</code>과 길이 60의 DNA 문자열 <code>m</code>개를 읽는다.</li>
+          </ul>
+        </li>
+        <li>기준 문자열 선택:
+          <ul>
+            <li>가장 짧은 문자열의 인덱스 <code>minIdx</code>를 찾아 <code>base = arr.get(minIdx)</code>로 설정.</li>
+          </ul>
+        </li>
+        <li>길이 내림차순 탐색:
+          <ul>
+            <li>for <code>j = base.length()</code> down to <code>3</code>:
+              <ul>
+                <li><code>HashSet&lt;String&gt;</code>에 <code>base</code>의 길이 <code>j</code> 모든 부분문자열을 <strong>중복 없이</strong> 수집.</li>
+                <li>각 후보 <code>s</code>에 대해 다른 모든 문자열에 <code>indexOf(s)</code>가 존재하는지 확인.</li>
+                <li>모두 포함되면 <code>TreeSet&lt;String&gt;</code>에 넣어 <strong>사전식 정렬</strong>.</li>
+              </ul>
+            </li>
+            <li><code>TreeSet</code>이 비어 있지 않으면 그 길이에서 <strong>사전식 첫 원소</strong>를 정답으로 채택하고 루프 종료.</li>
+          </ul>
+        </li>
+        <li>출력:
+          <ul>
+            <li>정답이 있으면 그 문자열, 없으면 <code>no significant commonalities</code> 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li>예제 1: 공통 부분문자열의 최장 길이가 3 미만 → <strong>no significant commonalities</strong>.</li>
+        <li>예제 2: 길이 6의 다수 후보 중 사전식으로 가장 앞선 <strong>AGATAC</strong> 선택.</li>
+        <li>예제 3: 세 문자열 모두에 등장하는 최장 공통 부분문자열은 <strong>CATCATCAT</strong>.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        기준 문자열 길이를 <code>L(≤60)</code>이라 하면,
+        각 길이 <code>j</code>에서 후보 수는 최대 <code>L-j+1 = O(L)</code>,
+        각 후보를 <code>m</code>개 문자열에 대해 <code>indexOf</code>(<code>O(L)</code>)로 검사하므로
+        총합 <code>O(m · L^3)</code> 내외. 제약이 작아 충분히 빠르다.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        길이 <code>j</code>의 부분문자열 집합(최대 <code>O(L)</code>개)과 정렬용 <code>TreeSet</code> 등으로 <code>O(L)</code>~<code>O(L^2)</code> 정도.
+        <code>L=60</code>이므로 메모리 부담은 매우 작다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>연속성</strong>: LCS(최장 공통 부분수열)이 아니라 <strong>최장 공통 부분문자열</strong>(연속)임에 주의.</li>
+        <li><strong>기준 문자열</strong>: 가장 짧은 문자열을 기준으로 해야 후보 수가 최소화된다.</li>
+        <li><strong>중복 제거</strong>: 같은 길이에서 동일 부분문자열이 여러 번 나오지 않도록 <code>HashSet</code> 사용.</li>
+        <li><strong>사전식 우선</strong>: <code>TreeSet</code>으로 정렬 후 <code>first()</code>를 선택.</li>
+        <li><strong>조기 종료</strong>: 길이를 <strong>내림차순</strong>으로 돌며 처음 성공한 길이에서 즉시 종료해야 시간 절약.</li>
+        <li><strong>입력 공백</strong>: 각 라인은 <code>trim()</code> 후 사용(불필요한 공백 제거).</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>이진 탐색 + 해시(롤링)</strong>: 길이를 이진 탐색하며 각 길이에 대해 롤링 해시로 교집합 검증.
+            이론상 <code>O(m · L^2 log L)</code> 수준으로 줄일 수 있으나, <code>L=60</code>에서는 단순 구현이 더 간단하고 충분히 빠름.</li>
+          <li><strong>접미사 배열/트라이</strong>: 모든 문자열의 공통 부분문자열을 구조적으로 탐색. 구현 부담이 크고 본 문제 제약에선 과도.</li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>가장 짧은 문자열을 기준으로 <strong>길이 내림차순</strong> 탐색</li>
+        <li>각 길이에서 후보 생성(중복 제거) → 모든 문자열 포함 여부 검사</li>
+        <li>성공 시 해당 길이의 <strong>사전식 최소</strong>를 정답</li>
+        <li>최장 길이 &lt; 3 이면 <code>no significant commonalities</code></li>
+        <li>시간 <code>O(m · L^3)</code>, 공간 <code>O(L)</code>~<code>O(L^2)</code> — 제약 내 충분</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4579 — Judges' Time Calculation</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4579">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1104_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Judges' Time Calculation</strong>은 대회 시작 시각(<code>SH:SM</code>)과 지속 시간(<code>DH:DM</code>)이 주어질 때,
+        제출 시각의 <strong>시(hour)</strong> 별로 적용할 수 있는 <span style="font-weight:600;">경과 분(elapsed minutes)</span> 계산 공식을 표 형태로 만드는 문제다.
+        표의 각 행은 <code>H:XX | XX ± K</code> 꼴이며,
+        해당 시각대(예: 3:XX)에 제출된 분(<code>XX</code>, 0~59)을 대입하면 경과 분이 된다.
+      </p>
+      
+      <ul>
+        <li>행의 범위:
+          <ul>
+            <li>가장 이른 제출은 <strong>시작 시각 그대로</strong>(경과 0분), 가장 늦은 제출은 <strong>정확히 지속 시간 경과 시각</strong>까지 포함.</li>
+            <li>따라서 시작 시각이 속한 시간대부터, 끝나는 시각이 속한 시간대까지 <strong>연속된 모든 시</strong>에 대해 한 줄씩 만든다.</li>
+          </ul>
+        </li>
+        <li>행별 공식:
+          <ul>
+            <li>시작 시각 <code>SH:SM</code>에서 <strong>j번째 시간대</strong>(<code>j = 0,1,2,...</code>)의 분 오프셋은 <code>offset = 60*j - SM</code>.</li>
+            <li>따라서 그 시간대의 공식은
+              <code>XX</code>(offset=0), <code>XX + offset</code>(offset&gt;0), <code>XX - (-offset)</code>(offset&lt;0) 중 하나가 된다.</li>
+            </ul>
+        </li>
+        <li>12시간 표기:
+          <ul>
+            <li>시간은 <strong>1~12</strong>로 순환: <code>hour = ((SH - 1 + j) % 12) + 1</code>.</li>
+            <li>한 자리 시각(예: <code> 5:XX</code>)은 <strong>왼쪽에 공백 1칸</strong>을 넣는다. 헤더의 "time" 앞에도 공백 1칸을 둔다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 파싱:
+          <ul>
+            <li>테스트 케이스 수 <code>N</code>을 읽고, 각 케이스마다 <code>SH, SM, DH, DM</code>을 읽는다.</li>
+          </ul>
+        </li>
+        <li>행 개수 계산:
+          <ul>
+            <li><code>total = 60*DH + DM</code> (총 지속 시간, 분)</li>
+            <li><code>rows = (SM + total) / 60 + 1</code> — 시작 분 <code>SM</code>에서 총 지속 분을 더해 <strong>몇 번 시간 경계를 넘는지</strong>를 구하고, 시작 시간대(0번째)를 포함해 +1.</li>
+          </ul>
+        </li>
+        <li>표 출력:
+          <ul>
+            <li>상단/헤더/구분선은 예시 형식대로 출력.</li>
+            <li>각 <code>j = 0..rows-1</code>에 대해:
+              <ul>
+                <li><code>hour = ((SH - 1 + j) % 12) + 1</code></li>
+                <li><code>offset = 60*j - SM</code></li>
+                <li>한 자리 시각이면 선행 공백 1칸을 출력한 뒤 <code>&lt;hour&gt;:XX | </code>를 출력</li>
+                <li><code>offset</code> 부호에 따라 <code>XX</code> / <code>XX + k</code> / <code>XX - k</code>를 출력</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>모든 케이스에 대해 위 과정을 반복해 표를 이어서 출력.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>12 30 5 0</code>:
+          <ul>
+            <li><code>total=300</code>, <code>rows=(30+300)/60+1=6</code> → <code>12,1,2,3,4,5</code> 시간대</li>
+            <li>offset: <code>-30, +30, +90, +150, +210, +270</code> → 예제와 동일</li>
+          </ul>
+        </li>
+        <li><code>7 0 2 59</code>:
+          <ul>
+            <li><code>total=179</code>, <code>rows=(0+179)/60+1=3</code> → <code>7,8,9</code> 시간대</li>
+            <li>offset: <code>0, +60, +120</code> → 예제와 동일</li>
+          </ul>
+        </li>
+        <li><code>9 59 4 1</code>:
+          <ul>
+            <li><code>total=241</code>, <code>rows=(59+241)/60+1=6</code> → <code>9,10,11,12,1,2</code> 시간대</li>
+            <li>offset: <code>-59, +1, +61, +121, +181, +241</code> → 예제와 동일</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        각 케이스마다 행 수는 최대 약 <code>11</code>(지속 ≤ 10:59). 매 행은 상수 시간에 출력하므로 <code>O(rows)</code>, 전체는 <code>O(N)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        누적 출력을 위한 <code>StringBuilder</code> 정도만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>헤더/시각 정렬</strong>: 한 자리 시각 앞과 헤더의 <code>time</code> 앞에 <strong>공백 1칸</strong>이 있어야 한다.</li>
+        <li><strong>12시간 순환</strong>: <code>12 → 1</code>로 순환하는 12시간제 표기를 반드시 지켜야 한다.</li>
+        <li><strong>행 개수</strong>: <code>rows = (SM + total)/60 + 1</code> 공식으로 끝나는 시각이 정확히 시 경계일 때도 마지막 시간대를 포함한다.</li>
+        <li><strong>출력 공백</strong>: 채점이 엄격할 수 있으므로 헤더 등 <strong>후행 공백</strong>이 없도록 주의(예: <code>" time | elapsed"</code> 뒤 공백 없이 개행).</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>직접 경과 분 계산식 유도</strong> — 각 시간대 시작 시각(분)을 절대 분으로 두고 <code>XX</code>를 더해 <code>경과 = (해당 절대 분) - (시작 절대 분)</code> 형태로
+            매번 재계산해도 되지만, 현재처럼 <code>offset = 60*j - SM</code>을 한 번 구해 표현하는 편이 단순·명확하다.</li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li><code>rows = (SM + 60·DH + DM)/60 + 1</code>로 행 수 결정</li>
+        <li><code>hour = ((SH - 1 + j) % 12) + 1</code>, <code>offset = 60j - SM</code></li>
+        <li>offset 부호에 따라 <code>XX</code> / <code>XX + k</code> / <code>XX - k</code>를 선택</li>
+        <li>한 자리 시간과 헤더의 <code>time</code> 앞에는 공백 1칸</li>
+        <li>시간 <code>O(N)</code>, 공간 <code>O(1)</code> — 구현 단순, 포맷 정확도 중요</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
