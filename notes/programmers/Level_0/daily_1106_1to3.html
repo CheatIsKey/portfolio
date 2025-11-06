@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-05 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-06 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 캐릭터의 좌표</h2>
+      <h2 class="section">문제 1 — 컨트롤 제트</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120861">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120853">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1105_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -48,49 +48,50 @@
 
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        방향 키 입력(<code>keyinput</code>)에 따라 캐릭터의 좌표를 이동시키되, 보드(<code>board = [width, height]</code>) 경계를 넘지 않도록 제한하는 문제다.
-        폭/높이의 절반을 정수 나눗셈으로 구해 허용 좌표 범위를 <code>x: [-maxW, maxW]</code>, <code>y: [-maxH, maxH]</code>로 두고,
-        시작 좌표 <code>(0, 0)</code>에서 키를 하나씩 처리하며 범위 안에서만 이동한다.
+        문자열 <code>s</code>에는 숫자와 <code>"Z"</code>가 공백으로 구분되어 주어진다. 
+        각 숫자는 더해야 하는 값이며, <code>"Z"</code>가 등장할 때마다 바로 직전 숫자를 취소(무효화)하는 규칙이다.  
+        즉, 전체 합계를 계산하되, <code>"Z"</code> 직전에 더했던 값을 다시 빼주는 방식으로 구현한다.
       </p>
       
       <ul>
-        <li><strong>경계 설정</strong>: <code>maxW = board[0] / 2</code>, <code>maxH = board[1] / 2</code> → 허용 범위는 <code>[-maxW, maxW]</code>, <code>[-maxH, maxH]</code></li>
-        <li><strong>이동 처리</strong>: <code>"up"</code>, <code>"down"</code>, <code>"left"</code>, <code>"right"</code>에 대해 다음 좌표가 범위를 넘지 않을 때만 반영</li>
-        <li><strong>초기값/반환</strong>: 시작은 <code>(0, 0)</code>, 모든 입력을 처리한 뒤 최종 좌표 반환</li>
+        <li><strong>분리 처리</strong>: 입력 문자열을 공백 기준으로 나누어 <code>split(" ")</code>으로 순회한다.</li>
+        <li><strong>취소 처리</strong>: 현재 요소가 <code>"Z"</code>면 직전 더했던 값(<code>prev</code>)을 <code>sum</code>에서 빼고 건너뛴다.</li>
+        <li><strong>누적 합산</strong>: 숫자인 경우 정수로 변환해 <code>prev</code>에 저장하고 <code>sum</code>에 더한다.</li>
+        <li><strong>최종 반환</strong>: 모든 토큰을 처리한 뒤 합계 <code>sum</code>을 반환한다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>keyinput = ["left","left","left","right"]</code>, <code>board = [3,3]</code><br>
-            허용 범위 <code>x: [-1,1]</code> → 최종 <code>(-1, 0)</code></li>
-        <li><code>keyinput = ["up","up","up"]</code>, <code>board = [5,5]</code><br>
-            허용 범위 <code>y: [-2,2]</code> → 최종 <code>(0, 2)</code></li>
-        <li><code>keyinput = ["up","left","down","right"]</code>, <code>board = [7,3]</code><br>
-            왕복 이동 → 최종 <code>(0, 0)</code></li>
+        <li><code>s = "1 2 Z 3"</code><br>
+            1 → 3 → Z로 2 취소 → +3 ⇒ 결과 <code>4</code></li>
+        <li><code>s = "10 20 30 Z Z"</code><br>
+            10+20+30 → Z(30취소) → Z(20취소) ⇒ 결과 <code>10</code></li>
+        <li><code>s = "-1 -2 -3 Z"</code><br>
+            -1 -2 -3 → Z(-3 취소) ⇒ 결과 <code>-3</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        입력 배열을 한 번 순회하므로 <code>O(n)</code> (<code>n = keyinput.length</code>).
+        문자열을 공백 기준으로 한 번 순회하므로 <code>O(n)</code> (<code>n = s.split(" ").length</code>).
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        상수 크기 보조 변수만 사용하므로 <code>O(1)</code>.
+        상수 크기의 변수(<code>prev</code>, <code>sum</code>)만 사용하므로 <code>O(1)</code>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>경계 포함</strong>: 좌표는 <code>-maxW</code>와 <code>maxW</code> (또는 <code>-maxH</code>, <code>maxH</code>)를 포함한다.</li>
-        <li><strong>정수 나눗셈</strong>: <code>board[i] / 2</code>는 내림으로 동작한다. 보드 크기가 짝수여도 이 방식은 정상적으로 경계를 형성한다.</li>
-        <li><strong>예외 키</strong>: 지정된 네 키 외 문자열은 무시된다(현재 구현 기준).</li>
-        <li><strong>문제 제약</strong>: 보드 길이가 항상 홀수인지 여부는 <span style="font-weight:bold;">확실하지 않음</span>. (풀이 자체에는 영향 없음)</li>
+        <li><strong>초기값 처리</strong>: 첫 숫자 전에는 <code>prev = 0</code>으로 초기화하여 안정적으로 작동.</li>
+        <li><strong>연속 Z</strong>: <code>"Z Z"</code>가 연속될 경우, 두 번째 <code>Z</code>는 이미 취소된 값을 다시 취소하지 않도록 <code>prev</code>가 0이 되므로 영향 없음.</li>
+        <li><strong>숫자 변환</strong>: 문자열을 정수로 변환할 때 <code>Integer.parseInt(str)</code> 사용.</li>
+        <li><strong>예외 입력</strong>: 비어 있거나 숫자 외 문자열은 문제 조건상 등장하지 않음.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -98,62 +99,50 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li style="margin-top:1.2em;"><strong>클램프(clamp) 방식</strong> — 보정으로 경계 유지<br>
+          <li style="margin-top:1.2em;"><strong>스택 활용 방식</strong> — “되돌리기” 개념을 명시적으로 처리<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int[] solution(String[] keyinput, int[] board) {
-              int maxW = board[0] / 2, maxH = board[1] / 2;
-              int x = 0, y = 0;
-              for (String k : keyinput) {
-                  int dx = 0, dy = 0;
-                  switch (k) {
-                      case "up":    dy = 1;  break;
-                      case "down":  dy = -1; break;
-                      case "left":  dx = -1; break;
-                      case "right": dx = 1;  break;
-                      default: /* ignore */ 
+          public int solution(String s) {
+              Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+              for (String str : s.split(" ")) {
+                  if (str.equals("Z")) {
+                      if (!stack.isEmpty()) stack.pop();
+                  } else {
+                      stack.push(Integer.parseInt(str));
                   }
-                  x = Math.max(-maxW, Math.min(maxW, x + dx));
-                  y = Math.max(-maxH, Math.min(maxH, y + dy));
               }
-              return new int[]{x, y};
+              return stack.stream().mapToInt(Integer::intValue).sum();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">다음 좌표를 먼저 이동시킨 뒤 <code>Math.max/Math.min</code>으로 경계 안으로 끌어당긴다.</p>
+            <p style="margin-top:0.5em;">스택에 숫자를 쌓고, <code>"Z"</code>가 나오면 <code>pop()</code>으로 직전 항목 제거.</p>
           </li>
-      
-          <li style="margin-top:1.2em;"><strong>맵으로 방향 벡터 관리</strong> — 키-방향 분리로 가독성 향상<br>
+          <li style="margin-top:1.2em;"><strong>reduce 기반 스트림 처리</strong> — 함수형 접근<br>
             <pre><code>
       import java.util.*;
+      import java.util.stream.*;
       
       class Solution {
-          public int[] solution(String[] keyinput, int[] board) {
-              int maxW = board[0] / 2, maxH = board[1] / 2;
-              Map&lt;String, int[]&gt; dir = Map.of(
-                  "up",    new int[]{0, 1},
-                  "down",  new int[]{0, -1},
-                  "left",  new int[]{-1, 0},
-                  "right", new int[]{1, 0}
-              );
-              int x = 0, y = 0;
-              for (String k : keyinput) {
-                  int[] d = dir.get(k);
-                  if (d == null) continue; // 알 수 없는 키 무시
-                  int nx = x + d[0], ny = y + d[1];
-                  if (Math.abs(nx) &lt;= maxW) x = nx;
-                  if (Math.abs(ny) &lt;= maxH) y = ny;
+          public int solution(String s) {
+              Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
+              for (String str : s.split(" ")) {
+                  if (str.equals("Z")) {
+                      if (!dq.isEmpty()) dq.removeLast();
+                  } else {
+                      dq.addLast(Integer.parseInt(str));
+                  }
               }
-              return new int[]{x, y};
+              return dq.stream().mapToInt(Integer::intValue).sum();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">방향 정의를 자료구조로 분리해 스위치 분기를 줄인다.</p>
+            <p style="margin-top:0.5em;">스택 대신 <code>Deque</code>를 사용해 후입선출 구조를 유지하면서도 스트림 합산으로 마무리한다.</p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -186,14 +175,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 직사각형 넓이 구하기</h2>
+      <h2 class="section">문제 2 — 소인수분해</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120860">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120852">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1105_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -201,46 +190,52 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        네 개의 점(<code>dots</code>)이 주어졌을 때 이 점들이 이루는 직사각형의 가로 길이와 세로 길이를 계산해 넓이를 구하는 문제다.
-        먼저 모든 점의 x좌표 가운데 최소값 <code>minX</code>와 최대값 <code>maxX</code>를 구하고, y좌표 가운데 최소값 <code>minY</code>와 최대값 <code>maxY</code>를 구한다.
-        그 뒤 가로 길이 <code>(maxX − minX)</code>와 세로 길이 <code>(maxY − minY)</code>를 곱해 넓이를 반환한다.
+        자연수 <code>n</code>의 소인수를 모두 구하되, 중복 없이 오름차순으로 반환하는 문제다.  
+        2부터 시작해 <code>√n</code>까지 나누며, 나누어 떨어질 때마다 <code>n</code>을 나누고 해당 인수를 <code>Set</code>에 저장한다.  
+        반복 후 <code>n</code>이 1보다 크면 마지막 남은 수 또한 소수이므로 추가한다.
       </p>
       
       <ul>
-        <li><strong>최소/최대 찾기</strong>: 네 점을 순회하며 <code>minX, maxX, minY, maxY</code>를 갱신한다.</li>
-        <li><strong>길이 계산</strong>: x축 길이는 <code>maxX − minX</code>, y축 길이는 <code>maxY − minY</code></li>
-        <li><strong>넓이 반환</strong>: 위 두 길이의 곱을 반환한다.</li>
+        <li><strong>소인수 분해 반복</strong>: 2부터 <code>i * i ≤ n</code>까지 순회하며 <code>n % i == 0</code>이면 나누기 반복.</li>
+        <li><strong>중복 제거</strong>: <code>LinkedHashSet</code> 사용으로 중복 방지 및 입력 순서(오름차순) 유지.</li>
+        <li><strong>마지막 처리</strong>: 루프 후 <code>n > 1</code>이면 남은 값은 소수 → 추가.</li>
+        <li><strong>출력 변환</strong>: <code>Set</code>을 스트림으로 변환해 <code>int[]</code> 배열로 반환.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>dots = [[1,1],[2,1],[2,2],[1,2]]</code><br>
-            <code>minX = 1</code>, <code>maxX = 2</code>, <code>minY = 1</code>, <code>maxY = 2</code> → 가로 1, 세로 1 → 넓이 1</li>
-        <li><code>dots = [[-1,-1],[1,1],[1,-1],[-1,1]]</code><br>
-            <code>minX = -1</code>, <code>maxX = 1</code>, <code>minY = -1</code>, <code>maxY = 1</code> → 가로 2, 세로 2 → 넓이 4</li>
+        <li><code>n = 12</code><br>
+            12 → 2로 나눔 → 6 → 2로 나눔 → 3 → 3으로 나눔 → 1<br>
+            소인수: <code>[2, 3]</code></li>
+        <li><code>n = 420</code><br>
+            2, 3, 5, 7 순으로 나누어짐 → <code>[2, 3, 5, 7]</code></li>
+        <li><code>n = 17</code><br>
+            17은 소수 → <code>[17]</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        네 점(고정된 개수)을 순회하므로 <code>O(1)</code>로 볼 수 있으나, 일반적으로 점 개수가 <code>n</code>이라면 <code>O(n)</code>다.
+        소인수 탐색은 최대 <code>√n</code>까지 수행되므로 <code>O(√n)</code>.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        보조 변수 <code>minX, maxX, minY, maxY</code>만 사용하므로 <code>O(1)</code>이다.
+        소인수 개수에 비례해 <code>O(k)</code> (<code>k</code>는 서로 다른 소인수의 개수).  
+        일반적으로 <code>O(log n)</code> 이하.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>점 개수</strong>: 문제는 네 개의 점만 주어진다. 일반화된 경우가 아니라는 점을 확인해야 한다.</li>
-        <li><strong>좌표 정렬 없음</strong>: 입력이 정렬되어 있거나 직사각형의 꼭짓점 순서로 주어진다는 보장이 없으므로 모든 점을 검사해야 한다.</li>
-        <li><strong>음수 좌표</strong>: x나 y 좌표가 음수일 수 있으며, 최소값/최대값 계산 방식에 영향을 받지 않는다.</li>
+        <li><strong>중복 방지</strong>: 동일 소인수를 여러 번 나누더라도 <code>Set</code>에 한 번만 저장된다.</li>
+        <li><strong>LinkedHashSet 선택</strong>: 삽입 순서를 유지하므로 결과 배열이 자동으로 오름차순 정렬.</li>
+        <li><strong>마지막 소수 처리</strong>: 반복 후 <code>n > 1</code>이면 그 자체가 소수임을 잊지 말 것.</li>
+        <li><strong>예외 입력</strong>: <code>n &lt; 2</code>인 경우는 문제 조건상 등장하지 않음.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -248,69 +243,57 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>단일 반복 방식</strong> — 구조만 약간 변화:<br>
+          <li style="margin-top:1.2em;"><strong>정렬된 리스트 사용</strong> — 단순화된 구조<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int[][] dots) {
-              int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
-              int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
-      
-              for (int[] dot : dots) {
-                  int x = dot[0], y = dot[1];
-                  if (x &lt; minX) minX = x;
-                  if (x &gt; maxX) maxX = x;
-                  if (y &lt; minY) minY = y;
-                  if (y &gt; maxY) maxY = y;
+          public int[] solution(int n) {
+              List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+              for (int i = 2; i * i &lt;= n; i++) {
+                  if (n % i == 0) {
+                      list.add(i);
+                      while (n % i == 0) n /= i;
+                  }
               }
-      
-              return (maxX - minX) * (maxY - minY);
+              if (n &gt; 1) list.add(n);
+              return list.stream().mapToInt(Integer::intValue).toArray();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">조건문을 직접 사용해 최소/최대값을 갱신한다.</p>
+            <p style="margin-top:0.5em;">중복 제거를 직접 조건문으로 수행해 <code>List</code>만으로 해결 가능.</p>
           </li>
       
-          <li style="margin-top:1.2em;"><strong>배열 정렬 활용 방식</strong> — 가독성 위주:<br>
+          <li style="margin-top:1.2em;"><strong>에라토스테네스 기반 접근</strong> — 사전 계산형<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int solution(int[][] dots) {
-              int[] xs = new int[4], ys = new int[4];
-              for (int i = 0; i &lt; dots.length; i++) {
-                  xs[i] = dots[i][0];
-                  ys[i] = dots[i][1];
+          public int[] solution(int n) {
+              boolean[] prime = new boolean[n + 1];
+              Arrays.fill(prime, true);
+              prime[0] = prime[1] = false;
+              for (int i = 2; i * i &lt;= n; i++) {
+                  if (prime[i]) {
+                      for (int j = i * i; j &lt;= n; j += i)
+                          prime[j] = false;
+                  }
               }
-              Arrays.sort(xs);
-              Arrays.sort(ys);
-              return (xs[3] - xs[0]) * (ys[3] - ys[0]);
+      
+              List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
+              for (int i = 2; i &lt;= n; i++) {
+                  if (prime[i] &amp;&amp; n % i == 0)
+                      result.add(i);
+              }
+              return result.stream().mapToInt(Integer::intValue).toArray();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">x좌표 배열과 y좌표 배열을 정렬한 뒤 가장 작은 값과 가장 큰 값의 차이를 사용한다.</p>
-          </li>
-      
-          <li style="margin-top:1.2em;"><strong>람다 및 스트림 방식 (Java 8+) </strong> — 최신 문법 활용:<br>
-            <pre><code>
-      import java.util.*;
-      import java.util.stream.*;
-      
-      class Solution {
-          public int solution(int[][] dots) {
-              int minX = Arrays.stream(dots).mapToInt(d -&gt; d[0]).min().orElse(0);
-              int maxX = Arrays.stream(dots).mapToInt(d -&gt; d[0]).max().orElse(0);
-              int minY = Arrays.stream(dots).mapToInt(d -&gt; d[1]).min().orElse(0);
-              int maxY = Arrays.stream(dots).mapToInt(d -&gt; d[1]).max().orElse(0);
-              return (maxX - minX) * (maxY - minY);
-          }
-      }
-            </code></pre>
-            <p style="margin-top:0.5em;">람다식으로 최소/최대값을 구해 코드 길이를 줄인다.</p>
+            <p style="margin-top:0.5em;">미리 소수를 구해두고 <code>n</code>을 나누는 소수만 추출하는 방식.</p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -344,14 +327,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 배열 원소의 길이</h2>
+      <h2 class="section">문제 3 — 숨어있는 숫자의 덧셈 (1)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120854">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120851">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1105_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -361,89 +344,91 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        문자열 배열 <code>strlist</code>의 각 원소 길이를 구해 정수 배열로 반환하는 문제다.
-        각 문자열의 <code>length()</code> 값을 구해 동일 인덱스의 정수 배열에 저장하면 된다.
-        반복문으로 문자열을 하나씩 순회하며 길이를 채워 넣는다.
+        문자열 <code>my_string</code>에 포함된 모든 숫자 문자(‘0’~‘9’)를 찾아 그 합을 구하는 문제다.  
+        문자를 하나씩 순회하며 숫자인 경우 정수값으로 변환해 누적 합계를 계산한다.
       </p>
       
       <ul>
-        <li><strong>배열 생성</strong>: 결과용 정수 배열 <code>ints</code>를 <code>strlist.length</code> 크기로 생성</li>
-        <li><strong>반복 처리</strong>: 각 문자열 <code>s</code>에 대해 <code>ints[i++] = s.length()</code></li>
-        <li><strong>결과 반환</strong>: 완성된 <code>ints</code> 배열 반환</li>
+        <li><strong>문자 순회</strong>: <code>toCharArray()</code>로 문자열을 문자 배열로 변환하고 반복 처리.</li>
+        <li><strong>숫자 판별</strong>: 문자 <code>c</code>가 <code>'0' &lt;= c &lt;= '9'</code> 범위에 있으면 숫자로 간주.</li>
+        <li><strong>정수 변환</strong>: 문자 ‘0’의 코드 값을 빼서 실제 숫자로 변환 → <code>c - '0'</code>.</li>
+        <li><strong>합산</strong>: 변환된 값을 <code>sum</code>에 더함.</li>
+        <li><strong>결과 반환</strong>: 전체 문자열 순회를 마친 뒤 최종 합계 <code>sum</code>을 반환.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li><code>strlist = ["We", "are", "the", "world!"]</code><br>
-            길이 배열: <code>[2, 3, 3, 6]</code></li>
-        <li><code>strlist = ["I", "Love", "Java"]</code><br>
-            길이 배열: <code>[1, 4, 4]</code></li>
-        <li><code>strlist = ["a", "ab", "abc", "abcd"]</code><br>
-            길이 배열: <code>[1, 2, 3, 4]</code></li>
+        <li><code>my_string = "aAb1B2cC34oOp"</code><br>
+            숫자: 1, 2, 3, 4 → 합계 <code>10</code></li>
+        <li><code>my_string = "1a2b3c4d123"</code><br>
+            숫자: 1, 2, 3, 4, 1, 2, 3 → 합계 <code>16</code></li>
+        <li><code>my_string = "abc"</code><br>
+            숫자 없음 → 합계 <code>0</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        문자열 배열을 한 번 순회하므로 <code>O(n)</code> (<code>n = strlist.length</code>).
+        문자열 길이를 <code>n</code>이라 할 때, 한 번 순회하므로 <code>O(n)</code>.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        결과 배열과 상수 크기의 보조 변수(<code>i</code>)만 사용하므로 <code>O(n)</code>.
+        상수 크기의 변수(<code>sum</code>)만 사용하므로 <code>O(1)</code>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong>문자열 길이</strong>: <code>String.length()</code>는 유니코드 문자의 개수를 기준으로 한다.</li>
-        <li><strong>빈 문자열</strong>: 길이가 0인 문자열도 정상적으로 0으로 처리된다.</li>
-        <li><strong>입력 크기</strong>: 배열 크기가 0일 경우 빈 배열을 반환한다.</li>
+        <li><strong>연속된 숫자 처리</strong>: 각 자리 숫자를 독립적으로 더하므로 “12”는 1 + 2로 계산됨.</li>
+        <li><strong>비숫자 문자</strong>: 알파벳, 특수문자 등은 무시된다.</li>
+        <li><strong>음수 부호</strong>: ‘-’는 숫자가 아니므로 포함되지 않는다.</li>
+        <li><strong>공백 처리</strong>: 공백 역시 무시된다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
-        <ul>    
-          <li style="margin-top:1.2em;"><strong>일반 for문 사용</strong> — 명시적 인덱스 활용<br>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>정규식 이용</strong> — 숫자 추출 단축 표현<br>
             <pre><code>
       import java.util.*;
       
       class Solution {
-          public int[] solution(String[] strlist) {
-              int[] res = new int[strlist.length];
-              for (int i = 0; i &lt; strlist.length; i++) {
-                  res[i] = strlist[i].length();
-              }
-              return res;
+          public int solution(String my_string) {
+              return my_string.replaceAll("[^0-9]", "")
+                              .chars()
+                              .map(c -> c - '0')
+                              .sum();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">전통적인 <code>for</code> 문으로 인덱스 제어가 명확하다.</p>
+            <p style="margin-top:0.5em;">정규식 <code>[^0-9]</code>로 숫자가 아닌 문자를 제거하고 남은 숫자들을 합산.</p>
           </li>
       
-          <li style="margin-top:1.2em;"><strong>스트림 방식 (Java 8+)</strong> — 간결한 표현<br>
+          <li style="margin-top:1.2em;"><strong>스트림 기반 처리</strong> — 가독성 중심 함수형 접근<br>
             <pre><code>
       import java.util.*;
-      import java.util.stream.*;
       
       class Solution {
-          public int[] solution(String[] strlist) {
-              return Arrays.stream(strlist)
-                           .mapToInt(String::length)
-                           .toArray();
+          public int solution(String my_string) {
+              return (int) my_string.chars()
+                                    .filter(Character::isDigit)
+                                    .map(c -> c - '0')
+                                    .sum();
           }
       }
             </code></pre>
-            <p style="margin-top:0.5em;">함수형 스타일로 짧고 가독성이 높지만, 내부적으로 스트림 생성 비용이 있다.</p>
+            <p style="margin-top:0.5em;">문자 스트림에서 <code>Character.isDigit</code>으로 필터링하고 각 문자를 숫자로 변환해 합산한다.</p>
           </li>
         </ul>
       </details>
+
 
 
 
