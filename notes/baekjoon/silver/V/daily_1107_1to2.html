@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-06 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4659 — 비밀번호 발음하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4659">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1106_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>비밀번호 발음하기(BOJ 4659)</strong>는 주어진 소문자 문자열이 아래의 규칙을 모두 만족하면
+        <strong>acceptable</strong>, 아니면 <strong>not acceptable</strong>로 판정하는 문제다. 입력은 여러 줄이며 마지막 줄 <code>end</code>가 종료 신호다.
+      </p>
+      <ul>
+        <li>규칙
+          <ul>
+            <li>모음(<code>a,e,i,o,u</code>)을 <strong>적어도 하나</strong> 포함.</li>
+            <li>모음 3개 <strong>연속</strong> 또는 자음 3개 <strong>연속</strong> 금지.</li>
+            <li>같은 글자 <strong>연속 2번</strong> 금지. 단, <code>ee</code>, <code>oo</code>는 예외로 허용.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
+      <ul>
+        <li>각 줄(패스워드)에 대해 왼쪽→오른쪽으로 한 글자씩 스캔한다.</li>
+        <li><strong>상태</strong>를 유지한다:
+          <ul>
+            <li><code>hasVowel</code>: 지금까지 모음을 하나라도 봤는지.</li>
+            <li><code>vow</code>, <code>cons</code>: 현재 구간의 연속 모음/자음 개수.</li>
+            <li><code>prev</code>: 직전 문자(연속 중복 체크).</li>
+          </ul>
+        </li>
+        <li>매 글자 처리:
+          <ul>
+            <li>연속 중복이면 <code>ee</code>/<code>oo</code>만 허용, 그 외는 즉시 실패.</li>
+            <li>모음이면 <code>hasVowel=true</code>, <code>vow++</code>, <code>cons=0</code>.</li>
+            <li>자음이면 <code>cons++</code>, <code>vow=0</code>.</li>
+            <li><code>vow ≥ 3</code> 또는 <code>cons ≥ 3</code>가 되면 즉시 실패.</li>
+          </ul>
+        </li>
+        <li>스캔 종료 후 <code>ok && hasVowel</code>이면 <strong>acceptable</strong>, 아니면 <strong>not acceptable</strong>.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 파싱:
+          <ul>
+            <li>한 줄씩 읽어 <code>end</code>면 종료, 아니면 판정 수행.</li>
+          </ul>
+        </li>
+        <li>보조 함수:
+          <ul>
+            <li><code>isVowel(c)</code>: <code>a,e,i,o,u</code> 판정.</li>
+          </ul>
+        </li>
+        <li>상태 변수:
+          <ul>
+            <li><code>hasVowel</code>, <code>ok</code>, <code>vow</code>, <code>cons</code>, <code>prev</code>.</li>
+          </ul>
+        </li>
+        <li>연속 규칙 처리:
+          <ul>
+            <li><strong>중복 문자</strong>: <code>prev == curr</code>이면 <code>curr</code>이 <code>e</code> 또는 <code>o</code>일 때만 통과.</li>
+            <li><strong>연속 3개</strong>: 모음/자음 카운트를 각각 관리하고 반대 분류를 만나면 0으로 리셋.</li>
+          </ul>
+        </li>
+        <li>출력:
+          <ul>
+            <li>형식: <code>&lt;password&gt; is acceptable.</code> 또는 <code>&lt;password&gt; is not acceptable.</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li>입력: <code>a</code> → <strong>&lt;a&gt; is acceptable.</strong> (모음 포함, 규칙 위반 없음)</li>
+        <li>입력: <code>tv</code> → <strong>&lt;tv&gt; is not acceptable.</strong> (모음 없음)</li>
+        <li>입력: <code>wiinq</code> → <strong>&lt;wiinq&gt; is not acceptable.</strong> (<code>ii</code> 연속 중복이지만 <code>ee/oo</code>가 아님)</li>
+        <li>입력: <code>eep</code> → <strong>&lt;eep&gt; is acceptable.</strong> (<code>ee</code> 허용, 모음 존재, 연속 3개 없음)</li>
+        <li>입력: <code>houctuh</code> → <strong>&lt;houctuh&gt; is acceptable.</strong> (모음 존재, 연속 3개 없음, 불허 중복 없음)</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        각 패스워드 길이를 <code>L (1 ≤ L ≤ 20)</code>이라 하면 한 번의 선형 스캔으로 <code>O(L)</code>.
+        입력 전체에 대해 <code>Σ O(L)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        고정 크기 보조 상태(카운터와 직전 문자)만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong><code>ee</code>, <code>oo</code>만</strong> 예외로 허용한다(다른 이중문자 불가).</li>
+        <li>모음·자음 <strong>연속 카운트는 서로 독립</strong>이며, 반대 분류를 만나면 각각 0으로 리셋해야 한다.</li>
+        <li>하나라도 모음을 포함해야 한다(<code>hasVowel</code> 체크 필수).</li>
+        <li>위반을 발견하면 <strong>즉시 종료</strong>해 불필요한 연산을 줄인다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>슬라이딩 윈도</strong>: 길이 3 윈도를 굴리며 모음/자음 개수만 세어도 연속 3개 판정은 가능(다만 이중문자 규칙은 별도 처리 필요).</li>
+          <li><strong>정규식 보조</strong>: <code>(?&lt;!e)e(?!e)</code> 같은 복잡한 패턴은 과하고 가독성이 떨어짐 — 본 문제는 단순 선형 스캔이 가장 명료.</li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>모음 존재(<code>hasVowel</code>) + 연속 3개 금지 + 이중문자 예외(<code>ee/oo</code>)만 허용.</li>
+        <li>한 번의 선형 스캔으로 상태(<code>vow/cons/prev</code>) 관리.</li>
+        <li>위반 발견 시 <strong>조기 종료</strong>, 최종 판정 후 형식 그대로 출력.</li>
+        <li>시간 <code>O(L)</code>, 공간 <code>O(1)</code> — 제약 내 충분히 빠름.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4670 — Booklet Printing</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4670">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1106_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Booklet Printing(BOJ 4670)</strong>는 총 페이지 수 <code>n</code>이 주어졌을 때, 접지 소책자(Booklet)로 인쇄하기 위한
+        <strong>시트별 앞/뒤 인쇄 순서</strong>를 생성하는 문제다. 한 시트에는 앞면 2페이지, 뒷면 2페이지로 총 4페이지가 배치된다.
+        소책자는 모든 시트를 포개어 반으로 접으면 정상적인 1,2,3,… 순서로 보이게 된다.
+      </p>
+      <ul>
+        <li>조건
+          <ul>
+            <li>각 테스트케이스는 정수 <code>n (1 ≤ n ≤ 100)</code>.</li>
+            <li>시트를 가득 채우지 못하는 칸은 <code>Blank</code>로 표시.</li>
+            <li>어떤 면(앞/뒤)이 둘 다 <code>Blank</code>라면 그 줄은 출력하지 않음.</li>
+            <li>시트 번호 오름차순, <strong>front 먼저</strong>, 이어서 <strong>back</strong>을 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
+      <ul>
+        <li>필요 시트 수: <code>paper = ceil(n / 4)</code>.</li>
+        <li>시트별 배치 규칙(시트 i = 1..paper):
+          <ul>
+            <li>왼쪽 큰 번호부터 내려가는 포인터 <code>left = paper*4</code>, 오른쪽 작은 번호부터 올라가는 포인터 <code>right = 1</code>를 사용.</li>
+            <li><strong>앞면(front)</strong>: <code>(left, right)</code>.</li>
+            <li><strong>뒷면(back)</strong>:  <code>(right+1, left-1)</code>.</li>
+            <li>다음 시트로 넘어갈 때 <code>left -= 2</code>, <code>right += 2</code>.</li>
+          </ul>
+        </li>
+        <li>페이지 번호가 범위를 벗어나면(<code>&lt;1</code> 또는 <code>&gt;n</code>) 그 칸은 <code>Blank</code>.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 파싱:
+          <ul>
+            <li>한 줄씩 <code>n</code>을 읽고, <code>n==0</code>이면 종료.</li>
+            <li>테스트케이스 사이에 한 줄 공백을 출력(문제 예시 형식 일치).</li>
+          </ul>
+        </li>
+        <li>보조 함수:
+          <ul>
+            <li><code>label(page, n)</code>: <code>1 ≤ page ≤ n</code>이면 숫자 문자열, 아니면 <code>"Blank"</code> 반환.</li>
+          </ul>
+        </li>
+        <li>시트 생성 루프:
+          <ul>
+            <li>시트 i마다 앞면/뒷면의 좌/우 페이지를 <code>label</code>로 문자열화.</li>
+            <li>앞·뒤 한 면이 <code>Blank, Blank</code>라면 해당 줄은 건너뜀.</li>
+            <li>출력 라벨은 정확히 <code>Sheet i, front:</code> / <code>Sheet i, back :</code> (공백 포함) 형식 준수.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>n = 1</code>
+          <ul><li>Sheet 1, front: <code>Blank, 1</code> (back은 <code>Blank, Blank</code> → 생략)</li></ul>
+        </li>
+        <li><code>n = 4</code>
+          <ul>
+            <li>Sheet 1, front: <code>4, 1</code></li>
+            <li>Sheet 1, back : <code>2, 3</code></li>
+          </ul>
+        </li>
+        <li><code>n = 14</code>
+          <ul>
+            <li>Sheet 1, front: <code>Blank, 1</code></li>
+            <li>Sheet 1, back : <code>2, Blank</code></li>
+            <li>Sheet 2, front: <code>14, 3</code> … (문제 예시와 동일 패턴)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        시트 수는 <code>paper = ⌈n/4⌉ (≤ 25)</code>, 각 시트에서 상수 작업이므로
+        전체 <code>O(paper) = O(n)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        고정 크기 변수(<code>left</code>, <code>right</code> 등)만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>출력 포맷</strong>의 공백·쉼표·콜론 위치(특히 <code>back :</code>의 공백)까지 예시와 동일해야 한다.</li>
+        <li>면 전체가 <code>Blank, Blank</code>이면 해당 줄은 출력하지 않는다.</li>
+        <li><code>left</code>는 큰 수에서 2씩 감소, <code>right</code>는 1에서 2씩 증가 — 업데이트 순서를 혼동하지 말 것.</li>
+        <li>테스트케이스 사이에 <strong>빈 줄 한 줄</strong> 출력(예시 형식 일치).</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>배열 시뮬레이션</strong>: 크기 <code>paper×2×2</code>의 시트-면-칸 배열에 직접 채운 뒤 범위 밖은 <code>Blank</code>로 채워 출력.</li>
+          <li><strong>큐/스택 모델</strong>: 좌우 포인터 대신 <code>[1..n]</code>를 큐로, <code>[4·paper..1]</code>를 스택으로 두고
+            앞면/뒷면 순서대로 꺼내 배치(본 문제 규모에선 포인터 방식이 가장 단순).</li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>필요 시트 수 <code>paper=⌈n/4⌉</code>, 포인터 <code>left=4·paper</code>, <code>right=1</code>로 시작.</li>
+        <li>앞면: <code>(left, right)</code>, 뒷면: <code>(right+1, left-1)</code>.</li>
+        <li>범위 밖은 <code>Blank</code>, <code>Blank, Blank</code>면 해당 줄 생략.</li>
+        <li>시간 <code>O(n)</code>, 공간 <code>O(1)</code> — 간단하고 빠름.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

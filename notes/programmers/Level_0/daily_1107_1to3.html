@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-06 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 컨트롤 제트</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120853">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        문자열 <code>s</code>에는 숫자와 <code>"Z"</code>가 공백으로 구분되어 주어진다. 
+        각 숫자는 더해야 하는 값이며, <code>"Z"</code>가 등장할 때마다 바로 직전 숫자를 취소(무효화)하는 규칙이다.  
+        즉, 전체 합계를 계산하되, <code>"Z"</code> 직전에 더했던 값을 다시 빼주는 방식으로 구현한다.
+      </p>
+      
+      <ul>
+        <li><strong>분리 처리</strong>: 입력 문자열을 공백 기준으로 나누어 <code>split(" ")</code>으로 순회한다.</li>
+        <li><strong>취소 처리</strong>: 현재 요소가 <code>"Z"</code>면 직전 더했던 값(<code>prev</code>)을 <code>sum</code>에서 빼고 건너뛴다.</li>
+        <li><strong>누적 합산</strong>: 숫자인 경우 정수로 변환해 <code>prev</code>에 저장하고 <code>sum</code>에 더한다.</li>
+        <li><strong>최종 반환</strong>: 모든 토큰을 처리한 뒤 합계 <code>sum</code>을 반환한다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>s = "1 2 Z 3"</code><br>
+            1 → 3 → Z로 2 취소 → +3 ⇒ 결과 <code>4</code></li>
+        <li><code>s = "10 20 30 Z Z"</code><br>
+            10+20+30 → Z(30취소) → Z(20취소) ⇒ 결과 <code>10</code></li>
+        <li><code>s = "-1 -2 -3 Z"</code><br>
+            -1 -2 -3 → Z(-3 취소) ⇒ 결과 <code>-3</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        문자열을 공백 기준으로 한 번 순회하므로 <code>O(n)</code> (<code>n = s.split(" ").length</code>).
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        상수 크기의 변수(<code>prev</code>, <code>sum</code>)만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>초기값 처리</strong>: 첫 숫자 전에는 <code>prev = 0</code>으로 초기화하여 안정적으로 작동.</li>
+        <li><strong>연속 Z</strong>: <code>"Z Z"</code>가 연속될 경우, 두 번째 <code>Z</code>는 이미 취소된 값을 다시 취소하지 않도록 <code>prev</code>가 0이 되므로 영향 없음.</li>
+        <li><strong>숫자 변환</strong>: 문자열을 정수로 변환할 때 <code>Integer.parseInt(str)</code> 사용.</li>
+        <li><strong>예외 입력</strong>: 비어 있거나 숫자 외 문자열은 문제 조건상 등장하지 않음.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>스택 활용 방식</strong> — “되돌리기” 개념을 명시적으로 처리<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int solution(String s) {
+              Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+              for (String str : s.split(" ")) {
+                  if (str.equals("Z")) {
+                      if (!stack.isEmpty()) stack.pop();
+                  } else {
+                      stack.push(Integer.parseInt(str));
+                  }
+              }
+              return stack.stream().mapToInt(Integer::intValue).sum();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">스택에 숫자를 쌓고, <code>"Z"</code>가 나오면 <code>pop()</code>으로 직전 항목 제거.</p>
+          </li>
+          <li style="margin-top:1.2em;"><strong>reduce 기반 스트림 처리</strong> — 함수형 접근<br>
+            <pre><code>
+      import java.util.*;
+      import java.util.stream.*;
+      
+      class Solution {
+          public int solution(String s) {
+              Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
+              for (String str : s.split(" ")) {
+                  if (str.equals("Z")) {
+                      if (!dq.isEmpty()) dq.removeLast();
+                  } else {
+                      dq.addLast(Integer.parseInt(str));
+                  }
+              }
+              return dq.stream().mapToInt(Integer::intValue).sum();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">스택 대신 <code>Deque</code>를 사용해 후입선출 구조를 유지하면서도 스트림 합산으로 마무리한다.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 소인수분해</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120852">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        자연수 <code>n</code>의 소인수를 모두 구하되, 중복 없이 오름차순으로 반환하는 문제다.  
+        2부터 시작해 <code>√n</code>까지 나누며, 나누어 떨어질 때마다 <code>n</code>을 나누고 해당 인수를 <code>Set</code>에 저장한다.  
+        반복 후 <code>n</code>이 1보다 크면 마지막 남은 수 또한 소수이므로 추가한다.
+      </p>
+      
+      <ul>
+        <li><strong>소인수 분해 반복</strong>: 2부터 <code>i * i ≤ n</code>까지 순회하며 <code>n % i == 0</code>이면 나누기 반복.</li>
+        <li><strong>중복 제거</strong>: <code>LinkedHashSet</code> 사용으로 중복 방지 및 입력 순서(오름차순) 유지.</li>
+        <li><strong>마지막 처리</strong>: 루프 후 <code>n > 1</code>이면 남은 값은 소수 → 추가.</li>
+        <li><strong>출력 변환</strong>: <code>Set</code>을 스트림으로 변환해 <code>int[]</code> 배열로 반환.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>n = 12</code><br>
+            12 → 2로 나눔 → 6 → 2로 나눔 → 3 → 3으로 나눔 → 1<br>
+            소인수: <code>[2, 3]</code></li>
+        <li><code>n = 420</code><br>
+            2, 3, 5, 7 순으로 나누어짐 → <code>[2, 3, 5, 7]</code></li>
+        <li><code>n = 17</code><br>
+            17은 소수 → <code>[17]</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        소인수 탐색은 최대 <code>√n</code>까지 수행되므로 <code>O(√n)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        소인수 개수에 비례해 <code>O(k)</code> (<code>k</code>는 서로 다른 소인수의 개수).  
+        일반적으로 <code>O(log n)</code> 이하.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>중복 방지</strong>: 동일 소인수를 여러 번 나누더라도 <code>Set</code>에 한 번만 저장된다.</li>
+        <li><strong>LinkedHashSet 선택</strong>: 삽입 순서를 유지하므로 결과 배열이 자동으로 오름차순 정렬.</li>
+        <li><strong>마지막 소수 처리</strong>: 반복 후 <code>n > 1</code>이면 그 자체가 소수임을 잊지 말 것.</li>
+        <li><strong>예외 입력</strong>: <code>n &lt; 2</code>인 경우는 문제 조건상 등장하지 않음.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>정렬된 리스트 사용</strong> — 단순화된 구조<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int n) {
+              List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+              for (int i = 2; i * i &lt;= n; i++) {
+                  if (n % i == 0) {
+                      list.add(i);
+                      while (n % i == 0) n /= i;
+                  }
+              }
+              if (n &gt; 1) list.add(n);
+              return list.stream().mapToInt(Integer::intValue).toArray();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">중복 제거를 직접 조건문으로 수행해 <code>List</code>만으로 해결 가능.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>에라토스테네스 기반 접근</strong> — 사전 계산형<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(int n) {
+              boolean[] prime = new boolean[n + 1];
+              Arrays.fill(prime, true);
+              prime[0] = prime[1] = false;
+              for (int i = 2; i * i &lt;= n; i++) {
+                  if (prime[i]) {
+                      for (int j = i * i; j &lt;= n; j += i)
+                          prime[j] = false;
+                  }
+              }
+      
+              List&lt;Integer&gt; result = new ArrayList&lt;&gt;();
+              for (int i = 2; i &lt;= n; i++) {
+                  if (prime[i] &amp;&amp; n % i == 0)
+                      result.add(i);
+              }
+              return result.stream().mapToInt(Integer::intValue).toArray();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">미리 소수를 구해두고 <code>n</code>을 나누는 소수만 추출하는 방식.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 숨어있는 숫자의 덧셈 (1)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120851">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1106_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        문자열 <code>my_string</code>에 포함된 모든 숫자 문자(‘0’~‘9’)를 찾아 그 합을 구하는 문제다.  
+        문자를 하나씩 순회하며 숫자인 경우 정수값으로 변환해 누적 합계를 계산한다.
+      </p>
+      
+      <ul>
+        <li><strong>문자 순회</strong>: <code>toCharArray()</code>로 문자열을 문자 배열로 변환하고 반복 처리.</li>
+        <li><strong>숫자 판별</strong>: 문자 <code>c</code>가 <code>'0' &lt;= c &lt;= '9'</code> 범위에 있으면 숫자로 간주.</li>
+        <li><strong>정수 변환</strong>: 문자 ‘0’의 코드 값을 빼서 실제 숫자로 변환 → <code>c - '0'</code>.</li>
+        <li><strong>합산</strong>: 변환된 값을 <code>sum</code>에 더함.</li>
+        <li><strong>결과 반환</strong>: 전체 문자열 순회를 마친 뒤 최종 합계 <code>sum</code>을 반환.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>my_string = "aAb1B2cC34oOp"</code><br>
+            숫자: 1, 2, 3, 4 → 합계 <code>10</code></li>
+        <li><code>my_string = "1a2b3c4d123"</code><br>
+            숫자: 1, 2, 3, 4, 1, 2, 3 → 합계 <code>16</code></li>
+        <li><code>my_string = "abc"</code><br>
+            숫자 없음 → 합계 <code>0</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        문자열 길이를 <code>n</code>이라 할 때, 한 번 순회하므로 <code>O(n)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        상수 크기의 변수(<code>sum</code>)만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>연속된 숫자 처리</strong>: 각 자리 숫자를 독립적으로 더하므로 “12”는 1 + 2로 계산됨.</li>
+        <li><strong>비숫자 문자</strong>: 알파벳, 특수문자 등은 무시된다.</li>
+        <li><strong>음수 부호</strong>: ‘-’는 숫자가 아니므로 포함되지 않는다.</li>
+        <li><strong>공백 처리</strong>: 공백 역시 무시된다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>정규식 이용</strong> — 숫자 추출 단축 표현<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int solution(String my_string) {
+              return my_string.replaceAll("[^0-9]", "")
+                              .chars()
+                              .map(c -> c - '0')
+                              .sum();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">정규식 <code>[^0-9]</code>로 숫자가 아닌 문자를 제거하고 남은 숫자들을 합산.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>스트림 기반 처리</strong> — 가독성 중심 함수형 접근<br>
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int solution(String my_string) {
+              return (int) my_string.chars()
+                                    .filter(Character::isDigit)
+                                    .map(c -> c - '0')
+                                    .sum();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">문자 스트림에서 <code>Character.isDigit</code>으로 필터링하고 각 문자를 숫자로 변환해 합산한다.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
