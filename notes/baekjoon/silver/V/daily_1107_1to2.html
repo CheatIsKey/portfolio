@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-06 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-07 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 4659 — 비밀번호 발음하기</h2>
+      <h2 class="section">문제 4673 — 셀프 넘버</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4659">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4673">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1106_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1107_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -50,70 +50,48 @@
       
       <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
       <p>
-        <strong>비밀번호 발음하기(BOJ 4659)</strong>는 주어진 소문자 문자열이 아래의 규칙을 모두 만족하면
-        <strong>acceptable</strong>, 아니면 <strong>not acceptable</strong>로 판정하는 문제다. 입력은 여러 줄이며 마지막 줄 <code>end</code>가 종료 신호다.
+        <strong>셀프 넘버(BOJ 4673)</strong>는 양의 정수 <code>n</code>에 대해 생성 함수 <code>d(n)</code>를
+        <code>n</code>과 각 자리수의 합으로 정의하고, 어떤 수가 어느 수의 생성자도 갖지 않으면 그 수를
+        <strong>셀프 넘버</strong>라고 부른다. 이 문제는 <strong>10,000 이하</strong>의 모든 셀프 넘버를 오름차순으로 한 줄에 하나씩 출력하는 과제다.
+        입력은 <strong>없다</strong>.
       </p>
       <ul>
-        <li>규칙
-          <ul>
-            <li>모음(<code>a,e,i,o,u</code>)을 <strong>적어도 하나</strong> 포함.</li>
-            <li>모음 3개 <strong>연속</strong> 또는 자음 3개 <strong>연속</strong> 금지.</li>
-            <li>같은 글자 <strong>연속 2번</strong> 금지. 단, <code>ee</code>, <code>oo</code>는 예외로 허용.</li>
-          </ul>
-        </li>
+        <li>예: <code>d(75) = 75 + 7 + 5 = 87</code>, <code>101</code>의 생성자는 <code>91</code>, <code>100</code> 등.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
       <ul>
-        <li>각 줄(패스워드)에 대해 왼쪽→오른쪽으로 한 글자씩 스캔한다.</li>
-        <li><strong>상태</strong>를 유지한다:
-          <ul>
-            <li><code>hasVowel</code>: 지금까지 모음을 하나라도 봤는지.</li>
-            <li><code>vow</code>, <code>cons</code>: 현재 구간의 연속 모음/자음 개수.</li>
-            <li><code>prev</code>: 직전 문자(연속 중복 체크).</li>
-          </ul>
-        </li>
-        <li>매 글자 처리:
-          <ul>
-            <li>연속 중복이면 <code>ee</code>/<code>oo</code>만 허용, 그 외는 즉시 실패.</li>
-            <li>모음이면 <code>hasVowel=true</code>, <code>vow++</code>, <code>cons=0</code>.</li>
-            <li>자음이면 <code>cons++</code>, <code>vow=0</code>.</li>
-            <li><code>vow ≥ 3</code> 또는 <code>cons ≥ 3</code>가 되면 즉시 실패.</li>
-          </ul>
-        </li>
-        <li>스캔 종료 후 <code>ok && hasVowel</code>이면 <strong>acceptable</strong>, 아니면 <strong>not acceptable</strong>.</li>
+        <li><strong>표시 배열</strong>을 사용한다: <code>generated[x] = true</code>면 어떤 수의 <code>d</code> 체인을 통해 <code>x</code>가 만들어졌음을 의미.</li>
+        <li><code>i = 1..10000</code>에 대해 <code>n = d(i)</code>를 계산하고, <code>n ≤ 10000</code>이면 <code>generated[n] = true</code>.</li>
+        <li>최종적으로 <code>generated[i] == false</code>인 모든 <code>i</code>를 출력하면 그것이 곧 <strong>셀프 넘버</strong>.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
       <ul>
-        <li>입력 파싱:
+        <li>보조 함수 <code>d(int i)</code>:
           <ul>
-            <li>한 줄씩 읽어 <code>end</code>면 종료, 아니면 판정 수행.</li>
+            <li><code>sum = i</code>로 시작해, <code>i</code>의 각 자리수를 <code>sum</code>에 누적(<code>i % 10</code>, <code>i /= 10</code> 반복).</li>
+            <li>결과 <code>sum</code>을 반환.</li>
           </ul>
         </li>
-        <li>보조 함수:
+        <li>생성된 수 표시:
           <ul>
-            <li><code>isVowel(c)</code>: <code>a,e,i,o,u</code> 판정.</li>
+            <li><code>for i = 1..10000</code>: <code>n = d(i)</code>를 얻고, <code>n ≤ 10000</code>이면 <code>generated[n] = true</code>.</li>
           </ul>
         </li>
-        <li>상태 변수:
+        <li>셀프 넘버 출력:
           <ul>
-            <li><code>hasVowel</code>, <code>ok</code>, <code>vow</code>, <code>cons</code>, <code>prev</code>.</li>
+            <li><code>for i = 1..10000</code>: <code>!generated[i]</code>인 모든 <code>i</code>를 한 줄씩 <code>println</code>.</li>
           </ul>
         </li>
-        <li>연속 규칙 처리:
+        <li>I/O 및 자료구조:
           <ul>
-            <li><strong>중복 문자</strong>: <code>prev == curr</code>이면 <code>curr</code>이 <code>e</code> 또는 <code>o</code>일 때만 통과.</li>
-            <li><strong>연속 3개</strong>: 모음/자음 카운트를 각각 관리하고 반대 분류를 만나면 0으로 리셋.</li>
-          </ul>
-        </li>
-        <li>출력:
-          <ul>
-            <li>형식: <code>&lt;password&gt; is acceptable.</code> 또는 <code>&lt;password&gt; is not acceptable.</code></li>
+            <li><code>boolean[10001]</code>로 1~10000 인덱스를 직관적으로 매핑(0 미사용).</li>
+            <li><code>BufferedReader</code>는 입력이 없으므로 실사용은 없으며, 출력은 <code>System.out.println</code>.</li>
           </ul>
         </li>
       </ul>
@@ -122,34 +100,33 @@
       
       <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
       <ul>
-        <li>입력: <code>a</code> → <strong>&lt;a&gt; is acceptable.</strong> (모음 포함, 규칙 위반 없음)</li>
-        <li>입력: <code>tv</code> → <strong>&lt;tv&gt; is not acceptable.</strong> (모음 없음)</li>
-        <li>입력: <code>wiinq</code> → <strong>&lt;wiinq&gt; is not acceptable.</strong> (<code>ii</code> 연속 중복이지만 <code>ee/oo</code>가 아님)</li>
-        <li>입력: <code>eep</code> → <strong>&lt;eep&gt; is acceptable.</strong> (<code>ee</code> 허용, 모음 존재, 연속 3개 없음)</li>
-        <li>입력: <code>houctuh</code> → <strong>&lt;houctuh&gt; is acceptable.</strong> (모음 존재, 연속 3개 없음, 불허 중복 없음)</li>
+        <li>초기 구간 출력(일부): <code>1, 3, 5, 7, 9, 20, 31, 42, 53, 64, 75, 86, 97, ...</code></li>
+        <li>마지막 부근(일부): <code>... 9903, 9914, 9925, 9927, 9938, 9949, 9960, 9971, 9982, 9993</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        각 패스워드 길이를 <code>L (1 ≤ L ≤ 20)</code>이라 하면 한 번의 선형 스캔으로 <code>O(L)</code>.
-        입력 전체에 대해 <code>Σ O(L)</code>.
+        <code>d(i)</code>는 자릿수 길이(최대 5자리)에 비례하므로 각 <code>i</code>에 대해 <code>O(1)</code>로 취급 가능.
+        전체는 <code>i = 1..10000</code> 한 번 순회하므로 <strong>O(10000)</strong>.
       </p>
       
       <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
       <p>
-        고정 크기 보조 상태(카운터와 직전 문자)만 사용하므로 <code>O(1)</code>.
+        표시 배열 <code>boolean[10001]</code>만 사용하므로 <strong>O(10000)</strong> (= 상수 배수의 선형 공간).
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
       <ul>
-        <li><strong><code>ee</code>, <code>oo</code>만</strong> 예외로 허용한다(다른 이중문자 불가).</li>
-        <li>모음·자음 <strong>연속 카운트는 서로 독립</strong>이며, 반대 분류를 만나면 각각 0으로 리셋해야 한다.</li>
-        <li>하나라도 모음을 포함해야 한다(<code>hasVowel</code> 체크 필수).</li>
-        <li>위반을 발견하면 <strong>즉시 종료</strong>해 불필요한 연산을 줄인다.</li>
+        <li><strong>경계 처리</strong>: <code>n = d(i)</code>가 <code>10000</code>을 초과하면 표시 배열에 기록하지 않는다(<code>if (n &le; 10000)</code>).</li>
+        <li><strong>인덱스</strong>: 배열 크기는 <code>10001</code>로 선언해 <code>1..10000</code>를 인덱스로 직접 사용(0은 미사용).</li>
+        <li><strong>I/O</strong>: 출력 줄 수가 많다. <code>println</code> 반복 제출도 통과하지만,
+            성능 미세 개선을 원하면 <code>StringBuilder</code>에 누적 후 한 번에 출력하는 편이 낫다.
+            (현재 제시 코드의 <code>sb</code>는 사용되지 않으므로 제거하거나 실제로 활용하도록 정리 권장.)</li>
+        <li><strong>입력 없음</strong>: <code>BufferedReader</code>는 필수 아님. 깔끔함을 위해 제거 가능.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -157,8 +134,8 @@
       <details>
         <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
         <ul>
-          <li><strong>슬라이딩 윈도</strong>: 길이 3 윈도를 굴리며 모음/자음 개수만 세어도 연속 3개 판정은 가능(다만 이중문자 규칙은 별도 처리 필요).</li>
-          <li><strong>정규식 보조</strong>: <code>(?&lt;!e)e(?!e)</code> 같은 복잡한 패턴은 과하고 가독성이 떨어짐 — 본 문제는 단순 선형 스캔이 가장 명료.</li>
+          <li><strong>직접 체인 전개 불필요</strong>: 어떤 수의 모든 연쇄 <code>d(d(...))</code>를 전개할 필요 없이, 한 번의 <code>i = 1..10000</code> 순회로 충분.</li>
+          <li><strong>수학적 판정식</strong>: 셀프 넘버를 닫힌형으로 판정하는 간단 식은 알려져 있지 않으므로 표시 배열 방식이 가장 명확하고 구현이 간단.</li>
         </ul>
       </details>
       
@@ -166,11 +143,12 @@
       
       <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
       <ul>
-        <li>모음 존재(<code>hasVowel</code>) + 연속 3개 금지 + 이중문자 예외(<code>ee/oo</code>)만 허용.</li>
-        <li>한 번의 선형 스캔으로 상태(<code>vow/cons/prev</code>) 관리.</li>
-        <li>위반 발견 시 <strong>조기 종료</strong>, 최종 판정 후 형식 그대로 출력.</li>
-        <li>시간 <code>O(L)</code>, 공간 <code>O(1)</code> — 제약 내 충분히 빠름.</li>
+        <li><code>d(n)</code>로 생기는 수를 <strong>표시</strong>하고, 끝에 <strong>비표시</strong> 인덱스만 출력하면 정답.</li>
+        <li>경계 <code>10000</code> <strong>이하만</strong> 기록(<code>if (n ≤ 10000)</code>).</li>
+        <li>시간 <strong>O(10000)</strong>, 공간 <strong>O(10000)</strong> — 문제 제약에 충분.</li>
+        <li>입력 없음, 출력 형식은 <strong>숫자만 줄바꿈</strong>.</li>
       </ul>
+
 
 
 
@@ -209,14 +187,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 4670 — Booklet Printing</h2>
+      <h2 class="section">문제 4675 — Word Amalgamation</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4670">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4675">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1106_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1107_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -226,128 +204,217 @@
       
 
       
-      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
       <p>
-        <strong>Booklet Printing(BOJ 4670)</strong>는 총 페이지 수 <code>n</code>이 주어졌을 때, 접지 소책자(Booklet)로 인쇄하기 위한
-        <strong>시트별 앞/뒤 인쇄 순서</strong>를 생성하는 문제다. 한 시트에는 앞면 2페이지, 뒷면 2페이지로 총 4페이지가 배치된다.
-        소책자는 모든 시트를 포개어 반으로 접으면 정상적인 1,2,3,… 순서로 보이게 된다.
+        <strong>Word Amalgamation(BOJ 4675)</strong>는 주어진 사전(dictionary)과 뒤섞인 단어들(scrambled words)에 대해,
+        각 뒤섞인 단어의 철자를 재배열해서 만들 수 있는 <strong>사전 내 단어들을 모두 찾아</strong> 사전순으로 출력하는 문제다.
       </p>
       <ul>
-        <li>조건
+        <li>입력 구성:
           <ul>
-            <li>각 테스트케이스는 정수 <code>n (1 ≤ n ≤ 100)</code>.</li>
-            <li>시트를 가득 채우지 못하는 칸은 <code>Blank</code>로 표시.</li>
-            <li>어떤 면(앞/뒤)이 둘 다 <code>Blank</code>라면 그 줄은 출력하지 않음.</li>
-            <li>시트 번호 오름차순, <strong>front 먼저</strong>, 이어서 <strong>back</strong>을 출력.</li>
+            <li>1부: 사전 단어들(최소 1개, 최대 100개), 한 줄에 하나.</li>
+            <li>2부: <code>XXXXXX</code> 한 줄 → 사전 종료 신호.</li>
+            <li>3부: 해독해야 할 뒤섞인 단어들, 한 줄에 하나.</li>
+            <li>4부: 다시 <code>XXXXXX</code> 한 줄 → 전체 입력 종료.</li>
+          </ul>
+        </li>
+        <li>단어 조건:
+          <ul>
+            <li>모두 소문자 알파벳, 길이 1~6.</li>
+            <li>사전 단어는 <strong>중복 없음</strong>.</li>
           </ul>
         </li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
-      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
-      <ul>
-        <li>필요 시트 수: <code>paper = ceil(n / 4)</code>.</li>
-        <li>시트별 배치 규칙(시트 i = 1..paper):
-          <ul>
-            <li>왼쪽 큰 번호부터 내려가는 포인터 <code>left = paper*4</code>, 오른쪽 작은 번호부터 올라가는 포인터 <code>right = 1</code>를 사용.</li>
-            <li><strong>앞면(front)</strong>: <code>(left, right)</code>.</li>
-            <li><strong>뒷면(back)</strong>:  <code>(right+1, left-1)</code>.</li>
-            <li>다음 시트로 넘어갈 때 <code>left -= 2</code>, <code>right += 2</code>.</li>
-          </ul>
-        </li>
-        <li>페이지 번호가 범위를 벗어나면(<code>&lt;1</code> 또는 <code>&gt;n</code>) 그 칸은 <code>Blank</code>.</li>
-      </ul>
-      
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
-      
-      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
-      <ul>
-        <li>입력 파싱:
-          <ul>
-            <li>한 줄씩 <code>n</code>을 읽고, <code>n==0</code>이면 종료.</li>
-            <li>테스트케이스 사이에 한 줄 공백을 출력(문제 예시 형식 일치).</li>
-          </ul>
-        </li>
-        <li>보조 함수:
-          <ul>
-            <li><code>label(page, n)</code>: <code>1 ≤ page ≤ n</code>이면 숫자 문자열, 아니면 <code>"Blank"</code> 반환.</li>
-          </ul>
-        </li>
-        <li>시트 생성 루프:
-          <ul>
-            <li>시트 i마다 앞면/뒷면의 좌/우 페이지를 <code>label</code>로 문자열화.</li>
-            <li>앞·뒤 한 면이 <code>Blank, Blank</code>라면 해당 줄은 건너뜀.</li>
-            <li>출력 라벨은 정확히 <code>Sheet i, front:</code> / <code>Sheet i, back :</code> (공백 포함) 형식 준수.</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
-      
-      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
-      <ul>
-        <li><code>n = 1</code>
-          <ul><li>Sheet 1, front: <code>Blank, 1</code> (back은 <code>Blank, Blank</code> → 생략)</li></ul>
-        </li>
-        <li><code>n = 4</code>
-          <ul>
-            <li>Sheet 1, front: <code>4, 1</code></li>
-            <li>Sheet 1, back : <code>2, 3</code></li>
-          </ul>
-        </li>
-        <li><code>n = 14</code>
-          <ul>
-            <li>Sheet 1, front: <code>Blank, 1</code></li>
-            <li>Sheet 1, back : <code>2, Blank</code></li>
-            <li>Sheet 2, front: <code>14, 3</code> … (문제 예시와 동일 패턴)</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
-      
-      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
       <p>
-        시트 수는 <code>paper = ⌈n/4⌉ (≤ 25)</code>, 각 시트에서 상수 작업이므로
-        전체 <code>O(paper) = O(n)</code>.
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
       </p>
-      
-      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
-      <p>
-        고정 크기 변수(<code>left</code>, <code>right</code> 등)만 사용하므로 <code>O(1)</code>.
-      </p>
+      <ul>
+        <li>아이디어 핵심: <strong>애너그램은 정렬된 결과가 동일</strong>하다는 성질을 사용.</li>
+        <li>각 쿼리 단어 <code>q</code>에 대해:
+          <ul>
+            <li><code>q</code>의 문자들을 정렬한 결과를 기준 패턴으로 사용.</li>
+            <li>모든 사전 단어 <code>d</code>에 대해:
+              <ul>
+                <li>길이가 다르면 패스.</li>
+                <li>길이가 같으면 문자들을 정렬하여 비교.</li>
+                <li>정렬 결과가 같으면 <code>q</code>의 유효한 원 단어로 채택.</li>
+              </ul>
+            </li>
+            <li>찾은 단어들을 <strong>알파벳 순으로 정렬</strong>해 출력.</li>
+            <li>하나도 없으면 <code>"NOT A VALID WORD"</code> 출력.</li>
+            <li>각 쿼리 처리 후 항상 <code>"******"</code> 출력.</li>
+          </ul>
+        </li>
+      </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
-      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
       <ul>
-        <li><strong>출력 포맷</strong>의 공백·쉼표·콜론 위치(특히 <code>back :</code>의 공백)까지 예시와 동일해야 한다.</li>
-        <li>면 전체가 <code>Blank, Blank</code>이면 해당 줄은 출력하지 않는다.</li>
-        <li><code>left</code>는 큰 수에서 2씩 감소, <code>right</code>는 1에서 2씩 증가 — 업데이트 순서를 혼동하지 말 것.</li>
-        <li>테스트케이스 사이에 <strong>빈 줄 한 줄</strong> 출력(예시 형식 일치).</li>
+        <li>입력 처리:
+          <ul>
+            <li><code>dict</code>: 사전 단어 저장 리스트.</li>
+            <li><code>queries</code>: 뒤섞인 단어 저장 리스트.</li>
+            <li><code>next</code> 플래그:
+              <ul>
+                <li><code>0</code>일 때는 사전 구간.</li>
+                <li><code>XXXXXX</code>를 만나면 <code>next = 1</code>로 전환.</li>
+                <li><code>next == 1</code> 상태에서 다시 <code>XXXXXX</code>를 만나면 입력 종료.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>쿼리 처리 루프(<code>for (String q : queries)</code>):
+          <ul>
+            <li>현재 쿼리 <code>q</code>의 문자 배열을 정렬하여 기준 패턴 <code>arr1</code> 생성.</li>
+            <li>사전 단어 전체를 순회하며:
+              <ul>
+                <li>길이 다르면 <code>continue</code>.</li>
+                <li>같으면 문자 배열을 정렬해 <code>arr2</code> 생성.</li>
+                <li><code>Arrays.equals(arr1, arr2)</code>면 애너그램이므로 결과 리스트에 추가.</li>
+              </ul>
+            </li>
+            <li>결과 리스트가 비었으면:
+              <ul>
+                <li><code>"NOT A VALID WORD"</code>를 <code>sb</code>에 추가.</li>
+              </ul>
+            </li>
+            <li>비어있지 않으면:
+              <ul>
+                <li><code>Collections.sort(list)</code>로 <strong>알파벳 순 정렬</strong>.</li>
+                <li>각 단어를 한 줄씩 <code>sb</code>에 추가.</li>
+              </ul>
+            </li>
+            <li>각 쿼리 처리 끝에 <code>"******"</code> 한 줄 추가.</li>
+          </ul>
+        </li>
+        <li>출력:
+          <ul>
+            <li>모든 결과를 <code>StringBuilder</code>에 모았다가 마지막에 한 번에 <code>System.out.print</code>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      <ul>
+        <li><code>q = "resco"</code>:
+          <ul>
+            <li>정렬 → <code>"ceors"</code>.</li>
+            <li>사전에서 <code>"score"</code> 정렬 결과와 일치 → 출력.</li>
+            <li>결과:
+              <pre style="margin:4px 0;">score
+      ******</pre>
+            </li>
+          </ul>
+        </li>
+        <li><code>q = "sett"</code>:
+          <ul>
+            <li>일치하는 사전 단어 없음.</li>
+            <li>결과:
+              <pre style="margin:4px 0;">NOT A VALID WORD
+      ******</pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      <p>
+        사전 크기를 <code>D (≤ 100)</code>, 쿼리 개수를 <code>Q</code>, 최대 길이를 <code>L (≤ 6)</code>라 하면:
+      </p>
+      <ul>
+        <li>각 쿼리마다: 모든 사전 단어에 대해 길이 ≤ 6인 문자열 정렬 및 비교 → <code>O(D · L log L)</code> ≒ 상수 수준.</li>
+        <li>전체: <code>O(Q · D)</code> 규모로, 문제 제한 내에서 충분히 빠르다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      <ul>
+        <li>사전 리스트, 쿼리 리스트, 임시 리스트 정도만 사용 → <strong>O(D + Q)</strong>.</li>
+        <li>각 비교 시 사용하는 문자 배열은 최대 길이 6으로, 추가 공간은 매우 작다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      <ul>
+        <li><strong>대소문자 구분</strong>: 입력 단어는 모두 소문자, 구분자 <code>XXXXXX</code>는 대문자이므로 정확히 비교해야 한다.</li>
+        <li><strong>출력 형식</strong>:
+          <ul>
+            <li>각 쿼리 결과 블록 뒤에 반드시 <code>******</code> 출력.</li>
+            <li>여러 정답 단어가 있으면 <strong>알파벳 순으로 정렬</strong>해서 한 줄씩 출력.</li>
+            <li>정답이 없으면 <code>NOT A VALID WORD</code> 한 줄만 출력 후 <code>******</code>.</li>
+          </ul>
+        </li>
+        <li><strong>정렬 비교 방식</strong>: 매번 문자열을 정렬해 비교하므로 구현은 단순하지만, 코드에서처럼
+            <code>q.length() != d.length()</code> 체크로 불필요한 정렬을 먼저 줄여준다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <details>
-        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
         <ul>
-          <li><strong>배열 시뮬레이션</strong>: 크기 <code>paper×2×2</code>의 시트-면-칸 배열에 직접 채운 뒤 범위 밖은 <code>Blank</code>로 채워 출력.</li>
-          <li><strong>큐/스택 모델</strong>: 좌우 포인터 대신 <code>[1..n]</code>를 큐로, <code>[4·paper..1]</code>를 스택으로 두고
-            앞면/뒷면 순서대로 꺼내 배치(본 문제 규모에선 포인터 방식이 가장 단순).</li>
+          <li><strong>미리 매핑 구성</strong>:
+            <ul>
+              <li>사전 단어마다 정렬된 문자열을 key로 하는 <code>Map&lt;String, List&lt;String&gt;&gt;</code> 생성.</li>
+              <li>쿼리도 정렬해 key로 lookup하면 <code>O(1)</code> 수준에 가까운 검색 가능.</li>
+              <li>입력 크기가 작아서 필수는 아니지만, 구조적으로는 더 깔끔한 방법.</li>
+            </ul>
+          </li>
         </ul>
       </details>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
-      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
       <ul>
-        <li>필요 시트 수 <code>paper=⌈n/4⌉</code>, 포인터 <code>left=4·paper</code>, <code>right=1</code>로 시작.</li>
-        <li>앞면: <code>(left, right)</code>, 뒷면: <code>(right+1, left-1)</code>.</li>
-        <li>범위 밖은 <code>Blank</code>, <code>Blank, Blank</code>면 해당 줄 생략.</li>
-        <li>시간 <code>O(n)</code>, 공간 <code>O(1)</code> — 간단하고 빠름.</li>
+        <li>애너그램 판정: <strong>정렬된 문자열이 같으면 같은 단어 조합</strong>.</li>
+        <li>각 쿼리에 대해 사전 전체를 확인해 가능한 원 단어를 모은 뒤 정렬 출력.</li>
+        <li>없으면 <code>NOT A VALID WORD</code>, 이후 항상 <code>******</code> 출력.</li>
+        <li>구현은 단순 정렬+비교로 충분, 시간·공간 모두 여유롭다.</li>
       </ul>
+
 
 
 
