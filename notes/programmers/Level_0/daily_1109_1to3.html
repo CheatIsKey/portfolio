@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-07 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 문자열 정렬하기 (1)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120850">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1107_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        주어진 문자열 <code>my_string</code>에서 숫자 문자만 골라 정수 배열로 변환한 뒤, 오름차순으로 정렬해 반환하는 문제다.<br>
+        제시한 풀이처럼 문자 배열을 한 번 순회하며 숫자(<code>'0' ~ '9'</code>)만 골라 <code>list</code>에 담고, <code>Collections.sort</code>로 정렬한 뒤
+        <code>int[]</code>로 변환하면 된다.
+      </p>
+      
+      <ul>
+        <li><strong>문자 순회</strong>: <code>toCharArray()</code>로 변환 후 각 문자를 확인한다.</li>
+        <li><strong>숫자 판별</strong>: <code>'0' &lt;= ch &amp;&amp; ch &lt;= '9'</code> 범위 검사로 숫자만 추출한다.</li>
+        <li><strong>정수 변환</strong>: <code>list.add(ch - '0')</code>로 문자 숫자를 정수로 변환한다.</li>
+        <li><strong>정렬 &amp; 반환</strong>: <code>Collections.sort(list)</code> 수행 후 <code>stream()</code>으로 <code>int[]</code> 생성.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>my_string = "hi12392"</code><br>
+            추출: 1,2,3,9,2 → 정렬 ⇒ <code>[1, 2, 2, 3, 9]</code></li>
+        <li><code>my_string = "p2o4i8gj2"</code><br>
+            추출: 2,4,8,2 → 정렬 ⇒ <code>[2, 2, 4, 8]</code></li>
+        <li><code>my_string = "abcde0"</code><br>
+            추출: 0 → 정렬 ⇒ <code>[0]</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        순회는 <code>O(n)</code>, 정렬은 추출된 숫자 개수를 <code>k</code>라 할 때 <code>O(k&nbsp;log&nbsp;k)</code>.
+        전체는 <code>O(n + k&nbsp;log&nbsp;k)</code> (최대 <code>k ≈ n</code>이면 <code>O(n&nbsp;log&nbsp;n)</code>).
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        숫자만 저장하는 리스트 크기 <code>O(k)</code>, 반환 배열도 <code>O(k)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>문자 → 정수</strong>: <code>ch - '0'</code>는 ASCII 코드 차이를 이용한 안전한 변환(전제: <code>'0'~'9'</code> 범위 내부일 때).</li>
+        <li><strong>유니코드 숫자</strong>: 문제 조건은 영문/숫자이므로 다른 숫자 범주(예: 전각 숫자)는 고려하지 않아도 된다.</li>
+        <li><strong>스트림 변환</strong>: <code>list.stream().mapToInt(Integer::intValue).toArray()</code>로 박싱 해제 후 배열화.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>스트림 기반 간결 풀이</strong> — 필터/매핑/정렬을 한 번에 처리
+            <pre><code>
+      import java.util.*;
+      import java.util.stream.*;
+      
+      class Solution {
+          public int[] solution(String my_string) {
+              return my_string.chars()                      // IntStream of code points
+                      .filter(ch -&gt; '0' &lt;= ch &amp;&amp; ch &lt;= '9') // 숫자만 통과
+                      .map(ch -&gt; ch - '0')                 // 정수로 변환
+                      .sorted()                            // 오름차순
+                      .toArray();
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">가독성이 좋고 중간 저장 없이 바로 정렬 배열을 만든다.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>정규식으로 숫자만 잔존</strong> — 숫자 외 문자 제거 후 처리
+            <pre><code>
+      import java.util.*;
+      
+      class Solution {
+          public int[] solution(String my_string) {
+              String digits = my_string.replaceAll("[^0-9]", "");
+              int[] arr = new int[digits.length()];
+              for (int i = 0; i &lt; digits.length(); i++) {
+                  arr[i] = digits.charAt(i) - '0';
+              }
+              Arrays.sort(arr);
+              return arr;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">전처리로 숫자만 남긴 뒤 배열을 만들어 정렬한다.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 모음 제거</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120849">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1107_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        주어진 문자열 <code>my_string</code>에서 모음(<code>a, e, i, o, u</code>)을 모두 제거한 뒤 남은 문자들로 새로운 문자열을 만드는 문제다.<br>
+        문자 하나씩 순회하면서 모음에 포함되지 않은 경우만 <code>StringBuilder</code>에 추가하면 된다.
+      </p>
+      
+      <ul>
+        <li><strong>모음 정의</strong>: 문자열 <code>"aeiou"</code>에 모음 집합을 정의한다.</li>
+        <li><strong>문자 순회</strong>: <code>toCharArray()</code>로 각 문자를 순회한다.</li>
+        <li><strong>포함 검사</strong>: <code>vowels.indexOf(c)</code>가 <code>-1</code>이면 모음이 아님을 의미한다.</li>
+        <li><strong>문자 추가</strong>: 모음이 아닌 문자는 <code>StringBuilder</code>에 누적한다.</li>
+        <li><strong>결과 반환</strong>: <code>sb.toString()</code>으로 문자열을 생성해 반환한다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>my_string = "bus"</code><br>
+            제거: ‘u’ → 결과 <code>"bs"</code></li>
+        <li><code>my_string = "nice to meet you"</code><br>
+            제거: i, e, o, e, e, o, u → 결과 <code>"nc t mt y"</code></li>
+        <li><code>my_string = "aeiou"</code><br>
+            모든 문자가 모음 → 결과 <code>""</code> (빈 문자열)</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        문자열 길이를 <code>n</code>이라 하면, 각 문자를 한 번씩 확인하므로 <code>O(n)</code>.<br>
+        <code>indexOf</code> 연산은 상수 시간(최대 5회 비교)이므로 전체적으로 <code>O(n)</code>.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        결과 문자열을 저장하는 <code>StringBuilder</code>만 사용하므로 <code>O(n)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>대문자 처리</strong>: 문제 조건은 소문자만 포함하지만, 대문자를 고려하려면 <code>Character.toLowerCase(c)</code>로 변환 후 비교 가능.</li>
+        <li><strong>문자열 누적</strong>: <code>String</code> 대신 <code>StringBuilder</code> 사용 시 불필요한 문자열 객체 생성 방지.</li>
+        <li><strong>특수문자·공백</strong>: 모음이 아니므로 그대로 유지된다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>정규식 활용 방식</strong> — 모음 패턴을 한 번에 제거
+            <pre><code>
+      class Solution {
+          public String solution(String my_string) {
+              return my_string.replaceAll("[aeiou]", "");
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">정규식 <code>[aeiou]</code>으로 모든 모음을 찾아 공백 문자열로 대체한다. 코드가 매우 간결하다.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>스트림 기반 처리</strong> — 함수형 접근
+            <pre><code>
+      import java.util.stream.*;
+      
+      class Solution {
+          public String solution(String my_string) {
+              return my_string.chars()
+                      .filter(c -&gt; "aeiou".indexOf(c) == -1)
+                      .mapToObj(c -&gt; String.valueOf((char)c))
+                      .collect(Collectors.joining());
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">문자 스트림을 필터링해 모음을 제외하고, 다시 문자열로 결합한다.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 팩토리얼</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120848">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1107_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        주어진 정수 <code>n</code> 이하인 가장 큰 팩토리얼(<code>k!</code>)을 만족하는 정수 <code>k</code>를 구하는 문제다.<br>
+        1부터 시작해 <code>k!</code> 값을 순차적으로 계산하면서 <code>n</code>을 초과하기 전까지 곱을 누적하고, 초과 시 직전의 <code>k - 1</code>을 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>초기값 설정</strong>: <code>fact = 1</code>, <code>k = 1</code>로 시작한다.</li>
+        <li><strong>팩토리얼 계산</strong>: <code>fact *= k</code>로 1씩 증가시키며 누적 곱을 구한다.</li>
+        <li><strong>범위 초과 검사</strong>: <code>fact > n</code>이 되는 시점에 루프를 종료한다.</li>
+        <li><strong>정답 반환</strong>: 루프 종료 후 <code>k - 1</code>이 <code>n</code> 이하의 최대 팩토리얼을 만드는 정수다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>n = 3628800</code><br>
+            1! = 1 → 2! = 2 → 3! = 6 → … → 10! = 3628800 → 11!은 초과 ⇒ 결과 <code>10</code></li>
+        <li><code>n = 7</code><br>
+            1! = 1 → 2! = 2 → 3! = 6 → 4! = 24(초과) ⇒ 결과 <code>3</code></li>
+        <li><code>n = 1</code><br>
+            1! = 1 → 2! = 2(초과) ⇒ 결과 <code>1</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        <code>k!</code>이 <code>n</code>을 초과할 때까지 반복하므로 반복 횟수는 <code>k</code> (팩토리얼 성장은 매우 빠르다).  
+        따라서 시간 복잡도는 <code>O(k)</code> (사실상 매우 작다, 예를 들어 <code>n ≤ 10⁶</code>이면 k ≤ 9 정도).
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        <code>fact</code>와 <code>k</code> 두 개의 변수만 사용하므로 <code>O(1)</code>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>정수 오버플로</strong>: <code>int</code>로 계산하므로 팩토리얼이 매우 커지면 <code>int</code> 범위를 초과할 수 있다. (문제 제한에서 안전함)</li>
+        <li><strong>반복 종료 시점</strong>: <code>fact > n</code> 조건으로 루프를 탈출하므로 <code>k - 1</code> 반환이 필수.</li>
+        <li><strong>시작 값 주의</strong>: <code>fact = 1</code>, <code>k = 1</code>로 초기화해야 1! 계산이 올바르게 수행된다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li style="margin-top:1.2em;"><strong>for 루프 방식</strong> — 종료 조건을 명시적으로 표현
+            <pre><code>
+      class Solution {
+          public int solution(int n) {
+              int fact = 1;
+              for (int k = 1; ; k++) {
+                  fact *= k;
+                  if (fact > n) return k - 1;
+              }
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">무한 루프 대신 <code>for</code>를 사용해 가독성을 높인 형태.</p>
+          </li>
+      
+          <li style="margin-top:1.2em;"><strong>사전 계산 방식</strong> — 미리 팩토리얼 배열 저장 후 탐색
+            <pre><code>
+      class Solution {
+          public int solution(int n) {
+              int[] factorials = {1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800};
+              int k = 0;
+              for (int f : factorials) {
+                  if (f > n) break;
+                  k++;
+              }
+              return k;
+          }
+      }
+            </code></pre>
+            <p style="margin-top:0.5em;">문제의 입력 범위가 작을 경우 사전 계산으로 더 빠르게 해결 가능하다.</p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
