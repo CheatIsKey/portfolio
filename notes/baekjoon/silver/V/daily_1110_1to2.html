@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4187 — Scrolling Sign</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4187">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1109_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Scrolling Sign (BOJ 4187)</strong>는 길이 <code>k</code>인 전광판에 길이 <code>k</code>인 단어 <code>w</code>개를
+        주어진 순서대로 모두 한 번 이상 나타나게 만들기 위해,
+        오른쪽에서 흘려 넣어야 하는 문자 수의 <strong>최솟값</strong>을 구하는 문제다.
+      </p>
+      <ul>
+        <li>전광판은 항상 <code>k</code>칸이며, 매 단계마다 모든 문자가 왼쪽으로 한 칸 밀리고, 오른쪽에 새 문자가 하나 들어온다.</li>
+        <li>중간에 다른 단어나 의미 없는 문자열이 나와도 상관 없고, 각 주어진 단어가 전광판에 <strong>완전히 표시되는 순간</strong>이 존재하면 된다.</li>
+        <li>핵심은 앞 단어의 뒷부분과 다음 단어의 앞부분이 겹치는 만큼 문자를 <strong>재사용</strong>할 수 있다는 점이다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
+      <ul>
+        <li>첫 번째 단어를 만들기 위해서는 반드시 <strong><code>k</code>글자</strong>를 넣어야 한다.</li>
+        <li>이후 각 인접한 단어 쌍 <code>(word[j], word[j+1])</code>에 대해:
+          <ul>
+            <li><code>word[j]</code>의 접미사와 <code>word[j+1]</code>의 접두사가 얼마나 긴 길이까지 일치하는지(최대 겹침)를 구한다.</li>
+            <li>겹침 길이를 <code>overlap</code>이라 하면, 새로 넣어야 할 문자는 <code>k - overlap</code>개.</li>
+          </ul>
+        </li>
+        <li>모든 쌍의 <code>overlap</code> 합을 <code>totalOverlap</code>이라 할 때,
+          전체 필요한 문자 수 = <strong><code>k * w - totalOverlap</code></strong>.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li>입력 처리:
+          <ul>
+            <li>첫 줄에서 테스트 케이스 개수 <code>n</code>을 읽는다.</li>
+            <li>각 테스트 케이스마다 <code>k, w</code>를 읽고, 길이 <code>k</code>인 단어를 <code>w</code>개 입력받아 배열 <code>word[]</code>에 저장한다.</li>
+          </ul>
+        </li>
+        <li>인접 단어 간 최대 겹침 계산:
+          <ul>
+            <li><code>totalOverlap = 0</code>으로 초기화.</li>
+            <li>각 <code>j = 0..w-2</code>에 대해 <code>s1 = word[j]</code>, <code>s2 = word[j+1]</code>.</li>
+            <li><code>l = 1..k</code>에 대해:
+              <ul>
+                <li><code>s1</code>의 뒤에서 <code>l</code>글자(<code>s1[k-l..k-1]</code>)와
+                    <code>s2</code>의 앞 <code>l</code>글자(<code>s2[0..l-1]</code>)가 모두 같은지 확인.</li>
+                <li>모두 일치하면 <code>overlap = l</code>로 갱신(최대 겹침 유지).</li>
+              </ul>
+            </li>
+            <li>얻은 <code>overlap</code>을 <code>totalOverlap</code>에 누적.</li>
+          </ul>
+        </li>
+        <li>정답 계산 및 출력:
+          <ul>
+            <li>각 테스트 케이스마다 <code>(k * w) - totalOverlap</code>을 <code>StringBuilder</code>에 추가하고,
+                마지막에 한 번에 출력.</li>
+          </ul>
+        </li>
+        <li>I/O 구현:
+          <ul>
+            <li><code>BufferedReader</code>, <code>StringTokenizer</code> 사용으로 빠른 입력 처리.</li>
+            <li>여러 테스트 케이스를 순서대로 처리하며, 줄마다 하나의 정답을 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><strong>예제 1</strong>: <code>k = 3</code>, 단어: <code>CAT, TED</code>
+          <ul>
+            <li>총 길이 합: <code>k * w = 6</code>.</li>
+            <li><code>CAT</code>의 접미사와 <code>TED</code>의 접두사 최대 겹침: <code>"T"</code> (길이 1).</li>
+            <li><code>totalOverlap = 1</code> → 정답 <code>6 - 1 = 5</code>.</li>
+          </ul>
+        </li>
+        <li><strong>예제 2</strong>: <code>k = 3</code>, 단어: <code>CAT, ATE, TEA</code>
+          <ul>
+            <li><code>CAT</code> &amp; <code>ATE</code>: 최대 겹침 <code>"AT"</code> (2) → <code>k - 2 = 1</code>글자 추가.</li>
+            <li><code>ATE</code> &amp; <code>TEA</code>: 최대 겹침 <code>"TE"</code> (2) → <code>k - 2 = 1</code>글자 추가.</li>
+            <li><code>totalOverlap = 2 + 2 = 4</code>, <code>k * w = 9</code> → 정답 <code>9 - 4 = 5</code>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        각 인접 단어 쌍마다 길이 <code>k</code>까지의 겹침을 검사하고,
+        각 길이에 대해 최대 <code>k</code>문자를 비교하므로 한 쌍당 <code>O(k^2)</code>.
+        쌍은 <code>w - 1</code>개이므로 전체는 <strong><code>O(w * k^2)</code></strong>.
+        (<code>k, w ≤ 100</code>이므로 충분히 빠르다.)
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        길이 <code>k</code>인 단어 <code>w</code>개를 저장하는 배열만 사용하므로
+        <strong><code>O(w * k)</code></strong>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>최대 겹침</strong>을 사용해야 한다.
+          작은 겹침을 찾았더라도 더 큰 길이가 일치하면 그걸로 갱신해야 한다.</li>
+        <li><strong>인덱스 계산</strong>:
+          <ul>
+            <li><code>s1.charAt(k - l + m)</code>: 접미사의 시작 인덱스에서 <code>m</code>만큼 이동.</li>
+            <li><code>s2.charAt(m)</code>: 접두사의 <code>m</code>-번째 문자.</li>
+            <li><code>l</code> 범위를 <code>1..k</code>로 유지해 인덱스 범위 이탈을 방지.</li>
+          </ul>
+        </li>
+        <li><strong>여러 테스트 케이스</strong>에서 <code>totalOverlap</code>와 단어 배열을 매번 새로 초기화해야 한다.</li>
+        <li><strong>입력 형태</strong>에 맞게 첫 줄의 테스트 케이스 개수만 믿고 반복문을 도는 구현이 더 직관적이다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li><strong>KMP</strong> 등의 문자열 알고리즘으로 접미사-접두사 최대 겹침을 더 효율적으로 구할 수 있지만,
+            이 문제의 제약에선 단순 이중 루프 구현으로 충분하다.</li>
+          <li>실제 전광판 상태를 문자 단위로 시뮬레이션하는 방식은 불필요하게 복잡하므로,
+            <strong>단어 간 최대 겹침만 계산하는 현재 방식</strong>이 가장 간단하고 명확하다.</li>
+        </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>인접한 단어 쌍마다 접미사-접두사 <strong>최대 겹침</strong> 길이를 구한다.</li>
+        <li>각 쌍에서 새로 넣어야 하는 문자는 <code>k - overlap</code>.</li>
+        <li>전체 정답은 <strong><code>k * w - Σ(overlap)</code></strong> 형태로 계산된다.</li>
+        <li>구현은 단순 반복문과 문자 비교만으로 충분하며, 제약 내에서 안전하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4676 — Haiku Review</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4676">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1109_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section"><span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">해설</span></h3>
+      <p>
+        <strong>Haiku Review (BOJ 4676)</strong>는 한 줄에 주어진 하이쿠(슬래시 <code>'/'</code>로 3줄 구분)가
+        규칙적인 음절 수 <strong>5 / 7 / 5</strong>를 만족하는지 판정하는 문제다.
+      </p>
+      <ul>
+        <li>각 입력 줄에는 정확히 두 개의 <code>'/'</code>가 있어, 이를 기준으로 3행으로 나뉜다.</li>
+        <li>모든 입력은 소문자 알파벳, 공백, 슬래시만 포함하며, 마지막 줄 <code>"e/o/i"</code>를 만나면 종료한다.</li>
+        <li>모든 행은 최소 한 단어를 포함하고, 단어는 공백 또는 슬래시로 구분된다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">전략 개요</span></p>
+      <ul>
+        <li>한 줄(하나의 행)에 대해, <strong>연속된 모음들의 묶음</strong> 하나를 <strong>1 음절</strong>로 센다.</li>
+        <li>모음은 <code>a, e, i, o, u, y</code> 여섯 글자.</li>
+        <li>즉, 자음 → 모음으로 바뀌는 지점마다 음절 수를 1 증가시키면 된다.</li>
+        <li>각 행의 음절 수를 구한 뒤:
+          <ul>
+            <li>1행이 5가 아니면 <code>'1'</code></li>
+            <li>그렇지 않고 2행이 7이 아니면 <code>'2'</code></li>
+            <li>그렇지 않고 3행이 5가 아니면 <code>'3'</code></li>
+            <li>모두 맞으면 <code>'Y'</code></li>
+          </ul>
+          를 출력한다 (처음으로 규칙을 어기는 행 번호만 출력).
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">핵심: 코드가 하는 일</span></p>
+      <ul>
+        <li><strong>모음 판별 함수</strong> <code>isVowel(char c)</code>:
+          <ul>
+            <li><code>a, e, i, o, u, y</code> 중 하나면 <code>true</code>, 아니면 <code>false</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>입력 처리</strong>:
+          <ul>
+            <li><code>while ((line = br.readLine()) != null)</code>로 줄 단위 입력.</li>
+            <li>줄이 <code>"e/o/i"</code>와 정확히 같으면 입력 종료.</li>
+          </ul>
+        </li>
+      
+        <li><strong>행 분리</strong>:
+          <ul>
+            <li><code>String[] split = line.split("/");</code>로 3개의 문자열(각 행)을 얻는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>각 행의 음절 수 세기</strong>:
+          <ul>
+            <li>각 인덱스 <code>idx = 0..2</code>에 대해:
+              <ul>
+                <li><code>s = split[idx]</code>, <code>cnt = 0</code>, <code>prev = false</code>로 시작.</li>
+                <li>문자 <code>c</code>를 순회하며:
+                  <ul>
+                    <li><code>cur = isVowel(c)</code>로 현재 문자가 모음인지 확인.</li>
+                    <li><code>cur == true</code>이면서 <code>prev == false</code>이면
+                        새로운 모음 구간 시작 → <code>cnt++</code>.</li>
+                    <li><code>prev = cur</code> 갱신.</li>
+                  </ul>
+                </li>
+                <li>완료된 <code>cnt</code>를 <code>n[idx]</code>에 저장.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>조건 검사 및 출력 문자 결정</strong>:
+          <ul>
+            <li>순서대로 검사:
+              <ul>
+                <li><code>n[0] != 5</code> → <code>'1'</code></li>
+                <li>else <code>n[1] != 7</code> → <code>'2'</code></li>
+                <li>else <code>n[2] != 5</code> → <code>'3'</code></li>
+                <li>else → <code>'Y'</code></li>
+              </ul>
+            </li>
+            <li>각 결과 뒤에 개행을 붙여 <code>StringBuilder</code>에 누적 후 마지막에 한 번에 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">예시</span></p>
+      <ul>
+        <li><code>happy purple frog/eating bugs in the marshes/get indigestion</code>
+          <ul>
+            <li>각 행의 모음 구간 수: 5 / 7 / 5 → <code>Y</code>.</li>
+          </ul>
+        </li>
+        <li><code>computer programs/the bugs try to eat my code/i will not let them</code>
+          <ul>
+            <li>실제 규칙(연속 모음)을 적용하면 2행이 7이 아님 → <code>2</code>.</li>
+          </ul>
+        </li>
+        <li><code>a e i o u/this is seven syllables/a e i o u y</code>
+          <ul>
+            <li>3행의 모음 구간 수가 5가 아님 → <code>3</code>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">시간 복잡도</span></p>
+      <p>
+        각 줄에서 문자열 길이를 <code>L</code>라 하면,
+        모음 구간을 세기 위해 한 번 순회하므로 <strong><code>O(L)</code></strong>.
+        입력 전체에 대해 각 줄을 한 번씩만 처리하므로 선형 시간.
+      </p>
+      
+      <p><span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">공간 복잡도</span></p>
+      <p>
+        한 줄 문자열과 3행의 음절 수(작은 배열)만 사용하므로
+        <strong><code>O(1)</code></strong> 추가 공간.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">주의</span></p>
+      <ul>
+        <li><strong>연속된 모음</strong>은 하나의 음절로 친다:
+          예) <code>"ai"</code>, <code>"ou"</code>는 각각 1음절.</li>
+        <li><strong>자음 → 모음</strong>으로 바뀌는 지점에서만 카운트 증가시키는 방식이므로
+            이 규칙이 자연스럽게 구현된다.</li>
+        <li><code>split("/")</code> 결과는 항상 길이 3임이 보장되므로 추가 검증은 필요 없다.</li>
+        <li>종료 조건 <code>"e/o/i"</code>는 출력하지 않고 곧바로 루프에서 탈출해야 한다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary><span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">대안 아이디어</span></summary>
+        <ul>
+          <li>정규식을 사용해 <code>[aeiouy]+</code> 패턴으로 모음 구간을 직접 세는 방법도 가능하지만,
+            현재 구현처럼 한 글자씩 순회하는 방식이 가장 직관적이고 빠르다.</li>
+          </ul>
+      </details>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p><span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">포인트 요약</span></p>
+      <ul>
+        <li>각 행을 슬래시로 분리해 3부분으로 나눈다.</li>
+        <li>모음 집합 <code>{a,e,i,o,u,y}</code>에 대해, 연속된 모음 묶음을 1음절로 센다.</li>
+        <li>음절 수가 5/7/5인지 순서대로 검사해, 처음 어긋나는 행 번호 또는 <code>Y</code>를 출력한다.</li>
+        <li>구현은 한 줄 순회만으로 끝나는 단순 문자열 처리 문제.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
