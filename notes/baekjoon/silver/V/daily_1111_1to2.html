@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4679 — The Snail</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4679">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1110_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>The Snail (BOJ 4679)</strong>는 달팽이가 하루 동안
+        <strong>낮에 올라가고, 밤에 미끄러지는</strong> 과정을 반복할 때,
+        피로도로 인해 점점 줄어드는 상승 거리까지 고려하여
+        <strong>언제 우물을 탈출하는지, 혹은 언제 바닥 아래로 미끄러져 실패하는지</strong>를
+        시뮬레이션하는 문제다.
+      </p>
+      
+      <ul>
+        <li>우물 높이: <code>H</code></li>
+        <li>첫째 날 낮에 올라갈 수 있는 거리: <code>U</code></li>
+        <li>매일 밤 미끄러지는 거리: <code>D</code></li>
+        <li>피로도 계수: <code>F</code> (%)
+          <ul>
+            <li>둘째 날부터 매일 낮에 올라갈 수 있는 거리가
+              <code>U × (F / 100)</code>씩 줄어든다.</li>
+            <li>단, <strong>절대 음수로 내려가지 않으며</strong>, 0보다 작아지면 그날은 더 이상 오르지 않는다.</li>
+          </ul>
+        </li>
+        <li>하루는 항상 <strong>낮 &rarr; 밤</strong> 순서로 진행된다.</li>
+        <li>낮에 올라간 직후 높이가 <code>H</code>를 초과하면 즉시 성공,
+            밤에 미끄러진 후 높이가 <code>0</code> 미만이 되면 실패.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>이 문제는 복잡한 수식 없이, 조건에 맞게 <strong>하루 단위로 그대로 시뮬레이션</strong>하면 된다.</li>
+        <li>각 테스트 케이스에 대해 다음 상태를 관리한다:
+          <ul>
+            <li><code>day</code>: 현재가 몇 번째 날인지</li>
+            <li><code>height</code>: 현재 달팽이의 높이 (실수형)</li>
+            <li><code>currentClimb</code>: 해당 날 낮에 오를 수 있는 거리</li>
+            <li><code>fatigue</code>: 매일 감소하는 오를 수 있는 거리
+              (<code>U * (F / 100.0)</code>)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <ul>
+        <li>각 날에 대해 다음 순서로 처리한다:
+          <ol>
+            <li><strong>날짜 증가</strong>: <code>day++</code></li>
+            <li><strong>낮: 상승</strong>
+              <ul>
+                <li><code>currentClimb &gt; 0</code> 이면 <code>height += currentClimb</code></li>
+                <li>이때 <code>height &gt; H</code>면
+                  <strong>"success on day day"</strong> 출력 후 종료.</li>
+              </ul>
+            </li>
+            <li><strong>밤: 하강</strong>
+              <ul>
+                <li><code>height -= D</code></li>
+                <li>이후 <code>height &lt; 0</code>이면
+                  <strong>"failure on day day"</strong> 출력 후 종료.</li>
+              </ul>
+            </li>
+            <li><strong>피로도 반영</strong>
+              <ul>
+                <li><code>currentClimb -= fatigue</code></li>
+                <li>만약 <code>currentClimb &lt; 0</code>이면 <code>currentClimb = 0</code>으로 보정.</li>
+              </ul>
+            </li>
+          </ol>
+        </li>
+        <li>성공 또는 실패가 나올 때까지 위 과정을 반복한다.</li>
+        <li><code>H = 0</code>이 들어오면 입력 종료.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력 처리:
+          <ul>
+            <li>각 줄에서 <code>H, U, D, F</code>를 읽는다.</li>
+            <li><code>H == 0</code>이면 전체 입력을 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li>초기 설정:
+          <ul>
+            <li><code>day = 0</code>, <code>height = 0.0</code></li>
+            <li><code>currentClimb = U</code></li>
+            <li><code>fatigue = U * (F / 100.0)</code> (매일 줄어드는 양)</li>
+          </ul>
+        </li>
+      
+        <li>시뮬레이션 루프:
+          <ul>
+            <li>무한 루프에서 하루 단위로:
+              <ol>
+                <li><code>day</code> 1 증가.</li>
+                <li><strong>낮</strong>:
+                  <ul>
+                    <li><code>currentClimb &gt; 0</code>이면 그만큼 <code>height</code> 증가.</li>
+                    <li>바로 <code>height &gt; H</code>이면 성공 처리 후 루프 종료.</li>
+                  </ul>
+                </li>
+                <li><strong>밤</strong>:
+                  <ul>
+                    <li><code>height -= D</code></li>
+                    <li><code>height &lt; 0</code>이면 실패 처리 후 루프 종료.</li>
+                  </ul>
+                </li>
+                <li><strong>피로 적용</strong>:
+                  <ul>
+                    <li><code>currentClimb -= fatigue</code></li>
+                    <li>0보다 작아지면 <code>currentClimb = 0</code>으로 고정.</li>
+                  </ul>
+                </li>
+              </ol>
+            </li>
+          </ul>
+        </li>
+      
+        <li>출력:
+          <ul>
+            <li>각 테스트 케이스마다
+              <code>"success on day X"</code> 또는
+              <code>"failure on day X"</code> 문자열을
+              <code>StringBuilder</code>에 쌓아두었다가 마지막에 한 번에 출력.</li>
+          </ul>
+        </li>
+      
+        <li>I/O 구현:
+          <ul>
+            <li><code>BufferedReader</code>, <code>StringTokenizer</code>로 빠른 입력 처리.</li>
+            <li>EOF까지(또는 <code>H == 0</code> 등장까지) 모든 테스트 케이스를 순차적으로 처리.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        각 테스트 케이스에 대해 <strong>하루씩 시뮬레이션</strong>하므로
+        시간 복잡도는 <strong><code>O(Days)</code></strong>.
+        문제 조건상 달팽이는 언젠가 우물 밖으로 나가거나(성공) 바닥 아래로 떨어지기(실패) 때문에
+        무한 루프가 발생하지 않으며,
+        테스트 케이스 수와 날짜 수도 충분히 작아 실제로는 매우 빠르게 종료된다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        상수 개의 변수(<code>day, height, currentClimb, fatigue</code> 등)만 사용하므로
+        <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>실수 처리</strong>:
+          <ul>
+            <li><code>fatigue</code> 계산 시 <code>(F / 100.0)</code> 처럼
+              실수 연산을 사용해야 한다. 정수 나눗셈을 하면 오답.</li>
+          </ul>
+        </li>
+        <li><strong>검사 순서</strong>:
+          <ul>
+            <li>낮에 오른 직후 <code>height &gt; H</code>면 그 날 밤 미끄러지기 전에
+                바로 성공 처리해야 한다.</li>
+            <li>성공 판정을 밤 이후로 미루면 오답이 된다.</li>
+          </ul>
+        </li>
+        <li><strong>음수 상승 방지</strong>:
+          <ul>
+            <li><code>currentClimb</code>는 0 미만으로 내려가면 안 되므로,
+                매일 피로도를 적용한 뒤 0으로 보정하는 것이 중요하다.</li>
+          </ul>
+        </li>
+        <li><strong>종료 조건</strong>:
+          <ul>
+            <li><code>H == 0</code> 입력 시 즉시 전체 반복 종료 (문제 명세 그대로 구현).</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>하루 진행 순서: <strong>낮(상승) → 성공 여부 확인 → 밤(하강) → 실패 여부 확인 → 피로도 적용</strong>.</li>
+        <li>피로도: 매일 <code>U * (F / 100.0)</code>만큼 <code>currentClimb</code> 감소, 최소 0까지.</li>
+        <li>낮에 높이가 <code>H</code>를 초과하면 즉시 성공, 밤 후에 <code>0</code> 미만이면 실패.</li>
+        <li>문제는 <strong>그대로 구현하는 시뮬레이션</strong>이며,
+            현재 코드 구조는 조건과 진행 순서를 정확히 잘 반영하고 있다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4689 — Basically Speaking</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4689">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1110_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Basically Speaking (BOJ 4689)</strong>는
+        주어진 수를 임의의 진법(<code>from</code>)에서 다른 진법(<code>to</code>)으로 변환하여,
+        7자리 디스플레이에 맞게 <strong>오른쪽 정렬</strong>해 출력하는 문제다.
+      </p>
+      
+      <ul>
+        <li>지원 숫자/문자: <code>0-9</code>, <code>A-F</code></li>
+        <li>지원 진법: <code>2 ~ 16</code></li>
+        <li>각 줄 입력:
+          <ul>
+            <li>변환할 수 <code>s</code></li>
+            <li>현재 진법 <code>from</code></li>
+            <li>목표 진법 <code>to</code></li>
+            <li>사이에 공백 여러 개 존재 가능</li>
+          </ul>
+        </li>
+        <li>출력:
+          <ul>
+            <li>변환 결과를 <strong>대문자</strong>로 출력</li>
+            <li>7자리에 맞춰 <strong>오른쪽 정렬</strong></li>
+            <li>결과 자릿수가 7자리를 초과하면 대신 <code>ERROR</code>를 7칸에 맞춰 오른쪽 정렬</li>
+          </ul>
+        </li>
+        <li>입력은 EOF까지 반복 처리.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>핵심 아이디어는 매우 단순하다:
+          <ol>
+            <li><code>s</code>를 <code>from</code>진법으로 해석해 10진수 정수 값으로 변환.</li>
+            <li>그 값을 <code>to</code>진법 문자열로 다시 변환.</li>
+            <li>대문자로 바꾸고, 길이를 확인해
+              <ul>
+                <li>7자 이하 → 7칸 오른쪽 정렬 출력</li>
+                <li>7자 초과 → <code>ERROR</code>를 7칸 오른쪽 정렬로 출력</li>
+              </ul>
+            </li>
+          </ol>
+        </li>
+        <li>자바 표준 라이브러리의 진법 변환 기능을 활용하면 구현이 매우 깔끔해진다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력 처리:
+          <ul>
+            <li><code>BufferedReader</code>로 줄 단위 입력.</li>
+            <li>각 줄에 대해:
+              <ul>
+                <li><code>trim()</code>으로 양 끝 공백 제거.</li>
+                <li>빈 줄이면 건너뜀.</li>
+                <li><code>StringTokenizer</code>로
+                    <code>s, from, to</code>를 순서대로 읽는다.</li>
+              </ul>
+            </li>
+            <li>EOF까지 반복.</li>
+          </ul>
+        </li>
+      
+        <li>진법 변환:
+          <ul>
+            <li><code>int value = Integer.parseInt(s, from);</code>
+              <ul>
+                <li><code>s</code>를 <code>from</code>진법으로 해석하여 10진수 정수로 변환.</li>
+              </ul>
+            </li>
+            <li><code>String result = Integer.toString(value, to).toUpperCase();</code>
+              <ul>
+                <li>10진수 값을 <code>to</code>진법 문자열로 변환 후 대문자로 통일.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li>출력 형식:
+          <ul>
+            <li>만약 <code>result.length() &gt; 7</code>이면:
+              <ul>
+                <li><code>String.format("%7s", "ERROR")</code>를 사용해
+                    7칸 오른쪽 정렬한 <code>ERROR</code>를 출력 버퍼에 추가.</li>
+              </ul>
+            </li>
+            <li>그 외에는:
+              <ul>
+                <li><code>String.format("%7s", result)</code>로
+                    변환 결과를 7칸 오른쪽 정렬해 추가.</li>
+              </ul>
+            </li>
+            <li>각 결과 뒤에 개행 문자 추가.</li>
+            <li>모든 입력 처리가 끝나면 <code>StringBuilder</code> 내용을 한 번에 출력.</li>
+          </ul>
+        </li>
+      
+        <li>I/O 구현:
+          <ul>
+            <li>여러 줄 입력 &rarr; 그때그때 변환 &rarr; 버퍼에 쌓아 마지막에 출력.</li>
+            <li>여분 공백과 다양한 간격을 <code>StringTokenizer</code>로 자연스럽게 처리.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        각 줄에 대해:
+        <ul>
+          <li><code>parseInt</code>와 <code>toString</code>은 둘 다
+            수의 자릿수에 비례(<code>O(L)</code>)</li>
+        </ul>
+        전체 시간 복잡도는 입력 줄 수를 <code>N</code>이라 하면
+        <strong><code>O(N * L)</code></strong> 수준이며,
+        실제 입력 범위에선 매우 빠르게 동작한다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        한 줄씩 읽어 처리하고, 상수 개의 변수와 출력용 <code>StringBuilder</code>만 사용하므로
+        <strong><code>O(1)</code></strong> (출력 크기를 제외한 추가 메모리 기준).
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>대문자 출력</strong>:
+          <ul>
+            <li><code>toString</code>은 기본적으로 소문자(<code>a-f</code>)를 사용하므로
+                <code>.toUpperCase()</code>로 반드시 대문자로 변환해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>7자리 초과 처리</strong>:
+          <ul>
+            <li>자릿수만 본다. 값의 크기가 아니라
+                <strong>표현된 문자열 길이가 7자를 넘으면 무조건 <code>ERROR</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>입력 형식</strong>:
+          <ul>
+            <li>수와 진법 사이 공백이 여러 개일 수 있으므로,
+                공백 개수에 의존하지 말고 토크나이저 사용이 적절하다.</li>
+          </ul>
+        </li>
+        <li><strong>정수 범위</strong>:
+          <ul>
+            <li>이 코드는 <code>int</code> 범위 내에서 안전하게 동작한다.</li>
+            <li>문제 테스트도 일반적으로 32비트 정수 범위를 넘기지 않으므로,
+                별도 오버플로 처리가 없어도 통과 가능하다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>Integer.parseInt(s, from)</code>으로 입력 수를 10진수로 해석.</li>
+        <li><code>Integer.toString(value, to)</code>로 목표 진법 문자열 생성 후 <code>toUpperCase()</code>.</li>
+        <li>길이 7 이하: <code>String.format("%7s", result)</code>로 오른쪽 정렬.</li>
+        <li>길이 7 초과: <code>String.format("%7s", "ERROR")</code> 출력.</li>
+        <li>EOF까지 반복 처리, 현재 구현은 문제 요구사항과 형식에 잘 부합한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
