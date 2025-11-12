@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-11 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 점의 위치 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120841">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1111_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        서로 다른 <strong>balls개의 공</strong> 중에서 <strong>share개의 공을 뽑는 경우의 수</strong>를 구하는 문제다.<br>
+        이는 수학적 조합(Combination)으로 표현되며, <code>C(n, r) = n! / (r! × (n - r)!)</code> 공식을 사용한다.
+      </p>
+      
+      <p>
+        단, 팩토리얼을 직접 계산하면 수가 매우 커질 수 있으므로,<br>
+        이 문제에서는 <strong>분자와 분모를 단계별로 나누어 계산</strong>해 효율적으로 조합 값을 구한다.
+      </p>
+      
+      <ul>
+        <li><code>r = min(share, balls - share)</code> 로 불필요한 반복을 줄인다.</li>
+        <li>반복문을 통해 <code>result = result × (balls - i + 1) / i</code> 형태로 누적 계산한다.</li>
+        <li>계산 도중 overflow를 방지하기 위해 <code>long</code> 타입을 사용한다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>balls = 3, share = 2</code><br>
+          C(3, 2) = 3 → <code>3</code>
+        </li>
+        <li>
+          <code>balls = 5, share = 3</code><br>
+          C(5, 3) = 10 → <code>10</code>
+        </li>
+        <li>
+          <code>balls = 30, share = 15</code><br>
+          큰 수이지만 반복 계산을 통해 정확히 구할 수 있다.
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      <p>
+        반복문이 <code>r = min(share, balls - share)</code> 번 수행되므로 시간 복잡도는 <strong><code>O(r)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      <p>
+        별도의 배열이나 추가 자료구조를 사용하지 않으므로 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <strong>특수 케이스</strong>: <code>share == 0</code> 또는 <code>balls == share</code>인 경우 경우의 수는 항상 1이다.
+        </li>
+        <li>
+          <strong>정수 나눗셈 주의</strong>: 곱셈 후 나눗셈 순서를 지켜야 손실 없이 정확한 결과를 얻을 수 있다.
+        </li>
+        <li>
+          <strong>오버플로 방지</strong>: 계산 과정에서 수가 커질 수 있으므로 <code>int</code> 대신 <code>long</code>을 사용한다.
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+        <ul>
+          <li style="margin-top:1.2em;">
+            <strong>팩토리얼 직접 계산 방식</strong>
+            <pre><code>class Solution {
+          public long solution(int balls, int share) {
+              return factorial(balls) / (factorial(share) * factorial(balls - share));
+          }
+      
+          private long factorial(int n) {
+              long result = 1;
+              for (int i = 1; i &lt;= n; i++) result *= i;
+              return result;
+          }
+      }
+      </code></pre>
+            <p style="margin-top:0.5em;">
+              구현은 간단하지만, <strong>입력값이 커질수록 오버플로가 발생할 위험</strong>이 있다.<br>
+              따라서 실무나 대형 입력에서는 <strong>누적 계산 방식</strong>이 더 안전하다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 구슬을 나누는 경우의 수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120840">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1111_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        서로 다른 <strong>balls개의 공</strong> 중에서 <strong>share개를 뽑는 경우의 수</strong>를 구하는 문제다.<br>
+        이는 수학에서 말하는 조합(Combination)으로, <code>C(n, r) = n! / (r! × (n - r)!)</code> 공식을 사용해 계산할 수 있다.
+      </p>
+      
+      <p>
+        단, 팩토리얼을 그대로 계산하면 값이 매우 커질 수 있기 때문에,<br>
+        이 문제에서는 <strong>불필요한 곱셈을 줄이고, 중간 값의 크기를 최소화하는 방식</strong>으로 조합을 계산하는 것이 핵심이다.
+      </p>
+      
+      <ul>
+        <li><code>C(n, r)</code>에서 <code>r</code>과 <code>n - r</code> 중 더 작은 값을 선택하면 계산 횟수를 줄일 수 있다.</li>
+        <li>분자는 <code>n × (n - 1) × ...</code> 형태로 감소시키며 곱하고,</li>
+        <li>분모는 그때그때 나누어 주어 <code>result = result × (n - i + 1) / i</code> 형태로 안전하게 계산한다.</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>balls = 3, share = 2</code><br>
+          C(3, 2) = 3 → <code>3</code>
+        </li>
+        <li>
+          <code>balls = 5, share = 3</code><br>
+          C(5, 3) = 10 → <code>10</code>
+        </li>
+        <li>
+          <code>balls = 5, share = 0</code> 또는 <code>balls = 5, share = 5</code><br>
+          모든 공을 선택하거나, 아무 것도 선택하지 않는 경우 → 경우의 수는 항상 1
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      <p>
+        <code>r = min(share, balls - share)</code>에 대해 한 번의 반복만 수행하므로 시간 복잡도는 <strong><code>O(r)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      <p>
+        추가적인 배열이나 컬렉션을 사용하지 않고 누적 변수만 사용하므로 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <strong>경계 값 처리</strong>: <code>share == 0</code> 또는 <code>balls == share</code>인 경우 결과는 항상 1이다.
+        </li>
+        <li>
+          <strong>정수 나눗셈</strong>: 매 단계에서 <strong>곱셈 후 나눗셈</strong> 순서를 지켜야 올바른 조합 값이 나온다.
+        </li>
+        <li>
+          <strong>오버플로</strong>: 중간 연산 값이 커질 수 있으므로 <code>int</code>가 아닌 <code>long</code>을 사용하는 것이 안전하다.
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+        <ul>
+          <li style="margin-top:1.2em;">
+            <strong>팩토리얼 직접 계산 방식</strong>
+            <pre><code>class Solution {
+          public long solution(int balls, int share) {
+              return factorial(balls) / (factorial(share) * factorial(balls - share));
+          }
+      
+          private long factorial(int n) {
+              long result = 1;
+              for (int i = 1; i &lt;= n; i++) result *= i;
+              return result;
+          }
+      }
+      </code></pre>
+            <p style="margin-top:0.5em;">
+              구현은 직관적이지만, <strong>값이 매우 커지는 입력에서 오버플로 위험</strong>이 있어<br>
+              실제 테스트 환경에서는 앞서 설명한 <strong>조합 누적 계산 방식</strong>을 사용하는 것이 더 안전하다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 가위 바위 보</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120839">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1111_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        문자열 형태로 주어진 가위바위보 결과 <code>rsp</code>에 대해, <strong>이기는 경우의 손동작</strong>을 반환하는 문제다.<br>
+        각 문자는 다음과 같이 대응된다.
+      </p>
+      
+      <ul>
+        <li><code>'2'</code> → 가위</li>
+        <li><code>'0'</code> → 바위</li>
+        <li><code>'5'</code> → 보</li>
+      </ul>
+      
+      <p>
+        규칙은 <strong>가위(2)는 보(5)를 이기고, 바위(0)는 가위(2)를 이기며, 보(5)는 바위(0)를 이긴다</strong>.<br>
+        즉, 이기는 손동작으로 치환하는 매핑 관계는 다음과 같다.
+      </p>
+      
+      <ul>
+        <li><code>'2'</code> → <code>'0'</code></li>
+        <li><code>'0'</code> → <code>'5'</code></li>
+        <li><code>'5'</code> → <code>'2'</code></li>
+      </ul>
+      
+      <p>
+        이를 문자열을 문자 배열로 변환한 뒤, 각 문자를 <code>switch</code>문으로 순회하며 변환하면 된다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>rsp = "2"</code><br>
+          가위(2)를 이기려면 바위(0) → <code>"0"</code>
+        </li>
+        <li>
+          <code>rsp = "205"</code><br>
+          '2' → '0', '0' → '5', '5' → '2' → 결과: <code>"052"</code>
+        </li>
+        <li>
+          <code>rsp = "220"</code><br>
+          '2' → '0', '2' → '0', '0' → '5' → 결과: <code>"005"</code>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      <p>
+        문자열의 길이를 <code>n</code>이라 하면, 각 문자를 한 번씩만 검사하므로 시간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      <p>
+        입력 문자열을 문자 배열로 변환한 뒤 결과 문자열을 새로 생성하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <strong>입력 검증</strong>: 문제 조건상 <code>'2'</code>, <code>'0'</code>, <code>'5'</code> 이외의 문자가 등장하지 않는다.
+        </li>
+        <li>
+          <strong>문자 인덱스 관리</strong>: 반복문 내에서 인덱스를 직접 증가시키므로, <code>i++</code>의 위치에 유의한다.
+        </li>
+        <li>
+          <strong>문자 vs 숫자</strong>: 입력은 문자열이므로 문자 단위로 처리해야 하며, 정수형 연산을 수행하지 않는다.
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+        <ul>
+          <li style="margin-top:1.2em;">
+            <strong>문자열 치환을 활용한 간단한 구현</strong>
+            <pre><code>class Solution {
+          public String solution(String rsp) {
+              return rsp.replace('2', 'a')
+                        .replace('0', '5')
+                        .replace('5', '2')
+                        .replace('a', '0');
+          }
+      }
+      </code></pre>
+            <p style="margin-top:0.5em;">
+              임시 문자(<code>'a'</code>)를 활용해 중복 치환 문제를 방지하는 방식으로,<br>
+              <strong>간결하지만 효율성은 다소 떨어질 수 있다.</strong>
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
