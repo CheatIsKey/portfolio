@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-12 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-14 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 모스부호 (1)</h2>
+      <h2 class="section">문제 1 — 진료순서 정하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120838">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120835">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1112_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,19 +53,19 @@
       </h3>
       
       <p>
-        공백(<code>" "</code>)으로 구분된 모스 부호들을 <strong>영문 소문자 문자열</strong>로 변환하는 문제다.<br>
-        입력된 모스 문자열을 키로, 알파벳 문자를 값으로 하는 <strong>해시맵(모스 → 문자)</strong>을 구성해 각 토큰을 매핑한다.
+        응급도 배열 <code>emergency</code>가 주어졌을 때, 각 요소가 전체에서 어느 정도로 높은 우선순위를 가지는지를 <strong>“등수(rank)”</strong>로 매기는 문제다.<br>
+        값이 클수록 더 높은 등수(1등)에 해당한다.
       </p>
       
       <p>
-        입력 문자열을 공백 기준으로 나누어 각 모스 부호를 변환 후 <code>StringBuilder</code>에 순서대로 이어 붙인다.<br>
-        모든 토큰을 처리한 뒤 누적된 문자열을 반환하면 된다.
+        각 원소 <code>emergency[i]</code>에 대해, 다른 모든 원소들과 비교하며 자신보다 더 큰 값이 몇 개 있는지를 센 뒤,<br>
+        기본 등수 1에서 그 개수만큼 더해 등수를 결정한다.  
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 해시맵으로 빠른(<code>O(1)</code>) 모스 부호 → 문자 변환 수행</li>
-        <li><strong>자료구조</strong>: <code>HashMap&lt;String, Character&gt;</code> 이용, 26개 고정 매핑</li>
-        <li><strong>변환 과정</strong>: <code>split(" ")</code> → 각 토큰 <code>get()</code> → <code>append()</code></li>
+        <li><strong>핵심 아이디어</strong>: 모든 요소를 서로 비교해 상대적 우선순위 계산</li>
+        <li><strong>비교 방식</strong>: <code>emergency[i] &lt; emergency[j]</code>면 등수 +1</li>
+        <li><strong>자료 구조</strong>: 별도 정렬 없이 단순 이중 반복문만 사용</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -78,12 +78,12 @@
       
       <ul>
         <li>
-          <code>letter = ".... . .-.. .-.. ---"</code><br>
-          → <code>"hello"</code>
+          <code>emergency = [3, 76, 24]</code><br>
+          비교 결과 → <code>[3등, 1등, 2등]</code> → <code>[3, 1, 2]</code>
         </li>
         <li>
-          <code>letter = ".--- .- ...- .-"</code><br>
-          → <code>"java"</code>
+          <code>emergency = [30, 10, 23, 6, 100]</code><br>
+          비교 결과 → <code>[2, 5, 3, 4, 1]</code>
         </li>
       </ul>
       
@@ -94,8 +94,10 @@
           시간 복잡도
         </span>
       </p>
+      
       <p>
-        모스 부호의 개수를 <code>n</code>이라 하면, 각 변환은 해시맵 조회로 <code>O(1)</code>이므로 전체는 <strong><code>O(n)</code></strong>.
+        배열 길이를 <code>n</code>이라 하면 모든 원소를 서로 비교하므로<br>
+        전체 시간 복잡도는 <strong><code>O(n²)</code></strong>.
       </p>
       
       <p>
@@ -103,8 +105,9 @@
           공간 복잡도
         </span>
       </p>
+      
       <p>
-        고정 크기 매핑(26개) 외에는 입력 및 출력 문자열만 사용하므로 <strong><code>O(1)</code></strong> (출력 제외).
+        출력 배열 <code>rank</code>만 사용하므로 추가 공간은 <strong><code>O(n)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -116,9 +119,9 @@
       </p>
       
       <ul>
-        <li><strong>입력 전처리</strong>: <code>trim()</code> 후 <code>split(" +")</code>로 처리하면 불필요한 공백에도 안전하다.</li>
-        <li><strong>매핑 보장</strong>: 문제 조건상 모든 모스 부호는 유효하므로 <code>NullPointerException</code> 위험은 없다.</li>
-        <li><strong>초기화 방식</strong>: 더블 브레이스 초기화는 편리하지만 익명 클래스 생성 비용이 있으므로 정적 초기화로 대체 가능.</li>
+        <li><strong>중복 값</strong>: 문제 조건상 중복 응급도는 등장하지 않으므로 순위 충돌은 발생하지 않는다.</li>
+        <li><strong>정렬 기반 대안 가능</strong>: 정렬로도 풀 수 있지만, 현재 구현은 단순 비교 기반.</li>
+        <li><strong>입력 크기</strong>: <code>n</code>이 작기 때문에 <code>O(n²)</code>도 무리 없이 동작.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -129,38 +132,39 @@
             대안 아이디어
           </span>
         </summary>
+      
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>정적 초기화 블록으로 매핑 구성</strong><br>
-            더블 브레이스 초기화 대신 클래스 로딩 시 1회만 실행되어 불필요한 익명 클래스 생성을 피할 수 있다.
+            <strong>정렬을 이용해 등수 매기기</strong><br>
+            값과 인덱스를 함께 정렬한 뒤 순위를 기록하는 방식으로도 가능하며, 시간 복잡도는 <code>O(n log n)</code>으로 개선된다.
             <pre><code>import java.util.*;
       
       class Solution {
-          private static final Map&lt;String, Character&gt; MORSE = new HashMap&lt;&gt;(32);
-          static {
-              MORSE.put(".-", 'a'); MORSE.put("-...", 'b'); MORSE.put("-.-.", 'c');
-              MORSE.put("-..", 'd'); MORSE.put(".", 'e'); MORSE.put("..-.", 'f');
-              MORSE.put("--.", 'g'); MORSE.put("....", 'h'); MORSE.put("..", 'i');
-              MORSE.put(".---", 'j'); MORSE.put("-.-", 'k'); MORSE.put(".-..", 'l');
-              MORSE.put("--", 'm'); MORSE.put("-.", 'n'); MORSE.put("---", 'o');
-              MORSE.put(".--.", 'p'); MORSE.put("--.-", 'q'); MORSE.put(".-.", 'r');
-              MORSE.put("...", 's'); MORSE.put("-", 't'); MORSE.put("..-", 'u');
-              MORSE.put("...-", 'v'); MORSE.put(".--", 'w'); MORSE.put("-..-", 'x');
-              MORSE.put("-.--", 'y'); MORSE.put("--..", 'z');
-          }
+          public int[] solution(int[] emergency) {
+              int n = emergency.length;
+              int[] answer = new int[n];
       
-          public String solution(String letter) {
-              StringBuilder sb = new StringBuilder();
-              for (String token : letter.trim().split(" ")) {
-                  sb.append(MORSE.get(token));
+              // 값과 인덱스를 쌍으로 관리
+              int[][] arr = new int[n][2];
+              for (int i = 0; i &lt; n; i++) {
+                  arr[i][0] = emergency[i]; // 값
+                  arr[i][1] = i;            // 원래 인덱스
               }
-              return sb.toString();
+      
+              // 값 기준 내림차순 정렬
+              Arrays.sort(arr, (a, b) -&gt; b[0] - a[0]);
+      
+              // 정렬 순서대로 등수 매기기
+              for (int rank = 1; rank &lt;= n; rank++) {
+                  int originalIndex = arr[rank - 1][1];
+                  answer[originalIndex] = rank;
+              }
+      
+              return answer;
           }
       }
       </code></pre>
-            <p style="margin-top:0.5em;">
-              기능은 동일하지만 더블 브레이스 초기화보다 메모리 및 성능 효율이 좋다.
-            </p>
+            <p style="margin-top:0.5em;">이중 반복문보다 효율적이며, 대규모 입력에도 적합한 방식이다.</p>
           </li>
         </ul>
       </details>
@@ -204,14 +208,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 개미 군단</h2>
+      <h2 class="section">문제 2 — 외계행성의 나이</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120837">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120834">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1112_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -224,25 +228,19 @@
       </h3>
       
       <p>
-        개미 병사들이 각각 <strong>5, 3, 1의 공격력</strong>을 가지고 있을 때,<br>
-        주어진 체력 <code>hp</code>를 정확히 0으로 만들기 위해 필요한 최소 병사 수를 구하는 문제다.
+        주어진 나이 <code>age</code>를 문제에서 정의한 방식대로 <strong>알파벳 소문자로 치환된 문자열</strong>로 변환하는 문제다.<br>
+        각 자리의 숫자 0~9를 각각 <code>a~j</code>로 대응시키는 단순 매핑이다.
       </p>
       
       <p>
-        공격력이 큰 개미부터 차례로 최대한 많이 사용하면, 항상 최소 개수가 보장된다.<br>
-        이는 <strong>그리디(Greedy) 접근</strong>으로 해결할 수 있다.
+        입력된 정수를 10으로 나누어가며 일의 자리 숫자를 추출하고, 그 숫자에 문자 <code>'a'</code>를 더해 알파벳으로 변환한다.<br>
+        뒤에서부터 처리되므로 <code>StringBuilder</code>에 추가한 뒤 마지막에 <code>reverse()</code>로 순서를 바로잡아 문자열을 완성한다.
       </p>
       
       <ul>
-        <li><strong>공격력 순서</strong>: 5 → 3 → 1</li>
-        <li><strong>계산 순서</strong>: 
-          <ol>
-            <li><code>hp</code>를 5로 나눈 몫을 더하고 나머지를 계산</li>
-            <li>그 나머지를 3으로 나눈 몫을 더하고 나머지를 계산</li>
-            <li>마지막으로 1로 나눈 몫을 더하면 총 병사 수 완성</li>
-          </ol>
-        </li>
-        <li>공격력 단위가 서로 배수 관계이므로 Greedy로도 항상 최적해를 얻을 수 있다.</li>
+        <li><strong>핵심 아이디어</strong>: 각 자릿수를 0→a, 1→b … 9→j 로 매핑</li>
+        <li><strong>문자 변환 방식</strong>: <code>(char)(digit + 'a')</code></li>
+        <li><strong>문자열 조립</strong>: 뒤집혀 누적되므로 <code>reverse()</code>로 정방향 변환</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -255,16 +253,15 @@
       
       <ul>
         <li>
-          <code>hp = 23</code><br>
-          → 5로 4번(20), 나머지 3은 3으로 1번 → 총 <code>5마리</code>
+          <code>age = 23</code><br>
+          → 2 → <code>'c'</code>, 3 → <code>'d'</code><br>
+          → <code>"cd"</code>
         </li>
+      
         <li>
-          <code>hp = 24</code><br>
-          → 5로 4번(20), 나머지 4는 3으로 1번 + 1로 1번 → 총 <code>6마리</code>
-        </li>
-        <li>
-          <code>hp = 999</code><br>
-          → 5로 199번(995), 나머지 4는 3으로 1번 + 1로 1번 → 총 <code>201마리</code>
+          <code>age = 907</code><br>
+          → 9→<code>'j'</code>, 0→<code>'a'</code>, 7→<code>'h'</code><br>
+          → <code>"jah"</code>
         </li>
       </ul>
       
@@ -275,8 +272,9 @@
           시간 복잡도
         </span>
       </p>
+      
       <p>
-        단순한 산술 연산 3회만 수행하므로 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        나이의 자릿수를 <code>k</code>라 하면 각 자릿수 변환을 한 번씩 수행하므로 전체는 <strong><code>O(k)</code></strong>.
       </p>
       
       <p>
@@ -284,8 +282,9 @@
           공간 복잡도
         </span>
       </p>
+      
       <p>
-        추가적인 자료구조를 사용하지 않으므로 공간 복잡도는 <strong><code>O(1)</code></strong>.
+        <code>StringBuilder</code> 한 개만 사용하므로 <strong><code>O(k)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -297,9 +296,9 @@
       </p>
       
       <ul>
-        <li><strong>순서 중요</strong>: 반드시 공격력이 큰 병사부터 나누어야 최소 개수가 된다.</li>
-        <li><strong>입력 범위</strong>: <code>hp</code>는 항상 양의 정수로 주어진다.</li>
-        <li><strong>효율성</strong>: 단순 나눗셈 기반이므로 추가 최적화가 필요 없다.</li>
+        <li><strong>0 처리</strong>: 입력이 0일 경우 문자열은 <code>"a"</code>가 되어야 하므로 별도 처리 필요(해당 문제는 age ≥ 1 조건 존재).</li>
+        <li><strong>문자 변환</strong>: <code>'a' + digit</code>은 문자 코드 기반 덧셈으로, 문자열 결합과 다름에 주의.</li>
+        <li><strong>순서 반전</strong>: 뒤에서부터 자릿수를 처리하므로 <code>reverse()</code>는 필수.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -310,26 +309,29 @@
             대안 아이디어
           </span>
         </summary>
+      
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>일반화된 배열 기반 접근</strong><br>
-            공격력 종류가 여러 개로 바뀌더라도 동일한 원리로 처리할 수 있다.
+            <strong>문자열 변환 후 배열 기반 매핑</strong><br>
+            숫자를 문자열로 바꾸고, 각 문자(숫자)를 직접 변환하는 방식도 가능하다.
             <pre><code>import java.util.*;
       
       class Solution {
-          public int solution(int hp) {
-              int[] power = {5, 3, 1};
-              int count = 0;
-              for (int p : power) {
-                  count += hp / p;
-                  hp %= p;
+          public String solution(int age) {
+              char[] map = "abcdefghij".toCharArray();
+              String s = String.valueOf(age);
+      
+              StringBuilder sb = new StringBuilder();
+              for (char c : s.toCharArray()) {
+                  sb.append(map[c - '0']);
               }
-              return count;
+              return sb.toString();
           }
       }
       </code></pre>
+      
             <p style="margin-top:0.5em;">
-              하드코딩 대신 배열을 사용하면 공격력 종류가 바뀌어도 유연하게 대응할 수 있다.
+              자릿수 분해 없이 문자 인덱싱만 사용하므로 구현 난이도가 낮고 가독성이 좋다.
             </p>
           </li>
         </ul>
@@ -371,14 +373,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 순서쌍의 개수</h2>
+      <h2 class="section">문제 3 — 배열 자르기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120836">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120833">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1112_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -393,19 +395,19 @@
       </h3>
       
       <p>
-        주어진 자연수 <code>n</code>의 <strong>약수 개수</strong>를 구하는 문제다.<br>
-        1부터 <code>√n</code>까지만 반복하면서, <code>i</code>가 <code>n</code>을 나누는지 확인하면 된다.
+        정수 배열 <code>numbers</code>에서 인덱스 <code>num1</code>부터 <code>num2</code>까지의 구간을 잘라 <strong>새로운 배열로 반환</strong>하는 문제다.<br>
+        자바 스트림의 <code>IntStream.rangeClosed()</code>를 사용하여 범위에 포함되는 인덱스만 순회하며 원하는 요소를 추출한다.
       </p>
       
       <p>
-        약수는 짝을 이루므로(<code>i</code>와 <code>n / i</code>), 하나를 찾을 때마다 2개를 세고,<br>
-        단, <code>i * i == n</code>인 경우(즉, <strong>제곱수</strong>)는 중복으로 세지 않도록 1만 더한다.
+        <code>rangeClosed(num1, num2)</code>는 양 끝단을 모두 포함하는 정수 스트림을 생성한다.<br>
+        이후 <code>map(i → numbers[i])</code>로 해당 인덱스의 값을 매핑하고 <code>toArray()</code>로 배열을 만들어 반환한다.
       </p>
       
       <ul>
-        <li><strong>반복 범위</strong>: 1 ≤ i ≤ √n</li>
-        <li><strong>판별 조건</strong>: <code>n % i == 0</code>일 때 약수 발견</li>
-        <li><strong>중복 처리</strong>: 제곱수 여부를 조건문으로 구분</li>
+        <li><strong>핵심 아이디어</strong>: 인덱스 범위를 그대로 스트림으로 생성해 간결하게 배열 조각 추출</li>
+        <li><strong>스트림 변환</strong>: <code>rangeClosed()</code> → <code>map()</code> → <code>toArray()</code></li>
+        <li><strong>자료 구조</strong>: 별도 임시 배열 없이 즉시 최종 배열 생성</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -418,16 +420,12 @@
       
       <ul>
         <li>
-          <code>n = 20</code><br>
-          약수: 1, 2, 4, 5, 10, 20 → 총 <code>6개</code>
+          <code>numbers = [1, 2, 3, 4, 5], num1 = 1, num2 = 3</code><br>
+          → 추출 구간: 인덱스 1~3 → <code>[2, 3, 4]</code>
         </li>
         <li>
-          <code>n = 25</code><br>
-          약수: 1, 5, 25 → 총 <code>3개</code> (5는 중복 제외)
-        </li>
-        <li>
-          <code>n = 1</code><br>
-          약수: 1 → 총 <code>1개</code>
+          <code>numbers = [10, 20, 30], num1 = 0, num2 = 1</code><br>
+          → <code>[10, 20]</code>
         </li>
       </ul>
       
@@ -438,8 +436,10 @@
           시간 복잡도
         </span>
       </p>
+      
       <p>
-        1부터 <code>√n</code>까지만 탐색하므로 시간 복잡도는 <strong><code>O(√n)</code></strong>.
+        추출 범위의 길이를 <code>k = num2 - num1 + 1</code>이라 하면 순차적으로 <code>k</code>개 요소를 처리하므로<br>
+        전체 시간 복잡도는 <strong><code>O(k)</code></strong>.
       </p>
       
       <p>
@@ -447,8 +447,9 @@
           공간 복잡도
         </span>
       </p>
+      
       <p>
-        단일 변수만 사용하므로 공간 복잡도는 <strong><code>O(1)</code></strong>.
+        출력 배열 <code>k</code> 길이만큼만 사용되므로 <strong><code>O(k)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -460,9 +461,9 @@
       </p>
       
       <ul>
-        <li><strong>중복 약수 처리</strong>: 제곱수의 경우 1번만 카운트해야 한다.</li>
-        <li><strong>자료형</strong>: <code>i * i</code> 계산 시 int 범위 내에서 안전하지만, n이 매우 크면 long으로 캐스팅 고려.</li>
-        <li><strong>효율성</strong>: 단순 반복보다 √n까지만 순회하므로 충분히 빠르다.</li>
+        <li><strong>인덱스 포함 범위</strong>: <code>rangeClosed()</code>는 끝값 포함이므로 문제 조건과 정확히 일치한다.</li>
+        <li><strong>예외 상황</strong>: 입력이 항상 정상 범위 내에서 주어지므로 인덱스 예외는 발생하지 않는다.</li>
+        <li><strong>stream 오버헤드</strong>: 배열 슬라이싱만 필요할 경우 단순 반복문이 더 빠르지만, 가독성 면에서 스트림도 충분히 적합하다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -473,35 +474,28 @@
             대안 아이디어
           </span>
         </summary>
+      
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>소인수분해 기반 약수 개수 계산</strong><br>
-            약수의 개수는 각 소인수의 지수에 1을 더해 곱한 값으로도 구할 수 있다.
+            <strong>배열 복사 메서드 <code>Arrays.copyOfRange()</code> 사용</strong><br>
+            Java에서 제공하는 가장 간단한 배열 슬라이싱 방식으로, 내부적으로 효율적이다.
             <pre><code>import java.util.*;
       
       class Solution {
-          public int solution(int n) {
-              int count = 1;
-              for (int i = 2; i * i &lt;= n; i++) {
-                  int exponent = 0;
-                  while (n % i == 0) {
-                      n /= i;
-                      exponent++;
-                  }
-                  if (exponent &gt; 0) count *= (exponent + 1);
-              }
-              if (n &gt; 1) count *= 2; // 마지막 남은 소인수
-              return count;
+          public int[] solution(int[] numbers, int num1, int num2) {
+              // 끝 인덱스는 exclusive 이므로 num2 + 1 필요
+              return Arrays.copyOfRange(numbers, num1, num2 + 1);
           }
       }
       </code></pre>
+      
             <p style="margin-top:0.5em;">
-              수학적 접근으로, 약수의 개수를 효율적으로 구할 수 있다.<br>
-              단, 구현 복잡도가 다소 높으므로 기본 문제에서는 단순 √n 탐색이 더 직관적이다.
+              스트림보다 오버헤드가 적고 배열 슬라이싱에 가장 직관적이어서 실무에서도 자주 사용된다.
             </p>
           </li>
         </ul>
       </details>
+
 
 
 
