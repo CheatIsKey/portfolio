@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-14 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-15 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 진료순서 정하기</h2>
+      <h2 class="section">문제 1 — 짝수의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120835">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120831">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,19 +53,19 @@
       </h3>
       
       <p>
-        응급도 배열 <code>emergency</code>가 주어졌을 때, 각 요소가 전체에서 어느 정도로 높은 우선순위를 가지는지를 <strong>“등수(rank)”</strong>로 매기는 문제다.<br>
-        값이 클수록 더 높은 등수(1등)에 해당한다.
+        정수 <code>n</code>이 주어졌을 때, <strong>0부터 n까지 존재하는 모든 짝수의 합</strong>을 구하는 문제다.<br>
+        반복문을 2씩 증가시키며 짝수만 누적하는 단순한 방식으로 해결할 수 있다.
       </p>
       
       <p>
-        각 원소 <code>emergency[i]</code>에 대해, 다른 모든 원소들과 비교하며 자신보다 더 큰 값이 몇 개 있는지를 센 뒤,<br>
-        기본 등수 1에서 그 개수만큼 더해 등수를 결정한다.  
+        <code>for (int i = 0; i <= n; i += 2)</code> 와 같이 초기값을 0으로, 증가폭을 2로 설정하면<br>
+        조건 검사 없이 모든 짝수를 순회할 수 있다. 각 반복에서 누적 변수 <code>sum</code>에 더한 뒤 마지막에 반환한다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 모든 요소를 서로 비교해 상대적 우선순위 계산</li>
-        <li><strong>비교 방식</strong>: <code>emergency[i] &lt; emergency[j]</code>면 등수 +1</li>
-        <li><strong>자료 구조</strong>: 별도 정렬 없이 단순 이중 반복문만 사용</li>
+        <li><strong>핵심 아이디어</strong>: 짝수만 순회하도록 증가폭을 2로 설정</li>
+        <li><strong>누적 방식</strong>: 반복문에서 <code>sum += i</code> 적용</li>
+        <li><strong>불필요한 연산 제거</strong>: <code>i % 2 == 0</code> 검사 없이 효율적 처리</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -78,12 +78,12 @@
       
       <ul>
         <li>
-          <code>emergency = [3, 76, 24]</code><br>
-          비교 결과 → <code>[3등, 1등, 2등]</code> → <code>[3, 1, 2]</code>
+          <code>n = 10</code><br>
+          짝수: 0, 2, 4, 6, 8, 10 → 합: <code>30</code>
         </li>
         <li>
-          <code>emergency = [30, 10, 23, 6, 100]</code><br>
-          비교 결과 → <code>[2, 5, 3, 4, 1]</code>
+          <code>n = 5</code><br>
+          짝수: 0, 2, 4 → 합: <code>6</code>
         </li>
       </ul>
       
@@ -96,9 +96,7 @@
       </p>
       
       <p>
-        배열 길이를 <code>n</code>이라 하면 모든 원소를 서로 비교하므로<br>
-        전체 시간 복잡도는 <strong><code>O(n²)</code></strong>.
-      </p>
+        짝수 개수를 <code>k ≈ n/2</code>라 하면 반복은 <code>k</code>번 수행되므로 전체 시간 복잡도는 <strong><code>O(n)</code></strong>.</p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -107,7 +105,7 @@
       </p>
       
       <p>
-        출력 배열 <code>rank</code>만 사용하므로 추가 공간은 <strong><code>O(n)</code></strong>.
+        누적 변수 하나만 사용하므로 <strong><code>O(1)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -119,9 +117,9 @@
       </p>
       
       <ul>
-        <li><strong>중복 값</strong>: 문제 조건상 중복 응급도는 등장하지 않으므로 순위 충돌은 발생하지 않는다.</li>
-        <li><strong>정렬 기반 대안 가능</strong>: 정렬로도 풀 수 있지만, 현재 구현은 단순 비교 기반.</li>
-        <li><strong>입력 크기</strong>: <code>n</code>이 작기 때문에 <code>O(n²)</code>도 무리 없이 동작.</li>
+        <li><strong>초기값 포함</strong>: 0 또한 짝수이므로 합에 포함된다.</li>
+        <li><strong>음수 입력 없음</strong>: 문제 조건상 <code>n ≥ 0</code>이므로 음수 처리 고려 불필요.</li>
+        <li><strong>성능 최적</strong>: 명시적인 짝수 검사(<code>i % 2</code>)를 쓰지 않고 가장 효율적인 순회 방식.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -135,39 +133,23 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>정렬을 이용해 등수 매기기</strong><br>
-            값과 인덱스를 함께 정렬한 뒤 순위를 기록하는 방식으로도 가능하며, 시간 복잡도는 <code>O(n log n)</code>으로 개선된다.
-            <pre><code>import java.util.*;
-      
-      class Solution {
-          public int[] solution(int[] emergency) {
-              int n = emergency.length;
-              int[] answer = new int[n];
-      
-              // 값과 인덱스를 쌍으로 관리
-              int[][] arr = new int[n][2];
-              for (int i = 0; i &lt; n; i++) {
-                  arr[i][0] = emergency[i]; // 값
-                  arr[i][1] = i;            // 원래 인덱스
-              }
-      
-              // 값 기준 내림차순 정렬
-              Arrays.sort(arr, (a, b) -&gt; b[0] - a[0]);
-      
-              // 정렬 순서대로 등수 매기기
-              for (int rank = 1; rank &lt;= n; rank++) {
-                  int originalIndex = arr[rank - 1][1];
-                  answer[originalIndex] = rank;
-              }
-      
-              return answer;
+            <strong>수학 공식으로 계산</strong><br>
+            0부터 n까지의 짝수 합은 <code>2 × (1 + 2 + ... + (n/2))</code>와 동일하므로 등차수열 합 공식으로 계산할 수 있다.
+            <pre><code>class Solution {
+          public int solution(int n) {
+              int k = n / 2;               // 짝수 개수
+              return k * (k + 1);          // 2 * (1 + 2 + ... + k) = k(k+1)
           }
       }
       </code></pre>
-            <p style="margin-top:0.5em;">이중 반복문보다 효율적이며, 대규모 입력에도 적합한 방식이다.</p>
+      
+            <p style="margin-top:0.5em;">
+              반복문 없이 <strong>O(1)</strong> 시간에 바로 계산 가능해 가장 효율적이다.
+            </p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -208,14 +190,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 외계행성의 나이</h2>
+      <h2 class="section">문제 2 — 양꼬치</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120834">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120830">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -228,19 +210,19 @@
       </h3>
       
       <p>
-        주어진 나이 <code>age</code>를 문제에서 정의한 방식대로 <strong>알파벳 소문자로 치환된 문자열</strong>로 변환하는 문제다.<br>
-        각 자리의 숫자 0~9를 각각 <code>a~j</code>로 대응시키는 단순 매핑이다.
+        양꼬치 <code>n</code>인분과 음료 <code>k</code>개를 주문했을 때의 <strong>총 비용</strong>을 계산하는 문제다.<br>
+        양꼬치 10인분마다 음료 1개가 서비스로 무료 제공되므로, 주문한 음료 개수에서 무료 개수를 차감해야 한다.
       </p>
       
       <p>
-        입력된 정수를 10으로 나누어가며 일의 자리 숫자를 추출하고, 그 숫자에 문자 <code>'a'</code>를 더해 알파벳으로 변환한다.<br>
-        뒤에서부터 처리되므로 <code>StringBuilder</code>에 추가한 뒤 마지막에 <code>reverse()</code>로 순서를 바로잡아 문자열을 완성한다.
+        무료 음료 개수는 <code>n / 10</code>이며, 실제 결제해야 하는 음료 수는 <code>k - (n / 10)</code>이다.<br>
+        이후 양꼬치 가격(12,000원 × n)과 유료 음료 가격(2,000원 × 남은 k)을 더하면 최종 금액이 된다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 각 자릿수를 0→a, 1→b … 9→j 로 매핑</li>
-        <li><strong>문자 변환 방식</strong>: <code>(char)(digit + 'a')</code></li>
-        <li><strong>문자열 조립</strong>: 뒤집혀 누적되므로 <code>reverse()</code>로 정방향 변환</li>
+        <li><strong>핵심 아이디어</strong>: 10인분당 음료 1개 무료 → <code>k -= n / 10</code></li>
+        <li><strong>비용 계산</strong>: 양꼬치 12,000원, 음료 2,000원</li>
+        <li><strong>직접 계산 방식</strong>: 별도 반복 없이 단순 산술 연산만 수행</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -253,15 +235,17 @@
       
       <ul>
         <li>
-          <code>age = 23</code><br>
-          → 2 → <code>'c'</code>, 3 → <code>'d'</code><br>
-          → <code>"cd"</code>
+          <code>n = 10, k = 3</code><br>
+          무료 음료: <code>10 / 10 = 1개</code><br>
+          결제 음료: <code>3 - 1 = 2개</code><br>
+          총 비용: <code>12000×10 + 2000×2 = 124,000원</code>
         </li>
       
         <li>
-          <code>age = 907</code><br>
-          → 9→<code>'j'</code>, 0→<code>'a'</code>, 7→<code>'h'</code><br>
-          → <code>"jah"</code>
+          <code>n = 25, k = 5</code><br>
+          무료 음료: <code>25 / 10 = 2개</code><br>
+          결제 음료: <code>5 - 2 = 3개</code><br>
+          총 비용: <code>12000×25 + 2000×3 = 306,000원</code>
         </li>
       </ul>
       
@@ -274,7 +258,7 @@
       </p>
       
       <p>
-        나이의 자릿수를 <code>k</code>라 하면 각 자릿수 변환을 한 번씩 수행하므로 전체는 <strong><code>O(k)</code></strong>.
+        간단한 산술 계산만 수행하므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
       </p>
       
       <p>
@@ -284,7 +268,7 @@
       </p>
       
       <p>
-        <code>StringBuilder</code> 한 개만 사용하므로 <strong><code>O(k)</code></strong>.
+        추가 자료구조를 사용하지 않으므로 <strong><code>O(1)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -296,9 +280,9 @@
       </p>
       
       <ul>
-        <li><strong>0 처리</strong>: 입력이 0일 경우 문자열은 <code>"a"</code>가 되어야 하므로 별도 처리 필요(해당 문제는 age ≥ 1 조건 존재).</li>
-        <li><strong>문자 변환</strong>: <code>'a' + digit</code>은 문자 코드 기반 덧셈으로, 문자열 결합과 다름에 주의.</li>
-        <li><strong>순서 반전</strong>: 뒤에서부터 자릿수를 처리하므로 <code>reverse()</code>는 필수.</li>
+        <li><strong>음료 최소 결제 개수</strong>: 무료 개수가 음료 수보다 많아도 음수로 내려가선 안 되지만 문제 입력 조건상 그런 경우는 없다.</li>
+        <li><strong>정수 나눗셈</strong>: <code>n / 10</code>은 소수점 버림 정수 나눗셈이다.</li>
+        <li><strong>단위 계산</strong>: 문제에서 가격이 원 단위이므로 별도 변환 필요 없다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
@@ -312,30 +296,25 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>문자열 변환 후 배열 기반 매핑</strong><br>
-            숫자를 문자열로 바꾸고, 각 문자(숫자)를 직접 변환하는 방식도 가능하다.
-            <pre><code>import java.util.*;
+            <strong>무료 음료 계산을 명확하게 분리하는 방식</strong><br>
+            가독성을 중시하여 변수명을 분리하는 방식이다.
+            <pre><code>class Solution {
+          public int solution(int n, int k) {
+              int free = n / 10;        // 서비스 음료 개수
+              int paid = k - free;      // 실제 결제 음료 개수
       
-      class Solution {
-          public String solution(int age) {
-              char[] map = "abcdefghij".toCharArray();
-              String s = String.valueOf(age);
-      
-              StringBuilder sb = new StringBuilder();
-              for (char c : s.toCharArray()) {
-                  sb.append(map[c - '0']);
-              }
-              return sb.toString();
+              return (n * 12000) + (paid * 2000);
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              자릿수 분해 없이 문자 인덱싱만 사용하므로 구현 난이도가 낮고 가독성이 좋다.
+              의미를 명확히 분리하여 유지보수가 조금 더 쉬워지는 형태다.
             </p>
           </li>
         </ul>
       </details>
+
 
 
 
@@ -373,14 +352,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 배열 자르기</h2>
+      <h2 class="section">문제 3 — 각도기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120833">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120829">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1114_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -395,22 +374,30 @@
       </h3>
       
       <p>
-        정수 배열 <code>numbers</code>에서 인덱스 <code>num1</code>부터 <code>num2</code>까지의 구간을 잘라 <strong>새로운 배열로 반환</strong>하는 문제다.<br>
-        자바 스트림의 <code>IntStream.rangeClosed()</code>를 사용하여 범위에 포함되는 인덱스만 순회하며 원하는 요소를 추출한다.
-      </p>
-      
-      <p>
-        <code>rangeClosed(num1, num2)</code>는 양 끝단을 모두 포함하는 정수 스트림을 생성한다.<br>
-        이후 <code>map(i → numbers[i])</code>로 해당 인덱스의 값을 매핑하고 <code>toArray()</code>로 배열을 만들어 반환한다.
+        입력된 각도 <code>angle</code>이 어떤 유형의 각인지 판별하여<br>
+        문제에서 지정한 번호로 반환하는 조건 분기 문제다.<br>
+        각도의 범위에 따른 분류는 다음과 같다:
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 인덱스 범위를 그대로 스트림으로 생성해 간결하게 배열 조각 추출</li>
-        <li><strong>스트림 변환</strong>: <code>rangeClosed()</code> → <code>map()</code> → <code>toArray()</code></li>
-        <li><strong>자료 구조</strong>: 별도 임시 배열 없이 즉시 최종 배열 생성</li>
+        <li><strong>예각</strong> (0° &lt; angle &lt; 90°) → <strong>1</strong></li>
+        <li><strong>직각</strong> (angle = 90°) → <strong>2</strong></li>
+        <li><strong>둔각</strong> (90° &lt; angle &lt; 180°) → <strong>3</strong></li>
+        <li><strong>평각</strong> (angle = 180°) → <strong>4</strong></li>
+      </ul>
+      
+      <p>
+        단순 조건문(<code>if-else if-else</code>)으로 각 범위를 검사해 해당하는 번호를 바로 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 명확한 범위 조건을 순서대로 검사</li>
+        <li><strong>분기 구조</strong>: 작은 범위부터 큰 범위로 조건을 배치해 충돌 방지</li>
+        <li><strong>문제 조건</strong>: 항상 0 &lt; angle ≤ 180 이므로 예외 입력 없음</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -419,17 +406,14 @@
       </p>
       
       <ul>
-        <li>
-          <code>numbers = [1, 2, 3, 4, 5], num1 = 1, num2 = 3</code><br>
-          → 추출 구간: 인덱스 1~3 → <code>[2, 3, 4]</code>
-        </li>
-        <li>
-          <code>numbers = [10, 20, 30], num1 = 0, num2 = 1</code><br>
-          → <code>[10, 20]</code>
-        </li>
+        <li><code>angle = 70</code> → 예각 → <code>1</code></li>
+        <li><code>angle = 90</code> → 직각 → <code>2</code></li>
+        <li><code>angle = 120</code> → 둔각 → <code>3</code></li>
+        <li><code>angle = 180</code> → 평각 → <code>4</code></li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -438,8 +422,7 @@
       </p>
       
       <p>
-        추출 범위의 길이를 <code>k = num2 - num1 + 1</code>이라 하면 순차적으로 <code>k</code>개 요소를 처리하므로<br>
-        전체 시간 복잡도는 <strong><code>O(k)</code></strong>.
+        조건문만 검사하므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
       </p>
       
       <p>
@@ -449,10 +432,11 @@
       </p>
       
       <p>
-        출력 배열 <code>k</code> 길이만큼만 사용되므로 <strong><code>O(k)</code></strong>.
+        추가 변수 사용이 없으므로 <strong><code>O(1)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -461,12 +445,13 @@
       </p>
       
       <ul>
-        <li><strong>인덱스 포함 범위</strong>: <code>rangeClosed()</code>는 끝값 포함이므로 문제 조건과 정확히 일치한다.</li>
-        <li><strong>예외 상황</strong>: 입력이 항상 정상 범위 내에서 주어지므로 인덱스 예외는 발생하지 않는다.</li>
-        <li><strong>stream 오버헤드</strong>: 배열 슬라이싱만 필요할 경우 단순 반복문이 더 빠르지만, 가독성 면에서 스트림도 충분히 적합하다.</li>
+        <li><strong>각도 범위 확인</strong>: 문제 조건상 0은 등장하지 않으며, 180도는 평각으로 처리된다.</li>
+        <li><strong>조건 순서</strong>: 90 전후의 경계값을 명확히 구분해야 한다.</li>
+        <li><strong>중복 조건 없음</strong>: 각 범위가 서로 겹치지 않으므로 단순 분기만으로 충분하다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <details>
         <summary>
@@ -477,24 +462,24 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>배열 복사 메서드 <code>Arrays.copyOfRange()</code> 사용</strong><br>
-            Java에서 제공하는 가장 간단한 배열 슬라이싱 방식으로, 내부적으로 효율적이다.
-            <pre><code>import java.util.*;
-      
-      class Solution {
-          public int[] solution(int[] numbers, int num1, int num2) {
-              // 끝 인덱스는 exclusive 이므로 num2 + 1 필요
-              return Arrays.copyOfRange(numbers, num1, num2 + 1);
+            <strong>삼항 연산자 체인으로 축약</strong><br>
+            간단한 비교만 반복되므로 삼항 연산자로 줄일 수도 있다.
+            <pre><code>class Solution {
+          public int solution(int angle) {
+              return angle &lt; 90 ? 1 :
+                     angle == 90 ? 2 :
+                     angle &lt; 180 ? 3 : 4;
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              스트림보다 오버헤드가 적고 배열 슬라이싱에 가장 직관적이어서 실무에서도 자주 사용된다.
+              코드 길이는 짧아지지만 가독성이 떨어질 수 있어 취향에 따라 선택하면 된다.
             </p>
           </li>
         </ul>
       </details>
+
 
 
 
