@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-15 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-16 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 짝수의 합</h2>
+      <h2 class="section">문제 1 — 특정 문자 제거하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120831">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120826">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1116_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,22 +53,23 @@
       </h3>
       
       <p>
-        정수 <code>n</code>이 주어졌을 때, <strong>0부터 n까지 존재하는 모든 짝수의 합</strong>을 구하는 문제다.<br>
-        반복문을 2씩 증가시키며 짝수만 누적하는 단순한 방식으로 해결할 수 있다.
+        문자열 <code>my_string</code>에서 특정 문자 <code>letter</code>를 <strong>모두 제거한 새로운 문자열을 반환</strong>하는 문제다.<br>
+        <code>letter</code>는 길이 1인 문자열이므로 <code>char</code>로 변환하여 비교한다.
       </p>
       
       <p>
-        <code>for (int i = 0; i <= n; i += 2)</code> 와 같이 초기값을 0으로, 증가폭을 2로 설정하면<br>
-        조건 검사 없이 모든 짝수를 순회할 수 있다. 각 반복에서 누적 변수 <code>sum</code>에 더한 뒤 마지막에 반환한다.
+        전체 문자열을 <code>toCharArray()</code>로 순회하면서, 제거 대상 문자가 아닌 경우에만<br>
+        <code>StringBuilder</code>에 추가하여 결과 문자열을 구성한다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 짝수만 순회하도록 증가폭을 2로 설정</li>
-        <li><strong>누적 방식</strong>: 반복문에서 <code>sum += i</code> 적용</li>
-        <li><strong>불필요한 연산 제거</strong>: <code>i % 2 == 0</code> 검사 없이 효율적 처리</li>
+        <li><strong>핵심 아이디어</strong>: 단일 문자 비교로 필요 없는 문자만 제외</li>
+        <li><strong>문자열 조립</strong>: <code>StringBuilder</code>로 효율적인 누적</li>
+        <li><strong>단순 반복 처리</strong>: 모든 문자를 한 번씩만 검사</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -78,16 +79,23 @@
       
       <ul>
         <li>
-          <code>n = 10</code><br>
-          짝수: 0, 2, 4, 6, 8, 10 → 합: <code>30</code>
+          <code>my_string = "abcdef", letter = "f"</code><br>
+          → <code>"abcde"</code>
         </li>
+      
         <li>
-          <code>n = 5</code><br>
-          짝수: 0, 2, 4 → 합: <code>6</code>
+          <code>my_string = "hello", letter = "l"</code><br>
+          → <code>"heo"</code>
+        </li>
+      
+        <li>
+          <code>my_string = "aaaaa", letter = "a"</code><br>
+          → <code>""</code> (빈 문자열)
         </li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -96,7 +104,8 @@
       </p>
       
       <p>
-        짝수 개수를 <code>k ≈ n/2</code>라 하면 반복은 <code>k</code>번 수행되므로 전체 시간 복잡도는 <strong><code>O(n)</code></strong>.</p>
+        문자열 길이를 <code>n</code>이라 할 때 한 번만 순회하므로 전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
+      </p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -105,10 +114,11 @@
       </p>
       
       <p>
-        누적 변수 하나만 사용하므로 <strong><code>O(1)</code></strong>.
+        결과 문자열을 저장하기 위한 <code>StringBuilder</code>가 필요하므로 <strong><code>O(n)</code></strong>.
       </p>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -117,12 +127,13 @@
       </p>
       
       <ul>
-        <li><strong>초기값 포함</strong>: 0 또한 짝수이므로 합에 포함된다.</li>
-        <li><strong>음수 입력 없음</strong>: 문제 조건상 <code>n ≥ 0</code>이므로 음수 처리 고려 불필요.</li>
-        <li><strong>성능 최적</strong>: 명시적인 짝수 검사(<code>i % 2</code>)를 쓰지 않고 가장 효율적인 순회 방식.</li>
+        <li><strong>문자 비교</strong>: <code>letter.charAt(0)</code>로 확실히 단일 문자 비교를 수행해야 한다.</li>
+        <li><strong>문자열 비교 금지</strong>: <code>String.equals()</code>로 비교하면 오히려 비효율적이며 필요도 없다.</li>
+        <li><strong>중복 제거</strong>: 중복 문자가 여러 번 등장해도 전부 제거된다.</li>
       </ul>
       
       <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
       
       <details>
         <summary>
@@ -133,18 +144,17 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>수학 공식으로 계산</strong><br>
-            0부터 n까지의 짝수 합은 <code>2 × (1 + 2 + ... + (n/2))</code>와 동일하므로 등차수열 합 공식으로 계산할 수 있다.
+            <strong><code>replace()</code> 사용하기</strong><br>
+            Java 문자열 치환 기능을 사용하면 훨씬 간결하게 처리할 수 있다.
             <pre><code>class Solution {
-          public int solution(int n) {
-              int k = n / 2;               // 짝수 개수
-              return k * (k + 1);          // 2 * (1 + 2 + ... + k) = k(k+1)
+          public String solution(String my_string, String letter) {
+              return my_string.replace(letter, "");
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              반복문 없이 <strong>O(1)</strong> 시간에 바로 계산 가능해 가장 효율적이다.
+              내부적으로 전체 문자열을 스캔하지만 구현이 매우 간단하며 직관적이다.
             </p>
           </li>
         </ul>
@@ -188,16 +198,17 @@
 
 
 
+
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 양꼬치</h2>
+      <h2 class="section">문제 2 — 문자 반복 출력하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120830">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120825">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1116_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -210,22 +221,24 @@
       </h3>
       
       <p>
-        양꼬치 <code>n</code>인분과 음료 <code>k</code>개를 주문했을 때의 <strong>총 비용</strong>을 계산하는 문제다.<br>
-        양꼬치 10인분마다 음료 1개가 서비스로 무료 제공되므로, 주문한 음료 개수에서 무료 개수를 차감해야 한다.
+        문자열 <code>my_string</code>의 각 문자를 <code>n</code>번씩 반복하여 새 문자열을 만드는 문제다.<br>
+        예를 들어 <code>"abc"</code>와 <code>n = 3</code>이면 <code>"aaabbbccc"</code> 형태로 변환한다.
       </p>
       
       <p>
-        무료 음료 개수는 <code>n / 10</code>이며, 실제 결제해야 하는 음료 수는 <code>k - (n / 10)</code>이다.<br>
-        이후 양꼬치 가격(12,000원 × n)과 유료 음료 가격(2,000원 × 남은 k)을 더하면 최종 금액이 된다.
+        전체 결과 길이는 <code>my_string.length() * n</code>이므로, 이를 미리 계산해<br>
+        <code>char[]</code> 배열을 생성하고 직접 문자를 채워 넣는 방식으로 구현한다.<br>
+        이중 반복문을 사용하되, 내부 반복에서 동일 문자를 연속 <code>n</code>번 삽입한다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 10인분당 음료 1개 무료 → <code>k -= n / 10</code></li>
-        <li><strong>비용 계산</strong>: 양꼬치 12,000원, 음료 2,000원</li>
-        <li><strong>직접 계산 방식</strong>: 별도 반복 없이 단순 산술 연산만 수행</li>
+        <li><strong>핵심 아이디어</strong>: 각 문자를 <code>n</code>번 반복해 순서대로 배열에 삽입</li>
+        <li><strong>문자 처리 방식</strong>: <code>toCharArray()</code>로 순회 후 반복 삽입</li>
+        <li><strong>메모리 최적화</strong>: 결과 크기를 미리 계산해 <code>char[]</code>에 직접 채움</li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -235,21 +248,21 @@
       
       <ul>
         <li>
-          <code>n = 10, k = 3</code><br>
-          무료 음료: <code>10 / 10 = 1개</code><br>
-          결제 음료: <code>3 - 1 = 2개</code><br>
-          총 비용: <code>12000×10 + 2000×2 = 124,000원</code>
+          <code>my_string = "hello", n = 3</code><br>
+          → <code>"hhheeellllllooo"</code>
         </li>
-      
         <li>
-          <code>n = 25, k = 5</code><br>
-          무료 음료: <code>25 / 10 = 2개</code><br>
-          결제 음료: <code>5 - 2 = 3개</code><br>
-          총 비용: <code>12000×25 + 2000×3 = 306,000원</code>
+          <code>my_string = "abc", n = 2</code><br>
+          → <code>"aabbcc"</code>
+        </li>
+        <li>
+          <code>my_string = "z", n = 5</code><br>
+          → <code>"zzzzz"</code>
         </li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -258,7 +271,8 @@
       </p>
       
       <p>
-        간단한 산술 계산만 수행하므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        문자열 길이를 <code>m</code>이라 하면 각 문자를 <code>n</code>번 반복하므로  
+        전체 시간 복잡도는 <strong><code>O(m × n)</code></strong>.
       </p>
       
       <p>
@@ -268,10 +282,11 @@
       </p>
       
       <p>
-        추가 자료구조를 사용하지 않으므로 <strong><code>O(1)</code></strong>.
+        결과 배열 크기 <code>m × n</code>만큼 필요하므로 <strong><code>O(m × n)</code></strong>.
       </p>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -280,12 +295,13 @@
       </p>
       
       <ul>
-        <li><strong>음료 최소 결제 개수</strong>: 무료 개수가 음료 수보다 많아도 음수로 내려가선 안 되지만 문제 입력 조건상 그런 경우는 없다.</li>
-        <li><strong>정수 나눗셈</strong>: <code>n / 10</code>은 소수점 버림 정수 나눗셈이다.</li>
-        <li><strong>단위 계산</strong>: 문제에서 가격이 원 단위이므로 별도 변환 필요 없다.</li>
+        <li><strong>StringBuilder 미사용 이유</strong>: 반복 횟수가 크면 <code>char[]</code>가 더 효율적</li>
+        <li><strong>문자 하나씩 삽입</strong>: 내부 반복에서 <code>idx++</code> 증가 순서에 주의</li>
+        <li><strong>결과 변환</strong>: 최종 문자열 생성 시 <code>new String(result)</code> 사용</li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
       
       <details>
         <summary>
@@ -296,20 +312,23 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>무료 음료 계산을 명확하게 분리하는 방식</strong><br>
-            가독성을 중시하여 변수명을 분리하는 방식이다.
+            <strong><code>StringBuilder</code> 활용</strong><br>
+            결과 크기가 매우 크지 않다면 <code>StringBuilder</code>로 직관적으로 누적할 수 있다.
             <pre><code>class Solution {
-          public int solution(int n, int k) {
-              int free = n / 10;        // 서비스 음료 개수
-              int paid = k - free;      // 실제 결제 음료 개수
+          public String solution(String my_string, int n) {
+              StringBuilder sb = new StringBuilder(my_string.length() * n);
       
-              return (n * 12000) + (paid * 2000);
+              for (char c : my_string.toCharArray()) {
+                  sb.append(String.valueOf(c).repeat(n));
+              }
+      
+              return sb.toString();
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              의미를 명확히 분리하여 유지보수가 조금 더 쉬워지는 형태다.
+              Java 11 이상에서는 <code>repeat()</code>을 이용해 더 깔끔하고 가독성 높은 코드 작성이 가능하다.
             </p>
           </li>
         </ul>
@@ -352,14 +371,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 각도기</h2>
+      <h2 class="section">문제 3 — 짝수 홀수 개수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120829">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120824">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1115_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1116_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -374,29 +393,22 @@
       </h3>
       
       <p>
-        입력된 각도 <code>angle</code>이 어떤 유형의 각인지 판별하여<br>
-        문제에서 지정한 번호로 반환하는 조건 분기 문제다.<br>
-        각도의 범위에 따른 분류는 다음과 같다:
+        정수 배열 <code>num_list</code>가 주어졌을 때, 배열 안에 포함된 <strong>짝수의 개수</strong>와 <strong>홀수의 개수</strong>를 계산해<br>
+        <code>[짝수 개수, 홀수 개수]</code> 형태의 배열로 반환하는 문제다.
       </p>
-      
-      <ul>
-        <li><strong>예각</strong> (0° &lt; angle &lt; 90°) → <strong>1</strong></li>
-        <li><strong>직각</strong> (angle = 90°) → <strong>2</strong></li>
-        <li><strong>둔각</strong> (90° &lt; angle &lt; 180°) → <strong>3</strong></li>
-        <li><strong>평각</strong> (angle = 180°) → <strong>4</strong></li>
-      </ul>
       
       <p>
-        단순 조건문(<code>if-else if-else</code>)으로 각 범위를 검사해 해당하는 번호를 바로 반환한다.
+        배열을 순회하면서 각 값이 짝수인지(<code>i % 2 == 0</code>) 홀수인지 판단해 각각의 카운터를 증가시킨다.<br>
+        모든 요소의 검사 후 짝수 개수와 홀수 개수를 순서대로 새 배열에 담아 반환하면 된다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 명확한 범위 조건을 순서대로 검사</li>
-        <li><strong>분기 구조</strong>: 작은 범위부터 큰 범위로 조건을 배치해 충돌 방지</li>
-        <li><strong>문제 조건</strong>: 항상 0 &lt; angle ≤ 180 이므로 예외 입력 없음</li>
+        <li><strong>핵심 아이디어</strong>: 나머지 연산(<code>%</code>)으로 짝수/홀수 판별</li>
+        <li><strong>카운팅 방식</strong>: <code>even</code>, <code>odd</code> 두 변수에 누적</li>
+        <li><strong>출력 형식</strong>: <code>new int[]{even, odd}</code> 형태로 반환</li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       
       <p>
@@ -406,13 +418,22 @@
       </p>
       
       <ul>
-        <li><code>angle = 70</code> → 예각 → <code>1</code></li>
-        <li><code>angle = 90</code> → 직각 → <code>2</code></li>
-        <li><code>angle = 120</code> → 둔각 → <code>3</code></li>
-        <li><code>angle = 180</code> → 평각 → <code>4</code></li>
+        <li>
+          <code>num_list = [1, 2, 3, 4, 5]</code><br>
+          짝수: 2, 4 → 2개<br>
+          홀수: 1, 3, 5 → 3개<br>
+          → <code>[2, 3]</code>
+        </li>
+      
+        <li>
+          <code>num_list = [0, 7, 14]</code><br>
+          짝수: 0, 14 → 2개<br>
+          홀수: 7 → 1개<br>
+          → <code>[2, 1]</code>
+        </li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       
       <p>
@@ -422,7 +443,7 @@
       </p>
       
       <p>
-        조건문만 검사하므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        배열 길이를 <code>n</code>이라 하면 한 번만 순회하므로 전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
       </p>
       
       <p>
@@ -432,10 +453,10 @@
       </p>
       
       <p>
-        추가 변수 사용이 없으므로 <strong><code>O(1)</code></strong>.
+        결과 배열 크기 2만 추가로 필요하므로 <strong><code>O(1)</code></strong> (상수 공간).
       </p>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       
       <p>
@@ -445,12 +466,12 @@
       </p>
       
       <ul>
-        <li><strong>각도 범위 확인</strong>: 문제 조건상 0은 등장하지 않으며, 180도는 평각으로 처리된다.</li>
-        <li><strong>조건 순서</strong>: 90 전후의 경계값을 명확히 구분해야 한다.</li>
-        <li><strong>중복 조건 없음</strong>: 각 범위가 서로 겹치지 않으므로 단순 분기만으로 충분하다.</li>
+        <li><strong>0은 짝수</strong>이므로 짝수 카운터에 포함된다.</li>
+        <li><strong>배열 순서</strong>: 반드시 <code>[짝수, 홀수]</code> 순서로 반환해야 한다.</li>
+        <li><strong>음수도 동일</strong>: 음수도 나머지 연산으로 동일하게 짝/홀 판정 가능.</li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       
       <details>
@@ -462,23 +483,29 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>삼항 연산자 체인으로 축약</strong><br>
-            간단한 비교만 반복되므로 삼항 연산자로 줄일 수도 있다.
-            <pre><code>class Solution {
-          public int solution(int angle) {
-              return angle &lt; 90 ? 1 :
-                     angle == 90 ? 2 :
-                     angle &lt; 180 ? 3 : 4;
+            <strong>스트림(Stream) 사용</strong><br>
+            자바 스트림을 사용해 더 선언적으로 표현할 수 있다.
+            <pre><code>import java.util.*;
+      
+      class Solution {
+          public int[] solution(int[] num_list) {
+              int even = (int) Arrays.stream(num_list)
+                                     .filter(i -&gt; i % 2 == 0)
+                                     .count();
+      
+              int odd = num_list.length - even;
+              return new int[]{even, odd};
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              코드 길이는 짧아지지만 가독성이 떨어질 수 있어 취향에 따라 선택하면 된다.
+              가독성은 좋아지지만 기본 반복문보다 약간의 오버헤드가 있다.
             </p>
           </li>
         </ul>
       </details>
+
 
 
 
