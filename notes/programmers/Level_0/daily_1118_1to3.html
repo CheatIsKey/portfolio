@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-17 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 직각삼각형 출력하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120823">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1117_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        입력된 정수 <code>n</code>을 기준으로, <strong>1행부터 n행까지 별(*)을 계단식으로 출력</strong>하는 문제다.<br>
+        각 행 번호 <code>i</code>에 대해 <code>i</code>개의 별을 출력하고 줄바꿈을 반복하는 단순한 중첩 반복 구조로 구현한다.
+      </p>
+      
+      <p>
+        바깥 반복문은 1행부터 n행까지의 줄 수를 처리하고,<br>
+        안쪽 반복문은 해당 행 번호만큼 <code>'*'</code> 문자를 출력한다.<br>
+        각 줄마다 <code>System.out.println()</code>으로 개행을 수행해 다음 줄을 이어서 출력한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 행 번호 = 출력해야 할 별 개수</li>
+        <li><strong>구조</strong>: 바깥 루프(행), 안쪽 루프(별 출력)</li>
+        <li><strong>입력 처리</strong>: <code>Scanner</code>로 정수 하나 입력</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>n = 3</code><br>
+      <pre>
+      *
+      **
+      ***
+      </pre>
+        </li>
+      
+        <li>
+          <code>n = 5</code><br>
+      <pre>
+      *
+      **
+      ***
+      ****
+      *****
+      </pre>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        첫 행에 1개, 둘째 행에 2개 … n행에 n개 별을 찍으므로  
+        총 출력 수는 <code>1 + 2 + ... + n = n(n+1)/2</code>이다.<br>
+        따라서 시간 복잡도는 <strong><code>O(n²)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        출력만 수행하며 추가 자료구조가 없으므로 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>개행 위치</strong>: 각 행 출력 후 반드시 <code>println()</code>을 호출해야 올바른 형태가 된다.</li>
+        <li><strong>Scanner 입력</strong>: 백준/프로그래머스 콘솔 환경에서 표준 입력 처리 방식임.</li>
+        <li><strong>출력 형식 유지</strong>: 공백 없이 별만 출력해야 한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>문자열 반복 <code>repeat()</code> 사용</strong><br>
+            Java 11 이상에서는 반복 루프 없이 한 줄을 더 간단하게 출력할 수 있다.
+            <pre><code>import java.util.*;
+      
+      public class Solution {
+          public static void main(String[] args) {
+              Scanner sc = new Scanner(System.in);
+              int n = sc.nextInt();
+      
+              for (int i = 1; i &lt;= n; i++) {
+                  System.out.println("*".repeat(i));
+              }
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              내부적으로 동일한 시간 복잡도지만 코드가 훨씬 간결해진다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 뒤집힌 문자열</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120822">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1117_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        문자열 <code>my_string</code>을 <strong>역순(reverse)</strong>으로 뒤집어 반환하는 문제다.<br>
+        Java의 <code>StringBuilder</code>는 문자열을 뒤집는 <code>reverse()</code> 메서드를 제공하므로 이를 활용하여 간단하게 구현할 수 있다.
+      </p>
+      
+      <p>
+        입력 문자열을 기반으로 <code>StringBuilder</code> 객체를 생성한 뒤,<br>
+        내부 버퍼를 <code>reverse()</code>로 뒤집고 <code>toString()</code>으로 문자열 형태로 변환해 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: <code>StringBuilder.reverse()</code> 사용</li>
+        <li><strong>자료구조</strong>: 변경 가능한 문자열 구조인 <code>StringBuilder</code></li>
+        <li><strong>간결한 구현</strong>: 한 줄로도 표현 가능 (<code>return new StringBuilder(my_string).reverse().toString();</code>)</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>my_string = "jaron"</code><br>
+          → <code>"noraj"</code>
+        </li>
+      
+        <li>
+          <code>my_string = "bread"</code><br>
+          → <code>"daerb"</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        문자열 길이를 <code>n</code>이라 하면 <code>reverse()</code>는 내부 문자를 교환하며 한 번 순회하므로  
+        전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        <code>StringBuilder</code> 내부 버퍼가 필요하므로 공간 복잡도는 <strong><code>O(n)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>문자열 불변성</strong>: <code>String</code>은 불변(immutable)이므로 <code>reverse()</code>를 직접 사용할 수 없다.</li>
+        <li><strong>공백/특수문자 유지</strong>: 역순으로만 재배열하며 문자 내용은 변경되지 않는다.</li>
+        <li><strong>대소문자 구분 그대로 유지</strong>: 변환 과정에서 문자의 속성은 그대로 유지된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>수동으로 문자 교환(reverse) 구현</strong><br>
+            투 포인터 방식으로 직접 문자열을 뒤집을 수도 있다.
+            <pre><code>class Solution {
+          public String solution(String my_string) {
+              char[] arr = my_string.toCharArray();
+              int left = 0, right = arr.length - 1;
+      
+              while (left &lt; right) {
+                  char temp = arr[left];
+                  arr[left] = arr[right];
+                  arr[right] = temp;
+                  left++;
+                  right--;
+              }
+      
+              return new String(arr);
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              기능은 동일하지만, <code>StringBuilder</code>를 쓰는 것이 훨씬 간결하고 안전하다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 배열 뒤집기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120821">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1117_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        정수 배열 <code>num_list</code>를 <strong>역순(reverse)</strong>으로 뒤집어 반환하는 문제다.<br>
+        투 포인터(two-pointer) 방식을 사용하여 배열을 제자리에서(in-place) 뒤집는다.
+      </p>
+      
+      <p>
+        시작 인덱스 <code>idx</code>는 0에서 시작하고, 끝 인덱스 <code>last</code>는 배열의 마지막 인덱스에서 시작한다.<br>
+        두 인덱스가 만나기 전까지 서로의 값을 교환(swap)하며, 각 단계마다 <code>idx++</code>, <code>last--</code>를 수행한다.<br>
+        모든 스왑이 끝나면 역순으로 뒤집힌 배열을 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 투 포인터로 배열 앞뒤를 교환해 역순으로 뒤집기</li>
+        <li><strong>제자리 뒤집기</strong>: 추가 배열 없이 기존 배열을 그대로 수정</li>
+        <li><strong>스왑 방식</strong>: <code>tmp</code> 변수를 이용해 값 교환</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>num_list = [1, 2, 3, 4, 5]</code><br>
+          → <code>[5, 4, 3, 2, 1]</code>
+        </li>
+      
+        <li>
+          <code>num_list = [9, 8, 7]</code><br>
+          → <code>[7, 8, 9]</code>
+        </li>
+      
+        <li>
+          <code>num_list = [10]</code><br>
+          → <code>[10]</code> (단일 원소는 변경 없음)
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        배열 길이를 <code>n</code>이라 하면, 양 끝에서 중앙으로 이동하며 약 <code>n/2</code>번 스왑을 수행하므로  
+        전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        별도의 배열을 생성하지 않으므로 <strong><code>O(1)</code></strong> (상수 공간).
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>스왑 후 인덱스 이동</strong>: 교환 후 반드시 <code>idx++</code>, <code>last--</code> 해야 한다.</li>
+        <li><strong>배열 수정 방식</strong>: 원본 배열이 변경되는 방식이므로 복사본이 필요하다면 별도 처리 필요.</li>
+        <li><strong>홀수·짝수 길이</strong>: 길이가 홀수일 때 중앙 원소는 그대로 유지된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>배열을 새로 만들어 역순 복사</strong><br>
+            제자리(reverse) 방식 대신 새 배열을 만들어 채우는 방식.
+            <pre><code>class Solution {
+          public int[] solution(int[] num_list) {
+              int n = num_list.length;
+              int[] result = new int[n];
+      
+              for (int i = 0; i &lt; n; i++) {
+                  result[i] = num_list[n - 1 - i];
+              }
+      
+              return result;
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              원본 배열을 보존하면서 새로 뒤집은 배열을 얻고 싶을 때 적합한 방식이다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
