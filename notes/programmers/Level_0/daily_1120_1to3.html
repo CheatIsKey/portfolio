@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-18 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-20 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 나이 출력</h2>
+      <h2 class="section">문제 1 — 배열의 평균값</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120820">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120817">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,20 +53,20 @@
       </h3>
       
       <p>
-        나이를 기준으로 <strong>출생 연도</strong>를 계산하는 문제다.<br>
-        문제에서는 <strong>2022년 기준</strong>이며, 한국식 나이 계산(태어났을 때 1살) 규칙을 따른다.
+        정수 배열 <code>numbers</code>의 모든 원소의 <strong>평균값</strong>을 계산하는 문제다.<br>
+        전체 합을 구한 뒤, 배열의 길이로 나누어 평균을 반환한다.
       </p>
       
       <p>
-        한국식 나이를 이용하면 다음 공식으로 출생 연도를 계산할 수 있다:<br>
-        <code>출생연도 = 기준연도 - (나이 - 1)</code><br>
-        이유는 한국식 나이는 <code>나이 = 기준연도 - 출생연도 + 1</code>이므로 이를 변형한 것이다.
+        반복문을 통해 각 요소를 <code>sum</code>에 누적하고,<br>
+        마지막에 <code>sum / numbers.length</code>를 수행하여 평균을 구한다.<br>
+        평균은 실수(double)로 반환해야 하므로 <code>sum</code>은 <code>double</code>로 선언한다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 한국식 나이 → <code>출생연도 = 2022 - (age - 1)</code></li>
-        <li><strong>직접 계산</strong>: 별도 조건문 없이 한 줄 수식으로 처리</li>
-        <li><strong>기준 연도</strong>: 문제에서 고정된 2022년 사용</li>
+        <li><strong>핵심 아이디어</strong>: 전체 합 → 길이로 나누기</li>
+        <li><strong>데이터 타입</strong>: 정수 배열 평균은 실수이므로 <code>double</code> 계산 필요</li>
+        <li><strong>안정성</strong>: 배열 길이는 항상 1 이상이므로 0으로 나누는 상황 없음</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -79,9 +79,18 @@
       </p>
       
       <ul>
-        <li><code>age = 40</code><br>→ <code>2022 - 39 = 1983</code></li>
-        <li><code>age = 1</code><br>→ <code>2022 - 0 = 2022</code></li>
-        <li><code>age = 10</code><br>→ <code>2022 - 9 = 2013</code></li>
+        <li>
+          <code>numbers = [1, 2, 3, 4]</code><br>
+          합: 10 → 평균: <code>10 / 4 = 2.5</code>
+        </li>
+        <li>
+          <code>numbers = [5, 5, 5]</code><br>
+          합: 15 → 평균: <code>15 / 3 = 5.0</code>
+        </li>
+        <li>
+          <code>numbers = [10, 0]</code><br>
+          합: 10 → 평균: <code>10 / 2 = 5.0</code>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -94,7 +103,8 @@
       </p>
       
       <p>
-        단순 산술 연산만 수행하므로 <strong><code>O(1)</code></strong>.
+        배열 길이를 <code>n</code>이라 하면 모든 요소를 한 번씩 순회하므로  
+        전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
       </p>
       
       <p>
@@ -104,7 +114,7 @@
       </p>
       
       <p>
-        추가 자료구조가 없으므로 <strong><code>O(1)</code></strong>.
+        추가 공간이 거의 없으므로 <strong><code>O(1)</code></strong> (상수 공간).
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -117,9 +127,9 @@
       </p>
       
       <ul>
-        <li><strong>한국식 나이 공식 사용</strong>: 단순히 <code>2022 - age</code>가 아니며 <code>- (age - 1)</code>을 해야 한다.</li>
-        <li><strong>기준 연도 고정</strong>: 문제 기준이 2022년이므로 달라지면 공식도 변해야 한다.</li>
-        <li><strong>age ≥ 1</strong>: 입력은 항상 자연수이므로 예외 케이스 없음.</li>
+        <li><strong>정수 나눗셈 방지</strong>: <code>sum</code>이 <code>double</code>이므로 자동으로 실수 나눗셈이 수행된다.</li>
+        <li><strong>배열 길이 ≥ 1</strong>: 문제 조건상 항상 최소 1개 이상의 원소가 주어진다.</li>
+        <li><strong>자료형 변환 주의</strong>: <code>sum</code>을 int로 선언하면 정수 연산이 되어 잘못된 결과가 나온다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -134,18 +144,20 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>공식을 직관적으로 풀어 쓰기</strong><br>
-            동일한 계산을 좀 더 직관적으로 표현할 수 있다.
-            <pre><code>class Solution {
-          public int solution(int age) {
-              int birthYear = 2022 - age + 1;  // 한국식 나이 변환
-              return birthYear;
+            <strong>Java Stream API 사용</strong><br>
+            <pre><code>import java.util.*;
+      
+      class Solution {
+          public double solution(int[] numbers) {
+              return Arrays.stream(numbers)
+                           .average()
+                           .orElse(0);
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              동일한 결과를 주지만 개념적으로 더 이해하기 쉬운 형태다.
+              내장된 <code>average()</code> 메서드를 활용하면 더 간결하고 안전한 평균 계산이 가능하다.
             </p>
           </li>
         </ul>
@@ -194,14 +206,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 아이스 아메리카노</h2>
+      <h2 class="section">문제 2 — 피자 나눠 먹기 (3)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120819">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120816">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -214,19 +226,20 @@
       </h3>
       
       <p>
-        가진 돈 <code>money</code>로 아메리카노(1잔 5,500원)를 최대 몇 잔 살 수 있는지,  
-        그리고 구매 후 남는 잔돈이 얼마인지 계산하여 <strong>[구매 가능 잔 수, 잔돈]</strong> 형태로 반환하는 문제다.
+        피자 한 판을 <code>slice</code>조각으로 나눌 수 있을 때,  
+        총 <code>n</code>명이 모두 1조각 이상 먹기 위해 필요한 <strong>피자 판 수</strong>를 구하는 문제다.
       </p>
       
       <p>
-        구매 가능한 잔 수는 <code>money / 5500</code>으로 계산하며, 이는 정수 나눗셈이므로 자동으로 몫만 남는다.<br>
-        남은 금액은 총 금액에서 사용한 금액을 뺀 값으로, <code>money - (5500 * cnt)</code>로 계산한다.
+        기본적으로 한 판에서 <code>slice</code>명이 먹을 수 있으므로,  
+        <code>n / slice</code>로 필요한 기본 피자 수를 구하고,<br>
+        나누어 떨어지지 않을 경우(<code>n % slice != 0</code>) 한 판을 더 주문해야 한다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 정수 나눗셈으로 구매 가능 잔 수 계산</li>
-        <li><strong>잔돈 계산</strong>: <code>money - 5500 × cnt</code></li>
-        <li><strong>반환 형식</strong>: <code>new int[]{잔수, 잔돈}</code></li>
+        <li><strong>핵심 아이디어</strong>: 필요한 조각 수 &rarr; 조각 수로 나누고 올림 처리</li>
+        <li><strong>기본 계산</strong>: <code>pizza = n / slice</code></li>
+        <li><strong>올림 처리</strong>: 나머지가 있으면 <code>pizza++</code></li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -240,24 +253,18 @@
       
       <ul>
         <li>
-          <code>money = 15000</code><br>
-          구매 가능 잔 수: <code>15000 / 5500 = 2</code><br>
-          잔돈: <code>15000 - 11000 = 4000</code><br>
-          → <code>[2, 4000]</code>
+          <code>slice = 7, n = 10</code><br>
+          → <code>10 / 7 = 1</code>, 나머지 3 → 한 판 더 필요 → <code>2</code>
         </li>
       
         <li>
-          <code>money = 5500</code><br>
-          구매 가능 잔 수: <code>1</code><br>
-          잔돈: <code>0</code><br>
-          → <code>[1, 0]</code>
+          <code>slice = 4, n = 8</code><br>
+          → <code>8 / 4 = 2</code>, 나머지 0 → 추가 필요 없음 → <code>2</code>
         </li>
       
         <li>
-          <code>money = 3000</code><br>
-          구매 가능 잔 수: <code>0</code><br>
-          잔돈: <code>3000</code><br>
-          → <code>[0, 3000]</code>
+          <code>slice = 5, n = 16</code><br>
+          → <code>16 / 5 = 3</code>, 나머지 1 → 한 판 더 → <code>4</code>
         </li>
       </ul>
       
@@ -271,7 +278,7 @@
       </p>
       
       <p>
-        단순 산술 연산이므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        단순한 산술 연산과 조건문만 있으므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
       </p>
       
       <p>
@@ -281,7 +288,7 @@
       </p>
       
       <p>
-        반환 배열 크기가 고정이므로 <strong><code>O(1)</code></strong>.
+        추가 자료구조 없음 → <strong><code>O(1)</code></strong>.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -294,9 +301,9 @@
       </p>
       
       <ul>
-        <li><strong>정수 나눗셈</strong>: <code>money / 5500</code>은 자동으로 몫만 남는다.</li>
-        <li><strong>가격 고정</strong>: 아메리카노 가격은 문제에서 항상 5,500원으로 고정.</li>
-        <li><strong>음수 입력 없음</strong>: 문제 조건상 money ≥ 0이므로 예외 상황 없음.</li>
+        <li><strong>정확한 올림 처리</strong>: 단순 정수 나눗셈으로는 부족하며 나머지 처리 필수.</li>
+        <li><strong>slice ≥ 1, n ≥ 1</strong>: 문제 조건상 0이 입력되지 않아 예외 없음.</li>
+        <li><strong>조각 개수 그대로 사용</strong>: 다른 할인/누락 조건 없음.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -311,20 +318,17 @@
       
         <ul style="margin-top:1.2em;">
           <li style="margin-top:0.4em;">
-            <strong>나머지 연산 활용</strong><br>
-            잔돈은 직접 계산 대신 <code>money % 5500</code>으로 구할 수도 있다.
+            <strong>Math.ceil()을 이용한 올림 처리</strong><br>
+            실수 계산을 활용하면 더욱 직관적으로 표현할 수 있다.
             <pre><code>class Solution {
-          public int[] solution(int money) {
-              int cnt = money / 5500;
-              int remain = money % 5500;   // 남은 잔돈 계산
-      
-              return new int[]{cnt, remain};
+          public int solution(int slice, int n) {
+              return (int) Math.ceil(n / (double) slice);
           }
       }
       </code></pre>
       
             <p style="margin-top:0.5em;">
-              나머지(<code>%</code>) 연산을 사용하면 잔돈 계산이 더 직관적이다.
+              나눗셈을 실수로 수행한 뒤 올림하면 추가 조건문 없이 결과를 얻을 수 있다.
             </p>
           </li>
         </ul>
@@ -367,14 +371,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 옷가게 할인 받기</h2>
+      <h2 class="section">문제 3 — 피자 나눠 먹기 (2)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120818">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120815">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -389,26 +393,22 @@
       </h3>
       
       <p>
-        구매 금액 <code>price</code>에 따라 <strong>할인율</strong>을 적용해 최종 결제 금액을 계산하는 문제다.<br>
-        조건에 따라 다음 할인 규칙을 가진다:
+        각 피자는 6조각이며, <code>n</code>명이 모두 똑같은 조각 수를 먹으려면  
+        최소 몇 판의 피자가 필요한지를 구하는 문제다.<br>
+        핵심은 <strong>6조각이 n명에게 정확히 나누어떨어지도록</strong> 피자 판 수를 결정하는 것이다.
       </p>
-      
-      <ul>
-        <li><strong>50만 원 이상</strong>: 20% 할인 → <code>price × 0.8</code></li>
-        <li><strong>30만 원 이상</strong>: 10% 할인 → <code>price × 0.9</code></li>
-        <li><strong>10만 원 이상</strong>: 5% 할인 → <code>price × 0.95</code></li>
-        <li><strong>그 외</strong>: 할인 없음</li>
-      </ul>
       
       <p>
-        삼항 연산자(<code>?:</code>)를 중첩해 조건을 순서대로 검사하고,  
-        해당하는 할인율을 적용한 뒤 <code>(int)</code>로 정수형으로 변환해 반환한다.
+        식으로 표현하면, 피자 판 수를 <code>i</code>라고 할 때  
+        <code>(n × i) % 6 == 0</code>을 만족하는 최소의 <code>i</code>를 찾으면 된다.  
+        즉, <strong>n과 6의 최소공배수(LCM)를 이용한 문제</strong>이며,  
+        코드에서는 반복문으로 가장 작은 i를 찾는다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 조건 범위가 큰 금액부터 내려오며 할인율 결정</li>
-        <li><strong>정수 반환 처리</strong>: 할인 후 금액은 실수이므로 <code>(int)</code>로 변환</li>
-        <li><strong>순차적 조건</strong>: 500k → 300k → 100k 순으로 검사</li>
+        <li><strong>핵심 아이디어</strong>: <code>(n × i)</code>가 6의 배수가 되는 최소 i 찾기</li>
+        <li><strong>최종 피자 판 수</strong>: <code>pizza = (n × i) / 6</code></li>
+        <li><strong>LCM 기반</strong>: 사실상 <code>LCM(n, 6) / 6</code></li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -422,23 +422,21 @@
       
       <ul>
         <li>
-          <code>price = 580000</code><br>
-          → 20% 할인 → <code>580000 × 0.8 = 464000</code>
+          <code>n = 3</code><br>
+          <code>(3 × 2) % 6 == 0</code> → 최소 i=2 → <code>pizza = (3×2)/6 = 1</code>  
+          → 피자 1판 필요
         </li>
       
         <li>
-          <code>price = 320000</code><br>
-          → 10% 할인 → <code>320000 × 0.9 = 288000</code>
+          <code>n = 4</code><br>
+          <code>(4 × 3) % 6 == 0</code> → i=3 → <code>(4×3)/6 = 2</code>  
+          → 피자 2판 필요
         </li>
       
         <li>
-          <code>price = 120000</code><br>
-          → 5% 할인 → <code>120000 × 0.95 = 114000</code>
-        </li>
-      
-        <li>
-          <code>price = 90000</code><br>
-          → 할인 없음 → <code>90000</code>
+          <code>n = 6</code><br>
+          <code>(6×1) % 6 == 0</code> → 바로 가능 → <code>6/6 = 1</code>  
+          → 피자 1판 필요
         </li>
       </ul>
       
@@ -452,7 +450,9 @@
       </p>
       
       <p>
-        조건문 검사와 산술 연산만 수행하므로 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        최악의 경우 증가하는 i를 순차적으로 검사하므로  
+        <strong><code>O(k)</code></strong> (k는 조건을 만족하는 최초 i).  
+        n은 1 ≤ n ≤ 100이므로 충분히 작아 실질적으로 매우 빠르게 종료된다.
       </p>
       
       <p>
@@ -462,7 +462,7 @@
       </p>
       
       <p>
-        별도의 자료구조가 필요 없으므로 공간 복잡도는 <strong><code>O(1)</code></strong>.
+        변수 몇 개만 사용하므로 <strong><code>O(1)</code></strong>.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -475,9 +475,9 @@
       </p>
       
       <ul>
-        <li><strong>강제 형변환</strong>: 할인 후 값은 double이므로 반드시 <code>(int)</code>로 캐스팅해야 한다.</li>
-        <li><strong>내림 처리</strong>: 형변환은 자동으로 소수점 아래를 버리는 내림 방식이다.</li>
-        <li><strong>조건 순서 중요</strong>: 큰 금액부터 검사해야 정확한 할인율 적용이 가능하다.</li>
+        <li><strong>정확히 나누어떨어져야 함</strong>: 조각이 남거나 모자라면 안 된다.</li>
+        <li><strong>i 증가 방식</strong>: 1부터 증가하면서 가장 작은 i를 찾아야 한다.</li>
+        <li><strong>무한 루프 문제 없음</strong>: 6과 n의 최소공배수는 반드시 존재하므로 종료된다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -491,25 +491,35 @@
         </summary>
       
         <ul style="margin-top:1.2em;">
+      
           <li style="margin-top:0.4em;">
-            <strong>if–else 조건문으로 가독성 향상</strong><br>
-            삼항 연산자 대신 일반 조건문을 사용하면 읽기 쉬운 구조가 된다.
+            <strong>최소공배수(LCM) 공식을 직접 이용</strong><br>
+            반복문 없이 더 효율적으로 계산할 수 있다.
             <pre><code>class Solution {
-          public int solution(int price) {
-              if (price >= 500000) return (int) (price * 0.8);
-              else if (price >= 300000) return (int) (price * 0.9);
-              else if (price >= 100000) return (int) (price * 0.95);
-              else return price;
+          public int solution(int n) {
+              int gcd = gcd(n, 6);
+              int lcm = n * 6 / gcd;
+              return lcm / 6;
+          }
+      
+          private int gcd(int a, int b) {
+              while (b != 0) {
+                  int temp = a % b;
+                  a = b;
+                  b = temp;
+              }
+              return a;
           }
       }
       </code></pre>
-      
             <p style="margin-top:0.5em;">
-              논리가 동일하지만 유지보수 측면에서는 if-else 구조가 더 직관적이다.
+              <code>LCM(n, 6) / 6</code>이 필요한 피자 판 수와 동일하며, 공식 기반의 정석 풀이다.
             </p>
           </li>
+      
         </ul>
       </details>
+
 
 
 
