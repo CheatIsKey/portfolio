@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-18 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 나이 출력</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120820">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        나이를 기준으로 <strong>출생 연도</strong>를 계산하는 문제다.<br>
+        문제에서는 <strong>2022년 기준</strong>이며, 한국식 나이 계산(태어났을 때 1살) 규칙을 따른다.
+      </p>
+      
+      <p>
+        한국식 나이를 이용하면 다음 공식으로 출생 연도를 계산할 수 있다:<br>
+        <code>출생연도 = 기준연도 - (나이 - 1)</code><br>
+        이유는 한국식 나이는 <code>나이 = 기준연도 - 출생연도 + 1</code>이므로 이를 변형한 것이다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 한국식 나이 → <code>출생연도 = 2022 - (age - 1)</code></li>
+        <li><strong>직접 계산</strong>: 별도 조건문 없이 한 줄 수식으로 처리</li>
+        <li><strong>기준 연도</strong>: 문제에서 고정된 2022년 사용</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>age = 40</code><br>→ <code>2022 - 39 = 1983</code></li>
+        <li><code>age = 1</code><br>→ <code>2022 - 0 = 2022</code></li>
+        <li><code>age = 10</code><br>→ <code>2022 - 9 = 2013</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        단순 산술 연산만 수행하므로 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가 자료구조가 없으므로 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>한국식 나이 공식 사용</strong>: 단순히 <code>2022 - age</code>가 아니며 <code>- (age - 1)</code>을 해야 한다.</li>
+        <li><strong>기준 연도 고정</strong>: 문제 기준이 2022년이므로 달라지면 공식도 변해야 한다.</li>
+        <li><strong>age ≥ 1</strong>: 입력은 항상 자연수이므로 예외 케이스 없음.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>공식을 직관적으로 풀어 쓰기</strong><br>
+            동일한 계산을 좀 더 직관적으로 표현할 수 있다.
+            <pre><code>class Solution {
+          public int solution(int age) {
+              int birthYear = 2022 - age + 1;  // 한국식 나이 변환
+              return birthYear;
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              동일한 결과를 주지만 개념적으로 더 이해하기 쉬운 형태다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 아이스 아메리카노</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120819">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        가진 돈 <code>money</code>로 아메리카노(1잔 5,500원)를 최대 몇 잔 살 수 있는지,  
+        그리고 구매 후 남는 잔돈이 얼마인지 계산하여 <strong>[구매 가능 잔 수, 잔돈]</strong> 형태로 반환하는 문제다.
+      </p>
+      
+      <p>
+        구매 가능한 잔 수는 <code>money / 5500</code>으로 계산하며, 이는 정수 나눗셈이므로 자동으로 몫만 남는다.<br>
+        남은 금액은 총 금액에서 사용한 금액을 뺀 값으로, <code>money - (5500 * cnt)</code>로 계산한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 정수 나눗셈으로 구매 가능 잔 수 계산</li>
+        <li><strong>잔돈 계산</strong>: <code>money - 5500 × cnt</code></li>
+        <li><strong>반환 형식</strong>: <code>new int[]{잔수, 잔돈}</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>money = 15000</code><br>
+          구매 가능 잔 수: <code>15000 / 5500 = 2</code><br>
+          잔돈: <code>15000 - 11000 = 4000</code><br>
+          → <code>[2, 4000]</code>
+        </li>
+      
+        <li>
+          <code>money = 5500</code><br>
+          구매 가능 잔 수: <code>1</code><br>
+          잔돈: <code>0</code><br>
+          → <code>[1, 0]</code>
+        </li>
+      
+        <li>
+          <code>money = 3000</code><br>
+          구매 가능 잔 수: <code>0</code><br>
+          잔돈: <code>3000</code><br>
+          → <code>[0, 3000]</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        단순 산술 연산이므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        반환 배열 크기가 고정이므로 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정수 나눗셈</strong>: <code>money / 5500</code>은 자동으로 몫만 남는다.</li>
+        <li><strong>가격 고정</strong>: 아메리카노 가격은 문제에서 항상 5,500원으로 고정.</li>
+        <li><strong>음수 입력 없음</strong>: 문제 조건상 money ≥ 0이므로 예외 상황 없음.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>나머지 연산 활용</strong><br>
+            잔돈은 직접 계산 대신 <code>money % 5500</code>으로 구할 수도 있다.
+            <pre><code>class Solution {
+          public int[] solution(int money) {
+              int cnt = money / 5500;
+              int remain = money % 5500;   // 남은 잔돈 계산
+      
+              return new int[]{cnt, remain};
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              나머지(<code>%</code>) 연산을 사용하면 잔돈 계산이 더 직관적이다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 옷가게 할인 받기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120818">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1118_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        구매 금액 <code>price</code>에 따라 <strong>할인율</strong>을 적용해 최종 결제 금액을 계산하는 문제다.<br>
+        조건에 따라 다음 할인 규칙을 가진다:
+      </p>
+      
+      <ul>
+        <li><strong>50만 원 이상</strong>: 20% 할인 → <code>price × 0.8</code></li>
+        <li><strong>30만 원 이상</strong>: 10% 할인 → <code>price × 0.9</code></li>
+        <li><strong>10만 원 이상</strong>: 5% 할인 → <code>price × 0.95</code></li>
+        <li><strong>그 외</strong>: 할인 없음</li>
+      </ul>
+      
+      <p>
+        삼항 연산자(<code>?:</code>)를 중첩해 조건을 순서대로 검사하고,  
+        해당하는 할인율을 적용한 뒤 <code>(int)</code>로 정수형으로 변환해 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 조건 범위가 큰 금액부터 내려오며 할인율 결정</li>
+        <li><strong>정수 반환 처리</strong>: 할인 후 금액은 실수이므로 <code>(int)</code>로 변환</li>
+        <li><strong>순차적 조건</strong>: 500k → 300k → 100k 순으로 검사</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>price = 580000</code><br>
+          → 20% 할인 → <code>580000 × 0.8 = 464000</code>
+        </li>
+      
+        <li>
+          <code>price = 320000</code><br>
+          → 10% 할인 → <code>320000 × 0.9 = 288000</code>
+        </li>
+      
+        <li>
+          <code>price = 120000</code><br>
+          → 5% 할인 → <code>120000 × 0.95 = 114000</code>
+        </li>
+      
+        <li>
+          <code>price = 90000</code><br>
+          → 할인 없음 → <code>90000</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        조건문 검사와 산술 연산만 수행하므로 시간 복잡도는 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        별도의 자료구조가 필요 없으므로 공간 복잡도는 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>강제 형변환</strong>: 할인 후 값은 double이므로 반드시 <code>(int)</code>로 캐스팅해야 한다.</li>
+        <li><strong>내림 처리</strong>: 형변환은 자동으로 소수점 아래를 버리는 내림 방식이다.</li>
+        <li><strong>조건 순서 중요</strong>: 큰 금액부터 검사해야 정확한 할인율 적용이 가능하다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>if–else 조건문으로 가독성 향상</strong><br>
+            삼항 연산자 대신 일반 조건문을 사용하면 읽기 쉬운 구조가 된다.
+            <pre><code>class Solution {
+          public int solution(int price) {
+              if (price >= 500000) return (int) (price * 0.8);
+              else if (price >= 300000) return (int) (price * 0.9);
+              else if (price >= 100000) return (int) (price * 0.95);
+              else return price;
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              논리가 동일하지만 유지보수 측면에서는 if-else 구조가 더 직관적이다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
