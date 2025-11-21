@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-20 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 배열의 평균값</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120817">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        정수 배열 <code>numbers</code>의 모든 원소의 <strong>평균값</strong>을 계산하는 문제다.<br>
+        전체 합을 구한 뒤, 배열의 길이로 나누어 평균을 반환한다.
+      </p>
+      
+      <p>
+        반복문을 통해 각 요소를 <code>sum</code>에 누적하고,<br>
+        마지막에 <code>sum / numbers.length</code>를 수행하여 평균을 구한다.<br>
+        평균은 실수(double)로 반환해야 하므로 <code>sum</code>은 <code>double</code>로 선언한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 전체 합 → 길이로 나누기</li>
+        <li><strong>데이터 타입</strong>: 정수 배열 평균은 실수이므로 <code>double</code> 계산 필요</li>
+        <li><strong>안정성</strong>: 배열 길이는 항상 1 이상이므로 0으로 나누는 상황 없음</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>numbers = [1, 2, 3, 4]</code><br>
+          합: 10 → 평균: <code>10 / 4 = 2.5</code>
+        </li>
+        <li>
+          <code>numbers = [5, 5, 5]</code><br>
+          합: 15 → 평균: <code>15 / 3 = 5.0</code>
+        </li>
+        <li>
+          <code>numbers = [10, 0]</code><br>
+          합: 10 → 평균: <code>10 / 2 = 5.0</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        배열 길이를 <code>n</code>이라 하면 모든 요소를 한 번씩 순회하므로  
+        전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가 공간이 거의 없으므로 <strong><code>O(1)</code></strong> (상수 공간).
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정수 나눗셈 방지</strong>: <code>sum</code>이 <code>double</code>이므로 자동으로 실수 나눗셈이 수행된다.</li>
+        <li><strong>배열 길이 ≥ 1</strong>: 문제 조건상 항상 최소 1개 이상의 원소가 주어진다.</li>
+        <li><strong>자료형 변환 주의</strong>: <code>sum</code>을 int로 선언하면 정수 연산이 되어 잘못된 결과가 나온다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>Java Stream API 사용</strong><br>
+            <pre><code>import java.util.*;
+      
+      class Solution {
+          public double solution(int[] numbers) {
+              return Arrays.stream(numbers)
+                           .average()
+                           .orElse(0);
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              내장된 <code>average()</code> 메서드를 활용하면 더 간결하고 안전한 평균 계산이 가능하다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 피자 나눠 먹기 (3)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120816">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        피자 한 판을 <code>slice</code>조각으로 나눌 수 있을 때,  
+        총 <code>n</code>명이 모두 1조각 이상 먹기 위해 필요한 <strong>피자 판 수</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        기본적으로 한 판에서 <code>slice</code>명이 먹을 수 있으므로,  
+        <code>n / slice</code>로 필요한 기본 피자 수를 구하고,<br>
+        나누어 떨어지지 않을 경우(<code>n % slice != 0</code>) 한 판을 더 주문해야 한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 필요한 조각 수 &rarr; 조각 수로 나누고 올림 처리</li>
+        <li><strong>기본 계산</strong>: <code>pizza = n / slice</code></li>
+        <li><strong>올림 처리</strong>: 나머지가 있으면 <code>pizza++</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>slice = 7, n = 10</code><br>
+          → <code>10 / 7 = 1</code>, 나머지 3 → 한 판 더 필요 → <code>2</code>
+        </li>
+      
+        <li>
+          <code>slice = 4, n = 8</code><br>
+          → <code>8 / 4 = 2</code>, 나머지 0 → 추가 필요 없음 → <code>2</code>
+        </li>
+      
+        <li>
+          <code>slice = 5, n = 16</code><br>
+          → <code>16 / 5 = 3</code>, 나머지 1 → 한 판 더 → <code>4</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        단순한 산술 연산과 조건문만 있으므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가 자료구조 없음 → <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정확한 올림 처리</strong>: 단순 정수 나눗셈으로는 부족하며 나머지 처리 필수.</li>
+        <li><strong>slice ≥ 1, n ≥ 1</strong>: 문제 조건상 0이 입력되지 않아 예외 없음.</li>
+        <li><strong>조각 개수 그대로 사용</strong>: 다른 할인/누락 조건 없음.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+          <li style="margin-top:0.4em;">
+            <strong>Math.ceil()을 이용한 올림 처리</strong><br>
+            실수 계산을 활용하면 더욱 직관적으로 표현할 수 있다.
+            <pre><code>class Solution {
+          public int solution(int slice, int n) {
+              return (int) Math.ceil(n / (double) slice);
+          }
+      }
+      </code></pre>
+      
+            <p style="margin-top:0.5em;">
+              나눗셈을 실수로 수행한 뒤 올림하면 추가 조건문 없이 결과를 얻을 수 있다.
+            </p>
+          </li>
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 피자 나눠 먹기 (2)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120815">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        각 피자는 6조각이며, <code>n</code>명이 모두 똑같은 조각 수를 먹으려면  
+        최소 몇 판의 피자가 필요한지를 구하는 문제다.<br>
+        핵심은 <strong>6조각이 n명에게 정확히 나누어떨어지도록</strong> 피자 판 수를 결정하는 것이다.
+      </p>
+      
+      <p>
+        식으로 표현하면, 피자 판 수를 <code>i</code>라고 할 때  
+        <code>(n × i) % 6 == 0</code>을 만족하는 최소의 <code>i</code>를 찾으면 된다.  
+        즉, <strong>n과 6의 최소공배수(LCM)를 이용한 문제</strong>이며,  
+        코드에서는 반복문으로 가장 작은 i를 찾는다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: <code>(n × i)</code>가 6의 배수가 되는 최소 i 찾기</li>
+        <li><strong>최종 피자 판 수</strong>: <code>pizza = (n × i) / 6</code></li>
+        <li><strong>LCM 기반</strong>: 사실상 <code>LCM(n, 6) / 6</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>n = 3</code><br>
+          <code>(3 × 2) % 6 == 0</code> → 최소 i=2 → <code>pizza = (3×2)/6 = 1</code>  
+          → 피자 1판 필요
+        </li>
+      
+        <li>
+          <code>n = 4</code><br>
+          <code>(4 × 3) % 6 == 0</code> → i=3 → <code>(4×3)/6 = 2</code>  
+          → 피자 2판 필요
+        </li>
+      
+        <li>
+          <code>n = 6</code><br>
+          <code>(6×1) % 6 == 0</code> → 바로 가능 → <code>6/6 = 1</code>  
+          → 피자 1판 필요
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        최악의 경우 증가하는 i를 순차적으로 검사하므로  
+        <strong><code>O(k)</code></strong> (k는 조건을 만족하는 최초 i).  
+        n은 1 ≤ n ≤ 100이므로 충분히 작아 실질적으로 매우 빠르게 종료된다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        변수 몇 개만 사용하므로 <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정확히 나누어떨어져야 함</strong>: 조각이 남거나 모자라면 안 된다.</li>
+        <li><strong>i 증가 방식</strong>: 1부터 증가하면서 가장 작은 i를 찾아야 한다.</li>
+        <li><strong>무한 루프 문제 없음</strong>: 6과 n의 최소공배수는 반드시 존재하므로 종료된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      
+      <details>
+        <summary>
+          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+            대안 아이디어
+          </span>
+        </summary>
+      
+        <ul style="margin-top:1.2em;">
+      
+          <li style="margin-top:0.4em;">
+            <strong>최소공배수(LCM) 공식을 직접 이용</strong><br>
+            반복문 없이 더 효율적으로 계산할 수 있다.
+            <pre><code>class Solution {
+          public int solution(int n) {
+              int gcd = gcd(n, 6);
+              int lcm = n * 6 / gcd;
+              return lcm / 6;
+          }
+      
+          private int gcd(int a, int b) {
+              while (b != 0) {
+                  int temp = a % b;
+                  a = b;
+                  b = temp;
+              }
+              return a;
+          }
+      }
+      </code></pre>
+            <p style="margin-top:0.5em;">
+              <code>LCM(n, 6) / 6</code>이 필요한 피자 판 수와 동일하며, 공식 기반의 정석 풀이다.
+            </p>
+          </li>
+      
+        </ul>
+      </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
