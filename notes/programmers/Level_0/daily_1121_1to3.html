@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-20 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <p class="muted">작성일 2025-11-21 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 배열의 평균값</h2>
+      <h2 class="section">문제 1 — 피자 나눠 먹기 (1)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120817">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120814">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1121_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,24 +53,33 @@
       </h3>
       
       <p>
-        정수 배열 <code>numbers</code>의 모든 원소의 <strong>평균값</strong>을 계산하는 문제다.<br>
-        전체 합을 구한 뒤, 배열의 길이로 나누어 평균을 반환한다.
+        <strong>피자 나눠 먹기 (1) (프로그래머스 120814)</strong> 문제는<br>
+        사람 수 <code>n</code>명이 있을 때, 한 판에 7조각이 나오는 피자를<br>
+        모두가 최소 1조각씩 먹도록 하려면 <strong>피자가 최소 몇 판 필요한지</strong> 계산하는 단순 수학 문제다.
       </p>
       
       <p>
-        반복문을 통해 각 요소를 <code>sum</code>에 누적하고,<br>
-        마지막에 <code>sum / numbers.length</code>를 수행하여 평균을 구한다.<br>
-        평균은 실수(double)로 반환해야 하므로 <code>sum</code>은 <code>double</code>로 선언한다.
+        핵심은 <strong>7조각짜리 피자를 몇 판 주문해야</strong> 사람 <code>n</code>명이 모두 1조각 이상 먹을 수 있는지 구하는 것이다.
+        즉, 필요한 최소 피자 판 수는 아래와 같다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 전체 합 → 길이로 나누기</li>
-        <li><strong>데이터 타입</strong>: 정수 배열 평균은 실수이므로 <code>double</code> 계산 필요</li>
-        <li><strong>안정성</strong>: 배열 길이는 항상 1 이상이므로 0으로 나누는 상황 없음</li>
+        <li><code>n</code>명을 기준으로 1판 = 7조각 → <strong>필요 판 수 = n ÷ 7</strong></li>
+        <li>7로 정확히 나누어떨어지지 않으면 <strong>한 판을 더 추가</strong>해야 한다.</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <p>
+        코드에서는 정수 나눗셈을 이용하여 <code>n / 7</code>로 기본 판 수를 계산하고,<br>
+        나머지가 있으면 <code>+1</code>을 해주는 방식으로 해결한다.
+      </p>
       
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 사람 수 <code>n</code>을 7로 나눈 뒤, 나머지가 있으면 한 판 추가</li>
+        <li><strong>연산 방식</strong>: <code>pizza = n / 7</code> → <code>n % 7 != 0</code>이면 <code>pizza++</code></li>
+        <li><strong>수학적 의미</strong>: <code>ceil(n / 7)</code> 과 동일</li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -79,22 +88,12 @@
       </p>
       
       <ul>
-        <li>
-          <code>numbers = [1, 2, 3, 4]</code><br>
-          합: 10 → 평균: <code>10 / 4 = 2.5</code>
-        </li>
-        <li>
-          <code>numbers = [5, 5, 5]</code><br>
-          합: 15 → 평균: <code>15 / 3 = 5.0</code>
-        </li>
-        <li>
-          <code>numbers = [10, 0]</code><br>
-          합: 10 → 평균: <code>10 / 2 = 5.0</code>
-        </li>
+        <li><code>n = 7</code> → <code>7 / 7 = 1</code> → <strong>1판</strong></li>
+        <li><code>n = 10</code> → <code>10 / 7 = 1</code>, 나머지 존재 → <strong>2판</strong></li>
+        <li><code>n = 1</code> → <code>1 / 7 = 0</code>, 나머지 존재 → <strong>1판</strong></li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -103,8 +102,7 @@
       </p>
       
       <p>
-        배열 길이를 <code>n</code>이라 하면 모든 요소를 한 번씩 순회하므로  
-        전체 시간 복잡도는 <strong><code>O(n)</code></strong>.
+        단순한 사칙연산만 수행하므로 <strong><code>O(1)</code></strong>.
       </p>
       
       <p>
@@ -114,11 +112,10 @@
       </p>
       
       <p>
-        추가 공간이 거의 없으므로 <strong><code>O(1)</code></strong> (상수 공간).
+        추가 자료구조 없이 상수 변수만 사용 → <strong><code>O(1)</code></strong>.
       </p>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -127,41 +124,11 @@
       </p>
       
       <ul>
-        <li><strong>정수 나눗셈 방지</strong>: <code>sum</code>이 <code>double</code>이므로 자동으로 실수 나눗셈이 수행된다.</li>
-        <li><strong>배열 길이 ≥ 1</strong>: 문제 조건상 항상 최소 1개 이상의 원소가 주어진다.</li>
-        <li><strong>자료형 변환 주의</strong>: <code>sum</code>을 int로 선언하면 정수 연산이 되어 잘못된 결과가 나온다.</li>
+        <li>정수 나눗셈이므로 <code>n / 7</code>은 소수점을 버린다.</li>
+        <li><code>ceil(n / 7)</code>을 직접 구현하면 불필요하므로,
+            나머지 체크 후 +1 방식이 가장 단순하고 빠르다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      
-      <details>
-        <summary>
-          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-            대안 아이디어
-          </span>
-        </summary>
-      
-        <ul style="margin-top:1.2em;">
-          <li style="margin-top:0.4em;">
-            <strong>Java Stream API 사용</strong><br>
-            <pre><code>import java.util.*;
-      
-      class Solution {
-          public double solution(int[] numbers) {
-              return Arrays.stream(numbers)
-                           .average()
-                           .orElse(0);
-          }
-      }
-      </code></pre>
-      
-            <p style="margin-top:0.5em;">
-              내장된 <code>average()</code> 메서드를 활용하면 더 간결하고 안전한 평균 계산이 가능하다.
-            </p>
-          </li>
-        </ul>
-      </details>
+
 
 
 
@@ -206,14 +173,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 피자 나눠 먹기 (3)</h2>
+      <h2 class="section">문제 2 — 짝수는 싫어요</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120816">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120813">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1121_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -226,24 +193,33 @@
       </h3>
       
       <p>
-        피자 한 판을 <code>slice</code>조각으로 나눌 수 있을 때,  
-        총 <code>n</code>명이 모두 1조각 이상 먹기 위해 필요한 <strong>피자 판 수</strong>를 구하는 문제다.
+        <strong>짝수는 싫어요 (프로그래머스 120813)</strong> 문제는<br>
+        자연수 <code>n</code>이 주어졌을 때, <strong>1부터 n까지의 모든 홀수</strong>를<br>
+        오름차순 배열로 반환하는 간단한 구현 문제다.
       </p>
       
       <p>
-        기본적으로 한 판에서 <code>slice</code>명이 먹을 수 있으므로,  
-        <code>n / slice</code>로 필요한 기본 피자 수를 구하고,<br>
-        나누어 떨어지지 않을 경우(<code>n % slice != 0</code>) 한 판을 더 주문해야 한다.
+        핵심은 1부터 n까지 중에서 <strong>홀수만 추출</strong>하는 것이며,<br>
+        홀수의 개수는 <code>n</code>이 홀수인지 짝수인지에 따라 달라진다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: 필요한 조각 수 &rarr; 조각 수로 나누고 올림 처리</li>
-        <li><strong>기본 계산</strong>: <code>pizza = n / slice</code></li>
-        <li><strong>올림 처리</strong>: 나머지가 있으면 <code>pizza++</code></li>
+        <li><code>n</code>이 홀수 → 홀수 개수 = <code>n/2 + 1</code></li>
+        <li><code>n</code>이 짝수 → 홀수 개수 = <code>n/2</code></li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <p>
+        즉, 미리 배열 크기를 정해놓고 <code>1</code>부터 <code>n</code>까지<br>
+        <strong>2씩 증가</strong>시키면서 홀수만 채워 넣으면 된다.
+      </p>
       
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 홀수는 <code>1, 3, 5, ...</code>처럼 2씩 증가하는 규칙성 활용</li>
+        <li><strong>자료 구조</strong>: 결과 크기를 먼저 계산해 <code>int[]</code> 생성</li>
+        <li><strong>반복 구조</strong>: <code>for (int i = 1; i <= n; i += 2)</code></li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -252,24 +228,12 @@
       </p>
       
       <ul>
-        <li>
-          <code>slice = 7, n = 10</code><br>
-          → <code>10 / 7 = 1</code>, 나머지 3 → 한 판 더 필요 → <code>2</code>
-        </li>
-      
-        <li>
-          <code>slice = 4, n = 8</code><br>
-          → <code>8 / 4 = 2</code>, 나머지 0 → 추가 필요 없음 → <code>2</code>
-        </li>
-      
-        <li>
-          <code>slice = 5, n = 16</code><br>
-          → <code>16 / 5 = 3</code>, 나머지 1 → 한 판 더 → <code>4</code>
-        </li>
+        <li><code>n = 10</code> → <code>{1, 3, 5, 7, 9}</code></li>
+        <li><code>n = 5</code> → <code>{1, 3, 5}</code></li>
+        <li><code>n = 1</code> → <code>{1}</code></li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -278,7 +242,7 @@
       </p>
       
       <p>
-        단순한 산술 연산과 조건문만 있으므로 전체 시간 복잡도는 <strong><code>O(1)</code></strong>.
+        1부터 n까지 홀수만 순회하므로 반복 횟수는 약 <code>n/2</code> → <strong><code>O(n)</code></strong>.
       </p>
       
       <p>
@@ -288,11 +252,9 @@
       </p>
       
       <p>
-        추가 자료구조 없음 → <strong><code>O(1)</code></strong>.
-      </p>
+        결과 배열 크기는 약 <code>n/2</code>이므로 <strong><code>O(n)</code></strong> (출력 배열 크기만큼).</p>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -301,38 +263,11 @@
       </p>
       
       <ul>
-        <li><strong>정확한 올림 처리</strong>: 단순 정수 나눗셈으로는 부족하며 나머지 처리 필수.</li>
-        <li><strong>slice ≥ 1, n ≥ 1</strong>: 문제 조건상 0이 입력되지 않아 예외 없음.</li>
-        <li><strong>조각 개수 그대로 사용</strong>: 다른 할인/누락 조건 없음.</li>
+        <li><strong>홀수 개수 계산</strong>: <code>n</code>이 홀수인지 짝수인지에 따라 배열 크기가 다르다.</li>
+        <li><strong>반복 조건 설정</strong>: <code>i += 2</code>로 홀수만 순회하면 조건문 없이 빠르게 처리 가능.</li>
+        <li><strong>정렬 필요 없음</strong>: 1 → 3 → 5 순서로 채워지므로 이미 오름차순이 된다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      
-      <details>
-        <summary>
-          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-            대안 아이디어
-          </span>
-        </summary>
-      
-        <ul style="margin-top:1.2em;">
-          <li style="margin-top:0.4em;">
-            <strong>Math.ceil()을 이용한 올림 처리</strong><br>
-            실수 계산을 활용하면 더욱 직관적으로 표현할 수 있다.
-            <pre><code>class Solution {
-          public int solution(int slice, int n) {
-              return (int) Math.ceil(n / (double) slice);
-          }
-      }
-      </code></pre>
-      
-            <p style="margin-top:0.5em;">
-              나눗셈을 실수로 수행한 뒤 올림하면 추가 조건문 없이 결과를 얻을 수 있다.
-            </p>
-          </li>
-        </ul>
-      </details>
+
 
 
 
@@ -371,14 +306,14 @@
 
       
       <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 피자 나눠 먹기 (2)</h2>
+      <h2 class="section">문제 3 — 최빈값 구하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120815">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120812">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1120_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_0/daily_1121_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
       </figure>
 
 
@@ -393,26 +328,34 @@
       </h3>
       
       <p>
-        각 피자는 6조각이며, <code>n</code>명이 모두 똑같은 조각 수를 먹으려면  
-        최소 몇 판의 피자가 필요한지를 구하는 문제다.<br>
-        핵심은 <strong>6조각이 n명에게 정확히 나누어떨어지도록</strong> 피자 판 수를 결정하는 것이다.
+        <strong>최빈값 구하기 (프로그래머스 120812)</strong> 문제는<br>
+        정수 배열에서 <strong>가장 자주 등장하는 값(최빈값)</strong>을 찾되,<br>
+        <strong>최빈값이 둘 이상이면 -1</strong>을 반환하는 구현 문제다.
       </p>
       
       <p>
-        식으로 표현하면, 피자 판 수를 <code>i</code>라고 할 때  
-        <code>(n × i) % 6 == 0</code>을 만족하는 최소의 <code>i</code>를 찾으면 된다.  
-        즉, <strong>n과 6의 최소공배수(LCM)를 이용한 문제</strong>이며,  
-        코드에서는 반복문으로 가장 작은 i를 찾는다.
+        주어진 배열의 원소 범위가 <code>0 ~ 1000</code>으로 제한되어 있기 때문에<br>
+        등장 횟수를 저장할 <strong>카운트 배열</strong>을 활용하는 것이 가장 효율적이다.
+      </p>
+      
+      <p>
+        핵심 절차는 다음과 같다.
       </p>
       
       <ul>
-        <li><strong>핵심 아이디어</strong>: <code>(n × i)</code>가 6의 배수가 되는 최소 i 찾기</li>
-        <li><strong>최종 피자 판 수</strong>: <code>pizza = (n × i) / 6</code></li>
-        <li><strong>LCM 기반</strong>: 사실상 <code>LCM(n, 6) / 6</code></li>
+        <li>1단계: <strong>각 숫자의 등장 횟수 저장</strong></li>
+        <li>2단계: <strong>가장 많이 등장한 값</strong>을 찾아 mode에 기록</li>
+        <li>3단계: 동일한 최빈도 값이 또 나오면 <code>dup = true</code>로 표시</li>
+        <li>4단계: <strong>중복 최빈값이 있으면 -1</strong>, 아니면 mode 반환</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 데이터 범위가 좁으므로 Counting Array(<code>cnt[1001]</code>) 사용</li>
+        <li><strong>중복 판정</strong>: 최빈값 빈도가 이미 기록된 값과 같으면 <code>dup = true</code></li>
+        <li><strong>조건 처리</strong>: 최빈값이 한 개일 때만 그 값을 반환</li>
+      </ul>
       
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -421,27 +364,15 @@
       </p>
       
       <ul>
-        <li>
-          <code>n = 3</code><br>
-          <code>(3 × 2) % 6 == 0</code> → 최소 i=2 → <code>pizza = (3×2)/6 = 1</code>  
-          → 피자 1판 필요
-        </li>
-      
-        <li>
-          <code>n = 4</code><br>
-          <code>(4 × 3) % 6 == 0</code> → i=3 → <code>(4×3)/6 = 2</code>  
-          → 피자 2판 필요
-        </li>
-      
-        <li>
-          <code>n = 6</code><br>
-          <code>(6×1) % 6 == 0</code> → 바로 가능 → <code>6/6 = 1</code>  
-          → 피자 1판 필요
-        </li>
+        <li><code>array = {1, 2, 2, 3, 3}</code><br>
+            → 2와 3이 모두 빈도 2로 중복 → <strong>-1</strong></li>
+        <li><code>array = {1, 1, 2, 3}</code><br>
+            → 최빈값은 1 → <strong>1</strong></li>
+        <li><code>array = {0}</code><br>
+            → 최빈값은 0 → <strong>0</strong></li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -450,10 +381,8 @@
       </p>
       
       <p>
-        최악의 경우 증가하는 i를 순차적으로 검사하므로  
-        <strong><code>O(k)</code></strong> (k는 조건을 만족하는 최초 i).  
-        n은 1 ≤ n ≤ 100이므로 충분히 작아 실질적으로 매우 빠르게 종료된다.
-      </p>
+        입력 배열을 한 번 순회하고(<code>O(n)</code>),<br>
+        카운트 배열(1001 길이)을 한 번 순회하므로 <strong><code>O(n + 1000)</code></strong> → <strong><code>O(n)</code></strong>.</p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -462,11 +391,9 @@
       </p>
       
       <p>
-        변수 몇 개만 사용하므로 <strong><code>O(1)</code></strong>.
-      </p>
+        카운트 배열 <code>int[1001]</code>만 추가로 사용 → <strong><code>O(1)</code></strong> (상수 공간).</p>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -475,50 +402,16 @@
       </p>
       
       <ul>
-        <li><strong>정확히 나누어떨어져야 함</strong>: 조각이 남거나 모자라면 안 된다.</li>
-        <li><strong>i 증가 방식</strong>: 1부터 증가하면서 가장 작은 i를 찾아야 한다.</li>
-        <li><strong>무한 루프 문제 없음</strong>: 6과 n의 최소공배수는 반드시 존재하므로 종료된다.</li>
+        <li><strong>최빈값 중복 여부 판단이 중요</strong>
+          <ul>
+            <li>최대 빈도와 같은 빈도를 가진 값이 또 나오면 <code>dup = true</code></li>
+            <li>마지막에 <code>dup</code>이 true이면 <strong>-1 반환</strong></li>
+          </ul>
+        </li>
+        <li><strong>maxFreq 초기값 0</strong> → 배열에 등장하는 값 기준으로 갱신됨</li>
+        <li><strong>mode 초기값 -1</strong>은 문제 조건에 맞는 안전한 초기값</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      
-      <details>
-        <summary>
-          <span style="background-color:#f3e5f5; color:#4a148c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-            대안 아이디어
-          </span>
-        </summary>
-      
-        <ul style="margin-top:1.2em;">
-      
-          <li style="margin-top:0.4em;">
-            <strong>최소공배수(LCM) 공식을 직접 이용</strong><br>
-            반복문 없이 더 효율적으로 계산할 수 있다.
-            <pre><code>class Solution {
-          public int solution(int n) {
-              int gcd = gcd(n, 6);
-              int lcm = n * 6 / gcd;
-              return lcm / 6;
-          }
-      
-          private int gcd(int a, int b) {
-              while (b != 0) {
-                  int temp = a % b;
-                  a = b;
-                  b = temp;
-              }
-              return a;
-          }
-      }
-      </code></pre>
-            <p style="margin-top:0.5em;">
-              <code>LCM(n, 6) / 6</code>이 필요한 피자 판 수와 동일하며, 공식 기반의 정석 풀이다.
-            </p>
-          </li>
-      
-        </ul>
-      </details>
+
 
 
 
