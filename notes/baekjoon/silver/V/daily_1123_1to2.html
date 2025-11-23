@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-22 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4884 — FIFA 월드컵</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4884">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1122_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>FIFA 월드컵 (BOJ 4884)</strong> 문제는<br>
+        조별 리그 + 토너먼트 형식의 대회가 주어졌을 때,
+        <strong>전체 경기 수</strong>와 <strong>토너먼트에 추가로 넣어야 하는 팀 수</strong>를 구하는 시뮬레이션/수학 문제다.
+      </p>
+      
+      <ul>
+        <li>입력: <code>G T A D</code>
+          <ul>
+            <li><code>G</code>: 조(그룹)의 수</li>
+            <li><code>T</code>: 각 조에 속한 팀 수</li>
+            <li><code>A</code>: 각 조에서 토너먼트로 진출하는 팀 수</li>
+            <li><code>D</code>: 조별 리그를 거치지 않고 <strong>바로 토너먼트</strong>로 진출하는 팀 수</li>
+            <li>조건: <code>0 &lt; A ≤ T</code>, 네 수 모두 <code>2^16</code> 이하</li>
+            <li>입력 마지막: <code>-1 -1 -1 -1</code> → 종료</li>
+          </ul>
+        </li>
+        <li>토너먼트에 참가하는 팀 수는 <strong>항상 2의 거듭제곱</strong>이어야 한다.
+          <ul>
+            <li>그렇지 않다면, 가장 가까운(크거나 같은) 2의 거듭제곱까지 <strong>팀을 더 추가</strong>해야 한다.</li>
+          </ul>
+        </li>
+        <li>출력 형식:
+          <ul>
+            <li><code>G*A/T+D=X+Y</code></li>
+            <li>왼쪽은 그대로 <strong>문자열 포맷</strong>으로 출력하고,</li>
+            <li><code>X</code>: 전체 경기 수 (조별 리그 + 토너먼트)</li>
+            <li><code>Y</code>: 토너먼트에 추가로 넣어야 하는 팀 수</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        실제 계산에서 토너먼트에 진출하는 기본 팀 수는
+        <code>G * A + D</code>로 처리한다
+        (조별 리그에서 각 조 <code>A</code>팀씩, 총 <code>G * A</code>팀 + 직행 <code>D</code>팀).
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ol>
+        <li><strong>토너먼트 기본 참가 팀 수 계산</strong>
+          <ul>
+            <li><code>base = G * A + D</code></li>
+          </ul>
+        </li>
+        <li><strong>가장 가까운 2의 거듭제곱 팀 수 K로 맞추기</strong>
+          <ul>
+            <li><code>K</code>를 1에서 시작해, <code>K &lt; base</code>인 동안 <code>K *= 2</code> 반복</li>
+            <li>결과적으로 <code>K</code>는 <strong>base 이상인 최소 2의 거듭제곱</strong></li>
+            <li><code>addTeams = K - base</code> → 추가해야 하는 팀 수</li>
+          </ul>
+        </li>
+        <li><strong>조별 리그 경기 수</strong>
+          <ul>
+            <li>각 조에는 팀이 <code>T</code>개 있고, <strong>모든 팀이 서로 한 번씩</strong> 경기</li>
+            <li>한 조의 경기 수: 조합 <code>T C 2 = T * (T - 1) / 2</code></li>
+            <li>조가 <code>G</code>개이므로 전체 조별 리그 경기 수:
+              <code>groupLeagues = G * T * (T - 1) / 2</code></li>
+          </ul>
+        </li>
+        <li><strong>토너먼트 경기 수</strong>
+          <ul>
+            <li>단판 토너먼트에서 <code>K</code>팀이 참가하면, 경기 수는 항상 <code>K - 1</code></li>
+            <li>따라서 <code>tournament = K - 1</code></li>
+          </ul>
+        </li>
+        <li><strong>총 경기 수</strong>
+          <ul>
+            <li><code>total = groupLeagues + tournament</code></li>
+          </ul>
+        </li>
+        <li><strong>문자열 포맷으로 출력</strong>
+          <ul>
+            <li><code>G*A/T+D=total+addTeams</code> 형태로 그대로 붙여 출력한다.</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프 및 종료 조건</strong>
+          <ul>
+            <li>한 줄을 읽고 공백으로 나눈 뒤 <code>G, T, A, D</code>를 <code>long</code>으로 파싱.</li>
+            <li><code>G == -1 &amp;&amp; T == -1 &amp;&amp; A == -1 &amp;&amp; D == -1</code>이면 전체 종료.</li>
+          </ul>
+        </li>
+      
+        <li><strong>토너먼트 참가 팀 수와 2의 거듭제곱 K 계산</strong>
+          <ul>
+            <li><code>long base = G * A + D;</code></li>
+            <li><code>long K = 1;</code></li>
+            <li><code>while (K &lt; base) K *= 2;</code></li>
+            <li>루프 종료 후 <code>K</code>는 <code>base</code> 이상이면서 2의 거듭제곱인 최소값.</li>
+            <li><code>addTeams = K - base;</code></li>
+          </ul>
+        </li>
+      
+        <li><strong>조별 리그 경기 수 계산</strong>
+          <ul>
+            <li><code>groupLeagues = G * T * (T - 1) / 2;</code></li>
+            <li><code>T * (T - 1) / 2</code>는 한 조의 경기 수, <code>* G</code> 해서 모든 조의 합.</li>
+          </ul>
+        </li>
+      
+        <li><strong>토너먼트 경기 수 계산</strong>
+          <ul>
+            <li><code>tournament = K - 1;</code></li>
+            <li>단판 토너먼트에서 모든 경기는 한 팀이 탈락하므로, 우승팀 1팀만 남을 때까지 총 <code>K - 1</code>경기.</li>
+          </ul>
+        </li>
+      
+        <li><strong>총 경기 수 및 출력 구성</strong>
+          <ul>
+            <li><code>total = groupLeagues + tournament;</code></li>
+            <li>출력:
+              <pre><code>sb.append(G).append("*").append(A).append("/").append(T).append("+").append(D)
+        .append("=").append(total).append("+").append(addTeams).append('\n');
+      </code></pre>
+            </li>
+            <li>원래 수식의 의미를 살려 왼쪽을 그대로 포맷팅하고, 오른쪽에 <code>X + Y</code>를 붙인다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        각 테스트 케이스마다 수행하는 연산은 모두 <strong>상수 시간</strong>이다.
+      </p>
+      
+      <ul>
+        <li>2의 거듭제곱 K 찾기: <code>while (K &lt; base) K *= 2;</code>
+          <ul>
+            <li><code>base</code> 최대는 대략 <code>G * A + D ≤ (2^16)^2 + 2^16</code> 수준이지만,</li>
+            <li><code>K</code>는 <strong>2배씩 증가</strong>하므로 반복 횟수는 매우 작다 (로그 스케일).</li>
+          </ul>
+        </li>
+        <li>그 외 곱셈/덧셈/나눗셈 몇 번 → <strong><code>O(1)</code></strong></li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 테스트 케이스 수를 <code>T</code>라 할 때 <strong><code>O(T)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        입력 파라미터와 몇 개의 <code>long</code> 변수만 사용하므로
+        <strong><code>O(1)</code></strong> (상수 공간)이다.
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>자료형 오버플로</strong>:
+          <ul>
+            <li><code>G, T, A, D</code>가 최대 <code>2^16</code>까지 올 수 있으므로,
+                <code>G * A</code>, <code>G * T * (T - 1)</code> 같은 곱은 <strong>int 범위를 쉽게 넘는다</strong>.</li>
+            <li>따라서 <strong>이 문제에서는 반드시 <code>int</code>가 아니라 <code>long</code>을 써야 한다.</strong></li>
+          </ul>
+        </li>
+        <li><strong>토너먼트 팀 수 계산</strong>:
+          <ul>
+            <li>문제 출력 형식에는 <code>G*A/T+D</code>가 나오지만,</li>
+            <li>실제 토너먼트 참가 팀 수는 코드처럼 <strong><code>G * A + D</code></strong>로 계산하고 있다.</li>
+            <li><code>T</code>는 조별 리그 경기 수 계산(<code>G * T * (T - 1) / 2</code>)에만 사용된다.</li>
+          </ul>
+        </li>
+        <li><strong>2의 거듭제곱 보정</strong>:
+          <ul>
+            <li>이미 <code>base</code>가 2의 거듭제곱이면 <code>K = base</code>가 되고, <code>addTeams = 0</code>이 되어
+                추가 팀이 필요 없다.</li>
+            <li>그 외에는 가장 가까운(크거나 같은) 2의 거듭제곱까지 확장한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>조별 리그 경기 수: 각 조에서 <code>T C 2</code>경기, 총 <code>G * T * (T - 1) / 2</code>경기.</li>
+        <li>토너먼트 기본 참가 팀: <code>base = G * A + D</code>.</li>
+        <li>토너먼트 팀 수는 가장 가까운 2의 거듭제곱 <code>K</code>로 맞추고,
+            추가 팀 수는 <code>addTeams = K - base</code>.</li>
+        <li>토너먼트 경기 수: <code>K - 1</code>, 총 경기 수: <code>groupLeagues + tournament</code>.</li>
+        <li>출력은 <code>G*A/T+D=total+addTeams</code> 형식을 그대로 맞춘다.</li>
+        <li>곱셈이 크기 때문에 <strong>모든 계산은 반드시 <code>long</code>으로 처리</strong>해야 한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4955 — Pablo Squarson's Headache</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4955">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1122_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Pablo Squarson's Headache (BOJ 4955)</strong>는<br>
+        1×1 정사각형들을 하나씩 붙여 나가면서 만든 작품이 있을 때,<br>
+        이 작품 전체를 딱 덮을 수 있는 <strong>가장 작은 축 정렬 직사각형의 가로·세로 길이</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>모든 정사각형의 한 변의 길이는 1이다.</li>
+        <li>첫 번째 정사각형(번호 0)은 기준으로 아무 좌표나 두어도 되며, 코드에서는 <strong>(0, 0)</strong>에 둔다.</li>
+        <li>이후 i(1 ≤ i ≤ N-1)번 정사각형은
+          <code>ni di</code>에 의해 이미 놓인 정사각형 <code>ni</code>의
+          <strong>왼쪽(0), 아래(1), 오른쪽(2), 위(3)</strong>에 인접하게 붙인다.</li>
+        <li>정사각형들이 서로 겹치지 않는다는 것이 보장된다.</li>
+        <li>모든 정사각형을 다 놓았을 때,
+          이들이 차지하는 좌표를 모두 포함하는 최소 직사각형의
+          <strong>width, height</strong>를 출력하면 된다.</li>
+      </ul>
+      
+      <p>
+        결국 해야 하는 일은:
+        <strong>각 정사각형의 (x, y) 위치를 하나씩 계산하고,
+        전체 x, y의 최소/최대를 구해서 범위를 계산</strong>하는 것이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 정사각형은 좌표 평면 상의 <strong>정수 격자점</strong>에 중심이 있는 것처럼 생각할 수 있다.
+          <ul>
+            <li>첫 번째 정사각형(0번)을 (0, 0)에 놓는다.</li>
+            <li>이후, i번 정사각형의 위치는 “기준 정사각형 <code>ni</code>의 좌표 + 방향 벡터”로 결정된다.</li>
+          </ul>
+        </li>
+        <li>방향에 따른 좌표 변화:
+          <ul>
+            <li>왼쪽(0): (<code>x[ni] - 1, y[ni]</code>)</li>
+            <li>아래(1): (<code>x[ni], y[ni] - 1</code>)</li>
+            <li>오른쪽(2): (<code>x[ni] + 1, y[ni]</code>)</li>
+            <li>위(3): (<code>x[ni], y[ni] + 1</code>)</li>
+          </ul>
+        </li>
+        <li>정사각형들이 차지하는 x좌표의 최소/최대값, y좌표의 최소/최대값을 구하면:
+          <ul>
+            <li><code>width  = maxX - minX + 1</code></li>
+            <li><code>height = maxY - minY + 1</code></li>
+            <li>+1을 하는 이유: 예를 들어 x가 0~2면, 실제 가로 길이는 3칸이기 때문.</li>
+          </ul>
+        </li>
+        <li>입력은 여러 데이터셋으로 주어지며, 첫 줄이 <code>0</code>이면 전체 입력이 끝난다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프</strong>
+          <ul>
+            <li>한 줄을 읽어서 정수 <code>N</code>으로 파싱.</li>
+            <li><code>N == 0</code>이면 전체 입력 종료.</li>
+            <li>N &lt; 200이므로, 배열을 N 크기로 잡아서 좌표를 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>좌표 배열 초기화</strong>
+          <ul>
+            <li><code>int[] x = new int[N];</code></li>
+            <li><code>int[] y = new int[N];</code></li>
+            <li>0번 정사각형은 기준:
+              <pre><code>x[0] = 0;
+      y[0] = 0;
+      </code></pre>
+            </li>
+            <li>동시에, 최소/최대값도 0으로 시작:
+              <pre><code>int minX = 0, maxX = 0;
+      int minY = 0, maxY = 0;
+      </code></pre>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>정사각형 배치 처리</strong>
+          <ul>
+            <li>1번부터 (N-1)번까지 각 정사각형에 대해 한 줄씩 읽고:
+              <ul>
+                <li><code>square</code>: 기준이 되는 정사각형 번호 <code>ni</code></li>
+                <li><code>direct</code>: 방향 <code>di</code> (0~3)</li>
+              </ul>
+            </li>
+            <li>방향에 따라 좌표를 계산:
+              <pre><code>if (direct == 0) {        // left
+          x[i] = x[square] - 1;
+          y[i] = y[square];
+      } else if (direct == 1) { // down
+          x[i] = x[square];
+          y[i] = y[square] - 1;
+      } else if (direct == 2) { // right
+          x[i] = x[square] + 1;
+          y[i] = y[square];
+      } else {                   // up (3)
+          x[i] = x[square];
+          y[i] = y[square] + 1;
+      }
+      </code></pre>
+            </li>
+            <li>새 좌표를 반영하여 최소/최대값 갱신:
+              <pre><code>if (x[i] &lt; minX) minX = x[i];
+      if (x[i] &gt; maxX) maxX = x[i];
+      if (y[i] &lt; minY) minY = y[i];
+      if (y[i] &gt; maxY) maxY = y[i];
+      </code></pre>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 가로/세로 길이 계산</strong>
+          <ul>
+            <li>모든 정사각형의 좌표를 다 계산한 뒤,
+              <pre><code>int width  = maxX - minX + 1;
+      int height = maxY - minY + 1;
+      </code></pre>
+            </li>
+            <li>이 값을 <code>width height</code> 형식으로 한 줄에 출력 버퍼에 추가:
+              <pre><code>sb.append(width).append(' ').append(height).append('\n');
+      </code></pre>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <ul>
+            <li>모든 데이터셋을 처리한 뒤, <code>System.out.print(sb);</code>로 한 번에 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 데이터셋마다:
+          <ul>
+            <li>N개의 정사각형, 그 중 (N-1)개에 대해 한 번씩 좌표 계산 및 min/max 갱신</li>
+            <li>각 연산은 상수 시간 → <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+        <li>N &lt; 200 이므로 전체적으로 매우 빠르게 동작한다.</li>
+      </ul>
+      
+      <p>
+        전체 입력에 대해, 데이터셋 수를 D라 하면 복잡도는 <strong><code>O(Σ N) = O(total squares)</code></strong> 수준이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        <code>x[N]</code>, <code>y[N]</code> 두 개의 정수 배열과 몇 개의 변수만 사용하므로<br>
+        데이터셋당 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>좌표계 선택은 임의</strong>:
+          <ul>
+            <li>첫 정사각형을 (0, 0)에 두는 것은 임의의 선택이지만,
+                모든 정사각형이 상대 위치만 유지하면 너비와 높이는 동일하게 나온다.</li>
+            </li>
+          </ul>
+        </li>
+        <li><strong>min/max 초기값</strong>:
+          <ul>
+            <li>0번 정사각형이 (0, 0)에 있으므로, <code>minX, maxX, minY, maxY</code>를 모두 0으로 시작하면 자연스럽게 포함된다.</li>
+          </ul>
+        </li>
+        <li><strong>+1을 잊지 말 것</strong>:
+          <ul>
+            <li>좌표 범위가 [minX, maxX]이면 실제 칸 수는 <code>maxX - minX + 1</code>이다.</li>
+            <li>세로도 동일하게 <code>+1</code>을 해줘야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>입력 형식</strong>:
+          <ul>
+            <li>N이 1인 경우, 배치 명령이 없으므로 바로 (1, 1)을 출력하게 된다.</li>
+            <li>이 경우에도 로직이 자연스럽게 동작한다 (for 루프가 한 번도 돌지 않음).</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>0번 정사각형을 (0, 0)에 두고, 나머지 정사각형의 좌표를 “기준 + 방향”으로 차례대로 계산한다.</li>
+        <li>계산 과정에서 x, y의 최소/최대값을 함께 갱신한다.</li>
+        <li>최종적으로 <code>width = maxX - minX + 1</code>, <code>height = maxY - minY + 1</code>로 작품을 덮는 박스 크기를 구한다.</li>
+        <li>정수 좌표와 단순 반복만 사용하므로 구현과 복잡도가 모두 간단하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

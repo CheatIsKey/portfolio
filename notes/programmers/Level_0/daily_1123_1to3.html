@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-22 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 중앙값 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120811">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1122_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>중앙값 구하기 (프로그래머스 120811)</strong> 문제는<br>
+        주어진 정수 배열 <code>array</code>에서 <strong>중앙값(가운데 값)</strong>을 찾는 아주 기본적인 구현 문제다.<br>
+        문제 조건상 배열 길이는 항상 <strong>홀수</strong>이다.
+      </p>
+      
+      <p>
+        중앙값을 구하는 가장 직관적인 방법은:
+      </p>
+      
+      <ol>
+        <li>배열을 <strong>오름차순 정렬</strong>한다.</li>
+        <li>가운데 인덱스 <code>array.length / 2</code> 위치의 값을 반환한다.</li>
+      </ol>
+      
+      <p>
+        길이가 홀수인 배열에서 인덱스는 0부터 시작하므로,<br>
+        예를 들어 길이가 5라면 인덱스는 0~4이고, 중앙값은 인덱스 2(<code>5 / 2</code>)가 된다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 정렬 후 <code>length / 2</code> 번째 원소가 중앙값</li>
+        <li><strong>정렬 메서드</strong>: <code>Arrays.sort(array)</code>로 제자리 정렬</li>
+        <li><strong>배열 길이</strong>: 항상 홀수라 별도의 예외 처리 필요 없음</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>array = [1, 2, 7, 10, 11]</code><br>
+          정렬 후: <code>[1, 2, 7, 10, 11]</code> (이미 정렬)<br>
+          길이 5 → 인덱스 <code>5 / 2 = 2</code> → 값은 <code>7</code> → 중앙값 <strong>7</strong>
+        </li>
+        <li>
+          <code>array = [9, -1, 0]</code><br>
+          정렬 후: <code>[-1, 0, 9]</code><br>
+          길이 3 → 인덱스 <code>3 / 2 = 1</code> → 값은 <code>0</code> → 중앙값 <strong>0</strong>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        <code>Arrays.sort()</code>는 일반적으로 <strong><code>O(n log n)</code></strong> 시간 복잡도를 가진다.<br>
+        (n은 배열의 길이)
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        배열을 제자리 정렬하므로 추가로 큰 메모리를 사용하지 않는다.<br>
+        구현 관점에서는 <strong><code>O(1)</code></strong> (입력 배열 외에 추가 배열을 만들지 않음)으로 볼 수 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>문제에서 배열 길이가 항상 <strong>홀수</strong>라고 보장되므로,
+            중앙 두 값의 평균을 구하는 등의 처리가 필요 없다.</li>
+        <li>정렬 후 <strong>반드시 인덱스 <code>length / 2</code>를 그대로 반환</strong>하면 된다.</li>
+        <li>배열을 직접 정렬하므로, 원본 배열이 필요하다면 별도 복사 후 정렬해야 하지만,
+            이 문제에서는 원본 유지가 요구되지 않는다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 나머지 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120810">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1122_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>나머지 구하기 (프로그래머스 120810)</strong> 문제는<br>
+        두 정수 <code>num1</code>, <code>num2</code>가 주어졌을 때
+        <strong><code>num1 % num2</code> — 즉, num1을 num2로 나눈 나머지</strong>를 반환하는 가장 기본적인 산술 연산 문제다.
+      </p>
+      
+      <p>
+        자바에서는 나머지 연산자가 <code>%</code>이며,<br>
+        정수 간 연산에서 몫을 제외한 나머지를 직접 반환한다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 나머지 연산 <code>a % b</code> 그대로 사용</li>
+        <li><strong>자료형</strong>: 두 입력 모두 <code>int</code>, 반환 타입 또한 <code>int</code></li>
+        <li><strong>예외 처리</strong>: 문제 조건상 <code>num2 != 0</code>이므로 0 나눗셈 걱정 없음</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>num1 = 10, num2 = 3</code><br>
+            <code>10 % 3 = 1</code> → 결과 <strong>1</strong></li>
+      
+        <li><code>num1 = 7, num2 = 2</code><br>
+            <code>7 % 2 = 1</code> → 결과 <strong>1</strong></li>
+      
+        <li><code>num1 = 15, num2 = 5</code><br>
+            <code>15 % 5 = 0</code> → 결과 <strong>0</strong></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        나머지 연산 한 번만 실행 → <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가 메모리 사용 없음 → <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>num2</code>가 0이 되는 경우는 문제에서 주어지지 않지만,
+            일반적으로 나머지 연산에서 0으로 나눌 수 없다는 점은 알고 있어야 한다.</li>
+        <li>음수에 대한 나머지는 자바에서 몫의 방향에 따라 결정되지만,
+            이 문제에서는 양수만 들어오므로 고려할 필요 없다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 배열 두 배 만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120809">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1122_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>배열 두 배 만들기 (프로그래머스 120809)</strong> 문제는<br>
+        정수 배열 <code>numbers</code>의 원소 각각을 <strong>2배로 만들어 새로운 배열로 반환</strong>하는 간단한 반복·수정 문제다.
+      </p>
+      
+      <p>
+        입력 배열의 각 요소에 직접 접근하여 <code>numbers[i] *= 2</code> 형태로 값을 2배로 변경한 뒤,<br>
+        변경된 배열을 그대로 반환하면 된다.
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>: 배열을 순회하면서 각 요소에 2를 곱해 직접 갱신</li>
+        <li><strong>자료구조</strong>: 입력 배열을 그대로 사용 (<code>in-place</code> 변경)</li>
+        <li><strong>반복 방식</strong>: 인덱스 기반 <code>for</code> 루프로 모든 요소 변경</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>[1, 2, 3, 4]</code> → <code>[2, 4, 6, 8]</code></li>
+        <li><code>[5, 10]</code> → <code>[10, 20]</code></li>
+        <li><code>[0, 7]</code> → <code>[0, 14]</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        길이가 <code>n</code>인 배열을 한 번 순회하므로 <strong><code>O(n)</code></strong>.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        입력 배열을 그대로 수정하므로 추가 메모리 사용 없음 → <strong><code>O(1)</code></strong>.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>원본 배열을 그대로 수정(<code>in-place</code>)한다는 점을 기억해야 한다.</li>
+        <li>원래 배열을 보존하고 싶다면 <code>new int[n]</code>으로 복사 후 변경하는 방식도 가능하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
