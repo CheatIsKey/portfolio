@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SpringBoot_OOP_SOLID — spring-jpa.dev</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측: 자동 생성 목차 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">목차</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <!-- 우측: 글 본문 -->
+    <article class="prose">
+      <h1>스프링 부트와 객체 지향, SOLID</h1>
+      <p class="muted">작성일 2025-11-23 · 분류: Spring Boot, 객체 지향, SOLID</p>
+
+      <!-- 1. 스프링 부트 개요 -->
+      <h2 class="section">
+        <span class="section-badge">스프링 부트 개요</span>
+      </h2>
+      <p>스프링 부트는 스프링을 <b>더 쉽고 실용적으로</b> 사용할 수 있도록 도와주는 프로젝트이다. 특히 반복적이고 번거로운 설정을 최소화해, “비즈니스 코드에만 집중”할 수 있게 해준다.</p>
+      <ul>
+        <li><b>내장 웹 서버</b>
+          <ul>
+            <li>Tomcat 같은 서블릿 컨테이너를 내장하고 있어, <b>별도의 WAS 설치·설정 없이</b> JAR 실행만으로 애플리케이션을 띄울 수 있다.</li>
+          </ul>
+        </li>
+        <li><b>Starter 의존성</b>
+          <ul>
+            <li><code>spring-boot-starter-web</code>처럼, 자주 같이 쓰이는 라이브러리 묶음을 제공해 <b>build 설정을 단순화</b>한다.</li>
+          </ul>
+        </li>
+        <li><b>의존성 버전 관리</b>
+          <ul>
+            <li>스프링 부트가 <code>dependencyManagement</code>로 외부 라이브러리 버전을 관리해 주므로, <b>버전 충돌과 선택 고민을 크게 줄일 수 있다.</b></li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- 2. 스프링과 객체 지향 -->
+      <h2 class="section">
+        <span class="section-badge">스프링과 객체 지향</span>
+      </h2>
+      <p>스프링은 <b>자바 기반 객체 지향 프레임워크</b>로, 객체 지향 언어의 특징을 살려 애플리케이션을 개발할 수 있도록 돕는다.</p>
+      <ul>
+        <li><b>캡슐화</b>: 객체 내부 구현은 숨기고, 필요한 기능만 메서드로 노출한다.</li>
+        <li><b>추상화</b>: 공통되는 개념을 인터페이스나 추상 클래스로 뽑아낸다.</li>
+        <li><b>상속</b>: 기존 클래스를 확장해 재사용성과 확장성을 높인다.</li>
+        <li><b>다형성</b>: 같은 인터페이스(역할)에 대해 여러 구현 클래스를 둘 수 있고, <b>클라이언트는 역할에만 의존</b>한다.</li>
+      </ul>
+      <p>좋은 객체 지향 프로그래밍은 이 네 가지 특징을 적절히 사용하면서, 특히 <b>다형성을 활용해 역할과 구현을 분리</b>하는 데에 초점을 둔다.</p>
+
+      <!-- 3. 다형성과 역할/구현 분리 -->
+      <h2 class="section">
+        <span class="section-badge">다형성과 역할/구현 분리</span>
+      </h2>
+      <p>다형성에서 중요한 포인트는 <b>“역할(인터페이스)과 구현(구체 클래스)을 분리하는 것”</b>이다.</p>
+      <ul>
+        <li>클라이언트는 <b>인터페이스(역할)</b>에만 의존한다.</li>
+        <li>실제 동작은 인터페이스를 구현한 <b>여러 구현 클래스</b>가 담당한다.</li>
+        <li>새로운 구현 클래스를 추가·교체하더라도, <b>인터페이스가 같다면 클라이언트 코드를 바꾸지 않아도 된다.</b></li>
+      </ul>
+      <p>이렇게 설계하면 클라이언트는 내부 구조를 몰라도 되고, 구현 대상의 변경으로 인한 영향을 덜 받는다. <b>유연하고 변경에 강한 구조</b>를 만드는 핵심이 바로 여기 있다.</p>
+
+      <!-- 4. 스프링과 다형성, DI -->
+      <h2 class="section">
+        <span class="section-badge">스프링과 다형성, DI</span>
+      </h2>
+      <p>스프링은 이런 다형성을 <b>극대화해서 활용</b>할 수 있게 도와준다. 핵심은 <b>DI(의존성 주입)</b>과 <b>스프링 컨테이너</b>이다.</p>
+      <ul>
+        <li><b>구현을 편하게 교체</b>
+          <ul>
+            <li>클라이언트 코드는 인터페이스만 바라보고, 실제 어떤 구현체를 쓸지는 스프링이 생성·주입해 준다.</li>
+            <li>설정(예: <code>@Configuration</code>)이나 프로필만 바꿔도, <b>구현 클래스를 쉽게 변경</b>할 수 있다.</li>
+          </ul>
+        </li>
+        <li><b>OCP, DIP 지원</b>
+          <ul>
+            <li>객체를 생성하고, 서로 연관관계를 맺어주는 코드를 <b>별도의 설정 영역</b>으로 분리해 두면, 비즈니스 코드는 변경 없이 새로운 구현을 도입할 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- 5. SOLID 원칙 -->
+      <h2 class="section">
+        <span class="section-badge">SOLID 5원칙</span>
+      </h2>
+      <p>좋은 객체 지향 설계를 위해 자주 언급되는 원칙이 <b>SOLID</b>이다.</p>
+      <ul>
+        <li><b>SRP</b>: 단일 책임 원칙 (Single Responsibility Principle)</li>
+        <li><b>OCP</b>: 개방-폐쇄 원칙 (Open-Closed Principle)</li>
+        <li><b>LSP</b>: 리스코프 치환 원칙 (Liskov Substitution Principle)</li>
+        <li><b>ISP</b>: 인터페이스 분리 원칙 (Interface Segregation Principle)</li>
+        <li><b>DIP</b>: 의존성 역전 원칙 (Dependency Inversion Principle)</li>
+      </ul>
+
+      <h3 class="section">
+        <span class="subsection-badge">SRP: 단일 책임 원칙</span>
+      </h3>
+      <p><b>“하나의 클래스는 하나의 책임만 가져야 한다.”</b></p>
+      <ul>
+        <li>보다 정확하게는, <b>변경해야 할 이유가 하나</b>만 있어야 한다.</li>
+        <li>어떤 기능 변경 시 여러 클래스가 동시에 바뀐다면, 책임이 잘 나뉘어 있지 않은 것이다.</li>
+        <li>변경이 있을 때 <b>파급 효과가 작고, 수정 범위가 좁다면</b> SRP를 잘 지킨 설계라고 볼 수 있다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span class="subsection-badge">OCP: 개방-폐쇄 원칙</span>
+      </h3>
+      <p><b>“확장에는 열려 있고, 변경에는 닫혀 있어야 한다.”</b></p>
+      <ul>
+        <li>새 기능을 추가할 때 <b>기존 코드를 최대한 수정하지 않고</b> 확장할 수 있어야 한다.</li>
+        <li>구현 객체를 바꾸려면 항상 클라이언트 코드를 고쳐야 한다면, OCP를 지키지 못한 구조이다.</li>
+        <li>객체 생성과 연관관계 설정을 <b>별도 설정(조립) 코드</b>로 빼면, 비즈니스 코드는 수정 없이 새로운 구현으로 교체할 수 있다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span class="subsection-badge">LSP: 리스코프 치환 원칙</span>
+      </h3>
+      <p><b>“하위 타입은 상위 타입을 대체할 수 있어야 한다.”</b></p>
+      <ul>
+        <li>상위 타입(인터페이스, 추상 클래스)을 사용하는 코드는, <b>하위 타입 인스턴스를 넣어도 프로그램이 깨지면 안 된다.</b></li>
+        <li>하위 클래스는 상위 타입이 정의한 <b>인터페이스 규약을 지켜야</b> 한다.</li>
+        <li>규약을 어기는 하위 타입은, 타입 계층 구조를 무너뜨리고 유지보수를 어렵게 만든다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span class="subsection-badge">ISP: 인터페이스 분리 원칙</span>
+      </h3>
+      <p><b>“특정 클라이언트를 위한 여러 개의 인터페이스가 범용 인터페이스 하나보다 낫다.”</b></p>
+      <ul>
+        <li>너무 많은 기능을 한 인터페이스에 몰아넣으면, 일부 클라이언트는 <b>쓰지 않는 메서드에까지 의존</b>하게 된다.</li>
+        <li>예를 들어, 하나의 “게임 인터페이스” 대신
+          <ul>
+            <li><b>PC 게임 인터페이스</b>, <b>모바일 게임 인터페이스</b> 등으로 분리하면</li>
+          </ul>
+        </li>
+        <li>수정이 필요한 인터페이스만 고치면 되고, 다른 쪽은 영향을 받지 않는다.</li>
+        <li>인터페이스가 더 <b>명확</b>해지고, <b>대체 가능성</b>도 높아진다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span class="subsection-badge">DIP: 의존성 역전 원칙</span>
+      </h3>
+      <p><b>“고수준 모듈은 저수준 모듈에 의존하면 안 되며, 둘 다 추상화에 의존해야 한다.”</b></p>
+      <ul>
+        <li>비즈니스 로직을 담은 <b>고수준 모듈</b>이, 구체적인 구현 클래스(<b>저수준 모듈</b>)를 직접 의존하면 변경에 취약해진다.</li>
+        <li>대신, 두 모듈 모두 <b>인터페이스(추상화)</b>에 의존하게 만들고,
+          <ul>
+            <li>구현 클래스는 그 인터페이스를 <b>구현</b>하도록 한다.</li>
+          </ul>
+        </li>
+        <li>“인터페이스가 구현 클래스에 의존하면 안 된다”라기보다는,
+          <b>“구현(상세)이 추상화에 의존하도록 방향을 거꾸로 맞춘다”</b>는 의미에 가깝다.</li>
+        <li>스프링의 DI 컨테이너를 사용하면, 클라이언트는 인터페이스만 의존하고, 실제 구현 선택은 <b>외부 설정(스프링)</b>이 담당하게 만들 수 있다.</li>
+      </ul>
+
+      <!-- 6. 인터페이스 vs 구현 클래스 의존 전략 -->
+      <h2 class="section">
+        <span class="section-badge">인터페이스 vs 구현 클래스 의존 전략</span>
+      </h2>
+      <p>이론적으로는 모든 의존을 인터페이스로 추상화하는 것이 이상적이지만, 실무에서는 <b>복잡성과 가독성</b>도 고려해야 한다.</p>
+      <ul>
+        <li><b>인터페이스 남발의 단점</b>
+          <ul>
+            <li>런타임에 실제 동작을 추적하려면, 인터페이스 → 구현 클래스로 <b>코드를 여러 번 타고 들어가야</b> 해서 처음 설계를 이해하기 어려울 수 있다.</li>
+          </ul>
+        </li>
+        <li><b>실무적인 타협</b>
+          <ul>
+            <li>미래에 확장 가능성이 거의 없는, 단일 구현만 있을 것이 명확한 기능이라면 <b>구현 클래스에 직접 의존</b>해도 된다.</li>
+            <li>확장 가능성이 있거나, 변경이 잦을 것으로 예상되는 핵심 로직은 <b>인터페이스에 의존</b>하도록 설계한다.</li>
+          </ul>
+        </li>
+        <li><b>리팩토링 전략</b>
+          <ul>
+            <li>초기에는 구현 클래스에 바로 의존하는 간단한 구조로 시작해도 된다.</li>
+            <li>요구사항이 커지고 변경이 잦아지면, <b>인터페이스를 도입해 추상화</b>하고, DIP/OCP를 만족하도록 리팩토링할 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <!-- TOC 자동 생성 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      if(h.tagName === 'H3') li.classList.add('level-3');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+
+</body>
+</html>
