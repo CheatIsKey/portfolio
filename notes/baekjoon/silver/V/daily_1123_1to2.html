@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-22 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-23 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 4884 — FIFA 월드컵</h2>
+      <h2 class="section">문제 4962 — Next Mayor</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4884">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4962">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1122_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,44 +55,39 @@
       </h3>
       
       <p>
-        <strong>FIFA 월드컵 (BOJ 4884)</strong> 문제는<br>
-        조별 리그 + 토너먼트 형식의 대회가 주어졌을 때,
-        <strong>전체 경기 수</strong>와 <strong>토너먼트에 추가로 넣어야 하는 팀 수</strong>를 구하는 시뮬레이션/수학 문제다.
+        <strong>Next Mayor (BOJ 4962)</strong>는<br>
+        둥근 테이블에 앉은 후보들 사이에서 <strong>돌멩이(pebbles)를 주고받는 게임을 그대로 시뮬레이션</strong>해서<br>
+        <strong>마지막에 모든 돌을 가지게 되는 후보의 번호</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        규칙을 정리하면:
       </p>
       
       <ul>
-        <li>입력: <code>G T A D</code>
+        <li>후보는 <code>n</code>명, 번호는 <code>0 ~ n-1</code></li>
+        <li>처음에 그릇(bowl)에 돌이 <code>p</code>개 들어 있고, 0번 후보에게 그릇이 주어진다.</li>
+        <li>각 턴에서, 현재 그릇을 가진 후보 <code>idx</code>가:
           <ul>
-            <li><code>G</code>: 조(그룹)의 수</li>
-            <li><code>T</code>: 각 조에 속한 팀 수</li>
-            <li><code>A</code>: 각 조에서 토너먼트로 진출하는 팀 수</li>
-            <li><code>D</code>: 조별 리그를 거치지 않고 <strong>바로 토너먼트</strong>로 진출하는 팀 수</li>
-            <li>조건: <code>0 &lt; A ≤ T</code>, 네 수 모두 <code>2^16</code> 이하</li>
-            <li>입력 마지막: <code>-1 -1 -1 -1</code> → 종료</li>
+            <li>그릇에 돌이 있으면 <strong>돌 1개를 꺼내서 자신의 손에 보관</strong>하고, 그릇의 돌 개수는 1 감소.</li>
+            <li>그릇에 돌이 없으면, <strong>자신이 가지고 있던 모든 돌을 그릇에 다시 넣고</strong>, 자신의 손은 0개가 된다.</li>
+            <li>그리고 그릇을 오른쪽(다음 후보, <code>(idx+1) % n</code>)에게 넘긴다.</li>
           </ul>
         </li>
-        <li>토너먼트에 참가하는 팀 수는 <strong>항상 2의 거듭제곱</strong>이어야 한다.
+        <li><strong>게임 종료 조건</strong>:
           <ul>
-            <li>그렇지 않다면, 가장 가까운(크거나 같은) 2의 거듭제곱까지 <strong>팀을 더 추가</strong>해야 한다.</li>
-          </ul>
-        </li>
-        <li>출력 형식:
-          <ul>
-            <li><code>G*A/T+D=X+Y</code></li>
-            <li>왼쪽은 그대로 <strong>문자열 포맷</strong>으로 출력하고,</li>
-            <li><code>X</code>: 전체 경기 수 (조별 리그 + 토너먼트)</li>
-            <li><code>Y</code>: 토너먼트에 추가로 넣어야 하는 팀 수</li>
+            <li>어떤 후보가 그릇에서 <strong>마지막 돌</strong>을 가져간 직후,</li>
+            <li><strong>그 후보를 제외한 모든 후보의 손에 돌이 0개</strong>라면, 그 후보가 승자가 된다.</li>
           </ul>
         </li>
       </ul>
       
       <p>
-        실제 계산에서 토너먼트에 진출하는 기본 팀 수는
-        <code>G * A + D</code>로 처리한다
-        (조별 리그에서 각 조 <code>A</code>팀씩, 총 <code>G * A</code>팀 + 직행 <code>D</code>팀).
+        문제에서 주어진 입력에 대해서는 항상 <strong>1,000,000번 이하의 스텝</strong> 안에 게임이 끝난다고 보장된다.<br>
+        따라서 그대로 시뮬레이션해도 충분하다.
       </p>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -100,46 +95,21 @@
         </span>
       </p>
       
-      <ol>
-        <li><strong>토너먼트 기본 참가 팀 수 계산</strong>
+      <ul>
+        <li>후보별로 현재 손에 들고 있는 돌 개수를 저장하는 배열 <code>player[0..n-1]</code>를 둔다.</li>
+        <li>그릇(bowl)에 남아 있는 돌 개수를 나타내는 정수 <code>bowl</code>을 둔다 (초기값 = p).</li>
+        <li>현재 그릇을 가진 후보를 나타내는 인덱스 <code>idx</code>를 둔다 (초기값 = 0).</li>
+        <li>무한 루프 안에서 규칙 그대로를 시뮬레이션:
           <ul>
-            <li><code>base = G * A + D</code></li>
+            <li>그릇에 돌이 있을 때와 없을 때를 나누어 처리.</li>
+            <li>마지막 돌을 가져간 직후, 나머지 후보들이 모두 0개인지 검사해 승리 여부 판단.</li>
+            <li>승리 시 바로 후보 번호를 출력 버퍼에 추가하고 루프 종료.</li>
+            <li>그 외에는 <code>idx = (idx + 1) % n</code>으로 다음 후보에게 그릇을 넘겨 계속 반복.</li>
           </ul>
         </li>
-        <li><strong>가장 가까운 2의 거듭제곱 팀 수 K로 맞추기</strong>
-          <ul>
-            <li><code>K</code>를 1에서 시작해, <code>K &lt; base</code>인 동안 <code>K *= 2</code> 반복</li>
-            <li>결과적으로 <code>K</code>는 <strong>base 이상인 최소 2의 거듭제곱</strong></li>
-            <li><code>addTeams = K - base</code> → 추가해야 하는 팀 수</li>
-          </ul>
-        </li>
-        <li><strong>조별 리그 경기 수</strong>
-          <ul>
-            <li>각 조에는 팀이 <code>T</code>개 있고, <strong>모든 팀이 서로 한 번씩</strong> 경기</li>
-            <li>한 조의 경기 수: 조합 <code>T C 2 = T * (T - 1) / 2</code></li>
-            <li>조가 <code>G</code>개이므로 전체 조별 리그 경기 수:
-              <code>groupLeagues = G * T * (T - 1) / 2</code></li>
-          </ul>
-        </li>
-        <li><strong>토너먼트 경기 수</strong>
-          <ul>
-            <li>단판 토너먼트에서 <code>K</code>팀이 참가하면, 경기 수는 항상 <code>K - 1</code></li>
-            <li>따라서 <code>tournament = K - 1</code></li>
-          </ul>
-        </li>
-        <li><strong>총 경기 수</strong>
-          <ul>
-            <li><code>total = groupLeagues + tournament</code></li>
-          </ul>
-        </li>
-        <li><strong>문자열 포맷으로 출력</strong>
-          <ul>
-            <li><code>G*A/T+D=total+addTeams</code> 형태로 그대로 붙여 출력한다.</li>
-          </ul>
-        </li>
-      </ol>
+      </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -148,51 +118,73 @@
       </p>
       
       <ul>
-        <li><strong>입력 루프 및 종료 조건</strong>
+        <li><strong>입력 처리 및 종료 조건</strong>
           <ul>
-            <li>한 줄을 읽고 공백으로 나눈 뒤 <code>G, T, A, D</code>를 <code>long</code>으로 파싱.</li>
-            <li><code>G == -1 &amp;&amp; T == -1 &amp;&amp; A == -1 &amp;&amp; D == -1</code>이면 전체 종료.</li>
+            <li>각 줄에서 <code>n, p</code>를 읽는다.</li>
+            <li><code>n == 0 && p == 0</code>이면 입력 종료.</li>
           </ul>
         </li>
       
-        <li><strong>토너먼트 참가 팀 수와 2의 거듭제곱 K 계산</strong>
+        <li><strong>상태 변수 초기화</strong>
           <ul>
-            <li><code>long base = G * A + D;</code></li>
-            <li><code>long K = 1;</code></li>
-            <li><code>while (K &lt; base) K *= 2;</code></li>
-            <li>루프 종료 후 <code>K</code>는 <code>base</code> 이상이면서 2의 거듭제곱인 최소값.</li>
-            <li><code>addTeams = K - base;</code></li>
+            <li><code>int[] player = new int[n];</code> → 모든 후보의 손에 든 돌을 0으로 초기화.</li>
+            <li><code>int bowl = p;</code> → 그릇에 초기 돌 개수 저장.</li>
+            <li><code>int idx = 0;</code> → 0번 후보가 먼저 그릇을 받는다.</li>
           </ul>
         </li>
       
-        <li><strong>조별 리그 경기 수 계산</strong>
-          <ul>
-            <li><code>groupLeagues = G * T * (T - 1) / 2;</code></li>
-            <li><code>T * (T - 1) / 2</code>는 한 조의 경기 수, <code>* G</code> 해서 모든 조의 합.</li>
-          </ul>
-        </li>
+        <li><strong>게임 루프</strong>
+          <pre><code>while (true) {
+          if (bowl > 0) {
+              // 그릇에 돌이 있을 때
+              player[idx]++;  // 자기 손에 1개 가져감
+              bowl--;
       
-        <li><strong>토너먼트 경기 수 계산</strong>
-          <ul>
-            <li><code>tournament = K - 1;</code></li>
-            <li>단판 토너먼트에서 모든 경기는 한 팀이 탈락하므로, 우승팀 1팀만 남을 때까지 총 <code>K - 1</code>경기.</li>
-          </ul>
-        </li>
+              if (bowl == 0) {
+                  // 방금 '마지막' 돌을 가져간 상태
+                  boolean win = true;
+                  for (int i = 0; i &lt; n; i++) {
+                      if (i == idx) continue;
+                      if (player[i] != 0) {
+                          win = false;
+                          break;
+                      }
+                  }
+                  if (win) {
+                      sb.append(idx).append('\n');
+                      break; // 게임 종료
+                  }
+              }
+          } else {
+              // 그릇이 비어 있을 때: 자기 손에 있는 돌을 전부 그릇에 넣는다.
+              bowl = player[idx];
+              player[idx] = 0;
+          }
       
-        <li><strong>총 경기 수 및 출력 구성</strong>
-          <ul>
-            <li><code>total = groupLeagues + tournament;</code></li>
-            <li>출력:
-              <pre><code>sb.append(G).append("*").append(A).append("/").append(T).append("+").append(D)
-        .append("=").append(total).append("+").append(addTeams).append('\n');
+          // 그릇을 오른쪽(다음 후보)에게 넘김
+          idx = (idx + 1) % n;
+      }
       </code></pre>
-            </li>
-            <li>원래 수식의 의미를 살려 왼쪽을 그대로 포맷팅하고, 오른쪽에 <code>X + Y</code>를 붙인다.</li>
+        </li>
+      
+        <li><strong>승리 판정 로직</strong>
+          <ul>
+            <li>어떤 후보 <code>idx</code>가 그릇에서 돌 1개를 가져간 후, 그릇이 비어(<code>bowl == 0</code>)면 “마지막 돌”을 가져간 상황이다.</li>
+            <li>이 시점에서 <code>idx</code>를 제외한 모든 후보의 <code>player[i] == 0</code>인지 검사한다.</li>
+            <li>전부 0이면 게임 종료, <code>idx</code>가 승자.</li>
+            <li>누군가 손에 돌을 더 가지고 있다면, 아직 게임은 끝나지 않은 상태이므로 계속 진행.</li>
+          </ul>
+        </li>
+      
+        <li><strong>다중 테스트케이스 처리</strong>
+          <ul>
+            <li>각 테스트케이스마다 위 과정을 반복하고, 승자 번호를 <code>StringBuilder</code>에 한 줄씩 저장.</li>
+            <li>모든 입력을 처리한 후 <code>System.out.print(sb);</code>로 한 번에 출력.</li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -201,21 +193,19 @@
       </p>
       
       <p>
-        각 테스트 케이스마다 수행하는 연산은 모두 <strong>상수 시간</strong>이다.
+        각 테스트케이스에 대해:
       </p>
       
       <ul>
-        <li>2의 거듭제곱 K 찾기: <code>while (K &lt; base) K *= 2;</code>
-          <ul>
-            <li><code>base</code> 최대는 대략 <code>G * A + D ≤ (2^16)^2 + 2^16</code> 수준이지만,</li>
-            <li><code>K</code>는 <strong>2배씩 증가</strong>하므로 반복 횟수는 매우 작다 (로그 스케일).</li>
-          </ul>
-        </li>
-        <li>그 외 곱셈/덧셈/나눗셈 몇 번 → <strong><code>O(1)</code></strong></li>
+        <li>게임 루프 안에서 하는 일은 대부분 <strong>상수 시간</strong> 연산.</li>
+        <li>단, 그릇이 비었을 때 승리 조건을 검사하는 부분에서 <code>O(n)</code> 탐색을 수행.</li>
+        <li>문제에서 <strong>각 게임은 최대 1,000,000 스텝 이내</strong>에 끝난다고 보장되며, <code>n ≤ 50</code>이므로<br>
+            최악의 경우에도 대략 <code>1,000,000 × 50</code> 정도의 연산 → 충분히 통과 가능한 수준.</li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 테스트 케이스 수를 <code>T</code>라 할 때 <strong><code>O(T)</code></strong>이다.
+        따라서 한 케이스의 시간 복잡도는 대략 <strong><code>O(steps × n)</code></strong>이며,<br>
+        실제 제한에서는 무리 없이 동작한다.
       </p>
       
       <p>
@@ -225,11 +215,11 @@
       </p>
       
       <p>
-        입력 파라미터와 몇 개의 <code>long</code> 변수만 사용하므로
-        <strong><code>O(1)</code></strong> (상수 공간)이다.
+        후보 수 n에 대해 <code>player[n]</code> 배열과 몇 개의 정수 변수만 사용하므로<br>
+        공간 복잡도는 <strong><code>O(n)</code></strong>, 최대 <code>n = 50</code>에서 매우 작다.
       </p>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -238,30 +228,28 @@
       </p>
       
       <ul>
-        <li><strong>자료형 오버플로</strong>:
+        <li><strong>시뮬레이션 순서</strong>를 정확히 지켜야 한다:
           <ul>
-            <li><code>G, T, A, D</code>가 최대 <code>2^16</code>까지 올 수 있으므로,
-                <code>G * A</code>, <code>G * T * (T - 1)</code> 같은 곱은 <strong>int 범위를 쉽게 넘는다</strong>.</li>
-            <li>따라서 <strong>이 문제에서는 반드시 <code>int</code>가 아니라 <code>long</code>을 써야 한다.</strong></li>
+            <li>먼저 그릇에 돌이 있는지 확인 → 빼거나(보관) / 자기 돌을 모두 넣거나.</li>
+            <li>마지막 돌을 가져간 직후에만 승리 여부를 검사해야 한다.</li>
+            <li>그 후에 <code>idx</code>를 다음 후보로 넘긴다.</li>
           </ul>
         </li>
-        <li><strong>토너먼트 팀 수 계산</strong>:
+        <li><strong>bowl이 0일 때 처리</strong>:
           <ul>
-            <li>문제 출력 형식에는 <code>G*A/T+D</code>가 나오지만,</li>
-            <li>실제 토너먼트 참가 팀 수는 코드처럼 <strong><code>G * A + D</code></strong>로 계산하고 있다.</li>
-            <li><code>T</code>는 조별 리그 경기 수 계산(<code>G * T * (T - 1) / 2</code>)에만 사용된다.</li>
+            <li>무조건 자기 손에 있는 돌을 전부 그릇으로 옮기고 자신의 돌은 0으로 만들어야 한다.</li>
+            <li>이 때는 승리 조건을 검사하지 않는다 (마지막 돌을 가져가는 상황이 아니기 때문).</li>
           </ul>
         </li>
-        <li><strong>2의 거듭제곱 보정</strong>:
+        <li><strong>무한 루프 안전성</strong>:
           <ul>
-            <li>이미 <code>base</code>가 2의 거듭제곱이면 <code>K = base</code>가 되고, <code>addTeams = 0</code>이 되어
-                추가 팀이 필요 없다.</li>
-            <li>그 외에는 가장 가까운(크거나 같은) 2의 거듭제곱까지 확장한다.</li>
+            <li>문제에서 “주어진 입력에 대해 1,000,000 스텝 이내에 항상 게임이 종료된다”고 보장하므로,
+                별도의 탈출 조건(카운터 등)을 두지 않아도 된다.</li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 1.5em 0;">
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -270,14 +258,13 @@
       </p>
       
       <ul>
-        <li>조별 리그 경기 수: 각 조에서 <code>T C 2</code>경기, 총 <code>G * T * (T - 1) / 2</code>경기.</li>
-        <li>토너먼트 기본 참가 팀: <code>base = G * A + D</code>.</li>
-        <li>토너먼트 팀 수는 가장 가까운 2의 거듭제곱 <code>K</code>로 맞추고,
-            추가 팀 수는 <code>addTeams = K - base</code>.</li>
-        <li>토너먼트 경기 수: <code>K - 1</code>, 총 경기 수: <code>groupLeagues + tournament</code>.</li>
-        <li>출력은 <code>G*A/T+D=total+addTeams</code> 형식을 그대로 맞춘다.</li>
-        <li>곱셈이 크기 때문에 <strong>모든 계산은 반드시 <code>long</code>으로 처리</strong>해야 한다.</li>
+        <li>각 후보가 가진 돌과 그릇의 돌을 배열/변수로 저장하고, 규칙 그대로 시뮬레이션한다.</li>
+        <li>그릇에 돌이 있으면 1개 가져오고, 없으면 자기 돌을 전부 그릇에 넣는다.</li>
+        <li>마지막 돌을 가져간 직후, 다른 모든 후보의 손에 돌이 없는지 확인해 승자를 결정한다.</li>
+        <li>후보 번호는 <code>idx</code>를 <code>(idx + 1) % n</code> 방식으로 순환시켜 관리한다.</li>
+        <li>문제에서 스텝 수 상한을 보장하므로, 단순 시뮬레이션으로 충분히 해결 가능하다.</li>
       </ul>
+
 
 
 
@@ -322,14 +309,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 4955 — Pablo Squarson's Headache</h2>
+      <h2 class="section">문제 5024 — Dirty Driving</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4955">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5024">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1122_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -346,27 +333,26 @@
       </h3>
       
       <p>
-        <strong>Pablo Squarson's Headache (BOJ 4955)</strong>는<br>
-        1×1 정사각형들을 하나씩 붙여 나가면서 만든 작품이 있을 때,<br>
-        이 작품 전체를 딱 덮을 수 있는 <strong>가장 작은 축 정렬 직사각형의 가로·세로 길이</strong>를 구하는 문제다.
+        <strong>Dirty Driving (BOJ 5024)</strong>는<br>
+        현재 나와 앞차들 사이의 거리들이 주어졌을 때,<br>
+        <strong>앞차와의 최소 간격을 얼마나 둬야 모든 앞차와의 안전거리를 만족하는지</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        조건은 다음과 같다.
       </p>
       
       <ul>
-        <li>모든 정사각형의 한 변의 길이는 1이다.</li>
-        <li>첫 번째 정사각형(번호 0)은 기준으로 아무 좌표나 두어도 되며, 코드에서는 <strong>(0, 0)</strong>에 둔다.</li>
-        <li>이후 i(1 ≤ i ≤ N-1)번 정사각형은
-          <code>ni di</code>에 의해 이미 놓인 정사각형 <code>ni</code>의
-          <strong>왼쪽(0), 아래(1), 오른쪽(2), 위(3)</strong>에 인접하게 붙인다.</li>
-        <li>정사각형들이 서로 겹치지 않는다는 것이 보장된다.</li>
-        <li>모든 정사각형을 다 놓았을 때,
-          이들이 차지하는 좌표를 모두 포함하는 최소 직사각형의
-          <strong>width, height</strong>를 출력하면 된다.</li>
+        <li>앞에 <code>n</code>대의 자동차가 있고, 각 차까지의 거리가 주어진다 (서로 다른 값).</li>
+        <li>어떤 차 <code>x</code>와 나 사이에 <code>n_between</code>대의 차가 끼어 있다면,
+            그 차까지의 거리는 최소 <code>p · (n_between + 1)</code> 이상이어야 한다.</li>
+        <li>우리가 속도를 줄여 앞차와의 간격을 <strong>늘리면</strong>,
+            나와 <strong>모든 앞차와의 거리</strong>가 똑같이 증가한다고 가정할 수 있다.</li>
       </ul>
       
       <p>
-        결국 해야 하는 일은:
-        <strong>각 정사각형의 (x, y) 위치를 하나씩 계산하고,
-        전체 x, y의 최소/최대를 구해서 범위를 계산</strong>하는 것이다.
+        목표: 앞차(가장 가까운 차)와의 최종 거리 <code>D</code>가 최소가 되도록 하면서,<br>
+        위 안전거리 조건을 모든 차에 대해 만족시키는 <strong>최소 D</strong>를 구한다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -378,28 +364,42 @@
       </p>
       
       <ul>
-        <li>각 정사각형은 좌표 평면 상의 <strong>정수 격자점</strong>에 중심이 있는 것처럼 생각할 수 있다.
+        <li>현재 나와 각 차 사이의 거리를 오름차순으로 정렬하면:
           <ul>
-            <li>첫 번째 정사각형(0번)을 (0, 0)에 놓는다.</li>
-            <li>이후, i번 정사각형의 위치는 “기준 정사각형 <code>ni</code>의 좌표 + 방향 벡터”로 결정된다.</li>
+            <li><code>distance[0]</code>: 가장 가까운 차 (바로 앞차)</li>
+            <li><code>distance[1]</code>: 그 다음 차</li>
+            <li>…</li>
+            <li><code>distance[i]</code>: i번째로 가까운 차 → 나와 그 차 사이에는 i대가 끼어 있다.</li>
           </ul>
         </li>
-        <li>방향에 따른 좌표 변화:
+      
+        <li>우리가 앞차와의 간격을 늘려서, 모든 거리들이 <code>t</code>만큼 증가한다고 생각하자.
           <ul>
-            <li>왼쪽(0): (<code>x[ni] - 1, y[ni]</code>)</li>
-            <li>아래(1): (<code>x[ni], y[ni] - 1</code>)</li>
-            <li>오른쪽(2): (<code>x[ni] + 1, y[ni]</code>)</li>
-            <li>위(3): (<code>x[ni], y[ni] + 1</code>)</li>
+            <li>현재 거리: <code>distance[i]</code></li>
+            <li>조정 후 거리: <code>distance[i] + t</code></li>
+            <li>이 차와의 사이에 끼어 있는 차의 수는 <code>i</code>이므로,
+                필요한 최소 거리: <code>p · (i + 1)</code></li>
+            <li>따라서 조건:
+              <code>distance[i] + t ≥ p · (i + 1)</code></li>
           </ul>
         </li>
-        <li>정사각형들이 차지하는 x좌표의 최소/최대값, y좌표의 최소/최대값을 구하면:
+      
+        <li>모든 i에 대해 위를 만족하려면:
           <ul>
-            <li><code>width  = maxX - minX + 1</code></li>
-            <li><code>height = maxY - minY + 1</code></li>
-            <li>+1을 하는 이유: 예를 들어 x가 0~2면, 실제 가로 길이는 3칸이기 때문.</li>
+            <li><code>t ≥ p·(i+1) - distance[i]</code> (각 i마다)</li>
+            <li>결국 필요한 최소 <code>t</code>는
+              <strong>각 i에서의 부족분 중 최대값</strong>이 된다.</li>
+            <li>부족분이 음수(이미 기준 이상 거리)인 경우는 0으로 취급해도 된다.</li>
           </ul>
         </li>
-        <li>입력은 여러 데이터셋으로 주어지며, 첫 줄이 <code>0</code>이면 전체 입력이 끝난다.</li>
+      
+        <li>따라서:
+          <ul>
+            <li><code>need = max(0, max_i (p·(i+1) - distance[i]))</code></li>
+            <li>앞차(가장 가까운 차)와의 최종 거리:
+              <code>answer = distance[0] + need</code></li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -411,82 +411,44 @@
       </p>
       
       <ul>
-        <li><strong>입력 루프</strong>
+        <li><strong>입력</strong>
           <ul>
-            <li>한 줄을 읽어서 정수 <code>N</code>으로 파싱.</li>
-            <li><code>N == 0</code>이면 전체 입력 종료.</li>
-            <li>N &lt; 200이므로, 배열을 N 크기로 잡아서 좌표를 저장한다.</li>
+            <li>첫 줄에서 <code>n, p</code>를 읽는다.</li>
+            <li>다음 줄에서 <code>n</code>개의 거리 값을 읽어 <code>distance[i]</code>에 저장.</li>
           </ul>
         </li>
       
-        <li><strong>좌표 배열 초기화</strong>
+        <li><strong>거리 정렬</strong>
+          <pre><code>Arrays.sort(distance);</code></pre>
           <ul>
-            <li><code>int[] x = new int[N];</code></li>
-            <li><code>int[] y = new int[N];</code></li>
-            <li>0번 정사각형은 기준:
-              <pre><code>x[0] = 0;
-      y[0] = 0;
-      </code></pre>
-            </li>
-            <li>동시에, 최소/최대값도 0으로 시작:
-              <pre><code>int minX = 0, maxX = 0;
-      int minY = 0, maxY = 0;
-      </code></pre>
-            </li>
+            <li>오름차순 정렬로 가장 가까운 차가 <code>distance[0]</code>이 된다.</li>
           </ul>
         </li>
       
-        <li><strong>정사각형 배치 처리</strong>
-          <ul>
-            <li>1번부터 (N-1)번까지 각 정사각형에 대해 한 줄씩 읽고:
-              <ul>
-                <li><code>square</code>: 기준이 되는 정사각형 번호 <code>ni</code></li>
-                <li><code>direct</code>: 방향 <code>di</code> (0~3)</li>
-              </ul>
-            </li>
-            <li>방향에 따라 좌표를 계산:
-              <pre><code>if (direct == 0) {        // left
-          x[i] = x[square] - 1;
-          y[i] = y[square];
-      } else if (direct == 1) { // down
-          x[i] = x[square];
-          y[i] = y[square] - 1;
-      } else if (direct == 2) { // right
-          x[i] = x[square] + 1;
-          y[i] = y[square];
-      } else {                   // up (3)
-          x[i] = x[square];
-          y[i] = y[square] + 1;
+        <li><strong>필요한 추가 거리(need) 계산</strong>
+          <pre><code>int need = 0;
+      for (int i = 0; i &lt; n; i++) {
+          int required = p * (i + 1);       // i번째 차에 필요한 최소 거리
+          if (distance[i] &lt; required) {
+              int deficit = required - distance[i]; // 부족분
+              if (deficit > need) need = deficit;   // 최대 부족분 갱신
+          }
       }
       </code></pre>
-            </li>
-            <li>새 좌표를 반영하여 최소/최대값 갱신:
-              <pre><code>if (x[i] &lt; minX) minX = x[i];
-      if (x[i] &gt; maxX) maxX = x[i];
-      if (y[i] &lt; minY) minY = y[i];
-      if (y[i] &gt; maxY) maxY = y[i];
-      </code></pre>
-            </li>
+          <ul>
+            <li><code>required</code>: i번째 차에 대해, 조건 <code>p · (i + 1)</code></li>
+            <li><code>distance[i] &lt; required</code>이면, 해당 차와의 거리가 부족함.</li>
+            <li>부족분들을 모아 그 중 최대값이 <code>need</code>가 된다.</li>
           </ul>
         </li>
       
-        <li><strong>최종 가로/세로 길이 계산</strong>
+        <li><strong>정답 계산</strong>
+          <pre><code>int answer = distance[0] + need;
+      sb.append(answer).append('\n');</code></pre>
           <ul>
-            <li>모든 정사각형의 좌표를 다 계산한 뒤,
-              <pre><code>int width  = maxX - minX + 1;
-      int height = maxY - minY + 1;
-      </code></pre>
-            </li>
-            <li>이 값을 <code>width height</code> 형식으로 한 줄에 출력 버퍼에 추가:
-              <pre><code>sb.append(width).append(' ').append(height).append('\n');
-      </code></pre>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>출력</strong>
-          <ul>
-            <li>모든 데이터셋을 처리한 뒤, <code>System.out.print(sb);</code>로 한 번에 출력.</li>
+            <li>가장 가까운 차와의 초기 거리 <code>distance[0]</code>에
+                추가로 확보해야 하는 거리 <code>need</code>를 더한다.</li>
+            <li>이 값이 “앞차와 유지해야 할 최소 거리”가 된다.</li>
           </ul>
         </li>
       </ul>
@@ -500,17 +462,13 @@
       </p>
       
       <ul>
-        <li>각 데이터셋마다:
-          <ul>
-            <li>N개의 정사각형, 그 중 (N-1)개에 대해 한 번씩 좌표 계산 및 min/max 갱신</li>
-            <li>각 연산은 상수 시간 → <strong><code>O(N)</code></strong></li>
-          </ul>
-        </li>
-        <li>N &lt; 200 이므로 전체적으로 매우 빠르게 동작한다.</li>
+        <li>정렬: <code>Arrays.sort(distance)</code> → <strong><code>O(n log n)</code></strong></li>
+        <li>한 번의 선형 스캔으로 부족분 계산: <strong><code>O(n)</code></strong></li>
       </ul>
       
       <p>
-        전체 입력에 대해, 데이터셋 수를 D라 하면 복잡도는 <strong><code>O(Σ N) = O(total squares)</code></strong> 수준이다.
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong> 이고,
+        <code>n ≤ 100000</code> 조건에서 충분히 빠르다.
       </p>
       
       <p>
@@ -520,8 +478,7 @@
       </p>
       
       <p>
-        <code>x[N]</code>, <code>y[N]</code> 두 개의 정수 배열과 몇 개의 변수만 사용하므로<br>
-        데이터셋당 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
+        거리 배열 <code>int[n]</code>만 사용하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -533,28 +490,21 @@
       </p>
       
       <ul>
-        <li><strong>좌표계 선택은 임의</strong>:
+        <li><strong>정렬 기준</strong>:
           <ul>
-            <li>첫 정사각형을 (0, 0)에 두는 것은 임의의 선택이지만,
-                모든 정사각형이 상대 위치만 유지하면 너비와 높이는 동일하게 나온다.</li>
-            </li>
+            <li>반드시 오름차순으로 정렬해야, i번째 인덱스가 “사이에 i대가 있는 차”와 대응된다.</li>
           </ul>
         </li>
-        <li><strong>min/max 초기값</strong>:
+        <li><strong>추가 거리 t의 해석</strong>:
           <ul>
-            <li>0번 정사각형이 (0, 0)에 있으므로, <code>minX, maxX, minY, maxY</code>를 모두 0으로 시작하면 자연스럽게 포함된다.</li>
+            <li><code>need</code>는 우리가 현재 위치에서 <strong>뒤로 얼마나 더 물러나야 하는지</strong>를 나타낸다.</li>
+            <li>그만큼 모든 거리들이 동시에 증가한다고 생각할 수 있다.</li>
           </ul>
         </li>
-        <li><strong>+1을 잊지 말 것</strong>:
+        <li><strong>거리 타입</strong>:
           <ul>
-            <li>좌표 범위가 [minX, maxX]이면 실제 칸 수는 <code>maxX - minX + 1</code>이다.</li>
-            <li>세로도 동일하게 <code>+1</code>을 해줘야 한다.</li>
-          </ul>
-        </li>
-        <li><strong>입력 형식</strong>:
-          <ul>
-            <li>N이 1인 경우, 배치 명령이 없으므로 바로 (1, 1)을 출력하게 된다.</li>
-            <li>이 경우에도 로직이 자연스럽게 동작한다 (for 루프가 한 번도 돌지 않음).</li>
+            <li>거리 값은 최대 <code>10^7</code>이고, <code>p ≤ 20, n ≤ 100000</code>이므로
+                <code>p · (i + 1)</code>는 <code>≈ 2·10^6</code> 수준 → <code>int</code> 안에 충분히 들어간다.</li>
           </ul>
         </li>
       </ul>
@@ -568,11 +518,13 @@
       </p>
       
       <ul>
-        <li>0번 정사각형을 (0, 0)에 두고, 나머지 정사각형의 좌표를 “기준 + 방향”으로 차례대로 계산한다.</li>
-        <li>계산 과정에서 x, y의 최소/최대값을 함께 갱신한다.</li>
-        <li>최종적으로 <code>width = maxX - minX + 1</code>, <code>height = maxY - minY + 1</code>로 작품을 덮는 박스 크기를 구한다.</li>
-        <li>정수 좌표와 단순 반복만 사용하므로 구현과 복잡도가 모두 간단하다.</li>
+        <li>현재 거리들을 오름차순 정렬해, i번째 차에 대해 필요한 최소 거리 <code>p·(i+1)</code>와 비교한다.</li>
+        <li>부족한 만큼의 거리 <code>required - distance[i]</code> 중 최대값이
+            모두를 만족시키기 위해 추가로 필요한 거리 <code>need</code>이다.</li>
+        <li>최종 답은 가장 가까운 차와의 거리 <code>distance[0]</code>에 <code>need</code>를 더한 값.</li>
+        <li>정렬 + 한 번의 스캔으로 해결하는 깔끔한 그리디/시뮬레이션 문제다.</li>
       </ul>
+
 
 
 
