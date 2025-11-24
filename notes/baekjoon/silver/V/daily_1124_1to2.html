@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-23 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-24 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 4962 — Next Mayor</h2>
+      <h2 class="section">문제 5043 — 정말 좋은 압축</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/4962">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5043">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1124_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,36 +55,57 @@
       </h3>
       
       <p>
-        <strong>Next Mayor (BOJ 4962)</strong>는<br>
-        둥근 테이블에 앉은 후보들 사이에서 <strong>돌멩이(pebbles)를 주고받는 게임을 그대로 시뮬레이션</strong>해서<br>
-        <strong>마지막에 모든 돌을 가지게 되는 후보의 번호</strong>를 구하는 문제다.
+        <strong>정말 좋은 압축 (BOJ 5043)</strong>은<br>
+        서로 다른 1000비트짜리 파일이 <code>N</code>개 주어졌을 때,<br>
+        이 파일들을 모두 압축해서 <strong>각 파일의 길이가 최대 <code>b</code>비트 이하가 되도록 만드는 압축 알고리즘이
+        &ldquo;이론적으로&rdquo; 존재할 수 있는지</strong>를 판별하는 문제다.
       </p>
       
       <p>
-        규칙을 정리하면:
+        핵심 질문은 다음 한 줄로 정리된다.
+      </p>
+      
+      <p>
+        &ldquo;길이가 최대 <code>b</code>비트인 서로 다른 비트열을<br>
+        <strong>최대 몇 개까지 만들 수 있는가?</strong>&rdquo;
+      </p>
+      
+      <p>
+        이 값을 <strong>모든 압축 결과(서로 다른 코드) 개수의 최댓값</strong>이라고 보면,<br>
+        그 개수 이상으로 파일들을 구분할 수 있어야만 압축이 가능하다.
+      </p>
+      
+      <p>
+        핵심 조건을 정리하면:
       </p>
       
       <ul>
-        <li>후보는 <code>n</code>명, 번호는 <code>0 ~ n-1</code></li>
-        <li>처음에 그릇(bowl)에 돌이 <code>p</code>개 들어 있고, 0번 후보에게 그릇이 주어진다.</li>
-        <li>각 턴에서, 현재 그릇을 가진 후보 <code>idx</code>가:
+        <li>원본 파일:
           <ul>
-            <li>그릇에 돌이 있으면 <strong>돌 1개를 꺼내서 자신의 손에 보관</strong>하고, 그릇의 돌 개수는 1 감소.</li>
-            <li>그릇에 돌이 없으면, <strong>자신이 가지고 있던 모든 돌을 그릇에 다시 넣고</strong>, 자신의 손은 0개가 된다.</li>
-            <li>그리고 그릇을 오른쪽(다음 후보, <code>(idx+1) % n</code>)에게 넘긴다.</li>
+            <li>각 파일은 1000비트이며, 문제에서 주어지는 <code>N</code>개는 서로 다르다.</li>
+            <li>하지만 <strong>전체 2<sup>1000</sup>개의 모든 파일을 압축해야 하는 것이 아니라</strong>,
+                입력에서 주어진 <code>N</code>개만 구분해서 압축하면 된다.</li>
           </ul>
         </li>
-        <li><strong>게임 종료 조건</strong>:
+        <li>압축 결과:
           <ul>
-            <li>어떤 후보가 그릇에서 <strong>마지막 돌</strong>을 가져간 직후,</li>
-            <li><strong>그 후보를 제외한 모든 후보의 손에 돌이 0개</strong>라면, 그 후보가 승자가 된다.</li>
+            <li>각 파일은 길이가 <strong>0비트부터 <code>b</code>비트까지</strong>인 비트열 하나로 표현된다.</li>
+            <li>따라서 &ldquo;서로 다른 압축 결과 코드&rdquo;의 개수는
+              <code>2^0 + 2^1 + 2^2 + ... + 2^b</code>개가 될 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>필요 충분 조건</strong>:
+          <ul>
+            <li>압축 결과로 쓸 수 있는 서로 다른 비트열이 충분히 많아야 한다.</li>
+            <li>즉, <strong><code>N ≤ (길이가 최대 b인 비트열 개수의 최댓값)</code></strong>이면
+                이론적으로는 항상 압축이 가능하다.</li>
           </ul>
         </li>
       </ul>
       
       <p>
-        문제에서 주어진 입력에 대해서는 항상 <strong>1,000,000번 이하의 스텝</strong> 안에 게임이 끝난다고 보장된다.<br>
-        따라서 그대로 시뮬레이션해도 충분하다.
+        따라서, &ldquo;길이가 최대 <code>b</code>인 서로 다른 비트열의 개수&rdquo;를 구해<br>
+        그 값이 <code>N</code> 이상인지 비교만 해 주면 된다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -96,18 +117,20 @@
       </p>
       
       <ul>
-        <li>후보별로 현재 손에 들고 있는 돌 개수를 저장하는 배열 <code>player[0..n-1]</code>를 둔다.</li>
-        <li>그릇(bowl)에 남아 있는 돌 개수를 나타내는 정수 <code>bowl</code>을 둔다 (초기값 = p).</li>
-        <li>현재 그릇을 가진 후보를 나타내는 인덱스 <code>idx</code>를 둔다 (초기값 = 0).</li>
-        <li>무한 루프 안에서 규칙 그대로를 시뮬레이션:
-          <ul>
-            <li>그릇에 돌이 있을 때와 없을 때를 나누어 처리.</li>
-            <li>마지막 돌을 가져간 직후, 나머지 후보들이 모두 0개인지 검사해 승리 여부 판단.</li>
-            <li>승리 시 바로 후보 번호를 출력 버퍼에 추가하고 루프 종료.</li>
-            <li>그 외에는 <code>idx = (idx + 1) % n</code>으로 다음 후보에게 그릇을 넘겨 계속 반복.</li>
-          </ul>
-        </li>
+        <li>길이가 정확히 <code>i</code>비트인 비트열의 개수는 <code>2^i</code>개다.</li>
+        <li>길이가 최대 <code>b</code>비트인 비트열의 개수는
+          <code>2^0 + 2^1 + ... + 2^b</code>가 된다.</li>
+        <li>이 합은 등비수열의 합 공식으로 <code>2^(b+1) - 1</code>이지만,<br>
+            코드에서는 굳이 공식을 쓰지 않고 <strong>직접 <code>i = 0..b</code>를 순회하며 더한다.</strong></li>
+        <li>이렇게 구한 &ldquo;가능한 서로 다른 압축 코드의 최대 개수&rdquo;를 <code>file</code>이라고 두고,<br>
+            <strong><code>file ≥ N</code>이면 &ldquo;yes&rdquo;, 아니면 &ldquo;no&rdquo;</strong>를 출력한다.</li>
       </ul>
+      
+      <p>
+        결국 이 문제는 압축 알고리즘을 직접 설계하는 것이 아니라,<br>
+        <strong>서로 다른 코드의 개수가 <code>N</code>개 이상 나올 수 있는지만 확인하는
+           단순한 수학/카운팅 문제</strong>가 된다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -118,68 +141,46 @@
       </p>
       
       <ul>
-        <li><strong>입력 처리 및 종료 조건</strong>
+        <li><strong>입력 처리</strong>
           <ul>
-            <li>각 줄에서 <code>n, p</code>를 읽는다.</li>
-            <li><code>n == 0 && p == 0</code>이면 입력 종료.</li>
+            <li><code>BufferedReader</code>로 한 줄씩 읽는다.</li>
+            <li>각 줄에서 <code>N</code>, <code>b</code>를 공백 기준으로 분리해 읽는다.
+              <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+    StringTokenizer st = new StringTokenizer(line);
+
+    long N = Long.parseLong(st.nextToken());
+    int b = Integer.parseInt(st.nextToken());
+    ...
+}</code></pre>
+            </li>
+            <li>문제는 한 줄 입력이지만, 이 코드는 여러 줄이 들어와도
+                <strong>EOF까지 반복 처리</strong>할 수 있도록 작성되어 있다.</li>
           </ul>
         </li>
       
-        <li><strong>상태 변수 초기화</strong>
+        <li><strong>가능한 코드 수 계산</strong>
           <ul>
-            <li><code>int[] player = new int[n];</code> → 모든 후보의 손에 든 돌을 0으로 초기화.</li>
-            <li><code>int bowl = p;</code> → 그릇에 초기 돌 개수 저장.</li>
-            <li><code>int idx = 0;</code> → 0번 후보가 먼저 그릇을 받는다.</li>
+            <li><code>file</code> 변수에 &ldquo;길이 ≤ b인 서로 다른 비트열의 최대 개수&rdquo;를 누적한다.
+              <pre><code>long file = 0;
+for (int i = 0; i &lt;= b; i++) file += Math.pow(2, i);</code></pre>
+            </li>
+            <li><code>i</code>를 0부터 <code>b</code>까지 돌면서 <code>2^i</code>를 모두 더하므로<br>
+                최종적으로 <code>file = 2^0 + 2^1 + ... + 2^b</code>가 된다.</li>
+            <li>최대 <code>b = 50</code>이므로, 이 값은 <code>2^51 - 1</code> 수준이고,<br>
+                <code>long</code> 범위(약 9 × 10<sup>18</sup>) 안에 충분히 들어간다.</li>
           </ul>
         </li>
       
-        <li><strong>게임 루프</strong>
-          <pre><code>while (true) {
-          if (bowl > 0) {
-              // 그릇에 돌이 있을 때
-              player[idx]++;  // 자기 손에 1개 가져감
-              bowl--;
-      
-              if (bowl == 0) {
-                  // 방금 '마지막' 돌을 가져간 상태
-                  boolean win = true;
-                  for (int i = 0; i &lt; n; i++) {
-                      if (i == idx) continue;
-                      if (player[i] != 0) {
-                          win = false;
-                          break;
-                      }
-                  }
-                  if (win) {
-                      sb.append(idx).append('\n');
-                      break; // 게임 종료
-                  }
-              }
-          } else {
-              // 그릇이 비어 있을 때: 자기 손에 있는 돌을 전부 그릇에 넣는다.
-              bowl = player[idx];
-              player[idx] = 0;
-          }
-      
-          // 그릇을 오른쪽(다음 후보)에게 넘김
-          idx = (idx + 1) % n;
-      }
-      </code></pre>
-        </li>
-      
-        <li><strong>승리 판정 로직</strong>
+        <li><strong>압축 가능 여부 판별</strong>
           <ul>
-            <li>어떤 후보 <code>idx</code>가 그릇에서 돌 1개를 가져간 후, 그릇이 비어(<code>bowl == 0</code>)면 “마지막 돌”을 가져간 상황이다.</li>
-            <li>이 시점에서 <code>idx</code>를 제외한 모든 후보의 <code>player[i] == 0</code>인지 검사한다.</li>
-            <li>전부 0이면 게임 종료, <code>idx</code>가 승자.</li>
-            <li>누군가 손에 돌을 더 가지고 있다면, 아직 게임은 끝나지 않은 상태이므로 계속 진행.</li>
-          </ul>
-        </li>
-      
-        <li><strong>다중 테스트케이스 처리</strong>
-          <ul>
-            <li>각 테스트케이스마다 위 과정을 반복하고, 승자 번호를 <code>StringBuilder</code>에 한 줄씩 저장.</li>
-            <li>모든 입력을 처리한 후 <code>System.out.print(sb);</code>로 한 번에 출력.</li>
+            <li>서로 다른 코드의 수가 <code>N</code>개 이상이면, <code>N</code>개 파일을 서로 다르게 매핑하는 것이 가능하다.</li>
+            <li>따라서 다음과 같이 비교 후 출력한다.
+              <pre><code>if (file &gt;= N) sb.append("yes").append('\n');
+else sb.append("no").append('\n');</code></pre>
+            </li>
+            <li>모든 줄을 처리한 뒤, 마지막에 한 번만 <code>System.out.print(sb);</code>로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -193,19 +194,22 @@
       </p>
       
       <p>
-        각 테스트케이스에 대해:
+        각 테스트케이스(각 줄)에 대해:
       </p>
       
       <ul>
-        <li>게임 루프 안에서 하는 일은 대부분 <strong>상수 시간</strong> 연산.</li>
-        <li>단, 그릇이 비었을 때 승리 조건을 검사하는 부분에서 <code>O(n)</code> 탐색을 수행.</li>
-        <li>문제에서 <strong>각 게임은 최대 1,000,000 스텝 이내</strong>에 끝난다고 보장되며, <code>n ≤ 50</code>이므로<br>
-            최악의 경우에도 대략 <code>1,000,000 × 50</code> 정도의 연산 → 충분히 통과 가능한 수준.</li>
+        <li><code>for (int i = 0; i &lt;= b; i++)</code> 루프만 보면, 반복 횟수는 최대 <code>b+1 ≤ 51</code>회로 상수에 가깝다.</li>
+        <li>각 반복에서 하는 일은 <code>Math.pow</code>와 덧셈 한 번뿐인 <strong>상수 시간</strong> 연산이다.</li>
       </ul>
       
       <p>
-        따라서 한 케이스의 시간 복잡도는 대략 <strong><code>O(steps × n)</code></strong>이며,<br>
-        실제 제한에서는 무리 없이 동작한다.
+        따라서 한 줄(한 케이스)에 대한 시간 복잡도는 사실상<br>
+        <strong><code>O(b)</code>이고, 여기서 <code>b ≤ 50</code>인 상수이므로 전체적으로 <code>O(1)</code>에 가깝다.</strong>
+      </p>
+      
+      <p>
+        여러 줄 입력을 처리하더라도, 각 줄마다 상수 시간에 해결 가능하므로<br>
+        전체 프로그램의 시간 복잡도 역시 매우 작다.
       </p>
       
       <p>
@@ -215,8 +219,18 @@
       </p>
       
       <p>
-        후보 수 n에 대해 <code>player[n]</code> 배열과 몇 개의 정수 변수만 사용하므로<br>
-        공간 복잡도는 <strong><code>O(n)</code></strong>, 최대 <code>n = 50</code>에서 매우 작다.
+        사용되는 추가 메모리는:
+      </p>
+      
+      <ul>
+        <li>입력 파싱용 문자열/토크나이저</li>
+        <li><code>N</code>, <code>b</code>, <code>file</code> 같은 몇 개의 정수 변수</li>
+        <li>출력 누적용 <code>StringBuilder</code></li>
+      </ul>
+      
+      <p>
+        입력 크기 <code>N</code>과 상관없이 고정된 크기의 변수만 사용하므로,<br>
+        공간 복잡도는 <strong><code>O(1)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -228,23 +242,31 @@
       </p>
       
       <ul>
-        <li><strong>시뮬레이션 순서</strong>를 정확히 지켜야 한다:
+        <li><strong>길이 0비트 코드</strong>:
           <ul>
-            <li>먼저 그릇에 돌이 있는지 확인 → 빼거나(보관) / 자기 돌을 모두 넣거나.</li>
-            <li>마지막 돌을 가져간 직후에만 승리 여부를 검사해야 한다.</li>
-            <li>그 후에 <code>idx</code>를 다음 후보로 넘긴다.</li>
+            <li><code>b = 0</code>일 때도 비트열은 1개(길이 0인 코드) 존재한다고 보는 것이 핵심이다.</li>
+            <li>예제 <code>N = 1, b = 0</code>에서 답이 <code>yes</code>인 이유가 바로 이것이다.</li>
           </ul>
         </li>
-        <li><strong>bowl이 0일 때 처리</strong>:
+        <li><strong>타입 범위</strong>:
           <ul>
-            <li>무조건 자기 손에 있는 돌을 전부 그릇으로 옮기고 자신의 돌은 0으로 만들어야 한다.</li>
-            <li>이 때는 승리 조건을 검사하지 않는다 (마지막 돌을 가져가는 상황이 아니기 때문).</li>
+            <li><code>2^0 + 2^1 + ... + 2^b</code>는 최대 <code>2^51 - 1</code> 정도이므로<br>
+                반드시 <code>long</code>으로 저장해야 한다.</li>
+            <li><code>int</code>로 두면 오버플로가 발생해 잘못된 결과를 낼 수 있다.</li>
           </ul>
         </li>
-        <li><strong>무한 루프 안전성</strong>:
+        <li><strong>Math.pow 사용</strong>:
           <ul>
-            <li>문제에서 “주어진 입력에 대해 1,000,000 스텝 이내에 항상 게임이 종료된다”고 보장하므로,
-                별도의 탈출 조건(카운터 등)을 두지 않아도 된다.</li>
+            <li><code>Math.pow</code>는 <code>double</code>을 반환하지만,<br>
+                여기서는 2의 거듭제곱을 더하는 형태라 <code>long</code>으로 캐스팅해도 안전하게 동작한다.</li>
+            <li>보다 깔끔하게 작성하려면 <code>(1L &lt;&lt; i)</code>를 사용하는 방법도 있다.</li>
+          </ul>
+        </li>
+        <li><strong>문제 해석</strong>:
+          <ul>
+            <li>이 문제는 &ldquo;모든 1000비트 파일을 항상 압축할 수 있는가?&rdquo;가 아니라,<br>
+                &ldquo;주어진 서로 다른 <code>N</code>개 파일만 구분해 압축하면 되는가?&rdquo;를 묻는 것이다.</li>
+            <li>따라서 <code>N</code>과 &ldquo;가능한 서로 다른 코드 개수&rdquo;만 비교하면 충분하다.</li>
           </ul>
         </li>
       </ul>
@@ -258,11 +280,14 @@
       </p>
       
       <ul>
-        <li>각 후보가 가진 돌과 그릇의 돌을 배열/변수로 저장하고, 규칙 그대로 시뮬레이션한다.</li>
-        <li>그릇에 돌이 있으면 1개 가져오고, 없으면 자기 돌을 전부 그릇에 넣는다.</li>
-        <li>마지막 돌을 가져간 직후, 다른 모든 후보의 손에 돌이 없는지 확인해 승자를 결정한다.</li>
-        <li>후보 번호는 <code>idx</code>를 <code>(idx + 1) % n</code> 방식으로 순환시켜 관리한다.</li>
-        <li>문제에서 스텝 수 상한을 보장하므로, 단순 시뮬레이션으로 충분히 해결 가능하다.</li>
+        <li>길이가 정확히 <code>i</code>비트인 비트열은 <code>2^i</code>개, 길이가 최대 <code>b</code>비트인 비트열은
+            <code>2^0 + ... + 2^b</code>개이다.</li>
+        <li>이 개수(서로 다른 코드의 최대 개수)가 <code>N</code> 이상이면,
+            <code>N</code>개 파일을 서로 다른 코드로 압축하는 것이 이론적으로 가능하다.</li>
+        <li>코드에서는 단순히 <code>i = 0..b</code>에 대해 <code>2^i</code>를 모두 더해 <code>file</code>에 저장한 뒤,<br>
+            <code>file ≥ N</code>인지 비교해 &ldquo;yes/no&rdquo;를 출력한다.</li>
+        <li>시간/공간 복잡도 모두 사실상 상수 수준으로 매우 작다.</li>
+        <li>길이 0 비트 코드까지 포함해 세야 예제 <code>N = 1, b = 0</code>를 올바르게 처리할 수 있다.</li>
       </ul>
 
 
@@ -309,14 +334,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5024 — Dirty Driving</h2>
+      <h2 class="section">문제 5077 — Maps</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5024">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5077">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1124_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -333,26 +358,24 @@
       </h3>
       
       <p>
-        <strong>Dirty Driving (BOJ 5024)</strong>는<br>
-        현재 나와 앞차들 사이의 거리들이 주어졌을 때,<br>
-        <strong>앞차와의 최소 간격을 얼마나 둬야 모든 앞차와의 안전거리를 만족하는지</strong>를 구하는 문제다.
+        <strong>Maps (BOJ 5077)</strong>는<br>
+        눈밭 위 건물 배치를 나타내는 작은 패턴(이미지)을 하나 주고,<br>
+        더 큰 지도(map) 안에서 이 패턴이 <strong>정확히 일치하는 위치가 몇 번 등장하는지</strong>를 세는 문제다.
       </p>
       
       <p>
-        조건은 다음과 같다.
+        각 위치는 다음 조건을 만족할 때만 하나의 &ldquo;발견된 비밀 기지&rdquo;로 센다.
       </p>
       
       <ul>
-        <li>앞에 <code>n</code>대의 자동차가 있고, 각 차까지의 거리가 주어진다 (서로 다른 값).</li>
-        <li>어떤 차 <code>x</code>와 나 사이에 <code>n_between</code>대의 차가 끼어 있다면,
-            그 차까지의 거리는 최소 <code>p · (n_between + 1)</code> 이상이어야 한다.</li>
-        <li>우리가 속도를 줄여 앞차와의 간격을 <strong>늘리면</strong>,
-            나와 <strong>모든 앞차와의 거리</strong>가 똑같이 증가한다고 가정할 수 있다.</li>
+        <li>패턴 이미지와 지도에서 선택한 부분이 <strong>모양 그대로 완전히 일치</strong>해야 한다.</li>
+        <li><strong>회전, 대칭(미러링)</strong>은 인정되지 않는다. 즉, 90도 회전/좌우 반전/상하 반전 등은 모두 다른 모양이다.</li>
+        <li>눈은 <code>.</code>, 건물은 <code>X</code>로 표현되며, <code>X</code>/<code>.</code>가 하나라도 다르면 그 위치는 불일치로 본다.</li>
       </ul>
       
       <p>
-        목표: 앞차(가장 가까운 차)와의 최종 거리 <code>D</code>가 최소가 되도록 하면서,<br>
-        위 안전거리 조건을 모든 차에 대해 만족시키는 <strong>최소 D</strong>를 구한다.
+        입력으로 여러 개의 시나리오가 주어지며,<br>
+        각 시나리오에 대해 패턴이 지도에 몇 번 나타나는지 하나의 정수로 출력하면 된다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -364,43 +387,21 @@
       </p>
       
       <ul>
-        <li>현재 나와 각 차 사이의 거리를 오름차순으로 정렬하면:
+        <li>패턴의 크기를 <code>Li × Ci</code>, 지도의 크기를 <code>Lm × Cm</code>이라고 하자.</li>
+        <li>패턴이 지도에 들어갈 수 있는 시작 좌표(<code>sr, sc</code>)의 범위는:
           <ul>
-            <li><code>distance[0]</code>: 가장 가까운 차 (바로 앞차)</li>
-            <li><code>distance[1]</code>: 그 다음 차</li>
-            <li>…</li>
-            <li><code>distance[i]</code>: i번째로 가까운 차 → 나와 그 차 사이에는 i대가 끼어 있다.</li>
+            <li>행 시작 <code>sr</code>: <code>0 ≤ sr ≤ Lm - Li</code></li>
+            <li>열 시작 <code>sc</code>: <code>0 ≤ sc ≤ Cm - Ci</code></li>
           </ul>
         </li>
-      
-        <li>우리가 앞차와의 간격을 늘려서, 모든 거리들이 <code>t</code>만큼 증가한다고 생각하자.
-          <ul>
-            <li>현재 거리: <code>distance[i]</code></li>
-            <li>조정 후 거리: <code>distance[i] + t</code></li>
-            <li>이 차와의 사이에 끼어 있는 차의 수는 <code>i</code>이므로,
-                필요한 최소 거리: <code>p · (i + 1)</code></li>
-            <li>따라서 조건:
-              <code>distance[i] + t ≥ p · (i + 1)</code></li>
-          </ul>
-        </li>
-      
-        <li>모든 i에 대해 위를 만족하려면:
-          <ul>
-            <li><code>t ≥ p·(i+1) - distance[i]</code> (각 i마다)</li>
-            <li>결국 필요한 최소 <code>t</code>는
-              <strong>각 i에서의 부족분 중 최대값</strong>이 된다.</li>
-            <li>부족분이 음수(이미 기준 이상 거리)인 경우는 0으로 취급해도 된다.</li>
-          </ul>
-        </li>
-      
-        <li>따라서:
-          <ul>
-            <li><code>need = max(0, max_i (p·(i+1) - distance[i]))</code></li>
-            <li>앞차(가장 가까운 차)와의 최종 거리:
-              <code>answer = distance[0] + need</code></li>
-          </ul>
-        </li>
+        <li>각 시작 좌표마다, 패턴 전체를 지도에서 겹쳐보면서 <strong>모든 칸이 일치하는지 검사</strong>한다.</li>
+        <li>해당 위치에서 <code>Li × Ci</code> 모든 칸이 완전히 같으면 카운트를 1 증가시킨다.</li>
+        <li>이 과정을 모든 가능한 시작 좌표에 대해 반복하면, 전체 등장 횟수를 구할 수 있다.</li>
       </ul>
+      
+      <p>
+        입력 크기가 작기 때문에, <strong>브루트포스 2차원 패턴 매칭</strong>만으로도 충분히 통과된다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -411,44 +412,91 @@
       </p>
       
       <ul>
-        <li><strong>입력</strong>
+        <li><strong>전체 시나리오 수 읽기</strong>
           <ul>
-            <li>첫 줄에서 <code>n, p</code>를 읽는다.</li>
-            <li>다음 줄에서 <code>n</code>개의 거리 값을 읽어 <code>distance[i]</code>에 저장.</li>
+            <li>첫 줄에서 정수 하나를 읽어 <code>scenarios</code>에 저장한다.
+              <pre><code>int scenarios = Integer.parseInt(line);
+for (int testcase = 0; testcase &lt; scenarios; testcase++) {
+    ...
+}</code></pre>
+            </li>
           </ul>
         </li>
       
-        <li><strong>거리 정렬</strong>
-          <pre><code>Arrays.sort(distance);</code></pre>
+        <li><strong>패턴(이미지) 입력</strong>
           <ul>
-            <li>오름차순 정렬로 가장 가까운 차가 <code>distance[0]</code>이 된다.</li>
+            <li><code>Li, Ci</code>를 읽고, <code>Li × Ci</code> 크기의 문자 배열을 만든다.
+              <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+int Li = Integer.parseInt(st.nextToken());
+int Ci = Integer.parseInt(st.nextToken());
+
+char[][] scenario = new char[Li][Ci];
+for (int i = 0; i &lt; Li; i++) {
+    String row = br.readLine();
+    for (int j = 0; j &lt; Ci; j++) {
+        scenario[i][j] = row.charAt(j);
+    }
+}</code></pre>
+            </li>
+            <li><code>scenario</code> 배열에 패턴 이미지(비밀 기지 도면)를 그대로 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>필요한 추가 거리(need) 계산</strong>
-          <pre><code>int need = 0;
-      for (int i = 0; i &lt; n; i++) {
-          int required = p * (i + 1);       // i번째 차에 필요한 최소 거리
-          if (distance[i] &lt; required) {
-              int deficit = required - distance[i]; // 부족분
-              if (deficit > need) need = deficit;   // 최대 부족분 갱신
-          }
-      }
-      </code></pre>
+        <li><strong>지도(map) 입력</strong>
           <ul>
-            <li><code>required</code>: i번째 차에 대해, 조건 <code>p · (i + 1)</code></li>
-            <li><code>distance[i] &lt; required</code>이면, 해당 차와의 거리가 부족함.</li>
-            <li>부족분들을 모아 그 중 최대값이 <code>need</code>가 된다.</li>
+            <li><code>Lm, Cm</code>을 읽고, <code>Lm × Cm</code> 크기의 문자 배열을 만든다.
+              <pre><code>st = new StringTokenizer(br.readLine());
+int Lm = Integer.parseInt(st.nextToken());
+int Cm = Integer.parseInt(st.nextToken());
+
+char[][] map = new char[Lm][Cm];
+for (int i = 0; i &lt; Lm; i++) {
+    String row = br.readLine();
+    for (int j = 0; j &lt; Cm; j++) {
+        map[i][j] = row.charAt(j);
+    }
+}</code></pre>
+            </li>
+            <li><code>map</code> 배열에 실제 눈밭 지도를 통째로 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>정답 계산</strong>
-          <pre><code>int answer = distance[0] + need;
-      sb.append(answer).append('\n');</code></pre>
+        <li><strong>2차원 패턴 매칭</strong>
           <ul>
-            <li>가장 가까운 차와의 초기 거리 <code>distance[0]</code>에
-                추가로 확보해야 하는 거리 <code>need</code>를 더한다.</li>
-            <li>이 값이 “앞차와 유지해야 할 최소 거리”가 된다.</li>
+            <li>패턴이 들어갈 수 있는 모든 시작 좌표(<code>sr, sc</code>)를 순회한다.
+              <pre><code>int count = 0;
+for (int sr = 0; sr &lt;= Lm - Li; sr++) {
+    for (int sc = 0; sc &lt;= Cm - Ci; sc++) {
+        boolean ok = true;
+        for (int i = 0; i &lt; Li &amp;&amp; ok; i++) {
+            for (int j = 0; j &lt; Ci; j++) {
+                if (map[sr + i][sc + j] != scenario[i][j]) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) count++;
+    }
+}</code></pre>
+            </li>
+            <li><code>sr, sc</code>는 각각 &ldquo;지도에서 패턴을 놓는 시작 행/열&rdquo;이다.</li>
+            <li><code>i, j</code>는 패턴 내부 좌표이며,<br>
+                <code>map[sr + i][sc + j]</code>와 <code>scenario[i][j]</code>를 하나씩 비교한다.</li>
+            <li>하나라도 다르면 <code>ok = false</code>로 바꾸고 그 시작 좌표에 대한 검사는 중단한다.</li>
+            <li>끝까지 모두 같다면 <code>ok == true</code> 상태로 유지되며, 이 경우 <code>count++</code>로 발견 횟수를 올린다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 출력</strong>
+          <ul>
+            <li>각 시나리오마다 구한 <code>count</code>를 한 줄에 하나씩 출력 버퍼에 쌓는다.
+              <pre><code>sb.append(count).append('\n');</code></pre>
+            </li>
+            <li>모든 시나리오를 처리한 뒤, 마지막에 한 번만 출력한다.
+              <pre><code>System.out.print(sb);</code></pre>
+            </li>
           </ul>
         </li>
       </ul>
@@ -461,14 +509,35 @@
         </span>
       </p>
       
+      <p>
+        한 시나리오에 대해:
+      </p>
+      
       <ul>
-        <li>정렬: <code>Arrays.sort(distance)</code> → <strong><code>O(n log n)</code></strong></li>
-        <li>한 번의 선형 스캔으로 부족분 계산: <strong><code>O(n)</code></strong></li>
+        <li>시작 좌표(<code>sr, sc</code>)의 개수는
+          <code>(Lm - Li + 1) × (Cm - Ci + 1)</code>개이다.</li>
+        <li>각 시작 좌표마다 패턴 전체(<code>Li × Ci</code>)를 검사한다.</li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong> 이고,
-        <code>n ≤ 100000</code> 조건에서 충분히 빠르다.
+        따라서 한 시나리오의 시간 복잡도는 대략
+        <strong><code>O((Lm - Li + 1) × (Cm - Ci + 1) × Li × Ci)</code></strong>이다.<br>
+        최악의 경우를 단순화하면 <strong><code>O(Lm × Cm × Li × Ci)</code></strong>라고 볼 수 있다.
+      </p>
+      
+      <p>
+        문제에서 주어지는 상한은:
+      </p>
+      
+      <ul>
+        <li><code>1 ≤ Li, Ci ≤ 12</code></li>
+        <li><code>1 ≤ Lm, Cm ≤ 32</code>이며 항상 <code>Lm ≥ Li</code>, <code>Cm ≥ Ci</code></li>
+      </ul>
+      
+      <p>
+        즉, 최악의 경우에도
+        <code>32 × 32 × 12 × 12 ≈ 150,000</code> 번 정도의 문자 비교만 수행하므로,<br>
+        테스트케이스가 여러 개 있어도 충분히 빠르게 동작한다.
       </p>
       
       <p>
@@ -478,7 +547,18 @@
       </p>
       
       <p>
-        거리 배열 <code>int[n]</code>만 사용하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+        사용되는 주요 메모리는:
+      </p>
+      
+      <ul>
+        <li>패턴 배열 <code>scenario[Li][Ci]</code></li>
+        <li>지도 배열 <code>map[Lm][Cm]</code></li>
+        <li>그 외 작은 정수 변수들과 <code>StringBuilder</code></li>
+      </ul>
+      
+      <p>
+        따라서 한 시나리오당 공간 복잡도는 <strong><code>O(Lm × Cm + Li × Ci)</code></strong>이고,<br>
+        입력 상한에서 봐도 최대 <code>32 × 32 + 12 × 12</code> 정도로 매우 작다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -490,21 +570,29 @@
       </p>
       
       <ul>
-        <li><strong>정렬 기준</strong>:
+        <li><strong>회전/대칭을 고려하지 않는다</strong>:
           <ul>
-            <li>반드시 오름차순으로 정렬해야, i번째 인덱스가 “사이에 i대가 있는 차”와 대응된다.</li>
+            <li>문제에서 &ldquo;exact replica&rdquo;라고 했으므로,<br>
+                코드는 패턴을 그대로 겹쳐 비교만 한다.</li>
+            <li>90도 회전한 모양이나 좌우/상하 반전된 모양은 세지 않는다.</li>
           </ul>
         </li>
-        <li><strong>추가 거리 t의 해석</strong>:
+        <li><strong>인덱스 범위</strong>:
           <ul>
-            <li><code>need</code>는 우리가 현재 위치에서 <strong>뒤로 얼마나 더 물러나야 하는지</strong>를 나타낸다.</li>
-            <li>그만큼 모든 거리들이 동시에 증가한다고 생각할 수 있다.</li>
+            <li>시작 좌표의 범위를 <code>0 ≤ sr ≤ Lm - Li</code>, <code>0 ≤ sc ≤ Cm - Ci</code>로 두지 않으면<br>
+                배열 인덱스가 범위를 벗어나기 쉽다.</li>
+            </ul>
+        </li>
+        <li><strong>불일치 시 빠른 중단</strong>:
+          <ul>
+            <li>내부 루프에서 한 칸이라도 다르면 <code>ok = false</code>로 만들고 바로 빠져나와<br>
+                불필요한 비교를 줄인다.</li>
           </ul>
         </li>
-        <li><strong>거리 타입</strong>:
+        <li><strong>여러 시나리오 처리</strong>:
           <ul>
-            <li>거리 값은 최대 <code>10^7</code>이고, <code>p ≤ 20, n ≤ 100000</code>이므로
-                <code>p · (i + 1)</code>는 <code>≈ 2·10^6</code> 수준 → <code>int</code> 안에 충분히 들어간다.</li>
+            <li>첫 줄의 <code>scenarios</code>만큼 반복하면서,<br>
+                각 시나리오에 대해 독립적으로 패턴/지도를 읽고 카운트한 뒤 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -518,12 +606,14 @@
       </p>
       
       <ul>
-        <li>현재 거리들을 오름차순 정렬해, i번째 차에 대해 필요한 최소 거리 <code>p·(i+1)</code>와 비교한다.</li>
-        <li>부족한 만큼의 거리 <code>required - distance[i]</code> 중 최대값이
-            모두를 만족시키기 위해 추가로 필요한 거리 <code>need</code>이다.</li>
-        <li>최종 답은 가장 가까운 차와의 거리 <code>distance[0]</code>에 <code>need</code>를 더한 값.</li>
-        <li>정렬 + 한 번의 스캔으로 해결하는 깔끔한 그리디/시뮬레이션 문제다.</li>
+        <li>패턴(비밀 기지 이미지)을 <code>scenario</code> 2차원 배열에, 지도를 <code>map</code> 2차원 배열에 저장한다.</li>
+        <li>패턴이 들어갈 수 있는 모든 시작 위치(<code>sr, sc</code>)를 브루트포스로 돌면서,<br>
+            <code>scenario</code>와 <code>map</code>이 완전히 같은지 확인한다.</li>
+        <li>한 칸이라도 다르면 즉시 해당 위치를 버리고, 끝까지 같으면 등장 횟수 <code>count</code>를 증가시킨다.</li>
+        <li>회전/대칭은 고려할 필요 없고, 오직 &ldquo;그대로의 모양&rdquo;만 세면 된다.</li>
+        <li>입력 크기가 작아서 단순한 2차원 패턴 매칭으로도 시간/메모리 모두 여유 있게 통과된다.</li>
       </ul>
+
 
 
 
