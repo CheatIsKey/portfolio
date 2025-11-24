@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-23 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4962 — Next Mayor</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4962">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Next Mayor (BOJ 4962)</strong>는<br>
+        둥근 테이블에 앉은 후보들 사이에서 <strong>돌멩이(pebbles)를 주고받는 게임을 그대로 시뮬레이션</strong>해서<br>
+        <strong>마지막에 모든 돌을 가지게 되는 후보의 번호</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        규칙을 정리하면:
+      </p>
+      
+      <ul>
+        <li>후보는 <code>n</code>명, 번호는 <code>0 ~ n-1</code></li>
+        <li>처음에 그릇(bowl)에 돌이 <code>p</code>개 들어 있고, 0번 후보에게 그릇이 주어진다.</li>
+        <li>각 턴에서, 현재 그릇을 가진 후보 <code>idx</code>가:
+          <ul>
+            <li>그릇에 돌이 있으면 <strong>돌 1개를 꺼내서 자신의 손에 보관</strong>하고, 그릇의 돌 개수는 1 감소.</li>
+            <li>그릇에 돌이 없으면, <strong>자신이 가지고 있던 모든 돌을 그릇에 다시 넣고</strong>, 자신의 손은 0개가 된다.</li>
+            <li>그리고 그릇을 오른쪽(다음 후보, <code>(idx+1) % n</code>)에게 넘긴다.</li>
+          </ul>
+        </li>
+        <li><strong>게임 종료 조건</strong>:
+          <ul>
+            <li>어떤 후보가 그릇에서 <strong>마지막 돌</strong>을 가져간 직후,</li>
+            <li><strong>그 후보를 제외한 모든 후보의 손에 돌이 0개</strong>라면, 그 후보가 승자가 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        문제에서 주어진 입력에 대해서는 항상 <strong>1,000,000번 이하의 스텝</strong> 안에 게임이 끝난다고 보장된다.<br>
+        따라서 그대로 시뮬레이션해도 충분하다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>후보별로 현재 손에 들고 있는 돌 개수를 저장하는 배열 <code>player[0..n-1]</code>를 둔다.</li>
+        <li>그릇(bowl)에 남아 있는 돌 개수를 나타내는 정수 <code>bowl</code>을 둔다 (초기값 = p).</li>
+        <li>현재 그릇을 가진 후보를 나타내는 인덱스 <code>idx</code>를 둔다 (초기값 = 0).</li>
+        <li>무한 루프 안에서 규칙 그대로를 시뮬레이션:
+          <ul>
+            <li>그릇에 돌이 있을 때와 없을 때를 나누어 처리.</li>
+            <li>마지막 돌을 가져간 직후, 나머지 후보들이 모두 0개인지 검사해 승리 여부 판단.</li>
+            <li>승리 시 바로 후보 번호를 출력 버퍼에 추가하고 루프 종료.</li>
+            <li>그 외에는 <code>idx = (idx + 1) % n</code>으로 다음 후보에게 그릇을 넘겨 계속 반복.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리 및 종료 조건</strong>
+          <ul>
+            <li>각 줄에서 <code>n, p</code>를 읽는다.</li>
+            <li><code>n == 0 && p == 0</code>이면 입력 종료.</li>
+          </ul>
+        </li>
+      
+        <li><strong>상태 변수 초기화</strong>
+          <ul>
+            <li><code>int[] player = new int[n];</code> → 모든 후보의 손에 든 돌을 0으로 초기화.</li>
+            <li><code>int bowl = p;</code> → 그릇에 초기 돌 개수 저장.</li>
+            <li><code>int idx = 0;</code> → 0번 후보가 먼저 그릇을 받는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>게임 루프</strong>
+          <pre><code>while (true) {
+          if (bowl > 0) {
+              // 그릇에 돌이 있을 때
+              player[idx]++;  // 자기 손에 1개 가져감
+              bowl--;
+      
+              if (bowl == 0) {
+                  // 방금 '마지막' 돌을 가져간 상태
+                  boolean win = true;
+                  for (int i = 0; i &lt; n; i++) {
+                      if (i == idx) continue;
+                      if (player[i] != 0) {
+                          win = false;
+                          break;
+                      }
+                  }
+                  if (win) {
+                      sb.append(idx).append('\n');
+                      break; // 게임 종료
+                  }
+              }
+          } else {
+              // 그릇이 비어 있을 때: 자기 손에 있는 돌을 전부 그릇에 넣는다.
+              bowl = player[idx];
+              player[idx] = 0;
+          }
+      
+          // 그릇을 오른쪽(다음 후보)에게 넘김
+          idx = (idx + 1) % n;
+      }
+      </code></pre>
+        </li>
+      
+        <li><strong>승리 판정 로직</strong>
+          <ul>
+            <li>어떤 후보 <code>idx</code>가 그릇에서 돌 1개를 가져간 후, 그릇이 비어(<code>bowl == 0</code>)면 “마지막 돌”을 가져간 상황이다.</li>
+            <li>이 시점에서 <code>idx</code>를 제외한 모든 후보의 <code>player[i] == 0</code>인지 검사한다.</li>
+            <li>전부 0이면 게임 종료, <code>idx</code>가 승자.</li>
+            <li>누군가 손에 돌을 더 가지고 있다면, 아직 게임은 끝나지 않은 상태이므로 계속 진행.</li>
+          </ul>
+        </li>
+      
+        <li><strong>다중 테스트케이스 처리</strong>
+          <ul>
+            <li>각 테스트케이스마다 위 과정을 반복하고, 승자 번호를 <code>StringBuilder</code>에 한 줄씩 저장.</li>
+            <li>모든 입력을 처리한 후 <code>System.out.print(sb);</code>로 한 번에 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        각 테스트케이스에 대해:
+      </p>
+      
+      <ul>
+        <li>게임 루프 안에서 하는 일은 대부분 <strong>상수 시간</strong> 연산.</li>
+        <li>단, 그릇이 비었을 때 승리 조건을 검사하는 부분에서 <code>O(n)</code> 탐색을 수행.</li>
+        <li>문제에서 <strong>각 게임은 최대 1,000,000 스텝 이내</strong>에 끝난다고 보장되며, <code>n ≤ 50</code>이므로<br>
+            최악의 경우에도 대략 <code>1,000,000 × 50</code> 정도의 연산 → 충분히 통과 가능한 수준.</li>
+      </ul>
+      
+      <p>
+        따라서 한 케이스의 시간 복잡도는 대략 <strong><code>O(steps × n)</code></strong>이며,<br>
+        실제 제한에서는 무리 없이 동작한다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        후보 수 n에 대해 <code>player[n]</code> 배열과 몇 개의 정수 변수만 사용하므로<br>
+        공간 복잡도는 <strong><code>O(n)</code></strong>, 최대 <code>n = 50</code>에서 매우 작다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시뮬레이션 순서</strong>를 정확히 지켜야 한다:
+          <ul>
+            <li>먼저 그릇에 돌이 있는지 확인 → 빼거나(보관) / 자기 돌을 모두 넣거나.</li>
+            <li>마지막 돌을 가져간 직후에만 승리 여부를 검사해야 한다.</li>
+            <li>그 후에 <code>idx</code>를 다음 후보로 넘긴다.</li>
+          </ul>
+        </li>
+        <li><strong>bowl이 0일 때 처리</strong>:
+          <ul>
+            <li>무조건 자기 손에 있는 돌을 전부 그릇으로 옮기고 자신의 돌은 0으로 만들어야 한다.</li>
+            <li>이 때는 승리 조건을 검사하지 않는다 (마지막 돌을 가져가는 상황이 아니기 때문).</li>
+          </ul>
+        </li>
+        <li><strong>무한 루프 안전성</strong>:
+          <ul>
+            <li>문제에서 “주어진 입력에 대해 1,000,000 스텝 이내에 항상 게임이 종료된다”고 보장하므로,
+                별도의 탈출 조건(카운터 등)을 두지 않아도 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 후보가 가진 돌과 그릇의 돌을 배열/변수로 저장하고, 규칙 그대로 시뮬레이션한다.</li>
+        <li>그릇에 돌이 있으면 1개 가져오고, 없으면 자기 돌을 전부 그릇에 넣는다.</li>
+        <li>마지막 돌을 가져간 직후, 다른 모든 후보의 손에 돌이 없는지 확인해 승자를 결정한다.</li>
+        <li>후보 번호는 <code>idx</code>를 <code>(idx + 1) % n</code> 방식으로 순환시켜 관리한다.</li>
+        <li>문제에서 스텝 수 상한을 보장하므로, 단순 시뮬레이션으로 충분히 해결 가능하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5024 — Dirty Driving</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5024">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1123_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Dirty Driving (BOJ 5024)</strong>는<br>
+        현재 나와 앞차들 사이의 거리들이 주어졌을 때,<br>
+        <strong>앞차와의 최소 간격을 얼마나 둬야 모든 앞차와의 안전거리를 만족하는지</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        조건은 다음과 같다.
+      </p>
+      
+      <ul>
+        <li>앞에 <code>n</code>대의 자동차가 있고, 각 차까지의 거리가 주어진다 (서로 다른 값).</li>
+        <li>어떤 차 <code>x</code>와 나 사이에 <code>n_between</code>대의 차가 끼어 있다면,
+            그 차까지의 거리는 최소 <code>p · (n_between + 1)</code> 이상이어야 한다.</li>
+        <li>우리가 속도를 줄여 앞차와의 간격을 <strong>늘리면</strong>,
+            나와 <strong>모든 앞차와의 거리</strong>가 똑같이 증가한다고 가정할 수 있다.</li>
+      </ul>
+      
+      <p>
+        목표: 앞차(가장 가까운 차)와의 최종 거리 <code>D</code>가 최소가 되도록 하면서,<br>
+        위 안전거리 조건을 모든 차에 대해 만족시키는 <strong>최소 D</strong>를 구한다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>현재 나와 각 차 사이의 거리를 오름차순으로 정렬하면:
+          <ul>
+            <li><code>distance[0]</code>: 가장 가까운 차 (바로 앞차)</li>
+            <li><code>distance[1]</code>: 그 다음 차</li>
+            <li>…</li>
+            <li><code>distance[i]</code>: i번째로 가까운 차 → 나와 그 차 사이에는 i대가 끼어 있다.</li>
+          </ul>
+        </li>
+      
+        <li>우리가 앞차와의 간격을 늘려서, 모든 거리들이 <code>t</code>만큼 증가한다고 생각하자.
+          <ul>
+            <li>현재 거리: <code>distance[i]</code></li>
+            <li>조정 후 거리: <code>distance[i] + t</code></li>
+            <li>이 차와의 사이에 끼어 있는 차의 수는 <code>i</code>이므로,
+                필요한 최소 거리: <code>p · (i + 1)</code></li>
+            <li>따라서 조건:
+              <code>distance[i] + t ≥ p · (i + 1)</code></li>
+          </ul>
+        </li>
+      
+        <li>모든 i에 대해 위를 만족하려면:
+          <ul>
+            <li><code>t ≥ p·(i+1) - distance[i]</code> (각 i마다)</li>
+            <li>결국 필요한 최소 <code>t</code>는
+              <strong>각 i에서의 부족분 중 최대값</strong>이 된다.</li>
+            <li>부족분이 음수(이미 기준 이상 거리)인 경우는 0으로 취급해도 된다.</li>
+          </ul>
+        </li>
+      
+        <li>따라서:
+          <ul>
+            <li><code>need = max(0, max_i (p·(i+1) - distance[i]))</code></li>
+            <li>앞차(가장 가까운 차)와의 최종 거리:
+              <code>answer = distance[0] + need</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li>첫 줄에서 <code>n, p</code>를 읽는다.</li>
+            <li>다음 줄에서 <code>n</code>개의 거리 값을 읽어 <code>distance[i]</code>에 저장.</li>
+          </ul>
+        </li>
+      
+        <li><strong>거리 정렬</strong>
+          <pre><code>Arrays.sort(distance);</code></pre>
+          <ul>
+            <li>오름차순 정렬로 가장 가까운 차가 <code>distance[0]</code>이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>필요한 추가 거리(need) 계산</strong>
+          <pre><code>int need = 0;
+      for (int i = 0; i &lt; n; i++) {
+          int required = p * (i + 1);       // i번째 차에 필요한 최소 거리
+          if (distance[i] &lt; required) {
+              int deficit = required - distance[i]; // 부족분
+              if (deficit > need) need = deficit;   // 최대 부족분 갱신
+          }
+      }
+      </code></pre>
+          <ul>
+            <li><code>required</code>: i번째 차에 대해, 조건 <code>p · (i + 1)</code></li>
+            <li><code>distance[i] &lt; required</code>이면, 해당 차와의 거리가 부족함.</li>
+            <li>부족분들을 모아 그 중 최대값이 <code>need</code>가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 계산</strong>
+          <pre><code>int answer = distance[0] + need;
+      sb.append(answer).append('\n');</code></pre>
+          <ul>
+            <li>가장 가까운 차와의 초기 거리 <code>distance[0]</code>에
+                추가로 확보해야 하는 거리 <code>need</code>를 더한다.</li>
+            <li>이 값이 “앞차와 유지해야 할 최소 거리”가 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>정렬: <code>Arrays.sort(distance)</code> → <strong><code>O(n log n)</code></strong></li>
+        <li>한 번의 선형 스캔으로 부족분 계산: <strong><code>O(n)</code></strong></li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong> 이고,
+        <code>n ≤ 100000</code> 조건에서 충분히 빠르다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        거리 배열 <code>int[n]</code>만 사용하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬 기준</strong>:
+          <ul>
+            <li>반드시 오름차순으로 정렬해야, i번째 인덱스가 “사이에 i대가 있는 차”와 대응된다.</li>
+          </ul>
+        </li>
+        <li><strong>추가 거리 t의 해석</strong>:
+          <ul>
+            <li><code>need</code>는 우리가 현재 위치에서 <strong>뒤로 얼마나 더 물러나야 하는지</strong>를 나타낸다.</li>
+            <li>그만큼 모든 거리들이 동시에 증가한다고 생각할 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>거리 타입</strong>:
+          <ul>
+            <li>거리 값은 최대 <code>10^7</code>이고, <code>p ≤ 20, n ≤ 100000</code>이므로
+                <code>p · (i + 1)</code>는 <code>≈ 2·10^6</code> 수준 → <code>int</code> 안에 충분히 들어간다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>현재 거리들을 오름차순 정렬해, i번째 차에 대해 필요한 최소 거리 <code>p·(i+1)</code>와 비교한다.</li>
+        <li>부족한 만큼의 거리 <code>required - distance[i]</code> 중 최대값이
+            모두를 만족시키기 위해 추가로 필요한 거리 <code>need</code>이다.</li>
+        <li>최종 답은 가장 가까운 차와의 거리 <code>distance[0]</code>에 <code>need</code>를 더한 값.</li>
+        <li>정렬 + 한 번의 스캔으로 해결하는 깔끔한 그리디/시뮬레이션 문제다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
