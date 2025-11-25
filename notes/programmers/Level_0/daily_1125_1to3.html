@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-24 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 몫 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120805">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1124_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>몫 구하기 (프로그래머스 120805)</strong> 문제는<br>
+        두 정수 <code>num1</code>, <code>num2</code>가 주어졌을 때,<br>
+        <code>num1</code>을 <code>num2</code>로 나눈 <strong>정수 나눗셈의 몫</strong>을 반환하는 문제다.
+      </p>
+      
+      <p>
+        자바에서 정수 타입 <code>int</code>끼리의 나눗셈 <code>a / b</code>는<br>
+        소수점 이하는 모두 버리고 <strong>몫만 남기는 나눗셈</strong>이다.
+      </p>
+      
+      <p>
+        따라서 이 문제는 별도의 복잡한 연산 없이<br>
+        한 줄로 <code>return num1 / num2;</code>를 수행하면 된다.
+      </p>
+      
+      <p>
+        이 풀이에서는:
+      </p>
+      
+      <ol>
+        <li><code>num1</code>과 <code>num2</code>를 매개변수로 입력받는다.</li>
+        <li><code>num1 / num2</code>를 계산해 나온 몫을 그대로 반환한다.</li>
+      </ol>
+      
+      <ul>
+        <li><strong>입력</strong>: 정수 <code>num1</code>, <code>num2</code></li>
+        <li><strong>연산</strong>: <code>num1 / num2</code> (정수 나눗셈)</li>
+        <li><strong>반환값</strong>: 나눗셈의 결과인 정수 몫</li>
+      </ul>
+      
+      <p>
+        자바의 정수 나눗셈은 <strong>0 방향으로 버림</strong>을 수행하므로,<br>
+        음수가 섞여 있어도 일관된 규칙에 따라 몫이 잘린다는 점만 기억하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>num1 = 10, num2 = 3</code><br><br>
+          <ol>
+            <li><code>10 / 3 = 3.333...</code> 이지만 정수 나눗셈이므로 소수점 이하는 버린다.</li>
+            <li>따라서 반환값은 <code>3</code>이다.</li>
+          </ol>
+        </li>
+      
+        <li>
+          <code>num1 = 7, num2 = 2</code><br><br>
+          <ul>
+            <li><code>7 / 2 = 3.5</code> → 정수 나눗셈 결과는 <code>3</code></li>
+            <li>나머지 <code>1</code>은 이 문제에서는 사용하지 않는다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        이 풀이는 한 번의 <strong>정수 나눗셈 연산</strong>만 수행한다.<br>
+        정수 나눗셈은 상수 시간 연산이므로,<br>
+        전체 알고리즘의 시간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        반환값 외에 추가로 사용하는 메모리가 없으므로<br>
+        공간 복잡도 역시 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>0으로 나누기</strong>:
+          <ul>
+            <li>일반적으로 <code>b == 0</code>인 상태에서 <code>a / b</code>를 수행하면
+                <strong>런타임 에러(ArithmeticException)</strong>가 발생한다.</li>
+          </ul>
+        </li>
+        <li><strong>정수 나눗셈의 성질</strong>:
+          <ul>
+            <li>정수끼리 나누면 항상 소수점 이하는 버려진다.
+                필요하다면 <code>(double) num1 / num2</code>처럼 형 변환을 통해 실수 나눗셈을 사용해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>실제 서비스 코드</strong>:
+          <ul>
+            <li>문제에서는 보통 나누는 수가 0이 되지 않도록 제한하지만,
+                실무 코드에서는 나누기 전에 <code>num2 == 0</code> 체크를 해 두는 것이 안전하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 두 수의 곱 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120804">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1124_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>두 수의 곱 (프로그래머스 120804)</strong> 문제는<br>
+        두 정수 <code>num1</code>, <code>num2</code>가 주어졌을 때,<br>
+        <code>num1</code>과 <code>num2</code>를 곱한 <strong>정수 곱</strong>을 반환하는 문제다.
+      </p>
+      
+      <p>
+        자바에서 정수 타입 <code>int</code>끼리의 곱셈 <code>a * b</code>는<br>
+        두 값을 그대로 곱한 뒤, 결과를 <code>int</code> 범위에서 표현한다.
+      </p>
+      
+      <p>
+        이 문제는 별도의 복잡한 연산 없이<br>
+        한 줄로 <code>return num1 * num2;</code>를 수행하면 해결된다.
+      </p>
+      
+      <p>
+        이 풀이에서는:
+      </p>
+      
+      <ol>
+        <li><code>num1</code>과 <code>num2</code>를 매개변수로 입력받는다.</li>
+        <li><code>num1 * num2</code>를 계산해 나온 곱을 그대로 반환한다.</li>
+      </ol>
+      
+      <ul>
+        <li><strong>입력</strong>: 정수 <code>num1</code>, <code>num2</code></li>
+        <li><strong>연산</strong>: <code>num1 * num2</code> (정수 곱셈)</li>
+        <li><strong>반환값</strong>: 곱셈의 결과인 정수 값</li>
+      </ul>
+      
+      <p>
+        정수 곱셈이기 때문에, 실수와 달리 소수 부분은 애초에 존재하지 않으며,<br>
+        단순히 두 정수의 곱을 구해 반환하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>num1 = 3, num2 = 4</code><br><br>
+          <ol>
+            <li><code>3 * 4 = 12</code></li>
+            <li>따라서 반환값은 <code>12</code>이다.</li>
+          </ol>
+        </li>
+      
+        <li>
+          <code>num1 = -5, num2 = 6</code><br><br>
+          <ul>
+            <li><code>-5 * 6 = -30</code></li>
+            <li>음수와 양수를 곱하면 결과는 음수가 되며, 그대로 <code>-30</code>이 반환된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        이 풀이는 한 번의 <strong>정수 곱셈 연산</strong>만 수행한다.<br>
+        정수 곱셈은 상수 시간 연산이므로,<br>
+        전체 알고리즘의 시간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        반환값 외에 추가로 사용하는 메모리가 없으므로<br>
+        공간 복잡도 역시 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>오버플로 가능성</strong>:
+          <ul>
+            <li>정수 곱셈 결과가 <code>int</code> 범위를 넘어가면 오버플로가 발생해<br>
+                의도와 다른 값이 저장될 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>부호 처리</strong>:
+          <ul>
+            <li>양수 × 양수 = 양수, 음수 × 음수 = 양수, 양수 × 음수 = 음수처럼<br>
+                곱셈 결과의 부호 규칙을 기본적으로 알고 있으면 테스트 케이스를 검증하기 쉽다.</li>
+          </ul>
+        </li>
+        <li><strong>실제 서비스 코드</strong>:
+          <ul>
+            <li>문제에서는 입력 범위를 제한해 두는 경우가 많지만,<br>
+                실무에서는 필요에 따라 <code>long</code> 등의 더 넓은 정수형을 고려해야 한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+      
+      <!-- 문제 3 -->
+      <h2 class="section">문제 3 — 두 수의 차 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120803">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_0/daily_1124_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>두 수의 차 (프로그래머스 120803)</strong> 문제는<br>
+        두 정수 <code>num1</code>, <code>num2</code>가 주어졌을 때,<br>
+        <code>num1</code>에서 <code>num2</code>를 뺀 <strong>정수 차이</strong>를 반환하는 문제다.
+      </p>
+      
+      <p>
+        자바에서 정수 타입 <code>int</code>끼리의 뺄셈 <code>a - b</code>는<br>
+        그대로 두 값을 빼서 <code>int</code> 범위의 결과를 만든다.
+      </p>
+      
+      <p>
+        이 문제는 별도의 복잡한 연산 없이<br>
+        한 줄로 <code>return num1 - num2;</code>를 수행하면 해결된다.
+      </p>
+      
+      <p>
+        이 풀이에서는:
+      </p>
+      
+      <ol>
+        <li><code>num1</code>과 <code>num2</code>를 매개변수로 입력받는다.</li>
+        <li><code>num1 - num2</code>를 계산해 나온 차이를 그대로 반환한다.</li>
+      </ol>
+      
+      <ul>
+        <li><strong>입력</strong>: 정수 <code>num1</code>, <code>num2</code></li>
+        <li><strong>연산</strong>: <code>num1 - num2</code> (정수 뺄셈)</li>
+        <li><strong>반환값</strong>: 뺄셈의 결과인 정수 값</li>
+      </ul>
+      
+      <p>
+        정수 뺄셈이기 때문에, 실수 연산이나 소수점 처리가 필요 없고,<br>
+        단순히 두 정수의 차를 구해 반환하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>num1 = 10, num2 = 3</code><br><br>
+          <ol>
+            <li><code>10 - 3 = 7</code></li>
+            <li>따라서 반환값은 <code>7</code>이다.</li>
+          </ol>
+        </li>
+      
+        <li>
+          <code>num1 = 3, num2 = 10</code><br><br>
+          <ul>
+            <li><code>3 - 10 = -7</code></li>
+            <li>작은 수에서 큰 수를 빼면 결과는 음수가 되며, 그대로 <code>-7</code>이 반환된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        이 풀이는 한 번의 <strong>정수 뺄셈 연산</strong>만 수행한다.<br>
+        정수 뺄셈은 상수 시간 연산이므로,<br>
+        전체 알고리즘의 시간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        반환값 외에 추가로 사용하는 메모리가 없으므로<br>
+        공간 복잡도 역시 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>오버플로 가능성</strong>:
+          <ul>
+            <li>정수 뺄셈 결과가 <code>int</code> 범위를 넘어가면 오버플로가 발생해<br>
+                의도와 다른 값이 저장될 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>부호 처리</strong>:
+          <ul>
+            <li>뺄셈 결과가 양수인지, 0인지, 음수인지에 따라 의미가 달라질 수 있으므로<br>
+                테스트 케이스에서 부호를 함께 확인해 두는 것이 좋다.</li>
+          </ul>
+        </li>
+        <li><strong>실제 서비스 코드</strong>:
+          <ul>
+            <li>입력 범위가 커질 수 있는 환경에서는 <code>long</code> 등의 더 넓은 정수형을<br>
+                상황에 따라 고려해야 한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
