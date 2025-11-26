@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-25 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-26 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5078 — Shirts</h2>
+      <h2 class="section">문제 5092 — Air Old Zeeland</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5078">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5092">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1125_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1126_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,270 +53,306 @@
           해설
         </span>
       </h3>
-      
+
       <p>
-        <strong>Shirts (BOJ 5078)</strong>는<br>
-        아내와 남편의 셔츠 목록을 하나로 합친 뒤,<br>
-        <strong>사이즈 → 색 순서대로 정렬해서 한 줄로 출력</strong>하는 문제다.
+        <strong>Air Old Zeeland (BOJ 5092)</strong>는<br>
+        항공사에서 포인트로 구매 가능한 상품 목록과 고객들의 주문 정보를 바탕으로,<br>
+        각 고객이 실제로 구매한 상품 포인트 합을 계산하고,<br>
+        <strong>배송 지연 때문에 원하는 상품을 다 받지 못한 불만족 고객 수</strong>까지 세는 시뮬레이션 문제다.
       </p>
-      
+
       <p>
-        정렬 기준은 다음과 같다.
+        상품마다 다음 정보가 주어진다.
       </p>
-      
+
       <ul>
-        <li><strong>사이즈 우선</strong>:
-          <ul>
-            <li><code>S &lt; M &lt; L</code> 순서로 정렬</li>
-          </ul>
-        </li>
-        <li><strong>색상 차선</strong>:
-          <ul>
-            <li>같은 사이즈끼리는 두 번째 문자(색을 나타내는 알파벳)를
-                <strong>알파벳 순</strong>으로 정렬한다.</li>
-            <li>색 코드는 <code>B, K, N, O, P, R, W</code>이며,<br>
-                이 역시 알파벳 기준으로 비교하면 된다.</li>
-          </ul>
-        </li>
+        <li>상품 이름 (공백 없음, 최대 20자)</li>
+        <li>필요 포인트 (≤ 1000)</li>
+        <li>배송 지연 일수 (≤ 100)</li>
       </ul>
-      
+
       <p>
-        입력은 여러 시나리오로 구성되며,<br>
-        각 시나리오마다 아내 옷장, 남편 옷장을 읽어서 합치고,<br>
-        정렬한 결과를 공백으로 구분해 한 줄에 출력하면 된다.
+        각 고객에 대해서는:
       </p>
-      
+
+      <ul>
+        <li>고객 번호</li>
+        <li>구매를 희망하는 상품 개수 <code>P</code></li>
+        <li>기다릴 수 있는 최대 일수 <code>M</code></li>
+        <li>이후 <code>P</code>개의 줄에 각 상품 이름</li>
+      </ul>
+
+      <p>
+        고객이 원하는 각 상품에 대해:
+      </p>
+
+      <ul>
+        <li>해당 상품의 배송 일수가 <code>M</code>일 이하라면 → 구매 성공, 포인트 합산</li>
+        <li><code>M</code>일보다 크면 → 그 상품은 사지 못함, <strong>불만족 표시 대상</strong></li>
+      </ul>
+
+      <p>
+        출력은 고객마다:
+      </p>
+
+      <ul>
+        <li><code>고객번호 총포인트</code> 형식으로 출력</li>
+        <li>만약 <strong>원한 상품 중 하나라도 배송일 초과로 못 산 경우</strong>, 포인트 뒤에 <code>*</code>를 붙인다.
+          <ul>
+            <li>예: <code>1860 0 *</code></li>
+          </ul>
+        </li>
+        <li>시나리오 마지막 줄에는<br>
+            <code>Number of discontented customers is: X</code> 형태로<br>
+            별표가 붙은(불만족) 고객 수를 출력한다.</li>
+      </ul>
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           전략 개요
         </span>
       </p>
-      
+
       <ul>
-        <li>각 셔츠는 두 글자 문자열(예: <code>"SB"</code>, <code>"MP"</code>)로 표현된다.
+        <li>각 상품 이름으로 바로 가격/배송일을 찾기 위해<br>
+            <strong>상품 이름 → (포인트, 배송일)</strong> 구조를 <code>HashMap</code>에 저장한다.</li>
+        <li>각 고객에 대해:
           <ul>
-            <li>첫 글자: 사이즈(<code>S, M, L</code>)</li>
-            <li>둘째 글자: 색상(<code>B, K, N, O, P, R, W</code>)</li>
+            <li>주문하려는 상품 <code>P</code>개를 순회하면서
+              <ul>
+                <li>상품 정보를 맵에서 조회</li>
+                <li>배송일 ≤ <code>M</code>이면 포인트 합계에 더함</li>
+                <li>배송일 &gt; <code>M</code>이면 <strong>불만족 플래그</strong>를 <code>true</code>로 설정</li>
+              </ul>
+            </li>
+            <li>포인트 합과 불만족 여부(별표)를 출력 버퍼에 기록한다.</li>
           </ul>
         </li>
-        <li>한 시나리오에서:
-          <ul>
-            <li>아내 셔츠 개수 <code>W</code>를 읽고, <code>W</code>개의 문자열을 리스트에 넣는다.</li>
-            <li>남편 셔츠 개수 <code>H</code>를 읽고, <code>H</code>개의 문자열도 같은 리스트에 넣는다.</li>
-            <li>이제 리스트에는 아내+남편 셔츠가 모두 들어 있다.</li>
-          </ul>
-        </li>
-        <li>리스트 전체를 <strong>사용자 정의 비교 함수</strong>로 정렬한다.
-          <ul>
-            <li>사이즈는 <code>S=0, M=1, L=2</code>와 같이 가중치로 변환해 비교한다.</li>
-            <li>사이즈가 같으면 두 번째 문자(색 코드)를 그대로 빼서 비교한다.</li>
-          </ul>
-        </li>
-        <li>정렬이 끝나면, 모든 문자열을 공백으로 구분해 출력 버퍼에 추가한다.</li>
+        <li>시나리오별로 <strong>불만족 고객 수를 카운트</strong>하여 마지막에 한 줄로 출력한다.</li>
+        <li>상품 수 <code>N</code>이 0인 시나리오를 만나면 전체 입력을 종료한다.</li>
       </ul>
-      
-      <p>
-        입력 첫 줄의 <code>W</code>가 0이면 더 이상 시나리오가 없다는 뜻이므로<br>
-        전체 입력 처리를 종료한다.
-      </p>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           핵심: 코드가 하는 일
         </span>
       </p>
-      
+
       <ul>
-        <li><strong>시나리오 반복 처리</strong>
+        <li><strong>시나리오 반복 처리 및 종료 조건</strong>
           <ul>
-            <li>입력을 한 줄씩 읽어서 <code>W</code>를 구한다.
+            <li>한 줄씩 읽어 <code>N</code> (상품 수)을 구한다.
               <pre><code>String line;
 while ((line = br.readLine()) != null) {
     line = line.trim();
 
-    int W = Integer.parseInt(line);
-    if (W == 0) break;
+    int N = Integer.parseInt(line);
+    if (N == 0) break;
     ...
 }</code></pre>
             </li>
-            <li><code>W == 0</code>이면 입력 종료.</li>
+            <li><code>N == 0</code>이면 더 이상 시나리오가 없으므로 <code>break</code>로 전체 종료.</li>
           </ul>
         </li>
-      
-        <li><strong>아내 셔츠 입력</strong>
-          <ul>
-            <li>아내 셔츠를 저장할 리스트를 만든다.
-              <pre><code>List&lt;String&gt; closet = new ArrayList&lt;&gt;();</code></pre>
-            </li>
-            <li><code>W</code>번 반복하면서, 각 줄을 그대로 리스트에 추가한다.
-              <pre><code>for (int i = 0; i &lt; W; i++) closet.add(br.readLine());</code></pre>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>남편 셔츠 입력</strong>
-          <ul>
-            <li>남편 셔츠 개수 <code>H</code>를 읽는다.
-              <pre><code>int H = Integer.parseInt(br.readLine());</code></pre>
-            </li>
-            <li><code>H</code>번 반복하면서, 각 줄을 동일한 리스트에 추가한다.
-              <pre><code>for (int i = 0; i &lt; H; i++) closet.add(br.readLine());</code></pre>
-            </li>
-            <li>이 시점에서 <code>closet</code>에는 아내+남편 셔츠 전체가 들어 있다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>정렬 기준 구현</strong>
-          <ul>
-            <li><code>Collections.sort</code>와 람다 비교자를 사용한다.
-              <pre><code>Collections.sort(closet, (a, b) -&gt; {
-    char sizeA = a.charAt(0);
-    char sizeB = b.charAt(0);
-    char colorA = a.charAt(1);
-    char colorB = b.charAt(1);
 
-    int wa = (sizeA == 'S') ? 0 : (sizeA == 'M') ? 1 : 2;
-    int wb = (sizeB == 'S') ? 0 : (sizeB == 'M') ? 1 : 2;
-
-    if (wa != wb) {
-        return wa - wb;   // 사이즈 우선 비교
-    }
-    return colorA - colorB; // 색상 알파벳 순 비교
-});</code></pre>
-            </li>
-            <li><code>wa</code>, <code>wb</code>는 사이즈를 숫자로 치환한 값이다.
-              <ul>
-                <li><code>'S'</code> → 0</li>
-                <li><code>'M'</code> → 1</li>
-                <li><code>'L'</code> → 2</li>
-              </ul>
-            </li>
-            <li>사이즈 숫자가 다르면 그 차이를 반환해 <code>S &lt; M &lt; L</code> 순서가 되도록 한다.</li>
-            <li>사이즈가 같으면 두 번째 문자(<code>colorA</code>, <code>colorB</code>)를
-                그대로 빼서 알파벳 순으로 정렬한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>출력 구성</strong>
+        <li><strong>상품 정보 입력 및 맵 구성</strong>
           <ul>
-            <li>정렬이 끝난 리스트를 앞에서부터 순회하며,
-                각 셔츠 코드를 공백과 함께 출력 버퍼에 붙인다.
-              <pre><code>for (String s : closet) {
-    sb.append(s).append(" ");
+            <li>상품 수 <code>N</code>만큼 반복해서 상품 정보를 읽는다.
+              <pre><code>Map&lt;String, ProductInfo&gt; map = new HashMap&lt;&gt;();
+StringTokenizer st;
+
+for (int i = 0; i &lt; N; i++) {
+    st = new StringTokenizer(br.readLine());
+
+    String name = st.nextToken();
+    int point = Integer.parseInt(st.nextToken());
+    int delivery = Integer.parseInt(st.nextToken());
+
+    map.put(name, new ProductInfo(point, delivery));
 }</code></pre>
             </li>
-            <li>모든 시나리오 처리가 끝나면 한 번에 출력한다.
-              <pre><code>System.out.print(sb);</code></pre>
+            <li><code>ProductInfo</code>는 포인트와 배송일을 담는 간단한 내부 클래스다.
+              <pre><code>private static class ProductInfo {
+    int point, delivery;
+
+    public ProductInfo(int point, int delivery) {
+        this.point = point;
+        this.delivery = delivery;
+    }
+}</code></pre>
             </li>
+          </ul>
+        </li>
+
+        <li><strong>고객 처리 및 불만족 카운트</strong>
+          <ul>
+            <li>시나리오별 불만족 고객 수를 저장하는 <code>cnt</code>를 0으로 초기화한다.</li>
+            <li>고객 수 <code>C</code>를 읽고, 각 고객을 차례대로 처리한다.
+              <pre><code>int cnt = 0;
+int C = Integer.parseInt(br.readLine());
+for (int i = 0; i &lt; C; i++) {
+    st = new StringTokenizer(br.readLine());
+    int clientNum = Integer.parseInt(st.nextToken());
+    int P = Integer.parseInt(st.nextToken());
+    int M = Integer.parseInt(st.nextToken());
+
+    int sum = 0;
+    boolean missed = false;
+    for (int j = 0; j &lt; P; j++) {
+        String name = br.readLine();
+        ProductInfo info = map.get(name);
+
+        if (info.delivery &lt;= M) {
+            sum += info.point;
+        } else {
+            missed = true;
+        }
+    }
+
+    sb.append(clientNum).append(" ").append(sum);
+    if (missed){
+        sb.append(" *");
+        cnt++;
+    }
+    sb.append('\n');
+}</code></pre>
+            </li>
+            <li>각 고객에 대해:
+              <ul>
+                <li><code>sum</code>: 실제로 구매 가능한 상품 포인트 합</li>
+                <li><code>missed</code>: 배송 지연으로 구매하지 못한 상품이 하나라도 있었는지 여부</li>
+              </ul>
+            </li>
+            <li><code>missed == true</code>이면 고객 출력 줄에 <code>*</code>를 붙이고,<br>
+                불만족 고객 수 <code>cnt</code>를 1 증가시킨다.</li>
+          </ul>
+        </li>
+
+        <li><strong>시나리오 요약 출력</strong>
+          <ul>
+            <li>모든 고객 처리가 끝나면, 시나리오 마지막 줄에
+              <pre><code>sb.append("Number of discontented customers is: ").append(cnt).append('\n');</code></pre>
+              를 출력 버퍼에 추가한다.
+            </li>
+            <li>루프가 모두 끝난 뒤 <code>System.out.print(sb);</code>로 전체 결과를 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           시간 복잡도
         </span>
       </p>
-      
+
       <p>
-        한 시나리오에서 셔츠 총 개수를 <code>N = W + H</code>라고 하면:
+        한 시나리오에 대해:
       </p>
-      
+
       <ul>
-        <li>리스트에 넣는 데 걸리는 시간: <code>O(N)</code></li>
-        <li>정렬: <code>Collections.sort</code> → 평균적으로 <strong><code>O(N log N)</code></strong></li>
+        <li>상품 정보 입력 및 맵 구성: 상품 수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
+        <li>고객 처리:
+          <ul>
+            <li>고객 수를 <code>C</code>, 각 고객이 주문하는 상품 수를 <code>P<sub>i</sub></code>라고 하면,<br>
+                전체 주문 라인 수는 <code>∑ P<sub>i</sub></code>이다.</li>
+            <li>각 주문에서 맵 조회는 <code>O(1)</code>이므로<br>
+                전체는 <strong><code>O(∑ P<sub>i</sub>)</code></strong></li>
+          </ul>
+        </li>
       </ul>
-      
+
       <p>
-        문제에서 <code>W, H ≤ 30</code>이므로 <code>N ≤ 60</code>이고,<br>
-        실제 연산량은 매우 작다. 이론적으로는 <strong><code>O(N log N)</code></strong>이다.
+        따라서 시나리오 전체 시간 복잡도는 대략<br>
+        <strong><code>O(N + ∑ P<sub>i</sub>)</code></strong>이고,<br>
+        문제 제한(<code>N ≤ 50, C ≤ 500, P ≤ N</code>)에서는 매우 여유롭다.
       </p>
-      
+
       <p>
-        여러 시나리오가 주어져도 각 시나리오는 독립적으로 처리되므로,<br>
-        전체 시간도 시나리오 수에 비례하는 수준에서 충분히 빠르다.
+        여러 시나리오가 있어도, 각 시나리오는 독립적으로 처리되므로<br>
+        전체 입력에 대해서도 충분히 빠르게 동작한다.
       </p>
-      
+
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           공간 복잡도
         </span>
       </p>
-      
+
       <p>
-        한 시나리오에서 사용되는 주요 추가 메모리는:
+        한 시나리오에서 사용하는 주요 추가 메모리는:
       </p>
-      
+
       <ul>
-        <li>셔츠들을 저장하는 리스트 <code>closet</code> (최대 60개 문자열)</li>
-        <li>출력 누적용 <code>StringBuilder</code></li>
-        <li>그 외 몇 개의 지역 변수</li>
+        <li>상품 맵 <code>map</code>: 최대 <code>N ≤ 50</code>개의 상품 정보 저장</li>
+        <li>출력 누적용 <code>StringBuilder sb</code> (전체 시나리오 공통)</li>
+        <li>몇 개의 정수/불리언 변수</li>
       </ul>
-      
+
       <p>
-        따라서 한 시나리오당 공간 복잡도는 <strong><code>O(N)</code></strong>이다.<br>
-        여기서 <code>N</code>은 셔츠 개수(<code>≤ 60</code>)로, 실제로는 매우 작은 수준이다.
+        상품 수에 비례하는 맵만 추가로 필요하므로<br>
+        공간 복잡도는 <strong><code>O(N)</code></strong>이다.<br>
+        상한이 매우 작으므로 메모리 사용량은 거의 미미한 수준이다.
       </p>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
           주의
         </span>
       </p>
-      
+
       <ul>
-        <li><strong>사이즈 정렬 기준</strong>:
+        <li><strong>배송일 기준 비교</strong>:
           <ul>
-            <li>사이즈는 알파벳 순이 아니라 <code>S &lt; M &lt; L</code> 순이다.</li>
-            <li>따라서 가중치(0, 1, 2)로 변환한 뒤 그 값을 비교해야 한다.</li>
+            <li><code>info.delivery &lt;= M</code>일 때만 포인트를 합산해야 한다.</li>
+            <li><code>&lt;</code>와 <code>&lt;=</code>를 혼동하면 결과가 달라지므로 주의.</li>
           </ul>
         </li>
-        <li><strong>색상 정렬 기준</strong>:
+        <li><strong>부분 구매 가능</strong>:
           <ul>
-            <li>색상은 두 번째 문자 그대로 알파벳 순으로 비교하면 된다.</li>
-            <li>색 코드 집합이 이미 서로 다른 알파벳이므로 추가 맵핑이 필요 없다.</li>
+            <li>어떤 고객이 3개를 원했는데 2개만 기한 내 배송 가능하면,<br>
+                2개 포인트만 합산하고, 나머지 1개 때문에 불만족(<code>*</code>)으로 처리한다.</li>
           </ul>
         </li>
-        <li><strong>여러 시나리오 출력</strong>:
+        <li><strong>불만족 고객 수 카운트</strong>:
           <ul>
-            <li>각 시나리오의 결과는 한 줄에 출력해야 한다.</li>
-            <li>현재 코드는 시나리오 사이에 줄바꿈을 넣지 않고
-                <code>"셔츠 + 공백"</code>만 이어 붙이고 있으므로,<br>
-                시나리오가 여러 개일 경우 각 시나리오 끝에서
-                <code>sb.append('\n');</code>를 추가해 주는 것이 안전하다.</li>
+            <li>각 고객마다 <code>missed == true</code>인 경우에만 <code>cnt++</code> 해야 한다.</li>
+            <li>한 고객이 여러 상품을 놓쳤더라도 고객 수는 1명만 증가한다.</li>
           </ul>
         </li>
-        <li><strong>마지막 공백</strong>:
+        <li><strong>입력 형식</strong>:
           <ul>
-            <li>각 시나리오 끝에 공백 하나가 더 붙지만,
-                대부분의 채점에서는 큰 문제 없이 처리된다.</li>
+            <li>문제에서 상품 이름은 항상 사전에 주어진 목록 안에서만 사용되므로,<br>
+                <code>map.get(name)</code>가 <code>null</code>이 되는 케이스는 없다.</li>
           </ul>
         </li>
       </ul>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           포인트 요약
         </span>
       </p>
-      
+
       <ul>
-        <li>아내와 남편 셔츠를 하나의 리스트에 모은다.</li>
-        <li>사이즈는 <code>S &lt; M &lt; L</code> 순으로, 색상은 두 번째 문자의 알파벳 순으로 정렬한다.</li>
-        <li><code>Collections.sort</code>와 람다 비교자를 사용해 정렬 기준을 직접 구현한다.</li>
-        <li>정렬된 결과를 공백으로 구분해 한 줄에 출력한다.</li>
-        <li>입력 크기가 작아서 시간/공간 모두 매우 여유로운 문제다.</li>
+        <li>상품 정보를 <strong>이름 → (포인트, 배송일)</strong> 맵에 저장한다.</li>
+        <li>각 고객에 대해, 원하는 상품별로 배송일 ≤ 최대 대기일 <code>M</code>인지 확인하고
+            가능한 것만 포인트 합산한다.</li>
+        <li>배송일 초과로 못 산 상품이 하나라도 있으면 그 고객은 불만족 처리(<code>*</code> 출력).</li>
+        <li>시나리오별로 불만족 고객 수를 세어 마지막에
+            <code>Number of discontented customers is: X</code> 형태로 출력한다.</li>
+        <li>맵 조회는 <code>O(1)</code>, 전체 알고리즘은 <code>O(N + ∑ P)</code>로 충분히 빠르다.</li>
       </ul>
+
 
 
 
@@ -363,14 +399,14 @@ while ((line = br.readLine()) != null) {
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5091 — Hostel Nights</h2>
+      <h2 class="section">문제 5093 — Letter Replacement</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5091">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5093">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1125_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1126_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -387,34 +423,45 @@ while ((line = br.readLine()) != null) {
       </h3>
 
       <p>
-        <strong>Hostel Nights (BOJ 5091)</strong>는<br>
-        5일 동안 특정 조건에 의해 &ldquo;조용했다고 판명되어 제거되는&rdquo; 방들을 제외하고,<br>
-        각 방이 <strong>몇 밤이나 끝까지 의심 대상으로 남았는지</strong>를 세어<br>
-        가장 많이 살아남은 학생(방)의 이름을 구하는 시뮬레이션 문제다.
+        <strong>Letter Replacement (BOJ 5093)</strong>는<br>
+        단어 안에서 <strong>중복해서 등장하는 알파벳</strong>들을<br>
+        등장 순서에 따라 특수 기호로 치환하는 문자열 처리 문제다.
       </p>
 
       <p>
-        한 주(week)는 다음과 같이 진행된다.
+        규칙은 다음과 같다.
       </p>
 
       <ul>
-        <li>방 번호는 <code>101 ~ 120</code>까지 총 20개이며, 각 방에 학생 이름이 하나씩 주어진다.</li>
-        <li>5일 동안 매일 다음 조건들로 방들을 &ldquo;제거&rdquo;한다.
+        <li>대소문자는 구분하지 않는다. (예: <code>R</code>과 <code>r</code>는 같은 문자)</li>
+        <li>단어를 왼쪽에서 오른쪽으로 보면서, 이미 등장한 적 있는 글자가 다시 등장하면 &ldquo;반복 문자&rdquo;로 본다.</li>
+        <li>반복 문자를 <strong>처음으로 만나게 되는 글자 종류 순서대로</strong> 다음 기호를 배정한다.
           <ul>
-            <li>짝수/홀수 방 전체 제거 (첫 글자 E 또는 O)</li>
-            <li>어떤 수 <code>n</code>의 배수인 방 제거</li>
-            <li>이름의 첫 글자가 특정 알파벳인 학생 제거</li>
+            <li>1번째 반복 문자 종류 → <code>*</code></li>
+            <li>2번째 반복 문자 종류 → <code>?</code></li>
+            <li>3번째 반복 문자 종류 → <code>/</code></li>
+            <li>4번째 반복 문자 종류 → <code>+</code></li>
+            <li>5번째 반복 문자 종류 → <code>!</code></li>
           </ul>
         </li>
-        <li>위 조건 중 하나라도 만족하면 그 날은 &ldquo;조용했다고 판명되어&rdquo; 제거되고,<br>
-            어떤 조건도 만족하지 않으면 그 날은 <strong>끝까지 의심 대상</strong>으로 남는다.</li>
-        <li>5일이 끝난 후, <strong>가장 많은 밤 동안 제거되지 않고 남았던</strong> 학생들이 &ldquo;가장 시끄러운 학생들&rdquo;이 된다.</li>
+        <li>같은 글자가 여러 번 반복되면, 그 글자의 2번째 이후 등장부터는<br>
+            항상 <strong>처음 배정된 기호</strong>로 치환된다.</li>
+        <li>단어의 첫 등장 글자는 원래 글자를 그대로 출력한다. (대소문자 유지)</li>
       </ul>
 
       <p>
-        출력은 주 번호(Week i)를 먼저 출력하고,<br>
-        그 주에서 <strong>최대 횟수만큼 살아남은 학생들의 이름</strong>을<br>
-        방 번호 오름차순으로 한 줄에 하나씩 출력한다.
+        예를 들어 <code>Reindeer</code>의 경우:
+      </p>
+
+      <ul>
+        <li><code>R</code> / <code>r</code>, <code>e</code> 등이 대소문자 구분 없이 같은 글자로 취급된다.</li>
+        <li>왼쪽에서 오른쪽으로 보며 반복 여부를 체크하면, <code>e</code>가 먼저 반복되고 그 다음 <code>r</code>이 반복된다.</li>
+        <li>따라서 반복된 <code>e</code>는 <code>*</code>, 반복된 <code>r</code>은 <code>?</code>로 치환되어<br>
+            최종 결과가 <code>Reind**?</code>가 된다.</li>
+      </ul>
+
+      <p>
+        입력은 여러 줄의 단어로 이루어지며, 마지막 줄의 <code>#</code>는 종료를 의미하므로 처리하지 않는다.
       </p>
 
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -426,26 +473,31 @@ while ((line = br.readLine()) != null) {
       </p>
 
       <ul>
-        <li>각 방 번호(101 ~ 120)를 인덱스로 사용해:
+        <li>각 단어에 대해 다음과 같은 상태를 유지한다.
           <ul>
-            <li><code>name[room]</code>: 해당 방의 학생 이름</li>
-            <li><code>survive[room]</code>: 5일 동안 그 방이 <strong>제거되지 않고 남은 밤의 수</strong></li>
+            <li><code>count[26]</code>: 각 알파벳이 지금까지 몇 번 등장했는지 (대소문자 무시)</li>
+            <li><code>symbol[26]</code>: 해당 알파벳이 반복 문자로 판정되었을 때 배정된 기호</li>
           </ul>
         </li>
-        <li>각 밤마다 방 101 ~ 120을 모두 돌면서:
+        <li>반복 문자 종류에 할당할 기호 풀:
+          <pre><code>char[] pool = {'*', '?', '/', '+', '!'};</code></pre>
+        </li>
+        <li><code>poolIdx</code>를 0부터 시작해서, 새로운 반복 문자 종류가 나올 때마다
+            <code>pool[poolIdx]</code>를 배정하고 <code>poolIdx</code>를 1 증가시킨다.</li>
+        <li>문자를 하나씩 보면서:
           <ul>
-            <li>주어진 조건 3개(짝/홀, 배수, 이름 첫 글자)를 순서대로 검사한다.</li>
-            <li>어느 하나라도 만족하면 그 방은 그 날 제거된다.</li>
-            <li>어떤 조건에도 걸리지 않으면 <code>survive[room]++</code> 한다.</li>
+            <li>해당 문자의 알파벳 인덱스를 구해(<code>toLowerCase</code> 후 <code>'a'</code> 기준)</li>
+            <li><code>count[idx]++</code>로 등장 횟수를 올린다.</li>
+            <li><code>count[idx] == 1</code>이면 첫 등장 → 원래 문자(대소문자 그대로) 출력.</li>
+            <li><code>count[idx] &gt;= 2</code>이면 반복 문자:
+              <ul>
+                <li>이 문자에 아직 기호가 배정되지 않았다면 → <code>symbol[idx]</code>에 새 기호 배정.</li>
+                <li>이미 기호가 있다면 → 그 기호를 그대로 사용.</li>
+              </ul>
+            </li>
           </ul>
         </li>
-        <li>5일이 끝난 뒤:
-          <ul>
-            <li><code>survive</code> 배열에서 최댓값 <code>max</code>를 찾는다.</li>
-            <li><code>survive[room] == max</code>인 방들의 이름을 방 번호 순으로 출력한다.</li>
-          </ul>
-        </li>
-        <li>이를 모든 주(week)에 대해 반복한다.</li>
+        <li>각 줄 처리 후 개행 문자를 추가하고, 다음 단어를 처리한다.</li>
       </ul>
 
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -457,101 +509,71 @@ while ((line = br.readLine()) != null) {
       </p>
 
       <ul>
-        <li><strong>전체 주 수 읽기</strong>
+        <li><strong>입력 반복 및 종료 조건</strong>
           <ul>
-            <li>첫 줄에서 <code>W</code>를 읽어 총 주 수를 구한다.
-              <pre><code>int W = Integer.parseInt(line);
+            <li>한 줄씩 읽어 <code>#</code>가 나오면 종료한다.
+              <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+    if (line.equals("#")) break;
 
-for (int i = 0; i &lt; W; i++) {
     ...
 }</code></pre>
             </li>
           </ul>
         </li>
 
-        <li><strong>학생 정보 초기화</strong>
+        <li><strong>알파벳 카운트 및 기호 배열 초기화</strong>
           <ul>
-            <li>방 번호를 그대로 인덱스로 쓰기 위해 크기 121 배열을 만든다.
-              <pre><code>String[] name = new String[121];
-int[] survive = new int[121];
+            <li>각 단어마다 새로 초기화한다.
+              <pre><code>int[] count = new int[26];
+char[] symbol = new char[26];
 
-for (int j = 0; j &lt; 20; j++) {
-    StringTokenizer st = new StringTokenizer(br.readLine());
-    int room = Integer.parseInt(st.nextToken());
-    String student = st.nextToken();
-
-    name[room] = student;
-    survive[room] = 0;
-}</code></pre>
+char[] pool = {'*', '?', '/', '+', '!'};
+int poolIdx = 0;</code></pre>
             </li>
-            <li>입력에서 방 번호는 101 ~ 120만 사용되므로,<br>
-                그 구간만 채워지고 나머지 인덱스는 사용하지 않는다.</li>
           </ul>
         </li>
 
-        <li><strong>5일 동안 제거 여부 시뮬레이션</strong>
+        <li><strong>문자별 처리</strong>
           <ul>
-            <li>각 밤마다 조건 3개를 읽는다.
-              <pre><code>for (int j = 0; j &lt; 5; j++) {
-    StringTokenizer st = new StringTokenizer(br.readLine());
-    String isOdd = st.nextToken();   // "E" 또는 "O"
-    int where = Integer.parseInt(st.nextToken()); // 배수 기준
-    char letter = st.nextToken().charAt(0);       // 이름 첫 글자 기준
-    ...
+            <li>단어의 각 문자를 순회하며, 대소문자를 무시한 인덱스를 구해 카운트한다.
+              <pre><code>for (int i = 0; i &lt; line.length(); i++) {
+    char origin = line.charAt(i);
+    char c = Character.toLowerCase(origin);
+    int idx = c - 'a';
+
+    count[idx]++;
+
+    if (count[idx] == 1) {
+        // 첫 등장: 원래 문자 출력
+        sb.append(origin);
+    } else {
+        // 반복 등장
+        if (symbol[idx] == 0) {
+            symbol[idx] = pool[poolIdx++];
+        }
+
+        sb.append(symbol[idx]);
+    }
 }</code></pre>
             </li>
-            <li>모든 방(101 ~ 120)에 대해 제거 여부를 판단한다.
-              <pre><code>for (int room = 101; room &lt;= 120; room++) {
-    boolean removed = false;
-
-    // 1) 짝/홀 기준 제거
-    if (isOdd.equals("O") &amp;&amp; room % 2 == 1) removed = true;
-    else if (isOdd.equals("E") &amp;&amp; room % 2 == 0) removed = true;
-
-    // 2) where의 배수면 제거
-    if (!removed &amp;&amp; room % where == 0) removed = true;
-
-    // 3) 이름 첫 글자가 letter면 제거
-    if (!removed &amp;&amp; name[room].charAt(0) == letter) removed = true;
-
-    // 세 조건 모두 통과하면 그 날 끝까지 살아남은 것
-    if (!removed) survive[room]++;
-}</code></pre>
-            </li>
-            <li>위 로직에서:
+            <li><code>count[idx] == 1</code>이면 첫 등장 → 원래 문자를 그대로 결과에 붙인다.</li>
+            <li><code>count[idx] &gt; 1</code>이면 이미 등장했던 문자:
               <ul>
-                <li><code>removed</code>가 한 번 <code>true</code>가 되면 더 이상 다른 조건은 보지 않는다.</li>
-                <li>어느 조건에도 걸리지 않은 경우에만 <code>survive[room]</code>을 1 증가시킨다.</li>
+                <li><code>symbol[idx]</code>가 비어 있다면(<code>0</code>) 새 기호 배정.</li>
+                <li>그 후 <code>symbol[idx]</code>에 저장된 기호를 출력한다.</li>
               </ul>
             </li>
           </ul>
         </li>
 
-        <li><strong>최대 생존 횟수 찾기</strong>
+        <li><strong>줄 마무리 및 출력</strong>
           <ul>
-            <li>5일이 끝난 후, 가장 많이 살아남은 횟수 <code>max</code>를 구한다.
-              <pre><code>int max = 0;
-for (int room = 101; room &lt;= 120; room++) {
-    if (survive[room] &gt; max) max = survive[room];
-}</code></pre>
+            <li>단어 처리가 끝나면 개행 문자를 추가한다.
+              <pre><code>sb.append('\n');</code></pre>
             </li>
-          </ul>
-        </li>
-
-        <li><strong>출력</strong>
-          <ul>
-            <li>먼저 주 번호를 출력한다.
-              <pre><code>sb.append("Week ").append(i + 1).append('\n');</code></pre>
-            </li>
-            <li>그 다음, <code>survive[room] == max</code>인 방들을
-                방 번호 오름차순(101 → 120)으로 순회하면서 이름을 출력 버퍼에 추가한다.
-              <pre><code>for (int room = 101; room &lt;= 120; room++) {
-    if (survive[room] == max) {
-        sb.append(name[room]).append('\n');
-    }
-}</code></pre>
-            </li>
-            <li>모든 주 처리가 끝나면 <code>System.out.print(sb);</code>로 한 번에 출력한다.</li>
+            <li>모든 단어 처리가 끝난 뒤 <code>System.out.print(sb);</code>로 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -565,24 +587,18 @@ for (int room = 101; room &lt;= 120; room++) {
       </p>
 
       <p>
-        한 주(week)에 대해:
+        각 단어의 길이를 <code>L</code>이라고 하면:
       </p>
 
       <ul>
-        <li>학생 20명 정보 입력: <code>O(20)</code></li>
-        <li>5일 × 방 20개에 대해 조건 검사:
-          <ul>
-            <li>각 밤마다 20개 방 검사 → <code>O(20)</code></li>
-            <li>5일이므로 총 <code>O(5 × 20) = O(100)</code></li>
-          </ul>
-        </li>
-        <li>최대 생존 횟수 탐색: <code>O(20)</code></li>
+        <li>문자 처리 루프는 길이 <code>L</code>에 비례 → <strong><code>O(L)</code></strong></li>
+        <li><code>L ≤ 10</code>이므로, 매우 작은 상수 시간에 가깝다.</li>
       </ul>
 
       <p>
-        따라서 한 주당 전체 시간 복잡도는 상수에 가까운<br>
-        <strong><code>O(1)</code></strong> (정확히는 <code>O(20 × 5)</code> 정도)라고 볼 수 있다.<br>
-        주 수 <code>W</code>가 커져도 매우 빠르게 동작한다.
+        전체 입력에 대해 여러 단어가 주어져도,<br>
+        단어 수를 <code>W</code>라 하면 전체 시간 복잡도는 <strong><code>O(∑ L) ≤ O(10W)</code></strong>로<br>
+        충분히 빠르게 동작한다.
       </p>
 
       <p>
@@ -592,18 +608,18 @@ for (int room = 101; room &lt;= 120; room++) {
       </p>
 
       <p>
-        한 주에 사용되는 주요 추가 메모리는:
+        한 단어 처리에 사용하는 추가 메모리는:
       </p>
 
       <ul>
-        <li>이름 배열 <code>name[121]</code></li>
-        <li>생존 횟수 배열 <code>survive[121]</code></li>
-        <li>몇 개의 보조 변수들</li>
+        <li><code>count[26]</code> 정수 배열</li>
+        <li><code>symbol[26]</code> 문자 배열</li>
+        <li>기호 풀 <code>pool[5]</code>와 인덱스 변수 하나</li>
       </ul>
 
       <p>
-        방 수(20개)에 비례하는 배열만 사용하므로<br>
-        공간 복잡도는 <strong><code>O(1)</code></strong> (상수)에 해당한다.
+        모두 알파벳 개수(26)에 비례하는 상수 크기 배열이므로<br>
+        공간 복잡도는 <strong><code>O(1)</code></strong>이다.
       </p>
 
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -615,27 +631,30 @@ for (int room = 101; room &lt;= 120; room++) {
       </p>
 
       <ul>
-        <li><strong>조건은 OR 관계</strong>:
+        <li><strong>대소문자 처리</strong>:
           <ul>
-            <li>짝/홀, 배수, 이름 첫 글자 조건 중 하나라도 만족하면 그 날 제거된다.</li>
-            <li>코드에서는 <code>removed</code> 플래그를 사용해 이를 구현하고 있다.</li>
+            <li>반복 여부 판정과 기호 배정은 <strong>소문자로 변환한 기준</strong>으로 처리해야 한다.</li>
+            <li>하지만 첫 등장 문자를 출력할 때는 원래 문자(<code>origin</code>)를 그대로 써서<br>
+                대소문자를 유지한다.</li>
           </ul>
         </li>
-        <li><strong>이름 없는 인덱스 접근 금지</strong>:
+        <li><strong>기호 배정 순서</strong>:
           <ul>
-            <li>실제 입력에서는 101 ~ 120만 유효하므로,<br>
-                반드시 그 구간만 반복해야 한다.</li>
+            <li>기호는 &ldquo;반복 문자 종류가 처음 등장한 순서&rdquo;에 따라 배정된다.</li>
+            <li>즉, <strong>단어를 왼쪽에서 오른쪽으로 스캔하면서</strong><br>
+                처음으로 <code>count[idx] == 2</code>가 되는 시점에 그 문자에게 기호를 배정한다고 보면 된다.</li>
           </ul>
         </li>
-        <li><strong>주 번호 출력 형식</strong>:
+        <li><strong>반복 횟수 제한</strong>:
           <ul>
-            <li>출력 형식은 <code>Week 1</code>, <code>Week 2</code>처럼 정확히 맞춰야 한다.</li>
+            <li>문제에서 한 단어의 반복 문자 종류는 최대 5개라고 보장하므로,<br>
+                기호 풀 <code>{'*','?','/','+','!'}</code>로 충분하다.</li>
           </ul>
         </li>
-        <li><strong>최소 한 명은 존재</strong>:
+        <li><strong>종료 입력 처리</strong>:
           <ul>
-            <li>문제에서 &ldquo;이 층은 악명 높기 때문에 최소 한 명은 남는다&rdquo;고 보장하므로,<br>
-                <code>max</code>가 0인 경우라도 최소 한 명은 이름이 출력된다.</li>
+            <li>마지막 줄의 <code>#</code>는 단순 종료 마커이므로<br>
+                이 줄은 결과를 생성하지 않고 바로 루프를 빠져나와야 한다.</li>
           </ul>
         </li>
       </ul>
@@ -649,12 +668,11 @@ for (int room = 101; room &lt;= 120; room++) {
       </p>
 
       <ul>
-        <li>방 번호(101 ~ 120)를 배열 인덱스로 사용해 이름과 생존 횟수를 관리한다.</li>
-        <li>5일 동안 각 조건(짝/홀, 배수, 이름 첫 글자)에 따라 방을 제거하고,<br>
-            제거되지 않은 방만 밤마다 <code>survive</code>를 1씩 증가시킨다.</li>
-        <li>5일 후 가장 많이 살아남은 횟수를 가진 방들을 찾고,<br>
-            그 방의 학생 이름을 방 번호 순으로 출력한다.</li>
-        <li>입력 크기가 매우 작아서 단순 시뮬레이션만으로도 충분히 해결 가능하다.</li>
+        <li>각 단어에 대해 알파벳별 등장 횟수를 세며 왼쪽에서 오른쪽으로 스캔한다.</li>
+        <li>첫 등장 문자는 그대로 출력하고, 두 번째 이후 등장부터는 기호로 치환한다.</li>
+        <li>반복 문자 종류가 처음 등장할 때만 기호 풀에서 순서대로 하나씩 배정한다.</li>
+        <li>대소문자 구분 없이 반복을 판단하지만, 출력할 때는 원래 문자의 대소문자를 유지한다.</li>
+        <li>배열 크기가 작고, 단어 길이도 최대 10이라 구현과 성능 모두 단순한 문제다.</li>
       </ul>
 
 
