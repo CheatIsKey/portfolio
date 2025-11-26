@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>프로그래머스 Level 0 Daily 문제 묶음</title>
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -23,8 +23,8 @@
     </aside>
 
     <article class="prose">
-      <h1>프로그래머스 Level 0 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-25 · 분류: 코딩 테스트(프로그래머스), Level 0</p>
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-26 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -40,7 +40,7 @@
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1125_1to3/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1126_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -223,7 +223,7 @@
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1125_1to3/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1126_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -360,223 +360,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       
-
-
-
-      
-      <!-- 문제 3 -->
-      <h2 class="section">문제 3 — 중복된 숫자 개수</h2>
-
-      <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/120583">프로그래머스 문제 보기</a></p>
-
-      <h3 class="section">코드 (IDE 스크린샷)</h3>
-      <figure class="figure">
-        <img src="/assets/notes/programmers/Level_0/daily_1125_1to3/p3-code.png" alt="문제 3 코드 스크린샷">
-      </figure>
-
-
-
-
-
-      
-      <h3 class="section">
-        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해설
-        </span>
-      </h3>
-      
-      <p>
-        <strong>중복된 숫자 개수 (프로그래머스 120583)</strong> 문제는<br>
-        정수 배열 <code>array</code> 안에 정수 <code>n</code>이 <strong>몇 번 등장하는지</strong>를 세어<br>
-        그 개수를 반환하는 문제다.
-      </p>
-      
-      <p>
-        즉, 배열에서 <code>== n</code>인 원소의 개수를 세는<br>
-        단순한 빈도(count) 계산 문제다.
-      </p>
-      
-      <p>
-        여기서는 자바의 <strong>Stream API</strong>를 활용해서<br>
-        코드를 한 줄로 간결하게 작성하고 있다.
-      </p>
-      
-      <p>
-        이 풀이에서는:
-      </p>
-      
-      <ol>
-        <li><code>Arrays.stream(array)</code>로 <code>int[]</code>를 <strong>IntStream</strong>으로 변환한다.</li>
-        <li><code>filter(i -&gt; i == n)</code>으로 값이 <code>n</code>인 원소만 남긴다.</li>
-        <li><code>count()</code>로 필터를 통과한 원소의 개수를 <strong>long 타입</strong>으로 얻는다.</li>
-        <li>문제 요구가 <code>int</code>이므로 <code>(int)</code>로 형 변환하여 반환한다.</li>
-      </ol>
-      
-      <ul>
-        <li><strong>입력</strong>: 정수 배열 <code>array</code>, 정수 <code>n</code></li>
-        <li><strong>연산</strong>: <code>array</code>의 원소 중 <code>i == n</code>인 것의 개수 계산</li>
-        <li><strong>반환값</strong>: <code>n</code>이 등장하는 횟수</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시
-        </span>
-      </p>
-      
-      <ul>
-        <li>
-          <code>array = [1, 1, 2, 3, 4, 1]</code>, <code>n = 1</code><br><br>
-          <ol>
-            <li>배열에서 <code>1</code>인 원소는 <code>index 0, 1, 5</code> → 총 3개</li>
-            <li>따라서 반환값은 <code>3</code></li>
-          </ol>
-        </li>
-      
-        <li>
-          <code>array = [0, 2, 3, 4]</code>, <code>n = 1</code><br><br>
-          <ul>
-            <li><code>1</code>은 한 번도 등장하지 않는다.</li>
-            <li>따라서 반환값은 <code>0</code></li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 복잡도
-        </span>
-      </p>
-      
-      <p>
-        스트림으로 변환한 뒤, <code>filter</code>와 <code>count</code>는 내부적으로<br>
-        배열을 처음부터 끝까지 한 번 순회한다.<br>
-        배열 길이를 <code>n</code>이라고 하면 전체 알고리즘의 시간 복잡도는<br>
-        <strong><code>O(n)</code></strong>이다.
-      </p>
-      
-      <p>
-        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          공간 복잡도
-        </span>
-      </p>
-      
-      <p>
-        Stream 연산 자체는 입력 배열 외에<br>
-        개수를 세기 위한 고정 크기의 추가 메모리만 사용한다.<br>
-        따라서 공간 복잡도는 <strong><code>O(1)</code></strong>로 본다.
-      </p>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
-        </span>
-      </p>
-      
-      <ul>
-        <li><strong><code>count()</code>의 반환 타입</strong>:
-          <ul>
-            <li><code>count()</code>는 <code>long</code>을 반환하므로,<br>
-                문제에서 요구하는 <code>int</code>로 사용하기 위해 <code>(int)</code> 캐스팅이 필요하다.</li>
-            <li>일반적인 코딩 테스트 문제에서 배열 길이는 <code>int</code> 범위를 넘지 않도록 주어지므로,<br>
-                이 캐스팅은 안전하게 사용 가능하다.</li>
-          </ul>
-        </li>
-        <li><strong>동등 비교</strong>:
-          <ul>
-            <li>문제는 &ldquo;같은 숫자&rdquo;의 개수를 묻는 것이므로 <code>==</code> 비교가 맞다.</li>
-            <li>크다/작다 비교(<code>&gt;</code>, <code>&lt;</code>)와 혼동하지 않도록 주의한다.</li>
-          </ul>
-        </li>
-        <li><strong>Stream vs 반복문</strong>:
-          <ul>
-            <li>기본적인 풀이로는 단순 <code>for</code>문으로 카운트해도 되지만,<br>
-                여기서는 Stream을 이용해 표현을 간결하게 만든 형태다.</li>
-          </ul>
-        </li>
-      </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
