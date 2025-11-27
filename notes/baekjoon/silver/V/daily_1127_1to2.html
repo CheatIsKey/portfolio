@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-26 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5092 — Air Old Zeeland</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5092">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1126_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Air Old Zeeland (BOJ 5092)</strong>는<br>
+        항공사에서 포인트로 구매 가능한 상품 목록과 고객들의 주문 정보를 바탕으로,<br>
+        각 고객이 실제로 구매한 상품 포인트 합을 계산하고,<br>
+        <strong>배송 지연 때문에 원하는 상품을 다 받지 못한 불만족 고객 수</strong>까지 세는 시뮬레이션 문제다.
+      </p>
+
+      <p>
+        상품마다 다음 정보가 주어진다.
+      </p>
+
+      <ul>
+        <li>상품 이름 (공백 없음, 최대 20자)</li>
+        <li>필요 포인트 (≤ 1000)</li>
+        <li>배송 지연 일수 (≤ 100)</li>
+      </ul>
+
+      <p>
+        각 고객에 대해서는:
+      </p>
+
+      <ul>
+        <li>고객 번호</li>
+        <li>구매를 희망하는 상품 개수 <code>P</code></li>
+        <li>기다릴 수 있는 최대 일수 <code>M</code></li>
+        <li>이후 <code>P</code>개의 줄에 각 상품 이름</li>
+      </ul>
+
+      <p>
+        고객이 원하는 각 상품에 대해:
+      </p>
+
+      <ul>
+        <li>해당 상품의 배송 일수가 <code>M</code>일 이하라면 → 구매 성공, 포인트 합산</li>
+        <li><code>M</code>일보다 크면 → 그 상품은 사지 못함, <strong>불만족 표시 대상</strong></li>
+      </ul>
+
+      <p>
+        출력은 고객마다:
+      </p>
+
+      <ul>
+        <li><code>고객번호 총포인트</code> 형식으로 출력</li>
+        <li>만약 <strong>원한 상품 중 하나라도 배송일 초과로 못 산 경우</strong>, 포인트 뒤에 <code>*</code>를 붙인다.
+          <ul>
+            <li>예: <code>1860 0 *</code></li>
+          </ul>
+        </li>
+        <li>시나리오 마지막 줄에는<br>
+            <code>Number of discontented customers is: X</code> 형태로<br>
+            별표가 붙은(불만족) 고객 수를 출력한다.</li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li>각 상품 이름으로 바로 가격/배송일을 찾기 위해<br>
+            <strong>상품 이름 → (포인트, 배송일)</strong> 구조를 <code>HashMap</code>에 저장한다.</li>
+        <li>각 고객에 대해:
+          <ul>
+            <li>주문하려는 상품 <code>P</code>개를 순회하면서
+              <ul>
+                <li>상품 정보를 맵에서 조회</li>
+                <li>배송일 ≤ <code>M</code>이면 포인트 합계에 더함</li>
+                <li>배송일 &gt; <code>M</code>이면 <strong>불만족 플래그</strong>를 <code>true</code>로 설정</li>
+              </ul>
+            </li>
+            <li>포인트 합과 불만족 여부(별표)를 출력 버퍼에 기록한다.</li>
+          </ul>
+        </li>
+        <li>시나리오별로 <strong>불만족 고객 수를 카운트</strong>하여 마지막에 한 줄로 출력한다.</li>
+        <li>상품 수 <code>N</code>이 0인 시나리오를 만나면 전체 입력을 종료한다.</li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>시나리오 반복 처리 및 종료 조건</strong>
+          <ul>
+            <li>한 줄씩 읽어 <code>N</code> (상품 수)을 구한다.
+              <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+
+    int N = Integer.parseInt(line);
+    if (N == 0) break;
+    ...
+}</code></pre>
+            </li>
+            <li><code>N == 0</code>이면 더 이상 시나리오가 없으므로 <code>break</code>로 전체 종료.</li>
+          </ul>
+        </li>
+
+        <li><strong>상품 정보 입력 및 맵 구성</strong>
+          <ul>
+            <li>상품 수 <code>N</code>만큼 반복해서 상품 정보를 읽는다.
+              <pre><code>Map&lt;String, ProductInfo&gt; map = new HashMap&lt;&gt;();
+StringTokenizer st;
+
+for (int i = 0; i &lt; N; i++) {
+    st = new StringTokenizer(br.readLine());
+
+    String name = st.nextToken();
+    int point = Integer.parseInt(st.nextToken());
+    int delivery = Integer.parseInt(st.nextToken());
+
+    map.put(name, new ProductInfo(point, delivery));
+}</code></pre>
+            </li>
+            <li><code>ProductInfo</code>는 포인트와 배송일을 담는 간단한 내부 클래스다.
+              <pre><code>private static class ProductInfo {
+    int point, delivery;
+
+    public ProductInfo(int point, int delivery) {
+        this.point = point;
+        this.delivery = delivery;
+    }
+}</code></pre>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>고객 처리 및 불만족 카운트</strong>
+          <ul>
+            <li>시나리오별 불만족 고객 수를 저장하는 <code>cnt</code>를 0으로 초기화한다.</li>
+            <li>고객 수 <code>C</code>를 읽고, 각 고객을 차례대로 처리한다.
+              <pre><code>int cnt = 0;
+int C = Integer.parseInt(br.readLine());
+for (int i = 0; i &lt; C; i++) {
+    st = new StringTokenizer(br.readLine());
+    int clientNum = Integer.parseInt(st.nextToken());
+    int P = Integer.parseInt(st.nextToken());
+    int M = Integer.parseInt(st.nextToken());
+
+    int sum = 0;
+    boolean missed = false;
+    for (int j = 0; j &lt; P; j++) {
+        String name = br.readLine();
+        ProductInfo info = map.get(name);
+
+        if (info.delivery &lt;= M) {
+            sum += info.point;
+        } else {
+            missed = true;
+        }
+    }
+
+    sb.append(clientNum).append(" ").append(sum);
+    if (missed){
+        sb.append(" *");
+        cnt++;
+    }
+    sb.append('\n');
+}</code></pre>
+            </li>
+            <li>각 고객에 대해:
+              <ul>
+                <li><code>sum</code>: 실제로 구매 가능한 상품 포인트 합</li>
+                <li><code>missed</code>: 배송 지연으로 구매하지 못한 상품이 하나라도 있었는지 여부</li>
+              </ul>
+            </li>
+            <li><code>missed == true</code>이면 고객 출력 줄에 <code>*</code>를 붙이고,<br>
+                불만족 고객 수 <code>cnt</code>를 1 증가시킨다.</li>
+          </ul>
+        </li>
+
+        <li><strong>시나리오 요약 출력</strong>
+          <ul>
+            <li>모든 고객 처리가 끝나면, 시나리오 마지막 줄에
+              <pre><code>sb.append("Number of discontented customers is: ").append(cnt).append('\n');</code></pre>
+              를 출력 버퍼에 추가한다.
+            </li>
+            <li>루프가 모두 끝난 뒤 <code>System.out.print(sb);</code>로 전체 결과를 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        한 시나리오에 대해:
+      </p>
+
+      <ul>
+        <li>상품 정보 입력 및 맵 구성: 상품 수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
+        <li>고객 처리:
+          <ul>
+            <li>고객 수를 <code>C</code>, 각 고객이 주문하는 상품 수를 <code>P<sub>i</sub></code>라고 하면,<br>
+                전체 주문 라인 수는 <code>∑ P<sub>i</sub></code>이다.</li>
+            <li>각 주문에서 맵 조회는 <code>O(1)</code>이므로<br>
+                전체는 <strong><code>O(∑ P<sub>i</sub>)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>
+        따라서 시나리오 전체 시간 복잡도는 대략<br>
+        <strong><code>O(N + ∑ P<sub>i</sub>)</code></strong>이고,<br>
+        문제 제한(<code>N ≤ 50, C ≤ 500, P ≤ N</code>)에서는 매우 여유롭다.
+      </p>
+
+      <p>
+        여러 시나리오가 있어도, 각 시나리오는 독립적으로 처리되므로<br>
+        전체 입력에 대해서도 충분히 빠르게 동작한다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <p>
+        한 시나리오에서 사용하는 주요 추가 메모리는:
+      </p>
+
+      <ul>
+        <li>상품 맵 <code>map</code>: 최대 <code>N ≤ 50</code>개의 상품 정보 저장</li>
+        <li>출력 누적용 <code>StringBuilder sb</code> (전체 시나리오 공통)</li>
+        <li>몇 개의 정수/불리언 변수</li>
+      </ul>
+
+      <p>
+        상품 수에 비례하는 맵만 추가로 필요하므로<br>
+        공간 복잡도는 <strong><code>O(N)</code></strong>이다.<br>
+        상한이 매우 작으므로 메모리 사용량은 거의 미미한 수준이다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>배송일 기준 비교</strong>:
+          <ul>
+            <li><code>info.delivery &lt;= M</code>일 때만 포인트를 합산해야 한다.</li>
+            <li><code>&lt;</code>와 <code>&lt;=</code>를 혼동하면 결과가 달라지므로 주의.</li>
+          </ul>
+        </li>
+        <li><strong>부분 구매 가능</strong>:
+          <ul>
+            <li>어떤 고객이 3개를 원했는데 2개만 기한 내 배송 가능하면,<br>
+                2개 포인트만 합산하고, 나머지 1개 때문에 불만족(<code>*</code>)으로 처리한다.</li>
+          </ul>
+        </li>
+        <li><strong>불만족 고객 수 카운트</strong>:
+          <ul>
+            <li>각 고객마다 <code>missed == true</code>인 경우에만 <code>cnt++</code> 해야 한다.</li>
+            <li>한 고객이 여러 상품을 놓쳤더라도 고객 수는 1명만 증가한다.</li>
+          </ul>
+        </li>
+        <li><strong>입력 형식</strong>:
+          <ul>
+            <li>문제에서 상품 이름은 항상 사전에 주어진 목록 안에서만 사용되므로,<br>
+                <code>map.get(name)</code>가 <code>null</code>이 되는 케이스는 없다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>상품 정보를 <strong>이름 → (포인트, 배송일)</strong> 맵에 저장한다.</li>
+        <li>각 고객에 대해, 원하는 상품별로 배송일 ≤ 최대 대기일 <code>M</code>인지 확인하고
+            가능한 것만 포인트 합산한다.</li>
+        <li>배송일 초과로 못 산 상품이 하나라도 있으면 그 고객은 불만족 처리(<code>*</code> 출력).</li>
+        <li>시나리오별로 불만족 고객 수를 세어 마지막에
+            <code>Number of discontented customers is: X</code> 형태로 출력한다.</li>
+        <li>맵 조회는 <code>O(1)</code>, 전체 알고리즘은 <code>O(N + ∑ P)</code>로 충분히 빠르다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5093 — Letter Replacement</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5093">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1126_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Letter Replacement (BOJ 5093)</strong>는<br>
+        단어 안에서 <strong>중복해서 등장하는 알파벳</strong>들을<br>
+        등장 순서에 따라 특수 기호로 치환하는 문자열 처리 문제다.
+      </p>
+
+      <p>
+        규칙은 다음과 같다.
+      </p>
+
+      <ul>
+        <li>대소문자는 구분하지 않는다. (예: <code>R</code>과 <code>r</code>는 같은 문자)</li>
+        <li>단어를 왼쪽에서 오른쪽으로 보면서, 이미 등장한 적 있는 글자가 다시 등장하면 &ldquo;반복 문자&rdquo;로 본다.</li>
+        <li>반복 문자를 <strong>처음으로 만나게 되는 글자 종류 순서대로</strong> 다음 기호를 배정한다.
+          <ul>
+            <li>1번째 반복 문자 종류 → <code>*</code></li>
+            <li>2번째 반복 문자 종류 → <code>?</code></li>
+            <li>3번째 반복 문자 종류 → <code>/</code></li>
+            <li>4번째 반복 문자 종류 → <code>+</code></li>
+            <li>5번째 반복 문자 종류 → <code>!</code></li>
+          </ul>
+        </li>
+        <li>같은 글자가 여러 번 반복되면, 그 글자의 2번째 이후 등장부터는<br>
+            항상 <strong>처음 배정된 기호</strong>로 치환된다.</li>
+        <li>단어의 첫 등장 글자는 원래 글자를 그대로 출력한다. (대소문자 유지)</li>
+      </ul>
+
+      <p>
+        예를 들어 <code>Reindeer</code>의 경우:
+      </p>
+
+      <ul>
+        <li><code>R</code> / <code>r</code>, <code>e</code> 등이 대소문자 구분 없이 같은 글자로 취급된다.</li>
+        <li>왼쪽에서 오른쪽으로 보며 반복 여부를 체크하면, <code>e</code>가 먼저 반복되고 그 다음 <code>r</code>이 반복된다.</li>
+        <li>따라서 반복된 <code>e</code>는 <code>*</code>, 반복된 <code>r</code>은 <code>?</code>로 치환되어<br>
+            최종 결과가 <code>Reind**?</code>가 된다.</li>
+      </ul>
+
+      <p>
+        입력은 여러 줄의 단어로 이루어지며, 마지막 줄의 <code>#</code>는 종료를 의미하므로 처리하지 않는다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li>각 단어에 대해 다음과 같은 상태를 유지한다.
+          <ul>
+            <li><code>count[26]</code>: 각 알파벳이 지금까지 몇 번 등장했는지 (대소문자 무시)</li>
+            <li><code>symbol[26]</code>: 해당 알파벳이 반복 문자로 판정되었을 때 배정된 기호</li>
+          </ul>
+        </li>
+        <li>반복 문자 종류에 할당할 기호 풀:
+          <pre><code>char[] pool = {'*', '?', '/', '+', '!'};</code></pre>
+        </li>
+        <li><code>poolIdx</code>를 0부터 시작해서, 새로운 반복 문자 종류가 나올 때마다
+            <code>pool[poolIdx]</code>를 배정하고 <code>poolIdx</code>를 1 증가시킨다.</li>
+        <li>문자를 하나씩 보면서:
+          <ul>
+            <li>해당 문자의 알파벳 인덱스를 구해(<code>toLowerCase</code> 후 <code>'a'</code> 기준)</li>
+            <li><code>count[idx]++</code>로 등장 횟수를 올린다.</li>
+            <li><code>count[idx] == 1</code>이면 첫 등장 → 원래 문자(대소문자 그대로) 출력.</li>
+            <li><code>count[idx] &gt;= 2</code>이면 반복 문자:
+              <ul>
+                <li>이 문자에 아직 기호가 배정되지 않았다면 → <code>symbol[idx]</code>에 새 기호 배정.</li>
+                <li>이미 기호가 있다면 → 그 기호를 그대로 사용.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>각 줄 처리 후 개행 문자를 추가하고, 다음 단어를 처리한다.</li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>입력 반복 및 종료 조건</strong>
+          <ul>
+            <li>한 줄씩 읽어 <code>#</code>가 나오면 종료한다.
+              <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+    if (line.equals("#")) break;
+
+    ...
+}</code></pre>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>알파벳 카운트 및 기호 배열 초기화</strong>
+          <ul>
+            <li>각 단어마다 새로 초기화한다.
+              <pre><code>int[] count = new int[26];
+char[] symbol = new char[26];
+
+char[] pool = {'*', '?', '/', '+', '!'};
+int poolIdx = 0;</code></pre>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>문자별 처리</strong>
+          <ul>
+            <li>단어의 각 문자를 순회하며, 대소문자를 무시한 인덱스를 구해 카운트한다.
+              <pre><code>for (int i = 0; i &lt; line.length(); i++) {
+    char origin = line.charAt(i);
+    char c = Character.toLowerCase(origin);
+    int idx = c - 'a';
+
+    count[idx]++;
+
+    if (count[idx] == 1) {
+        // 첫 등장: 원래 문자 출력
+        sb.append(origin);
+    } else {
+        // 반복 등장
+        if (symbol[idx] == 0) {
+            symbol[idx] = pool[poolIdx++];
+        }
+
+        sb.append(symbol[idx]);
+    }
+}</code></pre>
+            </li>
+            <li><code>count[idx] == 1</code>이면 첫 등장 → 원래 문자를 그대로 결과에 붙인다.</li>
+            <li><code>count[idx] &gt; 1</code>이면 이미 등장했던 문자:
+              <ul>
+                <li><code>symbol[idx]</code>가 비어 있다면(<code>0</code>) 새 기호 배정.</li>
+                <li>그 후 <code>symbol[idx]</code>에 저장된 기호를 출력한다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>줄 마무리 및 출력</strong>
+          <ul>
+            <li>단어 처리가 끝나면 개행 문자를 추가한다.
+              <pre><code>sb.append('\n');</code></pre>
+            </li>
+            <li>모든 단어 처리가 끝난 뒤 <code>System.out.print(sb);</code>로 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        각 단어의 길이를 <code>L</code>이라고 하면:
+      </p>
+
+      <ul>
+        <li>문자 처리 루프는 길이 <code>L</code>에 비례 → <strong><code>O(L)</code></strong></li>
+        <li><code>L ≤ 10</code>이므로, 매우 작은 상수 시간에 가깝다.</li>
+      </ul>
+
+      <p>
+        전체 입력에 대해 여러 단어가 주어져도,<br>
+        단어 수를 <code>W</code>라 하면 전체 시간 복잡도는 <strong><code>O(∑ L) ≤ O(10W)</code></strong>로<br>
+        충분히 빠르게 동작한다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <p>
+        한 단어 처리에 사용하는 추가 메모리는:
+      </p>
+
+      <ul>
+        <li><code>count[26]</code> 정수 배열</li>
+        <li><code>symbol[26]</code> 문자 배열</li>
+        <li>기호 풀 <code>pool[5]</code>와 인덱스 변수 하나</li>
+      </ul>
+
+      <p>
+        모두 알파벳 개수(26)에 비례하는 상수 크기 배열이므로<br>
+        공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>대소문자 처리</strong>:
+          <ul>
+            <li>반복 여부 판정과 기호 배정은 <strong>소문자로 변환한 기준</strong>으로 처리해야 한다.</li>
+            <li>하지만 첫 등장 문자를 출력할 때는 원래 문자(<code>origin</code>)를 그대로 써서<br>
+                대소문자를 유지한다.</li>
+          </ul>
+        </li>
+        <li><strong>기호 배정 순서</strong>:
+          <ul>
+            <li>기호는 &ldquo;반복 문자 종류가 처음 등장한 순서&rdquo;에 따라 배정된다.</li>
+            <li>즉, <strong>단어를 왼쪽에서 오른쪽으로 스캔하면서</strong><br>
+                처음으로 <code>count[idx] == 2</code>가 되는 시점에 그 문자에게 기호를 배정한다고 보면 된다.</li>
+          </ul>
+        </li>
+        <li><strong>반복 횟수 제한</strong>:
+          <ul>
+            <li>문제에서 한 단어의 반복 문자 종류는 최대 5개라고 보장하므로,<br>
+                기호 풀 <code>{'*','?','/','+','!'}</code>로 충분하다.</li>
+          </ul>
+        </li>
+        <li><strong>종료 입력 처리</strong>:
+          <ul>
+            <li>마지막 줄의 <code>#</code>는 단순 종료 마커이므로<br>
+                이 줄은 결과를 생성하지 않고 바로 루프를 빠져나와야 한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>각 단어에 대해 알파벳별 등장 횟수를 세며 왼쪽에서 오른쪽으로 스캔한다.</li>
+        <li>첫 등장 문자는 그대로 출력하고, 두 번째 이후 등장부터는 기호로 치환한다.</li>
+        <li>반복 문자 종류가 처음 등장할 때만 기호 풀에서 순서대로 하나씩 배정한다.</li>
+        <li>대소문자 구분 없이 반복을 판단하지만, 출력할 때는 원래 문자의 대소문자를 유지한다.</li>
+        <li>배열 크기가 작고, 단어 길이도 최대 10이라 구현과 성능 모두 단순한 문제다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

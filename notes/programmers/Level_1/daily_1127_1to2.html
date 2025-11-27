@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-26 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 달리기 경주</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/178871">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1126_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>달리기 경주 (프로그래머스 178871)</strong> 문제는<br>
+        선수들의 초기 순서가 담긴 배열 <code>players</code>와,<br>
+        경기 도중 불리며 <strong>한 칸씩 추월</strong>하는 선수 이름들이 담긴 배열 <code>callings</code>가 주어졌을 때,<br>
+        모든 호출이 끝난 뒤의 <strong>최종 등수 순서</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        규칙은 간단하다.
+      </p>
+      
+      <ul>
+        <li><code>players</code>는 현재 등수 순서(0번 인덱스가 1등)를 나타낸다.</li>
+        <li><code>callings</code>의 각 이름 <code>s</code>에 대해:
+          <ul>
+            <li>선수 <code>s</code>는 자신의 바로 앞 선수와 <strong>자리를 맞바꾼다.</strong></li>
+            <li>즉, 한 번 불릴 때마다 한 칸씩 앞당겨진다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        단순하게 매 호출마다 <code>players</code> 배열에서 이름을 찾으면<br>
+        <code>O(N)</code>이 걸리므로 전체는 <code>O(N × M)</code>이 되어 느리다.<br>
+        이 풀이에서는 <strong>이름 → 인덱스</strong>를 빠르게 찾기 위해 <code>HashMap</code>을 함께 사용해<br>
+        각 호출을 <code>O(1)</code>에 처리한다.
+      </p>
+      
+      <p>
+        이 풀이에서는:
+      </p>
+      
+      <ol>
+        <li><code>players</code> 배열: 현재 등수 순서를 그대로 저장.</li>
+        <li><code>rank</code> 맵: 선수 이름을 키, 현재 인덱스를 값으로 저장.</li>
+        <li><code>callings</code>를 순회하면서:
+          <ul>
+            <li>해당 선수의 현재 인덱스를 맵에서 찾고,</li>
+            <li>앞에 있는 선수와 배열에서 자리를 바꾼 뒤,</li>
+            <li>두 선수의 인덱스를 <code>rank</code> 맵에서 동시에 갱신.</li>
+          </ul>
+        </li>
+        <li>모든 호출이 끝난 뒤 <code>players</code> 배열을 그대로 반환.</li>
+      </ol>
+      
+      <ul>
+        <li><strong>입력</strong>: <code>String[] players</code>, <code>String[] callings</code></li>
+        <li><strong>출력</strong>: 모든 추월이 반영된 최종 등수 배열</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 로직
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>초기 맵 구성</strong>
+          <ul>
+            <li>각 선수 이름과 인덱스를 매핑한다.
+              <pre><code>Map&lt;String, Integer&gt; rank = new HashMap&lt;&gt;();
+      for (int i = 0; i &lt; players.length; i++) rank.put(players[i], i);</code></pre>
+            </li>
+            <li>이제 <code>rank.get("선수")</code>로 현재 등수를 <code>O(1)</code>에 조회할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>호출 처리 및 자리 교환</strong>
+          <ul>
+            <li><code>callings</code>의 각 이름 <code>s</code>에 대해:
+              <pre><code>for (String s : callings) {
+          int idx = rank.get(s);
+      
+          if (idx &gt; 0) {
+              int prev = idx - 1;
+              String prevPlayer = players[prev];
+              players[prev] = players[idx];
+              players[idx] = prevPlayer;
+      
+              rank.put(s, prev);
+              rank.put(prevPlayer, idx);
+          }
+      }</code></pre>
+            </li>
+            <li><code>idx</code>: 선수 <code>s</code>의 현재 인덱스(등수).</li>
+            <li><code>prev = idx - 1</code>: 바로 앞 선수의 인덱스.</li>
+            <li><code>players[prev]</code>와 <code>players[idx]</code>를 서로 교환 → 실제 순서 변경.</li>
+            <li>그 후:
+              <ul>
+                <li><code>s</code>의 인덱스를 <code>prev</code>로 갱신.</li>
+                <li>추월당한 선수(<code>prevPlayer</code>)의 인덱스를 <code>idx</code>로 갱신.</li>
+              </ul>
+            </li>
+            <li><code>idx &gt; 0</code> 조건은 맨 앞(1등)인 경우를 보호하기 위한 안전 장치다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        모든 호출을 처리한 뒤에는 <code>players</code> 배열이 최종 순서를 나타내므로<br>
+        그대로 반환하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 (개념)
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          초기:
+          <ul>
+            <li><code>players = ["mumu", "soe", "poe", "kai", "mine"]</code></li>
+            <li>등수: mumu(0), soe(1), poe(2), kai(3), mine(4)</li>
+          </ul>
+        </li>
+      
+        <li>
+          <code>callings = ["kai", "kai", "mine", ...]</code>라고 해 보자.<br><br>
+          <ol>
+            <li><strong>첫 번째 "kai"</strong>
+              <ul>
+                <li><code>rank.get("kai") = 3</code>, <code>prev = 2</code></li>
+                <li><code>players[2] = "poe"</code>, <code>players[3] = "kai"</code> → 둘이 자리 교환</li>
+                <li>결과: <code>["mumu", "soe", "kai", "poe", "mine"]</code></li>
+              </ul>
+            </li>
+            <li><strong>두 번째 "kai"</strong>
+              <ul>
+                <li>이제 <code>rank.get("kai") = 2</code>, <code>prev = 1</code></li>
+                <li><code>players[1] = "soe"</code>, <code>players[2] = "kai"</code> → 둘이 자리 교환</li>
+                <li>결과: <code>["mumu", "kai", "soe", "poe", "mine"]</code></li>
+              </ul>
+            </li>
+            <li><strong>"mine"</strong>
+              <ul>
+                <li><code>rank.get("mine") = 4</code>, <code>prev = 3</code></li>
+                <li><code>players[3] = "poe"</code>, <code>players[4] = "mine"</code> → 둘이 자리 교환</li>
+                <li>결과: <code>["mumu", "kai", "soe", "mine", "poe"]</code></li>
+              </ul>
+            </li>
+          </ol>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        <strong>초기 맵 구성</strong>:
+      </p>
+      
+      <ul>
+        <li><code>players</code> 길이를 <code>N</code>이라고 하면,<br>
+            한 번의 루프에서 <code>rank.put</code>을 N번 호출 → <strong><code>O(N)</code></strong>.</li>
+      </ul>
+      
+      <p>
+        <strong>호출 처리</strong>:
+      </p>
+      
+      <ul>
+        <li><code>callings</code> 길이를 <code>M</code>이라고 하면,<br>
+            각 호출마다 <code>rank.get</code>, 배열 스왑, <code>rank.put</code> 2회가 모두 상수 시간 →<br>
+            전체가 <strong><code>O(M)</code></strong>.</li>
+      </ul>
+      
+      <p>
+        따라서 전체 알고리즘의 시간 복잡도는
+        <strong><code>O(N + M)</code></strong>이다.<br>
+        호출 수가 매우 많아도 효율적으로 처리할 수 있다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가로 사용하는 주요 메모리는:
+      </p>
+      
+      <ul>
+        <li>이름 → 인덱스를 저장하는 <code>rank</code> 맵: 선수 수 <code>N</code>만큼 저장</li>
+        <li>몇 개의 보조 변수(<code>idx</code>, <code>prev</code>, <code>prevPlayer</code> 등)</li>
+      </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>선수 이름의 유일성</strong>:
+          <ul>
+            <li>맵에서 이름을 키로 사용하므로, 선수 이름은 서로 다르다고 가정한다.</li>
+          </ul>
+        </li>
+        <li><strong>인덱스 갱신</strong>:
+          <ul>
+            <li>배열에서 자리를 바꾸고 나면, <code>rank</code> 맵에 저장된 인덱스도<br>
+                반드시 함께 갱신해야 한다.</li>
+            <li>둘 중 하나라도 갱신이 누락되면 이후 호출에서 잘못된 위치로 참조하게 된다.</li>
+          </ul>
+        </li>
+        <li><strong>경계 조건</strong>:
+          <ul>
+            <li><code>idx &gt; 0</code> 체크 없이 0번 인덱스에서 앞 사람과 교환을 시도하면<br>
+                인덱스가 음수가 되어 예외가 발생한다.</li>
+            <li>현재 구현처럼 <code>idx &gt; 0</code>일 때만 스왑하도록 하는 것이 안전하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 추억 점수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/176963">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1126_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>추억 점수 (프로그래머스 176963)</strong> 문제는<br>
+        사람 이름 배열 <code>name</code>과 그 사람에 대한 그리움 점수 <code>yearning</code>,<br>
+        그리고 여러 장의 사진에 찍힌 사람들 목록 <code>photo</code>가 주어졌을 때,<br>
+        <strong>각 사진별 추억 점수의 합</strong>을 구해 배열로 반환하는 문제다.
+      </p>
+      
+      <p>
+        규칙은 다음과 같다.
+      </p>
+      
+      <ul>
+        <li><code>name[i]</code> 사람의 그리움 점수는 <code>yearning[i]</code>이다.</li>
+        <li><code>photo[j]</code>는 <strong>j번째 사진에 등장한 사람 이름 배열</strong>이다.</li>
+        <li>사진 속 이름 중 <code>name</code>에 없는 이름은 <strong>점수 0점</strong>으로 본다.</li>
+        <li>각 사진에 등장한 사람들의 그리움 점수를 모두 더한 값이 그 사진의 추억 점수다.</li>
+      </ul>
+      
+      <p>
+        이 풀이에서는 이름으로 점수를 빠르게 찾기 위해<br>
+        <strong>HashMap</strong>을 사용한다.
+      </p>
+      
+      <p>
+        전체 흐름은 다음과 같다.
+      </p>
+      
+      <ol>
+        <li><code>name</code>과 <code>yearning</code>를 이용해<br>
+            <strong>이름 → 그리움 점수</strong>를 담은 맵을 만든다.</li>
+        <li><code>photo</code>의 각 사진에 대해:
+          <ul>
+            <li>사진 속 이름들을 돌면서, 맵에서 점수를 꺼내 합산한다.</li>
+            <li>맵에 없는 이름이면 0점으로 더한다.</li>
+            <li>계산한 합을 결과 배열에 저장한다.</li>
+          </ul>
+        </li>
+        <li>모든 사진에 대해 계산이 끝나면 결과 배열을 반환한다.</li>
+      </ol>
+      
+      <ul>
+        <li><strong>입력</strong>: <code>String[] name</code>, <code>int[] yearning</code>, <code>String[][] photo</code></li>
+        <li><strong>출력</strong>: 각 사진의 추억 점수를 담은 <code>int[]</code></li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 로직
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>이름 → 점수 맵 만들기</strong>
+          <ul>
+            <li>동일한 인덱스를 사용하는 두 배열을 한 번에 순회하면서 맵에 넣는다.
+              <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      for (int i = 0; i &lt; name.length; i++) map.put(name[i], yearning[i]);</code></pre>
+            </li>
+            <li>이제 <code>map.get("이름")</code>으로 점수를 빠르게 찾을 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>각 사진의 점수 계산</strong>
+          <ul>
+            <li>결과를 담을 배열 <code>points</code>를 사진 개수만큼 만든다.
+              <pre><code>int[] points = new int[photo.length];
+      int idx = 0;</code></pre>
+            </li>
+            <li>각 사진(문자열 배열)을 순회하면서 합을 구한다.
+              <pre><code>for (String[] str : photo) {
+          int sum = 0;
+      
+          for (int i = 0; i &lt; str.length; i++) {
+              sum += map.getOrDefault(str[i], 0);
+          }
+          points[idx++] = sum;
+      }</code></pre>
+            </li>
+            <li><code>getOrDefault(str[i], 0)</code>를 사용해,<br>
+                맵에 없는 이름이면 자동으로 0점을 더하도록 처리한다.</li>
+            <li>사진 하나에 대한 합 <code>sum</code>을 <code>points</code>의 다음 위치에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 반환</strong>
+          <ul>
+            <li>모든 사진을 처리한 후 <code>points</code> 배열을 반환한다.
+              <pre><code>return points;</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 (개념)
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>name = ["may", "kein", "kain", "radi"]</code><br>
+          <code>yearning = [5, 10, 1, 3]</code><br>
+          <code>photo[0] = ["may", "kein", "kain"]</code> 이라고 하면,<br><br>
+          <ol>
+            <li><code>"may"</code> → 5점</li>
+            <li><code>"kein"</code> → 10점</li>
+            <li><code>"kain"</code> → 1점</li>
+            <li>합계: <code>5 + 10 + 1 = 16</code></li>
+          </ol>
+          따라서 <code>points[0] = 16</code>이 된다.
+        </li>
+      
+        <li>
+          만약 사진에 <code>"may", "abc"</code>처럼<br>
+          <code>"abc"</code>가 <code>name</code>에 없다면,
+          <ul>
+            <li><code>"may"</code> → 5점</li>
+            <li><code>"abc"</code> → 맵에 없음 → 0점</li>
+            <li>합계: <code>5</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        <strong>맵 구성</strong>:
+      </p>
+      
+      <ul>
+        <li>이름 개수를 <code>N</code>이라고 하면, 한 번의 루프 → <strong><code>O(N)</code></strong>.</li>
+      </ul>
+      
+      <p>
+        <strong>사진 점수 계산</strong>:
+      </p>
+      
+      <ul>
+        <li>사진 개수를 <code>P</code>, 각 사진에 평균 <code>K</code>명이 찍혀 있다고 하면,<br>
+            내부 이중 반복의 총 연산 수는 <code>P × K</code> 정도다.</li>
+        <li>각 이름에 대해 <code>map.getOrDefault</code> 호출은 <code>O(1)</code>이므로,<br>
+            전체는 <strong><code>O(P × K)</code></strong>.</li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는
+        <strong><code>O(N + P × K)</code></strong>로 볼 수 있고,<br>
+        입력 크기 제약 안에서는 충분히 빠르게 동작한다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가로 사용하는 주요 메모리는:
+      </p>
+      
+      <ul>
+        <li>이름 → 점수를 저장하는 맵 <code>map</code> (크기 <code>N</code>)</li>
+        <li>사진별 점수를 저장하는 결과 배열 <code>points</code> (크기 <code>P</code>)</li>
+      </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(N + P)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>getOrDefault 활용</strong>:
+          <ul>
+            <li><code>map.getOrDefault(str[i], 0)</code>를 사용하면,<br>
+                이름이 맵에 없을 때 null 체크 없이 바로 0점을 처리할 수 있다.</li>
+            </ul>
+        </li>
+        <li><strong>동일 인덱스 매핑</strong>:
+          <ul>
+            <li><code>name[i]</code>와 <code>yearning[i]</code>가 짝을 이루므로,<br>
+                반드시 같은 인덱스를 기준으로 맵에 넣어야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>사진이 비어 있는 경우</strong>:
+          <ul>
+            <li>어떤 사진 배열이 길이 0이라면 내부 반복이 실행되지 않아<br>
+                해당 사진의 점수는 자연스럽게 <code>0</code>으로 남는다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
