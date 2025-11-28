@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-27 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 4903 — Relax! It’s just a game</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4903">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1127_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Relax! It’s just a game (BOJ 4903)</strong>는<br>
+        전반전 스코어 <code>A : B</code>가 주어졌을 때,<br>
+        그 스코어가 만들어질 수 있는 <strong>골 순서의 경우의 수</strong>를 구하고,<br>
+        이 경우의 수가 <strong><code>A + B</code>와 같은지 여부</strong>를 판단하는 문제다.
+      </p>
+
+      <p>
+        전반전 스코어가 <code>A : B</code>라면, 전반전에 총 <code>A + B</code>골이 나왔다.<br>
+        각 골이 어느 팀의 골인지에 따라 골 <strong>순서</strong>를 나열하면, 가능한 모든 시나리오의 수는
+      </p>
+
+      <ul>
+        <li><code>총 골 수 = A + B</code></li>
+        <li>그 중 B골(또는 A골)의 위치를 선택 → <strong>이항 계수</strong> <code>C(A+B, B)</code></li>
+      </ul>
+
+      <p>
+        따라서 이 문제에서 말하는 &ldquo;number of possibilities&rdquo;는<br>
+        <strong><code>comb(A+B, B)</code> (또는 <code>comb(A+B, A)</code>)</strong>가 된다.<br>
+        이 값을 <code>A + B</code>와 비교해서 같으면 <code>=</code>, 다르면 <code>!=</code>로 출력한다.
+      </p>
+
+      <p>
+        출력 형식은 정확히
+      </p>
+
+      <ul>
+        <li><code>A+B=C</code> 또는 <code>A+B!=C</code> 형태</li>
+        <li><code>C</code>는 단순 합 <code>A + B</code></li>
+      </ul>
+
+      <p>
+        입력의 마지막은 <code>-1 -1</code>이며, 이 줄은 처리하지 않고 종료한다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li>각 줄에서 <code>A, B</code>를 읽는다.
+          <ul>
+            <li><code>A == -1 && B == -1</code>이면 입력 종료.</li>
+          </ul>
+        </li>
+        <li><code>sum = A + B</code>를 계산한다.</li>
+        <li><strong>골 순서 경우의 수</strong> <code>ways = C(sum, B)</code>를 계산한다.
+          <ul>
+            <li><code>C(n, k)</code>는 조합 <code>nCk</code>를 의미한다.</li>
+          </ul>
+        </li>
+        <li><code>sum == ways</code>이면 <code>A+B=sum</code> 형식으로 출력.</li>
+        <li>그렇지 않으면 <code>A+B!=sum</code> 형식으로 출력.</li>
+      </ul>
+
+      <p>
+        조합 계산 <code>C(n, k)</code>는 직접 팩토리얼을 쓰면 오버플로/비효율 문제가 생길 수 있으므로,<br>
+        <strong>곱셈과 나눗셈을 섞어가며 점진적으로 계산</strong>한다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>입력 처리 및 종료 조건</strong>
+          <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+
+    StringTokenizer st = new StringTokenizer(line);
+    long scoreOne = Long.parseLong(st.nextToken());
+    long scoreTwo = Long.parseLong(st.nextToken());
+    if (scoreOne == -1 && scoreTwo == -1) break;
+
+    long sum = scoreOne + scoreTwo;
+    long ways = comb(sum, scoreTwo);
+
+    sb.append(scoreOne).append("+").append(scoreTwo);
+
+    if (sum == ways) {
+        sb.append("=").append(sum).append('\n');
+    } else {
+        sb.append("!=").append(sum).append('\n');
+    }
+}</code></pre>
+
+          <ul>
+            <li><code>scoreOne</code> → A, <code>scoreTwo</code> → B.</li>
+            <li><code>sum</code>은 합 <code>A + B</code>.</li>
+            <li><code>ways</code>는 <code>C(A+B, B)</code> (골 순서 경우의 수).</li>
+            <li><code>sum == ways</code>인지 비교하여 출력 문자열 형태 결정.</li>
+          </ul>
+        </li>
+
+        <li><strong>조합 함수 구현: comb(sum, num)</strong>
+          <pre><code>private static long comb(long sum, long num) {
+    // C(sum, num)에서 num과 sum-num 중 더 작은 쪽 선택
+    num = Math.min(num, sum - num);
+
+    long res = 1;
+    for (int i = 1; i &lt;= num; i++) {
+        res = res * (sum - i + 1) / i;
+    }
+
+    return res;
+}</code></pre>
+
+          <ul>
+            <li><code>C(n, k)</code>는 <code>C(n, n-k)</code>와 같으므로,<br>
+                <code>k</code> 대신 <code>min(k, n-k)</code>를 사용해 곱셈 범위를 줄인다.</li>
+            <li>반복문에서는 수식을
+              <pre><code>res = res * (n - i + 1) / i;</code></pre>
+              형태로 누적 계산한다.
+              <ul>
+                <li>수학적으로는
+                  <code>C(n, k) = (n × (n-1) × ... × (n-k+1)) / (k!)</code>를 전개한 것.</li>
+              </ul>
+            </li>
+            <li>문제 조건에서 <code>A, B ≤ 10</code>이므로 <code>n = A+B ≤ 20</code>이고,<br>
+                최대값 <code>C(20, 10) = 184756</code> 정도라 <code>long</code>에 안전하게 들어간다.</li>
+          </ul>
+        </li>
+
+        <li><strong>출력 형식</strong>
+          <ul>
+            <li>각 테스트케이스마다 한 줄 출력:
+              <ul>
+                <li>예: <code>2+1=3</code>, <code>3+2!=5</code> 등</li>
+              </ul>
+            </li>
+            <li><code>A</code>, <code>B</code>, <code>C</code> 사이에 다른 공백은 넣지 않고,<br>
+                등호/부등호 앞뒤 형식도 문제 예시 그대로 맞춘다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        한 테스트케이스에 대해:
+      </p>
+
+      <ul>
+        <li><code>comb(sum, num)</code> 계산은 <code>num = min(B, sum-B)</code>에 대해
+          <strong><code>O(num)</code></strong> 반복.</li>
+        <li>스코어 범위상 <code>sum ≤ 20</code>이므로, <code>num ≤ 10</code> → 사실상 상수 시간.</li>
+      </ul>
+
+      <p>
+        따라서 전체 입력에 대해 시간 복잡도는<br>
+        테스트케이스 수를 <code>T</code>라 할 때 <strong><code>O(T)</code></strong> 수준으로 매우 가볍다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <p>
+        추가로 사용하는 공간은:
+      </p>
+
+      <ul>
+        <li>몇 개의 정수/long 변수(<code>scoreOne, scoreTwo, sum, ways, res</code> 등)</li>
+        <li>출력 누적용 <code>StringBuilder sb</code></li>
+      </ul>
+
+      <p>
+        입력 크기와 무관하게 일정하므로, 공간 복잡도는 <strong><code>O(1)</code></strong>이다
+        (출력 문자열은 어차피 필요).
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>-1 -1 종료 처리</strong>:
+          <ul>
+            <li><code>-1 -1</code>은 테스트케이스가 아니므로, 이 줄은 출력하지 않아야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>조합 계산 시 정수 나눗셈 순서</strong>:
+          <ul>
+            <li><code>res = res * (sum - i + 1) / i;</code> 순서로 계산하면,<br>
+                매 단계에서 나눗셈이 정확히 떨어지도록 되어 있다.</li>
+            <li>곱셈과 나눗셈의 순서를 잘못 섞으면 오버플로나 오차가 날 수 있어 주의해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>대칭성 활용</strong>:
+          <ul>
+            <li><code>C(n, k) == C(n, n-k)</code>를 사용해 <code>min(k, n-k)</code>만큼만 반복하면,<br>
+                불필요한 반복을 줄이고 곱셈 범위도 줄일 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>스코어 범위</strong>:
+          <ul>
+            <li>문제 조건상 각 팀 골 수는 0~10이므로, <code>sum</code>은 최대 20이다.</li>
+            <li>이 범위 안에서는 <code>long</code> 타입으로 모든 이항 계수를 안전하게 표현할 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>전반전 스코어 <code>A:B</code>가 만들어질 수 있는 골 순서 경우의 수는 <code>C(A+B, B)</code>이다.</li>
+        <li>이 값이 <code>A+B</code>와 같은지 비교해서 <code>=</code> 또는 <code>!=</code>를 출력한다.</li>
+        <li>조합은 팩토리얼 대신 반복 곱셈/나눗셈 방식으로 안전하게 계산한다.</li>
+        <li>입력은 <code>-1 -1</code>이 나올 때까지 처리하고, 마지막 줄은 테스트에 포함하지 않는다.</li>
+        <li>출력 형식은 <code>A+B=C</code> 또는 <code>A+B!=C</code> 형태를 정확히 지켜야 한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5134 — Grocery Shopping</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5134">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1127_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Grocery Shopping (BOJ 5134)</strong>는<br>
+        마트의 재고 정보와 장바구니 목록이 주어졌을 때,<br>
+        <strong>멤버십 카드(클럽 카드)를 사용해서 절약한 총 금액</strong>을 계산하는 문제다.
+      </p>
+
+      <p>
+        각 상품에 대해:
+      </p>
+
+      <ul>
+        <li><code>ni</code>: 현재 재고 수량</li>
+        <li><code>pi</code>: 일반 가격</li>
+        <li><code>ci</code>: 클럽 카드 가격</li>
+        <li><code>si</code>: 상품 이름 (대소문자, 공백 포함 가능)</li>
+      </ul>
+
+      <p>
+        장바구니에는:
+      </p>
+
+      <ul>
+        <li><code>mj</code>: 구매를 희망하는 수량</li>
+        <li><code>sj</code>: 상품 이름</li>
+      </ul>
+
+      <p>
+        이름은 <strong>대소문자를 구분하지 않고</strong> 비교한다.<br>
+        장바구니에 있는 상품이 마트 재고에 없으면 그 상품은 무시한다.
+      </p>
+
+      <p>
+        어떤 상품에 대해 실제로 <code>x</code>개를 구매했다면,<br>
+        이 상품에서 절약한 금액은
+      </p>
+
+      <ul>
+        <li><code>x × (일반 가격 - 클럽 가격)</code></li>
+      </ul>
+
+      <p>
+        재고가 부족하면:
+      </p>
+
+      <ul>
+        <li>실제 구매 수량은 <code>min(요청 수량, 재고)</code>가 된다.</li>
+        <li>재고는 그만큼 줄어들고, 절약 금액도 그 수량에 대해서만 계산한다.</li>
+      </ul>
+
+      <p>
+        각 데이터셋마다 절약한 금액을 모두 합산해<br>
+        <strong><code>$x.xx</code> 형식</strong>으로 출력한다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li>각 데이터셋에 대해:
+          <ol>
+            <li>마트 재고 정보 <code>N</code>개를 읽어
+              <strong>상품 이름(소문자 처리) → (재고, 일반가, 클럽가)</strong>를 <code>Map</code>에 저장한다.</li>
+            <li>장바구니 항목 <code>M</code>개에 대해:
+              <ul>
+                <li>요청 수량과 이름을 읽고, 이름을 소문자로 변환해 맵에서 상품 정보를 찾는다.</li>
+                <li>없는 상품이면 건너뛴다.</li>
+                <li>재고와 요청 수량 중 작은 값만큼만 실제 구매하고,<br>
+                    그 수량에 대해 <code>(일반가 - 클럽가)</code>만큼 절약 금액을 누적한다.</li>
+                <li>사용한 수량만큼 재고를 차감한다.</li>
+              </ul>
+            </li>
+            <li>누적된 절약 금액(센트 기준)을 달러로 바꾸어 <code>$%.2f</code> 형식으로 출력한다.</li>
+          </ol>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>데이터셋 개수 K 읽기</strong>
+          <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+
+    int K = Integer.parseInt(line);
+
+    for (int caseNum = 1; caseNum &lt;= K; caseNum++) {
+        ...
+    }
+}</code></pre>
+          <ul>
+            <li>첫 줄에서 <code>K</code>를 읽고, 각 데이터셋에 대해 반복한다.</li>
+          </ul>
+        </li>
+
+        <li><strong>N, M 읽기</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+int N = Integer.parseInt(st.nextToken());
+int M = Integer.parseInt(st.nextToken());</code></pre>
+          <ul>
+            <li><code>N</code>: 마트 상품 개수</li>
+            <li><code>M</code>: 장바구니 상품 개수</li>
+          </ul>
+        </li>
+
+        <li><strong>마트 재고 정보 파싱 및 저장</strong>
+          <pre><code>Map&lt;String, ProductInfo&gt; store = new HashMap&lt;&gt;();
+
+for (int j = 0; j &lt; N; j++) {
+    line = br.readLine();
+    st = new StringTokenizer(line);
+
+    int ni = Integer.parseInt(st.nextToken());
+    String pi = st.nextToken();
+    String ci = st.nextToken();
+
+    StringBuilder nameBuilder = new StringBuilder();
+    while (st.hasMoreTokens()) {
+        if (nameBuilder.length() &gt; 0) nameBuilder.append(' ');
+        nameBuilder.append(st.nextToken());
+    }
+
+    String name = nameBuilder.toString().toLowerCase();
+    int price = parsePrice(pi);
+    int club = parsePrice(ci);
+
+    store.put(name, new ProductInfo(ni, price, club));
+}</code></pre>
+
+          <ul>
+            <li>각 줄 형식: <code>ni pi ci si...</code></li>
+            <li>앞의 3개 토큰은 수량과 가격 2개, 나머지 모든 토큰을 이어 붙여 상품 이름으로 만든다.</li>
+            <li>이름은 <strong>소문자로 변환</strong>해 맵의 키로 사용한다.</li>
+            <li><code>parsePrice</code>를 사용해 <code>"$6.00"</code> 같은 문자열을 정수 센트(예: 600)로 변환한다.</li>
+          </ul>
+        </li>
+
+        <li><strong>장바구니 처리 및 절약 금액 누적</strong>
+          <pre><code>long saving = 0L;
+
+for (int j = 0; j &lt; M; j++) {
+    line = br.readLine();
+    st = new StringTokenizer(line);
+
+    int mj = Integer.parseInt(st.nextToken());
+
+    StringBuilder nameBuilder = new StringBuilder();
+    while (st.hasMoreTokens()) {
+        if (nameBuilder.length() &gt; 0) nameBuilder.append(' ');
+        nameBuilder.append(st.nextToken());
+    }
+
+    String name = nameBuilder.toString().toLowerCase();
+    ProductInfo info = store.get(name);
+
+    if (info == null) continue;
+
+    int actual = info.changeStock(mj);
+    saving += (long) actual * (info.price - info.club);
+}</code></pre>
+
+          <ul>
+            <li>각 장바구니 줄: <code>mj sj...</code></li>
+            <li>마찬가지로 이름을 토큰 이어 붙여 만든 뒤 소문자 변환.</li>
+            <li>마트에 없는 상품이면 <code>info == null</code>이므로 그냥 무시.</li>
+            <li><code>changeStock(mj)</code>는 실제 구매 가능한 수량을 반환하고 재고를 줄인다.
+              <pre><code>int changeStock(int request) {
+    int accept = Math.min(request, stock);
+    stock -= accept;
+    return accept;
+}</code></pre>
+            </li>
+            <li>절약 금액은
+              <pre><code>saving += (long) actual * (info.price - info.club);</code></pre>
+              로 센트 단위로 누적된다.</li>
+          </ul>
+        </li>
+
+        <li><strong>결과 출력</strong>
+          <pre><code>sb.append("Data Set ").append(caseNum).append(":\n");
+sb.append(String.format("$%.2f\n\n", saving / 100.0));</code></pre>
+
+          <ul>
+            <li>각 데이터셋마다
+              <ul>
+                <li><code>Data Set x:</code> 한 줄 출력</li>
+                <li>다음 줄에 절약 금액을 <code>$</code>와 소수 둘째 자리까지 출력</li>
+                <li>그 다음 줄에 빈 줄 추가</li>
+              </ul>
+            </li>
+            <li><code>saving</code>은 센트 단위이므로 <code>/ 100.0</code>으로 달러로 변환한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          가격 파싱 로직
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>문자열 가격을 센트 단위 정수로 변환</strong>
+          <pre><code>private static int parsePrice(String s) {
+    s = s.trim();
+    if (s.charAt(0) == '$') {
+        s = s.substring(1);
+    }
+    String[] parts = s.split("\\.");
+
+    int dollars = Integer.parseInt(parts[0]);
+    int cents = 0;
+    if (parts.length &gt; 1) {
+        String centStr = parts[1];
+
+        if (centStr.length() == 1) centStr = centStr + "0";
+        cents = Integer.parseInt(centStr);
+    }
+
+    return dollars * 100 + cents;
+}</code></pre>
+
+          <ul>
+            <li><code>"$6.00"</code>에서 <code>'$'</code>를 제거 후 <code>"6.00"</code>을 <code>"6"</code>, <code>"00"</code>으로 나눈다.</li>
+            <li>달러와 센트를 정수로 바꾼 다음 <code>dollars * 100 + cents</code>로 센트 값으로 만들고 반환한다.</li>
+            <li>센트 부분이 1자리일 경우(예: <code>"4.5"</code>) 뒤에 0을 붙여 <code>"50"</code>처럼 맞춘다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        각 데이터셋에 대해:
+      </p>
+
+      <ul>
+        <li>마트 재고 <code>N</code>개를 읽어 맵에 저장: <strong><code>O(N)</code></strong></li>
+        <li>장바구니 항목 <code>M</code>개를 처리:
+          <ul>
+            <li>각 항목당 맵 조회는 <code>O(1)</code>, 이름 파싱도 입력 길이에 비례하지만 길이가 한정적이다.</li>
+            <li>전체적으로 <strong><code>O(M)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>
+        따라서 한 데이터셋당 시간 복잡도는 대략 <strong><code>O(N + M)</code></strong>이고,<br>
+        <code>1 ≤ N, M ≤ 100</code>이라 전체 입력에서도 충분히 빠르다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <p>
+        주요 추가 공간 사용은:
+      </p>
+
+      <ul>
+        <li>마트 재고 맵 <code>store</code>:
+          <ul>
+            <li>최대 <code>N</code>개의 <code>ProductInfo</code>를 저장 → <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+        <li>출력 누적용 <code>StringBuilder sb</code></li>
+        <li>그 외에는 단순 변수와 보조 문자열만 사용</li>
+      </ul>
+
+      <p>
+        전체적으로 추가 공간 복잡도는 <strong><code>O(N)</code></strong> 수준이다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>이름 비교 시 대소문자 무시</strong>:
+          <ul>
+            <li>재고, 장바구니 모두 <strong>소문자로 변환</strong>해서 비교해야 한다.</li>
+            <li>예제처럼 <code>"TV dinner"</code>와 <code>"tv dinner"</code>는 같은 상품으로 인식해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>재고보다 많이 주문하는 경우</strong>:
+          <ul>
+            <li><code>min(요청 수량, 재고)</code>만큼만 구매해야 하며, 재고는 그만큼 줄여야 한다.</li>
+            <li>여러 번 같은 상품을 장바구니에서 요청할 수도 있으므로 재고 관리가 중요하다.</li>
+          </ul>
+        </li>
+        <li><strong>존재하지 않는 상품</strong>:
+          <ul>
+            <li>장바구니에 있지만 재고 목록에 없는 경우(<code>info == null</code>)는 무시한다.</li>
+            <li>절약 금액에도 영향을 주지 않는다.</li>
+          </ul>
+        </li>
+        <li><strong>출력 형식</strong>:
+          <ul>
+            <li>각 데이터셋 사이에 <strong>빈 줄 한 줄</strong>을 꼭 넣어야 한다.</li>
+            <li>금액은 항상 <code>$</code> 기호와 소수 둘째 자리까지 출력해야 한다
+              (예: <code>$3.00</code>).</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>상품 이름을 키로 하는 맵에 재고, 일반 가격, 클럽 가격을 저장한다.</li>
+        <li>장바구니를 돌면서 재고 내에서만 실제 구매 수량을 정하고,<br>
+            그 수량에 대해 <code>(일반가 - 클럽가)</code> 만큼 절약 금액을 누적한다.</li>
+        <li>이름 비교는 대소문자를 무시해야 하므로 모두 소문자로 통일한다.</li>
+        <li>가격은 센트 단위의 정수로 처리하고, 출력 시에만 달러/소수점 형식으로 변환한다.</li>
+        <li>각 데이터셋마다 <code>Data Set x:</code>와 절약 금액, 그리고 빈 줄을 정확히 출력해야 한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
