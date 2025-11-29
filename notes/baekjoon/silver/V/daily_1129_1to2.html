@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-28 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-29 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5144 — Ecosystem</h2>
+      <h2 class="section">문제 5263 — samba</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5144">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5263">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1128_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,376 +53,250 @@
           해설
         </span>
       </h3>
-
+      
       <p>
-        <strong>Ecosystem (BOJ 5144)</strong> 문제는<br>
-        <strong>먹이사슬 구조</strong>와 각 종의 <strong>초기 개체 수</strong>, 그리고 각 종이 생존을 위해 필요로 하는 먹이를 바탕으로,<br>
-        일정 시간이 지난 뒤 <strong>각 종이 몇 마리 살아남는지</strong>를 계산하는 시뮬레이션 문제다.
+        <strong>samba (BOJ 5263)</strong> 문제는<br>
+        각 삼바 학교의 ID가 적힌 무용수들의 목록이 주어졌을 때,<br>
+        모든 학교는 자교 무용수들을 <strong>각 행에 정확히 k명씩</strong> 배치해야 하지만<br>
+        단 <strong>한 학교만</strong> 이 조건을 만족하지 못했다고 할 때,<br>
+        그 <strong>예외 학교의 ID</strong>를 찾는 문제다.
       </p>
-
+      
       <p>
-        모델은 다음과 같다.
+        조건을 수식으로 정리하면:
       </p>
-
+      
       <ul>
-        <li>종은 총 <code>n</code>개, 번호는 <code>1 ~ n</code> (코드에서는 0 ~ n-1 인덱스로 사용).</li>
-        <li><strong>각 종은 자신보다 번호가 작은 종만 먹을 수 있다.</strong></li>
-        <li>각 종 <code>i</code>에 대해:
+        <li>같은 학교의 무용수 수를 <code>cnt(ID)</code>라고 할 때,
           <ul>
-            <li>현재 개체 수: <code>init[i]</code></li>
-            <li>먹이 요구량: <code>need[i][j]</code> (종 <code>i</code>의 개체 하나가 생존하기 위해 종 <code>j</code>를 몇 마리 먹어야 하는지)</li>
+            <li>정상인 학교는 모두 <code>cnt(ID) % k == 0</code>을 만족한다.</li>
+            <li>단 하나의 학교만 <code>cnt(ID) % k != 0</code> 이다.</li>
           </ul>
         </li>
-        <li>먹이 요구량은 <strong>균형 잡힌 식단</strong>이다.
-          <ul>
-            <li>예를 들어, <code>need[seal][herring] = 1</code>, <code>need[seal][squid] = 1</code>이면<br>
-                청어 1마리 + 오징어 1마리를 정확히 먹어야 생존할 수 있고,<br>
-                청어 2마리 + 오징어 0마리 같은 식으로 대체할 수 없다.</li>
-          </ul>
-        </li>
-        <li>어떤 먹이 종이 <strong>이미 0마리</strong>라면, 그 먹이를 필요로 하는 상위 종의 개체는 <strong>모두 굶어 죽는다.</strong></li>
-        <li>처리는 항상 종 번호 <strong>오름차순</strong>으로 진행한다.
-          <ul>
-            <li>즉, 번호가 작은 종이 먼저 먹이를 소비하고, 그 이후 남은 개체 수를 기반으로 더 높은 종이 생존 가능 개체 수를 계산한다.</li>
-          </ul>
-        </li>
+        <li>입력으로는 무용수 수 <code>n</code>, 한 줄에 배치해야 하는 인원 <code>k</code>,<br>
+            그리고 길이 <code>n</code>의 ID 목록이 주어진다.</li>
+        <li>우리는 이 중에서 <strong>개수가 k로 나누어떨어지지 않는 ID</strong>를 찾아 출력하면 된다.</li>
       </ul>
-
+      
       <p>
-        목표는, 주어진 한 단위 시간 동안 이 과정을 한 번 시뮬레이션한 뒤,<br>
-        최종적으로 각 종별 생존 개체 수를 구하는 것이다.
+        핵심은 <strong>각 ID가 몇 번 나왔는지 센 뒤, 그 개수의 나머지를 체크</strong>하는 것이다.
       </p>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           전략 개요
         </span>
       </p>
-
+      
       <ul>
-        <li><strong>입력 구조</strong>
+        <li><strong>입력</strong>
           <ul>
-            <li>데이터셋 개수 <code>K</code>.</li>
-            <li>각 데이터셋마다:
+            <li>첫 줄: <code>n</code> (무용수 수), <code>k</code> (한 줄 인원 수).</li>
+            <li>다음 <code>n</code>줄: 각 줄마다 무용수 한 명의 <code>schoolId</code> (정수).</li>
+          </ul>
+        </li>
+      
+        <li><strong>아이디어</strong>
+          <ul>
+            <li>각 학교 ID별로 등장 횟수를 <strong>해시맵</strong>으로 센다.
               <ul>
-                <li><code>n</code>: 종의 개수.</li>
-                <li>각 종 <code>i (1..n)</code>에 대해 한 줄:
-                  <ul>
-                    <li>첫 정수: <code>init[i]</code> (현재 개체 수)</li>
-                    <li>다음 <code>i-1</code>개 정수: <code>need[i][1..i-1]</code> (먹이 요구량)</li>
-                  </ul>
-                </li>
+                <li><code>map[id] = 해당 ID의 무용수 수</code></li>
+              </ul>
+            </li>
+            <li>모든 입력을 다 센 후, <code>map</code>을 순회하면서
+              <ul>
+                <li><code>cnt % k != 0</code>인 ID를 찾는다.</li>
+                <li>문제에서 <strong>오직 하나만 존재</strong>한다고 했으므로, 처음 찾는 ID가 곧 답이다.</li>
               </ul>
             </li>
           </ul>
         </li>
-
-        <li><strong>시뮬레이션 개요</strong>
+      
+        <li><strong>주의할 점</strong>
           <ul>
-            <li><code>surv[i]</code>: 시뮬레이션 중 현재 남아 있는 종 <code>i</code>의 개체 수.
-              <ul>
-                <li>시작 시점에는 <code>surv[i] = init[i]</code>.</li>
-              </ul>
-            </li>
-            <li>종을 <strong>번호 순서대로</strong> 1번부터 n번까지 처리한다.
-              <ul>
-                <li>종 1은 먹이가 필요 없으므로, 단순히 <code>surv[0] = init[0]</code> 유지.</li>
-                <li>종 <code>i</code> (<code>i &gt; 1</code>)에 대해:
-                  <ul>
-                    <li>자신이 필요로 하는 먹이 종들(번호 <code>&lt; i</code>)의 남은 개체 수를 보고,<br>
-                        실제로 최대 몇 마리까지 생존할 수 있는지 계산한다.</li>
-                    <li>생존이 가능하다고 판단된 개체 수만큼, 먹이 종의 개체 수를 <strong>소비</strong>한다.</li>
-                    <li>나머지는 굶어 죽었으므로 <code>surv[i]</code>를 생존 개체 수로 덮어쓴다.</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-
-        <li><strong>생존 가능 개체 수 계산 핵심</strong>
-          <ul>
-            <li>종 <code>i</code>가 종 <code>j</code>를 <code>need[i][j]</code>마리씩 먹어야 한다면,<br>
-                현재 남은 먹이 <code>surv[j]</code>로부터 최대
-                <pre><code>surv[j] / need[i][j]</code></pre>
-                마리의 종 <code>i</code>만 생존할 수 있다.
-            </li>
-            <li>먹이가 여러 종이라면, 각 먹이 종마다 이런 <strong>상한</strong>이 생기고,<br>
-                실제로는 이 상한들의 <strong>최솟값</strong>이 종 <code>i</code>가 생존할 수 있는 최대 개체 수가 된다.</li>
-            <li>이 값을 <code>maxFood</code>로 두고, 실제 생존 개체 수는
-              <pre><code>alive = min(init[i], maxFood)</code></pre>
-              로 결정한다.
-            </li>
+            <li><code>n</code>이 최대 1,000,000이므로, 입력 읽기와 카운팅은 <strong>O(n)</strong>으로 처리해야 한다.</li>
+            <li>ID 범위가 <code>0 ~ 1,000,000,000</code>이기 때문에, 단순 배열로 카운트할 수 없고<br>
+                <strong><code>HashMap&lt;Integer, Integer&gt;</code></strong> 같은 맵 구조를 사용해야 한다.</li>
+            <li>문제 보장 상 하나의 ID만 조건에서 벗어나므로, 맵을 한 번만 순회해도 된다.</li>
           </ul>
         </li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           핵심: 코드가 하는 일
         </span>
       </p>
-
+      
       <ul>
-        <li><strong>기본 입력 처리 및 데이터셋 루프</strong>
+        <li><strong>입력 루프 및 첫 줄 파싱</strong>
           <pre><code>String line;
-while ((line = br.readLine()) != null) {
-    line = line.trim();
-
-    int K = Integer.parseInt(line);
-
-    for (int caseNum = 1; caseNum &lt;= K; caseNum++) {
-        int n = Integer.parseInt(br.readLine());
-
-        int[] init = new int[n];
-        int[][] need = new int[n][n];
-
-        ...
-    }
-}</code></pre>
-
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          StringTokenizer st = new StringTokenizer(line);
+          int n = Integer.parseInt(st.nextToken());
+          int k = Integer.parseInt(st.nextToken());</code></pre>
+      
           <ul>
-            <li>첫 줄에서 <code>K</code>를 읽고, 그만큼 데이터셋을 처리한다.</li>
-            <li>각 데이터셋마다 <code>n</code>을 읽고, 초기 개체 수와 먹이 요구량을 위한 배열을 만든다.</li>
+            <li>EOF까지 여러 테스트 케이스가 있을 수 있는 입력 형식이라,
+                바깥을 <code>while ((line = br.readLine()) != null)</code>로 감싼 구조다.</li>
+            <li>각 테스트 케이스의 첫 줄에서 <code>n</code>, <code>k</code>를 읽는다.</li>
           </ul>
         </li>
-
-        <li><strong>각 종의 초기 정보 입력</strong>
-          <pre><code>for (int i = 0; i &lt; n; i++) {
-    StringTokenizer st = new StringTokenizer(br.readLine());
-    init[i] = Integer.parseInt(st.nextToken());
-
-    for (int j = 0; j &lt; i; j++) {
-        need[i][j] = Integer.parseInt(st.nextToken());
-    }
-}</code></pre>
-
+      
+        <li><strong>ID별 개수 세기</strong>
+          <pre><code>    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+          for (int i = 0; i &lt; n; i++) {
+              int schoolId = Integer.parseInt(br.readLine());
+              map.put(schoolId, map.getOrDefault(schoolId, 0) + 1);
+          }</code></pre>
+      
           <ul>
-            <li>종 인덱스는 0부터 사용하지만, 입력은 1번 종부터 순서대로 들어온다고 생각하면 된다.</li>
-            <li><code>i</code>번째 줄:
+            <li><code>map</code>의 key: 학교 ID (정수)</li>
+            <li><code>map</code>의 value: 해당 ID의 등장 횟수</li>
+            <li>각 무용수 ID를 한 줄씩 읽어오면서, <code>getOrDefault</code>로 기존 값에 1을 더해 저장한다.</li>
+            <li>결과적으로 <strong>학교별 무용수 수를 모두 카운트</strong>하게 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>조건 위반 학교 ID 찾기</strong>
+          <pre><code>    for (int id : map.keySet()) {
+              if (map.get(id) % k != 0) {
+                  sb.append(id).append('\n');
+                  break;
+              }
+          }</code></pre>
+      
+          <ul>
+            <li><code>map.keySet()</code>으로 모든 학교 ID를 순회한다.</li>
+            <li>각 ID에 대해:
               <ul>
-                <li>첫 토큰: <code>init[i]</code> (현재 개체 수)</li>
-                <li>다음 <code>i</code>개의 먹이 요구량 중, 실제로는 <strong>번호가 더 작은 종만</strong> 먹기 때문에<br>
-                    <code>j &lt; i</code>인 구간만 읽는다.</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-
-        <li><strong>생존 개체 수 배열 초기화</strong>
-          <pre><code>long[] surv = new long[n];
-for (int i = 0; i &lt; n; i++) {
-    surv[i] = init[i];
-}</code></pre>
-
-          <ul>
-            <li><code>surv[i]</code>는 시뮬레이션 중 해당 종의 현재 개체 수를 나타낸다.</li>
-            <li>초기에는 모두 <code>init</code> 값으로 시작.</li>
-            <li><code>long</code>을 사용해 나중에 먹이 소비 계산 시 곱셈으로 인한 오버플로 위험을 줄인다.</li>
-          </ul>
-        </li>
-
-        <li><strong>종별 생존 계산</strong>
-          <pre><code>for (int i = 0; i &lt; n; i++) {
-    if (i == 0) continue;
-
-    long maxFood = Long.MAX_VALUE;
-
-    for (int j = 0; j &lt; i; j++) {
-        int needCnt = need[i][j];
-        if (needCnt == 0) continue;
-
-        if (surv[j] == 0) {
-            maxFood = 0;
-            break;
-        }
-
-        long possible = surv[j] / needCnt;
-        if (possible &lt; maxFood) {
-            maxFood = possible;
-        }
-    }
-
-    long alive;
-    if (maxFood == Long.MAX_VALUE) {
-        alive = init[i];
-    } else {
-        alive = Math.min((long) init[i], maxFood);
-    }
-
-    for (int j = 0; j &lt; i; j++) {
-        if (need[i][j] &gt; 0) {
-            surv[j] -= alive * need[i][j];
-        }
-    }
-
-    surv[i] = alive;
-}</code></pre>
-
-          <ul>
-            <li><code>i == 0</code>인 경우(1번 종)는 먹이 요구량이 없으므로 그대로 둔다.</li>
-            <li><strong>maxFood 계산</strong>:
-              <ul>
-                <li>처음에 <code>Long.MAX_VALUE</code>로 두어, &ldquo;아직 먹이 요구가 없다&rdquo;는 의미로 사용.</li>
-                <li>각 먹이 종 <code>j &lt; i</code>에 대해:
+                <li><code>map.get(id)</code>가 해당 학교의 총 인원 수.</li>
+                <li><code>map.get(id) % k != 0</code>이면,
                   <ul>
-                    <li><code>needCnt = need[i][j]</code>가 0이면, 해당 종은 먹지 않으므로 건너뜀.</li>
-                    <li>필요량이 있고, <code>surv[j] == 0</code>이면:
-                      <ul>
-                        <li>필수 먹이 종이 이미 멸종했으므로, <strong>종 <code>i</code> 전체가 굶어 죽음</strong>.</li>
-                        <li><code>maxFood = 0</code>으로 설정하고 바로 루프 종료.</li>
-                      </ul>
-                    </li>
-                    <li>그렇지 않다면, <code>possible = surv[j] / needCnt</code>가<br>
-                        종 <code>i</code>가 최대 몇 마리까지 생존 가능한지를 제한하는 상한이 된다.</li>
-                    <li><code>maxFood</code>는 모든 먹이 종에 대한 상한의 <strong>최솟값</strong>으로 갱신.</li>
+                    <li>해당 학교 인원 수가 <strong>k의 배수가 아니다</strong> → 지정된 행에 딱 맞게 나누어 떨어지지 않는다.</li>
+                    <li>즉, 이 학교가 바로 조건을 만족하지 못한 예외 학교다.</li>
                   </ul>
                 </li>
               </ul>
             </li>
-            <li><strong>alive 결정</strong>:
-              <ul>
-                <li>만약 <code>maxFood == Long.MAX_VALUE</code>라면, 종 <code>i</code>는 먹이가 전혀 필요 없다는 뜻이므로<br>
-                    <code>alive = init[i]</code> (초기 개체 수 그대로 생존).</li>
-                <li>그 외에는:
-                  <pre><code>alive = Math.min((long) init[i], maxFood);</code></pre>
-                  <ul>
-                    <li>초기 개체 수보다 더 많이 살 수는 없고, 먹이 상한을 넘어서도 안 되므로 두 값 중 작은 것을 생존 개체 수로 선택.</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li><strong>먹이 소비</strong>:
-              <ul>
-                <li>생존한 개체 수 <code>alive</code>만큼, 각 먹이 종 <code>j</code>에서
-                  <pre><code>alive * need[i][j]</code></pre>
-                  개체를 먹는다.
-                </li>
-                <li>즉,
-                  <pre><code>surv[j] -= alive * need[i][j];</code></pre>
-                  로 먹힌 만큼 줄어든다.
-                </li>
-              </ul>
-            </li>
-            <li>마지막에 <code>surv[i] = alive;</code>로 종 <code>i</code>의 최종 생존 개체 수를 갱신한다.</li>
+            <li>문제 보장상 이런 학교는 <strong>단 하나</strong>뿐이므로,<br>
+                첫 번째로 발견되는 ID를 출력 버퍼에 담고 <code>break</code>로 루프를 종료한다.</li>
           </ul>
         </li>
-
-        <li><strong>출력</strong>
-          <pre><code>sb.append("Data Set ").append(caseNum).append(":\n");
-for (int i = 0; i &lt; n; i++) {
-    sb.append(surv[i]).append('\n');
-}
-sb.append('\n');</code></pre>
-
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.print(sb);</code></pre>
+      
           <ul>
-            <li>각 데이터셋마다:
+            <li>모든 테스트 케이스에서 찾은 ID들을 누적해 한 번에 출력한다.</li>
+            <li>예제 입력의 경우:
               <ul>
-                <li><code>Data Set x:</code> 헤더 출력</li>
-                <li>각 종의 최종 생존 개체 수를 한 줄에 하나씩 출력</li>
-                <li>마지막에 빈 줄 한 줄 추가</li>
+                <li><code>k = 2</code>이고, 각 ID별 개수는
+                  <ul>
+                    <li>123: 6명 → 6 % 2 == 0 (정상)</li>
+                    <li>1678: 2명 → 2 % 2 == 0 (정상)</li>
+                    <li>43: 3명 → 3 % 2 == 1 (예외)</li>
+                  </ul>
+                </li>
+                <li>따라서 출력은 <code>43</code>이 된다.</li>
               </ul>
             </li>
           </ul>
         </li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           시간 복잡도
         </span>
       </p>
-
-      <p>
-        각 데이터셋에 대해:
-      </p>
-
+      
       <ul>
-        <li>입력으로 <code>need</code>를 채우는 부분:
+        <li>ID를 읽으면서 <code>HashMap</code>에 카운트하는 부분:
           <ul>
-            <li>각 종 <code>i</code>에 대해 최대 <code>i-1</code>개의 값을 읽으므로, 전체적으로 <strong><code>O(n^2)</code></strong>.</li>
+            <li>무용수 수 <code>n</code>에 대해, 각 삽입/갱신이 평균 <code>O(1)</code>이므로 전체 <strong><code>O(n)</code></strong>.</li>
           </ul>
         </li>
-        <li>시뮬레이션 루프:
+        <li>맵을 순회하며 조건을 체크하는 부분:
           <ul>
-            <li>바깥 루프 <code>i = 0..n-1</code>에 대해, 안쪽 루프 <code>j = 0..i-1</code>을 돈다.</li>
-            <li>이 역시 전체적으로 <strong><code>O(n^2)</code></strong>이다.</li>
+            <li>서로 다른 학교 수를 <code>m</code>이라 하면, <code>O(m)</code>.</li>
+            <li>최대 <code>m ≤ n</code>이므로 전체적으로는 여전히 <strong><code>O(n)</code></strong>.</li>
           </ul>
         </li>
       </ul>
-
+      
       <p>
-        따라서 한 데이터셋당 시간 복잡도는 <strong><code>O(n^2)</code></strong>이며,<br>
-        <code>n ≤ 100</code>이므로 충분히 빠르게 동작한다.
+        따라서 한 테스트 케이스의 시간 복잡도는 <strong><code>O(n)</code></strong>이며,<br>
+        <code>n ≤ 1,000,000</code>에서도 충분히 빠르게 동작한다.
       </p>
-
+      
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           공간 복잡도
         </span>
       </p>
-
+      
       <ul>
-        <li><code>init[n]</code>, <code>surv[n]</code>, <code>need[n][n]</code>를 사용한다.</li>
-        <li>따라서 공간 복잡도는 <strong><code>O(n^2)</code></strong>이다.</li>
+        <li><code>HashMap&lt;Integer, Integer&gt;</code>에 서로 다른 학교 ID만큼 저장한다.</li>
+        <li>서로 다른 학교 수를 <code>m</code>이라 할 때, 공간 복잡도는 <strong><code>O(m)</code></strong>이며, 최악의 경우 <code>O(n)</code>까지 갈 수 있다.</li>
+        <li>추가로 사용하는 변수들은 상수 개이므로, 전체 공간 복잡도는 <strong><code>O(n)</code></strong> 수준이다.</li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
           주의
         </span>
       </p>
-
+      
       <ul>
-        <li><strong>처리 순서</strong>:
+        <li><strong>정렬이 필요 없다</strong>:
           <ul>
-            <li>항상 종 번호가 <strong>작은 종부터</strong> 먹고, 남은 개체 수를 바탕으로 더 큰 종을 계산해야 한다.</li>
-            <li>코드에서도 <code>for (int i = 0; i &lt; n; i++)</code>로 순서대로 진행한다.</li>
+            <li>정답은 &ldquo;딱 하나뿐인 예외 학교 ID&rdquo;이고,<br>
+                그 ID만 정확히 찾아 출력하면 되므로, 별도의 정렬 과정이 필요 없다.</li>
+            <li><code>HashMap</code>의 순회 순서는 일정하지 않지만, 어차피 예외 ID가 하나뿐이므로<br>
+                어떤 순서로 순회하더라도 첫 번째로 발견되는 그 ID가 정답이다.</li>
           </ul>
         </li>
-        <li><strong>필수 먹이 부족 시 전멸 처리</strong>:
+        <li><strong>메모리와 입출력</strong>:
           <ul>
-            <li>필요량이 <code>need[i][j] &gt; 0</code>인데 <code>surv[j] == 0</code>이면, 해당 먹이 종이 이미 없는 상태다.</li>
-            <li>이 경우 종 <code>i</code>는 전부 굶어 죽어야 하므로, <code>maxFood = 0</code>으로 설정하고 이후 계산을 생략한다.</li>
+            <li><code>n</code>이 1,000,000까지 가능하므로, <code>BufferedReader</code>와 <code>StringBuilder</code>를 이용해<br>
+                입출력을 최적화한 점이 중요하다.</li>
+            <li>단순 <code>Scanner</code> + <code>System.out.println</code> 조합은 시간 초과 위험이 있다.</li>
           </ul>
         </li>
-        <li><strong>먹이 요구가 전혀 없는 종</strong>:
+        <li><strong>여러 테스트케이스 처리</strong>:
           <ul>
-            <li>모든 <code>need[i][j] == 0</code>인 경우, <code>maxFood</code>는 <code>Long.MAX_VALUE</code> 그대로 유지된다.</li>
-            <li>이때는 생존 개체 수를 <code>init[i]</code>로 그대로 유지한다.</li>
-          </ul>
-        </li>
-        <li><strong>오버플로 방지</strong>:
-          <ul>
-            <li><code>surv</code>와 <code>alive</code> 계산에 <code>long</code>을 사용하는 것은<br>
-                <code>alive * need[i][j]</code> 곱셈에서 오버플로를 피하기 위함이다.</li>
+            <li>코드는 EOF까지 반복해서 <code>n, k</code>를 읽는 구조라, 입력에 여러 케이스가 들어와도 모두 처리할 수 있다.</li>
+            <li>한 줄마다 하나의 정답 ID를 출력 버퍼에 추가한다.</li>
           </ul>
         </li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           포인트 요약
         </span>
       </p>
-
+      
       <ul>
-        <li>종 번호가 낮은 것부터 순서대로, 먹이 요구량과 남은 먹이를 바탕으로 생존 가능 개체 수를 계산한다.</li>
-        <li>각 먹이 종마다 가능한 상한 <code>surv[j] / need[i][j]</code>을 구하고, 그 최솟값이 상위 종이 생존할 수 있는 최대 개체 수가 된다.</li>
-        <li>필수 먹이 종 중 하나라도 이미 멸종했다면, 해당 종은 전부 굶어 죽는다.</li>
-        <li>생존한 개체 수만큼 먹이를 소비하여, 이후에 등장하는 더 상위 종들이 사용할 수 있는 먹이량을 줄인다.</li>
-        <li>이 과정을 모든 종에 대해 반복한 뒤, 각 종의 최종 <code>surv[i]</code>를 그대로 출력하면 된다.</li>
+        <li>각 학교 ID별로 무용수 수를 <code>HashMap</code>으로 센다.</li>
+        <li><code>cnt(ID) % k != 0</code>인 ID가 곧 조건을 만족하지 못한 삼바 학교다.</li>
+        <li>문제에서 예외 학교는 정확히 하나라고 보장하므로, 첫 번째로 발견되는 ID를 출력하면 된다.</li>
+        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code> (서로 다른 ID 수에 비례)로, 대용량 입력에도 적합한 풀이다.</li>
       </ul>
+
 
 
 
@@ -471,14 +345,14 @@ sb.append('\n');</code></pre>
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5210 — Campus Buildings</h2>
+      <h2 class="section">문제 5294 — Pirates On Parade</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5210">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5294">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1128_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -493,279 +367,273 @@ sb.append('\n');</code></pre>
           해설
         </span>
       </h3>
-
+      
       <p>
-        <strong>Campus Buildings (BOJ 5210)</strong> 문제는<br>
-        여러 개의 건물 이름과 하나의 건물 약어(abbreviation)가 주어졌을 때,<br>
-        이 약어가 <strong>어떤 건물 이름의 부분 수열로 등장하는지</strong>를 판별해서<br>
-        조건을 만족하는 건물 이름들을 모두 출력하는 문제다.
+        <strong>Pirates On Parade (BOJ 5294)</strong> 문제는<br>
+        해적들의 이름과 키가 주어졌을 때, 해적들을 <strong>키 순으로 정렬</strong>한 뒤<br>
+        <strong>키 차이가 최대 2인 해적끼리만 앞에서부터 순서대로 짝을 만들어</strong> 출력하는 문제다.
       </p>
-
+      
       <p>
-        약어와 건물 이름 매칭 규칙은 다음과 같다.
+        규칙을 정리하면:
       </p>
-
+      
       <ul>
-        <li>약어의 문자들이 <strong>주어진 순서대로</strong> 건물 이름 안에 등장해야 한다.
+        <li>모든 해적은 이름과 키(정수, 인치 단위)를 가진다.</li>
+        <li>해적들은 두 명씩 짝을 지어 줄 세운다.
           <ul>
-            <li>예: <code>SAL</code>은
-              <ul>
-                <li><code>SALvatori</code></li>
-                <li><code>studENt aeRoSpace laBoratory</code> (대소문자, 공백 무시)</li>
-                <li><code>univerSity of southern cALifornia</code></li>
-              </ul>
-              에는 매칭된다.
-            </li>
-            <li>하지만 <code>angeles</code>에는 S, A, L이 <strong>순서대로</strong> 나타나지 않으므로 매칭되지 않는다.</li>
+            <li>전체 줄은 <strong>가장 작은 키부터 가장 큰 키까지</strong> 오름차순이다.</li>
+            <li>각 짝 내부에서도 <strong>더 키가 작은 해적 이름이 먼저</strong> 와야 한다.</li>
           </ul>
         </li>
-        <li>대소문자는 구분하지 않는다. 즉, <code>'S'</code>와 <code>'s'</code>는 같은 문자로 본다.</li>
-        <li>약어의 각 문자는 건물 이름에서 <strong>서로 다른 위치</strong>에 매칭되어야 한다.
+        <li>같은 짝에 속한 두 해적의 키 차이는 <strong>최대 2</strong>여야 한다.
           <ul>
-            <li>한 위치의 문자를 약어의 두 문자에 재사용할 수는 없다 (일반적인 부분 수열 조건).</li>
+            <li>차이가 2를 초과하면 그 둘은 짝이 될 수 없다.</li>
           </ul>
         </li>
+        <li>정렬된 순서에서 <strong>앞에서부터</strong> 해적을 하나씩 보면서 짝을 만들고,
+          적절한 파트너를 찾지 못한 해적은 &ldquo;plank&rdquo;로 보내져 출력에서 제외된다.</li>
       </ul>
-
+      
       <p>
-        각 데이터셋마다, 약어와 매칭되는 모든 건물 이름을<br>
-        <strong>입력으로 주어진 순서 그대로</strong> 출력하면 된다.
+        출력은 <strong>성공적으로 짝을 이룬 해적들만</strong>이며,<br>
+        각 줄에는 &ldquo;키가 작은 해적 이름, 키가 큰 해적 이름&rdquo; 순으로 출력한다.<br>
+        짝을 이루지 못한 해적은 출력하지 않는다.
       </p>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           전략 개요
         </span>
       </p>
-
+      
       <ul>
-        <li>각 데이터셋에 대해:
-          <ol>
-            <li>건물 개수 <code>n</code>을 읽는다.</li>
-            <li>건물 이름 <code>n</code>개를 그대로 배열에 저장한다
-              (대소문자·공백 포함, 원본 출력용).</li>
-            <li>약어 코드 문자열을 읽고, 소문자로 변환해 <code>code</code>에 저장한다.</li>
-            <li>각 건물 이름에 대해:
+        <li>모든 해적 정보를 먼저 입력받아 리스트에 저장한다.</li>
+        <li>리스트를 <strong>키(height) 기준 오름차순</strong>으로 정렬한다.</li>
+        <li>정렬된 리스트를 왼쪽에서 오른쪽으로 한 번 훑으면서:
+          <ul>
+            <li>현재 인덱스 <code>idx</code>에서
               <ul>
-                <li>건물 이름을 소문자로 변환한 문자열 <code>lower</code>를 만든다.</li>
-                <li><code>code</code>의 각 문자들을 순서대로, <code>lower</code> 안에서 <strong>앞에서부터 차례대로</strong> 찾아간다.</li>
-                <li>모든 문자를 순서대로 찾을 수 있으면 매칭 성공 → 원래 건물 이름을 출력.</li>
-                <li>하나라도 찾지 못하면 매칭 실패 → 출력하지 않음.</li>
+                <li><code>p1 = list[idx]</code>, <code>p2 = list[idx+1]</code>를 후보로 잡는다.</li>
+                <li>두 해적 간 키 차이가 <strong>2 이하</strong>이면 → 둘을 짝지어 출력하고 <code>idx += 2</code>.</li>
+                <li>키 차이가 2보다 크면 → <code>p1</code>은 아무와도 짝을 못 만난 것이므로 버리고, <code>idx += 1</code>만 증가.</li>
               </ul>
             </li>
-          </ol>
-        </li>
-        <li>데이터셋마다
-          <ul>
-            <li><code>Data Set x:</code> 헤더를 출력한 뒤,</li>
-            <li>매칭된 건물 이름들을 순서대로 출력한다.</li>
+            <li>마지막에 혼자 남는 해적(즉, <code>idx + 1 == list.size()</code>인 경우)은 자동으로 짝을 못 만난 것으로 처리된다.</li>
           </ul>
         </li>
+        <li>이 방식은 &ldquo;가장 키가 작은 해적부터 가능한 한 앞에서 짝을 만들고, 안 되면 버린다&rdquo;는
+            문제 설명과 그대로 일치하는 <strong>그리디 전략</strong>이다.</li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           핵심: 코드가 하는 일
         </span>
       </p>
-
+      
       <ul>
-        <li><strong>데이터셋 개수 K 및 반복</strong>
-          <pre><code>String line;
-while ((line = br.readLine()) != null) {
-    line = line.trim();
-
-    int K = Integer.parseInt(line);
-
-    for (int caseNum = 1; caseNum &lt;= K; caseNum++) {
-        int n = Integer.parseInt(br.readLine());
-
-        String[] origin = new String[n];
-        for (int i = 0; i &lt; n; i++) {
-            origin[i] = br.readLine();
-        }
-
-        sb.append("Data Set ").append(caseNum).append(":\n");
-
-        String code = br.readLine().toLowerCase();
-
-        ...
-    }
-}</code></pre>
-
+        <li><strong>입력 및 해적 리스트 구성</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      List&lt;People&gt; list = new ArrayList&lt;&gt;();
+      
+      String line;
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          StringTokenizer st = new StringTokenizer(line);
+          String name = st.nextToken();
+          int height = Integer.parseInt(st.nextToken());
+      
+          list.add(new People(name, height));
+      }</code></pre>
+      
           <ul>
-            <li>첫 줄에서 데이터셋 개수 <code>K</code>를 읽는다.</li>
-            <li>각 데이터셋마다:
+            <li>EOF까지 한 줄씩 읽는다.</li>
+            <li>각 줄은 <code>이름, 키</code> 형식이므로, 토크나이징해서
               <ul>
-                <li><code>n</code>: 건물 이름의 개수.</li>
-                <li><code>origin[i]</code>: 입력 그대로의 건물 이름(나중에 그대로 출력).</li>
-                <li><code>code</code>: 약어를 소문자로 변환한 문자열.</li>
+                <li><code>name</code>: 문자열</li>
+                <li><code>height</code>: 정수</li>
               </ul>
             </li>
-            <li>각 데이터셋 시작 시 <code>"Data Set x:"</code>를 출력 버퍼에 추가한다.</li>
+            <li>이를 <code>People</code> 객체로 만들어 리스트에 추가한다.</li>
+            <li>입력 개수에 대한 별도의 수가 주어지지 않기 때문에, EOF까지 모두 읽는 구조가 맞다.</li>
           </ul>
         </li>
-
-        <li><strong>부분 수열(약어 매칭) 검사</strong>
-          <pre><code>for (String s : origin) {
-    String lower = s.toLowerCase();
-    int pos = -1;
-    boolean ok = true;
-
-    for (int i = 0; i &lt; code.length(); i++) {
-        char c = code.charAt(i);
-        pos = lower.indexOf(c, pos + 1);
-
-        if (pos == -1) {
-            ok = false;
-            break;
-        }
-    }
-
-    if (ok) {
-        sb.append(s).append("\n");
-    }
-}</code></pre>
-
+      
+        <li><strong>키 기준 정렬</strong>
+          <pre><code>list.sort((a, b) -&gt; Integer.compare(a.height, b.height));</code></pre>
+      
           <ul>
-            <li><code>lower = s.toLowerCase()</code>:
-              <ul>
-                <li>현재 건물 이름을 모두 소문자로 만들어, 대소문자 구분 없이 비교할 준비를 한다.</li>
-              </ul>
-            </li>
-            <li><code>pos</code>:
-              <ul>
-                <li>이전까지 찾은 약어 문자 위치를 기억하는 인덱스.</li>
-                <li>처음에는 <code>-1</code>로 두고, 항상 <code>pos + 1</code> 이후에서만 다음 문자를 찾는다.</li>
-              </ul>
-            </li>
-            <li><code>for (int i = 0; i &lt; code.length(); i++)</code>:
-              <ul>
-                <li>약어의 각 문자 <code>code[i]</code>를 순서대로 처리.</li>
-                <li><code>pos = lower.indexOf(c, pos + 1);</code>:
-                  <ul>
-                    <li><code>lower</code> 문자열에서 <strong>이전 위치 이후</strong>에 있는 문자 <code>c</code>의 첫 등장 위치를 찾는다.</li>
-                    <li>찾지 못하면 <code>-1</code>을 반환한다.</li>
-                  </ul>
-                </li>
-                <li>만약 <code>pos == -1</code>이면:
-                  <ul>
-                    <li>해당 문자를 순서대로 찾을 수 없다는 뜻 → 이 건물 이름은 약어와 매칭되지 않으므로 <code>ok = false</code> 후 루프 종료.</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li>전체 문자를 다 찾았으면 <code>ok = true</code> 그대로 유지되므로:
-              <ul>
-                <li>원래 이름인 <code>s</code>를 그대로 출력 버퍼에 추가한다.</li>
-              </ul>
-            </li>
+            <li><code>height</code> 기준으로 오름차순 정렬한다.</li>
+            <li>이제 <code>list.get(0)</code>가 가장 키가 작은 해적, 그 다음이 두 번째로 작은 해적 … 식이 된다.</li>
+            <li>문제에서 요구한 &ldquo;shortest to tallest&rdquo; 조건을 만족시키는 정렬이다.</li>
           </ul>
         </li>
-
-        <li><strong>최종 출력</strong>
+      
+        <li><strong>그리디하게 짝 만들기</strong>
+          <pre><code>int idx = 0;
+      while (idx + 1 &lt; list.size()) {
+          People p1 = list.get(idx);
+          People p2 = list.get(idx + 1);
+      
+          if (p2.height - p1.height &lt;= 2) {
+              sb.append(p1.name).append(" ").append(p2.name).append('\n');
+              idx += 2;
+          } else {
+              idx += 1;
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>idx + 1 &lt; list.size()</code>:
+              <ul>
+                <li>현재 해적 <code>p1</code>과 그 바로 다음 해적 <code>p2</code>가 둘 다 존재해야 짝을 검사할 수 있으므로,<br>
+                    인덱스가 리스트 끝을 넘지 않게 조건을 잡는다.</li>
+              </ul>
+            </li>
+            <li><code>p1 = list.get(idx)</code>, <code>p2 = list.get(idx + 1)</code>:
+              <ul>
+                <li>정렬된 상태에서 항상 <strong>더 작은 키를 가진 해적이 <code>p1</code></strong>이므로,<br>
+                    나중에 이름을 출력할 때도 <code>p1.name</code> → <code>p2.name</code> 순으로 출력하면 된다.</li>
+              </ul>
+            </li>
+            <li><code>if (p2.height - p1.height &lt;= 2)</code>:
+              <ul>
+                <li>키 차이가 2 이하이면, 문제에서 허용하는 한 쌍이므로 짝을 만든다.</li>
+                <li>출력 버퍼에 <code>p1.name p2.name</code>을 추가하고, <code>idx += 2</code>로 두 해적을 모두 소비한다.</li>
+              </ul>
+            </li>
+            <li>그 외의 경우:
+              <ul>
+                <li><code>p2.height - p1.height &gt; 2</code>라면, 현재 가장 작은 해적 <code>p1</code>은<br>
+                    <strong>그보다 큰 어떤 해적과도 키 차이가 최소 3 이상</strong>이라는 의미가 된다.
+                  <ul>
+                    <li>키가 더 큰 해적들과의 차이는 더 커질 뿐이므로, <code>p1</code>은 아무와도 짝을 이룰 수 없다.</li>
+                  </ul>
+                </li>
+                <li>따라서 <code>p1</code>은 &ldquo;plank&rdquo;로 보내고, <code>idx += 1</code>로 다음 해적으로 넘어간다.</li>
+              </ul>
+            </li>
+            <li>마지막에 해적이 한 명만 남는 경우(<code>idx + 1 == list.size()</code>)도 자연스럽게 짝을 못 만들고 루프 종료 → 출력되지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
           <pre><code>System.out.print(sb);</code></pre>
-
+      
           <ul>
-            <li>모든 데이터셋을 처리한 뒤, 한 번에 출력한다.</li>
-            <li>각 데이터셋 사이에 별도의 공백 줄을 출력하라는 조건은 없으므로,<br>
-                예제 출력처럼 바로 이어서 <code>Data Set x:</code> 줄이 나오게 된다.</li>
+            <li>모든 가능한 짝을 <code>StringBuilder</code>에 쌓아 두었다가, 한 번에 출력한다.</li>
+            <li>예제 1:
+              <ul>
+                <li>입력: Sam(60), Dan(52), Bob(54), Art(61)</li>
+                <li>키 기준 정렬: Dan(52), Bob(54), Sam(60), Art(61)</li>
+                <li>짝:
+                  <ul>
+                    <li>(52, 54) → 차이 2 → <code>Dan Bob</code></li>
+                    <li>(60, 61) → 차이 1 → <code>Sam Art</code></li>
+                  </ul>
+                </li>
+                <li>출력: 문제 예제와 동일.</li>
+              </ul>
+            </li>
           </ul>
         </li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           시간 복잡도
         </span>
       </p>
-
-      <p>
-        한 데이터셋에서:
-      </p>
-
+      
       <ul>
-        <li>건물 개수를 <code>n</code>, 각 건물 이름의 평균 길이를 <code>L</code>, 약어 길이를 <code>m</code>이라고 하면,
+        <li>입력으로 해적 수를 <code>n</code>이라고 하면:
           <ul>
-            <li>각 건물에 대해 <code>code.length()</code>번 반복하면서, 내부에서 <code>indexOf</code>로 남은 부분을 검색한다.</li>
-            <li>한 건물 이름당 시간 복잡도는 대략 <strong><code>O(L)</code>~<code>O(L × m)</code></strong> 사이지만,<br>
-                <code>indexOf</code>를 누적해서 사용하는 구조라 실제로는 전체 문자열을 한 번쯤 훑는 수준이다.</li>
+            <li>리스트에 해적 추가: <code>O(n)</code></li>
+            <li>키 기준 정렬: <strong><code>O(n log n)</code></strong></li>
+            <li>정렬된 리스트를 한 번 훑으면서 짝 만들기: <code>O(n)</code></li>
           </ul>
         </li>
-        <li>따라서 전체는 대략 <strong><code>O(n × L)</code></strong> 수준으로 볼 수 있다.</li>
       </ul>
-
+      
       <p>
-        문제 제한에서 <code>n ≤ 100</code>, 각 이름 길이도 크게 길지 않으므로<br>
-        충분히 빠르게 동작한다.
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이다.<br>
+        정렬 비용이 지배적이고, 그 이후의 짝 만들기 과정은 선형 시간에 끝난다.
       </p>
-
+      
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           공간 복잡도
         </span>
       </p>
-
+      
       <ul>
-        <li>건물 이름 배열 <code>origin[n]</code>과 문자열 몇 개(<code>lower</code>, <code>code</code>)만 추가로 사용한다.</li>
-        <li>따라서 한 데이터셋에 대한 추가 공간은 <strong><code>O(n × L)</code></strong> (입력 저장 공간) 정도이고,<br>
-            알고리즘 자체의 추가 공간은 <strong><code>O(1)</code></strong>에 가깝다.</li>
+        <li>해적 정보를 담는 리스트 <code>list</code>에 <code>n</code>개의 <code>People</code> 객체를 저장한다.</li>
+        <li>추가로 사용하는 것은 <code>StringBuilder</code>와 몇 개의 지역 변수 뿐이다.</li>
       </ul>
-
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
           주의
         </span>
       </p>
-
+      
       <ul>
-        <li><strong>대소문자 무시</strong>:
+        <li><strong>입력 종료 조건</strong>:
           <ul>
-            <li>건물 이름과 약어 모두 소문자로 변환해서 비교해야 한다.</li>
-            <li>코드에서는 <code>s.toLowerCase()</code>, <code>code.toLowerCase()</code>로 처리한다.</li>
+            <li>입력에 해적 수 <code>n</code>이 따로 주어지지 않으므로, EOF까지 읽는 구조(<code>while ((line = br.readLine()) != null)</code>)가 필요하다.</li>
           </ul>
         </li>
-        <li><strong>부분 수열(subsequence) 매칭</strong>:
+        <li><strong>정렬 후 그리디</strong>:
           <ul>
-            <li>단순히 각 문자 존재 여부만 확인하는 것이 아니라,<br>
-                <strong>이전 위치 이후</strong>에서만 다음 문자를 찾으면서 순서를 유지해야 한다.</li>
-            <li>이 부분이 <code>indexOf(c, pos + 1)</code>로 구현되어 있다.</li>
+            <li>항상 &ldquo;가장 키가 작은 해적부터&rdquo; 짝을 시도해야 하므로,<br>
+                정렬 후 앞에서부터 그리디하게 처리하는 방식이 문제 조건과 정확히 맞는다.</li>
+            <li>키 차이가 2보다 크면, 그 해적은 뒤에 있는 어떤 해적과도 짝을 이룰 수 없다는 점을 이용해 바로 버린다.</li>
           </ul>
         </li>
-        <li><strong>출력 형식</strong>:
+        <li><strong>오름차순 출력</strong>:
           <ul>
-            <li>각 데이터셋마다 반드시
-              <pre><code>Data Set x:</code></pre>
-              를 먼저 출력해야 한다.</li>
-            <li>그 뒤에 매칭되는 건물 이름들을 그대로 출력하고,<br>
-                매칭되는 것이 하나도 없으면 예제의 <code>Data Set 2:</code>처럼 헤더만 출력된다.</li>
+            <li>정렬된 리스트에서 <code>p1</code>, <code>p2</code>를 순서대로 출력하면<br>
+                전체적으로도 &ldquo;shortest to tallest&rdquo; 순서를 그대로 유지하게 된다.</li>
           </ul>
         </li>
       </ul>
-
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-
+      
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           포인트 요약
         </span>
       </p>
-
+      
       <ul>
-        <li>약어가 건물 이름의 <strong>부분 수열</strong>로 등장하는지(순서 유지, 건너뛰기는 허용)를 검사하는 문제다.</li>
-        <li>대소문자를 무시하기 위해 모두 소문자로 변환한 뒤 비교한다.</li>
-        <li>각 건물 이름에 대해 <code>indexOf</code>와 시작 위치 인덱스를 활용해, 약어의 문자를 앞에서부터 차례대로 찾는다.</li>
-        <li>모든 문자를 순서대로 찾으면 해당 건물 이름을 결과에 포함하고, 하나라도 실패하면 버린다.</li>
-        <li>각 데이터셋마다 <code>Data Set x:</code> 헤더 뒤에 매칭된 건물 이름들을 입력 순서대로 출력한다.</li>
+        <li>입력된 모든 해적을 (이름, 키) 쌍으로 리스트에 저장한다.</li>
+        <li>키 기준 오름차순으로 정렬해 전체 줄을 구성한다.</li>
+        <li>정렬된 리스트를 앞에서부터 보면서,
+          <ul>
+            <li>연속한 두 해적의 키 차이가 2 이하이면 → 짝으로 출력하고 둘 다 소비한다.</li>
+            <li>2를 초과하면 → 현재 해적은 누구와도 짝을 못 이룬다고 보고 버린다.</li>
+          </ul>
+        </li>
+        <li>짝을 이루지 못한 해적은 출력하지 않는다 (walk the plank).</li>
+        <li>정렬 + 한 번의 선형 스캔으로 <strong><code>O(n log n)</code></strong>에 해결 가능한 깔끔한 그리디 문제다.</li>
       </ul>
+
 
 
 
