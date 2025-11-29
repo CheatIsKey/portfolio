@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-28 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5144 — Ecosystem</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5144">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1128_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Ecosystem (BOJ 5144)</strong> 문제는<br>
+        <strong>먹이사슬 구조</strong>와 각 종의 <strong>초기 개체 수</strong>, 그리고 각 종이 생존을 위해 필요로 하는 먹이를 바탕으로,<br>
+        일정 시간이 지난 뒤 <strong>각 종이 몇 마리 살아남는지</strong>를 계산하는 시뮬레이션 문제다.
+      </p>
+
+      <p>
+        모델은 다음과 같다.
+      </p>
+
+      <ul>
+        <li>종은 총 <code>n</code>개, 번호는 <code>1 ~ n</code> (코드에서는 0 ~ n-1 인덱스로 사용).</li>
+        <li><strong>각 종은 자신보다 번호가 작은 종만 먹을 수 있다.</strong></li>
+        <li>각 종 <code>i</code>에 대해:
+          <ul>
+            <li>현재 개체 수: <code>init[i]</code></li>
+            <li>먹이 요구량: <code>need[i][j]</code> (종 <code>i</code>의 개체 하나가 생존하기 위해 종 <code>j</code>를 몇 마리 먹어야 하는지)</li>
+          </ul>
+        </li>
+        <li>먹이 요구량은 <strong>균형 잡힌 식단</strong>이다.
+          <ul>
+            <li>예를 들어, <code>need[seal][herring] = 1</code>, <code>need[seal][squid] = 1</code>이면<br>
+                청어 1마리 + 오징어 1마리를 정확히 먹어야 생존할 수 있고,<br>
+                청어 2마리 + 오징어 0마리 같은 식으로 대체할 수 없다.</li>
+          </ul>
+        </li>
+        <li>어떤 먹이 종이 <strong>이미 0마리</strong>라면, 그 먹이를 필요로 하는 상위 종의 개체는 <strong>모두 굶어 죽는다.</strong></li>
+        <li>처리는 항상 종 번호 <strong>오름차순</strong>으로 진행한다.
+          <ul>
+            <li>즉, 번호가 작은 종이 먼저 먹이를 소비하고, 그 이후 남은 개체 수를 기반으로 더 높은 종이 생존 가능 개체 수를 계산한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>
+        목표는, 주어진 한 단위 시간 동안 이 과정을 한 번 시뮬레이션한 뒤,<br>
+        최종적으로 각 종별 생존 개체 수를 구하는 것이다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>입력 구조</strong>
+          <ul>
+            <li>데이터셋 개수 <code>K</code>.</li>
+            <li>각 데이터셋마다:
+              <ul>
+                <li><code>n</code>: 종의 개수.</li>
+                <li>각 종 <code>i (1..n)</code>에 대해 한 줄:
+                  <ul>
+                    <li>첫 정수: <code>init[i]</code> (현재 개체 수)</li>
+                    <li>다음 <code>i-1</code>개 정수: <code>need[i][1..i-1]</code> (먹이 요구량)</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>시뮬레이션 개요</strong>
+          <ul>
+            <li><code>surv[i]</code>: 시뮬레이션 중 현재 남아 있는 종 <code>i</code>의 개체 수.
+              <ul>
+                <li>시작 시점에는 <code>surv[i] = init[i]</code>.</li>
+              </ul>
+            </li>
+            <li>종을 <strong>번호 순서대로</strong> 1번부터 n번까지 처리한다.
+              <ul>
+                <li>종 1은 먹이가 필요 없으므로, 단순히 <code>surv[0] = init[0]</code> 유지.</li>
+                <li>종 <code>i</code> (<code>i &gt; 1</code>)에 대해:
+                  <ul>
+                    <li>자신이 필요로 하는 먹이 종들(번호 <code>&lt; i</code>)의 남은 개체 수를 보고,<br>
+                        실제로 최대 몇 마리까지 생존할 수 있는지 계산한다.</li>
+                    <li>생존이 가능하다고 판단된 개체 수만큼, 먹이 종의 개체 수를 <strong>소비</strong>한다.</li>
+                    <li>나머지는 굶어 죽었으므로 <code>surv[i]</code>를 생존 개체 수로 덮어쓴다.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>생존 가능 개체 수 계산 핵심</strong>
+          <ul>
+            <li>종 <code>i</code>가 종 <code>j</code>를 <code>need[i][j]</code>마리씩 먹어야 한다면,<br>
+                현재 남은 먹이 <code>surv[j]</code>로부터 최대
+                <pre><code>surv[j] / need[i][j]</code></pre>
+                마리의 종 <code>i</code>만 생존할 수 있다.
+            </li>
+            <li>먹이가 여러 종이라면, 각 먹이 종마다 이런 <strong>상한</strong>이 생기고,<br>
+                실제로는 이 상한들의 <strong>최솟값</strong>이 종 <code>i</code>가 생존할 수 있는 최대 개체 수가 된다.</li>
+            <li>이 값을 <code>maxFood</code>로 두고, 실제 생존 개체 수는
+              <pre><code>alive = min(init[i], maxFood)</code></pre>
+              로 결정한다.
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>기본 입력 처리 및 데이터셋 루프</strong>
+          <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+
+    int K = Integer.parseInt(line);
+
+    for (int caseNum = 1; caseNum &lt;= K; caseNum++) {
+        int n = Integer.parseInt(br.readLine());
+
+        int[] init = new int[n];
+        int[][] need = new int[n][n];
+
+        ...
+    }
+}</code></pre>
+
+          <ul>
+            <li>첫 줄에서 <code>K</code>를 읽고, 그만큼 데이터셋을 처리한다.</li>
+            <li>각 데이터셋마다 <code>n</code>을 읽고, 초기 개체 수와 먹이 요구량을 위한 배열을 만든다.</li>
+          </ul>
+        </li>
+
+        <li><strong>각 종의 초기 정보 입력</strong>
+          <pre><code>for (int i = 0; i &lt; n; i++) {
+    StringTokenizer st = new StringTokenizer(br.readLine());
+    init[i] = Integer.parseInt(st.nextToken());
+
+    for (int j = 0; j &lt; i; j++) {
+        need[i][j] = Integer.parseInt(st.nextToken());
+    }
+}</code></pre>
+
+          <ul>
+            <li>종 인덱스는 0부터 사용하지만, 입력은 1번 종부터 순서대로 들어온다고 생각하면 된다.</li>
+            <li><code>i</code>번째 줄:
+              <ul>
+                <li>첫 토큰: <code>init[i]</code> (현재 개체 수)</li>
+                <li>다음 <code>i</code>개의 먹이 요구량 중, 실제로는 <strong>번호가 더 작은 종만</strong> 먹기 때문에<br>
+                    <code>j &lt; i</code>인 구간만 읽는다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>생존 개체 수 배열 초기화</strong>
+          <pre><code>long[] surv = new long[n];
+for (int i = 0; i &lt; n; i++) {
+    surv[i] = init[i];
+}</code></pre>
+
+          <ul>
+            <li><code>surv[i]</code>는 시뮬레이션 중 해당 종의 현재 개체 수를 나타낸다.</li>
+            <li>초기에는 모두 <code>init</code> 값으로 시작.</li>
+            <li><code>long</code>을 사용해 나중에 먹이 소비 계산 시 곱셈으로 인한 오버플로 위험을 줄인다.</li>
+          </ul>
+        </li>
+
+        <li><strong>종별 생존 계산</strong>
+          <pre><code>for (int i = 0; i &lt; n; i++) {
+    if (i == 0) continue;
+
+    long maxFood = Long.MAX_VALUE;
+
+    for (int j = 0; j &lt; i; j++) {
+        int needCnt = need[i][j];
+        if (needCnt == 0) continue;
+
+        if (surv[j] == 0) {
+            maxFood = 0;
+            break;
+        }
+
+        long possible = surv[j] / needCnt;
+        if (possible &lt; maxFood) {
+            maxFood = possible;
+        }
+    }
+
+    long alive;
+    if (maxFood == Long.MAX_VALUE) {
+        alive = init[i];
+    } else {
+        alive = Math.min((long) init[i], maxFood);
+    }
+
+    for (int j = 0; j &lt; i; j++) {
+        if (need[i][j] &gt; 0) {
+            surv[j] -= alive * need[i][j];
+        }
+    }
+
+    surv[i] = alive;
+}</code></pre>
+
+          <ul>
+            <li><code>i == 0</code>인 경우(1번 종)는 먹이 요구량이 없으므로 그대로 둔다.</li>
+            <li><strong>maxFood 계산</strong>:
+              <ul>
+                <li>처음에 <code>Long.MAX_VALUE</code>로 두어, &ldquo;아직 먹이 요구가 없다&rdquo;는 의미로 사용.</li>
+                <li>각 먹이 종 <code>j &lt; i</code>에 대해:
+                  <ul>
+                    <li><code>needCnt = need[i][j]</code>가 0이면, 해당 종은 먹지 않으므로 건너뜀.</li>
+                    <li>필요량이 있고, <code>surv[j] == 0</code>이면:
+                      <ul>
+                        <li>필수 먹이 종이 이미 멸종했으므로, <strong>종 <code>i</code> 전체가 굶어 죽음</strong>.</li>
+                        <li><code>maxFood = 0</code>으로 설정하고 바로 루프 종료.</li>
+                      </ul>
+                    </li>
+                    <li>그렇지 않다면, <code>possible = surv[j] / needCnt</code>가<br>
+                        종 <code>i</code>가 최대 몇 마리까지 생존 가능한지를 제한하는 상한이 된다.</li>
+                    <li><code>maxFood</code>는 모든 먹이 종에 대한 상한의 <strong>최솟값</strong>으로 갱신.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>alive 결정</strong>:
+              <ul>
+                <li>만약 <code>maxFood == Long.MAX_VALUE</code>라면, 종 <code>i</code>는 먹이가 전혀 필요 없다는 뜻이므로<br>
+                    <code>alive = init[i]</code> (초기 개체 수 그대로 생존).</li>
+                <li>그 외에는:
+                  <pre><code>alive = Math.min((long) init[i], maxFood);</code></pre>
+                  <ul>
+                    <li>초기 개체 수보다 더 많이 살 수는 없고, 먹이 상한을 넘어서도 안 되므로 두 값 중 작은 것을 생존 개체 수로 선택.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>먹이 소비</strong>:
+              <ul>
+                <li>생존한 개체 수 <code>alive</code>만큼, 각 먹이 종 <code>j</code>에서
+                  <pre><code>alive * need[i][j]</code></pre>
+                  개체를 먹는다.
+                </li>
+                <li>즉,
+                  <pre><code>surv[j] -= alive * need[i][j];</code></pre>
+                  로 먹힌 만큼 줄어든다.
+                </li>
+              </ul>
+            </li>
+            <li>마지막에 <code>surv[i] = alive;</code>로 종 <code>i</code>의 최종 생존 개체 수를 갱신한다.</li>
+          </ul>
+        </li>
+
+        <li><strong>출력</strong>
+          <pre><code>sb.append("Data Set ").append(caseNum).append(":\n");
+for (int i = 0; i &lt; n; i++) {
+    sb.append(surv[i]).append('\n');
+}
+sb.append('\n');</code></pre>
+
+          <ul>
+            <li>각 데이터셋마다:
+              <ul>
+                <li><code>Data Set x:</code> 헤더 출력</li>
+                <li>각 종의 최종 생존 개체 수를 한 줄에 하나씩 출력</li>
+                <li>마지막에 빈 줄 한 줄 추가</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        각 데이터셋에 대해:
+      </p>
+
+      <ul>
+        <li>입력으로 <code>need</code>를 채우는 부분:
+          <ul>
+            <li>각 종 <code>i</code>에 대해 최대 <code>i-1</code>개의 값을 읽으므로, 전체적으로 <strong><code>O(n^2)</code></strong>.</li>
+          </ul>
+        </li>
+        <li>시뮬레이션 루프:
+          <ul>
+            <li>바깥 루프 <code>i = 0..n-1</code>에 대해, 안쪽 루프 <code>j = 0..i-1</code>을 돈다.</li>
+            <li>이 역시 전체적으로 <strong><code>O(n^2)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>
+        따라서 한 데이터셋당 시간 복잡도는 <strong><code>O(n^2)</code></strong>이며,<br>
+        <code>n ≤ 100</code>이므로 충분히 빠르게 동작한다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <ul>
+        <li><code>init[n]</code>, <code>surv[n]</code>, <code>need[n][n]</code>를 사용한다.</li>
+        <li>따라서 공간 복잡도는 <strong><code>O(n^2)</code></strong>이다.</li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>처리 순서</strong>:
+          <ul>
+            <li>항상 종 번호가 <strong>작은 종부터</strong> 먹고, 남은 개체 수를 바탕으로 더 큰 종을 계산해야 한다.</li>
+            <li>코드에서도 <code>for (int i = 0; i &lt; n; i++)</code>로 순서대로 진행한다.</li>
+          </ul>
+        </li>
+        <li><strong>필수 먹이 부족 시 전멸 처리</strong>:
+          <ul>
+            <li>필요량이 <code>need[i][j] &gt; 0</code>인데 <code>surv[j] == 0</code>이면, 해당 먹이 종이 이미 없는 상태다.</li>
+            <li>이 경우 종 <code>i</code>는 전부 굶어 죽어야 하므로, <code>maxFood = 0</code>으로 설정하고 이후 계산을 생략한다.</li>
+          </ul>
+        </li>
+        <li><strong>먹이 요구가 전혀 없는 종</strong>:
+          <ul>
+            <li>모든 <code>need[i][j] == 0</code>인 경우, <code>maxFood</code>는 <code>Long.MAX_VALUE</code> 그대로 유지된다.</li>
+            <li>이때는 생존 개체 수를 <code>init[i]</code>로 그대로 유지한다.</li>
+          </ul>
+        </li>
+        <li><strong>오버플로 방지</strong>:
+          <ul>
+            <li><code>surv</code>와 <code>alive</code> 계산에 <code>long</code>을 사용하는 것은<br>
+                <code>alive * need[i][j]</code> 곱셈에서 오버플로를 피하기 위함이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>종 번호가 낮은 것부터 순서대로, 먹이 요구량과 남은 먹이를 바탕으로 생존 가능 개체 수를 계산한다.</li>
+        <li>각 먹이 종마다 가능한 상한 <code>surv[j] / need[i][j]</code>을 구하고, 그 최솟값이 상위 종이 생존할 수 있는 최대 개체 수가 된다.</li>
+        <li>필수 먹이 종 중 하나라도 이미 멸종했다면, 해당 종은 전부 굶어 죽는다.</li>
+        <li>생존한 개체 수만큼 먹이를 소비하여, 이후에 등장하는 더 상위 종들이 사용할 수 있는 먹이량을 줄인다.</li>
+        <li>이 과정을 모든 종에 대해 반복한 뒤, 각 종의 최종 <code>surv[i]</code>를 그대로 출력하면 된다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5210 — Campus Buildings</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5210">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1128_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+
+      <p>
+        <strong>Campus Buildings (BOJ 5210)</strong> 문제는<br>
+        여러 개의 건물 이름과 하나의 건물 약어(abbreviation)가 주어졌을 때,<br>
+        이 약어가 <strong>어떤 건물 이름의 부분 수열로 등장하는지</strong>를 판별해서<br>
+        조건을 만족하는 건물 이름들을 모두 출력하는 문제다.
+      </p>
+
+      <p>
+        약어와 건물 이름 매칭 규칙은 다음과 같다.
+      </p>
+
+      <ul>
+        <li>약어의 문자들이 <strong>주어진 순서대로</strong> 건물 이름 안에 등장해야 한다.
+          <ul>
+            <li>예: <code>SAL</code>은
+              <ul>
+                <li><code>SALvatori</code></li>
+                <li><code>studENt aeRoSpace laBoratory</code> (대소문자, 공백 무시)</li>
+                <li><code>univerSity of southern cALifornia</code></li>
+              </ul>
+              에는 매칭된다.
+            </li>
+            <li>하지만 <code>angeles</code>에는 S, A, L이 <strong>순서대로</strong> 나타나지 않으므로 매칭되지 않는다.</li>
+          </ul>
+        </li>
+        <li>대소문자는 구분하지 않는다. 즉, <code>'S'</code>와 <code>'s'</code>는 같은 문자로 본다.</li>
+        <li>약어의 각 문자는 건물 이름에서 <strong>서로 다른 위치</strong>에 매칭되어야 한다.
+          <ul>
+            <li>한 위치의 문자를 약어의 두 문자에 재사용할 수는 없다 (일반적인 부분 수열 조건).</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>
+        각 데이터셋마다, 약어와 매칭되는 모든 건물 이름을<br>
+        <strong>입력으로 주어진 순서 그대로</strong> 출력하면 된다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+
+      <ul>
+        <li>각 데이터셋에 대해:
+          <ol>
+            <li>건물 개수 <code>n</code>을 읽는다.</li>
+            <li>건물 이름 <code>n</code>개를 그대로 배열에 저장한다
+              (대소문자·공백 포함, 원본 출력용).</li>
+            <li>약어 코드 문자열을 읽고, 소문자로 변환해 <code>code</code>에 저장한다.</li>
+            <li>각 건물 이름에 대해:
+              <ul>
+                <li>건물 이름을 소문자로 변환한 문자열 <code>lower</code>를 만든다.</li>
+                <li><code>code</code>의 각 문자들을 순서대로, <code>lower</code> 안에서 <strong>앞에서부터 차례대로</strong> 찾아간다.</li>
+                <li>모든 문자를 순서대로 찾을 수 있으면 매칭 성공 → 원래 건물 이름을 출력.</li>
+                <li>하나라도 찾지 못하면 매칭 실패 → 출력하지 않음.</li>
+              </ul>
+            </li>
+          </ol>
+        </li>
+        <li>데이터셋마다
+          <ul>
+            <li><code>Data Set x:</code> 헤더를 출력한 뒤,</li>
+            <li>매칭된 건물 이름들을 순서대로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>데이터셋 개수 K 및 반복</strong>
+          <pre><code>String line;
+while ((line = br.readLine()) != null) {
+    line = line.trim();
+
+    int K = Integer.parseInt(line);
+
+    for (int caseNum = 1; caseNum &lt;= K; caseNum++) {
+        int n = Integer.parseInt(br.readLine());
+
+        String[] origin = new String[n];
+        for (int i = 0; i &lt; n; i++) {
+            origin[i] = br.readLine();
+        }
+
+        sb.append("Data Set ").append(caseNum).append(":\n");
+
+        String code = br.readLine().toLowerCase();
+
+        ...
+    }
+}</code></pre>
+
+          <ul>
+            <li>첫 줄에서 데이터셋 개수 <code>K</code>를 읽는다.</li>
+            <li>각 데이터셋마다:
+              <ul>
+                <li><code>n</code>: 건물 이름의 개수.</li>
+                <li><code>origin[i]</code>: 입력 그대로의 건물 이름(나중에 그대로 출력).</li>
+                <li><code>code</code>: 약어를 소문자로 변환한 문자열.</li>
+              </ul>
+            </li>
+            <li>각 데이터셋 시작 시 <code>"Data Set x:"</code>를 출력 버퍼에 추가한다.</li>
+          </ul>
+        </li>
+
+        <li><strong>부분 수열(약어 매칭) 검사</strong>
+          <pre><code>for (String s : origin) {
+    String lower = s.toLowerCase();
+    int pos = -1;
+    boolean ok = true;
+
+    for (int i = 0; i &lt; code.length(); i++) {
+        char c = code.charAt(i);
+        pos = lower.indexOf(c, pos + 1);
+
+        if (pos == -1) {
+            ok = false;
+            break;
+        }
+    }
+
+    if (ok) {
+        sb.append(s).append("\n");
+    }
+}</code></pre>
+
+          <ul>
+            <li><code>lower = s.toLowerCase()</code>:
+              <ul>
+                <li>현재 건물 이름을 모두 소문자로 만들어, 대소문자 구분 없이 비교할 준비를 한다.</li>
+              </ul>
+            </li>
+            <li><code>pos</code>:
+              <ul>
+                <li>이전까지 찾은 약어 문자 위치를 기억하는 인덱스.</li>
+                <li>처음에는 <code>-1</code>로 두고, 항상 <code>pos + 1</code> 이후에서만 다음 문자를 찾는다.</li>
+              </ul>
+            </li>
+            <li><code>for (int i = 0; i &lt; code.length(); i++)</code>:
+              <ul>
+                <li>약어의 각 문자 <code>code[i]</code>를 순서대로 처리.</li>
+                <li><code>pos = lower.indexOf(c, pos + 1);</code>:
+                  <ul>
+                    <li><code>lower</code> 문자열에서 <strong>이전 위치 이후</strong>에 있는 문자 <code>c</code>의 첫 등장 위치를 찾는다.</li>
+                    <li>찾지 못하면 <code>-1</code>을 반환한다.</li>
+                  </ul>
+                </li>
+                <li>만약 <code>pos == -1</code>이면:
+                  <ul>
+                    <li>해당 문자를 순서대로 찾을 수 없다는 뜻 → 이 건물 이름은 약어와 매칭되지 않으므로 <code>ok = false</code> 후 루프 종료.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>전체 문자를 다 찾았으면 <code>ok = true</code> 그대로 유지되므로:
+              <ul>
+                <li>원래 이름인 <code>s</code>를 그대로 출력 버퍼에 추가한다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.print(sb);</code></pre>
+
+          <ul>
+            <li>모든 데이터셋을 처리한 뒤, 한 번에 출력한다.</li>
+            <li>각 데이터셋 사이에 별도의 공백 줄을 출력하라는 조건은 없으므로,<br>
+                예제 출력처럼 바로 이어서 <code>Data Set x:</code> 줄이 나오게 된다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+
+      <p>
+        한 데이터셋에서:
+      </p>
+
+      <ul>
+        <li>건물 개수를 <code>n</code>, 각 건물 이름의 평균 길이를 <code>L</code>, 약어 길이를 <code>m</code>이라고 하면,
+          <ul>
+            <li>각 건물에 대해 <code>code.length()</code>번 반복하면서, 내부에서 <code>indexOf</code>로 남은 부분을 검색한다.</li>
+            <li>한 건물 이름당 시간 복잡도는 대략 <strong><code>O(L)</code>~<code>O(L × m)</code></strong> 사이지만,<br>
+                <code>indexOf</code>를 누적해서 사용하는 구조라 실제로는 전체 문자열을 한 번쯤 훑는 수준이다.</li>
+          </ul>
+        </li>
+        <li>따라서 전체는 대략 <strong><code>O(n × L)</code></strong> 수준으로 볼 수 있다.</li>
+      </ul>
+
+      <p>
+        문제 제한에서 <code>n ≤ 100</code>, 각 이름 길이도 크게 길지 않으므로<br>
+        충분히 빠르게 동작한다.
+      </p>
+
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+
+      <ul>
+        <li>건물 이름 배열 <code>origin[n]</code>과 문자열 몇 개(<code>lower</code>, <code>code</code>)만 추가로 사용한다.</li>
+        <li>따라서 한 데이터셋에 대한 추가 공간은 <strong><code>O(n × L)</code></strong> (입력 저장 공간) 정도이고,<br>
+            알고리즘 자체의 추가 공간은 <strong><code>O(1)</code></strong>에 가깝다.</li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+
+      <ul>
+        <li><strong>대소문자 무시</strong>:
+          <ul>
+            <li>건물 이름과 약어 모두 소문자로 변환해서 비교해야 한다.</li>
+            <li>코드에서는 <code>s.toLowerCase()</code>, <code>code.toLowerCase()</code>로 처리한다.</li>
+          </ul>
+        </li>
+        <li><strong>부분 수열(subsequence) 매칭</strong>:
+          <ul>
+            <li>단순히 각 문자 존재 여부만 확인하는 것이 아니라,<br>
+                <strong>이전 위치 이후</strong>에서만 다음 문자를 찾으면서 순서를 유지해야 한다.</li>
+            <li>이 부분이 <code>indexOf(c, pos + 1)</code>로 구현되어 있다.</li>
+          </ul>
+        </li>
+        <li><strong>출력 형식</strong>:
+          <ul>
+            <li>각 데이터셋마다 반드시
+              <pre><code>Data Set x:</code></pre>
+              를 먼저 출력해야 한다.</li>
+            <li>그 뒤에 매칭되는 건물 이름들을 그대로 출력하고,<br>
+                매칭되는 것이 하나도 없으면 예제의 <code>Data Set 2:</code>처럼 헤더만 출력된다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+
+      <ul>
+        <li>약어가 건물 이름의 <strong>부분 수열</strong>로 등장하는지(순서 유지, 건너뛰기는 허용)를 검사하는 문제다.</li>
+        <li>대소문자를 무시하기 위해 모두 소문자로 변환한 뒤 비교한다.</li>
+        <li>각 건물 이름에 대해 <code>indexOf</code>와 시작 위치 인덱스를 활용해, 약어의 문자를 앞에서부터 차례대로 찾는다.</li>
+        <li>모든 문자를 순서대로 찾으면 해당 건물 이름을 결과에 포함하고, 하나라도 실패하면 버린다.</li>
+        <li>각 데이터셋마다 <code>Data Set x:</code> 헤더 뒤에 매칭된 건물 이름들을 입력 순서대로 출력한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
