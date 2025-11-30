@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-29 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-11-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5263 — samba</h2>
+      <h2 class="section">문제 5345 — PLU Count</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5263">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5345">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1130_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,32 +55,38 @@
       </h3>
       
       <p>
-        <strong>samba (BOJ 5263)</strong> 문제는<br>
-        각 삼바 학교의 ID가 적힌 무용수들의 목록이 주어졌을 때,<br>
-        모든 학교는 자교 무용수들을 <strong>각 행에 정확히 k명씩</strong> 배치해야 하지만<br>
-        단 <strong>한 학교만</strong> 이 조건을 만족하지 못했다고 할 때,<br>
-        그 <strong>예외 학교의 ID</strong>를 찾는 문제다.
+        <strong>PLU Count (BOJ 5345)</strong> 문제는<br>
+        하나의 문자열 안에서 대소문자를 구분하지 않고 <strong>P → L → U 순서로 등장하는 패턴</strong>이<br>
+        <strong>얼마나 많이, 서로 겹치지 않게(non-interleaved)</strong> 나오는지를 세는 문제다.
       </p>
       
       <p>
-        조건을 수식으로 정리하면:
+        조건을 정리하면:
       </p>
       
       <ul>
-        <li>같은 학교의 무용수 수를 <code>cnt(ID)</code>라고 할 때,
+        <li>P, L, U는 <strong>이 순서대로만</strong> 등장해야 한다.</li>
+        <li>문자 사이에 다른 문자가 껴도 상관없지만,
           <ul>
-            <li>정상인 학교는 모두 <code>cnt(ID) % k == 0</code>을 만족한다.</li>
-            <li>단 하나의 학교만 <code>cnt(ID) % k != 0</code> 이다.</li>
+            <li>한 번 P, L, U를 묶어서 하나의 PLU를 만들면, 그 문자는 다른 PLU와 <strong>공유할 수 없다</strong>.</li>
+            <li>즉, 서로 PLU 묶음이 <strong>겹치거나 교차(interleave)</strong>되면 안 된다.</li>
           </ul>
         </li>
-        <li>입력으로는 무용수 수 <code>n</code>, 한 줄에 배치해야 하는 인원 <code>k</code>,<br>
-            그리고 길이 <code>n</code>의 ID 목록이 주어진다.</li>
-        <li>우리는 이 중에서 <strong>개수가 k로 나누어떨어지지 않는 ID</strong>를 찾아 출력하면 된다.</li>
+        <li>대소문자는 구분하지 않는다. (p, P, l, L, u, U 모두 합쳐서 같은 글자 취급)</li>
       </ul>
       
       <p>
-        핵심은 <strong>각 ID가 몇 번 나왔는지 센 뒤, 그 개수의 나머지를 체크</strong>하는 것이다.
+        예를 들어, 문자열 <code>"pppxLLLxuuu"</code>를 보자.
       </p>
+      
+      <ul>
+        <li>p, p, p → 여러 개의 P 후보가 있지만 결국 하나의 P만 사용된다.</li>
+        <li>L, L, L → 마찬가지로 하나의 L만 사용된다.</li>
+        <li>u, u, u → 그 중 하나의 U를 사용해 <strong>PLU 1개</strong>를 만든다.</li>
+        <li>사용하고 남은 P, L, U들이 있어도, 이미 한 번 PLU로 묶이는 과정에서 비연속적으로 사용했기 때문에<br>
+            새롭게 non-interleaved PLU를 더 만들 수 없다.</li>
+        <li>결과: <strong>1개</strong>.</li>
+      </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -91,37 +97,30 @@
       </p>
       
       <ul>
-        <li><strong>입력</strong>
+        <li>각 문자열에 대해 <strong>왼쪽부터 한 번만 순회</strong>하면서<br>
+            현재까지의 진행 상태를 나타내는 <strong>간단한 상태값</strong>을 유지하면 된다.</li>
+        <li>상태는 다음 세 단계로 보면 된다:
+          <ol>
+            <li>아직 P를 찾지 못한 상태</li>
+            <li>P는 찾았고, L을 기다리는 상태</li>
+            <li>P와 L을 모두 찾았고, U를 기다리는 상태</li>
+          </ol>
+        </li>
+        <li>코드에서는 이 상태를 <strong>정수 플래그</strong>로 관리한다.
           <ul>
-            <li>첫 줄: <code>n</code> (무용수 수), <code>k</code> (한 줄 인원 수).</li>
-            <li>다음 <code>n</code>줄: 각 줄마다 무용수 한 명의 <code>schoolId</code> (정수).</li>
+            <li><code>p</code>: P를 이미 찾았는지 여부 (0 or 1)</li>
+            <li><code>l</code>: L을 이미 찾았는지 여부 (0 or 1, 단 P를 찾은 뒤에만 의미 있음)</li>
           </ul>
         </li>
-      
-        <li><strong>아이디어</strong>
+        <li>문자를 하나씩 보면서:
           <ul>
-            <li>각 학교 ID별로 등장 횟수를 <strong>해시맵</strong>으로 센다.
-              <ul>
-                <li><code>map[id] = 해당 ID의 무용수 수</code></li>
-              </ul>
-            </li>
-            <li>모든 입력을 다 센 후, <code>map</code>을 순회하면서
-              <ul>
-                <li><code>cnt % k != 0</code>인 ID를 찾는다.</li>
-                <li>문제에서 <strong>오직 하나만 존재</strong>한다고 했으므로, 처음 찾는 ID가 곧 답이다.</li>
-              </ul>
-            </li>
+            <li>아직 P를 못 찾았고(<code>p == 0</code>), 현재 문자가 <code>p</code>면 → P를 찾았다고 표시.</li>
+            <li>P는 찾았고(<code>p == 1</code>), L은 아직이고(<code>l == 0</code>), 현재 문자가 <code>l</code>면 → L을 찾았다고 표시.</li>
+            <li>P와 L을 모두 찾은 상태에서(<code>l == 1</code>), 현재 문자가 <code>u</code>면 → PLU 하나 완성 → 개수 증가 후 상태 초기화.</li>
           </ul>
         </li>
-      
-        <li><strong>주의할 점</strong>
-          <ul>
-            <li><code>n</code>이 최대 1,000,000이므로, 입력 읽기와 카운팅은 <strong>O(n)</strong>으로 처리해야 한다.</li>
-            <li>ID 범위가 <code>0 ~ 1,000,000,000</code>이기 때문에, 단순 배열로 카운트할 수 없고<br>
-                <strong><code>HashMap&lt;Integer, Integer&gt;</code></strong> 같은 맵 구조를 사용해야 한다.</li>
-            <li>문제 보장 상 하나의 ID만 조건에서 벗어나므로, 맵을 한 번만 순회해도 된다.</li>
-          </ul>
-        </li>
+        <li>이렇게 하면 <strong>항상 가장 앞쪽에서부터 차례대로 PLU를 만들어</strong> 사용하므로,
+            자연스럽게 non-interleaved 조건을 만족시킨다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -133,80 +132,79 @@
       </p>
       
       <ul>
-        <li><strong>입력 루프 및 첫 줄 파싱</strong>
-          <pre><code>String line;
+        <li><strong>입력 처리</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      
+      String line;
       while ((line = br.readLine()) != null) {
           line = line.trim();
       
-          StringTokenizer st = new StringTokenizer(line);
-          int n = Integer.parseInt(st.nextToken());
-          int k = Integer.parseInt(st.nextToken());</code></pre>
-      
-          <ul>
-            <li>EOF까지 여러 테스트 케이스가 있을 수 있는 입력 형식이라,
-                바깥을 <code>while ((line = br.readLine()) != null)</code>로 감싼 구조다.</li>
-            <li>각 테스트 케이스의 첫 줄에서 <code>n</code>, <code>k</code>를 읽는다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>ID별 개수 세기</strong>
-          <pre><code>    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+          int n = Integer.parseInt(line);
           for (int i = 0; i &lt; n; i++) {
-              int schoolId = Integer.parseInt(br.readLine());
-              map.put(schoolId, map.getOrDefault(schoolId, 0) + 1);
-          }</code></pre>
+              line = br.readLine().toLowerCase();
+              int p = 0, l = 0;
+              int cnt = 0;</code></pre>
       
           <ul>
-            <li><code>map</code>의 key: 학교 ID (정수)</li>
-            <li><code>map</code>의 value: 해당 ID의 등장 횟수</li>
-            <li>각 무용수 ID를 한 줄씩 읽어오면서, <code>getOrDefault</code>로 기존 값에 1을 더해 저장한다.</li>
-            <li>결과적으로 <strong>학교별 무용수 수를 모두 카운트</strong>하게 된다.</li>
+            <li>첫 줄에서 문자열 개수 <code>n</code>을 읽는다.</li>
+            <li>그 다음 <code>n</code>개의 줄을 각각 하나의 텍스트 문자열로 처리한다.</li>
+            <li><code>line.toLowerCase()</code>로 모두 소문자로 바꿔서 <strong>대소문자 구분 없이</strong> 비교할 수 있게 한다.</li>
+            <li><code>p, l</code>은 상태 플래그, <code>cnt</code>는 완성된 PLU 개수다.</li>
           </ul>
         </li>
       
-        <li><strong>조건 위반 학교 ID 찾기</strong>
-          <pre><code>    for (int id : map.keySet()) {
-              if (map.get(id) % k != 0) {
-                  sb.append(id).append('\n');
-                  break;
-              }
-          }</code></pre>
+        <li><strong>문자 단위 순회 및 상태 갱신</strong>
+          <pre><code>        for (char c : line.toCharArray()) {
+                  if (c == 'p' &amp;&amp; p == 0) p++;
+                  if (c == 'l' &amp;&amp; p == 1 &amp;&amp; l == 0) l++;
+                  if (c == 'u' &amp;&amp; l == 1) {
+                      p = 0;
+                      l = 0;
+                      cnt++;
+                  }
+              }</code></pre>
       
           <ul>
-            <li><code>map.keySet()</code>으로 모든 학교 ID를 순회한다.</li>
-            <li>각 ID에 대해:
+            <li>각 문자 <code>c</code>를 왼쪽에서 오른쪽으로 한 번씩만 본다.</li>
+            <li><code>if (c == 'p' &amp;&amp; p == 0)</code>
               <ul>
-                <li><code>map.get(id)</code>가 해당 학교의 총 인원 수.</li>
-                <li><code>map.get(id) % k != 0</code>이면,
-                  <ul>
-                    <li>해당 학교 인원 수가 <strong>k의 배수가 아니다</strong> → 지정된 행에 딱 맞게 나누어 떨어지지 않는다.</li>
-                    <li>즉, 이 학교가 바로 조건을 만족하지 못한 예외 학교다.</li>
-                  </ul>
-                </li>
+                <li>아직 P를 찾지 못한 상태에서 처음 <code>'p'</code>를 만나면 <code>p = 1</code>로 설정한다.</li>
+                <li>추가로 등장하는 P들은 <code>p == 1</code>이므로 무시된다 (하나의 PLU에서 P는 한 번만 필요).</li>
               </ul>
             </li>
-            <li>문제 보장상 이런 학교는 <strong>단 하나</strong>뿐이므로,<br>
-                첫 번째로 발견되는 ID를 출력 버퍼에 담고 <code>break</code>로 루프를 종료한다.</li>
+            <li><code>if (c == 'l' &amp;&amp; p == 1 &amp;&amp; l == 0)</code>
+              <ul>
+                <li>이미 P를 찾았고(<code>p == 1</code>), 아직 L은 못 찾았으며(<code>l == 0</code>) 현재 문자가 <code>'l'</code>이면<br>
+                    <code>l = 1</code>로 설정해서 L을 찾았다고 표시한다.</li>
+              </ul>
+            </li>
+            <li><code>if (c == 'u' &amp;&amp; l == 1)</code>
+              <ul>
+                <li>P와 L을 이미 찾은 상태(<code>p == 1, l == 1</code>를 거친 상태)에서 <code>'u'</code>를 만나면<br>
+                    PLU 하나를 완성한 것이므로:
+                  <ul>
+                    <li><code>cnt++;</code> → PLU 개수 1 증가</li>
+                    <li><code>p = 0; l = 0;</code> → 상태를 초기화해서 다음 PLU를 새로 찾을 준비를 한다.</li>
+                  </ul>
+                </li>
+                <li>이렇게 상태를 리셋하기 때문에 <strong>이미 사용한 P, L, U는 다음 PLU에 재사용되지 않는다</strong>.<br>
+                    → non-interleaved 조건을 자연스럽게 만족.</li>
+              </ul>
+            </li>
           </ul>
         </li>
       
-        <li><strong>최종 출력</strong>
-          <pre><code>System.out.print(sb);</code></pre>
+        <li><strong>문자열별 결과 저장</strong>
+          <pre><code>        sb.append(cnt).append('\n');
+          }
+      }
+      
+      System.out.print(sb);</code></pre>
       
           <ul>
-            <li>모든 테스트 케이스에서 찾은 ID들을 누적해 한 번에 출력한다.</li>
-            <li>예제 입력의 경우:
-              <ul>
-                <li><code>k = 2</code>이고, 각 ID별 개수는
-                  <ul>
-                    <li>123: 6명 → 6 % 2 == 0 (정상)</li>
-                    <li>1678: 2명 → 2 % 2 == 0 (정상)</li>
-                    <li>43: 3명 → 3 % 2 == 1 (예외)</li>
-                  </ul>
-                </li>
-                <li>따라서 출력은 <code>43</code>이 된다.</li>
-              </ul>
-            </li>
+            <li>각 문자열에 대해 구한 <code>cnt</code>(최대 non-interleaved PLU 개수)를 한 줄에 하나씩 출력 버퍼에 추가한다.</li>
+            <li>마지막에 <code>System.out.print(sb);</code>로 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -220,23 +218,15 @@
       </p>
       
       <ul>
-        <li>ID를 읽으면서 <code>HashMap</code>에 카운트하는 부분:
+        <li>각 문자열의 길이를 <code>L</code>이라고 하면, 해당 문자열에 대해:
           <ul>
-            <li>무용수 수 <code>n</code>에 대해, 각 삽입/갱신이 평균 <code>O(1)</code>이므로 전체 <strong><code>O(n)</code></strong>.</li>
+            <li>각 문자를 딱 한 번씩만 검사 → <strong><code>O(L)</code></strong>.</li>
           </ul>
         </li>
-        <li>맵을 순회하며 조건을 체크하는 부분:
-          <ul>
-            <li>서로 다른 학교 수를 <code>m</code>이라 하면, <code>O(m)</code>.</li>
-            <li>최대 <code>m ≤ n</code>이므로 전체적으로는 여전히 <strong><code>O(n)</code></strong>.</li>
-          </ul>
-        </li>
+        <li>첫 줄에서 주어지는 문자열 개수를 <code>n</code>이라고 하면,<br>
+            전체 시간 복잡도는 <strong><code>O(ΣL)</code></strong> (모든 문자열 길이의 합에 비례)이다.</li>
+        <li>문제에서 각 문자열 길이가 최대 80이므로, 매우 여유로운 수준이다.</li>
       </ul>
-      
-      <p>
-        따라서 한 테스트 케이스의 시간 복잡도는 <strong><code>O(n)</code></strong>이며,<br>
-        <code>n ≤ 1,000,000</code>에서도 충분히 빠르게 동작한다.
-      </p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -245,10 +235,13 @@
       </p>
       
       <ul>
-        <li><code>HashMap&lt;Integer, Integer&gt;</code>에 서로 다른 학교 ID만큼 저장한다.</li>
-        <li>서로 다른 학교 수를 <code>m</code>이라 할 때, 공간 복잡도는 <strong><code>O(m)</code></strong>이며, 최악의 경우 <code>O(n)</code>까지 갈 수 있다.</li>
-        <li>추가로 사용하는 변수들은 상수 개이므로, 전체 공간 복잡도는 <strong><code>O(n)</code></strong> 수준이다.</li>
+        <li>문자열을 한 줄씩 읽어 처리하므로, 각 시점에서 메모리에 있는 문자열은 한 개뿐이다.</li>
+        <li>추가로 사용하는 것은 <code>p, l, cnt</code> 같은 정수 변수와 <code>StringBuilder</code>뿐이다.</li>
       </ul>
+      
+      <p>
+        따라서 공간 복잡도는 문자열 길이에 비례하는 <strong><code>O(L)</code></strong>, 전체적으로도 매우 작다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -259,25 +252,22 @@
       </p>
       
       <ul>
-        <li><strong>정렬이 필요 없다</strong>:
+        <li><strong>대소문자 처리</strong>:
           <ul>
-            <li>정답은 &ldquo;딱 하나뿐인 예외 학교 ID&rdquo;이고,<br>
-                그 ID만 정확히 찾아 출력하면 되므로, 별도의 정렬 과정이 필요 없다.</li>
-            <li><code>HashMap</code>의 순회 순서는 일정하지 않지만, 어차피 예외 ID가 하나뿐이므로<br>
-                어떤 순서로 순회하더라도 첫 번째로 발견되는 그 ID가 정답이다.</li>
+            <li><code>line.toLowerCase()</code>로 미리 소문자로 바꾸지 않으면 <code>'P'</code>와 <code>'p'</code>를 따로 취급하게 되어 오답이 된다.</li>
           </ul>
         </li>
-        <li><strong>메모리와 입출력</strong>:
+        <li><strong>상태 초기화 시점</strong>:
           <ul>
-            <li><code>n</code>이 1,000,000까지 가능하므로, <code>BufferedReader</code>와 <code>StringBuilder</code>를 이용해<br>
-                입출력을 최적화한 점이 중요하다.</li>
-            <li>단순 <code>Scanner</code> + <code>System.out.println</code> 조합은 시간 초과 위험이 있다.</li>
+            <li>하나의 PLU를 완성했을 때(<code>u</code>를 만난 순간) 바로 <code>p = 0; l = 0;</code>로 초기화해야 한다.</li>
+            <li>이 때문에 이미 사용한 P, L, U는 다시 쓸 수 없고, PLU들끼리 <strong>겹치지 않게</strong> 카운팅된다.</li>
           </ul>
         </li>
-        <li><strong>여러 테스트케이스 처리</strong>:
+        <li><strong>여러 P, L, U가 연속으로 나오는 경우</strong>:
           <ul>
-            <li>코드는 EOF까지 반복해서 <code>n, k</code>를 읽는 구조라, 입력에 여러 케이스가 들어와도 모두 처리할 수 있다.</li>
-            <li>한 줄마다 하나의 정답 ID를 출력 버퍼에 추가한다.</li>
+            <li>P 상태에서 P가 더 나와도 <code>p == 0</code> 조건 때문에 무시된다.</li>
+            <li>마찬가지로 L 상태에서도 L이 더 나와도 한 번만 인정된다.</li>
+            <li>이런 처리 덕분에 연속된 같은 문자들 속에서도 깔끔하게 PLU를 하나씩만 세게 된다.</li>
           </ul>
         </li>
       </ul>
@@ -291,11 +281,13 @@
       </p>
       
       <ul>
-        <li>각 학교 ID별로 무용수 수를 <code>HashMap</code>으로 센다.</li>
-        <li><code>cnt(ID) % k != 0</code>인 ID가 곧 조건을 만족하지 못한 삼바 학교다.</li>
-        <li>문제에서 예외 학교는 정확히 하나라고 보장하므로, 첫 번째로 발견되는 ID를 출력하면 된다.</li>
-        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code> (서로 다른 ID 수에 비례)로, 대용량 입력에도 적합한 풀이다.</li>
+        <li>문자열을 소문자로 바꾼 뒤, 왼쪽에서 오른쪽으로 한 번만 훑는다.</li>
+        <li><code>p</code>, <code>l</code> 두 개의 플래그로 현재까지 P, L이 나왔는지 상태를 관리한다.</li>
+        <li>P를 아직 못 찾았으면 P를 먼저 찾고, 그 다음에 L을 찾고, 그 다음에 U를 찾으면 PLU 하나 완성.</li>
+        <li>U까지 찾으면 PLU 개수를 1 증가시키고, 상태를 초기화해 다음 PLU를 찾는다.</li>
+        <li>이 방식은 PLU를 <strong>앞에서부터 순서대로</strong> 소비하므로, non-interleaved 조건을 자동으로 만족한다.</li>
       </ul>
+
 
 
 
@@ -345,14 +337,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5294 — Pirates On Parade</h2>
+      <h2 class="section">문제 5347 — LCM</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5294">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5347">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1130_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -369,36 +361,25 @@
       </h3>
       
       <p>
-        <strong>Pirates On Parade (BOJ 5294)</strong> 문제는<br>
-        해적들의 이름과 키가 주어졌을 때, 해적들을 <strong>키 순으로 정렬</strong>한 뒤<br>
-        <strong>키 차이가 최대 2인 해적끼리만 앞에서부터 순서대로 짝을 만들어</strong> 출력하는 문제다.
+        <strong>LCM (BOJ 5347)</strong> 문제는<br>
+        여러 테스트 케이스에 대해 두 자연수 <code>a</code>, <code>b</code>가 주어졌을 때<br>
+        각 쌍에 대한 <strong>최소공배수(LCM, Least Common Multiple)</strong>를 구해 출력하는 문제다.
       </p>
       
       <p>
-        규칙을 정리하면:
+        수학적으로 두 수 <code>a</code>, <code>b</code>에 대해:
       </p>
       
       <ul>
-        <li>모든 해적은 이름과 키(정수, 인치 단위)를 가진다.</li>
-        <li>해적들은 두 명씩 짝을 지어 줄 세운다.
-          <ul>
-            <li>전체 줄은 <strong>가장 작은 키부터 가장 큰 키까지</strong> 오름차순이다.</li>
-            <li>각 짝 내부에서도 <strong>더 키가 작은 해적 이름이 먼저</strong> 와야 한다.</li>
-          </ul>
-        </li>
-        <li>같은 짝에 속한 두 해적의 키 차이는 <strong>최대 2</strong>여야 한다.
-          <ul>
-            <li>차이가 2를 초과하면 그 둘은 짝이 될 수 없다.</li>
-          </ul>
-        </li>
-        <li>정렬된 순서에서 <strong>앞에서부터</strong> 해적을 하나씩 보면서 짝을 만들고,
-          적절한 파트너를 찾지 못한 해적은 &ldquo;plank&rdquo;로 보내져 출력에서 제외된다.</li>
+        <li><strong>최대공약수</strong>를 <code>g = gcd(a, b)</code>라고 하면,</li>
+        <li><strong>최소공배수</strong>는
+          <br><code>lcm(a, b) = a × b / gcd(a, b)</code> 로 구할 수 있다.</li>
       </ul>
       
       <p>
-        출력은 <strong>성공적으로 짝을 이룬 해적들만</strong>이며,<br>
-        각 줄에는 &ldquo;키가 작은 해적 이름, 키가 큰 해적 이름&rdquo; 순으로 출력한다.<br>
-        짝을 이루지 못한 해적은 출력하지 않는다.
+        입력에서 <code>a, b ≤ 1,000,000</code> 이므로,<br>
+        <code>a × b</code>의 최대값은 <code>10<sup>12</sup></code> 수준이고, 이는 <code>long</code> 범위 안에 들어간다.<br>
+        따라서 <strong><code>int</code> 곱셈은 오버플로우 위험이 있으므로</strong>, 곱셈 결과는 <code>long</code>으로 처리하는 것이 안전하다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -410,22 +391,16 @@
       </p>
       
       <ul>
-        <li>모든 해적 정보를 먼저 입력받아 리스트에 저장한다.</li>
-        <li>리스트를 <strong>키(height) 기준 오름차순</strong>으로 정렬한다.</li>
-        <li>정렬된 리스트를 왼쪽에서 오른쪽으로 한 번 훑으면서:
+        <li>첫 줄에서 테스트 케이스 개수 <code>n</code>을 입력받는다.</li>
+        <li>각 테스트 케이스마다:
           <ul>
-            <li>현재 인덱스 <code>idx</code>에서
-              <ul>
-                <li><code>p1 = list[idx]</code>, <code>p2 = list[idx+1]</code>를 후보로 잡는다.</li>
-                <li>두 해적 간 키 차이가 <strong>2 이하</strong>이면 → 둘을 짝지어 출력하고 <code>idx += 2</code>.</li>
-                <li>키 차이가 2보다 크면 → <code>p1</code>은 아무와도 짝을 못 만난 것이므로 버리고, <code>idx += 1</code>만 증가.</li>
-              </ul>
-            </li>
-            <li>마지막에 혼자 남는 해적(즉, <code>idx + 1 == list.size()</code>인 경우)은 자동으로 짝을 못 만난 것으로 처리된다.</li>
+            <li>두 자연수 <code>a</code>, <code>b</code>를 읽는다.</li>
+            <li><strong>유클리드 호제법</strong>으로 <code>gcd(a, b)</code>를 구한다.</li>
+            <li><code>lcm = (long)a * b / gcd(a, b)</code> 공식을 이용해 최소공배수를 구한다.</li>
+            <li>결과를 출력 버퍼에 쌓는다.</li>
           </ul>
         </li>
-        <li>이 방식은 &ldquo;가장 키가 작은 해적부터 가능한 한 앞에서 짝을 만들고, 안 되면 버린다&rdquo;는
-            문제 설명과 그대로 일치하는 <strong>그리디 전략</strong>이다.</li>
+        <li>모든 테스트 케이스 처리 후 한 번에 출력한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -437,111 +412,72 @@
       </p>
       
       <ul>
-        <li><strong>입력 및 해적 리스트 구성</strong>
+        <li><strong>입력 루프 및 테스트 케이스 처리</strong>
           <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       StringBuilder sb = new StringBuilder();
-      List&lt;People&gt; list = new ArrayList&lt;&gt;();
       
       String line;
       while ((line = br.readLine()) != null) {
           line = line.trim();
       
-          StringTokenizer st = new StringTokenizer(line);
-          String name = st.nextToken();
-          int height = Integer.parseInt(st.nextToken());
+          int n = Integer.parseInt(line);
+          for (int i = 0; i &lt; n; i++) {
+              StringTokenizer st = new StringTokenizer(br.readLine());
+              int a = Integer.parseInt(st.nextToken());
+              int b = Integer.parseInt(st.nextToken());
       
-          list.add(new People(name, height));
-      }</code></pre>
+              int g = gcd(a, b);
+              long lcm = (long) a * b / g;
       
-          <ul>
-            <li>EOF까지 한 줄씩 읽는다.</li>
-            <li>각 줄은 <code>이름, 키</code> 형식이므로, 토크나이징해서
-              <ul>
-                <li><code>name</code>: 문자열</li>
-                <li><code>height</code>: 정수</li>
-              </ul>
-            </li>
-            <li>이를 <code>People</code> 객체로 만들어 리스트에 추가한다.</li>
-            <li>입력 개수에 대한 별도의 수가 주어지지 않기 때문에, EOF까지 모두 읽는 구조가 맞다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>키 기준 정렬</strong>
-          <pre><code>list.sort((a, b) -&gt; Integer.compare(a.height, b.height));</code></pre>
-      
-          <ul>
-            <li><code>height</code> 기준으로 오름차순 정렬한다.</li>
-            <li>이제 <code>list.get(0)</code>가 가장 키가 작은 해적, 그 다음이 두 번째로 작은 해적 … 식이 된다.</li>
-            <li>문제에서 요구한 &ldquo;shortest to tallest&rdquo; 조건을 만족시키는 정렬이다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>그리디하게 짝 만들기</strong>
-          <pre><code>int idx = 0;
-      while (idx + 1 &lt; list.size()) {
-          People p1 = list.get(idx);
-          People p2 = list.get(idx + 1);
-      
-          if (p2.height - p1.height &lt;= 2) {
-              sb.append(p1.name).append(" ").append(p2.name).append('\n');
-              idx += 2;
-          } else {
-              idx += 1;
+              sb.append(lcm).append('\n');
           }
-      }</code></pre>
+      }
+      
+      System.out.print(sb);</code></pre>
       
           <ul>
-            <li><code>idx + 1 &lt; list.size()</code>:
+            <li><code>while ((line = br.readLine()) != null)</code>:
               <ul>
-                <li>현재 해적 <code>p1</code>과 그 바로 다음 해적 <code>p2</code>가 둘 다 존재해야 짝을 검사할 수 있으므로,<br>
-                    인덱스가 리스트 끝을 넘지 않게 조건을 잡는다.</li>
+                <li>EOF까지 읽는 구조지만, 일반적으로 입력에는 한 번만 <code>n</code>이 주어지므로 한 번만 돈다고 보면 된다.</li>
               </ul>
             </li>
-            <li><code>p1 = list.get(idx)</code>, <code>p2 = list.get(idx + 1)</code>:
+            <li><code>int n = Integer.parseInt(line);</code>
               <ul>
-                <li>정렬된 상태에서 항상 <strong>더 작은 키를 가진 해적이 <code>p1</code></strong>이므로,<br>
-                    나중에 이름을 출력할 때도 <code>p1.name</code> → <code>p2.name</code> 순으로 출력하면 된다.</li>
+                <li>테스트 케이스 개수 <code>n</code>을 읽는다.</li>
               </ul>
             </li>
-            <li><code>if (p2.height - p1.height &lt;= 2)</code>:
+            <li>각 테스트 케이스에 대해:
               <ul>
-                <li>키 차이가 2 이하이면, 문제에서 허용하는 한 쌍이므로 짝을 만든다.</li>
-                <li>출력 버퍼에 <code>p1.name p2.name</code>을 추가하고, <code>idx += 2</code>로 두 해적을 모두 소비한다.</li>
+                <li><code>a</code>, <code>b</code>를 읽고,</li>
+                <li><code>gcd(a, b)</code>를 구한 뒤,</li>
+                <li><code>lcm = (long) a * b / g</code>로 최소공배수를 계산한다.</li>
               </ul>
             </li>
-            <li>그 외의 경우:
+            <li><code>(long) a * b</code>:
               <ul>
-                <li><code>p2.height - p1.height &gt; 2</code>라면, 현재 가장 작은 해적 <code>p1</code>은<br>
-                    <strong>그보다 큰 어떤 해적과도 키 차이가 최소 3 이상</strong>이라는 의미가 된다.
-                  <ul>
-                    <li>키가 더 큰 해적들과의 차이는 더 커질 뿐이므로, <code>p1</code>은 아무와도 짝을 이룰 수 없다.</li>
-                  </ul>
-                </li>
-                <li>따라서 <code>p1</code>은 &ldquo;plank&rdquo;로 보내고, <code>idx += 1</code>로 다음 해적으로 넘어간다.</li>
+                <li><code>a</code>, <code>b</code>는 <code>int</code>지만, 곱셈 결과가 <code>int</code> 범위를 넘을 수 있어 <code>long</code>으로 캐스팅한 뒤 계산한다.</li>
               </ul>
             </li>
-            <li>마지막에 해적이 한 명만 남는 경우(<code>idx + 1 == list.size()</code>)도 자연스럽게 짝을 못 만들고 루프 종료 → 출력되지 않는다.</li>
+            <li>결과는 <code>StringBuilder</code>에 줄 단위로 쌓고, 마지막에 한 번에 출력한다.</li>
           </ul>
         </li>
       
-        <li><strong>출력</strong>
-          <pre><code>System.out.print(sb);</code></pre>
+        <li><strong>유클리드 호제법으로 gcd 구하기</strong>
+          <pre><code>private static int gcd(int a, int b) {
+          if (b == 0) return a;
+      
+          return gcd(b, a % b);
+      }</code></pre>
       
           <ul>
-            <li>모든 가능한 짝을 <code>StringBuilder</code>에 쌓아 두었다가, 한 번에 출력한다.</li>
-            <li>예제 1:
+            <li><strong>유클리드 호제법</strong>의 재귀 구현이다.</li>
+            <li>원리:
               <ul>
-                <li>입력: Sam(60), Dan(52), Bob(54), Art(61)</li>
-                <li>키 기준 정렬: Dan(52), Bob(54), Sam(60), Art(61)</li>
-                <li>짝:
-                  <ul>
-                    <li>(52, 54) → 차이 2 → <code>Dan Bob</code></li>
-                    <li>(60, 61) → 차이 1 → <code>Sam Art</code></li>
-                  </ul>
-                </li>
-                <li>출력: 문제 예제와 동일.</li>
+                <li><code>gcd(a, b) = gcd(b, a % b)</code></li>
+                <li><code>b == 0</code>이 되는 순간의 <code>a</code>가 바로 최대공약수.</li>
               </ul>
             </li>
+            <li>입력 값이 자연수이기 때문에, 재귀는 반드시 종료된다.</li>
           </ul>
         </li>
       </ul>
@@ -555,18 +491,17 @@
       </p>
       
       <ul>
-        <li>입력으로 해적 수를 <code>n</code>이라고 하면:
+        <li>각 테스트 케이스마다:
           <ul>
-            <li>리스트에 해적 추가: <code>O(n)</code></li>
-            <li>키 기준 정렬: <strong><code>O(n log n)</code></strong></li>
-            <li>정렬된 리스트를 한 번 훑으면서 짝 만들기: <code>O(n)</code></li>
+            <li><code>gcd(a, b)</code> 계산: 유클리드 호제법은 <strong><code>O(log min(a, b))</code></strong></li>
+            <li>나머지 연산(<code>a * b / g</code>)은 상수 시간</li>
           </ul>
         </li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이다.<br>
-        정렬 비용이 지배적이고, 그 이후의 짝 만들기 과정은 선형 시간에 끝난다.
+        따라서 테스트 케이스 개수를 <code>n</code>이라고 하면,<br>
+        전체 시간 복잡도는 대략 <strong><code>O(n · log M)</code></strong> (M은 입력 숫자의 최대값, 여기선 ≤ 1,000,000)이다.
       </p>
       
       <p>
@@ -576,12 +511,12 @@
       </p>
       
       <ul>
-        <li>해적 정보를 담는 리스트 <code>list</code>에 <code>n</code>개의 <code>People</code> 객체를 저장한다.</li>
-        <li>추가로 사용하는 것은 <code>StringBuilder</code>와 몇 개의 지역 변수 뿐이다.</li>
+        <li>추가로 사용하는 것은 몇 개의 정수 변수와 <code>StringBuilder</code>뿐이다.</li>
+        <li>입력 크기에 비례해 <code>StringBuilder</code>가 늘어나지만, 알고리즘 자체의 추가 메모리는 매우 작다.</li>
       </ul>
       
       <p>
-        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+        따라서 공간 복잡도는 <strong><code>O(1)</code></strong> 수준으로 볼 수 있다(출력 버퍼 제외).
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -593,22 +528,23 @@
       </p>
       
       <ul>
-        <li><strong>입력 종료 조건</strong>:
+        <li><strong>곱셈 시 오버플로우 방지</strong>:
           <ul>
-            <li>입력에 해적 수 <code>n</code>이 따로 주어지지 않으므로, EOF까지 읽는 구조(<code>while ((line = br.readLine()) != null)</code>)가 필요하다.</li>
+            <li><code>a</code>, <code>b</code>를 <code>int</code>로 받더라도 <code>a * b</code> 연산은 <code>long</code>으로 캐스팅해서 수행해야 한다.</li>
+            <li>그래야 <code>a * b</code>가 <code>10<sup>12</sup></code>까지 올라가는 경우에도 안전하다.</li>
           </ul>
         </li>
-        <li><strong>정렬 후 그리디</strong>:
+        <li><strong>공식 적용 순서</strong>:
           <ul>
-            <li>항상 &ldquo;가장 키가 작은 해적부터&rdquo; 짝을 시도해야 하므로,<br>
-                정렬 후 앞에서부터 그리디하게 처리하는 방식이 문제 조건과 정확히 맞는다.</li>
-            <li>키 차이가 2보다 크면, 그 해적은 뒤에 있는 어떤 해적과도 짝을 이룰 수 없다는 점을 이용해 바로 버린다.</li>
+            <li><code>lcm = (long) a * b / g</code>처럼, <strong>먼저 곱하고 나중에 나누는 것</strong>이 일반적이다.</li>
+            <li>다른 방식으로는 <code>lcm = a / g * b</code>처럼 나눗셈을 먼저 해서 곱셈을 줄이는 방법도 있지만,<br>
+                현재 입력 범위에서는 <code>long</code> 캐스팅만 잘 해줘도 충분히 안전하다.</li>
           </ul>
         </li>
-        <li><strong>오름차순 출력</strong>:
+        <li><strong>gcd 구현</strong>:
           <ul>
-            <li>정렬된 리스트에서 <code>p1</code>, <code>p2</code>를 순서대로 출력하면<br>
-                전체적으로도 &ldquo;shortest to tallest&rdquo; 순서를 그대로 유지하게 된다.</li>
+            <li>재귀 호출이므로, <code>b == 0</code>일 때 <code>a</code>를 바로 반환하는 구조가 꼭 필요하다.</li>
+            <li>이 부분이 잘못 구현되면 무한 재귀에 빠질 수 있다.</li>
           </ul>
         </li>
       </ul>
@@ -622,17 +558,12 @@
       </p>
       
       <ul>
-        <li>입력된 모든 해적을 (이름, 키) 쌍으로 리스트에 저장한다.</li>
-        <li>키 기준 오름차순으로 정렬해 전체 줄을 구성한다.</li>
-        <li>정렬된 리스트를 앞에서부터 보면서,
-          <ul>
-            <li>연속한 두 해적의 키 차이가 2 이하이면 → 짝으로 출력하고 둘 다 소비한다.</li>
-            <li>2를 초과하면 → 현재 해적은 누구와도 짝을 못 이룬다고 보고 버린다.</li>
-          </ul>
-        </li>
-        <li>짝을 이루지 못한 해적은 출력하지 않는다 (walk the plank).</li>
-        <li>정렬 + 한 번의 선형 스캔으로 <strong><code>O(n log n)</code></strong>에 해결 가능한 깔끔한 그리디 문제다.</li>
+        <li>두 수 <code>a</code>, <code>b</code>의 최소공배수는 <code>lcm(a, b) = a × b / gcd(a, b)</code>로 구한다.</li>
+        <li><strong>유클리드 호제법</strong>으로 <code>gcd</code>를 <code>O(log min(a,b))</code>에 계산한다.</li>
+        <li><code>a × b</code>는 <code>long</code>으로 캐스팅해서 오버플로우를 방지한다.</li>
+        <li>각 테스트 케이스마다 LCM을 구해서 줄마다 출력하면 끝나는 깔끔한 수학/구현 문제다.</li>
       </ul>
+
 
 
 
