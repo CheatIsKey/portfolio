@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-11-29 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5263 — samba</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5263">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>samba (BOJ 5263)</strong> 문제는<br>
+        각 삼바 학교의 ID가 적힌 무용수들의 목록이 주어졌을 때,<br>
+        모든 학교는 자교 무용수들을 <strong>각 행에 정확히 k명씩</strong> 배치해야 하지만<br>
+        단 <strong>한 학교만</strong> 이 조건을 만족하지 못했다고 할 때,<br>
+        그 <strong>예외 학교의 ID</strong>를 찾는 문제다.
+      </p>
+      
+      <p>
+        조건을 수식으로 정리하면:
+      </p>
+      
+      <ul>
+        <li>같은 학교의 무용수 수를 <code>cnt(ID)</code>라고 할 때,
+          <ul>
+            <li>정상인 학교는 모두 <code>cnt(ID) % k == 0</code>을 만족한다.</li>
+            <li>단 하나의 학교만 <code>cnt(ID) % k != 0</code> 이다.</li>
+          </ul>
+        </li>
+        <li>입력으로는 무용수 수 <code>n</code>, 한 줄에 배치해야 하는 인원 <code>k</code>,<br>
+            그리고 길이 <code>n</code>의 ID 목록이 주어진다.</li>
+        <li>우리는 이 중에서 <strong>개수가 k로 나누어떨어지지 않는 ID</strong>를 찾아 출력하면 된다.</li>
+      </ul>
+      
+      <p>
+        핵심은 <strong>각 ID가 몇 번 나왔는지 센 뒤, 그 개수의 나머지를 체크</strong>하는 것이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li>첫 줄: <code>n</code> (무용수 수), <code>k</code> (한 줄 인원 수).</li>
+            <li>다음 <code>n</code>줄: 각 줄마다 무용수 한 명의 <code>schoolId</code> (정수).</li>
+          </ul>
+        </li>
+      
+        <li><strong>아이디어</strong>
+          <ul>
+            <li>각 학교 ID별로 등장 횟수를 <strong>해시맵</strong>으로 센다.
+              <ul>
+                <li><code>map[id] = 해당 ID의 무용수 수</code></li>
+              </ul>
+            </li>
+            <li>모든 입력을 다 센 후, <code>map</code>을 순회하면서
+              <ul>
+                <li><code>cnt % k != 0</code>인 ID를 찾는다.</li>
+                <li>문제에서 <strong>오직 하나만 존재</strong>한다고 했으므로, 처음 찾는 ID가 곧 답이다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>주의할 점</strong>
+          <ul>
+            <li><code>n</code>이 최대 1,000,000이므로, 입력 읽기와 카운팅은 <strong>O(n)</strong>으로 처리해야 한다.</li>
+            <li>ID 범위가 <code>0 ~ 1,000,000,000</code>이기 때문에, 단순 배열로 카운트할 수 없고<br>
+                <strong><code>HashMap&lt;Integer, Integer&gt;</code></strong> 같은 맵 구조를 사용해야 한다.</li>
+            <li>문제 보장 상 하나의 ID만 조건에서 벗어나므로, 맵을 한 번만 순회해도 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프 및 첫 줄 파싱</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          StringTokenizer st = new StringTokenizer(line);
+          int n = Integer.parseInt(st.nextToken());
+          int k = Integer.parseInt(st.nextToken());</code></pre>
+      
+          <ul>
+            <li>EOF까지 여러 테스트 케이스가 있을 수 있는 입력 형식이라,
+                바깥을 <code>while ((line = br.readLine()) != null)</code>로 감싼 구조다.</li>
+            <li>각 테스트 케이스의 첫 줄에서 <code>n</code>, <code>k</code>를 읽는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>ID별 개수 세기</strong>
+          <pre><code>    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+          for (int i = 0; i &lt; n; i++) {
+              int schoolId = Integer.parseInt(br.readLine());
+              map.put(schoolId, map.getOrDefault(schoolId, 0) + 1);
+          }</code></pre>
+      
+          <ul>
+            <li><code>map</code>의 key: 학교 ID (정수)</li>
+            <li><code>map</code>의 value: 해당 ID의 등장 횟수</li>
+            <li>각 무용수 ID를 한 줄씩 읽어오면서, <code>getOrDefault</code>로 기존 값에 1을 더해 저장한다.</li>
+            <li>결과적으로 <strong>학교별 무용수 수를 모두 카운트</strong>하게 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>조건 위반 학교 ID 찾기</strong>
+          <pre><code>    for (int id : map.keySet()) {
+              if (map.get(id) % k != 0) {
+                  sb.append(id).append('\n');
+                  break;
+              }
+          }</code></pre>
+      
+          <ul>
+            <li><code>map.keySet()</code>으로 모든 학교 ID를 순회한다.</li>
+            <li>각 ID에 대해:
+              <ul>
+                <li><code>map.get(id)</code>가 해당 학교의 총 인원 수.</li>
+                <li><code>map.get(id) % k != 0</code>이면,
+                  <ul>
+                    <li>해당 학교 인원 수가 <strong>k의 배수가 아니다</strong> → 지정된 행에 딱 맞게 나누어 떨어지지 않는다.</li>
+                    <li>즉, 이 학교가 바로 조건을 만족하지 못한 예외 학교다.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>문제 보장상 이런 학교는 <strong>단 하나</strong>뿐이므로,<br>
+                첫 번째로 발견되는 ID를 출력 버퍼에 담고 <code>break</code>로 루프를 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.print(sb);</code></pre>
+      
+          <ul>
+            <li>모든 테스트 케이스에서 찾은 ID들을 누적해 한 번에 출력한다.</li>
+            <li>예제 입력의 경우:
+              <ul>
+                <li><code>k = 2</code>이고, 각 ID별 개수는
+                  <ul>
+                    <li>123: 6명 → 6 % 2 == 0 (정상)</li>
+                    <li>1678: 2명 → 2 % 2 == 0 (정상)</li>
+                    <li>43: 3명 → 3 % 2 == 1 (예외)</li>
+                  </ul>
+                </li>
+                <li>따라서 출력은 <code>43</code>이 된다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>ID를 읽으면서 <code>HashMap</code>에 카운트하는 부분:
+          <ul>
+            <li>무용수 수 <code>n</code>에 대해, 각 삽입/갱신이 평균 <code>O(1)</code>이므로 전체 <strong><code>O(n)</code></strong>.</li>
+          </ul>
+        </li>
+        <li>맵을 순회하며 조건을 체크하는 부분:
+          <ul>
+            <li>서로 다른 학교 수를 <code>m</code>이라 하면, <code>O(m)</code>.</li>
+            <li>최대 <code>m ≤ n</code>이므로 전체적으로는 여전히 <strong><code>O(n)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        따라서 한 테스트 케이스의 시간 복잡도는 <strong><code>O(n)</code></strong>이며,<br>
+        <code>n ≤ 1,000,000</code>에서도 충분히 빠르게 동작한다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>HashMap&lt;Integer, Integer&gt;</code>에 서로 다른 학교 ID만큼 저장한다.</li>
+        <li>서로 다른 학교 수를 <code>m</code>이라 할 때, 공간 복잡도는 <strong><code>O(m)</code></strong>이며, 최악의 경우 <code>O(n)</code>까지 갈 수 있다.</li>
+        <li>추가로 사용하는 변수들은 상수 개이므로, 전체 공간 복잡도는 <strong><code>O(n)</code></strong> 수준이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬이 필요 없다</strong>:
+          <ul>
+            <li>정답은 &ldquo;딱 하나뿐인 예외 학교 ID&rdquo;이고,<br>
+                그 ID만 정확히 찾아 출력하면 되므로, 별도의 정렬 과정이 필요 없다.</li>
+            <li><code>HashMap</code>의 순회 순서는 일정하지 않지만, 어차피 예외 ID가 하나뿐이므로<br>
+                어떤 순서로 순회하더라도 첫 번째로 발견되는 그 ID가 정답이다.</li>
+          </ul>
+        </li>
+        <li><strong>메모리와 입출력</strong>:
+          <ul>
+            <li><code>n</code>이 1,000,000까지 가능하므로, <code>BufferedReader</code>와 <code>StringBuilder</code>를 이용해<br>
+                입출력을 최적화한 점이 중요하다.</li>
+            <li>단순 <code>Scanner</code> + <code>System.out.println</code> 조합은 시간 초과 위험이 있다.</li>
+          </ul>
+        </li>
+        <li><strong>여러 테스트케이스 처리</strong>:
+          <ul>
+            <li>코드는 EOF까지 반복해서 <code>n, k</code>를 읽는 구조라, 입력에 여러 케이스가 들어와도 모두 처리할 수 있다.</li>
+            <li>한 줄마다 하나의 정답 ID를 출력 버퍼에 추가한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 학교 ID별로 무용수 수를 <code>HashMap</code>으로 센다.</li>
+        <li><code>cnt(ID) % k != 0</code>인 ID가 곧 조건을 만족하지 못한 삼바 학교다.</li>
+        <li>문제에서 예외 학교는 정확히 하나라고 보장하므로, 첫 번째로 발견되는 ID를 출력하면 된다.</li>
+        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code> (서로 다른 ID 수에 비례)로, 대용량 입력에도 적합한 풀이다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5294 — Pirates On Parade</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5294">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1129_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Pirates On Parade (BOJ 5294)</strong> 문제는<br>
+        해적들의 이름과 키가 주어졌을 때, 해적들을 <strong>키 순으로 정렬</strong>한 뒤<br>
+        <strong>키 차이가 최대 2인 해적끼리만 앞에서부터 순서대로 짝을 만들어</strong> 출력하는 문제다.
+      </p>
+      
+      <p>
+        규칙을 정리하면:
+      </p>
+      
+      <ul>
+        <li>모든 해적은 이름과 키(정수, 인치 단위)를 가진다.</li>
+        <li>해적들은 두 명씩 짝을 지어 줄 세운다.
+          <ul>
+            <li>전체 줄은 <strong>가장 작은 키부터 가장 큰 키까지</strong> 오름차순이다.</li>
+            <li>각 짝 내부에서도 <strong>더 키가 작은 해적 이름이 먼저</strong> 와야 한다.</li>
+          </ul>
+        </li>
+        <li>같은 짝에 속한 두 해적의 키 차이는 <strong>최대 2</strong>여야 한다.
+          <ul>
+            <li>차이가 2를 초과하면 그 둘은 짝이 될 수 없다.</li>
+          </ul>
+        </li>
+        <li>정렬된 순서에서 <strong>앞에서부터</strong> 해적을 하나씩 보면서 짝을 만들고,
+          적절한 파트너를 찾지 못한 해적은 &ldquo;plank&rdquo;로 보내져 출력에서 제외된다.</li>
+      </ul>
+      
+      <p>
+        출력은 <strong>성공적으로 짝을 이룬 해적들만</strong>이며,<br>
+        각 줄에는 &ldquo;키가 작은 해적 이름, 키가 큰 해적 이름&rdquo; 순으로 출력한다.<br>
+        짝을 이루지 못한 해적은 출력하지 않는다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>모든 해적 정보를 먼저 입력받아 리스트에 저장한다.</li>
+        <li>리스트를 <strong>키(height) 기준 오름차순</strong>으로 정렬한다.</li>
+        <li>정렬된 리스트를 왼쪽에서 오른쪽으로 한 번 훑으면서:
+          <ul>
+            <li>현재 인덱스 <code>idx</code>에서
+              <ul>
+                <li><code>p1 = list[idx]</code>, <code>p2 = list[idx+1]</code>를 후보로 잡는다.</li>
+                <li>두 해적 간 키 차이가 <strong>2 이하</strong>이면 → 둘을 짝지어 출력하고 <code>idx += 2</code>.</li>
+                <li>키 차이가 2보다 크면 → <code>p1</code>은 아무와도 짝을 못 만난 것이므로 버리고, <code>idx += 1</code>만 증가.</li>
+              </ul>
+            </li>
+            <li>마지막에 혼자 남는 해적(즉, <code>idx + 1 == list.size()</code>인 경우)은 자동으로 짝을 못 만난 것으로 처리된다.</li>
+          </ul>
+        </li>
+        <li>이 방식은 &ldquo;가장 키가 작은 해적부터 가능한 한 앞에서 짝을 만들고, 안 되면 버린다&rdquo;는
+            문제 설명과 그대로 일치하는 <strong>그리디 전략</strong>이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 및 해적 리스트 구성</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      List&lt;People&gt; list = new ArrayList&lt;&gt;();
+      
+      String line;
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          StringTokenizer st = new StringTokenizer(line);
+          String name = st.nextToken();
+          int height = Integer.parseInt(st.nextToken());
+      
+          list.add(new People(name, height));
+      }</code></pre>
+      
+          <ul>
+            <li>EOF까지 한 줄씩 읽는다.</li>
+            <li>각 줄은 <code>이름, 키</code> 형식이므로, 토크나이징해서
+              <ul>
+                <li><code>name</code>: 문자열</li>
+                <li><code>height</code>: 정수</li>
+              </ul>
+            </li>
+            <li>이를 <code>People</code> 객체로 만들어 리스트에 추가한다.</li>
+            <li>입력 개수에 대한 별도의 수가 주어지지 않기 때문에, EOF까지 모두 읽는 구조가 맞다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>키 기준 정렬</strong>
+          <pre><code>list.sort((a, b) -&gt; Integer.compare(a.height, b.height));</code></pre>
+      
+          <ul>
+            <li><code>height</code> 기준으로 오름차순 정렬한다.</li>
+            <li>이제 <code>list.get(0)</code>가 가장 키가 작은 해적, 그 다음이 두 번째로 작은 해적 … 식이 된다.</li>
+            <li>문제에서 요구한 &ldquo;shortest to tallest&rdquo; 조건을 만족시키는 정렬이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>그리디하게 짝 만들기</strong>
+          <pre><code>int idx = 0;
+      while (idx + 1 &lt; list.size()) {
+          People p1 = list.get(idx);
+          People p2 = list.get(idx + 1);
+      
+          if (p2.height - p1.height &lt;= 2) {
+              sb.append(p1.name).append(" ").append(p2.name).append('\n');
+              idx += 2;
+          } else {
+              idx += 1;
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>idx + 1 &lt; list.size()</code>:
+              <ul>
+                <li>현재 해적 <code>p1</code>과 그 바로 다음 해적 <code>p2</code>가 둘 다 존재해야 짝을 검사할 수 있으므로,<br>
+                    인덱스가 리스트 끝을 넘지 않게 조건을 잡는다.</li>
+              </ul>
+            </li>
+            <li><code>p1 = list.get(idx)</code>, <code>p2 = list.get(idx + 1)</code>:
+              <ul>
+                <li>정렬된 상태에서 항상 <strong>더 작은 키를 가진 해적이 <code>p1</code></strong>이므로,<br>
+                    나중에 이름을 출력할 때도 <code>p1.name</code> → <code>p2.name</code> 순으로 출력하면 된다.</li>
+              </ul>
+            </li>
+            <li><code>if (p2.height - p1.height &lt;= 2)</code>:
+              <ul>
+                <li>키 차이가 2 이하이면, 문제에서 허용하는 한 쌍이므로 짝을 만든다.</li>
+                <li>출력 버퍼에 <code>p1.name p2.name</code>을 추가하고, <code>idx += 2</code>로 두 해적을 모두 소비한다.</li>
+              </ul>
+            </li>
+            <li>그 외의 경우:
+              <ul>
+                <li><code>p2.height - p1.height &gt; 2</code>라면, 현재 가장 작은 해적 <code>p1</code>은<br>
+                    <strong>그보다 큰 어떤 해적과도 키 차이가 최소 3 이상</strong>이라는 의미가 된다.
+                  <ul>
+                    <li>키가 더 큰 해적들과의 차이는 더 커질 뿐이므로, <code>p1</code>은 아무와도 짝을 이룰 수 없다.</li>
+                  </ul>
+                </li>
+                <li>따라서 <code>p1</code>은 &ldquo;plank&rdquo;로 보내고, <code>idx += 1</code>로 다음 해적으로 넘어간다.</li>
+              </ul>
+            </li>
+            <li>마지막에 해적이 한 명만 남는 경우(<code>idx + 1 == list.size()</code>)도 자연스럽게 짝을 못 만들고 루프 종료 → 출력되지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <pre><code>System.out.print(sb);</code></pre>
+      
+          <ul>
+            <li>모든 가능한 짝을 <code>StringBuilder</code>에 쌓아 두었다가, 한 번에 출력한다.</li>
+            <li>예제 1:
+              <ul>
+                <li>입력: Sam(60), Dan(52), Bob(54), Art(61)</li>
+                <li>키 기준 정렬: Dan(52), Bob(54), Sam(60), Art(61)</li>
+                <li>짝:
+                  <ul>
+                    <li>(52, 54) → 차이 2 → <code>Dan Bob</code></li>
+                    <li>(60, 61) → 차이 1 → <code>Sam Art</code></li>
+                  </ul>
+                </li>
+                <li>출력: 문제 예제와 동일.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력으로 해적 수를 <code>n</code>이라고 하면:
+          <ul>
+            <li>리스트에 해적 추가: <code>O(n)</code></li>
+            <li>키 기준 정렬: <strong><code>O(n log n)</code></strong></li>
+            <li>정렬된 리스트를 한 번 훑으면서 짝 만들기: <code>O(n)</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이다.<br>
+        정렬 비용이 지배적이고, 그 이후의 짝 만들기 과정은 선형 시간에 끝난다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>해적 정보를 담는 리스트 <code>list</code>에 <code>n</code>개의 <code>People</code> 객체를 저장한다.</li>
+        <li>추가로 사용하는 것은 <code>StringBuilder</code>와 몇 개의 지역 변수 뿐이다.</li>
+      </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 종료 조건</strong>:
+          <ul>
+            <li>입력에 해적 수 <code>n</code>이 따로 주어지지 않으므로, EOF까지 읽는 구조(<code>while ((line = br.readLine()) != null)</code>)가 필요하다.</li>
+          </ul>
+        </li>
+        <li><strong>정렬 후 그리디</strong>:
+          <ul>
+            <li>항상 &ldquo;가장 키가 작은 해적부터&rdquo; 짝을 시도해야 하므로,<br>
+                정렬 후 앞에서부터 그리디하게 처리하는 방식이 문제 조건과 정확히 맞는다.</li>
+            <li>키 차이가 2보다 크면, 그 해적은 뒤에 있는 어떤 해적과도 짝을 이룰 수 없다는 점을 이용해 바로 버린다.</li>
+          </ul>
+        </li>
+        <li><strong>오름차순 출력</strong>:
+          <ul>
+            <li>정렬된 리스트에서 <code>p1</code>, <code>p2</code>를 순서대로 출력하면<br>
+                전체적으로도 &ldquo;shortest to tallest&rdquo; 순서를 그대로 유지하게 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력된 모든 해적을 (이름, 키) 쌍으로 리스트에 저장한다.</li>
+        <li>키 기준 오름차순으로 정렬해 전체 줄을 구성한다.</li>
+        <li>정렬된 리스트를 앞에서부터 보면서,
+          <ul>
+            <li>연속한 두 해적의 키 차이가 2 이하이면 → 짝으로 출력하고 둘 다 소비한다.</li>
+            <li>2를 초과하면 → 현재 해적은 누구와도 짝을 못 이룬다고 보고 버린다.</li>
+          </ul>
+        </li>
+        <li>짝을 이루지 못한 해적은 출력하지 않는다 (walk the plank).</li>
+        <li>정렬 + 한 번의 선형 스캔으로 <strong><code>O(n log n)</code></strong>에 해결 가능한 깔끔한 그리디 문제다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
