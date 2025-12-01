@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-30 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-01 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 크기가 작은 부분 문자열</h2>
+      <h2 class="section">문제 1 — 문자열 나누기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/147355">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/140108">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1130_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,26 +53,22 @@
       </h3>
       
       <p>
-        <strong>크기가 작은 부분문자열 (프로그래머스 147355)</strong> 문제는<br>
-        숫자로 이루어진 문자열 <code>t</code>와, 비교 대상 숫자 문자열 <code>p</code>가 주어졌을 때,<br>
-        <code>t</code>에서 길이가 <code>p</code>와 같은 모든 연속 부분 문자열을 숫자로 해석했을 때,<br>
-        그 값이 <strong><code>p</code>보다 작거나 같은 경우의 개수</strong>를 세는 문제다.
-      </p>
-      
-      <p>
-        구체적으로:
+        <strong>문자열 나누기 (프로그래머스 140108)</strong> 문제는<br>
+        문자열 <code>s</code>를 왼쪽부터 차례대로 읽으면서, 다음 규칙에 따라 <strong>최대한 많은 조각</strong>으로 나누고<br>
+        그 조각의 개수를 구하는 문제다.
       </p>
       
       <ul>
-        <li><code>p</code>의 길이를 <code>len = p.length()</code>라고 하면,</li>
-        <li><code>t</code>에서 인덱스 <code>0</code>부터 <code>t.length() - len</code>까지 순회하면서,
-          <ul>
-            <li>각 위치 <code>i</code>에서 부분 문자열 <code>t.substring(i, i + len)</code>을 뽑고,</li>
-            <li>그 부분 문자열을 숫자로 바꾼 뒤 <code>p</code>를 숫자로 바꾼 값과 비교해서<br>
-                <strong><code>부분문자열 ≤ p</code></strong>이면 카운트를 1 증가시키면 된다.</li>
-          </ul>
-        </li>
+        <li>각 조각은 “기준 문자”와 “다른 문자”의 개수를 세다가,<br>
+            <strong>두 개수가 처음으로 같아지는 지점에서 끊어</strong> 하나의 묶음으로 만든다.</li>
+        <li>만약 문자열 끝까지 가도 기준 문자와 다른 문자의 개수가 같아지지 않으면,<br>
+            남은 부분 전체를 <strong>마지막 조각</strong>으로 친다.</li>
       </ul>
+      
+      <p>
+        이 풀이에서는 문자열을 한 번만 훑으면서,<br>
+        현재 조각의 시작 위치를 가리키는 인덱스와, 그 조각 안의 기준 문자/다른 문자 개수만 관리해 답을 구한다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -83,69 +79,128 @@
       </p>
       
       <ul>
-        <li>먼저 <code>p</code>의 길이 <code>length</code>를 구하고, <code>p</code>를 <code>long</code>으로 변환해 <code>num1</code>에 저장한다.</li>
-        <li><code>t</code>에서 길이 <code>length</code>짜리 모든 연속 부분 문자열을 순회하면서:
+        <li>전체 문자열을 한 번 훑되, <strong>조각 단위</strong>로 나눠서 처리한다.</li>
+        <li>바깥 쪽에서:
           <ul>
-            <li>각 부분 문자열을 <code>long</code>으로 변환해 <code>num2</code>로 두고,</li>
-            <li><code>num2 ≤ num1</code>이면 카운트를 증가시킨다.</li>
+            <li><code>idx</code>를 “아직 처리하지 않은 첫 인덱스”로 두고,</li>
+            <li><code>i = idx</code>를 현재 조각의 시작 위치로 사용한다.</li>
           </ul>
         </li>
-        <li>마지막에 카운트 값을 반환하면 된다.</li>
+        <li>각 조각마다:
+          <ul>
+            <li>시작 문자를 기준 문자 <code>cur</code>로 선택하고,</li>
+            <li><code>same</code>: 기준 문자와 같은 글자 개수</li>
+            <li><code>diff</code>: 기준 문자와 다른 글자 개수</li>
+            <li>를 세면서 문자열을 오른쪽으로 진행한다.</li>
+            <li>조건:
+              <ul>
+                <li><code>same == diff</code>가 되는 순간 → 한 조각 완성 → <code>cnt++</code> 후 다음 조각으로.</li>
+                <li>끝까지(<code>idx == s.length()</code>) 갔는데도 같아지지 않으면 → 남은 부분 전체를 한 조각으로 보고 <code>cnt++</code>.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>이 과정을 반복하면, 규칙에 따라 만든 조각의 총 개수가 <code>cnt</code>가 된다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심 로직
+          핵심: 코드가 하는 일
         </span>
       </p>
       
       <ul>
         <li><strong>초기 설정</strong>
-          <pre><code>public int solution(String t, String p) {
-          int length = p.length();
-          long num1 = Long.parseLong(p);
-          int cnt = 0;</code></pre>
+          <pre><code>public int solution(String s) {
+          int cnt = 0, idx = 0;</code></pre>
       
           <ul>
-            <li><code>length</code>: 비교에 사용할 부분 문자열의 길이 (항상 <code>p</code>와 동일).</li>
-            <li><code>num1</code>: 문자열 <code>p</code>를 숫자로 바꾼 값.</li>
-            <li><code>cnt</code>: 조건을 만족하는 부분 문자열의 개수를 세는 카운터.</li>
+            <li><code>cnt</code>: 최종적으로 조각의 개수를 셀 변수.</li>
+            <li><code>idx</code>: 현재 조각을 어디까지 읽었는지 나타내는 인덱스.<br>
+                다음 조각의 시작 위치이기도 하다.</li>
           </ul>
         </li>
       
-        <li><strong>슬라이딩하며 부분 문자열 추출 및 비교</strong>
-          <pre><code>    for (int i = 0; i &lt;= t.length() - length; i++) {
-              long num2 = Long.parseLong(t.substring(i, i + length));
+        <li><strong>조각 단위로 문자열 순회</strong>
+          <pre><code>    for (int i = 0; i &lt; s.length(); i = idx) {
+              char cur = s.charAt(i);
+              int diff = 0, same = 0;</code></pre>
       
-              if (num1 &gt;= num2) {
-                  cnt++;
+          <ul>
+            <li><code>i = idx</code>:
+              <ul>
+                <li>바깥 <code>for</code>문에서 <code>i</code>를 직접 증가시키지 않고,<br>
+                    항상 “아직 처리하지 않은 첫 문자 위치”인 <code>idx</code>로 갱신한다.</li>
+                <li>이 덕분에 각 조각은 서로 겹치지 않고, 문자열 전체가 조각들로 정확히 이어진다.</li>
+              </ul>
+            </li>
+            <li><code>cur = s.charAt(i)</code>:
+              <ul>
+                <li>이번 조각의 기준 문자.</li>
+              </ul>
+            </li>
+            <li><code>same</code>, <code>diff</code>:
+              <ul>
+                <li>각 조각마다 기준 문자와 같/다른 문자의 개수를 새로 세기 위해 0으로 초기화한다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>현재 조각에서 기준 문자/다른 문자 개수 세기</strong>
+          <pre><code>        while (true) {
+                  char nextChar = s.charAt(idx++);
+      
+                  if (cur == nextChar) same++;
+                  else diff++;
+      
+                  if (same == diff) {
+                      cnt++;
+                      break;
+                  } else if (idx == s.length()) {
+                      cnt++;
+                      break;
+                  }
               }
           }</code></pre>
       
           <ul>
-            <li><code>i</code>는 부분 문자열의 시작 인덱스:
+            <li><code>char nextChar = s.charAt(idx++);</code>
               <ul>
-                <li>끝 인덱스는 항상 <code>i + length</code> 이므로,<br>
-                    시작 인덱스의 최댓값은 <code>t.length() - length</code>가 된다.</li>
+                <li><code>idx</code> 위치의 문자를 읽고 난 후, <code>idx</code>를 1 증가시킨다.</li>
+                <li>이렇게 해서 이번 조각이 어디까지 읽혔는지를 <code>idx</code>가 항상 가리키게 된다.</li>
               </ul>
             </li>
-            <li><code>t.substring(i, i + length)</code>:
+            <li><code>if (cur == nextChar) same++; else diff++;</code>
               <ul>
-                <li><code>t</code>에서 길이 <code>length</code>만큼 잘라낸 연속 부분 문자열이다.</li>
+                <li>기준 문자와 같으면 <code>same</code> 증가, 다르면 <code>diff</code> 증가.</li>
               </ul>
             </li>
-            <li><code>Long.parseLong(...)</code>:
+            <li><code>if (same == diff)</code>:
               <ul>
-                <li>해당 부분 문자열을 10진수 정수로 해석해 <code>num2</code>에 저장한다.</li>
+                <li>기준 문자와 다른 문자의 개수가 같아지는 순간,
+                  <ul>
+                    <li>조각 하나가 완성된 것이므로 <code>cnt++;</code></li>
+                    <li><code>break;</code>로 <code>while</code>을 빠져나와 다음 조각으로 넘어간다.</li>
+                  </ul>
+                </li>
               </ul>
             </li>
-            <li><code>if (num1 &gt;= num2)</code>:
+            <li><code>else if (idx == s.length())</code>:
               <ul>
-                <li><code>p</code>의 값이 부분 문자열 값보다 크거나 같다면 조건 만족 → <code>cnt++</code>.</li>
+                <li>아직 <code>same == diff</code>는 아니지만 문자열 끝까지 왔을 때,
+                  <ul>
+                    <li>남은 모든 문자들을 하나의 조각으로 취급해야 하므로 <code>cnt++;</code></li>
+                    <li>마찬가지로 <code>break;</code>로 루프를 종료한다.</li>
+                  </ul>
+                </li>
               </ul>
             </li>
+            <li>이 <code>while (true)</code>는 위 두 상황 중 하나에서 반드시 <code>break</code>되므로 무한 루프가 되지 않는다.</li>
+            <li><code>while</code>이 끝난 시점의 <code>idx</code>는 “이번 조각이 끝난 다음 위치”가 되어,<br>
+                바깥 <code>for</code>문의 다음 반복에서 <code>i = idx</code>로 설정되어 새 조각을 시작한다.</li>
           </ul>
         </li>
       
@@ -154,7 +209,7 @@
       }</code></pre>
       
           <ul>
-            <li>전체를 다 순회한 뒤, 조건을 만족한 부분 문자열의 개수 <code>cnt</code>를 그대로 반환한다.</li>
+            <li>모든 조각을 세고 난 뒤, 최종적으로 조각의 개수 <code>cnt</code>를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -167,22 +222,18 @@
         </span>
       </p>
       
-      <p>
-        <code>t</code>의 길이를 <code>N</code>, <code>p</code>의 길이를 <code>L</code>이라고 하면:
-      </p>
-      
       <ul>
-        <li>부분 문자열의 시작 위치는 총 <code>N - L + 1</code>개이다.</li>
-        <li>각 위치에서 <code>substring</code>과 <code>Long.parseLong</code>을 수행하는데,
+        <li>중첩된 <code>for</code>와 <code>while</code>이 있지만,
           <ul>
-            <li>부분 문자열 길이가 항상 <code>L</code>이므로, 각 연산은 대략 <code>O(L)</code>이다.</li>
+            <li><code>idx</code>가 문자열 전체를 통틀어 <strong>각 문자 위치를 한 번씩만</strong> 지나간다.</li>
+            <li>즉, 문자 하나가 여러 조각에서 중복해서 읽히지 않는다.</li>
           </ul>
         </li>
       </ul>
       
       <p>
-        따라서 전체 시간 복잡도는 대략 <strong><code>O((N - L + 1) × L)</code></strong>이고,<br>
-        <code>N</code>과 <code>L</code>의 범위에서 충분히 감당 가능한 수준이다.
+        따라서 문자열 길이를 <code>n</code>이라고 하면,<br>
+        전체 알고리즘의 시간 복잡도는 <strong><code>O(n)</code></strong>이다.
       </p>
       
       <p>
@@ -192,10 +243,12 @@
       </p>
       
       <ul>
-        <li>추가로 사용하는 변수는 <code>long</code> 두 개와 <code>int</code> 몇 개뿐이다.</li>
-        <li>매 루프마다 새로 만드는 부분 문자열은 <code>substring</code> 결과이지만,<br>
-            입력 길이에 비해 작은 크기이므로, 알고리즘 자체의 추가 공간은 <strong><code>O(1)</code></strong> 수준으로 볼 수 있다.</li>
+        <li>추가로 사용하는 것은 정수 변수 몇 개(<code>cnt</code>, <code>idx</code>, <code>same</code>, <code>diff</code>)와 문자 하나(<code>cur</code>, <code>nextChar</code>)뿐이다.</li>
       </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -206,23 +259,25 @@
       </p>
       
       <ul>
-        <li><strong>길이 조건</strong>:
+        <li><strong>idx와 i의 관계</strong>:
           <ul>
-            <li><code>for (int i = 0; i &lt;= t.length() - length; i++)</code>처럼 등호(<code>&lt;=</code>)가 포함되어야<br>
-                마지막 시작 위치까지 포함해 부분 문자열을 모두 검사할 수 있다.</li>
+            <li>반드시 <code>for (int i = 0; i &lt; s.length(); i = idx)</code>처럼,<br>
+                <code>i</code>를 <code>idx</code>로 갱신해야 한다.</li>
+            <li>만약 <code>i++</code>로만 증가시키면, 한 조각 안에서 이미 소비한 문자들을 다시 처리하게 되어<br>
+                로직이 깨지거나 무한 루프 위험이 생긴다.</li>
           </ul>
         </li>
-        <li><strong>숫자 크기</strong>:
+        <li><strong>while(true)와 인덱스 범위</strong>:
           <ul>
-            <li>문제 조건 상 <code>p</code>와 부분 문자열 값이 <code>long</code> 범위를 벗어나지 않도록 설정되어 있다.</li>
-            <li>그래서 <code>Long.parseLong</code>으로 안전하게 비교할 수 있다.</li>
+            <li><code>char nextChar = s.charAt(idx++);</code>에서 이미 문자를 읽고 나서 <code>idx</code>를 증가시키므로,<br>
+                그 후에 <code>idx == s.length()</code>인지 확인해서 마지막 문자까지 안전하게 처리한다.</li>
+            <li>이 조건에서 <code>break</code>가 보장되기 때문에 인덱스 범위를 벗어나지 않는다.</li>
           </ul>
         </li>
-        <li><strong>문자열 비교 vs 숫자 비교</strong>:
+        <li><strong>same == diff가 먼저인지, 끝에 도달했는지가 먼저인지</strong>:
           <ul>
-            <li>현재 코드는 숫자로 변환해서 비교하는 방식이다.</li>
-            <li><code>p</code>와 부분 문자열의 길이가 항상 같기 때문에, 문자열 사전순 비교로 푸는 방식도 가능하지만,<br>
-                여기서는 문제 조건을 믿고 단순하게 <code>long</code> 변환 후 비교하는 구현을 사용했다.</li>
+            <li>문제 요구사항대로 “처음으로 두 개수가 같아지는 지점”에서 우선적으로 끊어야 하므로,<br>
+                코드에서도 <code>same == diff</code>를 먼저 검사하고, 그 다음에 <code>idx == s.length()</code>를 검사한다.</li>
           </ul>
         </li>
       </ul>
@@ -236,11 +291,13 @@
       </p>
       
       <ul>
-        <li><code>p</code>의 길이 <code>length</code>를 기준으로, <code>t</code>에서 같은 길이의 모든 연속 부분 문자열을 만든다.</li>
-        <li><code>p</code>와 각 부분 문자열을 <code>long</code>으로 바꿔서 <code>부분문자열 ≤ p</code>인지 비교한다.</li>
-        <li>조건을 만족하면 카운트를 증가시키고, 마지막에 카운트 값을 반환한다.</li>
-        <li>슬라이딩 윈도우처럼 인덱스를 1씩 증가시키며 전체를 훑는 방식이라 구현이 단순하고 직관적이다.</li>
+        <li>각 조각은 “기준 문자”와 “다른 문자” 개수를 세다가 처음으로 같아지는 지점에서 끊는다.</li>
+        <li><code>idx</code>를 이용해 “아직 처리하지 않은 첫 문자”에서만 새 조각을 시작한다.</li>
+        <li>기준 문자/다른 문자 개수는 조각마다 <code>same</code>, <code>diff</code>로 새로 세고,<br>
+            <code>same == diff</code>이거나 문자열 끝에 도달하면 조각 개수 <code>cnt</code>를 1 늘린다.</li>
+        <li>문자열을 한 번만 훑는 구조라 시간 복잡도는 <code>O(n)</code>, 추가 공간은 <code>O(1)</code>이다.</li>
       </ul>
+
 
 
 
@@ -294,14 +351,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 가장 가까운 같은 글자</h2>
+      <h2 class="section">문제 2 — 명예의 전당 (1)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/142086">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/138477">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1130_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -314,36 +371,30 @@
       </h3>
       
       <p>
-        <strong>가장 가까운 같은 글자 (프로그래머스 142086)</strong> 문제는<br>
-        문자열 <code>s</code>가 주어졌을 때, 각 위치의 문자 기준으로<br>
-        <strong>왼쪽에 있는 같은 문자들 중 가장 가까운 문자까지의 거리</strong>를 구하는 문제다.
+        <strong>명예의 전당 (프로그래머스 138477)</strong> 문제는<br>
+        명예의 전당에 최대 <code>k</code>명까지 점수를 올려둘 수 있을 때,<br>
+        매일 새로운 점수가 들어올 때마다 <strong>그날 기준 명예의 전당 최하위 점수</strong>를 기록하는 문제다.
       </p>
       
       <p>
-        인덱스 <code>i</code>에서의 답은 다음과 같다.
+        규칙을 정리하면:
       </p>
       
       <ul>
-        <li>왼쪽(0 ~ i-1) 중에 <code>s[i]</code>와 같은 문자가 없다면 → <strong><code>-1</code></strong></li>
-        <li>있다면 → <strong>가장 가까운 같은 문자와의 거리</strong> (즉, <code>i - j</code> 값, 여기서는 카운트를 앞으로 세며 구함)</li>
+        <li>매일 하나씩 점수 <code>score[i]</code>가 들어온다.</li>
+        <li>명예의 전당에는 <strong>최대 k개</strong>의 점수만 유지한다.</li>
+        <li>지금까지 들어온 점수들 중에서 <strong>상위 k개를 명예의 전당</strong>에 올려둔다.</li>
+        <li>그날 명예의 전당에 올라간 점수들 중 <strong>가장 낮은 점수</strong>를 결과 배열에 기록한다.</li>
       </ul>
       
       <p>
-        예를 들어, <code>s = "banana"</code>라면:
+        그래서 각 날짜 <code>i</code>마다 해야 할 일은 간단히 말해:
       </p>
       
       <ul>
-        <li><code>i = 0</code>, 'b' → 왼쪽에 아무 글자 없음 → <code>-1</code></li>
-        <li><code>i = 1</code>, 'a' → 왼쪽에 'a' 없음 → <code>-1</code></li>
-        <li><code>i = 2</code>, 'n' → 왼쪽에 'n' 없음 → <code>-1</code></li>
-        <li><code>i = 3</code>, 'a' → 왼쪽에서 가장 가까운 'a'는 인덱스 1 → 거리 2</li>
-        <li><code>i = 4</code>, 'n' → 왼쪽에서 가장 가까운 'n'은 인덱스 2 → 거리 2</li>
-        <li><code>i = 5</code>, 'a' → 왼쪽에서 가장 가까운 'a'는 인덱스 3 → 거리 2</li>
+        <li>지금까지의 점수 중 상위 k개를 골라서,</li>
+        <li>그 중 최소값을 <code>answer[i]</code>에 넣으면 된다.</li>
       </ul>
-      
-      <p>
-        이런 식으로 각 위치마다 왼쪽을 뒤로 거슬러 올라가면서 같은 문자를 찾으면 된다.
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -354,16 +405,25 @@
       </p>
       
       <ul>
-        <li>답을 저장할 배열 <code>answer</code>를 문자열 길이만큼 준비한다.</li>
-        <li>문자열의 각 인덱스 <code>i</code>에 대해:
+        <li><strong>명예의 전당을 표현할 리스트</strong> <code>list</code>를 하나 만든다.</li>
+        <li>매일 점수 <code>score[i]</code>가 들어올 때:
           <ul>
-            <li>현재 문자 <code>s.charAt(i)</code>를 기준으로,</li>
-            <li>왼쪽 인덱스 <code>j = i - 1</code>부터 0까지 <strong>역순으로</strong> 탐색한다.</li>
-            <li>처음으로 <code>s[j] == s[i]</code>인 위치를 찾으면, 그때의 거리(바로 앞에서부터 1, 2, 3… 세어간 값)를 기록한다.</li>
-            <li>끝까지 못 찾으면 <code>-1</code>을 기록한다.</li>
+            <li>아직 명예의 전당에 <code>k</code>개보다 적게 들어있으면 → 그냥 넣고 정렬.</li>
+            <li>이미 <code>k</code>개가 꽉 찼으면:
+              <ul>
+                <li>현재 명예의 전당 최하위 점수(<code>list.get(0)</code>)와 새 점수를 비교.</li>
+                <li>새 점수가 더 크면 → 최하위 점수를 새 점수로 교체하고 다시 정렬.</li>
+                <li>새 점수가 더 작거나 같으면 → 명예의 전당 변화 없음.</li>
+              </ul>
+            </li>
           </ul>
         </li>
-        <li>이 과정을 모든 인덱스에 대해 반복하여 최종 <code>answer</code> 배열을 반환한다.</li>
+        <li>이때 <strong>리스트를 항상 오름차순</strong>으로 유지하므로,
+          <ul>
+            <li><code>list.get(0)</code>는 항상 “현재 명예의 전당 최하위 점수”가 된다.</li>
+            <li>그 값을 매일 <code>answer[i]</code>에 그대로 기록하면 된다.</li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -375,77 +435,55 @@
       </p>
       
       <ul>
-        <li><strong>결과 배열 초기화</strong>
-          <pre><code>public int[] solution(String s) {
-          int[] answer = new int[s.length()];</code></pre>
+        <li><strong>자료 구조 준비</strong>
+          <pre><code>public int[] solution(int k, int[] score) {
+          List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+          int[] answer = new int[score.length];</code></pre>
       
           <ul>
-            <li><code>answer[i]</code>에는 인덱스 <code>i</code>에서의 정답(거리 또는 <code>-1</code>)이 들어간다.</li>
+            <li><code>list</code>: 명예의 전당에 올라가 있는 점수들을 저장하는 리스트.</li>
+            <li><code>answer</code>: 각 날짜마다 명예의 전당 최하위 점수를 저장할 결과 배열.</li>
           </ul>
         </li>
       
-        <li><strong>각 위치 i에 대해 왼쪽으로 탐색</strong>
-          <pre><code>    for (int i = 0; i &lt; s.length(); i++) {
-              boolean ok = false;
-              int cnt = 1;
-              if (i == 0) answer[i] = -1;
-      
-              for (int j = i - 1; j &gt;= 0; j--) {
-                  if (s.charAt(i) == s.charAt(j)) {
-                      ok = true;
-                      answer[i] = cnt;
-                      break;
-                  };
-      
-                  cnt++;
+        <li><strong>매일 점수 갱신</strong>
+          <pre><code>    for (int i = 0; i &lt; score.length; i++) {
+              if (i &lt; k) {
+                  list.add(score[i]);
+                  list.sort(Integer::compare);
+              } else {
+                  if (list.get(0) &lt; score[i]) {
+                      list.set(0, score[i]);
+                      list.sort((a, b) -&gt; a - b);
+                  }
               }
       
-              if (!ok) answer[i] = -1;
+              answer[i] = list.get(0);
           }</code></pre>
       
           <ul>
-            <li><code>for (int i = 0; i &lt; s.length(); i++)</code>:
+            <li><code>i &lt; k</code>인 경우 (초반 k일):
               <ul>
-                <li>문자열의 모든 인덱스를 순서대로 순회한다.</li>
+                <li>명예의 전당 자리가 아직 남아 있으므로 새 점수를 그냥 추가한다.</li>
+                <li><code>list.sort(...)</code>로 오름차순 정렬 → 최솟값이 항상 <code>list.get(0)</code>.</li>
               </ul>
             </li>
-            <li><code>boolean ok = false;</code>:
+            <li><code>i ≥ k</code>인 경우 (명예의 전당이 이미 꽉 찬 이후):
               <ul>
-                <li>현재 인덱스 <code>i</code>에서 <strong>왼쪽에 같은 문자를 발견했는지 여부</strong>를 표시한다.</li>
-              </ul>
-            </li>
-            <li><code>int cnt = 1;</code>:
-              <ul>
-                <li>왼쪽으로 한 칸 이동할 때마다 1, 2, 3… 증가시키며 거리를 세는 카운터.</li>
-              </ul>
-            </li>
-            <li><code>if (i == 0) answer[i] = -1;</code>:
-              <ul>
-                <li>문자열의 첫 글자(인덱스 0)는 왼쪽에 아무 글자도 없으므로, 바로 <code>-1</code>로 세팅한다.</li>
-                <li>아래 루프에서도 <code>ok</code>가 <code>false</code>로 남기 때문에, 결국 <code>-1</code>이 유지된다.</li>
-              </ul>
-            </li>
-            <li><code>for (int j = i - 1; j &gt;= 0; j--)</code>:
-              <ul>
-                <li>현재 인덱스 <code>i</code>에서 출발해, <strong>왼쪽으로 한 칸씩</strong> 이동하면서 같은 문자를 찾는다.</li>
-              </ul>
-            </li>
-            <li><code>if (s.charAt(i) == s.charAt(j))</code>:
-              <ul>
-                <li>왼쪽에서 같은 문자를 찾았다면:
+                <li><code>list.get(0)</code>는 현재 명예의 전당 최하위 점수.</li>
+                <li>새 점수 <code>score[i]</code>가 그 값보다 크면:
                   <ul>
-                    <li><code>ok = true;</code>로 표시하고,</li>
-                    <li><code>answer[i] = cnt;</code>로 현재까지 센 거리를 저장한다.</li>
-                    <li>가장 가까운 것만 필요하므로 <code>break;</code>로 바로 루프 종료.</li>
+                    <li><code>list.set(0, score[i])</code>로 최하위 점수를 새 점수로 교체.</li>
+                    <li>다시 정렬해서 <code>list</code>를 오름차순으로 맞춰준다.</li>
                   </ul>
                 </li>
+                <li>새 점수가 더 작거나 같으면 → 명예의 전당 구성은 그대로 두고 아무 것도 하지 않는다.</li>
               </ul>
             </li>
-            <li>같은 문자를 찾지 못한 경우:
+            <li>그날의 답 기록:
               <ul>
-                <li>안쪽 루프를 끝까지 돌았는데도 <code>ok</code>가 <code>false</code>라면,<br>
-                    왼쪽 어디에도 같은 문자가 없다는 뜻이다.</li>
-                <li><code>if (!ok) answer[i] = -1;</code>로 처리해 <code>-1</code>을 저장한다.</li>
+                <li><code>answer[i] = list.get(0);</code></li>
+                <li>항상 “현재 명예의 전당에서 가장 낮은 점수”를 저장하게 된다.</li>
               </ul>
             </li>
           </ul>
@@ -456,7 +494,7 @@
       }</code></pre>
       
           <ul>
-            <li>각 인덱스별로 계산된 거리 값을 담은 <code>answer</code> 배열을 그대로 반환한다.</li>
+            <li>각 날짜별로 구한 최하위 점수 배열 <code>answer</code>를 그대로 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -469,19 +507,19 @@
         </span>
       </p>
       
-      <p>
-        문자열 길이를 <code>n</code>이라 하면:
-      </p>
-      
       <ul>
-        <li>바깥 루프: <code>i = 0 ~ n-1</code> → 최대 <code>n</code>번</li>
-        <li>각 <code>i</code>마다 안쪽 루프에서 <code>j = i-1 ~ 0</code>까지 최대 <code>i</code>번 검사</li>
+        <li>날짜 수를 <code>n = score.length</code>, 명예의 전당 크기를 <code>k</code>라고 하면:
+          <ul>
+            <li>매일 최대 한 번 <code>list.sort(...)</code>를 호출한다.</li>
+            <li><code>list</code>의 크기는 최대 <code>k</code>이므로, 정렬 비용은 <strong><code>O(k log k)</code></strong>.</li>
+          </ul>
+        </li>
       </ul>
       
       <p>
-        최악의 경우 전체 비교 횟수는<br>
-        <code>1 + 2 + ... + (n-1) = O(n^2)</code>이 된다.<br>
-        따라서 시간 복잡도는 <strong><code>O(n^2)</code></strong>이다.
+        따라서 전체 시간 복잡도는 대략<br>
+        <strong><code>O(n · k log k)</code></strong> 이고,<br>
+        문제 조건에서 <code>k</code>가 크게 주어지지 않기 때문에 충분히 통과 가능한 수준이다.
       </p>
       
       <p>
@@ -491,10 +529,13 @@
       </p>
       
       <ul>
-        <li>결과를 담는 배열 <code>answer</code>만 추가로 사용한다.</li>
-        <li>크기는 문자열 길이 <code>n</code>에 비례하므로, 공간 복잡도는 <strong><code>O(n)</code></strong>이다.</li>
-        <li>그 외의 변수는 모두 상수 개의 지역 변수뿐이다.</li>
+        <li>명예의 전당 리스트 <code>list</code>: 최대 <code>k</code>개의 정수 저장 → <code>O(k)</code></li>
+        <li>결과 배열 <code>answer</code>: 길이 <code>n</code> → <code>O(n)</code></li>
       </ul>
+      
+      <p>
+        전체 공간 복잡도는 <strong><code>O(n + k)</code></strong>이며, 입력 크기에 비례하는 수준이다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -505,25 +546,22 @@
       </p>
       
       <ul>
-        <li><strong>첫 문자 처리</strong>:
+        <li><strong>정렬 방향</strong>:
           <ul>
-            <li>인덱스 0은 왼쪽이 없으므로 무조건 <code>-1</code>이어야 한다.</li>
-            <li>코드에서는 <code>if (i == 0) answer[i] = -1;</code>로 먼저 처리하고,<br>
-                안쪽 루프가 <code>i = 0</code>일 때는 애초에 돌지 않기 때문에 <code>-1</code>이 유지된다.</li>
+            <li>항상 오름차순으로 정렬해야 <code>list.get(0)</code>가 “최하위 점수”가 된다.</li>
           </ul>
         </li>
-        <li><strong>안쪽 루프 종료 조건</strong>:
+        <li><strong>초기 k일 처리</strong>:
           <ul>
-            <li>왼쪽에서 같은 문자를 발견하면 바로 <code>break</code>로 탈출해야<br>
-                가장 가까운 문자만 사용하게 된다.</li>
-            <li>계속 뒤로 더 가면 더 멀리 있는 같은 문자까지 보게 되어, 원하는 거리보다 더 큰 값이 될 수 있다.</li>
+            <li>처음 <code>k</code>일은 명예의 전당이 꽉 차기 전이므로, 단순히 쌓고 정렬만 해도 된다.</li>
+            <li>이때도 <code>list.get(0)</code>는 “현재까지 들어온 점수들 중 최솟값”이 되어 문제에서 요구하는 값과 일치한다.</li>
           </ul>
         </li>
-        <li><strong>거리 계산 방식</strong>:
+        <li><strong>최적화 여지</strong>:
           <ul>
-            <li>거리 자체는 <code>i - j</code>이지만, 코드에서는 <code>cnt</code>를 1부터 시작해<br>
-                왼쪽으로 한 칸 움직일 때마다 1씩 증가시키는 방식으로 구현했다.</li>
-            <li>처음 만난 같은 문자에서 <code>cnt</code> 값이 곧 <code>i - j</code>와 동일하다.</li>
+            <li>이 코드는 매번 전체 리스트를 정렬하는 방식이라 구현은 직관적이지만,<br>
+                더 효율적으로 하려면 <strong>우선순위 큐(최소 힙)</strong>를 사용하는 방법도 있다.</li>
+            <li>다만 이 구현도 문제 조건 안에서는 충분히 빠르게 동작한다.</li>
           </ul>
         </li>
       </ul>
@@ -537,11 +575,12 @@
       </p>
       
       <ul>
-        <li>각 인덱스 <code>i</code>에서 왼쪽으로 역방향 탐색을 하며 같은 문자를 찾는다.</li>
-        <li>처음 만나는 같은 문자가 가장 가까운 문자이므로, 그때까지의 거리만 기록하고 바로 종료한다.</li>
-        <li>왼쪽에 같은 문자가 없으면 <code>-1</code>을 기록한다.</li>
-        <li>단순한 이중 루프로 구현 가능하며, 시간 복잡도는 <code>O(n^2)</code>, 공간 복잡도는 <code>O(n)</code>이다.</li>
+        <li>명예의 전당을 리스트로 두고, 항상 <strong>오름차순 정렬</strong> 상태를 유지한다.</li>
+        <li>처음 <code>k</code>일은 점수를 추가만 하고 정렬한다.</li>
+        <li>그 이후는 “현재 최하위 점수보다 클 때만 교체 + 정렬”을 한다.</li>
+        <li>매일 <code>list.get(0)</code>를 결과 배열에 넣으면, 문제에서 원하는 “그날의 명예의 전당 최하위 점수”를 얻을 수 있다.</li>
       </ul>
+
 
 
 
