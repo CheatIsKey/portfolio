@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-11-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-01 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5345 — PLU Count</h2>
+      <h2 class="section">문제 5349 — Duplicate SSN</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5345">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5349">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1130_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,37 +55,17 @@
       </h3>
       
       <p>
-        <strong>PLU Count (BOJ 5345)</strong> 문제는<br>
-        하나의 문자열 안에서 대소문자를 구분하지 않고 <strong>P → L → U 순서로 등장하는 패턴</strong>이<br>
-        <strong>얼마나 많이, 서로 겹치지 않게(non-interleaved)</strong> 나오는지를 세는 문제다.
-      </p>
-      
-      <p>
-        조건을 정리하면:
+        <strong>Duplicate SSN (BOJ 5349)</strong> 문제는<br>
+        여러 줄에 걸쳐 주어진 미국 사회보장번호(SSN) 목록에서<br>
+        <strong>두 번 이상 등장한 SSN만 오름차순으로 출력</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>P, L, U는 <strong>이 순서대로만</strong> 등장해야 한다.</li>
-        <li>문자 사이에 다른 문자가 껴도 상관없지만,
-          <ul>
-            <li>한 번 P, L, U를 묶어서 하나의 PLU를 만들면, 그 문자는 다른 PLU와 <strong>공유할 수 없다</strong>.</li>
-            <li>즉, 서로 PLU 묶음이 <strong>겹치거나 교차(interleave)</strong>되면 안 된다.</li>
-          </ul>
-        </li>
-        <li>대소문자는 구분하지 않는다. (p, P, l, L, u, U 모두 합쳐서 같은 글자 취급)</li>
-      </ul>
-      
-      <p>
-        예를 들어, 문자열 <code>"pppxLLLxuuu"</code>를 보자.
-      </p>
-      
-      <ul>
-        <li>p, p, p → 여러 개의 P 후보가 있지만 결국 하나의 P만 사용된다.</li>
-        <li>L, L, L → 마찬가지로 하나의 L만 사용된다.</li>
-        <li>u, u, u → 그 중 하나의 U를 사용해 <strong>PLU 1개</strong>를 만든다.</li>
-        <li>사용하고 남은 P, L, U들이 있어도, 이미 한 번 PLU로 묶이는 과정에서 비연속적으로 사용했기 때문에<br>
-            새롭게 non-interleaved PLU를 더 만들 수 없다.</li>
-        <li>결과: <strong>1개</strong>.</li>
+        <li>각 줄에는 <code>AAA-BB-CCCC</code> 형식의 문자열이 주어진다.</li>
+        <li><code>000-00-0000</code>이 등장하면 입력이 종료되며,<br>
+            이 값은 절대 중복으로 취급하지 않는다.</li>
+        <li>최종적으로, <strong>입력에 두 번 이상 등장한 SSN</strong>을 모두 모아<br>
+            <strong>사전순(오름차순)으로 정렬</strong>하여 한 줄에 하나씩 출력한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -97,30 +77,21 @@
       </p>
       
       <ul>
-        <li>각 문자열에 대해 <strong>왼쪽부터 한 번만 순회</strong>하면서<br>
-            현재까지의 진행 상태를 나타내는 <strong>간단한 상태값</strong>을 유지하면 된다.</li>
-        <li>상태는 다음 세 단계로 보면 된다:
-          <ol>
-            <li>아직 P를 찾지 못한 상태</li>
-            <li>P는 찾았고, L을 기다리는 상태</li>
-            <li>P와 L을 모두 찾았고, U를 기다리는 상태</li>
-          </ol>
-        </li>
-        <li>코드에서는 이 상태를 <strong>정수 플래그</strong>로 관리한다.
+        <li>입력을 한 줄씩 읽으면서, 각 SSN이 <strong>몇 번 등장했는지 카운트</strong>한다.</li>
+        <li>카운트에는 <strong>해시맵</strong>을 사용한다:
           <ul>
-            <li><code>p</code>: P를 이미 찾았는지 여부 (0 or 1)</li>
-            <li><code>l</code>: L을 이미 찾았는지 여부 (0 or 1, 단 P를 찾은 뒤에만 의미 있음)</li>
+            <li><code>Map&lt;String, Integer&gt; map</code> : <code>SSN → 등장 횟수</code></li>
           </ul>
         </li>
-        <li>문자를 하나씩 보면서:
+        <li>입력 종료 후:
           <ul>
-            <li>아직 P를 못 찾았고(<code>p == 0</code>), 현재 문자가 <code>p</code>면 → P를 찾았다고 표시.</li>
-            <li>P는 찾았고(<code>p == 1</code>), L은 아직이고(<code>l == 0</code>), 현재 문자가 <code>l</code>면 → L을 찾았다고 표시.</li>
-            <li>P와 L을 모두 찾은 상태에서(<code>l == 1</code>), 현재 문자가 <code>u</code>면 → PLU 하나 완성 → 개수 증가 후 상태 초기화.</li>
+            <li><code>map</code>을 순회하면서, 값이 <code>2 이상</code>인 키(SSN)만 골라 리스트에 담는다.</li>
+            <li>리스트를 <strong>문자열 오름차순 정렬</strong>한다.</li>
+            <li>정렬된 리스트를 한 줄씩 출력한다.</li>
           </ul>
         </li>
-        <li>이렇게 하면 <strong>항상 가장 앞쪽에서부터 차례대로 PLU를 만들어</strong> 사용하므로,
-            자연스럽게 non-interleaved 조건을 만족시킨다.</li>
+        <li>SSN 형식이 이미 정해져 있고 문자열 비교로 정렬해도<br>
+            문제에서 원하는 “오름차순”과 일치한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -132,79 +103,63 @@
       </p>
       
       <ul>
-        <li><strong>입력 처리</strong>
+        <li><strong>맵 준비 및 입력 처리</strong>
           <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       StringBuilder sb = new StringBuilder();
+      
+      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
       
       String line;
       while ((line = br.readLine()) != null) {
           line = line.trim();
       
-          int n = Integer.parseInt(line);
-          for (int i = 0; i &lt; n; i++) {
-              line = br.readLine().toLowerCase();
-              int p = 0, l = 0;
-              int cnt = 0;</code></pre>
+          if (line.equals("000-00-0000")) break;
+      
+          map.put(line, map.getOrDefault(line, 0) + 1);
+      }</code></pre>
       
           <ul>
-            <li>첫 줄에서 문자열 개수 <code>n</code>을 읽는다.</li>
-            <li>그 다음 <code>n</code>개의 줄을 각각 하나의 텍스트 문자열로 처리한다.</li>
-            <li><code>line.toLowerCase()</code>로 모두 소문자로 바꿔서 <strong>대소문자 구분 없이</strong> 비교할 수 있게 한다.</li>
-            <li><code>p, l</code>은 상태 플래그, <code>cnt</code>는 완성된 PLU 개수다.</li>
+            <li><code>map</code>은 각 SSN 문자열을 키로, 등장 횟수를 값으로 저장한다.</li>
+            <li>한 줄씩 읽어 <code>trim()</code> 후,
+              <ul>
+                <li>만약 <code>"000-00-0000"</code>이면 입력 종료.</li>
+                <li>그렇지 않으면 <code>map.getOrDefault(line, 0) + 1</code>로 카운트를 1 증가.</li>
+              </ul>
+            </li>
+            <li>종료 코드 <code>"000-00-0000"</code>는 <strong>맵에 넣지 않으므로</strong> 중복 후보에서 제외된다.</li>
           </ul>
         </li>
       
-        <li><strong>문자 단위 순회 및 상태 갱신</strong>
-          <pre><code>        for (char c : line.toCharArray()) {
-                  if (c == 'p' &amp;&amp; p == 0) p++;
-                  if (c == 'l' &amp;&amp; p == 1 &amp;&amp; l == 0) l++;
-                  if (c == 'u' &amp;&amp; l == 1) {
-                      p = 0;
-                      l = 0;
-                      cnt++;
-                  }
-              }</code></pre>
+        <li><strong>중복 SSN만 모으기</strong>
+          <pre><code>List&lt;String&gt; list = new ArrayList&lt;&gt;();
+      for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
+          String key = entry.getKey();
+          Integer value = entry.getValue();
       
-          <ul>
-            <li>각 문자 <code>c</code>를 왼쪽에서 오른쪽으로 한 번씩만 본다.</li>
-            <li><code>if (c == 'p' &amp;&amp; p == 0)</code>
-              <ul>
-                <li>아직 P를 찾지 못한 상태에서 처음 <code>'p'</code>를 만나면 <code>p = 1</code>로 설정한다.</li>
-                <li>추가로 등장하는 P들은 <code>p == 1</code>이므로 무시된다 (하나의 PLU에서 P는 한 번만 필요).</li>
-              </ul>
-            </li>
-            <li><code>if (c == 'l' &amp;&amp; p == 1 &amp;&amp; l == 0)</code>
-              <ul>
-                <li>이미 P를 찾았고(<code>p == 1</code>), 아직 L은 못 찾았으며(<code>l == 0</code>) 현재 문자가 <code>'l'</code>이면<br>
-                    <code>l = 1</code>로 설정해서 L을 찾았다고 표시한다.</li>
-              </ul>
-            </li>
-            <li><code>if (c == 'u' &amp;&amp; l == 1)</code>
-              <ul>
-                <li>P와 L을 이미 찾은 상태(<code>p == 1, l == 1</code>를 거친 상태)에서 <code>'u'</code>를 만나면<br>
-                    PLU 하나를 완성한 것이므로:
-                  <ul>
-                    <li><code>cnt++;</code> → PLU 개수 1 증가</li>
-                    <li><code>p = 0; l = 0;</code> → 상태를 초기화해서 다음 PLU를 새로 찾을 준비를 한다.</li>
-                  </ul>
-                </li>
-                <li>이렇게 상태를 리셋하기 때문에 <strong>이미 사용한 P, L, U는 다음 PLU에 재사용되지 않는다</strong>.<br>
-                    → non-interleaved 조건을 자연스럽게 만족.</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>문자열별 결과 저장</strong>
-          <pre><code>        sb.append(cnt).append('\n');
+          if (value &gt; 1) {
+              list.add(key);
           }
-      }
+      }</code></pre>
       
+          <ul>
+            <li><code>map</code>에 기록된 모든 SSN을 순회하면서 등장 횟수를 확인한다.</li>
+            <li><code>value &gt; 1</code>인 경우, 즉 <strong>두 번 이상 등장한 SSN</strong>만 리스트에 담는다.</li>
+            <li>한 번만 등장한 SSN은 “고유 번호”이므로 출력 대상이 아니다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬 후 출력</strong>
+          <pre><code>list.sort(String::compareTo);
+      
+      for (String s : list) {
+          sb.append(s).append('\n');
+      }
       System.out.print(sb);</code></pre>
       
           <ul>
-            <li>각 문자열에 대해 구한 <code>cnt</code>(최대 non-interleaved PLU 개수)를 한 줄에 하나씩 출력 버퍼에 추가한다.</li>
-            <li>마지막에 <code>System.out.print(sb);</code>로 한 번에 출력한다.</li>
+            <li><code>list.sort(String::compareTo)</code>로 문자열 기준 오름차순 정렬한다.</li>
+            <li>SSN이 <code>XXX-XX-XXXX</code> 형식으로 고정이라, 이 문자열 정렬이 곧 숫자 기준 정렬과도 같다.</li>
+            <li>정렬된 리스트를 순서대로 출력 버퍼에 쌓고, 마지막에 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -218,15 +173,17 @@
       </p>
       
       <ul>
-        <li>각 문자열의 길이를 <code>L</code>이라고 하면, 해당 문자열에 대해:
+        <li>SSN 개수를 <code>N</code>이라고 하면:
           <ul>
-            <li>각 문자를 딱 한 번씩만 검사 → <strong><code>O(L)</code></strong>.</li>
+            <li>입력 읽으면서 <code>HashMap</code>에 카운팅: 평균적으로 <strong><code>O(N)</code></strong>.</li>
+            <li>중복 SSN 개수를 <code>D</code>라고 할 때, 리스트 정렬: <strong><code>O(D log D)</code></strong>.</li>
           </ul>
         </li>
-        <li>첫 줄에서 주어지는 문자열 개수를 <code>n</code>이라고 하면,<br>
-            전체 시간 복잡도는 <strong><code>O(ΣL)</code></strong> (모든 문자열 길이의 합에 비례)이다.</li>
-        <li>문제에서 각 문자열 길이가 최대 80이므로, 매우 여유로운 수준이다.</li>
       </ul>
+      
+      <p>
+        전체 시간 복잡도는 대략 <strong><code>O(N + D log D)</code></strong>로, 실질적으로는 <code>N</code>에 비례하는 수준이다.
+      </p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -235,12 +192,12 @@
       </p>
       
       <ul>
-        <li>문자열을 한 줄씩 읽어 처리하므로, 각 시점에서 메모리에 있는 문자열은 한 개뿐이다.</li>
-        <li>추가로 사용하는 것은 <code>p, l, cnt</code> 같은 정수 변수와 <code>StringBuilder</code>뿐이다.</li>
+        <li><code>map</code>에 최대 <code>N</code>개의 서로 다른 SSN이 저장될 수 있다 → <strong><code>O(N)</code></strong>.</li>
+        <li>중복 SSN 리스트 <code>list</code>에는 최대 <code>N</code>개(실제는 그보다 적은 수) 저장 → <strong><code>O(N)</code></strong>.</li>
       </ul>
       
       <p>
-        따라서 공간 복잡도는 문자열 길이에 비례하는 <strong><code>O(L)</code></strong>, 전체적으로도 매우 작다.
+        따라서 전체 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -252,22 +209,19 @@
       </p>
       
       <ul>
-        <li><strong>대소문자 처리</strong>:
+        <li><strong>종료 조건</strong>:
           <ul>
-            <li><code>line.toLowerCase()</code>로 미리 소문자로 바꾸지 않으면 <code>'P'</code>와 <code>'p'</code>를 따로 취급하게 되어 오답이 된다.</li>
+            <li><code>"000-00-0000"</code>를 읽으면 바로 <code>break</code>해야 하고, 이 값을 <code>map</code>에 넣으면 안 된다.</li>
           </ul>
         </li>
-        <li><strong>상태 초기화 시점</strong>:
+        <li><strong>공백 처리</strong>:
           <ul>
-            <li>하나의 PLU를 완성했을 때(<code>u</code>를 만난 순간) 바로 <code>p = 0; l = 0;</code>로 초기화해야 한다.</li>
-            <li>이 때문에 이미 사용한 P, L, U는 다시 쓸 수 없고, PLU들끼리 <strong>겹치지 않게</strong> 카운팅된다.</li>
+            <li><code>line.trim()</code>으로 앞뒤 공백을 제거해 SSN 비교가 정확히 이루어지도록 한다.</li>
           </ul>
         </li>
-        <li><strong>여러 P, L, U가 연속으로 나오는 경우</strong>:
+        <li><strong>정렬 기준</strong>:
           <ul>
-            <li>P 상태에서 P가 더 나와도 <code>p == 0</code> 조건 때문에 무시된다.</li>
-            <li>마찬가지로 L 상태에서도 L이 더 나와도 한 번만 인정된다.</li>
-            <li>이런 처리 덕분에 연속된 같은 문자들 속에서도 깔끔하게 PLU를 하나씩만 세게 된다.</li>
+            <li>SSN 형식이 고정이므로, 단순 문자열 비교(<code>String::compareTo</code>)만으로도 올바른 오름차순 정렬이 된다.</li>
           </ul>
         </li>
       </ul>
@@ -281,11 +235,10 @@
       </p>
       
       <ul>
-        <li>문자열을 소문자로 바꾼 뒤, 왼쪽에서 오른쪽으로 한 번만 훑는다.</li>
-        <li><code>p</code>, <code>l</code> 두 개의 플래그로 현재까지 P, L이 나왔는지 상태를 관리한다.</li>
-        <li>P를 아직 못 찾았으면 P를 먼저 찾고, 그 다음에 L을 찾고, 그 다음에 U를 찾으면 PLU 하나 완성.</li>
-        <li>U까지 찾으면 PLU 개수를 1 증가시키고, 상태를 초기화해 다음 PLU를 찾는다.</li>
-        <li>이 방식은 PLU를 <strong>앞에서부터 순서대로</strong> 소비하므로, non-interleaved 조건을 자동으로 만족한다.</li>
+        <li>모든 SSN을 해시맵으로 카운팅한다.</li>
+        <li>카운트가 2 이상인 키(SSN)들만 따로 리스트에 모은다.</li>
+        <li>리스트를 문자열 기준 오름차순 정렬 후, 한 줄에 하나씩 출력한다.</li>
+        <li>종료 코드 <code>000-00-0000</code>는 입력 종료용일 뿐, 중복 후보에 포함되지 않는다.</li>
       </ul>
 
 
@@ -337,14 +290,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5347 — LCM</h2>
+      <h2 class="section">문제 5426 — 비밀 편지</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5347">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5426">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1130_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -361,25 +314,26 @@
       </h3>
       
       <p>
-        <strong>LCM (BOJ 5347)</strong> 문제는<br>
-        여러 테스트 케이스에 대해 두 자연수 <code>a</code>, <code>b</code>가 주어졌을 때<br>
-        각 쌍에 대한 <strong>최소공배수(LCM, Least Common Multiple)</strong>를 구해 출력하는 문제다.
+        <strong>비밀 편지 (BOJ 5426)</strong> 문제는<br>
+        암호화된 문자열이 주어졌을 때, 다음 과정을 <strong>역으로 적용해서 원래 문자열을 복원</strong>하는 문제다.
       </p>
       
       <p>
-        수학적으로 두 수 <code>a</code>, <code>b</code>에 대해:
+        암호화 과정은 다음과 같다.
       </p>
       
-      <ul>
-        <li><strong>최대공약수</strong>를 <code>g = gcd(a, b)</code>라고 하면,</li>
-        <li><strong>최소공배수</strong>는
-          <br><code>lcm(a, b) = a × b / gcd(a, b)</code> 로 구할 수 있다.</li>
-      </ul>
+      <ol>
+        <li>편지 내용을 공백 없이 이어붙인 문자열을 만든다.</li>
+        <li>길이가 항상 <strong>정사각수</strong>(<code>L = k²</code>)이므로,
+            <code>k × k</code> 정사각형 격자에 <strong>행 기준(왼→오, 위→아래)</strong>으로 채운다.</li>
+        <li>이 정사각형을 <strong>시계 방향 90도 회전</strong>한다.</li>
+        <li>회전된 정사각형을 다시 <strong>행 기준</strong>으로 읽어서 암호 문자열을 만든다.</li>
+      </ol>
       
       <p>
-        입력에서 <code>a, b ≤ 1,000,000</code> 이므로,<br>
-        <code>a × b</code>의 최대값은 <code>10<sup>12</sup></code> 수준이고, 이는 <code>long</code> 범위 안에 들어간다.<br>
-        따라서 <strong><code>int</code> 곱셈은 오버플로우 위험이 있으므로</strong>, 곱셈 결과는 <code>long</code>으로 처리하는 것이 안전하다.
+        우리는 이 과정을 <strong>반대로</strong> 적용해 원래 문자열을 구해야 한다.<br>
+        즉, 암호 문자열을 <code>k × k</code> 정사각형에 채운 뒤, <strong>시계 반대 방향(또는 시계 방향 3번)으로 90도 회전</strong>해서<br>
+        원래 격자를 복원하고, 그걸 행 기준으로 읽어주면 된다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -391,16 +345,23 @@
       </p>
       
       <ul>
-        <li>첫 줄에서 테스트 케이스 개수 <code>n</code>을 입력받는다.</li>
+        <li>테스트 케이스 개수 <code>n</code>을 읽는다.</li>
         <li>각 테스트 케이스마다:
-          <ul>
-            <li>두 자연수 <code>a</code>, <code>b</code>를 읽는다.</li>
-            <li><strong>유클리드 호제법</strong>으로 <code>gcd(a, b)</code>를 구한다.</li>
-            <li><code>lcm = (long)a * b / gcd(a, b)</code> 공식을 이용해 최소공배수를 구한다.</li>
-            <li>결과를 출력 버퍼에 쌓는다.</li>
-          </ul>
+          <ol>
+            <li>암호 문자열 <code>s</code>를 읽는다. 길이를 <code>len</code>이라고 하자.</li>
+            <li><code>len = k²</code>이 되는 <strong>정수 k</strong>를 구한다
+                (코드에서는 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는다).</li>
+            <li><code>k × k</code> 2차원 배열 <code>src</code>를 만들고,
+                암호 문자열을 <strong>행 기준</strong>으로 채운다.</li>
+            <li><code>src</code>를 <strong>반시계 방향 90도 회전</strong>한 결과를 <code>dst</code>에 만든다.
+              <ul>
+                <li>수식: <code>dst[r][c] = src[c][k - 1 - r]</code></li>
+                <li>이 변환은 원래 “시계방향 90도 회전된 결과”를 다시 원상복구하는 회전이다.</li>
+              </ul>
+            </li>
+            <li><code>dst</code>를 <strong>행 기준으로 읽어</strong> <code>StringBuilder</code>에 붙여 출력 문자열을 만든다.</li>
+          </ol>
         </li>
-        <li>모든 테스트 케이스 처리 후 한 번에 출력한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -412,72 +373,90 @@
       </p>
       
       <ul>
-        <li><strong>입력 루프 및 테스트 케이스 처리</strong>
-          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      StringBuilder sb = new StringBuilder();
-      
-      String line;
+        <li><strong>테스트 케이스 수 입력</strong>
+          <pre><code>String line;
       while ((line = br.readLine()) != null) {
           line = line.trim();
       
           int n = Integer.parseInt(line);
+      
           for (int i = 0; i &lt; n; i++) {
-              StringTokenizer st = new StringTokenizer(br.readLine());
-              int a = Integer.parseInt(st.nextToken());
-              int b = Integer.parseInt(st.nextToken());
-      
-              int g = gcd(a, b);
-              long lcm = (long) a * b / g;
-      
-              sb.append(lcm).append('\n');
-          }
-      }
-      
-      System.out.print(sb);</code></pre>
+              line = br.readLine();</code></pre>
       
           <ul>
-            <li><code>while ((line = br.readLine()) != null)</code>:
-              <ul>
-                <li>EOF까지 읽는 구조지만, 일반적으로 입력에는 한 번만 <code>n</code>이 주어지므로 한 번만 돈다고 보면 된다.</li>
-              </ul>
-            </li>
-            <li><code>int n = Integer.parseInt(line);</code>
-              <ul>
-                <li>테스트 케이스 개수 <code>n</code>을 읽는다.</li>
-              </ul>
-            </li>
-            <li>각 테스트 케이스에 대해:
-              <ul>
-                <li><code>a</code>, <code>b</code>를 읽고,</li>
-                <li><code>gcd(a, b)</code>를 구한 뒤,</li>
-                <li><code>lcm = (long) a * b / g</code>로 최소공배수를 계산한다.</li>
-              </ul>
-            </li>
-            <li><code>(long) a * b</code>:
-              <ul>
-                <li><code>a</code>, <code>b</code>는 <code>int</code>지만, 곱셈 결과가 <code>int</code> 범위를 넘을 수 있어 <code>long</code>으로 캐스팅한 뒤 계산한다.</li>
-              </ul>
-            </li>
-            <li>결과는 <code>StringBuilder</code>에 줄 단위로 쌓고, 마지막에 한 번에 출력한다.</li>
+            <li>첫 줄에서 테스트 케이스 수 <code>n</code>을 읽고,</li>
+            <li>각 테스트 케이스마다 암호 문자열 한 줄을 읽는다.</li>
           </ul>
         </li>
       
-        <li><strong>유클리드 호제법으로 gcd 구하기</strong>
-          <pre><code>private static int gcd(int a, int b) {
-          if (b == 0) return a;
-      
-          return gcd(b, a % b);
-      }</code></pre>
+        <li><strong>정사각형 한 변의 길이 k 구하기</strong>
+          <pre><code>        int length = 0;
+              for (int j = 1; j * j &lt;= line.length(); j++) {
+                  length = j;
+              }</code></pre>
       
           <ul>
-            <li><strong>유클리드 호제법</strong>의 재귀 구현이다.</li>
-            <li>원리:
+            <li><code>length</code>가 곧 <code>k</code>이다.</li>
+            <li>문제에서 길이는 항상 제곱수이므로, 마지막으로 갱신된 <code>j</code>가 정확히 <code>√len</code>이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>암호 문자열을 k × k 격자에 채우기</strong>
+          <pre><code>        int idx = 0;
+              char[][] src = new char[length][length];
+              for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      src[r][c] = line.charAt(idx++);
+                  }
+              }</code></pre>
+      
+          <ul>
+            <li>암호 문자열 <code>line</code>을 위에서부터 차례대로,
               <ul>
-                <li><code>gcd(a, b) = gcd(b, a % b)</code></li>
-                <li><code>b == 0</code>이 되는 순간의 <code>a</code>가 바로 최대공약수.</li>
+                <li><code>src[0][0], src[0][1], ..., src[0][k-1], src[1][0], ...</code> 순으로 채운다.</li>
               </ul>
             </li>
-            <li>입력 값이 자연수이기 때문에, 재귀는 반드시 종료된다.</li>
+            <li><code>src</code>는 “시계 방향으로 90도 회전된 상태의 격자”라고 생각할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>반시계 방향 90도 회전해서 원래 격자 복원</strong>
+          <pre><code>        char[][] dst = new char[length][length];
+              for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      dst[r][c] = src[c][length - 1 - r];
+                  }
+              }</code></pre>
+      
+          <ul>
+            <li>회전 수식: <code>dst[r][c] = src[c][length - 1 - r]</code></li>
+            <li>이는 <strong>반시계 방향 90도 회전</strong> 변환이다.</li>
+            <li>암호화가 “시계 방향 90도 회전”이었으므로,<br>
+                이 연산을 통해 원래 편지가 담긴 정사각형을 되살릴 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>복원된 글자를 행 기준으로 출력</strong>
+          <pre><code>        for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      sb.append(dst[r][c]);
+                  }
+              }
+      
+              sb.append('\n');</code></pre>
+      
+          <ul>
+            <li>복원된 격자 <code>dst</code>를 위에서부터, 왼쪽에서 오른쪽으로 읽어,<br>
+                원래 편지 문자열을 <code>StringBuilder</code>에 붙인다.</li>
+            <li>각 테스트 케이스마다 줄바꿈을 하나 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li>누적된 모든 결과를 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -491,17 +470,18 @@
       </p>
       
       <ul>
-        <li>각 테스트 케이스마다:
+        <li>각 테스트 케이스에서 문자열 길이를 <code>L</code>, 한 변의 길이를 <code>k = √L</code>라고 할 때:
           <ul>
-            <li><code>gcd(a, b)</code> 계산: 유클리드 호제법은 <strong><code>O(log min(a, b))</code></strong></li>
-            <li>나머지 연산(<code>a * b / g</code>)은 상수 시간</li>
+            <li><code>k</code> 계산: <code>j * j ≤ L</code>를 도는 루프 → <code>O(√L)</code></li>
+            <li>배열 채우기: <code>k × k = L</code> → <code>O(L)</code></li>
+            <li>회전 및 다시 출력: 각각 <code>O(L)</code></li>
           </ul>
         </li>
       </ul>
       
       <p>
-        따라서 테스트 케이스 개수를 <code>n</code>이라고 하면,<br>
-        전체 시간 복잡도는 대략 <strong><code>O(n · log M)</code></strong> (M은 입력 숫자의 최대값, 여기선 ≤ 1,000,000)이다.
+        전체적으로 한 테스트 케이스당 <strong><code>O(L)</code></strong> 정도로 볼 수 있다 (제곱근 루프는 상대적으로 작다).<br>
+        편지 길이 최대 10,000, 테스트 케이스 최대 100개이므로 충분히 여유 있다.
       </p>
       
       <p>
@@ -511,13 +491,9 @@
       </p>
       
       <ul>
-        <li>추가로 사용하는 것은 몇 개의 정수 변수와 <code>StringBuilder</code>뿐이다.</li>
-        <li>입력 크기에 비례해 <code>StringBuilder</code>가 늘어나지만, 알고리즘 자체의 추가 메모리는 매우 작다.</li>
+        <li><code>src[k][k]</code>, <code>dst[k][k]</code> 두 개의 2차원 배열만 사용한다.</li>
+        <li>각 배열의 크기는 <code>k² = L</code>이므로, 추가 공간은 <strong><code>O(L)</code></strong>이다.</li>
       </ul>
-      
-      <p>
-        따라서 공간 복잡도는 <strong><code>O(1)</code></strong> 수준으로 볼 수 있다(출력 버퍼 제외).
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -528,23 +504,22 @@
       </p>
       
       <ul>
-        <li><strong>곱셈 시 오버플로우 방지</strong>:
+        <li><strong>회전 방향</strong>:
           <ul>
-            <li><code>a</code>, <code>b</code>를 <code>int</code>로 받더라도 <code>a * b</code> 연산은 <code>long</code>으로 캐스팅해서 수행해야 한다.</li>
-            <li>그래야 <code>a * b</code>가 <code>10<sup>12</sup></code>까지 올라가는 경우에도 안전하다.</li>
+            <li>암호화는 “시계 방향 90도 회전” → 복호화는 <strong>반시계 방향 90도 회전</strong>이어야 한다.</li>
+            <li>수식 <code>dst[r][c] = src[c][k - 1 - r]</code>가 정확히 이를 구현한다.</li>
           </ul>
         </li>
-        <li><strong>공식 적용 순서</strong>:
+        <li><strong>k 계산</strong>:
           <ul>
-            <li><code>lcm = (long) a * b / g</code>처럼, <strong>먼저 곱하고 나중에 나누는 것</strong>이 일반적이다.</li>
-            <li>다른 방식으로는 <code>lcm = a / g * b</code>처럼 나눗셈을 먼저 해서 곱셈을 줄이는 방법도 있지만,<br>
-                현재 입력 범위에서는 <code>long</code> 캐스팅만 잘 해줘도 충분히 안전하다.</li>
+            <li>문자열 길이가 항상 제곱수이기 때문에, 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는 방식으로도 충분하다.</li>
+            <li>정확하게는 <code>k = (int)Math.sqrt(len)</code>처럼 구현해도 된다.</li>
           </ul>
         </li>
-        <li><strong>gcd 구현</strong>:
+        <li><strong>인덱스 범위</strong>:
           <ul>
-            <li>재귀 호출이므로, <code>b == 0</code>일 때 <code>a</code>를 바로 반환하는 구조가 꼭 필요하다.</li>
-            <li>이 부분이 잘못 구현되면 무한 재귀에 빠질 수 있다.</li>
+            <li><code>idx</code>는 0에서 <code>len - 1</code>까지 정확히 한 번씩 증가하며, <code>src</code>를 채운 뒤에는 더 이상 사용하지 않으므로 인덱스 에러가 없다.</li>
+            <li>회전과 출력에서도 <code>r, c</code>는 항상 <code>0 ≤ r, c &lt; k</code> 범위 내에서만 사용된다.</li>
           </ul>
         </li>
       </ul>
@@ -558,11 +533,13 @@
       </p>
       
       <ul>
-        <li>두 수 <code>a</code>, <code>b</code>의 최소공배수는 <code>lcm(a, b) = a × b / gcd(a, b)</code>로 구한다.</li>
-        <li><strong>유클리드 호제법</strong>으로 <code>gcd</code>를 <code>O(log min(a,b))</code>에 계산한다.</li>
-        <li><code>a × b</code>는 <code>long</code>으로 캐스팅해서 오버플로우를 방지한다.</li>
-        <li>각 테스트 케이스마다 LCM을 구해서 줄마다 출력하면 끝나는 깔끔한 수학/구현 문제다.</li>
+        <li>암호화는 “정사각형에 채우기 → 시계 방향 90도 회전 → 행 기준 읽기” 과정이다.</li>
+        <li>복호화는 이를 역순으로 “정사각형에 채우기 → 반시계 방향 90도 회전 → 행 기준 읽기”로 구현한다.</li>
+        <li>암호 문자열을 <code>k × k</code>에 채운 뒤,
+            <code>dst[r][c] = src[c][k - 1 - r]</code>로 회전하여 원래 격자를 복원한다.</li>
+        <li>복원된 격자를 행 기준으로 읽어 붙이면 원래 편지 내용이 나온다.</li>
       </ul>
+
 
 
 
