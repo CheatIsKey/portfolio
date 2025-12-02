@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-01 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5349 — Duplicate SSN</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5349">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Duplicate SSN (BOJ 5349)</strong> 문제는<br>
+        여러 줄에 걸쳐 주어진 미국 사회보장번호(SSN) 목록에서<br>
+        <strong>두 번 이상 등장한 SSN만 오름차순으로 출력</strong>하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 줄에는 <code>AAA-BB-CCCC</code> 형식의 문자열이 주어진다.</li>
+        <li><code>000-00-0000</code>이 등장하면 입력이 종료되며,<br>
+            이 값은 절대 중복으로 취급하지 않는다.</li>
+        <li>최종적으로, <strong>입력에 두 번 이상 등장한 SSN</strong>을 모두 모아<br>
+            <strong>사전순(오름차순)으로 정렬</strong>하여 한 줄에 하나씩 출력한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력을 한 줄씩 읽으면서, 각 SSN이 <strong>몇 번 등장했는지 카운트</strong>한다.</li>
+        <li>카운트에는 <strong>해시맵</strong>을 사용한다:
+          <ul>
+            <li><code>Map&lt;String, Integer&gt; map</code> : <code>SSN → 등장 횟수</code></li>
+          </ul>
+        </li>
+        <li>입력 종료 후:
+          <ul>
+            <li><code>map</code>을 순회하면서, 값이 <code>2 이상</code>인 키(SSN)만 골라 리스트에 담는다.</li>
+            <li>리스트를 <strong>문자열 오름차순 정렬</strong>한다.</li>
+            <li>정렬된 리스트를 한 줄씩 출력한다.</li>
+          </ul>
+        </li>
+        <li>SSN 형식이 이미 정해져 있고 문자열 비교로 정렬해도<br>
+            문제에서 원하는 “오름차순”과 일치한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>맵 준비 및 입력 처리</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      
+      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      
+      String line;
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          if (line.equals("000-00-0000")) break;
+      
+          map.put(line, map.getOrDefault(line, 0) + 1);
+      }</code></pre>
+      
+          <ul>
+            <li><code>map</code>은 각 SSN 문자열을 키로, 등장 횟수를 값으로 저장한다.</li>
+            <li>한 줄씩 읽어 <code>trim()</code> 후,
+              <ul>
+                <li>만약 <code>"000-00-0000"</code>이면 입력 종료.</li>
+                <li>그렇지 않으면 <code>map.getOrDefault(line, 0) + 1</code>로 카운트를 1 증가.</li>
+              </ul>
+            </li>
+            <li>종료 코드 <code>"000-00-0000"</code>는 <strong>맵에 넣지 않으므로</strong> 중복 후보에서 제외된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>중복 SSN만 모으기</strong>
+          <pre><code>List&lt;String&gt; list = new ArrayList&lt;&gt;();
+      for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
+          String key = entry.getKey();
+          Integer value = entry.getValue();
+      
+          if (value &gt; 1) {
+              list.add(key);
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>map</code>에 기록된 모든 SSN을 순회하면서 등장 횟수를 확인한다.</li>
+            <li><code>value &gt; 1</code>인 경우, 즉 <strong>두 번 이상 등장한 SSN</strong>만 리스트에 담는다.</li>
+            <li>한 번만 등장한 SSN은 “고유 번호”이므로 출력 대상이 아니다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬 후 출력</strong>
+          <pre><code>list.sort(String::compareTo);
+      
+      for (String s : list) {
+          sb.append(s).append('\n');
+      }
+      System.out.print(sb);</code></pre>
+      
+          <ul>
+            <li><code>list.sort(String::compareTo)</code>로 문자열 기준 오름차순 정렬한다.</li>
+            <li>SSN이 <code>XXX-XX-XXXX</code> 형식으로 고정이라, 이 문자열 정렬이 곧 숫자 기준 정렬과도 같다.</li>
+            <li>정렬된 리스트를 순서대로 출력 버퍼에 쌓고, 마지막에 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>SSN 개수를 <code>N</code>이라고 하면:
+          <ul>
+            <li>입력 읽으면서 <code>HashMap</code>에 카운팅: 평균적으로 <strong><code>O(N)</code></strong>.</li>
+            <li>중복 SSN 개수를 <code>D</code>라고 할 때, 리스트 정렬: <strong><code>O(D log D)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 대략 <strong><code>O(N + D log D)</code></strong>로, 실질적으로는 <code>N</code>에 비례하는 수준이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>map</code>에 최대 <code>N</code>개의 서로 다른 SSN이 저장될 수 있다 → <strong><code>O(N)</code></strong>.</li>
+        <li>중복 SSN 리스트 <code>list</code>에는 최대 <code>N</code>개(실제는 그보다 적은 수) 저장 → <strong><code>O(N)</code></strong>.</li>
+      </ul>
+      
+      <p>
+        따라서 전체 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>종료 조건</strong>:
+          <ul>
+            <li><code>"000-00-0000"</code>를 읽으면 바로 <code>break</code>해야 하고, 이 값을 <code>map</code>에 넣으면 안 된다.</li>
+          </ul>
+        </li>
+        <li><strong>공백 처리</strong>:
+          <ul>
+            <li><code>line.trim()</code>으로 앞뒤 공백을 제거해 SSN 비교가 정확히 이루어지도록 한다.</li>
+          </ul>
+        </li>
+        <li><strong>정렬 기준</strong>:
+          <ul>
+            <li>SSN 형식이 고정이므로, 단순 문자열 비교(<code>String::compareTo</code>)만으로도 올바른 오름차순 정렬이 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>모든 SSN을 해시맵으로 카운팅한다.</li>
+        <li>카운트가 2 이상인 키(SSN)들만 따로 리스트에 모은다.</li>
+        <li>리스트를 문자열 기준 오름차순 정렬 후, 한 줄에 하나씩 출력한다.</li>
+        <li>종료 코드 <code>000-00-0000</code>는 입력 종료용일 뿐, 중복 후보에 포함되지 않는다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5426 — 비밀 편지</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5426">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>비밀 편지 (BOJ 5426)</strong> 문제는<br>
+        암호화된 문자열이 주어졌을 때, 다음 과정을 <strong>역으로 적용해서 원래 문자열을 복원</strong>하는 문제다.
+      </p>
+      
+      <p>
+        암호화 과정은 다음과 같다.
+      </p>
+      
+      <ol>
+        <li>편지 내용을 공백 없이 이어붙인 문자열을 만든다.</li>
+        <li>길이가 항상 <strong>정사각수</strong>(<code>L = k²</code>)이므로,
+            <code>k × k</code> 정사각형 격자에 <strong>행 기준(왼→오, 위→아래)</strong>으로 채운다.</li>
+        <li>이 정사각형을 <strong>시계 방향 90도 회전</strong>한다.</li>
+        <li>회전된 정사각형을 다시 <strong>행 기준</strong>으로 읽어서 암호 문자열을 만든다.</li>
+      </ol>
+      
+      <p>
+        우리는 이 과정을 <strong>반대로</strong> 적용해 원래 문자열을 구해야 한다.<br>
+        즉, 암호 문자열을 <code>k × k</code> 정사각형에 채운 뒤, <strong>시계 반대 방향(또는 시계 방향 3번)으로 90도 회전</strong>해서<br>
+        원래 격자를 복원하고, 그걸 행 기준으로 읽어주면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>테스트 케이스 개수 <code>n</code>을 읽는다.</li>
+        <li>각 테스트 케이스마다:
+          <ol>
+            <li>암호 문자열 <code>s</code>를 읽는다. 길이를 <code>len</code>이라고 하자.</li>
+            <li><code>len = k²</code>이 되는 <strong>정수 k</strong>를 구한다
+                (코드에서는 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는다).</li>
+            <li><code>k × k</code> 2차원 배열 <code>src</code>를 만들고,
+                암호 문자열을 <strong>행 기준</strong>으로 채운다.</li>
+            <li><code>src</code>를 <strong>반시계 방향 90도 회전</strong>한 결과를 <code>dst</code>에 만든다.
+              <ul>
+                <li>수식: <code>dst[r][c] = src[c][k - 1 - r]</code></li>
+                <li>이 변환은 원래 “시계방향 90도 회전된 결과”를 다시 원상복구하는 회전이다.</li>
+              </ul>
+            </li>
+            <li><code>dst</code>를 <strong>행 기준으로 읽어</strong> <code>StringBuilder</code>에 붙여 출력 문자열을 만든다.</li>
+          </ol>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>테스트 케이스 수 입력</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          line = line.trim();
+      
+          int n = Integer.parseInt(line);
+      
+          for (int i = 0; i &lt; n; i++) {
+              line = br.readLine();</code></pre>
+      
+          <ul>
+            <li>첫 줄에서 테스트 케이스 수 <code>n</code>을 읽고,</li>
+            <li>각 테스트 케이스마다 암호 문자열 한 줄을 읽는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정사각형 한 변의 길이 k 구하기</strong>
+          <pre><code>        int length = 0;
+              for (int j = 1; j * j &lt;= line.length(); j++) {
+                  length = j;
+              }</code></pre>
+      
+          <ul>
+            <li><code>length</code>가 곧 <code>k</code>이다.</li>
+            <li>문제에서 길이는 항상 제곱수이므로, 마지막으로 갱신된 <code>j</code>가 정확히 <code>√len</code>이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>암호 문자열을 k × k 격자에 채우기</strong>
+          <pre><code>        int idx = 0;
+              char[][] src = new char[length][length];
+              for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      src[r][c] = line.charAt(idx++);
+                  }
+              }</code></pre>
+      
+          <ul>
+            <li>암호 문자열 <code>line</code>을 위에서부터 차례대로,
+              <ul>
+                <li><code>src[0][0], src[0][1], ..., src[0][k-1], src[1][0], ...</code> 순으로 채운다.</li>
+              </ul>
+            </li>
+            <li><code>src</code>는 “시계 방향으로 90도 회전된 상태의 격자”라고 생각할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>반시계 방향 90도 회전해서 원래 격자 복원</strong>
+          <pre><code>        char[][] dst = new char[length][length];
+              for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      dst[r][c] = src[c][length - 1 - r];
+                  }
+              }</code></pre>
+      
+          <ul>
+            <li>회전 수식: <code>dst[r][c] = src[c][length - 1 - r]</code></li>
+            <li>이는 <strong>반시계 방향 90도 회전</strong> 변환이다.</li>
+            <li>암호화가 “시계 방향 90도 회전”이었으므로,<br>
+                이 연산을 통해 원래 편지가 담긴 정사각형을 되살릴 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>복원된 글자를 행 기준으로 출력</strong>
+          <pre><code>        for (int r = 0; r &lt; length; r++) {
+                  for (int c = 0; c &lt; length; c++) {
+                      sb.append(dst[r][c]);
+                  }
+              }
+      
+              sb.append('\n');</code></pre>
+      
+          <ul>
+            <li>복원된 격자 <code>dst</code>를 위에서부터, 왼쪽에서 오른쪽으로 읽어,<br>
+                원래 편지 문자열을 <code>StringBuilder</code>에 붙인다.</li>
+            <li>각 테스트 케이스마다 줄바꿈을 하나 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li>누적된 모든 결과를 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스에서 문자열 길이를 <code>L</code>, 한 변의 길이를 <code>k = √L</code>라고 할 때:
+          <ul>
+            <li><code>k</code> 계산: <code>j * j ≤ L</code>를 도는 루프 → <code>O(√L)</code></li>
+            <li>배열 채우기: <code>k × k = L</code> → <code>O(L)</code></li>
+            <li>회전 및 다시 출력: 각각 <code>O(L)</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        전체적으로 한 테스트 케이스당 <strong><code>O(L)</code></strong> 정도로 볼 수 있다 (제곱근 루프는 상대적으로 작다).<br>
+        편지 길이 최대 10,000, 테스트 케이스 최대 100개이므로 충분히 여유 있다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>src[k][k]</code>, <code>dst[k][k]</code> 두 개의 2차원 배열만 사용한다.</li>
+        <li>각 배열의 크기는 <code>k² = L</code>이므로, 추가 공간은 <strong><code>O(L)</code></strong>이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>회전 방향</strong>:
+          <ul>
+            <li>암호화는 “시계 방향 90도 회전” → 복호화는 <strong>반시계 방향 90도 회전</strong>이어야 한다.</li>
+            <li>수식 <code>dst[r][c] = src[c][k - 1 - r]</code>가 정확히 이를 구현한다.</li>
+          </ul>
+        </li>
+        <li><strong>k 계산</strong>:
+          <ul>
+            <li>문자열 길이가 항상 제곱수이기 때문에, 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는 방식으로도 충분하다.</li>
+            <li>정확하게는 <code>k = (int)Math.sqrt(len)</code>처럼 구현해도 된다.</li>
+          </ul>
+        </li>
+        <li><strong>인덱스 범위</strong>:
+          <ul>
+            <li><code>idx</code>는 0에서 <code>len - 1</code>까지 정확히 한 번씩 증가하며, <code>src</code>를 채운 뒤에는 더 이상 사용하지 않으므로 인덱스 에러가 없다.</li>
+            <li>회전과 출력에서도 <code>r, c</code>는 항상 <code>0 ≤ r, c &lt; k</code> 범위 내에서만 사용된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>암호화는 “정사각형에 채우기 → 시계 방향 90도 회전 → 행 기준 읽기” 과정이다.</li>
+        <li>복호화는 이를 역순으로 “정사각형에 채우기 → 반시계 방향 90도 회전 → 행 기준 읽기”로 구현한다.</li>
+        <li>암호 문자열을 <code>k × k</code>에 채운 뒤,
+            <code>dst[r][c] = src[c][k - 1 - r]</code>로 회전하여 원래 격자를 복원한다.</li>
+        <li>복원된 격자를 행 기준으로 읽어 붙이면 원래 편지 내용이 나온다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
