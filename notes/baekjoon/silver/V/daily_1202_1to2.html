@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-01 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-02 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5349 — Duplicate SSN</h2>
+      <h2 class="section">문제 5462 — POI</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5349">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5462">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1202_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,17 +55,24 @@
       </h3>
       
       <p>
-        <strong>Duplicate SSN (BOJ 5349)</strong> 문제는<br>
-        여러 줄에 걸쳐 주어진 미국 사회보장번호(SSN) 목록에서<br>
-        <strong>두 번 이상 등장한 SSN만 오름차순으로 출력</strong>하는 문제다.
+        <strong>POI (BOJ 5462)</strong> 문제는<br>
+        참가자들의 정답 여부가 주어졌을 때,
+        <strong>각 문제의 점수와 각 참가자의 총점</strong>을 계산하고,<br>
+        주어진 규칙에 따라 <strong>특정 참가자 P의 점수와 등수</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>각 줄에는 <code>AAA-BB-CCCC</code> 형식의 문자열이 주어진다.</li>
-        <li><code>000-00-0000</code>이 등장하면 입력이 종료되며,<br>
-            이 값은 절대 중복으로 취급하지 않는다.</li>
-        <li>최종적으로, <strong>입력에 두 번 이상 등장한 SSN</strong>을 모두 모아<br>
-            <strong>사전순(오름차순)으로 정렬</strong>하여 한 줄에 하나씩 출력한다.</li>
+        <li>문제는 부분 점수 없이 <code>0/1</code>로만 채점된다.</li>
+        <li>각 문제의 점수는 <strong>그 문제를 풀지 못한 참가자의 수</strong>이다.</li>
+        <li>각 참가자의 점수는 <strong>자신이 푼 문제들의 점수 합</strong>이다.</li>
+        <li>등수는 다음 네 항의 합 + 1로 정의된다.
+          <ol>
+            <li>자신보다 <strong>점수가 높은</strong> 사람의 수</li>
+            <li>점수는 같지만 <strong>더 많은 문제를 푼</strong> 사람의 수</li>
+            <li>점수도 같고 푼 문제 수까지 같지만, <strong>ID가 더 작은</strong> 사람의 수</li>
+            <li>마지막에 + 1 (자기 자신)</li>
+          </ol>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -77,21 +84,57 @@
       </p>
       
       <ul>
-        <li>입력을 한 줄씩 읽으면서, 각 SSN이 <strong>몇 번 등장했는지 카운트</strong>한다.</li>
-        <li>카운트에는 <strong>해시맵</strong>을 사용한다:
+        <li><strong>입력 행렬 저장</strong>
           <ul>
-            <li><code>Map&lt;String, Integer&gt; map</code> : <code>SSN → 등장 횟수</code></li>
+            <li><code>solved[i][j]</code> : ID가 <code>i+1</code>인 참가자가 문제 <code>j+1</code>을 풀었는지(1) 여부.</li>
           </ul>
         </li>
-        <li>입력 종료 후:
+        <li><strong>각 참가자가 푼 문제 수</strong>, <strong>각 문제를 푼 참가자 수</strong>를 센다.
           <ul>
-            <li><code>map</code>을 순회하면서, 값이 <code>2 이상</code>인 키(SSN)만 골라 리스트에 담는다.</li>
-            <li>리스트를 <strong>문자열 오름차순 정렬</strong>한다.</li>
-            <li>정렬된 리스트를 한 줄씩 출력한다.</li>
+            <li><code>solvedCntByPerson[i]</code> : 참가자 <code>i+1</code>이 푼 문제 수.</li>
+            <li><code>solvedCntByProblem[j]</code> : 문제 <code>j+1</code>을 푼 참가자 수.</li>
           </ul>
         </li>
-        <li>SSN 형식이 이미 정해져 있고 문자열 비교로 정렬해도<br>
-            문제에서 원하는 “오름차순”과 일치한다.</li>
+        <li><strong>각 문제 점수 계산</strong>
+          <ul>
+            <li>문제 <code>j</code>의 점수 = <code>N - solvedCntByProblem[j]</code>
+                (즉, 그 문제를 못 푼 사람 수).</li>
+          </ul>
+        </li>
+        <li><strong>각 참가자 총점 계산</strong>
+          <ul>
+            <li><code>totalScore[i]</code> = 참가자 <code>i+1</code>이 푼 문제들의 점수 합.</li>
+          </ul>
+        </li>
+        <li><strong>P번 참가자 점수·푼 문제 수 가져오기</strong>
+          <ul>
+            <li><code>pIdx = P - 1</code>로 0-based 인덱스로 변환.</li>
+            <li><code>pScore = totalScore[pIdx]</code></li>
+            <li><code>pSolved = solvedCntByPerson[pIdx]</code></li>
+          </ul>
+        </li>
+        <li><strong>등수 계산</strong>
+          <ul>
+            <li>초기 등수 <code>rank = 1</code>로 시작.</li>
+            <li>모든 참가자 <code>i</code>에 대해:
+              <ul>
+                <li>i가 P가 아니면서
+                  <ul>
+                    <li><code>totalScore[i] &gt; pScore</code> 이면 → <code>rank++</code>.</li>
+                    <li><code>totalScore[i] == pScore</code> 이고
+                      <ul>
+                        <li><code>solvedCntByPerson[i] &gt; pSolved</code> 이면 → <code>rank++</code>.</li>
+                        <li><code>solvedCntByPerson[i] == pSolved</code> 이고 <code>(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>이 규칙이 문제에서 정의한 등수 규칙 그대로이다.</li>
+          </ul>
+        </li>
+        <li>마지막으로 <strong>P의 점수와 등수</strong>를 출력한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -103,63 +146,123 @@
       </p>
       
       <ul>
-        <li><strong>맵 준비 및 입력 처리</strong>
-          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      StringBuilder sb = new StringBuilder();
+        <li><strong>입력 파싱 및 기본 배열 생성</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(line);
+      int N = Integer.parseInt(st.nextToken());
+      int T = Integer.parseInt(st.nextToken());
+      int P = Integer.parseInt(st.nextToken());
       
-      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
-      
-      String line;
-      while ((line = br.readLine()) != null) {
-          line = line.trim();
-      
-          if (line.equals("000-00-0000")) break;
-      
-          map.put(line, map.getOrDefault(line, 0) + 1);
-      }</code></pre>
-      
+      int[][] solved = new int[N][T];
+      int[] solvedCntByPerson = new int[N];
+      int[] solvedCntByProblem = new int[T];</code></pre>
           <ul>
-            <li><code>map</code>은 각 SSN 문자열을 키로, 등장 횟수를 값으로 저장한다.</li>
-            <li>한 줄씩 읽어 <code>trim()</code> 후,
-              <ul>
-                <li>만약 <code>"000-00-0000"</code>이면 입력 종료.</li>
-                <li>그렇지 않으면 <code>map.getOrDefault(line, 0) + 1</code>로 카운트를 1 증가.</li>
-              </ul>
-            </li>
-            <li>종료 코드 <code>"000-00-0000"</code>는 <strong>맵에 넣지 않으므로</strong> 중복 후보에서 제외된다.</li>
+            <li><code>solved</code> : N × T 정답 행렬.</li>
+            <li><code>solvedCntByPerson</code> : 각 참가자가 푼 문제 수.</li>
+            <li><code>solvedCntByProblem</code> : 각 문제를 푼 참가자 수.</li>
           </ul>
         </li>
       
-        <li><strong>중복 SSN만 모으기</strong>
-          <pre><code>List&lt;String&gt; list = new ArrayList&lt;&gt;();
-      for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
-          String key = entry.getKey();
-          Integer value = entry.getValue();
+        <li><strong>참가자별 정답 입력 및 카운트</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          st = new StringTokenizer(br.readLine());
+          for (int j = 0; j &lt; T; j++) {
+              int chk = Integer.parseInt(st.nextToken());
+              solved[i][j] = chk;
       
-          if (value &gt; 1) {
-              list.add(key);
+              if (chk == 1) {
+                  solvedCntByPerson[i]++;
+                  solvedCntByProblem[j]++;
+              }
           }
       }</code></pre>
       
           <ul>
-            <li><code>map</code>에 기록된 모든 SSN을 순회하면서 등장 횟수를 확인한다.</li>
-            <li><code>value &gt; 1</code>인 경우, 즉 <strong>두 번 이상 등장한 SSN</strong>만 리스트에 담는다.</li>
-            <li>한 번만 등장한 SSN은 “고유 번호”이므로 출력 대상이 아니다.</li>
+            <li>각 줄은 ID가 <code>i+1</code>인 참가자의 정답 여부.</li>
+            <li><code>chk == 1</code>이면,
+              <ul>
+                <li>참가자 i가 푼 문제 수 증가,</li>
+                <li>해당 문제를 푼 사람 수 증가.</li>
+              </ul>
+            </li>
           </ul>
         </li>
       
-        <li><strong>정렬 후 출력</strong>
-          <pre><code>list.sort(String::compareTo);
-      
-      for (String s : list) {
-          sb.append(s).append('\n');
-      }
-      System.out.print(sb);</code></pre>
+        <li><strong>문제별 점수 계산</strong>
+          <pre><code>int[] problemScore = new int[T];
+      for (int i = 0; i &lt; T; i++) {
+          problemScore[i] = N - solvedCntByProblem[i];
+      }</code></pre>
       
           <ul>
-            <li><code>list.sort(String::compareTo)</code>로 문자열 기준 오름차순 정렬한다.</li>
-            <li>SSN이 <code>XXX-XX-XXXX</code> 형식으로 고정이라, 이 문자열 정렬이 곧 숫자 기준 정렬과도 같다.</li>
-            <li>정렬된 리스트를 순서대로 출력 버퍼에 쌓고, 마지막에 한 번에 출력한다.</li>
+            <li>문제 i의 점수 = <code>N - solvedCntByProblem[i]</code>, 즉 <strong>못 푼 사람 수</strong>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>참가자별 총점 계산</strong>
+          <pre><code>int[] totalScore = new int[N];
+      for (int i = 0; i &lt; N; i++) {
+          int score = 0;
+      
+          for (int j = 0; j &lt; T; j++) {
+              if (solved[i][j] == 1) {
+                  score += problemScore[j];
+              }
+          }
+      
+          totalScore[i] = score;
+      }</code></pre>
+      
+          <ul>
+            <li>참가자 i가 푼 문제들에 대해서만 문제 점수를 더해 총점을 만든다.</li>
+            <li>이 값이 <code>totalScore[i]</code>가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>필립(P)의 점수·푼 문제 수 및 등수 계산</strong>
+          <pre><code>int rank = 1;
+      int pIdx = P - 1;
+      int pScore = totalScore[pIdx];
+      int pSolved = solvedCntByPerson[pIdx];
+      
+      for (int i = 0; i &lt; N; i++) {
+          if (i == pIdx) continue;
+      
+          if (totalScore[i] &gt; pScore) {
+              rank++;
+          } else if (totalScore[i] == pScore) {
+              if (solvedCntByPerson[i] &gt; pSolved) {
+                  rank++;
+              } else if (solvedCntByPerson[i] == pSolved && (i + 1) &lt; P) {
+                  rank++;
+              }
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>pIdx</code>는 P의 0-based 인덱스.</li>
+            <li><code>pScore</code>, <code>pSolved</code>는 필립의 점수와 푼 문제 수.</li>
+            <li>모든 다른 참가자 i에 대해:
+              <ul>
+                <li><strong>점수가 더 크면</strong> → 필립보다 앞으로 감 → <code>rank++</code>.</li>
+                <li><strong>점수가 같으면</strong>:
+                  <ul>
+                    <li>더 많은 문제를 풀었으면 → <code>rank++</code>.</li>
+                    <li>문제 수도 같고 <code>ID(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>이 카운트에 +1을 한 값이 문제 정의 그대로의 등수가 된다.<br>
+                (코드에서는 <code>rank</code>를 1에서 시작해 비교할 때마다 증가시키는 방식으로 구현했다.)</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>sb.append(pScore).append(" ").append(rank);
+      System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li>필립의 점수와 등수를 공백으로 구분해 한 줄로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -173,16 +276,31 @@
       </p>
       
       <ul>
-        <li>SSN 개수를 <code>N</code>이라고 하면:
+        <li>정답 행렬 입력 및 카운트:
           <ul>
-            <li>입력 읽으면서 <code>HashMap</code>에 카운팅: 평균적으로 <strong><code>O(N)</code></strong>.</li>
-            <li>중복 SSN 개수를 <code>D</code>라고 할 때, 리스트 정렬: <strong><code>O(D log D)</code></strong>.</li>
+            <li>크기 N × T에 대해 한 번씩 읽고 처리 → <strong><code>O(N × T)</code></strong></li>
+          </ul>
+        </li>
+        <li>문제 점수 계산:
+          <ul>
+            <li>T개에 대해 선형 → <strong><code>O(T)</code></strong></li>
+          </ul>
+        </li>
+        <li>참가자 총점 계산:
+          <ul>
+            <li>다시 N × T를 한 번 순회 → <strong><code>O(N × T)</code></strong></li>
+          </ul>
+        </li>
+        <li>등수 계산:
+          <ul>
+            <li>참가자 N명에 대해 한 번씩 비교 → <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 대략 <strong><code>O(N + D log D)</code></strong>로, 실질적으로는 <code>N</code>에 비례하는 수준이다.
+        전체 시간 복잡도는 <strong><code>O(N × T)</code></strong>이며,<br>
+        N, T ≤ 2,000이므로 최악의 경우에도 충분히 처리 가능하다.
       </p>
       
       <p>
@@ -192,12 +310,12 @@
       </p>
       
       <ul>
-        <li><code>map</code>에 최대 <code>N</code>개의 서로 다른 SSN이 저장될 수 있다 → <strong><code>O(N)</code></strong>.</li>
-        <li>중복 SSN 리스트 <code>list</code>에는 최대 <code>N</code>개(실제는 그보다 적은 수) 저장 → <strong><code>O(N)</code></strong>.</li>
+        <li><code>solved</code> : N × T 크기의 2차원 배열.</li>
+        <li><code>solvedCntByPerson</code>, <code>solvedCntByProblem</code>, <code>problemScore</code>, <code>totalScore</code> : 길이 N 또는 T의 1차원 배열들.</li>
       </ul>
       
       <p>
-        따라서 전체 공간 복잡도는 <strong><code>O(N)</code></strong>이다.
+        전체 공간 복잡도는 <strong><code>O(N × T)</code></strong> 수준이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -209,19 +327,26 @@
       </p>
       
       <ul>
-        <li><strong>종료 조건</strong>:
+        <li><strong>문제 점수 정의</strong>:
           <ul>
-            <li><code>"000-00-0000"</code>를 읽으면 바로 <code>break</code>해야 하고, 이 값을 <code>map</code>에 넣으면 안 된다.</li>
+            <li>“풀지 못한 사람 수”가 점수다. 실수로 푼 사람 수를 넣지 않도록 주의해야 한다.</li>
           </ul>
         </li>
-        <li><strong>공백 처리</strong>:
+        <li><strong>인덱스와 ID 차이</strong>:
           <ul>
-            <li><code>line.trim()</code>으로 앞뒤 공백을 제거해 SSN 비교가 정확히 이루어지도록 한다.</li>
+            <li>ID는 1부터 시작, 배열 인덱스는 0부터 시작하므로,<br>
+                비교 시 <code>(i + 1) &lt; P</code>처럼 맞춰줘야 한다.</li>
           </ul>
         </li>
-        <li><strong>정렬 기준</strong>:
+        <li><strong>등수 조건 순서</strong>:
           <ul>
-            <li>SSN 형식이 고정이므로, 단순 문자열 비교(<code>String::compareTo</code>)만으로도 올바른 오름차순 정렬이 된다.</li>
+            <li>먼저 점수 비교 → 점수가 같을 때만 푼 문제 수 비교 → 그마저 같을 때 ID 비교 순서를 반드시 지켜야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>테스트 케이스 루프</strong>:
+          <ul>
+            <li>문제 자체는 한 번의 입력만 가정하지만, 코드에서는 <code>while ((line = br.readLine()) != null)</code>로
+                여러 번 입력을 받아도 처리할 수 있도록 구현되어 있다.</li>
           </ul>
         </li>
       </ul>
@@ -235,11 +360,13 @@
       </p>
       
       <ul>
-        <li>모든 SSN을 해시맵으로 카운팅한다.</li>
-        <li>카운트가 2 이상인 키(SSN)들만 따로 리스트에 모은다.</li>
-        <li>리스트를 문자열 기준 오름차순 정렬 후, 한 줄에 하나씩 출력한다.</li>
-        <li>종료 코드 <code>000-00-0000</code>는 입력 종료용일 뿐, 중복 후보에 포함되지 않는다.</li>
+        <li>각 참가자·문제에 대해 정답 여부를 저장하고, 행·열 방향으로 푼 문제 수를 집계한다.</li>
+        <li>각 문제 점수는 “그 문제를 틀린 사람 수”로 계산한다.</li>
+        <li>각 참가자의 총점은 자신이 맞힌 문제들의 점수를 합한 값이다.</li>
+        <li>P번 참가자의 점수와 푼 문제 수를 기준으로, 모든 참가자를 한 번씩 비교해 등수를 계산한다.</li>
+        <li>점수 → 푼 문제 수 → ID 순으로 비교하는 것이 문제 정의와 정확히 일치한다.</li>
       </ul>
+
 
 
 
@@ -290,10 +417,10 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5426 — 비밀 편지</h2>
+      <h2 class="section">문제 5555 — 반지</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5426">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5555">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
@@ -314,26 +441,22 @@
       </h3>
       
       <p>
-        <strong>비밀 편지 (BOJ 5426)</strong> 문제는<br>
-        암호화된 문자열이 주어졌을 때, 다음 과정을 <strong>역으로 적용해서 원래 문자열을 복원</strong>하는 문제다.
+        <strong>반지 (BOJ 5555)</strong> 문제는<br>
+        찾고자 하는 문자열이 주어졌을 때, 각 반지에 새겨진 문자열을 <strong>원형(시작과 끝이 이어진 상태)</strong>으로 보면서<br>
+        그 문자열을 <strong>부분 문자열로 포함하는 반지의 개수</strong>를 세는 문제다.
       </p>
       
-      <p>
-        암호화 과정은 다음과 같다.
-      </p>
-      
-      <ol>
-        <li>편지 내용을 공백 없이 이어붙인 문자열을 만든다.</li>
-        <li>길이가 항상 <strong>정사각수</strong>(<code>L = k²</code>)이므로,
-            <code>k × k</code> 정사각형 격자에 <strong>행 기준(왼→오, 위→아래)</strong>으로 채운다.</li>
-        <li>이 정사각형을 <strong>시계 방향 90도 회전</strong>한다.</li>
-        <li>회전된 정사각형을 다시 <strong>행 기준</strong>으로 읽어서 암호 문자열을 만든다.</li>
-      </ol>
+      <ul>
+        <li>타겟 문자열 길이: 1 ~ 10</li>
+        <li>각 반지 문자열 길이: 항상 10</li>
+        <li>반지 문자열은 <strong>원형</strong>이므로, 끝과 처음이 이어져 있다고 생각해야 한다.</li>
+        <li>거꾸로 읽는 경우는 고려하지 않아도 된다 (문제에서 걱정할 필요 없다고 명시).</li>
+      </ul>
       
       <p>
-        우리는 이 과정을 <strong>반대로</strong> 적용해 원래 문자열을 구해야 한다.<br>
-        즉, 암호 문자열을 <code>k × k</code> 정사각형에 채운 뒤, <strong>시계 반대 방향(또는 시계 방향 3번)으로 90도 회전</strong>해서<br>
-        원래 격자를 복원하고, 그걸 행 기준으로 읽어주면 된다.
+        원형 문자열에서의 부분 문자열 검사는<br>
+        문자열을 한 번 더 이어 붙여 <code>ring + ring</code> 으로 만든 뒤,<br>
+        이 선형 문자열 안에 타겟 문자열이 포함되는지만 확인하면 간단하게 해결할 수 있다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -345,24 +468,23 @@
       </p>
       
       <ul>
-        <li>테스트 케이스 개수 <code>n</code>을 읽는다.</li>
-        <li>각 테스트 케이스마다:
-          <ol>
-            <li>암호 문자열 <code>s</code>를 읽는다. 길이를 <code>len</code>이라고 하자.</li>
-            <li><code>len = k²</code>이 되는 <strong>정수 k</strong>를 구한다
-                (코드에서는 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는다).</li>
-            <li><code>k × k</code> 2차원 배열 <code>src</code>를 만들고,
-                암호 문자열을 <strong>행 기준</strong>으로 채운다.</li>
-            <li><code>src</code>를 <strong>반시계 방향 90도 회전</strong>한 결과를 <code>dst</code>에 만든다.
-              <ul>
-                <li>수식: <code>dst[r][c] = src[c][k - 1 - r]</code></li>
-                <li>이 변환은 원래 “시계방향 90도 회전된 결과”를 다시 원상복구하는 회전이다.</li>
-              </ul>
-            </li>
-            <li><code>dst</code>를 <strong>행 기준으로 읽어</strong> <code>StringBuilder</code>에 붙여 출력 문자열을 만든다.</li>
-          </ol>
+        <li>찾고자 하는 문자열 <code>target</code>을 입력으로 받는다.</li>
+        <li>반지 개수 <code>N</code>을 입력으로 받는다.</li>
+        <li>각 반지 문자열 <code>ring</code>에 대해:
+          <ul>
+            <li><code>doubled = ring + ring</code> 형태로 문자열을 2번 이어 붙인다.</li>
+            <li><code>doubled</code> 안에 <code>target</code>이 포함되는지 <code>contains()</code>로 검사한다.</li>
+            <li>포함되면 해당 반지는 조건을 만족하므로 카운트를 1 증가시킨다.</li>
+          </ul>
         </li>
+        <li>모든 반지를 검사한 뒤, 카운트 값을 출력한다.</li>
       </ul>
+      
+      <p>
+        원형에서 길이 ≤ 10인 연속 부분 문자열은 모두<br>
+        <code>ring + ring</code> 이라는 선형 문자열 안의 <strong>연속 부분 문자열</strong>로 등장하므로,<br>
+        이렇게 검사해도 놓치는 경우가 없다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -373,90 +495,51 @@
       </p>
       
       <ul>
-        <li><strong>테스트 케이스 수 입력</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          line = line.trim();
+        <li><strong>입력 처리</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       
-          int n = Integer.parseInt(line);
-      
-          for (int i = 0; i &lt; n; i++) {
-              line = br.readLine();</code></pre>
-      
+      String target = br.readLine().trim();
+      int N = Integer.parseInt(br.readLine());</code></pre>
           <ul>
-            <li>첫 줄에서 테스트 케이스 수 <code>n</code>을 읽고,</li>
-            <li>각 테스트 케이스마다 암호 문자열 한 줄을 읽는다.</li>
+            <li>첫 줄: 찾고자 하는 문자열 <code>target</code>.</li>
+            <li>둘째 줄: 반지 개수 <code>N</code>.</li>
           </ul>
         </li>
       
-        <li><strong>정사각형 한 변의 길이 k 구하기</strong>
-          <pre><code>        int length = 0;
-              for (int j = 1; j * j &lt;= line.length(); j++) {
-                  length = j;
-              }</code></pre>
+        <li><strong>각 반지에 대해 원형 포함 여부 검사</strong>
+          <pre><code>int cnt = 0;
+      for (int i = 0; i &lt; N; i++) {
+          String ring = br.readLine().trim();
+          String doubled = ring + ring;
+      
+          if (doubled.contains(target)) {
+              cnt++;
+          }
+      }</code></pre>
       
           <ul>
-            <li><code>length</code>가 곧 <code>k</code>이다.</li>
-            <li>문제에서 길이는 항상 제곱수이므로, 마지막으로 갱신된 <code>j</code>가 정확히 <code>√len</code>이 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>암호 문자열을 k × k 격자에 채우기</strong>
-          <pre><code>        int idx = 0;
-              char[][] src = new char[length][length];
-              for (int r = 0; r &lt; length; r++) {
-                  for (int c = 0; c &lt; length; c++) {
-                      src[r][c] = line.charAt(idx++);
-                  }
-              }</code></pre>
-      
-          <ul>
-            <li>암호 문자열 <code>line</code>을 위에서부터 차례대로,
+            <li><code>ring</code>은 길이 10의 대문자 문자열이다.</li>
+            <li><code>doubled = ring + ring</code>:
               <ul>
-                <li><code>src[0][0], src[0][1], ..., src[0][k-1], src[1][0], ...</code> 순으로 채운다.</li>
+                <li>예: <code>ring = "ABCDXXXXXX"</code>이면<br>
+                    <code>doubled = "ABCDXXXXXXABCDXXXXXX"</code></li>
+                <li>원형에서 시작점을 어디로 잡든, 길이 ≤ 10인 연속 부분 문자열은<br>
+                    이 <code>doubled</code> 안의 <strong>연속 부분 문자열</strong>로 표현할 수 있다.</li>
               </ul>
             </li>
-            <li><code>src</code>는 “시계 방향으로 90도 회전된 상태의 격자”라고 생각할 수 있다.</li>
+            <li><code>doubled.contains(target)</code>:
+              <ul>
+                <li>자바 <code>String</code>의 내장 메서드를 이용해 부분 문자열 여부를 간단히 판단.</li>
+                <li>포함되면 해당 반지는 조건을 만족 → <code>cnt++</code>.</li>
+              </ul>
+            </li>
           </ul>
         </li>
       
-        <li><strong>반시계 방향 90도 회전해서 원래 격자 복원</strong>
-          <pre><code>        char[][] dst = new char[length][length];
-              for (int r = 0; r &lt; length; r++) {
-                  for (int c = 0; c &lt; length; c++) {
-                      dst[r][c] = src[c][length - 1 - r];
-                  }
-              }</code></pre>
-      
+        <li><strong>결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
           <ul>
-            <li>회전 수식: <code>dst[r][c] = src[c][length - 1 - r]</code></li>
-            <li>이는 <strong>반시계 방향 90도 회전</strong> 변환이다.</li>
-            <li>암호화가 “시계 방향 90도 회전”이었으므로,<br>
-                이 연산을 통해 원래 편지가 담긴 정사각형을 되살릴 수 있다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>복원된 글자를 행 기준으로 출력</strong>
-          <pre><code>        for (int r = 0; r &lt; length; r++) {
-                  for (int c = 0; c &lt; length; c++) {
-                      sb.append(dst[r][c]);
-                  }
-              }
-      
-              sb.append('\n');</code></pre>
-      
-          <ul>
-            <li>복원된 격자 <code>dst</code>를 위에서부터, 왼쪽에서 오른쪽으로 읽어,<br>
-                원래 편지 문자열을 <code>StringBuilder</code>에 붙인다.</li>
-            <li>각 테스트 케이스마다 줄바꿈을 하나 추가한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>최종 출력</strong>
-          <pre><code>System.out.println(sb.toString());</code></pre>
-      
-          <ul>
-            <li>누적된 모든 결과를 한 번에 출력한다.</li>
+            <li>조건을 만족하는 반지의 총 개수를 한 줄에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -470,18 +553,14 @@
       </p>
       
       <ul>
-        <li>각 테스트 케이스에서 문자열 길이를 <code>L</code>, 한 변의 길이를 <code>k = √L</code>라고 할 때:
-          <ul>
-            <li><code>k</code> 계산: <code>j * j ≤ L</code>를 도는 루프 → <code>O(√L)</code></li>
-            <li>배열 채우기: <code>k × k = L</code> → <code>O(L)</code></li>
-            <li>회전 및 다시 출력: 각각 <code>O(L)</code></li>
-          </ul>
-        </li>
+        <li>반지 개수: <code>N ≤ 100</code></li>
+        <li>각 반지 문자열 길이: 10, <code>doubled</code> 길이: 20</li>
+        <li><code>contains()</code>는 길이 20짜리 문자열에서 길이 ≤ 10짜리 문자열을 찾는 작업이므로 사실상 상수 시간.</li>
       </ul>
       
       <p>
-        전체적으로 한 테스트 케이스당 <strong><code>O(L)</code></strong> 정도로 볼 수 있다 (제곱근 루프는 상대적으로 작다).<br>
-        편지 길이 최대 10,000, 테스트 케이스 최대 100개이므로 충분히 여유 있다.
+        전체 시간 복잡도는 대략 <strong><code>O(N)</code></strong> 수준이다.<br>
+        상한이 매우 작으므로 성능 문제는 전혀 없다.
       </p>
       
       <p>
@@ -491,9 +570,17 @@
       </p>
       
       <ul>
-        <li><code>src[k][k]</code>, <code>dst[k][k]</code> 두 개의 2차원 배열만 사용한다.</li>
-        <li>각 배열의 크기는 <code>k² = L</code>이므로, 추가 공간은 <strong><code>O(L)</code></strong>이다.</li>
+        <li>추가로 사용하는 것은
+          <ul>
+            <li><code>target</code>, <code>ring</code>, <code>doubled</code> 문자열과</li>
+            <li>정수 카운터 <code>cnt</code>뿐이다.</li>
+          </ul>
+        </li>
       </ul>
+      
+      <p>
+        입력 문자열들을 제외한 추가 공간은 <strong><code>O(1)</code></strong>이다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -504,22 +591,21 @@
       </p>
       
       <ul>
-        <li><strong>회전 방향</strong>:
+        <li><strong>원형 처리</strong>:
           <ul>
-            <li>암호화는 “시계 방향 90도 회전” → 복호화는 <strong>반시계 방향 90도 회전</strong>이어야 한다.</li>
-            <li>수식 <code>dst[r][c] = src[c][k - 1 - r]</code>가 정확히 이를 구현한다.</li>
+            <li>그냥 <code>ring.contains(target)</code>만 쓰면, 문자열이 끝을 넘어 이어지는 경우를 잡지 못한다.</li>
+            <li>반드시 <code>ring + ring</code>을 만들어서 검사해야 한다.</li>
           </ul>
         </li>
-        <li><strong>k 계산</strong>:
+        <li><strong>입력 공백 처리</strong>:
           <ul>
-            <li>문자열 길이가 항상 제곱수이기 때문에, 단순히 <code>j * j ≤ len</code>인 최대 <code>j</code>를 찾는 방식으로도 충분하다.</li>
-            <li>정확하게는 <code>k = (int)Math.sqrt(len)</code>처럼 구현해도 된다.</li>
+            <li>문자열은 공백 없이 대문자만 주어지지만, <code>trim()</code>으로 양 끝 공백을 제거하는 습관이 안전하다.</li>
           </ul>
         </li>
-        <li><strong>인덱스 범위</strong>:
+        <li><strong>역순(거꾸로) 고려 불필요</strong>:
           <ul>
-            <li><code>idx</code>는 0에서 <code>len - 1</code>까지 정확히 한 번씩 증가하며, <code>src</code>를 채운 뒤에는 더 이상 사용하지 않으므로 인덱스 에러가 없다.</li>
-            <li>회전과 출력에서도 <code>r, c</code>는 항상 <code>0 ≤ r, c &lt; k</code> 범위 내에서만 사용된다.</li>
+            <li>문제에서 “거꾸로 읽는 걱정은 없다”고 했으므로, 역순으로 포함되는 경우는 신경 쓰지 않아도 된다.</li>
+            <li>즉, 주어진 방향 그대로만 검사하면 된다.</li>
           </ul>
         </li>
       </ul>
@@ -533,11 +619,10 @@
       </p>
       
       <ul>
-        <li>암호화는 “정사각형에 채우기 → 시계 방향 90도 회전 → 행 기준 읽기” 과정이다.</li>
-        <li>복호화는 이를 역순으로 “정사각형에 채우기 → 반시계 방향 90도 회전 → 행 기준 읽기”로 구현한다.</li>
-        <li>암호 문자열을 <code>k × k</code>에 채운 뒤,
-            <code>dst[r][c] = src[c][k - 1 - r]</code>로 회전하여 원래 격자를 복원한다.</li>
-        <li>복원된 격자를 행 기준으로 읽어 붙이면 원래 편지 내용이 나온다.</li>
+        <li>반지 문자열은 원형이므로, <code>ring + ring</code>으로 선형화해서 처리한다.</li>
+        <li>각 반지에 대해 <code>(ring + ring).contains(target)</code>이면 카운트 증가.</li>
+        <li>모든 반지를 검사한 뒤 카운트를 출력한다.</li>
+        <li>원형 처리만 올바르게 하면 구현은 매우 간단한 문자열 문제다.</li>
       </ul>
 
 
