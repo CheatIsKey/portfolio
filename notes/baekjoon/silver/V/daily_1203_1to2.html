@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-02 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5462 — POI</h2>
+      <h2 class="section">문제 5599 — カードの並び替え</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5462">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5599">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1202_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1203_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,25 +55,26 @@
       </h3>
       
       <p>
-        <strong>POI (BOJ 5462)</strong> 문제는<br>
-        참가자들의 정답 여부가 주어졌을 때,
-        <strong>각 문제의 점수와 각 참가자의 총점</strong>을 계산하고,<br>
-        주어진 규칙에 따라 <strong>특정 참가자 P의 점수와 등수</strong>를 구하는 문제다.
+        <strong>カードの並び替え (BOJ 5599)</strong> 문제는<br>
+        처음에 위에서부터 <code>1, 2, ..., 2n</code> 순서로 쌓인 카드 더미에 대해,<br>
+        주어진 횟수만큼 <strong>두 가지 연산</strong>(카트/cut, 리플 셔플)을 순서대로 적용한 뒤,<br>
+        <strong>마지막 카드 배열 상태를 위에서부터 차례대로 출력</strong>하는 시뮬레이션 문제다.
       </p>
       
       <ul>
-        <li>문제는 부분 점수 없이 <code>0/1</code>로만 채점된다.</li>
-        <li>각 문제의 점수는 <strong>그 문제를 풀지 못한 참가자의 수</strong>이다.</li>
-        <li>각 참가자의 점수는 <strong>자신이 푼 문제들의 점수 합</strong>이다.</li>
-        <li>등수는 다음 네 항의 합 + 1로 정의된다.
-          <ol>
-            <li>자신보다 <strong>점수가 높은</strong> 사람의 수</li>
-            <li>점수는 같지만 <strong>더 많은 문제를 푼</strong> 사람의 수</li>
-            <li>점수도 같고 푼 문제 수까지 같지만, <strong>ID가 더 작은</strong> 사람의 수</li>
-            <li>마지막에 + 1 (자기 자신)</li>
-          </ol>
+        <li>카드 수는 항상 <code>2n</code>장.</li>
+        <li>연산은 총 <code>m</code>번 주어진다.</li>
+        <li>연산 종류:
+          <ul>
+            <li><strong>k = 0</strong> → 리플 셔플 (Riffle Shuffle)</li>
+            <li><strong>1 ≤ k ≤ 2n - 1</strong> → <strong>k로 컷</strong> (Cut)</li>
+          </ul>
         </li>
       </ul>
+      
+      <p>
+        문제 조건이 모두 작기 때문에, 각 연산을 그대로 배열에 시뮬레이션해도 충분히 빠르게 해결할 수 있다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -84,58 +85,33 @@
       </p>
       
       <ul>
-        <li><strong>입력 행렬 저장</strong>
+        <li>처음 카드 상태를 <strong>1 ~ 2n</strong>까지 순서대로 배열에 채운다.</li>
+        <li>각 연산 <code>k</code>에 대해:
           <ul>
-            <li><code>solved[i][j]</code> : ID가 <code>i+1</code>인 참가자가 문제 <code>j+1</code>을 풀었는지(1) 여부.</li>
-          </ul>
-        </li>
-        <li><strong>각 참가자가 푼 문제 수</strong>, <strong>각 문제를 푼 참가자 수</strong>를 센다.
-          <ul>
-            <li><code>solvedCntByPerson[i]</code> : 참가자 <code>i+1</code>이 푼 문제 수.</li>
-            <li><code>solvedCntByProblem[j]</code> : 문제 <code>j+1</code>을 푼 참가자 수.</li>
-          </ul>
-        </li>
-        <li><strong>각 문제 점수 계산</strong>
-          <ul>
-            <li>문제 <code>j</code>의 점수 = <code>N - solvedCntByProblem[j]</code>
-                (즉, 그 문제를 못 푼 사람 수).</li>
-          </ul>
-        </li>
-        <li><strong>각 참가자 총점 계산</strong>
-          <ul>
-            <li><code>totalScore[i]</code> = 참가자 <code>i+1</code>이 푼 문제들의 점수 합.</li>
-          </ul>
-        </li>
-        <li><strong>P번 참가자 점수·푼 문제 수 가져오기</strong>
-          <ul>
-            <li><code>pIdx = P - 1</code>로 0-based 인덱스로 변환.</li>
-            <li><code>pScore = totalScore[pIdx]</code></li>
-            <li><code>pSolved = solvedCntByPerson[pIdx]</code></li>
-          </ul>
-        </li>
-        <li><strong>등수 계산</strong>
-          <ul>
-            <li>초기 등수 <code>rank = 1</code>로 시작.</li>
-            <li>모든 참가자 <code>i</code>에 대해:
+            <li><strong>k = 0 (리플 셔플)</strong>:
               <ul>
-                <li>i가 P가 아니면서
-                  <ul>
-                    <li><code>totalScore[i] &gt; pScore</code> 이면 → <code>rank++</code>.</li>
-                    <li><code>totalScore[i] == pScore</code> 이고
-                      <ul>
-                        <li><code>solvedCntByPerson[i] &gt; pSolved</code> 이면 → <code>rank++</code>.</li>
-                        <li><code>solvedCntByPerson[i] == pSolved</code> 이고 <code>(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
+                <li>위에서 <code>n</code>장 → 더미 A</li>
+                <li>나머지 <code>n</code>장 → 더미 B</li>
+                <li>새로운 카드 순서:
+                  <code>A[0], B[0], A[1], B[1], ..., A[n-1], B[n-1]</code></li>
               </ul>
             </li>
-            <li>이 규칙이 문제에서 정의한 등수 규칙 그대로이다.</li>
+            <li><strong>k &gt; 0 (cut)</strong>:
+              <ul>
+                <li>위에서 <code>k</code>장 → 더미 A (card[0..k-1])</li>
+                <li>나머지 → 더미 B (card[k..2n-1])</li>
+                <li>새로운 카드 순서: <strong>먼저 B, 그 뒤 A</strong><br>
+                  즉, <code>B[0..] + A[0..]</code> = <code>card[k..] + card[0..k-1]</code></li>
+              </ul>
+            </li>
           </ul>
         </li>
-        <li>마지막으로 <strong>P의 점수와 등수</strong>를 출력한다.</li>
+        <li>모든 연산을 순서대로 적용한 뒤, 최종 <code>card</code> 배열을 위에서부터 하나씩 출력한다.</li>
       </ul>
+      
+      <p>
+        구현 자체는 단순한 배열 재배치이므로, 각 연산마다 새 배열을 만들어 복사해도 충분하다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -146,123 +122,93 @@
       </p>
       
       <ul>
-        <li><strong>입력 파싱 및 기본 배열 생성</strong>
-          <pre><code>StringTokenizer st = new StringTokenizer(line);
-      int N = Integer.parseInt(st.nextToken());
-      int T = Integer.parseInt(st.nextToken());
-      int P = Integer.parseInt(st.nextToken());
+        <li><strong>초기 카드 세팅</strong>
+          <pre><code>int n = Integer.parseInt(br.readLine());
       
-      int[][] solved = new int[N][T];
-      int[] solvedCntByPerson = new int[N];
-      int[] solvedCntByProblem = new int[T];</code></pre>
+      int[] card = new int[2 * n];
+      for (int i = 0; i &lt; card.length; i++) {
+          card[i] = i + 1;
+      }</code></pre>
           <ul>
-            <li><code>solved</code> : N × T 정답 행렬.</li>
-            <li><code>solvedCntByPerson</code> : 각 참가자가 푼 문제 수.</li>
-            <li><code>solvedCntByProblem</code> : 각 문제를 푼 참가자 수.</li>
+            <li>카드 수는 항상 <code>2n</code>장이므로 길이 <code>2n</code>짜리 배열을 만든다.</li>
+            <li><code>card[0] = 1</code>, <code>card[1] = 2</code>, ..., <code>card[2n-1] = 2n</code> 으로 초기화.</li>
           </ul>
         </li>
       
-        <li><strong>참가자별 정답 입력 및 카운트</strong>
-          <pre><code>for (int i = 0; i &lt; N; i++) {
-          st = new StringTokenizer(br.readLine());
-          for (int j = 0; j &lt; T; j++) {
-              int chk = Integer.parseInt(st.nextToken());
-              solved[i][j] = chk;
+        <li><strong>연산 개수 및 각 연산 처리</strong>
+          <pre><code>int m = Integer.parseInt(br.readLine());
+      for (int i = 0; i &lt; m; i++) {
+          int k = Integer.parseInt(br.readLine());
       
-              if (chk == 1) {
-                  solvedCntByPerson[i]++;
-                  solvedCntByProblem[j]++;
+          if (k == 0) {
+              // 리플 셔플
+              int[] A = new int[n];
+              int[] B = new int[n];
+      
+              for (int j = 0; j &lt; n; j++) {
+                  A[j] = card[j];
+                  B[j] = card[n + j];
               }
+      
+              int idx = 0;
+              for (int j = 0; j &lt; n; j++) {
+                  card[idx++] = A[j];
+                  card[idx++] = B[j];
+              }
+          } else {
+              // k로 컷
+              int[] A = Arrays.copyOfRange(card, 0, k);
+              int[] B = Arrays.copyOfRange(card, k, card.length);
+      
+              int[] next = new int[card.length];
+              int idx = 0;
+      
+              for (int j = k; j &lt; card.length; j++) {
+                  next[idx++] = card[j];
+              }
+      
+              for (int j = 0; j &lt; k; j++) {
+                  next[idx++] = card[j];
+              }
+      
+              card = next;
           }
       }</code></pre>
       
           <ul>
-            <li>각 줄은 ID가 <code>i+1</code>인 참가자의 정답 여부.</li>
-            <li><code>chk == 1</code>이면,
+            <li><strong>k = 0 (리플 셔플)</strong>
               <ul>
-                <li>참가자 i가 푼 문제 수 증가,</li>
-                <li>해당 문제를 푼 사람 수 증가.</li>
+                <li>위에서 <code>n</code>장과 나머지 <code>n</code>장을 A, B에 따로 복사한다.</li>
+                <li>그 다음, <code>card</code> 배열을 다시 채우면서<br>
+                    <code>A[0], B[0], A[1], B[1], ..., A[n-1], B[n-1]</code> 순으로 interleave 한다.</li>
               </ul>
             </li>
-          </ul>
-        </li>
-      
-        <li><strong>문제별 점수 계산</strong>
-          <pre><code>int[] problemScore = new int[T];
-      for (int i = 0; i &lt; T; i++) {
-          problemScore[i] = N - solvedCntByProblem[i];
-      }</code></pre>
-      
-          <ul>
-            <li>문제 i의 점수 = <code>N - solvedCntByProblem[i]</code>, 즉 <strong>못 푼 사람 수</strong>.</li>
-          </ul>
-        </li>
-      
-        <li><strong>참가자별 총점 계산</strong>
-          <pre><code>int[] totalScore = new int[N];
-      for (int i = 0; i &lt; N; i++) {
-          int score = 0;
-      
-          for (int j = 0; j &lt; T; j++) {
-              if (solved[i][j] == 1) {
-                  score += problemScore[j];
-              }
-          }
-      
-          totalScore[i] = score;
-      }</code></pre>
-      
-          <ul>
-            <li>참가자 i가 푼 문제들에 대해서만 문제 점수를 더해 총점을 만든다.</li>
-            <li>이 값이 <code>totalScore[i]</code>가 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>필립(P)의 점수·푼 문제 수 및 등수 계산</strong>
-          <pre><code>int rank = 1;
-      int pIdx = P - 1;
-      int pScore = totalScore[pIdx];
-      int pSolved = solvedCntByPerson[pIdx];
-      
-      for (int i = 0; i &lt; N; i++) {
-          if (i == pIdx) continue;
-      
-          if (totalScore[i] &gt; pScore) {
-              rank++;
-          } else if (totalScore[i] == pScore) {
-              if (solvedCntByPerson[i] &gt; pSolved) {
-                  rank++;
-              } else if (solvedCntByPerson[i] == pSolved && (i + 1) &lt; P) {
-                  rank++;
-              }
-          }
-      }</code></pre>
-      
-          <ul>
-            <li><code>pIdx</code>는 P의 0-based 인덱스.</li>
-            <li><code>pScore</code>, <code>pSolved</code>는 필립의 점수와 푼 문제 수.</li>
-            <li>모든 다른 참가자 i에 대해:
+            <li><strong>k &gt; 0 (cut)</strong>
               <ul>
-                <li><strong>점수가 더 크면</strong> → 필립보다 앞으로 감 → <code>rank++</code>.</li>
-                <li><strong>점수가 같으면</strong>:
+                <li><code>A = card[0..k-1]</code>, <code>B = card[k..2n-1]</code>로 나누는 의미의 코드가 들어있지만,<br>
+                    실제로는 <code>A, B</code> 배열은 이후에 직접 사용하지 않고, <code>card</code>를 바로 재배열한다.</li>
+                <li><code>next</code> 배열에
                   <ul>
-                    <li>더 많은 문제를 풀었으면 → <code>rank++</code>.</li>
-                    <li>문제 수도 같고 <code>ID(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
+                    <li>먼저 <code>card[k..]</code> (더미 B 전체)를 채우고,</li>
+                    <li>그 다음 <code>card[0..k-1]</code> (더미 A 전체)를 이어 붙인다.</li>
                   </ul>
                 </li>
+                <li>마지막에 <code>card = next;</code>로 갱신해 다음 연산부터는 새 순서를 기준으로 진행한다.</li>
+                <li>이 동작이 “A 위에 B를 올려서, 최종적으로 B가 위쪽에 오게 하는” 컷 연산과 동일하다.</li>
               </ul>
             </li>
-            <li>이 카운트에 +1을 한 값이 문제 정의 그대로의 등수가 된다.<br>
-                (코드에서는 <code>rank</code>를 1에서 시작해 비교할 때마다 증가시키는 방식으로 구현했다.)</li>
           </ul>
         </li>
       
         <li><strong>최종 출력</strong>
-          <pre><code>sb.append(pScore).append(" ").append(rank);
-      System.out.println(sb.toString());</code></pre>
+          <pre><code>for (int i : card) {
+          sb.append(i).append('\n');
+      }
       
+      System.out.println(sb.toString());</code></pre>
           <ul>
-            <li>필립의 점수와 등수를 공백으로 구분해 한 줄로 출력한다.</li>
+            <li>마지막 상태의 <code>card</code> 배열을 위에서부터 순서대로 한 줄씩 출력한다.</li>
+            <li>출력 형식: 1행에 맨 위 카드 번호, 2행에 2번째 카드 번호, ...</li>
           </ul>
         </li>
       </ul>
@@ -276,31 +222,14 @@
       </p>
       
       <ul>
-        <li>정답 행렬 입력 및 카운트:
-          <ul>
-            <li>크기 N × T에 대해 한 번씩 읽고 처리 → <strong><code>O(N × T)</code></strong></li>
-          </ul>
-        </li>
-        <li>문제 점수 계산:
-          <ul>
-            <li>T개에 대해 선형 → <strong><code>O(T)</code></strong></li>
-          </ul>
-        </li>
-        <li>참가자 총점 계산:
-          <ul>
-            <li>다시 N × T를 한 번 순회 → <strong><code>O(N × T)</code></strong></li>
-          </ul>
-        </li>
-        <li>등수 계산:
-          <ul>
-            <li>참가자 N명에 대해 한 번씩 비교 → <strong><code>O(N)</code></strong></li>
-          </ul>
-        </li>
+        <li>카드 수: <code>2n ≤ 200</code></li>
+        <li>연산 수: <code>m ≤ 1000</code></li>
+        <li>각 연산마다 카드 배열 전체를 한 번 훑으면서 재배열 → <strong><code>O(2n)</code></strong></li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 <strong><code>O(N × T)</code></strong>이며,<br>
-        N, T ≤ 2,000이므로 최악의 경우에도 충분히 처리 가능하다.
+        전체 시간 복잡도는 대략 <strong><code>O(m × n)</code></strong>이며,<br>
+        최악의 경우에도 <code>1000 × 100</code> 수준이라 충분히 빠르다.
       </p>
       
       <p>
@@ -310,12 +239,13 @@
       </p>
       
       <ul>
-        <li><code>solved</code> : N × T 크기의 2차원 배열.</li>
-        <li><code>solvedCntByPerson</code>, <code>solvedCntByProblem</code>, <code>problemScore</code>, <code>totalScore</code> : 길이 N 또는 T의 1차원 배열들.</li>
+        <li>기본 카드 배열 <code>card[2n]</code></li>
+        <li>리플 셔플 시 사용되는 <code>A[n]</code>, <code>B[n]</code></li>
+        <li>컷 연산 시 임시 배열 <code>next[2n]</code></li>
       </ul>
       
       <p>
-        전체 공간 복잡도는 <strong><code>O(N × T)</code></strong> 수준이다.
+        모두 합쳐도 카드 수에 비례하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -327,26 +257,28 @@
       </p>
       
       <ul>
-        <li><strong>문제 점수 정의</strong>:
+        <li><strong>카드 인덱스</strong>:
           <ul>
-            <li>“풀지 못한 사람 수”가 점수다. 실수로 푼 사람 수를 넣지 않도록 주의해야 한다.</li>
+            <li>카드는 문제에서 1 ~ 2n이지만, 배열 인덱스는 0 ~ 2n-1 이므로 항상 이 차이를 염두에 둔다.</li>
           </ul>
         </li>
-        <li><strong>인덱스와 ID 차이</strong>:
+        <li><strong>컷 연산 방향</strong>:
           <ul>
-            <li>ID는 1부터 시작, 배열 인덱스는 0부터 시작하므로,<br>
-                비교 시 <code>(i + 1) &lt; P</code>처럼 맞춰줘야 한다.</li>
+            <li>문제 설명은 “위에서 k장을 A, 나머지를 B로 나누고, A의 위에 B를 올린다”고 되어 있지만,<br>
+                결과적으로 <strong>B가 더 위</strong>에 오게 된다.</li>
+            <li>코드의 <code>next[idx++] = card[j]; (j = k..)</code> 후 <code>j = 0..k-1</code> 순으로 이어 붙이는 구현이 바로 이 의미다.</li>
           </ul>
         </li>
-        <li><strong>등수 조건 순서</strong>:
+        <li><strong>리플 셔플 정의를 정확히 구현</strong>:
           <ul>
-            <li>먼저 점수 비교 → 점수가 같을 때만 푼 문제 수 비교 → 그마저 같을 때 ID 비교 순서를 반드시 지켜야 한다.</li>
+            <li>반드시 <code>A1, B1, A2, B2, ...</code> 순으로 쌓아야 한다.</li>
+            <li>A만 먼저 몰아서 쌓거나, B 먼저 쌓는 실수를 하면 결과가 달라진다.</li>
           </ul>
         </li>
-        <li><strong>테스트 케이스 루프</strong>:
+        <li><strong>여러 연산의 누적</strong>:
           <ul>
-            <li>문제 자체는 한 번의 입력만 가정하지만, 코드에서는 <code>while ((line = br.readLine()) != null)</code>로
-                여러 번 입력을 받아도 처리할 수 있도록 구현되어 있다.</li>
+            <li>각 연산은 <strong>현재 상태의 카드 순서</strong>를 기준으로 수행해야 한다.</li>
+            <li>따라서 매번 <code>card</code> 배열을 업데이트한 뒤, 그 상태로 다음 연산을 진행해야 한다.</li>
           </ul>
         </li>
       </ul>
@@ -360,11 +292,11 @@
       </p>
       
       <ul>
-        <li>각 참가자·문제에 대해 정답 여부를 저장하고, 행·열 방향으로 푼 문제 수를 집계한다.</li>
-        <li>각 문제 점수는 “그 문제를 틀린 사람 수”로 계산한다.</li>
-        <li>각 참가자의 총점은 자신이 맞힌 문제들의 점수를 합한 값이다.</li>
-        <li>P번 참가자의 점수와 푼 문제 수를 기준으로, 모든 참가자를 한 번씩 비교해 등수를 계산한다.</li>
-        <li>점수 → 푼 문제 수 → ID 순으로 비교하는 것이 문제 정의와 정확히 일치한다.</li>
+        <li>초기 카드 상태는 1 ~ 2n 순서로 배열에 채운다.</li>
+        <li>k = 0: 위 n장, 아래 n장을 나누어 A, B로 두고 <code>A1, B1, A2, B2, ...</code> 순으로 interleave 한다.</li>
+        <li>k &gt; 0: 위 k장과 나머지를 A, B로 나누고, <code>card = B + A</code> 형태로 재배열한다.</li>
+        <li>모든 연산을 순서대로 적용한 뒤, 최종 카드 배열을 위에서부터 그대로 출력한다.</li>
+        <li>단순한 배열 시뮬레이션만으로 해결 가능하며, 시간·공간 복잡도 모두 매우 작다.</li>
       </ul>
 
 
@@ -417,14 +349,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5555 — 반지</h2>
+      <h2 class="section">문제 5635 — 생일</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5555">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5635">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1203_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -441,22 +373,24 @@
       </h3>
       
       <p>
-        <strong>반지 (BOJ 5555)</strong> 문제는<br>
-        찾고자 하는 문자열이 주어졌을 때, 각 반지에 새겨진 문자열을 <strong>원형(시작과 끝이 이어진 상태)</strong>으로 보면서<br>
-        그 문자열을 <strong>부분 문자열로 포함하는 반지의 개수</strong>를 세는 문제다.
+        <strong>생일 (BOJ 5635)</strong> 문제는<br>
+        반 학생들의 <strong>이름과 생년월일</strong>이 주어졌을 때,<br>
+        <strong>가장 나이가 적은 학생</strong>과 <strong>가장 나이가 많은 학생</strong>의 이름을 출력하는 문제다.
       </p>
       
       <ul>
-        <li>타겟 문자열 길이: 1 ~ 10</li>
-        <li>각 반지 문자열 길이: 항상 10</li>
-        <li>반지 문자열은 <strong>원형</strong>이므로, 끝과 처음이 이어져 있다고 생각해야 한다.</li>
-        <li>거꾸로 읽는 경우는 고려하지 않아도 된다 (문제에서 걱정할 필요 없다고 명시).</li>
+        <li>입력 형식: <code>이름 dd mm yyyy</code></li>
+        <li>날짜는 모두 유효하고, 이름도 생일도 서로 겹치지 않는다.</li>
+        <li>출력:
+          <ul>
+            <li>1행: 가장 나이가 적은(= 생일이 가장 늦은) 학생 이름</li>
+            <li>2행: 가장 나이가 많은(= 생일이 가장 이른) 학생 이름</li>
+          </ul>
+        </li>
       </ul>
       
       <p>
-        원형 문자열에서의 부분 문자열 검사는<br>
-        문자열을 한 번 더 이어 붙여 <code>ring + ring</code> 으로 만든 뒤,<br>
-        이 선형 문자열 안에 타겟 문자열이 포함되는지만 확인하면 간단하게 해결할 수 있다.
+        생년월일 기준으로 정렬만 잘 하면 바로 해결되는 단순 정렬 문제다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -468,23 +402,33 @@
       </p>
       
       <ul>
-        <li>찾고자 하는 문자열 <code>target</code>을 입력으로 받는다.</li>
-        <li>반지 개수 <code>N</code>을 입력으로 받는다.</li>
-        <li>각 반지 문자열 <code>ring</code>에 대해:
+        <li>학생 정보를 담는 클래스(또는 구조체) <code>Info</code>를 만든다.
           <ul>
-            <li><code>doubled = ring + ring</code> 형태로 문자열을 2번 이어 붙인다.</li>
-            <li><code>doubled</code> 안에 <code>target</code>이 포함되는지 <code>contains()</code>로 검사한다.</li>
-            <li>포함되면 해당 반지는 조건을 만족하므로 카운트를 1 증가시킨다.</li>
+            <li><code>name</code> : 이름</li>
+            <li><code>dd</code>, <code>mm</code>, <code>yyyy</code> : 생일 (일, 월, 연도)</li>
           </ul>
         </li>
-        <li>모든 반지를 검사한 뒤, 카운트 값을 출력한다.</li>
+        <li>모든 학생을 <code>List&lt;Info&gt;</code>에 저장한다.</li>
+        <li>생년월일 기준으로 <strong>오름차순</strong> 정렬한다.
+          <ul>
+            <li>연도(<code>yyyy</code>)가 작은 사람이 먼저</li>
+            <li>연도가 같으면 월(<code>mm</code>)이 작은 사람이 먼저</li>
+            <li>연, 월이 같으면 일(<code>dd</code>)이 작은 사람이 먼저</li>
+          </ul>
+        </li>
+        <li>이렇게 정렬하면:
+          <ul>
+            <li><code>students.get(0)</code> : 생일이 가장 이른 사람 → <strong>가장 나이가 많음</strong></li>
+            <li><code>students.get(students.size() - 1)</code> : 생일이 가장 늦은 사람 → <strong>가장 나이가 적음</strong></li>
+          </ul>
+        </li>
+        <li>문제 요구대로:
+          <ul>
+            <li>1행: 가장 나이가 적은 사람 → 리스트의 마지막 원소 이름</li>
+            <li>2행: 가장 나이가 많은 사람 → 리스트의 첫 번째 원소 이름</li>
+          </ul>
+        </li>
       </ul>
-      
-      <p>
-        원형에서 길이 ≤ 10인 연속 부분 문자열은 모두<br>
-        <code>ring + ring</code> 이라는 선형 문자열 안의 <strong>연속 부분 문자열</strong>로 등장하므로,<br>
-        이렇게 검사해도 놓치는 경우가 없다.
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -495,51 +439,83 @@
       </p>
       
       <ul>
-        <li><strong>입력 처리</strong>
+        <li><strong>입력과 저장</strong>
           <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      List&lt;Info&gt; students = new ArrayList&lt;&gt;();
       
-      String target = br.readLine().trim();
-      int N = Integer.parseInt(br.readLine());</code></pre>
+      int n = Integer.parseInt(br.readLine());
+      for (int i = 0; i &lt; n; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          String name = st.nextToken();
+          int dd = Integer.parseInt(st.nextToken());
+          int mm = Integer.parseInt(st.nextToken());
+          int yyyy = Integer.parseInt(st.nextToken());
+      
+          students.add(new Info(name, dd, mm, yyyy));
+      }</code></pre>
+      
           <ul>
-            <li>첫 줄: 찾고자 하는 문자열 <code>target</code>.</li>
-            <li>둘째 줄: 반지 개수 <code>N</code>.</li>
+            <li>학생 수 <code>n</code>을 읽고,</li>
+            <li>각 줄에서 이름, 일, 월, 연도를 차례대로 파싱해서 <code>Info</code> 객체로 리스트에 추가한다.</li>
           </ul>
         </li>
       
-        <li><strong>각 반지에 대해 원형 포함 여부 검사</strong>
-          <pre><code>int cnt = 0;
-      for (int i = 0; i &lt; N; i++) {
-          String ring = br.readLine().trim();
-          String doubled = ring + ring;
+        <li><strong>생년월일 기준 정렬</strong>
+          <pre><code>Collections.sort(students, (a, b) -&gt; {
+          if (a.yyyy == b.yyyy) {
+              if (a.mm == b.mm) {
+                  return Integer.compare(a.dd, b.dd);
+              } else {
+                  return Integer.compare(a.mm, b.mm);
+              }
+          } else {
+              return Integer.compare(a.yyyy, b.yyyy);
+          }
+      });</code></pre>
       
-          if (doubled.contains(target)) {
-              cnt++;
+          <ul>
+            <li><code>yyyy</code> → <code>mm</code> → <code>dd</code> 순으로 비교한다.</li>
+            <li>모두 오름차순이므로:
+              <ul>
+                <li>가장 먼저 오는 학생이 생일이 가장 빠른(→ 가장 나이 많은) 학생.</li>
+                <li>가장 마지막 학생이 생일이 가장 늦은(→ 가장 나이 적은) 학생.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 출력</strong>
+          <pre><code>sb.append(students.get(students.size() - 1).name).append('\n');
+      sb.append(students.get(0).name);
+      
+      System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li><code>students.size() - 1</code> : 가장 나이가 적은 사람 (생일이 가장 늦음).</li>
+            <li><code>0</code> : 가장 나이가 많은 사람 (생일이 가장 이름).</li>
+            <li>문제에서 요구한 순서대로 두 줄을 출력한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>도움 클래스</strong>
+          <pre><code>private static class Info {
+          String name;
+          int dd;
+          int mm;
+          int yyyy;
+      
+          public Info(String name, int dd, int mm, int yyyy) {
+              this.name = name;
+              this.dd = dd;
+              this.mm = mm;
+              this.yyyy = yyyy;
           }
       }</code></pre>
       
           <ul>
-            <li><code>ring</code>은 길이 10의 대문자 문자열이다.</li>
-            <li><code>doubled = ring + ring</code>:
-              <ul>
-                <li>예: <code>ring = "ABCDXXXXXX"</code>이면<br>
-                    <code>doubled = "ABCDXXXXXXABCDXXXXXX"</code></li>
-                <li>원형에서 시작점을 어디로 잡든, 길이 ≤ 10인 연속 부분 문자열은<br>
-                    이 <code>doubled</code> 안의 <strong>연속 부분 문자열</strong>로 표현할 수 있다.</li>
-              </ul>
-            </li>
-            <li><code>doubled.contains(target)</code>:
-              <ul>
-                <li>자바 <code>String</code>의 내장 메서드를 이용해 부분 문자열 여부를 간단히 판단.</li>
-                <li>포함되면 해당 반지는 조건을 만족 → <code>cnt++</code>.</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>결과 출력</strong>
-          <pre><code>System.out.println(cnt);</code></pre>
-          <ul>
-            <li>조건을 만족하는 반지의 총 개수를 한 줄에 출력한다.</li>
+            <li>학생 정보를 하나로 묶어서 다루기 위한 단순한 데이터 클래스.</li>
           </ul>
         </li>
       </ul>
@@ -553,14 +529,14 @@
       </p>
       
       <ul>
-        <li>반지 개수: <code>N ≤ 100</code></li>
-        <li>각 반지 문자열 길이: 10, <code>doubled</code> 길이: 20</li>
-        <li><code>contains()</code>는 길이 20짜리 문자열에서 길이 ≤ 10짜리 문자열을 찾는 작업이므로 사실상 상수 시간.</li>
+        <li>학생 정보를 읽어 리스트에 넣는 데 <code>O(n)</code>.</li>
+        <li><code>Collections.sort</code>로 <code>n</code>명을 정렬: <strong><code>O(n log n)</code></strong>.</li>
+        <li>이후 인덱스로 접근하고 출력하는 부분은 <code>O(n)</code>.</li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 대략 <strong><code>O(N)</code></strong> 수준이다.<br>
-        상한이 매우 작으므로 성능 문제는 전혀 없다.
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이며,<br>
+        <code>n ≤ 100</code>이라 매우 여유롭다.
       </p>
       
       <p>
@@ -570,16 +546,12 @@
       </p>
       
       <ul>
-        <li>추가로 사용하는 것은
-          <ul>
-            <li><code>target</code>, <code>ring</code>, <code>doubled</code> 문자열과</li>
-            <li>정수 카운터 <code>cnt</code>뿐이다.</li>
-          </ul>
-        </li>
+        <li><code>List&lt;Info&gt;</code>에 학생 <code>n</code>명의 정보를 저장 → <code>O(n)</code> 공간.</li>
+        <li>추가로 사용하는 변수들은 모두 상수 크기.</li>
       </ul>
       
       <p>
-        입력 문자열들을 제외한 추가 공간은 <strong><code>O(1)</code></strong>이다.
+        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -591,21 +563,22 @@
       </p>
       
       <ul>
-        <li><strong>원형 처리</strong>:
+        <li><strong>정렬 기준 방향</strong>:
           <ul>
-            <li>그냥 <code>ring.contains(target)</code>만 쓰면, 문자열이 끝을 넘어 이어지는 경우를 잡지 못한다.</li>
-            <li>반드시 <code>ring + ring</code>을 만들어서 검사해야 한다.</li>
+            <li>생일이 빠를수록(연도가 작을수록) 나이가 많다.</li>
+            <li>그래서 “가장 나이 많은 사람”은 정렬 후 <code>0번</code>,
+                “가장 나이 적은 사람”은 <code>size-1</code> 인덱스를 사용해야 한다.</li>
           </ul>
         </li>
-        <li><strong>입력 공백 처리</strong>:
+        <li><strong>이름/생일 중복 없음</strong>:
           <ul>
-            <li>문자열은 공백 없이 대문자만 주어지지만, <code>trim()</code>으로 양 끝 공백을 제거하는 습관이 안전하다.</li>
+            <li>문제에서 이름과 생일 모두 중복되지 않는다고 했으므로,
+                같은 날짜/이름에 대한 추가 처리는 필요 없다.</li>
           </ul>
         </li>
-        <li><strong>역순(거꾸로) 고려 불필요</strong>:
+        <li><strong>입력 형식</strong>:
           <ul>
-            <li>문제에서 “거꾸로 읽는 걱정은 없다”고 했으므로, 역순으로 포함되는 경우는 신경 쓰지 않아도 된다.</li>
-            <li>즉, 주어진 방향 그대로만 검사하면 된다.</li>
+            <li>날짜에 0으로 시작하는 경우가 없으므로, 그대로 <code>int</code>로 파싱하면 된다.</li>
           </ul>
         </li>
       </ul>
@@ -619,11 +592,17 @@
       </p>
       
       <ul>
-        <li>반지 문자열은 원형이므로, <code>ring + ring</code>으로 선형화해서 처리한다.</li>
-        <li>각 반지에 대해 <code>(ring + ring).contains(target)</code>이면 카운트 증가.</li>
-        <li>모든 반지를 검사한 뒤 카운트를 출력한다.</li>
-        <li>원형 처리만 올바르게 하면 구현은 매우 간단한 문자열 문제다.</li>
+        <li>학생 정보를 <code>Info</code> 객체에 담아 리스트로 관리한다.</li>
+        <li>연도 → 월 → 일 기준으로 오름차순 정렬한다.</li>
+        <li>정렬 후:
+          <ul>
+            <li>리스트 마지막 원소: 생일이 가장 늦음 → <strong>가장 나이가 적은 학생</strong>.</li>
+            <li>리스트 첫 번째 원소: 생일이 가장 이름 → <strong>가장 나이가 많은 학생</strong>.</li>
+          </ul>
+        </li>
+        <li>요구 출력 순서에 맞게 “어린 → 많은” 순으로 이름을 출력하면 된다.</li>
       </ul>
+
 
 
 
