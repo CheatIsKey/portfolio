@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-02 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5462 — POI</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5462">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1202_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>POI (BOJ 5462)</strong> 문제는<br>
+        참가자들의 정답 여부가 주어졌을 때,
+        <strong>각 문제의 점수와 각 참가자의 총점</strong>을 계산하고,<br>
+        주어진 규칙에 따라 <strong>특정 참가자 P의 점수와 등수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>문제는 부분 점수 없이 <code>0/1</code>로만 채점된다.</li>
+        <li>각 문제의 점수는 <strong>그 문제를 풀지 못한 참가자의 수</strong>이다.</li>
+        <li>각 참가자의 점수는 <strong>자신이 푼 문제들의 점수 합</strong>이다.</li>
+        <li>등수는 다음 네 항의 합 + 1로 정의된다.
+          <ol>
+            <li>자신보다 <strong>점수가 높은</strong> 사람의 수</li>
+            <li>점수는 같지만 <strong>더 많은 문제를 푼</strong> 사람의 수</li>
+            <li>점수도 같고 푼 문제 수까지 같지만, <strong>ID가 더 작은</strong> 사람의 수</li>
+            <li>마지막에 + 1 (자기 자신)</li>
+          </ol>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 행렬 저장</strong>
+          <ul>
+            <li><code>solved[i][j]</code> : ID가 <code>i+1</code>인 참가자가 문제 <code>j+1</code>을 풀었는지(1) 여부.</li>
+          </ul>
+        </li>
+        <li><strong>각 참가자가 푼 문제 수</strong>, <strong>각 문제를 푼 참가자 수</strong>를 센다.
+          <ul>
+            <li><code>solvedCntByPerson[i]</code> : 참가자 <code>i+1</code>이 푼 문제 수.</li>
+            <li><code>solvedCntByProblem[j]</code> : 문제 <code>j+1</code>을 푼 참가자 수.</li>
+          </ul>
+        </li>
+        <li><strong>각 문제 점수 계산</strong>
+          <ul>
+            <li>문제 <code>j</code>의 점수 = <code>N - solvedCntByProblem[j]</code>
+                (즉, 그 문제를 못 푼 사람 수).</li>
+          </ul>
+        </li>
+        <li><strong>각 참가자 총점 계산</strong>
+          <ul>
+            <li><code>totalScore[i]</code> = 참가자 <code>i+1</code>이 푼 문제들의 점수 합.</li>
+          </ul>
+        </li>
+        <li><strong>P번 참가자 점수·푼 문제 수 가져오기</strong>
+          <ul>
+            <li><code>pIdx = P - 1</code>로 0-based 인덱스로 변환.</li>
+            <li><code>pScore = totalScore[pIdx]</code></li>
+            <li><code>pSolved = solvedCntByPerson[pIdx]</code></li>
+          </ul>
+        </li>
+        <li><strong>등수 계산</strong>
+          <ul>
+            <li>초기 등수 <code>rank = 1</code>로 시작.</li>
+            <li>모든 참가자 <code>i</code>에 대해:
+              <ul>
+                <li>i가 P가 아니면서
+                  <ul>
+                    <li><code>totalScore[i] &gt; pScore</code> 이면 → <code>rank++</code>.</li>
+                    <li><code>totalScore[i] == pScore</code> 이고
+                      <ul>
+                        <li><code>solvedCntByPerson[i] &gt; pSolved</code> 이면 → <code>rank++</code>.</li>
+                        <li><code>solvedCntByPerson[i] == pSolved</code> 이고 <code>(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>이 규칙이 문제에서 정의한 등수 규칙 그대로이다.</li>
+          </ul>
+        </li>
+        <li>마지막으로 <strong>P의 점수와 등수</strong>를 출력한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 파싱 및 기본 배열 생성</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(line);
+      int N = Integer.parseInt(st.nextToken());
+      int T = Integer.parseInt(st.nextToken());
+      int P = Integer.parseInt(st.nextToken());
+      
+      int[][] solved = new int[N][T];
+      int[] solvedCntByPerson = new int[N];
+      int[] solvedCntByProblem = new int[T];</code></pre>
+          <ul>
+            <li><code>solved</code> : N × T 정답 행렬.</li>
+            <li><code>solvedCntByPerson</code> : 각 참가자가 푼 문제 수.</li>
+            <li><code>solvedCntByProblem</code> : 각 문제를 푼 참가자 수.</li>
+          </ul>
+        </li>
+      
+        <li><strong>참가자별 정답 입력 및 카운트</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          st = new StringTokenizer(br.readLine());
+          for (int j = 0; j &lt; T; j++) {
+              int chk = Integer.parseInt(st.nextToken());
+              solved[i][j] = chk;
+      
+              if (chk == 1) {
+                  solvedCntByPerson[i]++;
+                  solvedCntByProblem[j]++;
+              }
+          }
+      }</code></pre>
+      
+          <ul>
+            <li>각 줄은 ID가 <code>i+1</code>인 참가자의 정답 여부.</li>
+            <li><code>chk == 1</code>이면,
+              <ul>
+                <li>참가자 i가 푼 문제 수 증가,</li>
+                <li>해당 문제를 푼 사람 수 증가.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>문제별 점수 계산</strong>
+          <pre><code>int[] problemScore = new int[T];
+      for (int i = 0; i &lt; T; i++) {
+          problemScore[i] = N - solvedCntByProblem[i];
+      }</code></pre>
+      
+          <ul>
+            <li>문제 i의 점수 = <code>N - solvedCntByProblem[i]</code>, 즉 <strong>못 푼 사람 수</strong>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>참가자별 총점 계산</strong>
+          <pre><code>int[] totalScore = new int[N];
+      for (int i = 0; i &lt; N; i++) {
+          int score = 0;
+      
+          for (int j = 0; j &lt; T; j++) {
+              if (solved[i][j] == 1) {
+                  score += problemScore[j];
+              }
+          }
+      
+          totalScore[i] = score;
+      }</code></pre>
+      
+          <ul>
+            <li>참가자 i가 푼 문제들에 대해서만 문제 점수를 더해 총점을 만든다.</li>
+            <li>이 값이 <code>totalScore[i]</code>가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>필립(P)의 점수·푼 문제 수 및 등수 계산</strong>
+          <pre><code>int rank = 1;
+      int pIdx = P - 1;
+      int pScore = totalScore[pIdx];
+      int pSolved = solvedCntByPerson[pIdx];
+      
+      for (int i = 0; i &lt; N; i++) {
+          if (i == pIdx) continue;
+      
+          if (totalScore[i] &gt; pScore) {
+              rank++;
+          } else if (totalScore[i] == pScore) {
+              if (solvedCntByPerson[i] &gt; pSolved) {
+                  rank++;
+              } else if (solvedCntByPerson[i] == pSolved && (i + 1) &lt; P) {
+                  rank++;
+              }
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>pIdx</code>는 P의 0-based 인덱스.</li>
+            <li><code>pScore</code>, <code>pSolved</code>는 필립의 점수와 푼 문제 수.</li>
+            <li>모든 다른 참가자 i에 대해:
+              <ul>
+                <li><strong>점수가 더 크면</strong> → 필립보다 앞으로 감 → <code>rank++</code>.</li>
+                <li><strong>점수가 같으면</strong>:
+                  <ul>
+                    <li>더 많은 문제를 풀었으면 → <code>rank++</code>.</li>
+                    <li>문제 수도 같고 <code>ID(i+1) &lt; P</code> (ID가 더 작으면) → <code>rank++</code>.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li>이 카운트에 +1을 한 값이 문제 정의 그대로의 등수가 된다.<br>
+                (코드에서는 <code>rank</code>를 1에서 시작해 비교할 때마다 증가시키는 방식으로 구현했다.)</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>sb.append(pScore).append(" ").append(rank);
+      System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li>필립의 점수와 등수를 공백으로 구분해 한 줄로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>정답 행렬 입력 및 카운트:
+          <ul>
+            <li>크기 N × T에 대해 한 번씩 읽고 처리 → <strong><code>O(N × T)</code></strong></li>
+          </ul>
+        </li>
+        <li>문제 점수 계산:
+          <ul>
+            <li>T개에 대해 선형 → <strong><code>O(T)</code></strong></li>
+          </ul>
+        </li>
+        <li>참가자 총점 계산:
+          <ul>
+            <li>다시 N × T를 한 번 순회 → <strong><code>O(N × T)</code></strong></li>
+          </ul>
+        </li>
+        <li>등수 계산:
+          <ul>
+            <li>참가자 N명에 대해 한 번씩 비교 → <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 <strong><code>O(N × T)</code></strong>이며,<br>
+        N, T ≤ 2,000이므로 최악의 경우에도 충분히 처리 가능하다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>solved</code> : N × T 크기의 2차원 배열.</li>
+        <li><code>solvedCntByPerson</code>, <code>solvedCntByProblem</code>, <code>problemScore</code>, <code>totalScore</code> : 길이 N 또는 T의 1차원 배열들.</li>
+      </ul>
+      
+      <p>
+        전체 공간 복잡도는 <strong><code>O(N × T)</code></strong> 수준이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>문제 점수 정의</strong>:
+          <ul>
+            <li>“풀지 못한 사람 수”가 점수다. 실수로 푼 사람 수를 넣지 않도록 주의해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>인덱스와 ID 차이</strong>:
+          <ul>
+            <li>ID는 1부터 시작, 배열 인덱스는 0부터 시작하므로,<br>
+                비교 시 <code>(i + 1) &lt; P</code>처럼 맞춰줘야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>등수 조건 순서</strong>:
+          <ul>
+            <li>먼저 점수 비교 → 점수가 같을 때만 푼 문제 수 비교 → 그마저 같을 때 ID 비교 순서를 반드시 지켜야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>테스트 케이스 루프</strong>:
+          <ul>
+            <li>문제 자체는 한 번의 입력만 가정하지만, 코드에서는 <code>while ((line = br.readLine()) != null)</code>로
+                여러 번 입력을 받아도 처리할 수 있도록 구현되어 있다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 참가자·문제에 대해 정답 여부를 저장하고, 행·열 방향으로 푼 문제 수를 집계한다.</li>
+        <li>각 문제 점수는 “그 문제를 틀린 사람 수”로 계산한다.</li>
+        <li>각 참가자의 총점은 자신이 맞힌 문제들의 점수를 합한 값이다.</li>
+        <li>P번 참가자의 점수와 푼 문제 수를 기준으로, 모든 참가자를 한 번씩 비교해 등수를 계산한다.</li>
+        <li>점수 → 푼 문제 수 → ID 순으로 비교하는 것이 문제 정의와 정확히 일치한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5555 — 반지</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5555">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>반지 (BOJ 5555)</strong> 문제는<br>
+        찾고자 하는 문자열이 주어졌을 때, 각 반지에 새겨진 문자열을 <strong>원형(시작과 끝이 이어진 상태)</strong>으로 보면서<br>
+        그 문자열을 <strong>부분 문자열로 포함하는 반지의 개수</strong>를 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>타겟 문자열 길이: 1 ~ 10</li>
+        <li>각 반지 문자열 길이: 항상 10</li>
+        <li>반지 문자열은 <strong>원형</strong>이므로, 끝과 처음이 이어져 있다고 생각해야 한다.</li>
+        <li>거꾸로 읽는 경우는 고려하지 않아도 된다 (문제에서 걱정할 필요 없다고 명시).</li>
+      </ul>
+      
+      <p>
+        원형 문자열에서의 부분 문자열 검사는<br>
+        문자열을 한 번 더 이어 붙여 <code>ring + ring</code> 으로 만든 뒤,<br>
+        이 선형 문자열 안에 타겟 문자열이 포함되는지만 확인하면 간단하게 해결할 수 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>찾고자 하는 문자열 <code>target</code>을 입력으로 받는다.</li>
+        <li>반지 개수 <code>N</code>을 입력으로 받는다.</li>
+        <li>각 반지 문자열 <code>ring</code>에 대해:
+          <ul>
+            <li><code>doubled = ring + ring</code> 형태로 문자열을 2번 이어 붙인다.</li>
+            <li><code>doubled</code> 안에 <code>target</code>이 포함되는지 <code>contains()</code>로 검사한다.</li>
+            <li>포함되면 해당 반지는 조건을 만족하므로 카운트를 1 증가시킨다.</li>
+          </ul>
+        </li>
+        <li>모든 반지를 검사한 뒤, 카운트 값을 출력한다.</li>
+      </ul>
+      
+      <p>
+        원형에서 길이 ≤ 10인 연속 부분 문자열은 모두<br>
+        <code>ring + ring</code> 이라는 선형 문자열 안의 <strong>연속 부분 문자열</strong>로 등장하므로,<br>
+        이렇게 검사해도 놓치는 경우가 없다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      
+      String target = br.readLine().trim();
+      int N = Integer.parseInt(br.readLine());</code></pre>
+          <ul>
+            <li>첫 줄: 찾고자 하는 문자열 <code>target</code>.</li>
+            <li>둘째 줄: 반지 개수 <code>N</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>각 반지에 대해 원형 포함 여부 검사</strong>
+          <pre><code>int cnt = 0;
+      for (int i = 0; i &lt; N; i++) {
+          String ring = br.readLine().trim();
+          String doubled = ring + ring;
+      
+          if (doubled.contains(target)) {
+              cnt++;
+          }
+      }</code></pre>
+      
+          <ul>
+            <li><code>ring</code>은 길이 10의 대문자 문자열이다.</li>
+            <li><code>doubled = ring + ring</code>:
+              <ul>
+                <li>예: <code>ring = "ABCDXXXXXX"</code>이면<br>
+                    <code>doubled = "ABCDXXXXXXABCDXXXXXX"</code></li>
+                <li>원형에서 시작점을 어디로 잡든, 길이 ≤ 10인 연속 부분 문자열은<br>
+                    이 <code>doubled</code> 안의 <strong>연속 부분 문자열</strong>로 표현할 수 있다.</li>
+              </ul>
+            </li>
+            <li><code>doubled.contains(target)</code>:
+              <ul>
+                <li>자바 <code>String</code>의 내장 메서드를 이용해 부분 문자열 여부를 간단히 판단.</li>
+                <li>포함되면 해당 반지는 조건을 만족 → <code>cnt++</code>.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>조건을 만족하는 반지의 총 개수를 한 줄에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>반지 개수: <code>N ≤ 100</code></li>
+        <li>각 반지 문자열 길이: 10, <code>doubled</code> 길이: 20</li>
+        <li><code>contains()</code>는 길이 20짜리 문자열에서 길이 ≤ 10짜리 문자열을 찾는 작업이므로 사실상 상수 시간.</li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 대략 <strong><code>O(N)</code></strong> 수준이다.<br>
+        상한이 매우 작으므로 성능 문제는 전혀 없다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>추가로 사용하는 것은
+          <ul>
+            <li><code>target</code>, <code>ring</code>, <code>doubled</code> 문자열과</li>
+            <li>정수 카운터 <code>cnt</code>뿐이다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        입력 문자열들을 제외한 추가 공간은 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>원형 처리</strong>:
+          <ul>
+            <li>그냥 <code>ring.contains(target)</code>만 쓰면, 문자열이 끝을 넘어 이어지는 경우를 잡지 못한다.</li>
+            <li>반드시 <code>ring + ring</code>을 만들어서 검사해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>입력 공백 처리</strong>:
+          <ul>
+            <li>문자열은 공백 없이 대문자만 주어지지만, <code>trim()</code>으로 양 끝 공백을 제거하는 습관이 안전하다.</li>
+          </ul>
+        </li>
+        <li><strong>역순(거꾸로) 고려 불필요</strong>:
+          <ul>
+            <li>문제에서 “거꾸로 읽는 걱정은 없다”고 했으므로, 역순으로 포함되는 경우는 신경 쓰지 않아도 된다.</li>
+            <li>즉, 주어진 방향 그대로만 검사하면 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>반지 문자열은 원형이므로, <code>ring + ring</code>으로 선형화해서 처리한다.</li>
+        <li>각 반지에 대해 <code>(ring + ring).contains(target)</code>이면 카운트 증가.</li>
+        <li>모든 반지를 검사한 뒤 카운트를 출력한다.</li>
+        <li>원형 처리만 올바르게 하면 구현은 매우 간단한 문자열 문제다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
