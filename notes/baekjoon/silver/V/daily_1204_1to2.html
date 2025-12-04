@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5599 — カードの並び替え</h2>
+      <h2 class="section">문제 5648 — 역원소 정렬</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5599">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5648">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1203_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1204_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,25 +55,25 @@
       </h3>
       
       <p>
-        <strong>カードの並び替え (BOJ 5599)</strong> 문제는<br>
-        처음에 위에서부터 <code>1, 2, ..., 2n</code> 순서로 쌓인 카드 더미에 대해,<br>
-        주어진 횟수만큼 <strong>두 가지 연산</strong>(카트/cut, 리플 셔플)을 순서대로 적용한 뒤,<br>
-        <strong>마지막 카드 배열 상태를 위에서부터 차례대로 출력</strong>하는 시뮬레이션 문제다.
+        <strong>역원소 정렬 (BOJ 5648)</strong> 문제는<br>
+        양의 정수들로 이루어진 집합이 주어졌을 때,
+        각 원소의 자릿수를 <strong>거꾸로 뒤집은 값</strong>을 구하고,<br>
+        그 뒤집힌 값들을 <strong>오름차순 정렬해서 출력</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>카드 수는 항상 <code>2n</code>장.</li>
-        <li>연산은 총 <code>m</code>번 주어진다.</li>
-        <li>연산 종류:
+        <li>각 원소는 양의 정수이고, 값은 <code>10<sup>12</sup></code> 이하.</li>
+        <li>뒤집었을 때 맨 앞에 오는 <strong>0은 모두 생략</strong>해야 한다.
           <ul>
-            <li><strong>k = 0</strong> → 리플 셔플 (Riffle Shuffle)</li>
-            <li><strong>1 ≤ k ≤ 2n - 1</strong> → <strong>k로 컷</strong> (Cut)</li>
+            <li>예: <code>1200</code> → 뒤집기: <code>0021</code> 이지만, 수로는 <code>21</code>.</li>
           </ul>
         </li>
+        <li>입력은 첫 줄에 <code>n</code>이 나오고, 이후에는 여러 줄에 걸쳐 공백으로 구분된 정수들이 이어서 나온다.</li>
       </ul>
       
       <p>
-        문제 조건이 모두 작기 때문에, 각 연산을 그대로 배열에 시뮬레이션해도 충분히 빠르게 해결할 수 있다.
+        핵심은 각 숫자를 하나씩 읽어서 <strong>자릿수를 뒤집은 값</strong>을 만든 뒤 리스트에 넣고,<br>
+        마지막에 <strong>정렬 후 그대로 출력</strong>하면 된다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -85,33 +85,39 @@
       </p>
       
       <ul>
-        <li>처음 카드 상태를 <strong>1 ~ 2n</strong>까지 순서대로 배열에 채운다.</li>
-        <li>각 연산 <code>k</code>에 대해:
+        <li><strong>입력 처리</strong>
           <ul>
-            <li><strong>k = 0 (리플 셔플)</strong>:
+            <li>첫 줄에서 <code>n</code>을 읽어서, 총 몇 개의 정수를 읽어야 하는지 결정한다.</li>
+            <li>이후 입력은 한 줄에 여러 개의 숫자가 섞여 있을 수 있으므로,
+                <code>StringTokenizer</code>를 사용해 토큰 단위로 끊어서 읽는다.</li>
+            <li>읽은 숫자 개수가 <code>n</code>개가 될 때까지 계속 줄을 읽고 토큰을 소비한다.</li>
+          </ul>
+        </li>
+        <li><strong>자릿수 뒤집기</strong>
+          <ul>
+            <li>각 숫자를 <code>long</code>으로 읽어 온 뒤, 나눗셈/나머지 연산으로 자릿수를 뒤집는다.</li>
+            <li>예: <code>num = 1601</code>라면
               <ul>
-                <li>위에서 <code>n</code>장 → 더미 A</li>
-                <li>나머지 <code>n</code>장 → 더미 B</li>
-                <li>새로운 카드 순서:
-                  <code>A[0], B[0], A[1], B[1], ..., A[n-1], B[n-1]</code></li>
+                <li><code>res = 0</code>에서 시작하여,</li>
+                <li><code>res = res * 10 + (num % 10)</code>을 반복하면서 <code>num /= 10</code> 한다.</li>
+                <li>그 결과 <code>res = 1061</code>이 된다.</li>
               </ul>
             </li>
-            <li><strong>k &gt; 0 (cut)</strong>:
+            <li>이 방식은 앞에 오는 0들을 자동으로 제거해 준다.
               <ul>
-                <li>위에서 <code>k</code>장 → 더미 A (card[0..k-1])</li>
-                <li>나머지 → 더미 B (card[k..2n-1])</li>
-                <li>새로운 카드 순서: <strong>먼저 B, 그 뒤 A</strong><br>
-                  즉, <code>B[0..] + A[0..]</code> = <code>card[k..] + card[0..k-1]</code></li>
+                <li><code>1200</code> → 뒤집기 과정: <code>0 → 0 → 2 → 21</code> → <code>21</code>.</li>
               </ul>
             </li>
           </ul>
         </li>
-        <li>모든 연산을 순서대로 적용한 뒤, 최종 <code>card</code> 배열을 위에서부터 하나씩 출력한다.</li>
+        <li><strong>정렬 및 출력</strong>
+          <ul>
+            <li>뒤집힌 숫자들을 <code>List&lt;Long&gt;</code>에 담는다.</li>
+            <li>모두 수집한 뒤 <strong>오름차순 정렬</strong>을 수행한다.</li>
+            <li>정렬된 리스트를 순서대로 출력한다.</li>
+          </ul>
+        </li>
       </ul>
-      
-      <p>
-        구현 자체는 단순한 배열 재배치이므로, 각 연산마다 새 배열을 만들어 복사해도 충분하다.
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -122,93 +128,95 @@
       </p>
       
       <ul>
-        <li><strong>초기 카드 세팅</strong>
-          <pre><code>int n = Integer.parseInt(br.readLine());
+        <li><strong>첫 줄에서 n 읽기</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
       
-      int[] card = new int[2 * n];
-      for (int i = 0; i &lt; card.length; i++) {
-          card[i] = i + 1;
-      }</code></pre>
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      long n = Long.parseLong(st.nextToken());
+      
+      List&lt;Long&gt; list = new ArrayList&lt;&gt;();
+      int count = 0;</code></pre>
           <ul>
-            <li>카드 수는 항상 <code>2n</code>장이므로 길이 <code>2n</code>짜리 배열을 만든다.</li>
-            <li><code>card[0] = 1</code>, <code>card[1] = 2</code>, ..., <code>card[2n-1] = 2n</code> 으로 초기화.</li>
+            <li><code>n</code> : 앞으로 읽어야 할 전체 숫자 개수.</li>
+            <li><code>list</code> : 뒤집힌 숫자들을 저장하는 리스트.</li>
+            <li><code>count</code> : 지금까지 읽은 숫자 개수를 추적.</li>
           </ul>
         </li>
       
-        <li><strong>연산 개수 및 각 연산 처리</strong>
-          <pre><code>int m = Integer.parseInt(br.readLine());
-      for (int i = 0; i &lt; m; i++) {
-          int k = Integer.parseInt(br.readLine());
-      
-          if (k == 0) {
-              // 리플 셔플
-              int[] A = new int[n];
-              int[] B = new int[n];
-      
-              for (int j = 0; j &lt; n; j++) {
-                  A[j] = card[j];
-                  B[j] = card[n + j];
-              }
-      
-              int idx = 0;
-              for (int j = 0; j &lt; n; j++) {
-                  card[idx++] = A[j];
-                  card[idx++] = B[j];
-              }
-          } else {
-              // k로 컷
-              int[] A = Arrays.copyOfRange(card, 0, k);
-              int[] B = Arrays.copyOfRange(card, k, card.length);
-      
-              int[] next = new int[card.length];
-              int idx = 0;
-      
-              for (int j = k; j &lt; card.length; j++) {
-                  next[idx++] = card[j];
-              }
-      
-              for (int j = 0; j &lt; k; j++) {
-                  next[idx++] = card[j];
-              }
-      
-              card = next;
+        <li><strong>여러 줄에 걸친 숫자 읽기 + 뒤집기</strong>
+          <pre><code>while (count &lt; n) {
+          if (!st.hasMoreTokens()) {
+              st = new StringTokenizer(br.readLine());
+              continue;
           }
+      
+          String s = st.nextToken();
+          long num = Long.parseLong(s);
+          long res = 0;
+      
+          while (num &gt; 0) {
+              res = res * 10 + (num % 10);
+              num /= 10;
+          }
+      
+          list.add(res);
+          count++;
       }</code></pre>
       
           <ul>
-            <li><strong>k = 0 (리플 셔플)</strong>
+            <li><code>while (count &lt; n)</code>:
               <ul>
-                <li>위에서 <code>n</code>장과 나머지 <code>n</code>장을 A, B에 따로 복사한다.</li>
-                <li>그 다음, <code>card</code> 배열을 다시 채우면서<br>
-                    <code>A[0], B[0], A[1], B[1], ..., A[n-1], B[n-1]</code> 순으로 interleave 한다.</li>
+                <li>총 <code>n</code>개의 숫자를 다 읽을 때까지 반복.</li>
               </ul>
             </li>
-            <li><strong>k &gt; 0 (cut)</strong>
+            <li><code>!st.hasMoreTokens()</code>:
               <ul>
-                <li><code>A = card[0..k-1]</code>, <code>B = card[k..2n-1]</code>로 나누는 의미의 코드가 들어있지만,<br>
-                    실제로는 <code>A, B</code> 배열은 이후에 직접 사용하지 않고, <code>card</code>를 바로 재배열한다.</li>
-                <li><code>next</code> 배열에
-                  <ul>
-                    <li>먼저 <code>card[k..]</code> (더미 B 전체)를 채우고,</li>
-                    <li>그 다음 <code>card[0..k-1]</code> (더미 A 전체)를 이어 붙인다.</li>
-                  </ul>
-                </li>
-                <li>마지막에 <code>card = next;</code>로 갱신해 다음 연산부터는 새 순서를 기준으로 진행한다.</li>
-                <li>이 동작이 “A 위에 B를 올려서, 최종적으로 B가 위쪽에 오게 하는” 컷 연산과 동일하다.</li>
+                <li>현재 줄의 토큰을 다 썼다면 다음 줄을 읽어 새로운 <code>StringTokenizer</code>로 바꾼다.</li>
+              </ul>
+            </li>
+            <li><code>s = st.nextToken()</code> → <code>num = Long.parseLong(s)</code>:
+              <ul>
+                <li>다음 정수를 문자열 토큰으로 받아서 <code>long</code>으로 변환.</li>
+              </ul>
+            </li>
+            <li><code>res</code> 계산:
+              <ul>
+                <li><code>num % 10</code>으로 가장 마지막 자릿수를 뽑고,</li>
+                <li><code>res = res * 10 + (num % 10)</code>으로 뒤집힌 수를 만들어 간다.</li>
+                <li>매번 <code>num /= 10</code>으로 한 자리씩 줄이며, <code>num == 0</code>이 될 때까지 반복.</li>
+                <li>이 과정에서 앞자리가 0이 되는 구조는 자연스럽게 사라진다.</li>
+              </ul>
+            </li>
+            <li><code>list.add(res)</code>:
+              <ul>
+                <li>뒤집힌 값을 리스트에 저장.</li>
+              </ul>
+            </li>
+            <li><code>count++</code>:
+              <ul>
+                <li>처리한 숫자 개수를 1 증가시켜 전체 <code>n</code>개를 채웠는지 확인.</li>
               </ul>
             </li>
           </ul>
         </li>
       
-        <li><strong>최종 출력</strong>
-          <pre><code>for (int i : card) {
-          sb.append(i).append('\n');
+        <li><strong>정렬과 출력</strong>
+          <pre><code>list.sort(Long::compare);
+      
+      for (Long l : list) {
+          sb.append(l).append('\n');
       }
       
       System.out.println(sb.toString());</code></pre>
+      
           <ul>
-            <li>마지막 상태의 <code>card</code> 배열을 위에서부터 순서대로 한 줄씩 출력한다.</li>
-            <li>출력 형식: 1행에 맨 위 카드 번호, 2행에 2번째 카드 번호, ...</li>
+            <li><code>list.sort(Long::compare)</code>:
+              <ul>
+                <li><code>Long</code> 값 기준 오름차순 정렬을 수행.</li>
+              </ul>
+            </li>
+            <li>정렬이 끝난 뒤, 리스트의 각 원소를 한 줄씩 출력 버퍼에 쌓고 마지막에 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -222,14 +230,22 @@
       </p>
       
       <ul>
-        <li>카드 수: <code>2n ≤ 200</code></li>
-        <li>연산 수: <code>m ≤ 1000</code></li>
-        <li>각 연산마다 카드 배열 전체를 한 번 훑으면서 재배열 → <strong><code>O(2n)</code></strong></li>
+        <li>숫자 <code>n</code>개에 대해 자릿수를 뒤집는 과정:
+          <ul>
+            <li>각 숫자의 자릿수는 최대 13자리 정도(<code>10<sup>12</sup></code>)이므로, 뒤집기 연산은 <code>O(자릿수)</code> = 상수 수준.</li>
+            <li>전체로 보면 <strong><code>O(n)</code></strong>에 가깝다.</li>
+          </ul>
+        </li>
+        <li>정렬:
+          <ul>
+            <li><code>n</code>개의 <code>Long</code> 값을 정렬하므로 <strong><code>O(n log n)</code></strong>.</li>
+          </ul>
+        </li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 대략 <strong><code>O(m × n)</code></strong>이며,<br>
-        최악의 경우에도 <code>1000 × 100</code> 수준이라 충분히 빠르다.
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이며,<br>
+        <code>n ≤ 10<sup>6</sup></code> 조건에서 충분히 가능한 수준이다.
       </p>
       
       <p>
@@ -239,13 +255,12 @@
       </p>
       
       <ul>
-        <li>기본 카드 배열 <code>card[2n]</code></li>
-        <li>리플 셔플 시 사용되는 <code>A[n]</code>, <code>B[n]</code></li>
-        <li>컷 연산 시 임시 배열 <code>next[2n]</code></li>
+        <li><code>List&lt;Long&gt;</code>에 뒤집힌 숫자 <code>n</code>개를 저장 → <strong><code>O(n)</code></strong>.</li>
+        <li>그 외에는 입력 처리용 토크나이저와 몇 개의 보조 변수만 사용하므로 추가 공간은 상수.</li>
       </ul>
       
       <p>
-        모두 합쳐도 카드 수에 비례하므로 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -257,28 +272,24 @@
       </p>
       
       <ul>
-        <li><strong>카드 인덱스</strong>:
+        <li><strong>여러 줄 입력 처리</strong>:
           <ul>
-            <li>카드는 문제에서 1 ~ 2n이지만, 배열 인덱스는 0 ~ 2n-1 이므로 항상 이 차이를 염두에 둔다.</li>
+            <li>첫 줄에서 <code>n</code>만 읽은 뒤, 나머지 토큰들은 다시 사용하는 구조이므로</li>
+            <li>반드시 <code>while (count &lt; n)</code> 루프에서 <code>st.hasMoreTokens()</code>를 확인하고,
+                없으면 <code>br.readLine()</code>으로 새 줄을 가져와야 한다.</li>
           </ul>
         </li>
-        <li><strong>컷 연산 방향</strong>:
+        <li><strong>앞자리 0 제거</strong>:
           <ul>
-            <li>문제 설명은 “위에서 k장을 A, 나머지를 B로 나누고, A의 위에 B를 올린다”고 되어 있지만,<br>
-                결과적으로 <strong>B가 더 위</strong>에 오게 된다.</li>
-            <li>코드의 <code>next[idx++] = card[j]; (j = k..)</code> 후 <code>j = 0..k-1</code> 순으로 이어 붙이는 구현이 바로 이 의미다.</li>
+            <li>문자열을 뒤집고 다시 <code>Long.parseLong</code>을 하는 방식 대신,
+                현재 코드처럼 <code>num</code>을 10으로 나누어가며 <code>res</code>를 만드는 방식이면
+                자연스럽게 앞자리 0이 제거된다.</li>
           </ul>
         </li>
-        <li><strong>리플 셔플 정의를 정확히 구현</strong>:
+        <li><strong>자료형 범위</strong>:
           <ul>
-            <li>반드시 <code>A1, B1, A2, B2, ...</code> 순으로 쌓아야 한다.</li>
-            <li>A만 먼저 몰아서 쌓거나, B 먼저 쌓는 실수를 하면 결과가 달라진다.</li>
-          </ul>
-        </li>
-        <li><strong>여러 연산의 누적</strong>:
-          <ul>
-            <li>각 연산은 <strong>현재 상태의 카드 순서</strong>를 기준으로 수행해야 한다.</li>
-            <li>따라서 매번 <code>card</code> 배열을 업데이트한 뒤, 그 상태로 다음 연산을 진행해야 한다.</li>
+            <li>입력 상한이 <code>10<sup>12</sup></code>이므로 <code>long</code>으로 충분히 표현 가능하다.</li>
+            <li>뒤집은 값 역시 최대 13자리 이내이므로 역시 <code>long</code> 범위 안에 있다.</li>
           </ul>
         </li>
       </ul>
@@ -292,12 +303,12 @@
       </p>
       
       <ul>
-        <li>초기 카드 상태는 1 ~ 2n 순서로 배열에 채운다.</li>
-        <li>k = 0: 위 n장, 아래 n장을 나누어 A, B로 두고 <code>A1, B1, A2, B2, ...</code> 순으로 interleave 한다.</li>
-        <li>k &gt; 0: 위 k장과 나머지를 A, B로 나누고, <code>card = B + A</code> 형태로 재배열한다.</li>
-        <li>모든 연산을 순서대로 적용한 뒤, 최종 카드 배열을 위에서부터 그대로 출력한다.</li>
-        <li>단순한 배열 시뮬레이션만으로 해결 가능하며, 시간·공간 복잡도 모두 매우 작다.</li>
+        <li>총 <code>n</code>개의 정수를 공백 기준으로 순서대로 읽어야 하므로 토크나이저를 적절히 재사용한다.</li>
+        <li>각 수를 <code>long</code>으로 읽고, 나머지/나눗셈을 이용해 자릿수를 뒤집는다.</li>
+        <li>뒤집힌 값들을 리스트에 모아 오름차순 정렬 후 그대로 출력한다.</li>
+        <li>자릿수 뒤집기 과정에서 자동으로 앞자리 0이 제거되므로 별도 처리 필요 없다.</li>
       </ul>
+
 
 
 
@@ -349,14 +360,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5635 — 생일</h2>
+      <h2 class="section">문제 5671 — 호텔 방 번호</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5635">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5671">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1203_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1204_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -373,24 +384,20 @@
       </h3>
       
       <p>
-        <strong>생일 (BOJ 5635)</strong> 문제는<br>
-        반 학생들의 <strong>이름과 생년월일</strong>이 주어졌을 때,<br>
-        <strong>가장 나이가 적은 학생</strong>과 <strong>가장 나이가 많은 학생</strong>의 이름을 출력하는 문제다.
+        <strong>호텔 방 번호 (BOJ 5671)</strong> 문제는<br>
+        구간 <code>[N, M]</code> 안에 있는 정수들 중에서<br>
+        <strong>어떤 숫자도 두 번 이상 등장하지 않는 방 번호</strong>가 몇 개인지를 세는 문제다.
       </p>
       
       <ul>
-        <li>입력 형식: <code>이름 dd mm yyyy</code></li>
-        <li>날짜는 모두 유효하고, 이름도 생일도 서로 겹치지 않는다.</li>
-        <li>출력:
-          <ul>
-            <li>1행: 가장 나이가 적은(= 생일이 가장 늦은) 학생 이름</li>
-            <li>2행: 가장 나이가 많은(= 생일이 가장 이른) 학생 이름</li>
-          </ul>
-        </li>
+        <li>예를 들어, <code>838</code>, <code>1004</code>처럼 같은 숫자가 두 번 이상 들어 있으면 <strong>불운한 번호</strong>로 간주하고 제외한다.</li>
+        <li><code>123</code>, <code>507</code>처럼 모든 자릿수가 서로 다르면 <strong>허용되는 방 번호</strong>이다.</li>
+        <li>입력은 여러 테스트 케이스가 한 줄씩 주어지고, 각 줄에 <code>N</code>, <code>M</code>이 공백으로 구분되어 주어진다.</li>
       </ul>
       
       <p>
-        생년월일 기준으로 정렬만 잘 하면 바로 해결되는 단순 정렬 문제다.
+        범위가 <code>1 ≤ N ≤ M ≤ 5000</code>으로 매우 작기 때문에,<br>
+        구간 내의 모든 정수에 대해 <strong>직접 자릿수를 검사하는 완전탐색</strong>으로 충분히 해결할 수 있다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -402,33 +409,26 @@
       </p>
       
       <ul>
-        <li>학생 정보를 담는 클래스(또는 구조체) <code>Info</code>를 만든다.
+        <li>각 테스트 케이스에 대해 <code>N</code>부터 <code>M</code>까지 모든 수 <code>i</code>를 순회한다.</li>
+        <li>각 수 <code>i</code>에 대해:
           <ul>
-            <li><code>name</code> : 이름</li>
-            <li><code>dd</code>, <code>mm</code>, <code>yyyy</code> : 생일 (일, 월, 연도)</li>
+            <li>길이 10짜리 <code>boolean[] used</code> 배열을 준비한다. (인덱스 0~9 → 각 자릿수 숫자 사용 여부)</li>
+            <li>자릿수를 하나씩 떼어내면서:
+              <ul>
+                <li>해당 숫자가 이미 <code>used</code>에 <code>true</code>라면 → 같은 숫자가 두 번 이상 등장 → 이 수는 불허.</li>
+                <li>처음 보는 숫자라면 <code>used[digit] = true</code>로 체크하고 계속 진행.</li>
+              </ul>
+            </li>
+            <li>모든 자릿수를 검사했는데도 <strong>중복이 한 번도 없었다면</strong> → 유효한 방 번호로 카운트.</li>
           </ul>
         </li>
-        <li>모든 학생을 <code>List&lt;Info&gt;</code>에 저장한다.</li>
-        <li>생년월일 기준으로 <strong>오름차순</strong> 정렬한다.
-          <ul>
-            <li>연도(<code>yyyy</code>)가 작은 사람이 먼저</li>
-            <li>연도가 같으면 월(<code>mm</code>)이 작은 사람이 먼저</li>
-            <li>연, 월이 같으면 일(<code>dd</code>)이 작은 사람이 먼저</li>
-          </ul>
-        </li>
-        <li>이렇게 정렬하면:
-          <ul>
-            <li><code>students.get(0)</code> : 생일이 가장 이른 사람 → <strong>가장 나이가 많음</strong></li>
-            <li><code>students.get(students.size() - 1)</code> : 생일이 가장 늦은 사람 → <strong>가장 나이가 적음</strong></li>
-          </ul>
-        </li>
-        <li>문제 요구대로:
-          <ul>
-            <li>1행: 가장 나이가 적은 사람 → 리스트의 마지막 원소 이름</li>
-            <li>2행: 가장 나이가 많은 사람 → 리스트의 첫 번째 원소 이름</li>
-          </ul>
-        </li>
+        <li>한 테스트 케이스에 대한 결과(유효한 번호 개수)를 출력 버퍼에 기록하고, 다음 줄(다음 테스트 케이스)을 처리한다.</li>
       </ul>
+      
+      <p>
+        숫자 범위가 작기 때문에, 각 수의 자릿수는 최대 4자리(5000)이고,<br>
+        전체 연산량도 매우 적어 단순 구현으로 충분하다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -439,83 +439,91 @@
       </p>
       
       <ul>
-        <li><strong>입력과 저장</strong>
+        <li><strong>기본 입출력 세팅</strong>
           <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       StringBuilder sb = new StringBuilder();
-      List&lt;Info&gt; students = new ArrayList&lt;&gt;();
       
-      int n = Integer.parseInt(br.readLine());
-      for (int i = 0; i &lt; n; i++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
+      String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
+          int N = Integer.parseInt(st.nextToken());
+          int M = Integer.parseInt(st.nextToken());
       
-          String name = st.nextToken();
-          int dd = Integer.parseInt(st.nextToken());
-          int mm = Integer.parseInt(st.nextToken());
-          int yyyy = Integer.parseInt(st.nextToken());
-      
-          students.add(new Info(name, dd, mm, yyyy));
-      }</code></pre>
-      
+          int cnt = 0;</code></pre>
           <ul>
-            <li>학생 수 <code>n</code>을 읽고,</li>
-            <li>각 줄에서 이름, 일, 월, 연도를 차례대로 파싱해서 <code>Info</code> 객체로 리스트에 추가한다.</li>
+            <li>EOF(입력 끝)까지 한 줄씩 읽으면서 각 줄을 하나의 테스트 케이스로 처리한다.</li>
+            <li><code>N</code>, <code>M</code>을 파싱해서 현재 구간을 설정한다.</li>
+            <li><code>cnt</code>는 이 구간에서 <strong>중복 없는 번호 개수</strong>를 세는 변수.</li>
           </ul>
         </li>
       
-        <li><strong>생년월일 기준 정렬</strong>
-          <pre><code>Collections.sort(students, (a, b) -&gt; {
-          if (a.yyyy == b.yyyy) {
-              if (a.mm == b.mm) {
-                  return Integer.compare(a.dd, b.dd);
-              } else {
-                  return Integer.compare(a.mm, b.mm);
+        <li><strong>각 숫자에 대한 중복 자릿수 검사</strong>
+          <pre><code>    for (int i = N; i &lt;= M; i++) {
+              boolean[] used = new boolean[10];
+              boolean ok = true;
+      
+              int num = i;
+              while (num &gt; 0) {
+                  int tmp = num % 10;
+      
+                  if (used[tmp]) {
+                      ok = false;
+                      break;
+                  }
+      
+                  used[tmp] = true;
+                  num /= 10;
               }
-          } else {
-              return Integer.compare(a.yyyy, b.yyyy);
+      
+              if (ok) cnt++;
           }
-      });</code></pre>
+      
+          sb.append(cnt).append('\n');
+      }</code></pre>
       
           <ul>
-            <li><code>yyyy</code> → <code>mm</code> → <code>dd</code> 순으로 비교한다.</li>
-            <li>모두 오름차순이므로:
+            <li><code>for (int i = N; i &lt;= M; i++)</code>:
               <ul>
-                <li>가장 먼저 오는 학생이 생일이 가장 빠른(→ 가장 나이 많은) 학생.</li>
-                <li>가장 마지막 학생이 생일이 가장 늦은(→ 가장 나이 적은) 학생.</li>
+                <li>구간 <code>[N, M]</code>의 모든 정수에 대해 검사.</li>
               </ul>
             </li>
+            <li><code>boolean[] used = new boolean[10];</code>:
+              <ul>
+                <li>0부터 9까지 각 자릿수가 <strong>이미 등장했는지</strong>를 기억하는 배열.</li>
+                <li>매 숫자 <code>i</code>마다 새 배열을 만들어 초기화한다.</li>
+              </ul>
+            </li>
+            <li><code>int num = i;</code> / <code>while (num &gt; 0)</code>:
+              <ul>
+                <li>현재 숫자 <code>i</code>의 자릿수들을 하나씩 떼어내는 과정.</li>
+                <li><code>tmp = num % 10</code> → 가장 오른쪽 자릿수.</li>
+                <li><code>num /= 10</code> → 자릿수를 하나 줄인다.</li>
+              </ul>
+            </li>
+            <li><code>if (used[tmp])</code>:
+              <ul>
+                <li>이 자릿수 <code>tmp</code>가 이미 등장한 적이 있다면,
+                    <strong>같은 숫자가 두 번 이상 나온 것</strong>이므로 <code>ok = false</code>로 표시 후 중단.</li>
+              </ul>
+            </li>
+            <li><code>used[tmp] = true;</code>:
+              <ul>
+                <li>처음 등장한 숫자라면 등장 여부를 기록한다.</li>
+              </ul>
+            </li>
+            <li>루프 종료 후 <code>ok</code>가 <code>true</code>라면:
+              <ul>
+                <li>중복된 자릿수가 없다는 뜻이므로 <code>cnt++</code>로 유효한 번호를 하나 더 센다.</li>
+              </ul>
+            </li>
+            <li>각 테스트 케이스가 끝나면 <code>sb.append(cnt).append('\n');</code>로 결과를 기록한다.</li>
           </ul>
         </li>
       
-        <li><strong>정답 출력</strong>
-          <pre><code>sb.append(students.get(students.size() - 1).name).append('\n');
-      sb.append(students.get(0).name);
-      
-      System.out.println(sb.toString());</code></pre>
-      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.println(sb.toString());</code></pre>
           <ul>
-            <li><code>students.size() - 1</code> : 가장 나이가 적은 사람 (생일이 가장 늦음).</li>
-            <li><code>0</code> : 가장 나이가 많은 사람 (생일이 가장 이름).</li>
-            <li>문제에서 요구한 순서대로 두 줄을 출력한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>도움 클래스</strong>
-          <pre><code>private static class Info {
-          String name;
-          int dd;
-          int mm;
-          int yyyy;
-      
-          public Info(String name, int dd, int mm, int yyyy) {
-              this.name = name;
-              this.dd = dd;
-              this.mm = mm;
-              this.yyyy = yyyy;
-          }
-      }</code></pre>
-      
-          <ul>
-            <li>학생 정보를 하나로 묶어서 다루기 위한 단순한 데이터 클래스.</li>
+            <li>모든 테스트 케이스에 대한 결과를 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -529,14 +537,13 @@
       </p>
       
       <ul>
-        <li>학생 정보를 읽어 리스트에 넣는 데 <code>O(n)</code>.</li>
-        <li><code>Collections.sort</code>로 <code>n</code>명을 정렬: <strong><code>O(n log n)</code></strong>.</li>
-        <li>이후 인덱스로 접근하고 출력하는 부분은 <code>O(n)</code>.</li>
+        <li>각 테스트 케이스에서, 검사하는 숫자의 개수는 최대 <code>M - N + 1 ≤ 5000</code>.</li>
+        <li>각 숫자의 자릿수는 최대 4자리(5000 기준)이므로, 자릿수 검사 비용은 <code>O(1)</code>에 가깝다.</li>
       </ul>
       
       <p>
-        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이며,<br>
-        <code>n ≤ 100</code>이라 매우 여유롭다.
+        따라서 한 테스트 케이스에 대한 시간 복잡도는 <strong><code>O(M - N + 1)</code></strong>,<br>
+        최악의 경우에도 충분히 빠르게 동작한다.
       </p>
       
       <p>
@@ -546,12 +553,12 @@
       </p>
       
       <ul>
-        <li><code>List&lt;Info&gt;</code>에 학생 <code>n</code>명의 정보를 저장 → <code>O(n)</code> 공간.</li>
-        <li>추가로 사용하는 변수들은 모두 상수 크기.</li>
+        <li>각 숫자마다 길이 10짜리 <code>boolean[] used</code> 배열을 사용 → <code>O(10) = O(1)</code>.</li>
+        <li>입력 전체를 저장하지 않고 한 줄씩 처리하므로, 추가 공간 사용은 상수 수준이다.</li>
       </ul>
       
       <p>
-        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+        전체 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -563,22 +570,22 @@
       </p>
       
       <ul>
-        <li><strong>정렬 기준 방향</strong>:
+        <li><strong>여러 테스트 케이스</strong>:
           <ul>
-            <li>생일이 빠를수록(연도가 작을수록) 나이가 많다.</li>
-            <li>그래서 “가장 나이 많은 사람”은 정렬 후 <code>0번</code>,
-                “가장 나이 적은 사람”은 <code>size-1</code> 인덱스를 사용해야 한다.</li>
+            <li>입력 끝(EOF)까지 <code>while ((line = br.readLine()) != null)</code>로 반복한다.</li>
+            <li>각 줄마다 <code>N, M</code> 쌍을 하나의 테스트 케이스로 처리해야 한다.</li>
           </ul>
         </li>
-        <li><strong>이름/생일 중복 없음</strong>:
+        <li><strong>0 처리</strong>:
           <ul>
-            <li>문제에서 이름과 생일 모두 중복되지 않는다고 했으므로,
-                같은 날짜/이름에 대한 추가 처리는 필요 없다.</li>
+            <li>문제 조건에서 <code>N ≥ 1</code>이므로 실제로 0을 검사할 일은 없다.</li>
+            <li>참고로 0을 검사한다고 해도 while 루프를 안 타서 중복 없이 유효한 숫자로 취급된다.</li>
           </ul>
         </li>
-        <li><strong>입력 형식</strong>:
+        <li><strong>used 배열 초기화</strong>:
           <ul>
-            <li>날짜에 0으로 시작하는 경우가 없으므로, 그대로 <code>int</code>로 파싱하면 된다.</li>
+            <li>각 숫자마다 새로운 <code>boolean[10]</code>을 만들어야 한다.</li>
+            <li>공유해서 쓰다가 초기화를 빼먹으면 이전 숫자의 기록이 남아 오답이 된다.</li>
           </ul>
         </li>
       </ul>
@@ -592,15 +599,10 @@
       </p>
       
       <ul>
-        <li>학생 정보를 <code>Info</code> 객체에 담아 리스트로 관리한다.</li>
-        <li>연도 → 월 → 일 기준으로 오름차순 정렬한다.</li>
-        <li>정렬 후:
-          <ul>
-            <li>리스트 마지막 원소: 생일이 가장 늦음 → <strong>가장 나이가 적은 학생</strong>.</li>
-            <li>리스트 첫 번째 원소: 생일이 가장 이름 → <strong>가장 나이가 많은 학생</strong>.</li>
-          </ul>
-        </li>
-        <li>요구 출력 순서에 맞게 “어린 → 많은” 순으로 이름을 출력하면 된다.</li>
+        <li>각 테스트 케이스마다 구간 <code>[N, M]</code>의 모든 정수에 대해 자릿수를 검사한다.</li>
+        <li><code>boolean[10]</code> 배열로 각 숫자(0~9)의 등장 여부를 체크해, 중복이 발생하면 바로 탈락시킨다.</li>
+        <li>중복 없이 끝까지 통과한 숫자만 카운트해 결과로 출력한다.</li>
+        <li>범위가 작아서 단순 완전탐색으로 충분히 해결 가능한 문제다.</li>
       </ul>
 
 
