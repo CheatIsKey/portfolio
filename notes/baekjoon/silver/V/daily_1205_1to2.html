@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5648 — 역원소 정렬</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5648">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1204_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>역원소 정렬 (BOJ 5648)</strong> 문제는<br>
+        양의 정수들로 이루어진 집합이 주어졌을 때,
+        각 원소의 자릿수를 <strong>거꾸로 뒤집은 값</strong>을 구하고,<br>
+        그 뒤집힌 값들을 <strong>오름차순 정렬해서 출력</strong>하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 원소는 양의 정수이고, 값은 <code>10<sup>12</sup></code> 이하.</li>
+        <li>뒤집었을 때 맨 앞에 오는 <strong>0은 모두 생략</strong>해야 한다.
+          <ul>
+            <li>예: <code>1200</code> → 뒤집기: <code>0021</code> 이지만, 수로는 <code>21</code>.</li>
+          </ul>
+        </li>
+        <li>입력은 첫 줄에 <code>n</code>이 나오고, 이후에는 여러 줄에 걸쳐 공백으로 구분된 정수들이 이어서 나온다.</li>
+      </ul>
+      
+      <p>
+        핵심은 각 숫자를 하나씩 읽어서 <strong>자릿수를 뒤집은 값</strong>을 만든 뒤 리스트에 넣고,<br>
+        마지막에 <strong>정렬 후 그대로 출력</strong>하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리</strong>
+          <ul>
+            <li>첫 줄에서 <code>n</code>을 읽어서, 총 몇 개의 정수를 읽어야 하는지 결정한다.</li>
+            <li>이후 입력은 한 줄에 여러 개의 숫자가 섞여 있을 수 있으므로,
+                <code>StringTokenizer</code>를 사용해 토큰 단위로 끊어서 읽는다.</li>
+            <li>읽은 숫자 개수가 <code>n</code>개가 될 때까지 계속 줄을 읽고 토큰을 소비한다.</li>
+          </ul>
+        </li>
+        <li><strong>자릿수 뒤집기</strong>
+          <ul>
+            <li>각 숫자를 <code>long</code>으로 읽어 온 뒤, 나눗셈/나머지 연산으로 자릿수를 뒤집는다.</li>
+            <li>예: <code>num = 1601</code>라면
+              <ul>
+                <li><code>res = 0</code>에서 시작하여,</li>
+                <li><code>res = res * 10 + (num % 10)</code>을 반복하면서 <code>num /= 10</code> 한다.</li>
+                <li>그 결과 <code>res = 1061</code>이 된다.</li>
+              </ul>
+            </li>
+            <li>이 방식은 앞에 오는 0들을 자동으로 제거해 준다.
+              <ul>
+                <li><code>1200</code> → 뒤집기 과정: <code>0 → 0 → 2 → 21</code> → <code>21</code>.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><strong>정렬 및 출력</strong>
+          <ul>
+            <li>뒤집힌 숫자들을 <code>List&lt;Long&gt;</code>에 담는다.</li>
+            <li>모두 수집한 뒤 <strong>오름차순 정렬</strong>을 수행한다.</li>
+            <li>정렬된 리스트를 순서대로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>첫 줄에서 n 읽기</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      long n = Long.parseLong(st.nextToken());
+      
+      List&lt;Long&gt; list = new ArrayList&lt;&gt;();
+      int count = 0;</code></pre>
+          <ul>
+            <li><code>n</code> : 앞으로 읽어야 할 전체 숫자 개수.</li>
+            <li><code>list</code> : 뒤집힌 숫자들을 저장하는 리스트.</li>
+            <li><code>count</code> : 지금까지 읽은 숫자 개수를 추적.</li>
+          </ul>
+        </li>
+      
+        <li><strong>여러 줄에 걸친 숫자 읽기 + 뒤집기</strong>
+          <pre><code>while (count &lt; n) {
+          if (!st.hasMoreTokens()) {
+              st = new StringTokenizer(br.readLine());
+              continue;
+          }
+      
+          String s = st.nextToken();
+          long num = Long.parseLong(s);
+          long res = 0;
+      
+          while (num &gt; 0) {
+              res = res * 10 + (num % 10);
+              num /= 10;
+          }
+      
+          list.add(res);
+          count++;
+      }</code></pre>
+      
+          <ul>
+            <li><code>while (count &lt; n)</code>:
+              <ul>
+                <li>총 <code>n</code>개의 숫자를 다 읽을 때까지 반복.</li>
+              </ul>
+            </li>
+            <li><code>!st.hasMoreTokens()</code>:
+              <ul>
+                <li>현재 줄의 토큰을 다 썼다면 다음 줄을 읽어 새로운 <code>StringTokenizer</code>로 바꾼다.</li>
+              </ul>
+            </li>
+            <li><code>s = st.nextToken()</code> → <code>num = Long.parseLong(s)</code>:
+              <ul>
+                <li>다음 정수를 문자열 토큰으로 받아서 <code>long</code>으로 변환.</li>
+              </ul>
+            </li>
+            <li><code>res</code> 계산:
+              <ul>
+                <li><code>num % 10</code>으로 가장 마지막 자릿수를 뽑고,</li>
+                <li><code>res = res * 10 + (num % 10)</code>으로 뒤집힌 수를 만들어 간다.</li>
+                <li>매번 <code>num /= 10</code>으로 한 자리씩 줄이며, <code>num == 0</code>이 될 때까지 반복.</li>
+                <li>이 과정에서 앞자리가 0이 되는 구조는 자연스럽게 사라진다.</li>
+              </ul>
+            </li>
+            <li><code>list.add(res)</code>:
+              <ul>
+                <li>뒤집힌 값을 리스트에 저장.</li>
+              </ul>
+            </li>
+            <li><code>count++</code>:
+              <ul>
+                <li>처리한 숫자 개수를 1 증가시켜 전체 <code>n</code>개를 채웠는지 확인.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬과 출력</strong>
+          <pre><code>list.sort(Long::compare);
+      
+      for (Long l : list) {
+          sb.append(l).append('\n');
+      }
+      
+      System.out.println(sb.toString());</code></pre>
+      
+          <ul>
+            <li><code>list.sort(Long::compare)</code>:
+              <ul>
+                <li><code>Long</code> 값 기준 오름차순 정렬을 수행.</li>
+              </ul>
+            </li>
+            <li>정렬이 끝난 뒤, 리스트의 각 원소를 한 줄씩 출력 버퍼에 쌓고 마지막에 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>숫자 <code>n</code>개에 대해 자릿수를 뒤집는 과정:
+          <ul>
+            <li>각 숫자의 자릿수는 최대 13자리 정도(<code>10<sup>12</sup></code>)이므로, 뒤집기 연산은 <code>O(자릿수)</code> = 상수 수준.</li>
+            <li>전체로 보면 <strong><code>O(n)</code></strong>에 가깝다.</li>
+          </ul>
+        </li>
+        <li>정렬:
+          <ul>
+            <li><code>n</code>개의 <code>Long</code> 값을 정렬하므로 <strong><code>O(n log n)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 <strong><code>O(n log n)</code></strong>이며,<br>
+        <code>n ≤ 10<sup>6</sup></code> 조건에서 충분히 가능한 수준이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>List&lt;Long&gt;</code>에 뒤집힌 숫자 <code>n</code>개를 저장 → <strong><code>O(n)</code></strong>.</li>
+        <li>그 외에는 입력 처리용 토크나이저와 몇 개의 보조 변수만 사용하므로 추가 공간은 상수.</li>
+      </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>여러 줄 입력 처리</strong>:
+          <ul>
+            <li>첫 줄에서 <code>n</code>만 읽은 뒤, 나머지 토큰들은 다시 사용하는 구조이므로</li>
+            <li>반드시 <code>while (count &lt; n)</code> 루프에서 <code>st.hasMoreTokens()</code>를 확인하고,
+                없으면 <code>br.readLine()</code>으로 새 줄을 가져와야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>앞자리 0 제거</strong>:
+          <ul>
+            <li>문자열을 뒤집고 다시 <code>Long.parseLong</code>을 하는 방식 대신,
+                현재 코드처럼 <code>num</code>을 10으로 나누어가며 <code>res</code>를 만드는 방식이면
+                자연스럽게 앞자리 0이 제거된다.</li>
+          </ul>
+        </li>
+        <li><strong>자료형 범위</strong>:
+          <ul>
+            <li>입력 상한이 <code>10<sup>12</sup></code>이므로 <code>long</code>으로 충분히 표현 가능하다.</li>
+            <li>뒤집은 값 역시 최대 13자리 이내이므로 역시 <code>long</code> 범위 안에 있다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>총 <code>n</code>개의 정수를 공백 기준으로 순서대로 읽어야 하므로 토크나이저를 적절히 재사용한다.</li>
+        <li>각 수를 <code>long</code>으로 읽고, 나머지/나눗셈을 이용해 자릿수를 뒤집는다.</li>
+        <li>뒤집힌 값들을 리스트에 모아 오름차순 정렬 후 그대로 출력한다.</li>
+        <li>자릿수 뒤집기 과정에서 자동으로 앞자리 0이 제거되므로 별도 처리 필요 없다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5671 — 호텔 방 번호</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5671">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1204_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>호텔 방 번호 (BOJ 5671)</strong> 문제는<br>
+        구간 <code>[N, M]</code> 안에 있는 정수들 중에서<br>
+        <strong>어떤 숫자도 두 번 이상 등장하지 않는 방 번호</strong>가 몇 개인지를 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>예를 들어, <code>838</code>, <code>1004</code>처럼 같은 숫자가 두 번 이상 들어 있으면 <strong>불운한 번호</strong>로 간주하고 제외한다.</li>
+        <li><code>123</code>, <code>507</code>처럼 모든 자릿수가 서로 다르면 <strong>허용되는 방 번호</strong>이다.</li>
+        <li>입력은 여러 테스트 케이스가 한 줄씩 주어지고, 각 줄에 <code>N</code>, <code>M</code>이 공백으로 구분되어 주어진다.</li>
+      </ul>
+      
+      <p>
+        범위가 <code>1 ≤ N ≤ M ≤ 5000</code>으로 매우 작기 때문에,<br>
+        구간 내의 모든 정수에 대해 <strong>직접 자릿수를 검사하는 완전탐색</strong>으로 충분히 해결할 수 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스에 대해 <code>N</code>부터 <code>M</code>까지 모든 수 <code>i</code>를 순회한다.</li>
+        <li>각 수 <code>i</code>에 대해:
+          <ul>
+            <li>길이 10짜리 <code>boolean[] used</code> 배열을 준비한다. (인덱스 0~9 → 각 자릿수 숫자 사용 여부)</li>
+            <li>자릿수를 하나씩 떼어내면서:
+              <ul>
+                <li>해당 숫자가 이미 <code>used</code>에 <code>true</code>라면 → 같은 숫자가 두 번 이상 등장 → 이 수는 불허.</li>
+                <li>처음 보는 숫자라면 <code>used[digit] = true</code>로 체크하고 계속 진행.</li>
+              </ul>
+            </li>
+            <li>모든 자릿수를 검사했는데도 <strong>중복이 한 번도 없었다면</strong> → 유효한 방 번호로 카운트.</li>
+          </ul>
+        </li>
+        <li>한 테스트 케이스에 대한 결과(유효한 번호 개수)를 출력 버퍼에 기록하고, 다음 줄(다음 테스트 케이스)을 처리한다.</li>
+      </ul>
+      
+      <p>
+        숫자 범위가 작기 때문에, 각 수의 자릿수는 최대 4자리(5000)이고,<br>
+        전체 연산량도 매우 적어 단순 구현으로 충분하다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>기본 입출력 세팅</strong>
+          <pre><code>BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      StringBuilder sb = new StringBuilder();
+      
+      String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
+          int N = Integer.parseInt(st.nextToken());
+          int M = Integer.parseInt(st.nextToken());
+      
+          int cnt = 0;</code></pre>
+          <ul>
+            <li>EOF(입력 끝)까지 한 줄씩 읽으면서 각 줄을 하나의 테스트 케이스로 처리한다.</li>
+            <li><code>N</code>, <code>M</code>을 파싱해서 현재 구간을 설정한다.</li>
+            <li><code>cnt</code>는 이 구간에서 <strong>중복 없는 번호 개수</strong>를 세는 변수.</li>
+          </ul>
+        </li>
+      
+        <li><strong>각 숫자에 대한 중복 자릿수 검사</strong>
+          <pre><code>    for (int i = N; i &lt;= M; i++) {
+              boolean[] used = new boolean[10];
+              boolean ok = true;
+      
+              int num = i;
+              while (num &gt; 0) {
+                  int tmp = num % 10;
+      
+                  if (used[tmp]) {
+                      ok = false;
+                      break;
+                  }
+      
+                  used[tmp] = true;
+                  num /= 10;
+              }
+      
+              if (ok) cnt++;
+          }
+      
+          sb.append(cnt).append('\n');
+      }</code></pre>
+      
+          <ul>
+            <li><code>for (int i = N; i &lt;= M; i++)</code>:
+              <ul>
+                <li>구간 <code>[N, M]</code>의 모든 정수에 대해 검사.</li>
+              </ul>
+            </li>
+            <li><code>boolean[] used = new boolean[10];</code>:
+              <ul>
+                <li>0부터 9까지 각 자릿수가 <strong>이미 등장했는지</strong>를 기억하는 배열.</li>
+                <li>매 숫자 <code>i</code>마다 새 배열을 만들어 초기화한다.</li>
+              </ul>
+            </li>
+            <li><code>int num = i;</code> / <code>while (num &gt; 0)</code>:
+              <ul>
+                <li>현재 숫자 <code>i</code>의 자릿수들을 하나씩 떼어내는 과정.</li>
+                <li><code>tmp = num % 10</code> → 가장 오른쪽 자릿수.</li>
+                <li><code>num /= 10</code> → 자릿수를 하나 줄인다.</li>
+              </ul>
+            </li>
+            <li><code>if (used[tmp])</code>:
+              <ul>
+                <li>이 자릿수 <code>tmp</code>가 이미 등장한 적이 있다면,
+                    <strong>같은 숫자가 두 번 이상 나온 것</strong>이므로 <code>ok = false</code>로 표시 후 중단.</li>
+              </ul>
+            </li>
+            <li><code>used[tmp] = true;</code>:
+              <ul>
+                <li>처음 등장한 숫자라면 등장 여부를 기록한다.</li>
+              </ul>
+            </li>
+            <li>루프 종료 후 <code>ok</code>가 <code>true</code>라면:
+              <ul>
+                <li>중복된 자릿수가 없다는 뜻이므로 <code>cnt++</code>로 유효한 번호를 하나 더 센다.</li>
+              </ul>
+            </li>
+            <li>각 테스트 케이스가 끝나면 <code>sb.append(cnt).append('\n');</code>로 결과를 기록한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 출력</strong>
+          <pre><code>System.out.println(sb.toString());</code></pre>
+          <ul>
+            <li>모든 테스트 케이스에 대한 결과를 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스에서, 검사하는 숫자의 개수는 최대 <code>M - N + 1 ≤ 5000</code>.</li>
+        <li>각 숫자의 자릿수는 최대 4자리(5000 기준)이므로, 자릿수 검사 비용은 <code>O(1)</code>에 가깝다.</li>
+      </ul>
+      
+      <p>
+        따라서 한 테스트 케이스에 대한 시간 복잡도는 <strong><code>O(M - N + 1)</code></strong>,<br>
+        최악의 경우에도 충분히 빠르게 동작한다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 숫자마다 길이 10짜리 <code>boolean[] used</code> 배열을 사용 → <code>O(10) = O(1)</code>.</li>
+        <li>입력 전체를 저장하지 않고 한 줄씩 처리하므로, 추가 공간 사용은 상수 수준이다.</li>
+      </ul>
+      
+      <p>
+        전체 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>여러 테스트 케이스</strong>:
+          <ul>
+            <li>입력 끝(EOF)까지 <code>while ((line = br.readLine()) != null)</code>로 반복한다.</li>
+            <li>각 줄마다 <code>N, M</code> 쌍을 하나의 테스트 케이스로 처리해야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>0 처리</strong>:
+          <ul>
+            <li>문제 조건에서 <code>N ≥ 1</code>이므로 실제로 0을 검사할 일은 없다.</li>
+            <li>참고로 0을 검사한다고 해도 while 루프를 안 타서 중복 없이 유효한 숫자로 취급된다.</li>
+          </ul>
+        </li>
+        <li><strong>used 배열 초기화</strong>:
+          <ul>
+            <li>각 숫자마다 새로운 <code>boolean[10]</code>을 만들어야 한다.</li>
+            <li>공유해서 쓰다가 초기화를 빼먹으면 이전 숫자의 기록이 남아 오답이 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스마다 구간 <code>[N, M]</code>의 모든 정수에 대해 자릿수를 검사한다.</li>
+        <li><code>boolean[10]</code> 배열로 각 숫자(0~9)의 등장 여부를 체크해, 중복이 발생하면 바로 탈락시킨다.</li>
+        <li>중복 없이 끝까지 통과한 숫자만 카운트해 결과로 출력한다.</li>
+        <li>범위가 작아서 단순 완전탐색으로 충분히 해결 가능한 문제다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
