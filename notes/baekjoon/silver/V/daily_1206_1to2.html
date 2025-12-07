@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-05 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5690 — King’s Poker</h2>
+      <h2 class="section">문제 5747 — Odd or Even</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5690">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5747">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1205_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,250 +55,201 @@
       </h3>
       
       <p>
-        <strong>King’s Poker (BOJ 5690)</strong>는<br>
-        3장의 카드로 이루어진 한 손(hand)이 주어졌을 때,<br>
-        그 손을 <strong>이길 수 있는 세트(set) 또는 페어(pair) 중에서 가장 낮은(가장 약한)</strong> 손을 찾아서 출력하는 문제다.
+        <strong>Odd or Even (BOJ 5747)</strong> 문제는<br>
+        존(John)과 메리(Mary)가 여러 번 한 게임의 기록을 가지고,<br>
+        <strong>메리가 최소 몇 판은 “무조건 이겼다고 확신할 수 있는지”</strong>를 구하는 문제다.
       </p>
       
       <p>
-        King’s Poker에서 랭크는 다음과 같다.
+        게임 규칙은 다음과 같다.
       </p>
       
       <ul>
-        <li>랭크: A(1), 2, 3, ..., 10, J(11), Q(12), K(13)</li>
-        <li>무늬(suit)는 <strong>아예 고려하지 않는다</strong>.</li>
+        <li>존은 항상 <strong>홀수(odds)</strong>를, 메리는 항상 <strong>짝수(evens)</strong>를 선택한다.</li>
+        <li>각 게임에서 두 사람은 0~5 사이의 손가락 수를 낸다.</li>
+        <li>두 수의 합이 짝수면 <strong>메리 승</strong>, 합이 홀수면 <strong>존 승</strong>이다.</li>
       </ul>
       
       <p>
-        손의 유형은 세 가지다.
+        하지만 지금은 <strong>게임 순서가 섞여서</strong><br>
+        “메리가 각 게임에서 낸 손가락 수 목록”과 “존이 각 게임에서 낸 손가락 수 목록”만 주어진다.<br>
+        어떤 게임에서 어떤 값이 짝이었는지는 모른다.
+      </p>
+      
+      <p>
+        우리는 <strong>가능한 모든 매칭(순서 재배치) 중에서</strong><br>
+        메리의 승리 수가 가장 적게 되는 경우를 가정했을 때,<br>
+        그 <strong>최소 승리 횟수</strong>를 구해야 한다. (메리 입장에서 최악, 존 입장에서 최선인 경우)
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 아이디어 (짝/홀 개수 세기)
+        </span>
+      </p>
+      
+      <p>
+        승패는 <strong>합의 짝/홀 여부</strong>만으로 결정된다.
       </p>
       
       <ul>
-        <li><strong>세트(set)</strong>: 세 장 모두 같은 랭크 (예: 5,5,5)</li>
-        <li><strong>페어(pair)</strong>: 두 장만 같은 랭크이고 나머지 한 장은 다른 랭크 (예: 7,7,3)</li>
-        <li><strong>노페어(no-pair)</strong>: 세 장 모두 서로 다른 랭크 (예: 2,5,9)</li>
+        <li>메리의 손가락 수: <code>0~5</code> 중 어떤 값이든, <strong>짝수/홀수</strong>만 중요하다.</li>
+        <li>존의 손가락 수도 마찬가지.</li>
       </ul>
       
       <p>
-        손의 강약은 다음 규칙으로 정해진다.
+        각 게임에서 두 수의 합이 짝수가 되는 경우는:
       </p>
       
       <ul>
-        <li>어떤 <strong>세트</strong>든 <strong>모든 페어와 모든 노페어보다 강하다</strong>.</li>
-        <li>어떤 <strong>페어</strong>든 <strong>모든 노페어보다 강하다</strong>.</li>
-        <li>세트 vs 세트: <strong>셋을 이루는 카드 랭크가 더 큰 쪽이 승리</strong>.</li>
-        <li>페어 vs 페어:
+        <li><strong>짝수 + 짝수</strong></li>
+        <li><strong>홀수 + 홀수</strong></li>
+      </ul>
+      
+      <p>
+        즉, 두 사람이 <strong>동일한 parity(짝/홀)</strong>일 때 메리가 이기고,<br>
+        서로 <strong>다른 parity</strong>일 때 존이 이긴다.
+      </p>
+      
+      <p>
+        존이 메리의 승리를 최소로 만들고 싶다면,
+        가능한 한 많이 <strong>“서로 다른 짝/홀”</strong>끼리 매칭해서 본인이 이겨야 한다.
+        그 최대 개수를 구하고, 전체 게임 수에서 빼면<br>
+        <strong>메리가 최소한으로 이긴 판 수 = N - (존이 최대한 이길 수 있는 판 수)</strong>가 된다.
+      </p>
+      
+      <ul>
+        <li>메리 쪽 짝수 개수: <code>maryEven</code></li>
+        <li>메리 쪽 홀수 개수: <code>maryOdd</code></li>
+        <li>존 쪽 짝수 개수: <code>johnEven</code></li>
+        <li>존 쪽 홀수 개수: <code>johnOdd</code></li>
+      </ul>
+      
+      <p>
+        서로 다른 parity로 매칭할 수 있는 최대 개수(= 존이 이기는 판 수, <code>mis</code>)는:
+      </p>
+      
+      <ul>
+        <li><strong>메리 짝수 vs 존 홀수</strong> 조합: 최대 <code>min(maryEven, johnOdd)</code>개</li>
+        <li><strong>메리 홀수 vs 존 짝수</strong> 조합: 최대 <code>min(maryOdd, johnEven)</code>개</li>
+      </ul>
+      
+      <p>
+        따라서
+      </p>
+      
+      <p>
+        <code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code><br>
+        <code>win = N - mis</code> ← 메리가 최소한으로 이긴 판 수
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프</strong>
           <ul>
-            <li>먼저 페어를 이루는 랭크를 비교해서 더 큰 쪽이 승리.</li>
-            <li>페어 랭크가 같다면, <strong>킥커(kicker, 나머지 한 장)</strong> 랭크를 비교해서 더 큰 쪽이 승리.</li>
-            <li>페어 랭크와 킥커 랭크까지 모두 같으면 동점(문제에서는 그런 경우가 안 나오도록 입력이 주어진다).</li>
+            <li>각 테스트케이스마다 먼저 <code>N</code>을 읽고, <code>N == 0</code>이면 종료.</li>
           </ul>
         </li>
-      </ul>
       
-      <p>
-        우리의 목표는:
-      </p>
+        <li><strong>메리 카드의 짝/홀 개수 세기</strong>
+          <pre><code>int maryEven = 0;
+      int maryOdd = 0;
       
-      <ul>
-        <li>입력으로 주어진 손을 <strong>엄밀히 이기는(단순 동점은 X) 세트 또는 페어</strong>들 중에서,</li>
-        <li>위의 규칙으로 비교했을 때 <strong>가장 약한(순위가 가장 낮은) 손</strong>을 찾는 것이다.</li>
-        <li>그런 손이 존재하지 않으면 <code>*</code>를 출력한다.</li>
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int j = 0; j &lt; N; j++) {
+          int num = Integer.parseInt(st.nextToken());
+          if (num % 2 == 0) maryEven++;
+          else maryOdd++;
+      }</code></pre>
+          <ul>
+            <li>두 번째 줄에서 메리가 낸 손가락 수 <code>N</code>개를 읽고,</li>
+            <li>짝수면 <code>maryEven++</code>, 홀수면 <code>maryOdd++</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>존 카드의 짝/홀 개수 세기</strong>
+          <pre><code>int johnEven = 0;
+      int johnOdd = 0;
+      
+      st = new StringTokenizer(br.readLine());
+      for (int j = 0; j &lt; N; j++) {
+          int num = Integer.parseInt(st.nextToken());
+          if (num % 2 == 0) johnEven++;
+          else johnOdd++;
+      }</code></pre>
+        </li>
+      
+        <li><strong>존이 이길 수 있는 최대 판 수 계산</strong>
+          <pre><code>int mis = Math.min(maryEven, johnOdd)
+              + Math.min(maryOdd, johnEven);</code></pre>
+          <ul>
+            <li>짝수-홀수, 홀수-짝수 매칭을 최대한 많이 만들어,<br>
+                존의 승리(메리의 패배)를 최대로 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>메리가 확실히 이겼다고 말할 수 있는 최소 판 수</strong>
+          <pre><code>int win = N - mis;
+      sb.append(win).append('\n');</code></pre>
+          <ul>
+            <li>남은 게임은 모두 <strong>짝+짝 또는 홀+홀</strong> 매칭이라 메리가 이기는 판.</li>
+            <li>어떤 식으로 매칭해도 최소 <code>win</code>판은 반드시 메리가 이길 수밖에 없다.</li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 개요
+          예시
         </span>
       </p>
-      
-      <ul>
-        <li>입력으로 받은 세 장의 카드 <code>A, B, C</code>를 <strong>정렬</strong>해서 <code>cards[0] ≤ cards[1] ≤ cards[2]</code> 형태로 만든다.</li>
-        <li>정렬된 배열을 이용해 손의 유형을 판별한다.
-          <ul>
-            <li><code>cards[0] == cards[2]</code> → 세 장 모두 같은 값 → <strong>세트</strong>.</li>
-            <li>그 외, <code>cards[0]==cards[1]</code> 또는 <code>cards[1]==cards[2]</code> → <strong>페어</strong>.</li>
-            <li>위 둘이 아니면 → <strong>노페어</strong>.</li>
-          </ul>
-        </li>
-        <li>각 경우에 대해, 규칙에 따라 <strong>“가장 약한 이기는 세트/페어”</strong>를 수학적으로 구성한다:
-          <ul>
-            <li>세트인 경우 → 더 높은 세트(트리플)을 만들 수 있으면 그 중 가장 낮은 것.</li>
-            <li>페어인 경우 → 우선 <strong>같은 페어 랭크</strong>에 대해 킥커를 가능한 한 조금만 키워서 이기는 손을 만들고,<br>
-                그게 안 되면 <strong>페어 랭크를 올려서</strong> 가장 약한 이기는 페어를 만든다. 그마저도 불가능하면 <strong>세트로 넘어간다</strong>.</li>
-            <li>노페어인 경우 → 어떤 페어든 반드시 이기므로, <strong>가장 약한 페어</strong>인 <code>1,1,2</code>를 바로 답으로 사용한다.</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심: 코드가 하는 일
-        </span>
+        예제 1:
+      </p>
+      
+      <pre><code>N = 3
+      메리: 1 0 4
+      존  : 3 1 2</code></pre>
+      
+      <ul>
+        <li>메리: 짝수 2개(0, 4), 홀수 1개(1)</li>
+        <li>존:   짝수 1개(2), 홀수 2개(3, 1)</li>
+      </ul>
+      
+      <p>
+        짝/홀 매칭 최대 개수:
       </p>
       
       <ul>
-        <li><strong>입력 처리 및 종료 조건</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          StringTokenizer st = new StringTokenizer(line);
-      
-          int A = Integer.parseInt(st.nextToken());
-          int B = Integer.parseInt(st.nextToken());
-          int C = Integer.parseInt(st.nextToken());
-          if (A == 0 &amp;&amp; B == 0 &amp;&amp; C == 0) break;
-      
-          int[] cards = {A, B, C};
-          Arrays.sort(cards);
-      
-          ... // 손 유형에 따른 처리
-      }</code></pre>
-          <ul>
-            <li><code>0 0 0</code>이 입력되면 반복을 종료한다.</li>
-            <li>각 테스트 케이스마다 <code>cards</code>를 정렬해 이후 로직을 단순하게 만든다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>1) 세트인 경우 (cards[0] == cards[2])</strong>
-          <pre><code>if (cards[0] == cards[2]) {
-          int r = cards[0];
-      
-          if (r == 13) {
-              sb.append("*");
-          } else {
-              int nr = r + 1;
-              sb.append(nr).append(" ").append(nr).append(" ").append(nr).append(" ");
-          }
-      }</code></pre>
-      
-          <ul>
-            <li>현재 손이 <code>r,r,r</code> (세트)일 때, 이를 이기려면 <strong>랭크가 더 큰 세트</strong>여야만 한다.</li>
-            <li><code>r &lt; 13</code>이면 가장 약한 이기는 세트는 <code>(r+1),(r+1),(r+1)</code>.</li>
-            <li><code>r == 13</code>이면 이미 <strong>가장 강한 세트(KKK)</strong>이므로,
-                이길 수 있는 세트/페어가 없어서 <code>*</code>를 출력한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 페어인 경우</strong>
-          <pre><code>else if (cards[0] == cards[1] || cards[1] == cards[2]) {
-          int pair;
-          int kick;
-      
-          if (cards[0] == cards[1]) {
-              pair = cards[0];
-              kick = cards[2];
-          } else {
-              pair = cards[1];
-              kick = cards[0];
-          }
-      
-          int newKick = -1;
-          for (int i = kick + 1; i &lt;= 13; i++) {
-              if (i != pair) {
-                  newKick = i;
-                  break;
-              }
-          }
-      
-          if (newKick != -1) {
-              int[] answer = {pair, pair, newKick};
-              Arrays.sort(answer);
-      
-              sb.append(answer[0]).append(" ")
-                .append(answer[1]).append(" ")
-                .append(answer[2]).append(" ");
-          } else {
-              if (pair &lt; 13) {
-                  int newPair = pair + 1;
-                  int[] answer = {newPair, newPair, 1};
-                  Arrays.sort(answer);
-      
-                  sb.append(answer[0]).append(" ")
-                    .append(answer[1]).append(" ")
-                    .append(answer[2]).append(" ");
-              } else {
-                  sb.append("1 1 1");
-              }
-          }
-      }</code></pre>
-      
-          <p>
-            이 부분이 로직의 핵심이다. 현재 손이 <strong>페어</strong>일 때,
-            <strong>가장 약한 이기는 페어 또는 세트</strong>를 찾는 과정이다.
-          </p>
-      
-          <ul>
-            <li><strong>페어와 킥커 추출</strong>
-              <ul>
-                <li><code>cards[0] == cards[1]</code>이면 페어는 <code>cards[0]</code>, 킥커는 <code>cards[2]</code>.</li>
-                <li>그 외에는 <code>cards[1] == cards[2]</code>이므로 페어는 <code>cards[1]</code>, 킥커는 <code>cards[0]</code>.</li>
-              </ul>
-            </li>
-      
-            <li><strong>2-1. 같은 페어 랭크에서 킥커만 키워서 이기는 페어 만들기</strong>
-              <ul>
-                <li>페어 랭크 <code>pair</code>는 그대로 두고, 킥커 <code>kick</code>보다 큰 카드 중에서
-                    <strong>페어 랭크와 겹치지 않는 가장 작은 값</strong>을 찾는다.
-                  <pre><code>for (int i = kick + 1; i &lt;= 13; i++) {
-          if (i != pair) {
-              newKick = i;
-              break;
-          }
-      }</code></pre>
-                </li>
-                <li>이렇게 찾은 <code>newKick</code>이 있다면,
-                    <code>{pair, pair, newKick}</code>이 현재 손보다
-                    <strong>조금 더 강한(가장 약한) 페어</strong>가 된다.</li>
-              </ul>
-            </li>
-      
-            <li><strong>2-2. 킥커를 더 키울 수 없을 때 → 페어 랭크 올리기</strong>
-              <ul>
-                <li><code>newKick == -1</code>인 경우는 “현재 킥커보다 더 크면서 페어 랭크와 겹치지 않는 카드”를 찾을 수 없는 경우다.</li>
-                <li>이 때는 <strong>페어 랭크를 하나 키운</strong> 새로운 페어를 고려한다.
-                  <pre><code>if (pair &lt; 13) {
-          int newPair = pair + 1;
-          int[] answer = {newPair, newPair, 1};
-          Arrays.sort(answer);
-          ...
-      }</code></pre>
-                </li>
-                <li>킥커로는 가능한 한 작은 카드(1)를 사용하고, 정렬해서 오름차순으로 출력한다.</li>
-              </ul>
-            </li>
-      
-            <li><strong>2-3. 현재 페어가 K 페어(13,13,x)이고 킥커도 더 못 키울 때</strong>
-              <ul>
-                <li><code>pair == 13</code>이면서 <code>newKick == -1</code>인 경우,
-                    더 강한 페어는 존재하지 않는다.</li>
-                <li>이 경우, 다음으로 강한 손은 <strong>세트</strong>이므로,
-                    가장 약한 세트인 <code>1,1,1</code>을 정답으로 사용한다.
-                  <pre><code>else {
-          sb.append("1 1 1");
-      }</code></pre>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 노페어인 경우</strong>
-          <pre><code>else {
-          sb.append("1 1 2");
-      }</code></pre>
-      
-          <ul>
-            <li>노페어는 <strong>어떤 페어에게도 항상 진다</strong>.</li>
-            <li>따라서 노페어를 이길 수 있는 손들 중 가장 약한 손은,
-                <strong>전체 페어 중에서 가장 약한 것</strong>인 <code>1,1,2</code>이다.</li>
-            <li>그래서 노페어인 경우는 항상 <code>1 1 2</code>를 출력하면 된다.</li>
-          </ul>
-        </li>
+        <li><code>min(maryEven=2, johnOdd=2) = 2</code></li>
+        <li><code>min(maryOdd=1, johnEven=1) = 1</code></li>
       </ul>
+      
+      <p>
+        따라서
+      </p>
+      
+      <p>
+        <code>mis = 2 + 1 = 3</code> (존이 최대 3판까지 이길 수 있다)<br>
+        <code>win = N - mis = 3 - 3 = 0</code>
+      </p>
+      
+      <p>
+        어떤 식으로 짝을 맞춰도 <strong>메리가 확실히 이겼다고 말할 수 있는 판은 0판</strong>이다.<br>
+        → 출력: <code>0</code>
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -309,13 +260,13 @@
       </p>
       
       <ul>
-        <li>각 테스트 케이스에서 하는 일:
+        <li>각 테스트케이스에서
           <ul>
-            <li>카드 3장을 정렬: <strong><code>O(1)</code></strong> (상수 크기 배열).</li>
-            <li>페어인 경우, 킥커를 키우는 루프는 최대 <code>13 - 1</code>번 → <strong><code>O(1)</code></strong>.</li>
+            <li>메리 카드 <code>N</code>개, 존 카드 <code>N</code>개를 한 번씩만 순회한다.</li>
           </ul>
         </li>
-        <li>테스트 케이스 수를 <code>T</code>라고 하면 전체는 <strong><code>O(T)</code></strong> 수준이다.</li>
+        <li>따라서 한 케이스당 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+        <li><code>N ≤ 100</code>이므로 전체 입력에 대해서도 충분히 빠르다.</li>
       </ul>
       
       <p>
@@ -325,8 +276,9 @@
       </p>
       
       <ul>
-        <li>카드 세 장을 저장하는 <code>int[3]</code>와 몇 개의 지역 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
-        <li>출력용 <code>StringBuilder</code>는 출력 길이에 비례하지만, 이는 문제 요구 출력 자체이므로 추가적인 큰 메모리는 사용하지 않는다.</li>
+        <li>짝/홀 개수와 몇 개의 정수 변수만 사용한다.</li>
+        <li>추가 배열을 따로 만들지 않으므로, 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.</li>
+        <li>출력 누적을 위한 <code>StringBuilder</code>는 출력 길이에 비례하지만, 이는 필수 출력 공간이다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -338,13 +290,11 @@
       </p>
       
       <ul>
-        <li>항상 <strong>비기는 손이 아니라 “엄밀히 이기는” 손</strong>을 찾아야 한다.</li>
-        <li>출력은 문제 요구대로 <strong>오름차순 정렬된 세 카드</strong>를 공백으로 구분해서 출력해야 한다.
-          <ul>
-            <li>페어나 세트를 만들 때도 마지막에 <code>Arrays.sort(answer)</code>로 정렬하는 이유.</li>
-          </ul>
-        </li>
-        <li><code>13 13 13</code>처럼 가장 강한 세트는 이길 수 있는 손이 없으므로 <code>*</code>를 출력해야 한다.</li>
+        <li>실제 “어떤 게임에서 누가 이겼는지”를 맞추는 것이 아니라,<br>
+            <strong>모든 가능한 재배치 중 메리 승리 수의 최솟값</strong>만 구하면 된다.</li>
+        <li>승패는 오직 <strong>짝/홀 여부</strong>에 의해서만 결정되므로,
+            구체적인 숫자(0~5)가 아니라 <strong>짝수/홀수 개수</strong>만 세는 것이 핵심이다.</li>
+        <li>존이 이길 수 있는 판 수를 최대화하면, 그만큼 메리의 승리는 최소가 된다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -356,12 +306,15 @@
       </p>
       
       <ul>
-        <li>세 장을 정렬해서 세트 / 페어 / 노페어를 간단히 판별한다.</li>
-        <li>세트면 → 더 높은 세트(<code>r+1,r+1,r+1</code>)가 답, 단 <code>13,13,13</code>이면 <code>*</code>.</li>
-        <li>페어면 → 동일 페어 랭크에서 킥커를 조금만 키워서 이기는 페어를 먼저 시도하고,<br>
-            안 되면 페어 랭크를 올린 페어, 그것도 안 되면 가장 약한 세트 <code>1,1,1</code>을 사용한다.</li>
-        <li>노페어면 → 어떤 페어든 이기므로 가장 약한 페어 <code>1,1,2</code>가 정답이다.</li>
+        <li>각 게임의 승패는 <strong>두 수의 합이 짝수냐 홀수냐</strong>에만 달려 있다.</li>
+        <li>카드 순서가 섞였으므로, 메리·존 각각의 <strong>짝수/홀수 개수</strong>만 중요하다.</li>
+        <li>존의 승리(서로 다른 짝/홀 매칭)를 최대로 만들면,
+            메리의 승리는 자동으로 최소가 된다.</li>
+        <li><code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code>,
+            <code>win = N - mis</code>를 계산하면 된다.</li>
+        <li>시간 복잡도 <code>O(N)</code>, 공간 복잡도 <code>O(1)</code>로 충분히 해결 가능하다.</li>
       </ul>
+
 
 
 
@@ -415,14 +368,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5725 — Pole Position</h2>
+      <h2 class="section">문제 5770 — Dice</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5725">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5770">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1205_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -439,45 +392,25 @@
       </h3>
       
       <p>
-        <strong>Pole Position (BOJ 5725)</strong>는<br>
-        레이스 도중 전광판(폴)에 표시된 현재 순위와<br>
-        각 차량이 <strong>스타트 그리드에서 몇 칸을 앞/뒤로 이동했는지(P)</strong> 정보가 주어졌을 때,<br>
-        <strong>가능한 시작 그리드(출발 순서)를 복원할 수 있는지</strong>를 판별하는 문제다.
+        <strong>Dice (BOJ 5770)</strong> 문제는<br>
+        여러 명의 플레이어가 <strong>주사위 합만큼 말(말 위치)을 전진</strong>시키면서,<br>
+        <strong>먼저 코스 끝(마지막 칸 이후)에 도달하는 플레이어의 번호</strong>를 구하는 시뮬레이션 문제다.
       </p>
       
       <p>
-        입력 형식은 다음과 같다.
+        규칙을 정리하면:
       </p>
       
       <ul>
-        <li>각 테스트 케이스마다 <code>N</code> (차량 수, 2 ≤ N ≤ 1000)이 주어짐.</li>
-        <li>이후 <strong>N줄</strong>에 걸쳐, 폴에 표시된 <strong>현재 순서대로</strong> 차들이 주어진다.
-          <ul>
-            <li>각 줄: <code>C P</code></li>
-            <li><code>C</code>는 차량 번호 (1 ≤ C ≤ 10,000, 서로 모두 다름)</li>
-            <li><code>P</code>는 현재 위치에서 <strong>시작 그리드 기준으로 얼마나 이득(+)/손해(-) 봤는지</strong>를 나타내는 정수</li>
-            <li>예: 현재 2위인 차가 <code>P = +2</code>라면, 스타트는 4위(두 칸 앞당김).</li>
-          </ul>
-        </li>
-        <li><code>N = 0</code>이 나오면 입력 종료.</li>
-      </ul>
-      
-      <p>
-        우리의 목표:
-      </p>
-      
-      <ul>
-        <li>현재 폴의 i번째 줄(1-based)이 <strong>현재 i등</strong>이라고 보고,
-            거기에 적힌 <code>C, P</code>를 이용해 <strong>스타트 그리드에서의 위치 S</strong>를 구한다.</li>
-        <li>모든 차에 대해 <strong>서로 다른 S ∈ [1, N]</strong>을 만들 수 있으면
-            해당 위치에 차량 번호를 배치해 시작 그리드를 출력한다.</li>
-        <li>만약:
-          <ul>
-            <li>어떤 차의 S가 범위를 벗어나거나,</li>
-            <li>두 차 이상이 같은 S를 갖게 된다면</li>
-          </ul>
-          → <strong>모순</strong>이므로 <code>-1</code>을 출력한다.
-        </li>
+        <li>플레이어 수: <code>P (1 ≤ P ≤ 10)</code></li>
+        <li>트랙 칸 수: <code>S (3 ≤ S ≤ 10000)</code><br>
+            시작 위치는 <strong>1번 칸 앞</strong>으로, 처음 위치는 모두 0으로 보면 된다.</li>
+        <li>트랩은 정확히 3칸이고, 위치는 <code>T1, T2, T3</code> (1 ~ S 사이)로 주어진다.</li>
+        <li>주사위를 두 개 굴려 합(<code>D1 + D2</code>)만큼 전진한다.</li>
+        <li>말이 트랩 칸에 정확히 도착하면, <strong>다음 차례를 한 번 건너뛴다</strong> (한 라운드 쉼).</li>
+        <li>플레이어는 항상 <strong>1번부터 P번까지 순서대로</strong> 차례를 가진다. (1 → 2 → … → P → 다시 1 → …)</li>
+        <li>말의 위치가 <code>S</code>를 넘는 순간(<code>pos &gt; S</code>), 그 플레이어가 즉시 승리한다.</li>
+        <li>입력으로 주어지는 주사위 결과 개수는 <strong>어느 한 플레이어가 정확히 승리할 수 있을 만큼만 주어진다</strong>고 보장된다. (비길 일이 없다)</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -489,103 +422,137 @@
       </p>
       
       <ul>
-        <li>폴에 표시된 순서를 그대로 <strong>현재 순위</strong>라고 두고, 줄 번호 <code>i (1 ≤ i ≤ N)</code>를 현재 등수로 사용한다.</li>
-        <li>각 차에 대해:
-          <ul>
-            <li><strong>현재 등수</strong> = i</li>
-            <li><strong>이동한 칸 수</strong> = P</li>
-            <li>스타트 그리드에서의 등수 <code>S = i + P</code></li>
-          </ul>
-        </li>
-        <li><code>S</code>에 차량 <code>C</code>를 배치하되:
-          <ul>
-            <li><code>S &lt; 1</code> 또는 <code>S &gt; N</code>이면 → 유효하지 않은 시작 위치 → 불가능.</li>
-            <li><code>start[S]</code>가 이미 채워져 있으면 → 중복 위치 → 불가능.</li>
-          </ul>
-        </li>
-        <li>한 번이라도 불가능 판정이 나면, 나머지 줄은 <strong>입력만 소비</strong>하고 로직은 건너뛴다.</li>
-        <li>끝까지 모순이 없다면 <code>start[1..N]</code>이 완성된 시작 그리드가 된다.</li>
+        <li>각 플레이어의 현재 위치를 저장하는 배열 <code>pos[0..P-1]</code>를 둔다. (초기값 0)</li>
+        <li>각 플레이어가 <strong>다음 차례를 건너뛰어야 하는지</strong> 여부를 저장하는 배열 <code>skip[0..P-1]</code>를 둔다.</li>
+        <li>트랩 위치를 빠르게 확인하기 위해 <code>trap[1..S]</code> 불리언 배열을 사용한다.</li>
+        <li>주사위 합은 미리 <code>dice[]</code> 배열에 저장해 두고, 인덱스를 증가시키며 차례대로 사용한다.</li>
+        <li>현재 플레이어 인덱스를 <code>curPlayer</code>로 두고, 승자가 나올 때까지 반복해서 시뮬레이션한다.</li>
       </ul>
+      
+      <p>
+        핵심은 <strong>규칙 그대로 구현하는 단순 시뮬레이션</strong>이다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심: 코드가 하는 일
+          코드가 하는 일
         </span>
       </p>
       
       <ul>
-        <li><strong>입력 루프 + 종료 조건</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          int N = Integer.parseInt(line);
-          if (N == 0) break;
-      
-          boolean ok = true;
-          int[] start = new int[N + 1];
-          ...
-      }</code></pre>
+        <li><strong>입력 처리 및 종료 조건</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(line);
+      int P = Integer.parseInt(st.nextToken());
+      int S = Integer.parseInt(st.nextToken());
+      if (P == 0 && S == 0) break;</code></pre>
           <ul>
-            <li>각 테스트마다 <code>N</code>을 읽고, <code>N == 0</code>이면 전체 입력 종료.</li>
-            <li><code>start[1..N]</code> 배열에 스타트 위치별 차량 번호를 채운다 (편의를 위해 1-based).</li>
-            <li><code>ok</code>는 현재까지 유효한지 여부를 나타내는 플래그.</li>
+            <li><code>P, S</code>가 둘 다 0이면 전체 입력 종료.</li>
           </ul>
         </li>
       
-        <li><strong>각 차량 정보 처리</strong>
-          <pre><code>for (int i = 1; i &lt;= N; i++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
-          int C = Integer.parseInt(st.nextToken());
-          int P = Integer.parseInt(st.nextToken());
+        <li><strong>트랩 정보 저장</strong>
+          <pre><code>st = new StringTokenizer(br.readLine());
+      int T1 = Integer.parseInt(st.nextToken());
+      int T2 = Integer.parseInt(st.nextToken());
+      int T3 = Integer.parseInt(st.nextToken());
       
-          if (!ok) continue;
+      boolean[] trap = new boolean[S + 1];
+      trap[T1] = trap[T2] = trap[T3] = true;</code></pre>
+          <ul>
+            <li><code>trap[x] == true</code>이면 x번 칸이 트랩이다.</li>
+          </ul>
+        </li>
       
-          int S = i + P;
-          if (S &lt; 1 || S &gt; N || start[S] != 0) {
-              ok = false;
+        <li><strong>주사위 합 미리 저장</strong>
+          <pre><code>int diceCnt = Integer.parseInt(br.readLine());
+      int[] dice = new int[diceCnt];
+      for (int i = 0; i &lt; diceCnt; i++) {
+          st = new StringTokenizer(br.readLine());
+          int D1 = Integer.parseInt(st.nextToken());
+          int D2 = Integer.parseInt(st.nextToken());
+      
+          dice[i] = D1 + D2;
+      }</code></pre>
+          <ul>
+            <li>각 줄의 <code>D1, D2</code>를 읽어서 합만 배열에 저장.</li>
+          </ul>
+        </li>
+      
+        <li><strong>상태 배열 초기화</strong>
+          <pre><code>int[] pos = new int[P];
+      boolean[] skip = new boolean[P];
+      int curPlayer = 0;
+      int diceIdx = 0;
+      int winner = -1;</code></pre>
+          <ul>
+            <li><code>pos[i]</code>: i번 플레이어의 위치 (0부터 시작)</li>
+            <li><code>skip[i]</code>: 다음 라운드를 쉬어야 하면 <code>true</code></li>
+            <li><code>curPlayer</code>: 현재 차례인 플레이어 (0 ~ P-1)</li>
+            <li><code>diceIdx</code>: 다음에 사용할 주사위 합 인덱스</li>
+            <li><code>winner</code>: 승자 번호 (<code>-1</code>이면 아직 미정)</li>
+          </ul>
+        </li>
+      
+        <li><strong>게임 시뮬레이션 루프</strong>
+          <pre><code>while (winner == -1) {
+          if (skip[curPlayer]) {
+              skip[curPlayer] = false;
           } else {
-              start[S] = C;
+              int move = dice[diceIdx++];
+              pos[curPlayer] += move;
+      
+              if (pos[curPlayer] > S) {
+                  winner = curPlayer + 1;
+                  break;
+              }
+      
+              if (trap[pos[curPlayer]]) {
+                  skip[curPlayer] = true;
+              }
           }
+      
+          curPlayer = (curPlayer + 1) % P;
       }</code></pre>
       
           <ul>
-            <li>반복 인덱스 <code>i</code>는 <strong>현재 폴 상에서의 순위(1등, 2등, ...)</strong>를 의미한다.</li>
-            <li>차량 번호 <code>C</code>와 이동량 <code>P</code>를 읽어,<br>
-                스타트 그리드 위치 <code>S = i + P</code>를 계산한다.</li>
-            <li><strong>유효성 검사</strong>:
+            <li><strong>1) 쉬는 차례 확인</strong>
               <ul>
-                <li><code>S</code>가 1~N 범위를 벗어나면 → 불가능.</li>
-                <li><code>start[S] != 0</code>이면 → 이미 다른 차가 그 자리에 있다는 뜻 → 불가능.</li>
+                <li><code>skip[curPlayer] == true</code>이면 이번 라운드는 그냥 건너뛴다.</li>
+                <li>건너뛰면서 <code>skip[curPlayer] = false</code>로 되돌려 놓는다.</li>
               </ul>
             </li>
-            <li><code>ok == false</code> 이후에는 그대로 <strong>입력만 읽고</strong>, 계산은 건너뛴다.
-                (다음 테스트 케이스로 넘어가기 위한 입력 소모)</li>
+      
+            <li><strong>2) 정상적으로 주사위를 굴리는 경우</strong>
+              <ul>
+                <li><code>move = dice[diceIdx++]</code>로 주사위 합을 가져온다.</li>
+                <li><code>pos[curPlayer] += move</code> 만큼 전진.</li>
+                <li>만약 <code>pos[curPlayer] &gt; S</code>가 되면, <strong>트랙 끝을 넘어섰으므로 즉시 승리</strong>:
+                  <pre><code>winner = curPlayer + 1;</code></pre>
+                  (플레이어 번호는 1부터이므로 +1)
+                </li>
+                <li>아직 끝나지 않았고, 현재 위치가 트랩이면:
+                  <pre><code>if (trap[pos[curPlayer]]) {
+          skip[curPlayer] = true;
+      }</code></pre>
+                  다음 라운드를 한 번 쉰다.</li>
+              </ul>
+            </li>
+      
+            <li><strong>3) 다음 플레이어로 넘기기</strong>
+              <ul>
+                <li><code>curPlayer = (curPlayer + 1) % P;</code></li>
+                <li>마지막 플레이어까지 끝났으면 다시 0번(=1번 플레이어)로 순환.</li>
+              </ul>
+            </li>
           </ul>
         </li>
       
         <li><strong>결과 출력</strong>
-          <pre><code>if (ok) {
-          for (int i = 1; i &lt;= N; i++) {
-              if (i &gt; 1) sb.append(' ');
-              sb.append(start[i]);
-          }
-      } else {
-          sb.append(-1);
-      }
-      sb.append('\n');</code></pre>
-      
+          <pre><code>sb.append(winner).append('\n');</code></pre>
           <ul>
-            <li><code>ok == true</code>이면:
-              <ul>
-                <li><code>start[1]</code>부터 <code>start[N]</code>까지를 공백으로 구분해 출력 → 복원된 <strong>스타트 그리드</strong>.</li>
-              </ul>
-            </li>
-            <li><code>ok == false</code>이면:
-              <ul>
-                <li>어떤 방식으로도 일관된 스타트 그리드를 만들 수 없으므로 <code>-1</code> 출력.</li>
-              </ul>
-            </li>
+            <li>각 테스트케이스마다 승자 번호 한 줄 출력.</li>
           </ul>
         </li>
       </ul>
@@ -599,13 +566,14 @@
       </p>
       
       <ul>
-        <li>각 테스트 케이스에서:
+        <li>입력으로 주어지는 주사위 합의 개수를 <code>N</code>이라고 하면,
           <ul>
-            <li>차량 N개에 대해 한 번씩만 처리 → <strong><code>O(N)</code></strong>.</li>
-            <li>각 차량마다 하는 일은 배열 접근과 상수번 검사뿐.</li>
+            <li>각 테스트케이스에서, 시뮬레이션은 주사위 배열을 한 번 끝까지 순회한다.</li>
+            <li>각 칸 이동과 트랩/스킵 체크는 모두 상수 시간.</li>
           </ul>
         </li>
-        <li>테스트 케이스를 여러 개 처리해도, 전체는 <strong>입력 크기에 선형</strong>이다.</li>
+        <li>따라서 한 테스트케이스의 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+        <li><code>P ≤ 10</code>, <code>S ≤ 10000</code> 범위에서 충분히 빠르다.</li>
       </ul>
       
       <p>
@@ -615,8 +583,9 @@
       </p>
       
       <ul>
-        <li>각 테스트 케이스마다 <code>start[0..N]</code> 하나만 사용 → <strong><code>O(N)</code></strong>.</li>
-        <li>추가로 사용하는 변수들은 상수 개수이므로 전체 메모리 사용량은 매우 작다.</li>
+        <li><code>pos[P]</code>, <code>skip[P]</code>, <code>trap[S+1]</code>, <code>dice[N]</code> 정도만 사용한다.</li>
+        <li>따라서 공간 복잡도는 <strong><code>O(P + S + N)</code></strong>이며,
+            문제 제약 상 매우 충분하다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -628,18 +597,13 @@
       </p>
       
       <ul>
-        <li><strong>현재 순위의 인덱스 i</strong>를 잘못 이해하면 안 된다.
-          <ul>
-            <li>입력에서 <code>N</code>줄은 이미 <strong>현재 1등, 2등, ... 순서대로</strong> 주어지는 것으로 가정한다.</li>
-            <li>그래서 <code>S = i + P</code>가 된다 (앞으로 v칸 당겼으면 시작 순위는 더 뒤의 번호).</li>
-          </ul>
-        </li>
-        <li>불가능 판정(<code>ok = false</code>) 이후에도 남은 줄은 반드시 <strong>입력만 읽어줘야</strong> 다음 테스트 케이스를 정상 처리할 수 있다.
-          <ul>
-            <li>코드에서 <code>if (!ok) continue;</code>로 로직만 건너뛰고 읽기는 유지한다.</li>
-          </ul>
-        </li>
-        <li><code>start</code> 배열을 1-based로 사용하므로, 크기를 <code>N + 1</code>로 잡는 것에 주의한다.</li>
+        <li><strong>트랩 조건</strong>은 “말이 해당 칸에 <strong>멈췄을 때</strong> 다음 라운드 한 번 쉰다”는 점을 정확히 구현해야 한다.</li>
+        <li>위치가 <code>S</code>를 넘어가는 순간 바로 승리이므로,
+            트랩 칸을 지나쳐서 끝을 넘어갈 때는 트랩 효과를 보지 않는다.</li>
+        <li><code>skip</code> 처리는 “쉬고 나면 바로 해제”가 되어야 한다.
+            (두 번 연속 쉬지 않도록)</li>
+        <li>플레이어 번호는 1부터, 배열 인덱스는 0부터이므로
+            출력 시 <code>curPlayer + 1</code>을 넣는 것을 잊지 말아야 한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -651,11 +615,18 @@
       </p>
       
       <ul>
-        <li>폴에 주어진 순서는 이미 <strong>현재 순위</strong>이며, 줄 번호 i를 그대로 사용한다.</li>
-        <li>각 차량에 대해 <strong>시작 순위</strong>는 <code>S = i + P</code>로 계산한다.</li>
-        <li><code>S</code>가 범위를 벗어나거나, 한 위치에 두 번 이상 배치하려 하면 즉시 불가능 → <code>-1</code>.</li>
-        <li>끝까지 모순이 없으면 <code>start[1..N]</code>이 복원된 스타트 그리드이므로 그대로 출력한다.</li>
+        <li>각 플레이어 위치 <code>pos[]</code>와 한 턴 건너뛸지 여부 <code>skip[]</code>를 관리한다.</li>
+        <li>트랩은 <code>trap[]</code> 불리언 배열로 빠르게 체크한다.</li>
+        <li>주사위 결과는 미리 합으로 저장하고 차례대로 사용한다.</li>
+        <li>각 턴마다
+          <ul>
+            <li><code>skip</code>이면 그냥 넘기고,</li>
+            <li>아니면 전진 → 끝 도달 여부 → 트랩 여부를 순서대로 검사한다.</li>
+          </ul>
+        </li>
+        <li>어느 플레이어가 처음으로 <code>pos &gt; S</code>가 되는 순간 그 플레이어가 승자가 된다.</li>
       </ul>
+
 
 
 
