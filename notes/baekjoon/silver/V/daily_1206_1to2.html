@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-05 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5690 — King’s Poker</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5690">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1205_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>King’s Poker (BOJ 5690)</strong>는<br>
+        3장의 카드로 이루어진 한 손(hand)이 주어졌을 때,<br>
+        그 손을 <strong>이길 수 있는 세트(set) 또는 페어(pair) 중에서 가장 낮은(가장 약한)</strong> 손을 찾아서 출력하는 문제다.
+      </p>
+      
+      <p>
+        King’s Poker에서 랭크는 다음과 같다.
+      </p>
+      
+      <ul>
+        <li>랭크: A(1), 2, 3, ..., 10, J(11), Q(12), K(13)</li>
+        <li>무늬(suit)는 <strong>아예 고려하지 않는다</strong>.</li>
+      </ul>
+      
+      <p>
+        손의 유형은 세 가지다.
+      </p>
+      
+      <ul>
+        <li><strong>세트(set)</strong>: 세 장 모두 같은 랭크 (예: 5,5,5)</li>
+        <li><strong>페어(pair)</strong>: 두 장만 같은 랭크이고 나머지 한 장은 다른 랭크 (예: 7,7,3)</li>
+        <li><strong>노페어(no-pair)</strong>: 세 장 모두 서로 다른 랭크 (예: 2,5,9)</li>
+      </ul>
+      
+      <p>
+        손의 강약은 다음 규칙으로 정해진다.
+      </p>
+      
+      <ul>
+        <li>어떤 <strong>세트</strong>든 <strong>모든 페어와 모든 노페어보다 강하다</strong>.</li>
+        <li>어떤 <strong>페어</strong>든 <strong>모든 노페어보다 강하다</strong>.</li>
+        <li>세트 vs 세트: <strong>셋을 이루는 카드 랭크가 더 큰 쪽이 승리</strong>.</li>
+        <li>페어 vs 페어:
+          <ul>
+            <li>먼저 페어를 이루는 랭크를 비교해서 더 큰 쪽이 승리.</li>
+            <li>페어 랭크가 같다면, <strong>킥커(kicker, 나머지 한 장)</strong> 랭크를 비교해서 더 큰 쪽이 승리.</li>
+            <li>페어 랭크와 킥커 랭크까지 모두 같으면 동점(문제에서는 그런 경우가 안 나오도록 입력이 주어진다).</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        우리의 목표는:
+      </p>
+      
+      <ul>
+        <li>입력으로 주어진 손을 <strong>엄밀히 이기는(단순 동점은 X) 세트 또는 페어</strong>들 중에서,</li>
+        <li>위의 규칙으로 비교했을 때 <strong>가장 약한(순위가 가장 낮은) 손</strong>을 찾는 것이다.</li>
+        <li>그런 손이 존재하지 않으면 <code>*</code>를 출력한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력으로 받은 세 장의 카드 <code>A, B, C</code>를 <strong>정렬</strong>해서 <code>cards[0] ≤ cards[1] ≤ cards[2]</code> 형태로 만든다.</li>
+        <li>정렬된 배열을 이용해 손의 유형을 판별한다.
+          <ul>
+            <li><code>cards[0] == cards[2]</code> → 세 장 모두 같은 값 → <strong>세트</strong>.</li>
+            <li>그 외, <code>cards[0]==cards[1]</code> 또는 <code>cards[1]==cards[2]</code> → <strong>페어</strong>.</li>
+            <li>위 둘이 아니면 → <strong>노페어</strong>.</li>
+          </ul>
+        </li>
+        <li>각 경우에 대해, 규칙에 따라 <strong>“가장 약한 이기는 세트/페어”</strong>를 수학적으로 구성한다:
+          <ul>
+            <li>세트인 경우 → 더 높은 세트(트리플)을 만들 수 있으면 그 중 가장 낮은 것.</li>
+            <li>페어인 경우 → 우선 <strong>같은 페어 랭크</strong>에 대해 킥커를 가능한 한 조금만 키워서 이기는 손을 만들고,<br>
+                그게 안 되면 <strong>페어 랭크를 올려서</strong> 가장 약한 이기는 페어를 만든다. 그마저도 불가능하면 <strong>세트로 넘어간다</strong>.</li>
+            <li>노페어인 경우 → 어떤 페어든 반드시 이기므로, <strong>가장 약한 페어</strong>인 <code>1,1,2</code>를 바로 답으로 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리 및 종료 조건</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
+      
+          int A = Integer.parseInt(st.nextToken());
+          int B = Integer.parseInt(st.nextToken());
+          int C = Integer.parseInt(st.nextToken());
+          if (A == 0 &amp;&amp; B == 0 &amp;&amp; C == 0) break;
+      
+          int[] cards = {A, B, C};
+          Arrays.sort(cards);
+      
+          ... // 손 유형에 따른 처리
+      }</code></pre>
+          <ul>
+            <li><code>0 0 0</code>이 입력되면 반복을 종료한다.</li>
+            <li>각 테스트 케이스마다 <code>cards</code>를 정렬해 이후 로직을 단순하게 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>1) 세트인 경우 (cards[0] == cards[2])</strong>
+          <pre><code>if (cards[0] == cards[2]) {
+          int r = cards[0];
+      
+          if (r == 13) {
+              sb.append("*");
+          } else {
+              int nr = r + 1;
+              sb.append(nr).append(" ").append(nr).append(" ").append(nr).append(" ");
+          }
+      }</code></pre>
+      
+          <ul>
+            <li>현재 손이 <code>r,r,r</code> (세트)일 때, 이를 이기려면 <strong>랭크가 더 큰 세트</strong>여야만 한다.</li>
+            <li><code>r &lt; 13</code>이면 가장 약한 이기는 세트는 <code>(r+1),(r+1),(r+1)</code>.</li>
+            <li><code>r == 13</code>이면 이미 <strong>가장 강한 세트(KKK)</strong>이므로,
+                이길 수 있는 세트/페어가 없어서 <code>*</code>를 출력한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 페어인 경우</strong>
+          <pre><code>else if (cards[0] == cards[1] || cards[1] == cards[2]) {
+          int pair;
+          int kick;
+      
+          if (cards[0] == cards[1]) {
+              pair = cards[0];
+              kick = cards[2];
+          } else {
+              pair = cards[1];
+              kick = cards[0];
+          }
+      
+          int newKick = -1;
+          for (int i = kick + 1; i &lt;= 13; i++) {
+              if (i != pair) {
+                  newKick = i;
+                  break;
+              }
+          }
+      
+          if (newKick != -1) {
+              int[] answer = {pair, pair, newKick};
+              Arrays.sort(answer);
+      
+              sb.append(answer[0]).append(" ")
+                .append(answer[1]).append(" ")
+                .append(answer[2]).append(" ");
+          } else {
+              if (pair &lt; 13) {
+                  int newPair = pair + 1;
+                  int[] answer = {newPair, newPair, 1};
+                  Arrays.sort(answer);
+      
+                  sb.append(answer[0]).append(" ")
+                    .append(answer[1]).append(" ")
+                    .append(answer[2]).append(" ");
+              } else {
+                  sb.append("1 1 1");
+              }
+          }
+      }</code></pre>
+      
+          <p>
+            이 부분이 로직의 핵심이다. 현재 손이 <strong>페어</strong>일 때,
+            <strong>가장 약한 이기는 페어 또는 세트</strong>를 찾는 과정이다.
+          </p>
+      
+          <ul>
+            <li><strong>페어와 킥커 추출</strong>
+              <ul>
+                <li><code>cards[0] == cards[1]</code>이면 페어는 <code>cards[0]</code>, 킥커는 <code>cards[2]</code>.</li>
+                <li>그 외에는 <code>cards[1] == cards[2]</code>이므로 페어는 <code>cards[1]</code>, 킥커는 <code>cards[0]</code>.</li>
+              </ul>
+            </li>
+      
+            <li><strong>2-1. 같은 페어 랭크에서 킥커만 키워서 이기는 페어 만들기</strong>
+              <ul>
+                <li>페어 랭크 <code>pair</code>는 그대로 두고, 킥커 <code>kick</code>보다 큰 카드 중에서
+                    <strong>페어 랭크와 겹치지 않는 가장 작은 값</strong>을 찾는다.
+                  <pre><code>for (int i = kick + 1; i &lt;= 13; i++) {
+          if (i != pair) {
+              newKick = i;
+              break;
+          }
+      }</code></pre>
+                </li>
+                <li>이렇게 찾은 <code>newKick</code>이 있다면,
+                    <code>{pair, pair, newKick}</code>이 현재 손보다
+                    <strong>조금 더 강한(가장 약한) 페어</strong>가 된다.</li>
+              </ul>
+            </li>
+      
+            <li><strong>2-2. 킥커를 더 키울 수 없을 때 → 페어 랭크 올리기</strong>
+              <ul>
+                <li><code>newKick == -1</code>인 경우는 “현재 킥커보다 더 크면서 페어 랭크와 겹치지 않는 카드”를 찾을 수 없는 경우다.</li>
+                <li>이 때는 <strong>페어 랭크를 하나 키운</strong> 새로운 페어를 고려한다.
+                  <pre><code>if (pair &lt; 13) {
+          int newPair = pair + 1;
+          int[] answer = {newPair, newPair, 1};
+          Arrays.sort(answer);
+          ...
+      }</code></pre>
+                </li>
+                <li>킥커로는 가능한 한 작은 카드(1)를 사용하고, 정렬해서 오름차순으로 출력한다.</li>
+              </ul>
+            </li>
+      
+            <li><strong>2-3. 현재 페어가 K 페어(13,13,x)이고 킥커도 더 못 키울 때</strong>
+              <ul>
+                <li><code>pair == 13</code>이면서 <code>newKick == -1</code>인 경우,
+                    더 강한 페어는 존재하지 않는다.</li>
+                <li>이 경우, 다음으로 강한 손은 <strong>세트</strong>이므로,
+                    가장 약한 세트인 <code>1,1,1</code>을 정답으로 사용한다.
+                  <pre><code>else {
+          sb.append("1 1 1");
+      }</code></pre>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 노페어인 경우</strong>
+          <pre><code>else {
+          sb.append("1 1 2");
+      }</code></pre>
+      
+          <ul>
+            <li>노페어는 <strong>어떤 페어에게도 항상 진다</strong>.</li>
+            <li>따라서 노페어를 이길 수 있는 손들 중 가장 약한 손은,
+                <strong>전체 페어 중에서 가장 약한 것</strong>인 <code>1,1,2</code>이다.</li>
+            <li>그래서 노페어인 경우는 항상 <code>1 1 2</code>를 출력하면 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스에서 하는 일:
+          <ul>
+            <li>카드 3장을 정렬: <strong><code>O(1)</code></strong> (상수 크기 배열).</li>
+            <li>페어인 경우, 킥커를 키우는 루프는 최대 <code>13 - 1</code>번 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+        <li>테스트 케이스 수를 <code>T</code>라고 하면 전체는 <strong><code>O(T)</code></strong> 수준이다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>카드 세 장을 저장하는 <code>int[3]</code>와 몇 개의 지역 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+        <li>출력용 <code>StringBuilder</code>는 출력 길이에 비례하지만, 이는 문제 요구 출력 자체이므로 추가적인 큰 메모리는 사용하지 않는다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>항상 <strong>비기는 손이 아니라 “엄밀히 이기는” 손</strong>을 찾아야 한다.</li>
+        <li>출력은 문제 요구대로 <strong>오름차순 정렬된 세 카드</strong>를 공백으로 구분해서 출력해야 한다.
+          <ul>
+            <li>페어나 세트를 만들 때도 마지막에 <code>Arrays.sort(answer)</code>로 정렬하는 이유.</li>
+          </ul>
+        </li>
+        <li><code>13 13 13</code>처럼 가장 강한 세트는 이길 수 있는 손이 없으므로 <code>*</code>를 출력해야 한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>세 장을 정렬해서 세트 / 페어 / 노페어를 간단히 판별한다.</li>
+        <li>세트면 → 더 높은 세트(<code>r+1,r+1,r+1</code>)가 답, 단 <code>13,13,13</code>이면 <code>*</code>.</li>
+        <li>페어면 → 동일 페어 랭크에서 킥커를 조금만 키워서 이기는 페어를 먼저 시도하고,<br>
+            안 되면 페어 랭크를 올린 페어, 그것도 안 되면 가장 약한 세트 <code>1,1,1</code>을 사용한다.</li>
+        <li>노페어면 → 어떤 페어든 이기므로 가장 약한 페어 <code>1,1,2</code>가 정답이다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5725 — Pole Position</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5725">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1205_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Pole Position (BOJ 5725)</strong>는<br>
+        레이스 도중 전광판(폴)에 표시된 현재 순위와<br>
+        각 차량이 <strong>스타트 그리드에서 몇 칸을 앞/뒤로 이동했는지(P)</strong> 정보가 주어졌을 때,<br>
+        <strong>가능한 시작 그리드(출발 순서)를 복원할 수 있는지</strong>를 판별하는 문제다.
+      </p>
+      
+      <p>
+        입력 형식은 다음과 같다.
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스마다 <code>N</code> (차량 수, 2 ≤ N ≤ 1000)이 주어짐.</li>
+        <li>이후 <strong>N줄</strong>에 걸쳐, 폴에 표시된 <strong>현재 순서대로</strong> 차들이 주어진다.
+          <ul>
+            <li>각 줄: <code>C P</code></li>
+            <li><code>C</code>는 차량 번호 (1 ≤ C ≤ 10,000, 서로 모두 다름)</li>
+            <li><code>P</code>는 현재 위치에서 <strong>시작 그리드 기준으로 얼마나 이득(+)/손해(-) 봤는지</strong>를 나타내는 정수</li>
+            <li>예: 현재 2위인 차가 <code>P = +2</code>라면, 스타트는 4위(두 칸 앞당김).</li>
+          </ul>
+        </li>
+        <li><code>N = 0</code>이 나오면 입력 종료.</li>
+      </ul>
+      
+      <p>
+        우리의 목표:
+      </p>
+      
+      <ul>
+        <li>현재 폴의 i번째 줄(1-based)이 <strong>현재 i등</strong>이라고 보고,
+            거기에 적힌 <code>C, P</code>를 이용해 <strong>스타트 그리드에서의 위치 S</strong>를 구한다.</li>
+        <li>모든 차에 대해 <strong>서로 다른 S ∈ [1, N]</strong>을 만들 수 있으면
+            해당 위치에 차량 번호를 배치해 시작 그리드를 출력한다.</li>
+        <li>만약:
+          <ul>
+            <li>어떤 차의 S가 범위를 벗어나거나,</li>
+            <li>두 차 이상이 같은 S를 갖게 된다면</li>
+          </ul>
+          → <strong>모순</strong>이므로 <code>-1</code>을 출력한다.
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>폴에 표시된 순서를 그대로 <strong>현재 순위</strong>라고 두고, 줄 번호 <code>i (1 ≤ i ≤ N)</code>를 현재 등수로 사용한다.</li>
+        <li>각 차에 대해:
+          <ul>
+            <li><strong>현재 등수</strong> = i</li>
+            <li><strong>이동한 칸 수</strong> = P</li>
+            <li>스타트 그리드에서의 등수 <code>S = i + P</code></li>
+          </ul>
+        </li>
+        <li><code>S</code>에 차량 <code>C</code>를 배치하되:
+          <ul>
+            <li><code>S &lt; 1</code> 또는 <code>S &gt; N</code>이면 → 유효하지 않은 시작 위치 → 불가능.</li>
+            <li><code>start[S]</code>가 이미 채워져 있으면 → 중복 위치 → 불가능.</li>
+          </ul>
+        </li>
+        <li>한 번이라도 불가능 판정이 나면, 나머지 줄은 <strong>입력만 소비</strong>하고 로직은 건너뛴다.</li>
+        <li>끝까지 모순이 없다면 <code>start[1..N]</code>이 완성된 시작 그리드가 된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프 + 종료 조건</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          int N = Integer.parseInt(line);
+          if (N == 0) break;
+      
+          boolean ok = true;
+          int[] start = new int[N + 1];
+          ...
+      }</code></pre>
+          <ul>
+            <li>각 테스트마다 <code>N</code>을 읽고, <code>N == 0</code>이면 전체 입력 종료.</li>
+            <li><code>start[1..N]</code> 배열에 스타트 위치별 차량 번호를 채운다 (편의를 위해 1-based).</li>
+            <li><code>ok</code>는 현재까지 유효한지 여부를 나타내는 플래그.</li>
+          </ul>
+        </li>
+      
+        <li><strong>각 차량 정보 처리</strong>
+          <pre><code>for (int i = 1; i &lt;= N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          int C = Integer.parseInt(st.nextToken());
+          int P = Integer.parseInt(st.nextToken());
+      
+          if (!ok) continue;
+      
+          int S = i + P;
+          if (S &lt; 1 || S &gt; N || start[S] != 0) {
+              ok = false;
+          } else {
+              start[S] = C;
+          }
+      }</code></pre>
+      
+          <ul>
+            <li>반복 인덱스 <code>i</code>는 <strong>현재 폴 상에서의 순위(1등, 2등, ...)</strong>를 의미한다.</li>
+            <li>차량 번호 <code>C</code>와 이동량 <code>P</code>를 읽어,<br>
+                스타트 그리드 위치 <code>S = i + P</code>를 계산한다.</li>
+            <li><strong>유효성 검사</strong>:
+              <ul>
+                <li><code>S</code>가 1~N 범위를 벗어나면 → 불가능.</li>
+                <li><code>start[S] != 0</code>이면 → 이미 다른 차가 그 자리에 있다는 뜻 → 불가능.</li>
+              </ul>
+            </li>
+            <li><code>ok == false</code> 이후에는 그대로 <strong>입력만 읽고</strong>, 계산은 건너뛴다.
+                (다음 테스트 케이스로 넘어가기 위한 입력 소모)</li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 출력</strong>
+          <pre><code>if (ok) {
+          for (int i = 1; i &lt;= N; i++) {
+              if (i &gt; 1) sb.append(' ');
+              sb.append(start[i]);
+          }
+      } else {
+          sb.append(-1);
+      }
+      sb.append('\n');</code></pre>
+      
+          <ul>
+            <li><code>ok == true</code>이면:
+              <ul>
+                <li><code>start[1]</code>부터 <code>start[N]</code>까지를 공백으로 구분해 출력 → 복원된 <strong>스타트 그리드</strong>.</li>
+              </ul>
+            </li>
+            <li><code>ok == false</code>이면:
+              <ul>
+                <li>어떤 방식으로도 일관된 스타트 그리드를 만들 수 없으므로 <code>-1</code> 출력.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스에서:
+          <ul>
+            <li>차량 N개에 대해 한 번씩만 처리 → <strong><code>O(N)</code></strong>.</li>
+            <li>각 차량마다 하는 일은 배열 접근과 상수번 검사뿐.</li>
+          </ul>
+        </li>
+        <li>테스트 케이스를 여러 개 처리해도, 전체는 <strong>입력 크기에 선형</strong>이다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트 케이스마다 <code>start[0..N]</code> 하나만 사용 → <strong><code>O(N)</code></strong>.</li>
+        <li>추가로 사용하는 변수들은 상수 개수이므로 전체 메모리 사용량은 매우 작다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>현재 순위의 인덱스 i</strong>를 잘못 이해하면 안 된다.
+          <ul>
+            <li>입력에서 <code>N</code>줄은 이미 <strong>현재 1등, 2등, ... 순서대로</strong> 주어지는 것으로 가정한다.</li>
+            <li>그래서 <code>S = i + P</code>가 된다 (앞으로 v칸 당겼으면 시작 순위는 더 뒤의 번호).</li>
+          </ul>
+        </li>
+        <li>불가능 판정(<code>ok = false</code>) 이후에도 남은 줄은 반드시 <strong>입력만 읽어줘야</strong> 다음 테스트 케이스를 정상 처리할 수 있다.
+          <ul>
+            <li>코드에서 <code>if (!ok) continue;</code>로 로직만 건너뛰고 읽기는 유지한다.</li>
+          </ul>
+        </li>
+        <li><code>start</code> 배열을 1-based로 사용하므로, 크기를 <code>N + 1</code>로 잡는 것에 주의한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>폴에 주어진 순서는 이미 <strong>현재 순위</strong>이며, 줄 번호 i를 그대로 사용한다.</li>
+        <li>각 차량에 대해 <strong>시작 순위</strong>는 <code>S = i + P</code>로 계산한다.</li>
+        <li><code>S</code>가 범위를 벗어나거나, 한 위치에 두 번 이상 배치하려 하면 즉시 불가능 → <code>-1</code>.</li>
+        <li>끝까지 모순이 없으면 <code>start[1..N]</code>이 복원된 스타트 그리드이므로 그대로 출력한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
