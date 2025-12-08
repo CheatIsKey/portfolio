@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-08 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5747 — Odd or Even</h2>
+      <h2 class="section">문제 5800 — 성적 통계</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5747">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5800">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,154 +55,105 @@
       </h3>
       
       <p>
-        <strong>Odd or Even (BOJ 5747)</strong> 문제는<br>
-        존(John)과 메리(Mary)가 여러 번 한 게임의 기록을 가지고,<br>
-        <strong>메리가 최소 몇 판은 “무조건 이겼다고 확신할 수 있는지”</strong>를 구하는 문제다.
-      </p>
-      
-      <p>
-        게임 규칙은 다음과 같다.
+        <strong>성적 통계 (BOJ 5800)</strong> 문제는<br>
+        각 반의 수학 점수가 주어졌을 때, 반별로
       </p>
       
       <ul>
-        <li>존은 항상 <strong>홀수(odds)</strong>를, 메리는 항상 <strong>짝수(evens)</strong>를 선택한다.</li>
-        <li>각 게임에서 두 사람은 0~5 사이의 손가락 수를 낸다.</li>
-        <li>두 수의 합이 짝수면 <strong>메리 승</strong>, 합이 홀수면 <strong>존 승</strong>이다.</li>
+        <li><strong>최고 점수(Max)</strong></li>
+        <li><strong>최저 점수(Min)</strong></li>
+        <li><strong>정렬했을 때 인접한 점수들 사이의 최대 차이(Largest gap)</strong></li>
       </ul>
       
       <p>
-        하지만 지금은 <strong>게임 순서가 섞여서</strong><br>
-        “메리가 각 게임에서 낸 손가락 수 목록”과 “존이 각 게임에서 낸 손가락 수 목록”만 주어진다.<br>
-        어떤 게임에서 어떤 값이 짝이었는지는 모른다.
+        를 구해서 출력하는 문제다.
       </p>
       
       <p>
-        우리는 <strong>가능한 모든 매칭(순서 재배치) 중에서</strong><br>
-        메리의 승리 수가 가장 적게 되는 경우를 가정했을 때,<br>
-        그 <strong>최소 승리 횟수</strong>를 구해야 한다. (메리 입장에서 최악, 존 입장에서 최선인 경우)
+        각 반의 점수들을 <strong>내림차순으로 정렬</strong>한 뒤,<br>
+        인접한 두 점수의 차이들 중에서 가장 큰 값을 구하면 된다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심 아이디어 (짝/홀 개수 세기)
+          문제 처리 순서
         </span>
       </p>
       
-      <p>
-        승패는 <strong>합의 짝/홀 여부</strong>만으로 결정된다.
-      </p>
-      
-      <ul>
-        <li>메리의 손가락 수: <code>0~5</code> 중 어떤 값이든, <strong>짝수/홀수</strong>만 중요하다.</li>
-        <li>존의 손가락 수도 마찬가지.</li>
-      </ul>
-      
-      <p>
-        각 게임에서 두 수의 합이 짝수가 되는 경우는:
-      </p>
-      
-      <ul>
-        <li><strong>짝수 + 짝수</strong></li>
-        <li><strong>홀수 + 홀수</strong></li>
-      </ul>
-      
-      <p>
-        즉, 두 사람이 <strong>동일한 parity(짝/홀)</strong>일 때 메리가 이기고,<br>
-        서로 <strong>다른 parity</strong>일 때 존이 이긴다.
-      </p>
-      
-      <p>
-        존이 메리의 승리를 최소로 만들고 싶다면,
-        가능한 한 많이 <strong>“서로 다른 짝/홀”</strong>끼리 매칭해서 본인이 이겨야 한다.
-        그 최대 개수를 구하고, 전체 게임 수에서 빼면<br>
-        <strong>메리가 최소한으로 이긴 판 수 = N - (존이 최대한 이길 수 있는 판 수)</strong>가 된다.
-      </p>
-      
-      <ul>
-        <li>메리 쪽 짝수 개수: <code>maryEven</code></li>
-        <li>메리 쪽 홀수 개수: <code>maryOdd</code></li>
-        <li>존 쪽 짝수 개수: <code>johnEven</code></li>
-        <li>존 쪽 홀수 개수: <code>johnOdd</code></li>
-      </ul>
+      <ol>
+        <li>먼저 <code>K</code> (반의 개수)를 입력받는다.</li>
+        <li>각 반마다 다음을 반복한다.
+          <ul>
+            <li>한 줄을 읽어 <code>StringTokenizer</code>로 나눈다.</li>
+            <li>첫 토큰: 학생 수 <code>N</code></li>
+            <li>이후 <code>N</code>개의 토큰: 각 학생의 점수 → <code>list</code>에 추가</li>
+          </ul>
+        </li>
+        <li>해당 반의 점수 리스트 <code>list</code>를 <strong>내림차순</strong>으로 정렬한다.
+          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code></pre>
+        </li>
+        <li>정렬된 상태에서
+          <ul>
+            <li><strong>최고 점수</strong>: 리스트의 첫 원소 <code>list.get(0)</code></li>
+            <li><strong>최저 점수</strong>: 리스트의 마지막 원소 <code>list.get(list.size() - 1)</code></li>
+            <li><strong>Largest gap</strong>: 인접한 점수 차이의 최댓값
+              <pre><code>int max = 0;
+      for (int j = 0; j &lt; list.size() - 1; j++) {
+          int minus = list.get(j) - list.get(j + 1);  // 내림차순이므로 항상 0 이상
+          if (minus &gt; max) max = minus;
+      }</code></pre>
+            </li>
+          </ul>
+        </li>
+        <li>해당 반에 대해
+          <pre><code>Class X
+      Max M, Min m, Largest gap G</code></pre>
+          형식으로 출력한다.
+        </li>
+        <li>다음 반을 위해 <code>list.clear()</code>로 리스트를 비우고 재활용한다.</li>
+      </ol>
       
       <p>
-        서로 다른 parity로 매칭할 수 있는 최대 개수(= 존이 이기는 판 수, <code>mis</code>)는:
-      </p>
-      
-      <ul>
-        <li><strong>메리 짝수 vs 존 홀수</strong> 조합: 최대 <code>min(maryEven, johnOdd)</code>개</li>
-        <li><strong>메리 홀수 vs 존 짝수</strong> 조합: 최대 <code>min(maryOdd, johnEven)</code>개</li>
-      </ul>
-      
-      <p>
-        따라서
-      </p>
-      
-      <p>
-        <code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code><br>
-        <code>win = N - mis</code> ← 메리가 최소한으로 이긴 판 수
+        이렇게 하면 각 반마다 요구하는 세 값을 모두 얻을 수 있다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드가 하는 일
+          핵심: 코드가 하는 일
         </span>
       </p>
       
       <ul>
-        <li><strong>입력 루프</strong>
+        <li><strong>입력 처리</strong>
           <ul>
-            <li>각 테스트케이스마다 먼저 <code>N</code>을 읽고, <code>N == 0</code>이면 종료.</li>
+            <li><code>K</code>를 읽고, <code>K</code>번 반복</li>
+            <li>각 반에 대해, 첫 토큰은 버리고 나머지 점수들만 <code>list</code>에 저장</li>
           </ul>
         </li>
       
-        <li><strong>메리 카드의 짝/홀 개수 세기</strong>
-          <pre><code>int maryEven = 0;
-      int maryOdd = 0;
-      
-      StringTokenizer st = new StringTokenizer(br.readLine());
-      for (int j = 0; j &lt; N; j++) {
-          int num = Integer.parseInt(st.nextToken());
-          if (num % 2 == 0) maryEven++;
-          else maryOdd++;
-      }</code></pre>
+        <li><strong>정렬 및 통계 계산</strong>
           <ul>
-            <li>두 번째 줄에서 메리가 낸 손가락 수 <code>N</code>개를 읽고,</li>
-            <li>짝수면 <code>maryEven++</code>, 홀수면 <code>maryOdd++</code>.</li>
+            <li><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code> 로 내림차순 정렬</li>
+            <li>최고 점수: <code>list.get(0)</code></li>
+            <li>최저 점수: <code>list.get(list.size() - 1)</code></li>
+            <li>Largest gap: 인접한 두 점수의 차이 최댓값</li>
           </ul>
         </li>
       
-        <li><strong>존 카드의 짝/홀 개수 세기</strong>
-          <pre><code>int johnEven = 0;
-      int johnOdd = 0;
-      
-      st = new StringTokenizer(br.readLine());
-      for (int j = 0; j &lt; N; j++) {
-          int num = Integer.parseInt(st.nextToken());
-          if (num % 2 == 0) johnEven++;
-          else johnOdd++;
-      }</code></pre>
-        </li>
-      
-        <li><strong>존이 이길 수 있는 최대 판 수 계산</strong>
-          <pre><code>int mis = Math.min(maryEven, johnOdd)
-              + Math.min(maryOdd, johnEven);</code></pre>
+        <li><strong>출력 형식 맞추기</strong>
           <ul>
-            <li>짝수-홀수, 홀수-짝수 매칭을 최대한 많이 만들어,<br>
-                존의 승리(메리의 패배)를 최대로 만든다.</li>
+            <li><code>Class i</code> (1부터 시작)</li>
+            <li><code>Max ..., Min ..., Largest gap ...</code> 한 줄에 출력</li>
           </ul>
         </li>
       
-        <li><strong>메리가 확실히 이겼다고 말할 수 있는 최소 판 수</strong>
-          <pre><code>int win = N - mis;
-      sb.append(win).append('\n');</code></pre>
+        <li><strong>리스트 재활용</strong>
           <ul>
-            <li>남은 게임은 모두 <strong>짝+짝 또는 홀+홀</strong> 매칭이라 메리가 이기는 판.</li>
-            <li>어떤 식으로 매칭해도 최소 <code>win</code>판은 반드시 메리가 이길 수밖에 없다.</li>
+            <li>각 반 처리 후 <code>list.clear()</code>를 호출해 다음 반에서 다시 사용</li>
           </ul>
         </li>
       </ul>
@@ -210,46 +161,33 @@
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           예시
         </span>
       </p>
       
-      <p>
-        예제 1:
-      </p>
-      
-      <pre><code>N = 3
-      메리: 1 0 4
-      존  : 3 1 2</code></pre>
-      
       <ul>
-        <li>메리: 짝수 2개(0, 4), 홀수 1개(1)</li>
-        <li>존:   짝수 1개(2), 홀수 2개(3, 1)</li>
+        <li>
+          입력: <code>5 30 25 76 23 78</code><br><br>
+          <ul>
+            <li>점수들: <code>[30, 25, 76, 23, 78]</code></li>
+            <li>내림차순 정렬: <code>[78, 76, 30, 25, 23]</code></li>
+            <li>Max = 78, Min = 23</li>
+            <li>인접 차이:
+              <ul>
+                <li>78 - 76 = 2</li>
+                <li>76 - 30 = 46</li>
+                <li>30 - 25 = 5</li>
+                <li>25 - 23 = 2</li>
+              </ul>
+            </li>
+            <li>Largest gap = <code>46</code></li>
+          </ul>
+          출력:
+          <pre><code>Class 1
+      Max 78, Min 23, Largest gap 46</code></pre>
+        </li>
       </ul>
-      
-      <p>
-        짝/홀 매칭 최대 개수:
-      </p>
-      
-      <ul>
-        <li><code>min(maryEven=2, johnOdd=2) = 2</code></li>
-        <li><code>min(maryOdd=1, johnEven=1) = 1</code></li>
-      </ul>
-      
-      <p>
-        따라서
-      </p>
-      
-      <p>
-        <code>mis = 2 + 1 = 3</code> (존이 최대 3판까지 이길 수 있다)<br>
-        <code>win = N - mis = 3 - 3 = 0</code>
-      </p>
-      
-      <p>
-        어떤 식으로 짝을 맞춰도 <strong>메리가 확실히 이겼다고 말할 수 있는 판은 0판</strong>이다.<br>
-        → 출력: <code>0</code>
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -260,13 +198,13 @@
       </p>
       
       <ul>
-        <li>각 테스트케이스에서
+        <li>각 반마다 학생 수를 <code>N</code>이라고 하면,
           <ul>
-            <li>메리 카드 <code>N</code>개, 존 카드 <code>N</code>개를 한 번씩만 순회한다.</li>
+            <li>정렬: <code>O(N log N)</code></li>
+            <li>인접 차이 순회: <code>O(N)</code></li>
           </ul>
         </li>
-        <li>따라서 한 케이스당 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
-        <li><code>N ≤ 100</code>이므로 전체 입력에 대해서도 충분히 빠르다.</li>
+        <li>최대 <code>N = 50</code>, <code>K = 100</code>이므로 전체 연산량은 매우 작다.</li>
       </ul>
       
       <p>
@@ -276,43 +214,23 @@
       </p>
       
       <ul>
-        <li>짝/홀 개수와 몇 개의 정수 변수만 사용한다.</li>
-        <li>추가 배열을 따로 만들지 않으므로, 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.</li>
-        <li>출력 누적을 위한 <code>StringBuilder</code>는 출력 길이에 비례하지만, 이는 필수 출력 공간이다.</li>
+        <li>한 반의 점수를 담는 리스트 <code>list</code>만 사용 → <code>O(N)</code></li>
+        <li>반마다 재사용하므로 전체 공간 사용량도 작다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
-        </span>
-      </p>
-      
-      <ul>
-        <li>실제 “어떤 게임에서 누가 이겼는지”를 맞추는 것이 아니라,<br>
-            <strong>모든 가능한 재배치 중 메리 승리 수의 최솟값</strong>만 구하면 된다.</li>
-        <li>승패는 오직 <strong>짝/홀 여부</strong>에 의해서만 결정되므로,
-            구체적인 숫자(0~5)가 아니라 <strong>짝수/홀수 개수</strong>만 세는 것이 핵심이다.</li>
-        <li>존이 이길 수 있는 판 수를 최대화하면, 그만큼 메리의 승리는 최소가 된다.</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           포인트 요약
         </span>
       </p>
       
       <ul>
-        <li>각 게임의 승패는 <strong>두 수의 합이 짝수냐 홀수냐</strong>에만 달려 있다.</li>
-        <li>카드 순서가 섞였으므로, 메리·존 각각의 <strong>짝수/홀수 개수</strong>만 중요하다.</li>
-        <li>존의 승리(서로 다른 짝/홀 매칭)를 최대로 만들면,
-            메리의 승리는 자동으로 최소가 된다.</li>
-        <li><code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code>,
-            <code>win = N - mis</code>를 계산하면 된다.</li>
-        <li>시간 복잡도 <code>O(N)</code>, 공간 복잡도 <code>O(1)</code>로 충분히 해결 가능하다.</li>
+        <li>각 반의 점수들을 <strong>내림차순 정렬</strong>한다.</li>
+        <li>첫 원소 → 최고 점수, 마지막 원소 → 최저 점수.</li>
+        <li>인접한 두 점수 차이의 최댓값이 <strong>Largest gap</strong>이다.</li>
+        <li>반 번호를 1부터 증가시키며 지정된 출력 형식대로 출력한다.</li>
       </ul>
 
 
@@ -368,14 +286,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5770 — Dice</h2>
+      <h2 class="section">문제 5839 — Cow Race</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5770">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5839">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -392,25 +310,27 @@
       </h3>
       
       <p>
-        <strong>Dice (BOJ 5770)</strong> 문제는<br>
-        여러 명의 플레이어가 <strong>주사위 합만큼 말(말 위치)을 전진</strong>시키면서,<br>
-        <strong>먼저 코스 끝(마지막 칸 이후)에 도달하는 플레이어의 번호</strong>를 구하는 시뮬레이션 문제다.
+        <strong>Cow Race (BOJ 5839)</strong> 문제는<br>
+        두 소 Bessie와 Elsie가 일정 시간 동안 달릴 때,
+        <strong>경기 중 선두가 몇 번 바뀌는지</strong>를 세는 문제다.
       </p>
       
       <p>
-        규칙을 정리하면:
+        각 소의 이동은 여러 구간(segment)으로 주어지고,<br>
+        각 구간에서는 <strong>일정한 속도로 일정 시간</strong> 동안 달린다.
       </p>
       
       <ul>
-        <li>플레이어 수: <code>P (1 ≤ P ≤ 10)</code></li>
-        <li>트랙 칸 수: <code>S (3 ≤ S ≤ 10000)</code><br>
-            시작 위치는 <strong>1번 칸 앞</strong>으로, 처음 위치는 모두 0으로 보면 된다.</li>
-        <li>트랩은 정확히 3칸이고, 위치는 <code>T1, T2, T3</code> (1 ~ S 사이)로 주어진다.</li>
-        <li>주사위를 두 개 굴려 합(<code>D1 + D2</code>)만큼 전진한다.</li>
-        <li>말이 트랩 칸에 정확히 도착하면, <strong>다음 차례를 한 번 건너뛴다</strong> (한 라운드 쉼).</li>
-        <li>플레이어는 항상 <strong>1번부터 P번까지 순서대로</strong> 차례를 가진다. (1 → 2 → … → P → 다시 1 → …)</li>
-        <li>말의 위치가 <code>S</code>를 넘는 순간(<code>pos &gt; S</code>), 그 플레이어가 즉시 승리한다.</li>
-        <li>입력으로 주어지는 주사위 결과 개수는 <strong>어느 한 플레이어가 정확히 승리할 수 있을 만큼만 주어진다</strong>고 보장된다. (비길 일이 없다)</li>
+        <li>두 소의 전체 달리는 시간은 같다.</li>
+        <li>어떤 순간에 Bessie가 더 앞서면 Bessie가 선두, Elsie가 더 앞서면 Elsie가 선두, 같으면 동점이다.</li>
+        <li><strong>선두가 바뀌는 순간</strong>을 세어야 한다.
+          <ul>
+            <li>Bessie가 앞서다가 Elsie가 앞서게 되면 1회.</li>
+            <li>Elsie가 앞서다가 Bessie가 앞서게 되어도 1회.</li>
+            <li>선두 → 동점 → 다른 소가 선두가 되어도
+              이전 선두와 다르면 <strong>선두 교체 1회</strong>로 센다.</li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -421,138 +341,119 @@
         </span>
       </p>
       
-      <ul>
-        <li>각 플레이어의 현재 위치를 저장하는 배열 <code>pos[0..P-1]</code>를 둔다. (초기값 0)</li>
-        <li>각 플레이어가 <strong>다음 차례를 건너뛰어야 하는지</strong> 여부를 저장하는 배열 <code>skip[0..P-1]</code>를 둔다.</li>
-        <li>트랩 위치를 빠르게 확인하기 위해 <code>trap[1..S]</code> 불리언 배열을 사용한다.</li>
-        <li>주사위 합은 미리 <code>dice[]</code> 배열에 저장해 두고, 인덱스를 증가시키며 차례대로 사용한다.</li>
-        <li>현재 플레이어 인덱스를 <code>curPlayer</code>로 두고, 승자가 나올 때까지 반복해서 시뮬레이션한다.</li>
-      </ul>
-      
-      <p>
-        핵심은 <strong>규칙 그대로 구현하는 단순 시뮬레이션</strong>이다.
-      </p>
+      <ol>
+        <li>각 소(Bessie, Elsie)에 대해
+          <ul>
+            <li>구간 수와 각 구간의 <code>(속도, 시간)</code> 정보를 읽는다.</li>
+            <li>시간 단위(1초)마다의 속도를 저장하는 배열(또는 리스트)을 만든다.
+              <ul>
+                <li>예: 속도 5, 시간 3 → <code>5, 5, 5</code>를 차례대로 push.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>두 소의 전체 시간은 동일하므로, 같은 길이의 리스트 <code>traceB</code>, <code>traceE</code>가 만들어진다.</li>
+        <li>시간 <code>0</code>에서 시작해, 매 시간마다
+          <ul>
+            <li>Bessie의 누적 이동 거리 <code>distB</code>, Elsie의 누적 이동 거리 <code>distE</code>를 갱신한다.</li>
+            <li>누적 거리를 비교해 선두 상태를 구한다.
+              <ul>
+                <li>Bessie가 앞서면 <code>cur = 1</code></li>
+                <li>Elsie가 앞서면 <code>cur = 2</code></li>
+                <li>같으면 <code>cur = 0</code> (동점)</li>
+              </ul>
+            </li>
+            <li><strong>직전 선두</strong>를 저장해둔 변수(<code>last</code>)와 비교해서
+              <strong>선두가 다른 쪽으로 바뀌는 순간</strong>을 카운트한다.</li>
+          </ul>
+        </li>
+      </ol>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드가 하는 일
+          핵심: 코드가 하는 일
         </span>
       </p>
       
       <ul>
-        <li><strong>입력 처리 및 종료 조건</strong>
-          <pre><code>StringTokenizer st = new StringTokenizer(line);
-      int P = Integer.parseInt(st.nextToken());
-      int S = Integer.parseInt(st.nextToken());
-      if (P == 0 && S == 0) break;</code></pre>
+        <li><strong>입력 처리</strong>
           <ul>
-            <li><code>P, S</code>가 둘 다 0이면 전체 입력 종료.</li>
-          </ul>
-        </li>
-      
-        <li><strong>트랩 정보 저장</strong>
-          <pre><code>st = new StringTokenizer(br.readLine());
-      int T1 = Integer.parseInt(st.nextToken());
-      int T2 = Integer.parseInt(st.nextToken());
-      int T3 = Integer.parseInt(st.nextToken());
-      
-      boolean[] trap = new boolean[S + 1];
-      trap[T1] = trap[T2] = trap[T3] = true;</code></pre>
-          <ul>
-            <li><code>trap[x] == true</code>이면 x번 칸이 트랩이다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>주사위 합 미리 저장</strong>
-          <pre><code>int diceCnt = Integer.parseInt(br.readLine());
-      int[] dice = new int[diceCnt];
-      for (int i = 0; i &lt; diceCnt; i++) {
-          st = new StringTokenizer(br.readLine());
-          int D1 = Integer.parseInt(st.nextToken());
-          int D2 = Integer.parseInt(st.nextToken());
-      
-          dice[i] = D1 + D2;
-      }</code></pre>
-          <ul>
-            <li>각 줄의 <code>D1, D2</code>를 읽어서 합만 배열에 저장.</li>
-          </ul>
-        </li>
-      
-        <li><strong>상태 배열 초기화</strong>
-          <pre><code>int[] pos = new int[P];
-      boolean[] skip = new boolean[P];
-      int curPlayer = 0;
-      int diceIdx = 0;
-      int winner = -1;</code></pre>
-          <ul>
-            <li><code>pos[i]</code>: i번 플레이어의 위치 (0부터 시작)</li>
-            <li><code>skip[i]</code>: 다음 라운드를 쉬어야 하면 <code>true</code></li>
-            <li><code>curPlayer</code>: 현재 차례인 플레이어 (0 ~ P-1)</li>
-            <li><code>diceIdx</code>: 다음에 사용할 주사위 합 인덱스</li>
-            <li><code>winner</code>: 승자 번호 (<code>-1</code>이면 아직 미정)</li>
-          </ul>
-        </li>
-      
-        <li><strong>게임 시뮬레이션 루프</strong>
-          <pre><code>while (winner == -1) {
-          if (skip[curPlayer]) {
-              skip[curPlayer] = false;
-          } else {
-              int move = dice[diceIdx++];
-              pos[curPlayer] += move;
-      
-              if (pos[curPlayer] > S) {
-                  winner = curPlayer + 1;
-                  break;
-              }
-      
-              if (trap[pos[curPlayer]]) {
-                  skip[curPlayer] = true;
-              }
+            <li>첫 줄에서 <code>N, M</code>을 읽는다.
+              <ul>
+                <li><code>N</code>: Bessie의 구간 개수</li>
+                <li><code>M</code>: Elsie의 구간 개수</li>
+              </ul>
+            </li>
+            <li>다음 <code>N</code>줄에서 Bessie 구간 정보를 읽고,
+              각 구간의 속도를 구간 시간만큼 <code>traceB</code> 리스트에 채운다.
+              <pre><code>for (int i = 0; i &lt; N; i++) {
+          int speed = ...;
+          int hour  = ...;
+          for (int j = 0; j &lt; hour; j++) {
+              traceB.add(speed);
           }
-      
-          curPlayer = (curPlayer + 1) % P;
       }</code></pre>
-      
-          <ul>
-            <li><strong>1) 쉬는 차례 확인</strong>
-              <ul>
-                <li><code>skip[curPlayer] == true</code>이면 이번 라운드는 그냥 건너뛴다.</li>
-                <li>건너뛰면서 <code>skip[curPlayer] = false</code>로 되돌려 놓는다.</li>
-              </ul>
             </li>
-      
-            <li><strong>2) 정상적으로 주사위를 굴리는 경우</strong>
-              <ul>
-                <li><code>move = dice[diceIdx++]</code>로 주사위 합을 가져온다.</li>
-                <li><code>pos[curPlayer] += move</code> 만큼 전진.</li>
-                <li>만약 <code>pos[curPlayer] &gt; S</code>가 되면, <strong>트랙 끝을 넘어섰으므로 즉시 승리</strong>:
-                  <pre><code>winner = curPlayer + 1;</code></pre>
-                  (플레이어 번호는 1부터이므로 +1)
-                </li>
-                <li>아직 끝나지 않았고, 현재 위치가 트랩이면:
-                  <pre><code>if (trap[pos[curPlayer]]) {
-          skip[curPlayer] = true;
-      }</code></pre>
-                  다음 라운드를 한 번 쉰다.</li>
-              </ul>
-            </li>
-      
-            <li><strong>3) 다음 플레이어로 넘기기</strong>
-              <ul>
-                <li><code>curPlayer = (curPlayer + 1) % P;</code></li>
-                <li>마지막 플레이어까지 끝났으면 다시 0번(=1번 플레이어)로 순환.</li>
-              </ul>
-            </li>
+            <li>다음 <code>M</code>줄에서 Elsie 구간 정보도 동일하게 읽어 <code>traceE</code>에 채운다.</li>
+            <li>두 리스트 길이 = 전체 경기 시간 <code>time</code>.</li>
           </ul>
         </li>
       
-        <li><strong>결과 출력</strong>
-          <pre><code>sb.append(winner).append('\n');</code></pre>
+        <li><strong>시간별 누적 거리 및 선두 판별</strong>
+          <pre><code>int distB = 0;
+      int distE = 0;
+      int change = 0; // 선두 교체 횟수
+      int last = 0;   // 마지막으로 선두였던 소 (0: 동점이나 아직 없음, 1: Bessie, 2: Elsie)
+      
+      for (int i = 0; i &lt; time; i++) {
+          distB += traceB.get(i);
+          distE += traceE.get(i);
+      
+          int cur;
+          if (distB &gt; distE) cur = 1;
+          else if (distB &lt; distE) cur = 2;
+          else cur = 0;
+      
+          if (cur != 0 && last != 0 && cur != last) {
+              change++;        // 선두가 Bessie ↔ Elsie로 바뀐 순간
+          }
+          if (cur != 0) {
+              last = cur;      // 동점이 아닐 때만 마지막 선두 갱신
+          }
+      }</code></pre>
+      
           <ul>
-            <li>각 테스트케이스마다 승자 번호 한 줄 출력.</li>
+            <li>동점(<code>cur == 0</code>)인 구간에서는 <code>last</code>를 바꾸지 않아
+              <strong>“마지막 선두였던 소”</strong> 정보를 유지한다.</li>
+            <li>이후 다른 소가 처음 선두로 올라가는 순간,
+              <code>cur != last</code>가 되어 선두 교체 1회를 센다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 출력</strong>
+          <ul>
+            <li>최종적으로 <code>change</code>를 그대로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 흐름 (간단 요약)
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 시간 t마다:
+          <ul>
+            <li>Bessie의 누적 거리 <code>distB(t)</code>, Elsie의 누적 거리 <code>distE(t)</code> 계산</li>
+            <li>비교해서 선두가 누구인지 결정</li>
+            <li>이전 선두와 다르면 <strong>선두 교체 +1</strong></li>
+            <li>동점 구간은 “선두 없음” 상태이지만, <code>last</code>는 바꾸지 않고 유지 → 이후 다른 소가 앞으로 나가면 선두 교체로 카운트</li>
           </ul>
         </li>
       </ul>
@@ -566,14 +467,9 @@
       </p>
       
       <ul>
-        <li>입력으로 주어지는 주사위 합의 개수를 <code>N</code>이라고 하면,
-          <ul>
-            <li>각 테스트케이스에서, 시뮬레이션은 주사위 배열을 한 번 끝까지 순회한다.</li>
-            <li>각 칸 이동과 트랩/스킵 체크는 모두 상수 시간.</li>
-          </ul>
-        </li>
-        <li>따라서 한 테스트케이스의 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
-        <li><code>P ≤ 10</code>, <code>S ≤ 10000</code> 범위에서 충분히 빠르다.</li>
+        <li>각 구간을 시간 단위로 풀어서 리스트에 넣기: 전체 시간 <code>T</code>에 대해 <strong><code>O(T)</code></strong></li>
+        <li>시뮬레이션(누적 거리와 선두 비교): <strong><code>O(T)</code></strong></li>
+        <li>전체 시간은 최대 <code>1000 × 1000 = 10^6</code> 정도라 충분히 빠른 수준이다.</li>
       </ul>
       
       <p>
@@ -583,49 +479,25 @@
       </p>
       
       <ul>
-        <li><code>pos[P]</code>, <code>skip[P]</code>, <code>trap[S+1]</code>, <code>dice[N]</code> 정도만 사용한다.</li>
-        <li>따라서 공간 복잡도는 <strong><code>O(P + S + N)</code></strong>이며,
-            문제 제약 상 매우 충분하다.</li>
+        <li>Bessie와 Elsie의 속도를 시간 단위로 저장하는 리스트 2개: <strong><code>O(T)</code></strong></li>
+        <li>추가 변수는 상수 개뿐이므로 전체 공간 복잡도는 <strong><code>O(T)</code></strong>이다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
-        </span>
-      </p>
-      
-      <ul>
-        <li><strong>트랩 조건</strong>은 “말이 해당 칸에 <strong>멈췄을 때</strong> 다음 라운드 한 번 쉰다”는 점을 정확히 구현해야 한다.</li>
-        <li>위치가 <code>S</code>를 넘어가는 순간 바로 승리이므로,
-            트랩 칸을 지나쳐서 끝을 넘어갈 때는 트랩 효과를 보지 않는다.</li>
-        <li><code>skip</code> 처리는 “쉬고 나면 바로 해제”가 되어야 한다.
-            (두 번 연속 쉬지 않도록)</li>
-        <li>플레이어 번호는 1부터, 배열 인덱스는 0부터이므로
-            출력 시 <code>curPlayer + 1</code>을 넣는 것을 잊지 말아야 한다.</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
           포인트 요약
         </span>
       </p>
       
       <ul>
-        <li>각 플레이어 위치 <code>pos[]</code>와 한 턴 건너뛸지 여부 <code>skip[]</code>를 관리한다.</li>
-        <li>트랩은 <code>trap[]</code> 불리언 배열로 빠르게 체크한다.</li>
-        <li>주사위 결과는 미리 합으로 저장하고 차례대로 사용한다.</li>
-        <li>각 턴마다
-          <ul>
-            <li><code>skip</code>이면 그냥 넘기고,</li>
-            <li>아니면 전진 → 끝 도달 여부 → 트랩 여부를 순서대로 검사한다.</li>
-          </ul>
-        </li>
-        <li>어느 플레이어가 처음으로 <code>pos &gt; S</code>가 되는 순간 그 플레이어가 승자가 된다.</li>
+        <li>각 소의 구간 정보를 <strong>시간 단위 속도 배열</strong>로 펼친다.</li>
+        <li>매 시간마다 누적 거리를 갱신하며 누가 선두인지 계산한다.</li>
+        <li><strong>동점 구간을 건너뛰면서</strong>, 마지막으로 선두였던 소와 현재 선두를 비교해 선두 교체 횟수를 센다.</li>
+        <li>구현은 단순한 시뮬레이션이지만, <strong>동점 처리와 마지막 선두 관리</strong>가 핵심이다.</li>
       </ul>
+
 
 
 
