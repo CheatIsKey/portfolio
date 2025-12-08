@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 직사각형 별찍기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12969">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>직사각형 별찍기 (프로그래머스 12969)</strong> 문제는<br>
+        입력으로 주어지는 두 정수 <code>a</code>, <code>b</code>를 이용해<br>
+        <strong>가로로 <code>a</code>개의 '*' 문자, 세로로 <code>b</code>줄</strong>을 출력하는 간단한 별 출력 문제다.
+      </p>
+      
+      <p>
+        즉, <strong>a × b 크기의 직사각형</strong> 모양으로 별을 찍어야 한다.
+      </p>
+      
+      <ul>
+        <li>각 줄마다 <code>a</code>개의 <code>*</code>를 연속해서 출력하고,</li>
+        <li>이 줄을 총 <code>b</code>번 반복해서 출력하면 된다.</li>
+      </ul>
+      
+      <p>
+        주어진 코드는 이를 <strong>중첩 반복문</strong>으로 구현하고 있다.
+      </p>
+      
+      <ul>
+        <li><code>Scanner</code>로 두 정수 <code>a</code>, <code>b</code>를 입력받는다.</li>
+        <li>바깥 <code>for</code> 루프: 줄 수를 담당, 총 <code>b</code>번 반복.</li>
+        <li>안쪽 <code>for</code> 루프: 한 줄에 <code>a</code>개의 별을 찍는 역할.</li>
+        <li>한 줄의 별 출력이 끝나면 <code>System.out.println()</code>으로 줄바꿈.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          입력:
+          <pre><code>5 3</code></pre>
+          동작:
+          <ul>
+            <li>가로 <code>a = 5</code> → 한 줄에 별 5개</li>
+            <li>세로 <code>b = 3</code> → 이런 줄을 3번 출력</li>
+          </ul>
+          출력:
+          <pre><code>*****
+      *****
+      *****</code></pre>
+        </li>
+      
+        <li>
+          입력:
+          <pre><code>2 4</code></pre>
+          출력:
+          <pre><code>**
+      **
+      **
+      **</code></pre>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        바깥 반복문이 <code>b</code>번, 안쪽 반복문이 각 줄마다 <code>a</code>번 실행되므로<br>
+        전체 출력 연산 수는 <strong><code>a × b</code></strong>에 비례한다.
+      </p>
+      
+      <p>
+        따라서 시간 복잡도는 <strong><code>O(a × b)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        입력으로 받은 두 정수와 반복문에서 사용하는 몇 개의 지역 변수만 사용한다.<br>
+        별 출력은 모두 <code>System.out.print</code>로 바로바로 찍기 때문에,<br>
+        별들을 따로 배열 등에 저장하지 않는다.
+      </p>
+      
+      <p>
+        따라서 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>바깥 루프 변수 <code>i</code>는 <strong>행 수(줄 수)</strong>를 의미한다: <code>0 ~ b-1</code>.</li>
+        <li>안쪽 루프 변수 <code>j</code>는 각 줄에서 <strong>열 수(별 개수)</strong>를 의미한다: <code>0 ~ a-1</code>.</li>
+        <li>각 줄 끝마다 <code>System.out.println();</code>으로 줄바꿈을 반드시 해줘야<br>
+            직사각형 모양으로 제대로 출력된다.</li>
+        <li>프로그래머스에서는 보통 <code>Solution</code> 클래스를 제출하고,<br>
+            <code>main</code>이 아니라 제공되는 입력/출력 환경을 사용한다는 점도 함께 기억해 두면 좋다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>a, b</strong>를 입력받아 <strong>a × b 크기의 별 직사각형</strong>을 출력하는 문제.</li>
+        <li>이중 반복문으로 바깥에서 <strong>줄 수 b</strong>, 안에서 <strong>별 개수 a</strong>를 제어한다.</li>
+        <li>각 줄마다 별을 <code>a</code>개 출력하고, 줄바꿈을 한 번 해주면 된다.</li>
+        <li>시간 복잡도는 <code>O(a × b)</code>, 공간 복잡도는 <code>O(1)</code>이다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — x만큼 간격이 있는 n개의 숫자</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12954">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>x만큼 간격이 있는 n개의 숫자 (프로그래머스 12954)</strong> 문제는<br>
+        정수 <code>x</code>와 <code>n</code>이 주어졌을 때,<br>
+        <strong>x, 2x, 3x, ..., n×x</strong> 형태의 수열을 길이 <code>n</code>짜리 배열로 만들어 반환하는 문제다.
+      </p>
+      
+      <p>
+        즉, 결과 배열 <code>answer</code>의 i번째 원소(0-based)는 다음과 같다.
+      </p>
+      
+      <p>
+        <code>answer[i] = x × (i + 1)</code> (<code>i = 0 ~ n-1</code>)
+      </p>
+      
+      <p>
+        주어진 코드는 이것을 <strong>누적합 방식</strong>으로 구현하고 있다.
+      </p>
+      
+      <ul>
+        <li><code>sum</code>에 x를 계속 더해 가면서,
+          각 단계마다 현재 <code>sum</code> 값을 배열에 채우는 방식.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드 동작 흐름
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>변수 초기화</strong>
+          <ul>
+            <li><code>int idx = 0;</code> → 현재 채울 배열 인덱스</li>
+            <li><code>long sum = 0;</code> → 현재까지의 누적합 (long으로 선언)</li>
+            <li><code>long[] answer = new long[n];</code> → 결과 배열</li>
+          </ul>
+        </li>
+      
+        <li><strong>반복문으로 수열 채우기</strong>
+          <pre><code>while (idx &lt; n) {
+          sum += x;
+          answer[idx++] = sum;
+      }</code></pre>
+          <ul>
+            <li>매 반복마다 <code>sum</code>에 <code>x</code>를 더해준다.</li>
+            <li>그 직후의 <code>sum</code> 값을 <code>answer[idx]</code>에 저장하고, <code>idx</code>를 1 증가.</li>
+            <li>결과적으로:
+              <ul>
+                <li>첫 번째 반복 후: <code>sum = x</code> → <code>answer[0] = x</code></li>
+                <li>두 번째 반복 후: <code>sum = 2x</code> → <code>answer[1] = 2x</code></li>
+                <li>...</li>
+                <li>n번째 반복 후: <code>sum = n×x</code> → <code>answer[n-1] = n×x</code></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 반환</strong>
+          <ul>
+            <li>반복이 끝나면 <code>answer</code> 배열을 그대로 반환.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>x = 2, n = 5</code>일 때
+          <ul>
+            <li>1번째: <code>sum = 2</code> → <code>answer[0] = 2</code></li>
+            <li>2번째: <code>sum = 4</code> → <code>answer[1] = 4</code></li>
+            <li>3번째: <code>sum = 6</code> → <code>answer[2] = 6</code></li>
+            <li>4번째: <code>sum = 8</code> → <code>answer[3] = 8</code></li>
+            <li>5번째: <code>sum = 10</code> → <code>answer[4] = 10</code></li>
+          </ul>
+          최종 결과:
+          <pre><code>[2, 4, 6, 8, 10]</code></pre>
+        </li>
+      
+        <li>
+          <code>x = -4, n = 3</code>일 때
+          <ul>
+            <li>1번째: <code>sum = -4</code> → <code>answer[0] = -4</code></li>
+            <li>2번째: <code>sum = -8</code> → <code>answer[1] = -8</code></li>
+            <li>3번째: <code>sum = -12</code> → <code>answer[2] = -12</code></li>
+          </ul>
+          최종 결과:
+          <pre><code>[-4, -8, -12]</code></pre>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>반복문이 <code>idx = 0</code>부터 <code>n-1</code>까지 한 번씩 돌기 때문에,<br>
+            전체 연산 수는 <strong><code>O(n)</code></strong>이다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>길이가 <code>n</code>인 <code>long[] answer</code> 배열 하나만 추가로 사용하므로<br>
+            공간 복잡도는 <strong><code>O(n)</code></strong>이다.</li>
+        <li><code>sum</code>, <code>idx</code> 등은 상수 개수의 변수이므로 무시 가능.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>자료형</strong>:
+          <ul>
+            <li><code>x</code>는 <code>int</code>이지만, <code>sum</code>과 <code>answer</code>는 <code>long</code>을 사용한다.</li>
+            <li>이는 <code>x</code>의 크기와 <code>n</code> 값이 커지는 경우를 대비해,
+                <strong>곱셈이나 누적합에서의 오버플로를 방지</strong>하기 위함이다.</li>
+          </ul>
+        </li>
+        <li><strong>반복 조건</strong>:
+          <ul>
+            <li><code>while (idx &lt; n)</code>으로 작성했기 때문에<br>
+                정확히 <code>n</code>개의 원소가 채워진다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>정수 <code>x</code>와 <code>n</code>이 주어지면 <strong>x의 배수 수열</strong> <code>x, 2x, ..., n×x</code>를 만든다.</li>
+        <li><code>sum</code>에 <code>x</code>를 계속 더해 나가며, 각 단계의 <code>sum</code>을 배열에 저장하는 방식으로 구현.</li>
+        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code>.</li>
+        <li>값 범위를 고려해 결과 타입과 누적합은 <code>long</code>으로 처리한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

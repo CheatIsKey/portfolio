@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5747 — Odd or Even</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5747">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Odd or Even (BOJ 5747)</strong> 문제는<br>
+        존(John)과 메리(Mary)가 여러 번 한 게임의 기록을 가지고,<br>
+        <strong>메리가 최소 몇 판은 “무조건 이겼다고 확신할 수 있는지”</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        게임 규칙은 다음과 같다.
+      </p>
+      
+      <ul>
+        <li>존은 항상 <strong>홀수(odds)</strong>를, 메리는 항상 <strong>짝수(evens)</strong>를 선택한다.</li>
+        <li>각 게임에서 두 사람은 0~5 사이의 손가락 수를 낸다.</li>
+        <li>두 수의 합이 짝수면 <strong>메리 승</strong>, 합이 홀수면 <strong>존 승</strong>이다.</li>
+      </ul>
+      
+      <p>
+        하지만 지금은 <strong>게임 순서가 섞여서</strong><br>
+        “메리가 각 게임에서 낸 손가락 수 목록”과 “존이 각 게임에서 낸 손가락 수 목록”만 주어진다.<br>
+        어떤 게임에서 어떤 값이 짝이었는지는 모른다.
+      </p>
+      
+      <p>
+        우리는 <strong>가능한 모든 매칭(순서 재배치) 중에서</strong><br>
+        메리의 승리 수가 가장 적게 되는 경우를 가정했을 때,<br>
+        그 <strong>최소 승리 횟수</strong>를 구해야 한다. (메리 입장에서 최악, 존 입장에서 최선인 경우)
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 아이디어 (짝/홀 개수 세기)
+        </span>
+      </p>
+      
+      <p>
+        승패는 <strong>합의 짝/홀 여부</strong>만으로 결정된다.
+      </p>
+      
+      <ul>
+        <li>메리의 손가락 수: <code>0~5</code> 중 어떤 값이든, <strong>짝수/홀수</strong>만 중요하다.</li>
+        <li>존의 손가락 수도 마찬가지.</li>
+      </ul>
+      
+      <p>
+        각 게임에서 두 수의 합이 짝수가 되는 경우는:
+      </p>
+      
+      <ul>
+        <li><strong>짝수 + 짝수</strong></li>
+        <li><strong>홀수 + 홀수</strong></li>
+      </ul>
+      
+      <p>
+        즉, 두 사람이 <strong>동일한 parity(짝/홀)</strong>일 때 메리가 이기고,<br>
+        서로 <strong>다른 parity</strong>일 때 존이 이긴다.
+      </p>
+      
+      <p>
+        존이 메리의 승리를 최소로 만들고 싶다면,
+        가능한 한 많이 <strong>“서로 다른 짝/홀”</strong>끼리 매칭해서 본인이 이겨야 한다.
+        그 최대 개수를 구하고, 전체 게임 수에서 빼면<br>
+        <strong>메리가 최소한으로 이긴 판 수 = N - (존이 최대한 이길 수 있는 판 수)</strong>가 된다.
+      </p>
+      
+      <ul>
+        <li>메리 쪽 짝수 개수: <code>maryEven</code></li>
+        <li>메리 쪽 홀수 개수: <code>maryOdd</code></li>
+        <li>존 쪽 짝수 개수: <code>johnEven</code></li>
+        <li>존 쪽 홀수 개수: <code>johnOdd</code></li>
+      </ul>
+      
+      <p>
+        서로 다른 parity로 매칭할 수 있는 최대 개수(= 존이 이기는 판 수, <code>mis</code>)는:
+      </p>
+      
+      <ul>
+        <li><strong>메리 짝수 vs 존 홀수</strong> 조합: 최대 <code>min(maryEven, johnOdd)</code>개</li>
+        <li><strong>메리 홀수 vs 존 짝수</strong> 조합: 최대 <code>min(maryOdd, johnEven)</code>개</li>
+      </ul>
+      
+      <p>
+        따라서
+      </p>
+      
+      <p>
+        <code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code><br>
+        <code>win = N - mis</code> ← 메리가 최소한으로 이긴 판 수
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 루프</strong>
+          <ul>
+            <li>각 테스트케이스마다 먼저 <code>N</code>을 읽고, <code>N == 0</code>이면 종료.</li>
+          </ul>
+        </li>
+      
+        <li><strong>메리 카드의 짝/홀 개수 세기</strong>
+          <pre><code>int maryEven = 0;
+      int maryOdd = 0;
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int j = 0; j &lt; N; j++) {
+          int num = Integer.parseInt(st.nextToken());
+          if (num % 2 == 0) maryEven++;
+          else maryOdd++;
+      }</code></pre>
+          <ul>
+            <li>두 번째 줄에서 메리가 낸 손가락 수 <code>N</code>개를 읽고,</li>
+            <li>짝수면 <code>maryEven++</code>, 홀수면 <code>maryOdd++</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>존 카드의 짝/홀 개수 세기</strong>
+          <pre><code>int johnEven = 0;
+      int johnOdd = 0;
+      
+      st = new StringTokenizer(br.readLine());
+      for (int j = 0; j &lt; N; j++) {
+          int num = Integer.parseInt(st.nextToken());
+          if (num % 2 == 0) johnEven++;
+          else johnOdd++;
+      }</code></pre>
+        </li>
+      
+        <li><strong>존이 이길 수 있는 최대 판 수 계산</strong>
+          <pre><code>int mis = Math.min(maryEven, johnOdd)
+              + Math.min(maryOdd, johnEven);</code></pre>
+          <ul>
+            <li>짝수-홀수, 홀수-짝수 매칭을 최대한 많이 만들어,<br>
+                존의 승리(메리의 패배)를 최대로 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>메리가 확실히 이겼다고 말할 수 있는 최소 판 수</strong>
+          <pre><code>int win = N - mis;
+      sb.append(win).append('\n');</code></pre>
+          <ul>
+            <li>남은 게임은 모두 <strong>짝+짝 또는 홀+홀</strong> 매칭이라 메리가 이기는 판.</li>
+            <li>어떤 식으로 매칭해도 최소 <code>win</code>판은 반드시 메리가 이길 수밖에 없다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <p>
+        예제 1:
+      </p>
+      
+      <pre><code>N = 3
+      메리: 1 0 4
+      존  : 3 1 2</code></pre>
+      
+      <ul>
+        <li>메리: 짝수 2개(0, 4), 홀수 1개(1)</li>
+        <li>존:   짝수 1개(2), 홀수 2개(3, 1)</li>
+      </ul>
+      
+      <p>
+        짝/홀 매칭 최대 개수:
+      </p>
+      
+      <ul>
+        <li><code>min(maryEven=2, johnOdd=2) = 2</code></li>
+        <li><code>min(maryOdd=1, johnEven=1) = 1</code></li>
+      </ul>
+      
+      <p>
+        따라서
+      </p>
+      
+      <p>
+        <code>mis = 2 + 1 = 3</code> (존이 최대 3판까지 이길 수 있다)<br>
+        <code>win = N - mis = 3 - 3 = 0</code>
+      </p>
+      
+      <p>
+        어떤 식으로 짝을 맞춰도 <strong>메리가 확실히 이겼다고 말할 수 있는 판은 0판</strong>이다.<br>
+        → 출력: <code>0</code>
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 테스트케이스에서
+          <ul>
+            <li>메리 카드 <code>N</code>개, 존 카드 <code>N</code>개를 한 번씩만 순회한다.</li>
+          </ul>
+        </li>
+        <li>따라서 한 케이스당 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+        <li><code>N ≤ 100</code>이므로 전체 입력에 대해서도 충분히 빠르다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>짝/홀 개수와 몇 개의 정수 변수만 사용한다.</li>
+        <li>추가 배열을 따로 만들지 않으므로, 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.</li>
+        <li>출력 누적을 위한 <code>StringBuilder</code>는 출력 길이에 비례하지만, 이는 필수 출력 공간이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>실제 “어떤 게임에서 누가 이겼는지”를 맞추는 것이 아니라,<br>
+            <strong>모든 가능한 재배치 중 메리 승리 수의 최솟값</strong>만 구하면 된다.</li>
+        <li>승패는 오직 <strong>짝/홀 여부</strong>에 의해서만 결정되므로,
+            구체적인 숫자(0~5)가 아니라 <strong>짝수/홀수 개수</strong>만 세는 것이 핵심이다.</li>
+        <li>존이 이길 수 있는 판 수를 최대화하면, 그만큼 메리의 승리는 최소가 된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 게임의 승패는 <strong>두 수의 합이 짝수냐 홀수냐</strong>에만 달려 있다.</li>
+        <li>카드 순서가 섞였으므로, 메리·존 각각의 <strong>짝수/홀수 개수</strong>만 중요하다.</li>
+        <li>존의 승리(서로 다른 짝/홀 매칭)를 최대로 만들면,
+            메리의 승리는 자동으로 최소가 된다.</li>
+        <li><code>mis = min(maryEven, johnOdd) + min(maryOdd, johnEven)</code>,
+            <code>win = N - mis</code>를 계산하면 된다.</li>
+        <li>시간 복잡도 <code>O(N)</code>, 공간 복잡도 <code>O(1)</code>로 충분히 해결 가능하다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5770 — Dice</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5770">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Dice (BOJ 5770)</strong> 문제는<br>
+        여러 명의 플레이어가 <strong>주사위 합만큼 말(말 위치)을 전진</strong>시키면서,<br>
+        <strong>먼저 코스 끝(마지막 칸 이후)에 도달하는 플레이어의 번호</strong>를 구하는 시뮬레이션 문제다.
+      </p>
+      
+      <p>
+        규칙을 정리하면:
+      </p>
+      
+      <ul>
+        <li>플레이어 수: <code>P (1 ≤ P ≤ 10)</code></li>
+        <li>트랙 칸 수: <code>S (3 ≤ S ≤ 10000)</code><br>
+            시작 위치는 <strong>1번 칸 앞</strong>으로, 처음 위치는 모두 0으로 보면 된다.</li>
+        <li>트랩은 정확히 3칸이고, 위치는 <code>T1, T2, T3</code> (1 ~ S 사이)로 주어진다.</li>
+        <li>주사위를 두 개 굴려 합(<code>D1 + D2</code>)만큼 전진한다.</li>
+        <li>말이 트랩 칸에 정확히 도착하면, <strong>다음 차례를 한 번 건너뛴다</strong> (한 라운드 쉼).</li>
+        <li>플레이어는 항상 <strong>1번부터 P번까지 순서대로</strong> 차례를 가진다. (1 → 2 → … → P → 다시 1 → …)</li>
+        <li>말의 위치가 <code>S</code>를 넘는 순간(<code>pos &gt; S</code>), 그 플레이어가 즉시 승리한다.</li>
+        <li>입력으로 주어지는 주사위 결과 개수는 <strong>어느 한 플레이어가 정확히 승리할 수 있을 만큼만 주어진다</strong>고 보장된다. (비길 일이 없다)</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 플레이어의 현재 위치를 저장하는 배열 <code>pos[0..P-1]</code>를 둔다. (초기값 0)</li>
+        <li>각 플레이어가 <strong>다음 차례를 건너뛰어야 하는지</strong> 여부를 저장하는 배열 <code>skip[0..P-1]</code>를 둔다.</li>
+        <li>트랩 위치를 빠르게 확인하기 위해 <code>trap[1..S]</code> 불리언 배열을 사용한다.</li>
+        <li>주사위 합은 미리 <code>dice[]</code> 배열에 저장해 두고, 인덱스를 증가시키며 차례대로 사용한다.</li>
+        <li>현재 플레이어 인덱스를 <code>curPlayer</code>로 두고, 승자가 나올 때까지 반복해서 시뮬레이션한다.</li>
+      </ul>
+      
+      <p>
+        핵심은 <strong>규칙 그대로 구현하는 단순 시뮬레이션</strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리 및 종료 조건</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(line);
+      int P = Integer.parseInt(st.nextToken());
+      int S = Integer.parseInt(st.nextToken());
+      if (P == 0 && S == 0) break;</code></pre>
+          <ul>
+            <li><code>P, S</code>가 둘 다 0이면 전체 입력 종료.</li>
+          </ul>
+        </li>
+      
+        <li><strong>트랩 정보 저장</strong>
+          <pre><code>st = new StringTokenizer(br.readLine());
+      int T1 = Integer.parseInt(st.nextToken());
+      int T2 = Integer.parseInt(st.nextToken());
+      int T3 = Integer.parseInt(st.nextToken());
+      
+      boolean[] trap = new boolean[S + 1];
+      trap[T1] = trap[T2] = trap[T3] = true;</code></pre>
+          <ul>
+            <li><code>trap[x] == true</code>이면 x번 칸이 트랩이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>주사위 합 미리 저장</strong>
+          <pre><code>int diceCnt = Integer.parseInt(br.readLine());
+      int[] dice = new int[diceCnt];
+      for (int i = 0; i &lt; diceCnt; i++) {
+          st = new StringTokenizer(br.readLine());
+          int D1 = Integer.parseInt(st.nextToken());
+          int D2 = Integer.parseInt(st.nextToken());
+      
+          dice[i] = D1 + D2;
+      }</code></pre>
+          <ul>
+            <li>각 줄의 <code>D1, D2</code>를 읽어서 합만 배열에 저장.</li>
+          </ul>
+        </li>
+      
+        <li><strong>상태 배열 초기화</strong>
+          <pre><code>int[] pos = new int[P];
+      boolean[] skip = new boolean[P];
+      int curPlayer = 0;
+      int diceIdx = 0;
+      int winner = -1;</code></pre>
+          <ul>
+            <li><code>pos[i]</code>: i번 플레이어의 위치 (0부터 시작)</li>
+            <li><code>skip[i]</code>: 다음 라운드를 쉬어야 하면 <code>true</code></li>
+            <li><code>curPlayer</code>: 현재 차례인 플레이어 (0 ~ P-1)</li>
+            <li><code>diceIdx</code>: 다음에 사용할 주사위 합 인덱스</li>
+            <li><code>winner</code>: 승자 번호 (<code>-1</code>이면 아직 미정)</li>
+          </ul>
+        </li>
+      
+        <li><strong>게임 시뮬레이션 루프</strong>
+          <pre><code>while (winner == -1) {
+          if (skip[curPlayer]) {
+              skip[curPlayer] = false;
+          } else {
+              int move = dice[diceIdx++];
+              pos[curPlayer] += move;
+      
+              if (pos[curPlayer] > S) {
+                  winner = curPlayer + 1;
+                  break;
+              }
+      
+              if (trap[pos[curPlayer]]) {
+                  skip[curPlayer] = true;
+              }
+          }
+      
+          curPlayer = (curPlayer + 1) % P;
+      }</code></pre>
+      
+          <ul>
+            <li><strong>1) 쉬는 차례 확인</strong>
+              <ul>
+                <li><code>skip[curPlayer] == true</code>이면 이번 라운드는 그냥 건너뛴다.</li>
+                <li>건너뛰면서 <code>skip[curPlayer] = false</code>로 되돌려 놓는다.</li>
+              </ul>
+            </li>
+      
+            <li><strong>2) 정상적으로 주사위를 굴리는 경우</strong>
+              <ul>
+                <li><code>move = dice[diceIdx++]</code>로 주사위 합을 가져온다.</li>
+                <li><code>pos[curPlayer] += move</code> 만큼 전진.</li>
+                <li>만약 <code>pos[curPlayer] &gt; S</code>가 되면, <strong>트랙 끝을 넘어섰으므로 즉시 승리</strong>:
+                  <pre><code>winner = curPlayer + 1;</code></pre>
+                  (플레이어 번호는 1부터이므로 +1)
+                </li>
+                <li>아직 끝나지 않았고, 현재 위치가 트랩이면:
+                  <pre><code>if (trap[pos[curPlayer]]) {
+          skip[curPlayer] = true;
+      }</code></pre>
+                  다음 라운드를 한 번 쉰다.</li>
+              </ul>
+            </li>
+      
+            <li><strong>3) 다음 플레이어로 넘기기</strong>
+              <ul>
+                <li><code>curPlayer = (curPlayer + 1) % P;</code></li>
+                <li>마지막 플레이어까지 끝났으면 다시 0번(=1번 플레이어)로 순환.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>결과 출력</strong>
+          <pre><code>sb.append(winner).append('\n');</code></pre>
+          <ul>
+            <li>각 테스트케이스마다 승자 번호 한 줄 출력.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>입력으로 주어지는 주사위 합의 개수를 <code>N</code>이라고 하면,
+          <ul>
+            <li>각 테스트케이스에서, 시뮬레이션은 주사위 배열을 한 번 끝까지 순회한다.</li>
+            <li>각 칸 이동과 트랩/스킵 체크는 모두 상수 시간.</li>
+          </ul>
+        </li>
+        <li>따라서 한 테스트케이스의 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+        <li><code>P ≤ 10</code>, <code>S ≤ 10000</code> 범위에서 충분히 빠르다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>pos[P]</code>, <code>skip[P]</code>, <code>trap[S+1]</code>, <code>dice[N]</code> 정도만 사용한다.</li>
+        <li>따라서 공간 복잡도는 <strong><code>O(P + S + N)</code></strong>이며,
+            문제 제약 상 매우 충분하다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>트랩 조건</strong>은 “말이 해당 칸에 <strong>멈췄을 때</strong> 다음 라운드 한 번 쉰다”는 점을 정확히 구현해야 한다.</li>
+        <li>위치가 <code>S</code>를 넘어가는 순간 바로 승리이므로,
+            트랩 칸을 지나쳐서 끝을 넘어갈 때는 트랩 효과를 보지 않는다.</li>
+        <li><code>skip</code> 처리는 “쉬고 나면 바로 해제”가 되어야 한다.
+            (두 번 연속 쉬지 않도록)</li>
+        <li>플레이어 번호는 1부터, 배열 인덱스는 0부터이므로
+            출력 시 <code>curPlayer + 1</code>을 넣는 것을 잊지 말아야 한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 플레이어 위치 <code>pos[]</code>와 한 턴 건너뛸지 여부 <code>skip[]</code>를 관리한다.</li>
+        <li>트랩은 <code>trap[]</code> 불리언 배열로 빠르게 체크한다.</li>
+        <li>주사위 결과는 미리 합으로 저장하고 차례대로 사용한다.</li>
+        <li>각 턴마다
+          <ul>
+            <li><code>skip</code>이면 그냥 넘기고,</li>
+            <li>아니면 전진 → 끝 도달 여부 → 트랩 여부를 순서대로 검사한다.</li>
+          </ul>
+        </li>
+        <li>어느 플레이어가 처음으로 <code>pos &gt; S</code>가 되는 순간 그 플레이어가 승자가 된다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
