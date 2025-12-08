@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <title>내일배움캠프 Spring 백엔드 1주차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -16,428 +16,159 @@
   </header>
 
   <main class="container article">
-    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
     <aside class="toc" aria-label="Table of contents">
-      <div class="toc-title">문제 목록</div>
+      <div class="toc-title">섹션 목록</div>
       <ul id="toc-list"></ul>
     </aside>
 
     <article class="prose">
-      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <h1>내일배움캠프 Spring 백엔드 1주차 TIL</h1>
+      <p class="muted">작성일 2025-12-08 · 분류: 부트캠프, TIL, 백엔드</p>
 
-
-
-
-
-
-      
-      <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 직사각형 별찍기</h2>
-
-      <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12969">프로그래머스 문제 보기</a></p>
-
-      <h3 class="section">코드 (IDE 스크린샷)</h3>
-      <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
-      </figure>
-
-
-      
+      <!-- 섹션 1: 1주차 개요 -->
+      <h2 class="section">1주차 개요 — 온보딩과 환경 설정</h2>
 
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해설
+          정리
         </span>
       </h3>
-      
+
       <p>
-        <strong>직사각형 별찍기 (프로그래머스 12969)</strong> 문제는<br>
-        입력으로 주어지는 두 정수 <code>a</code>, <code>b</code>를 이용해<br>
-        <strong>가로로 <code>a</code>개의 '*' 문자, 세로로 <code>b</code>줄</strong>을 출력하는 간단한 별 출력 문제다.
+        내일배움캠프 Spring 백엔드 과정의 첫 주는 <strong>개발 공부를 본격적으로 시작하기 위한 준비 주간</strong>이었다.
+        아직 코드보다는 환경과 도구에 익숙해지는 시간이었고, 앞으로 몇 달 동안 함께할 동료들과
+        협업 도구를 맞추는 데 집중했다.
       </p>
-      
-      <p>
-        즉, <strong>a × b 크기의 직사각형</strong> 모양으로 별을 찍어야 한다.
-      </p>
-      
+
       <ul>
-        <li>각 줄마다 <code>a</code>개의 <code>*</code>를 연속해서 출력하고,</li>
-        <li>이 줄을 총 <code>b</code>번 반복해서 출력하면 된다.</li>
+        <li>팀 노션 페이지에 합류하고, 공용 정보 구조를 함께 확인했다.</li>
+        <li>멤버 카드 작성으로 서로의 배경, 목표, 강점과 약점을 공유했다.</li>
+        <li>슬랙 채널과 알림, 프로필을 설정하며 소통 흐름을 맞췄다.</li>
+        <li>이 과정을 통해 “혼자가 아니라 팀으로 공부한다”는 점을 다시 느꼈다.</li>
       </ul>
-      
-      <p>
-        주어진 코드는 이를 <strong>중첩 반복문</strong>으로 구현하고 있다.
-      </p>
-      
-      <ul>
-        <li><code>Scanner</code>로 두 정수 <code>a</code>, <code>b</code>를 입력받는다.</li>
-        <li>바깥 <code>for</code> 루프: 줄 수를 담당, 총 <code>b</code>번 반복.</li>
-        <li>안쪽 <code>for</code> 루프: 한 줄에 <code>a</code>개의 별을 찍는 역할.</li>
-        <li>한 줄의 별 출력이 끝나면 <code>System.out.println()</code>으로 줄바꿈.</li>
-      </ul>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시
-        </span>
-      </p>
-      
-      <ul>
-        <li>
-          입력:
-          <pre><code>5 3</code></pre>
-          동작:
-          <ul>
-            <li>가로 <code>a = 5</code> → 한 줄에 별 5개</li>
-            <li>세로 <code>b = 3</code> → 이런 줄을 3번 출력</li>
-          </ul>
-          출력:
-          <pre><code>*****
-      *****
-      *****</code></pre>
-        </li>
-      
-        <li>
-          입력:
-          <pre><code>2 4</code></pre>
-          출력:
-          <pre><code>**
-      **
-      **
-      **</code></pre>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 복잡도
-        </span>
-      </p>
-      
-      <p>
-        바깥 반복문이 <code>b</code>번, 안쪽 반복문이 각 줄마다 <code>a</code>번 실행되므로<br>
-        전체 출력 연산 수는 <strong><code>a × b</code></strong>에 비례한다.
-      </p>
-      
-      <p>
-        따라서 시간 복잡도는 <strong><code>O(a × b)</code></strong>이다.
-      </p>
-      
-      <p>
-        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          공간 복잡도
-        </span>
-      </p>
-      
-      <p>
-        입력으로 받은 두 정수와 반복문에서 사용하는 몇 개의 지역 변수만 사용한다.<br>
-        별 출력은 모두 <code>System.out.print</code>로 바로바로 찍기 때문에,<br>
-        별들을 따로 배열 등에 저장하지 않는다.
-      </p>
-      
-      <p>
-        따라서 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
-      </p>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
-        </span>
-      </p>
-      
-      <ul>
-        <li>바깥 루프 변수 <code>i</code>는 <strong>행 수(줄 수)</strong>를 의미한다: <code>0 ~ b-1</code>.</li>
-        <li>안쪽 루프 변수 <code>j</code>는 각 줄에서 <strong>열 수(별 개수)</strong>를 의미한다: <code>0 ~ a-1</code>.</li>
-        <li>각 줄 끝마다 <code>System.out.println();</code>으로 줄바꿈을 반드시 해줘야<br>
-            직사각형 모양으로 제대로 출력된다.</li>
-        <li>프로그래머스에서는 보통 <code>Solution</code> 클래스를 제출하고,<br>
-            <code>main</code>이 아니라 제공되는 입력/출력 환경을 사용한다는 점도 함께 기억해 두면 좋다.</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          포인트 요약
-        </span>
-      </p>
-      
-      <ul>
-        <li><strong>a, b</strong>를 입력받아 <strong>a × b 크기의 별 직사각형</strong>을 출력하는 문제.</li>
-        <li>이중 반복문으로 바깥에서 <strong>줄 수 b</strong>, 안에서 <strong>별 개수 a</strong>를 제어한다.</li>
-        <li>각 줄마다 별을 <code>a</code>개 출력하고, 줄바꿈을 한 번 해주면 된다.</li>
-        <li>시간 복잡도는 <code>O(a × b)</code>, 공간 복잡도는 <code>O(1)</code>이다.</li>
-      </ul>
 
+      <!-- 섹션 2: 노션 -->
+      <h2 class="section">노션 사용 — 팀 노션 정보 입력과 멤버 카드</h2>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      <!-- 문제 2 -->
-      <h2 class="section">문제 2 — x만큼 간격이 있는 n개의 숫자</h2>
-
-      <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12954">프로그래머스 문제 보기</a></p>
-
-      <h3 class="section">코드 (IDE 스크린샷)</h3>
-      <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
-      </figure>
-
-
-
-      
       <h3 class="section">
-        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해설
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 한 일
         </span>
       </h3>
-      
+
       <p>
-        <strong>x만큼 간격이 있는 n개의 숫자 (프로그래머스 12954)</strong> 문제는<br>
-        정수 <code>x</code>와 <code>n</code>이 주어졌을 때,<br>
-        <strong>x, 2x, 3x, ..., n×x</strong> 형태의 수열을 길이 <code>n</code>짜리 배열로 만들어 반환하는 문제다.
+        노션은 이번 부트캠프에서 <strong>팀의 기억을 저장하는 공간</strong>이 된다.
+        첫 주에는 주로 틀을 맞추고, 내가 어떤 사람인지 팀원들이 한눈에 볼 수 있도록 정보를 채워 넣는 데 집중했다.
       </p>
-      
-      <p>
-        즉, 결과 배열 <code>answer</code>의 i번째 원소(0-based)는 다음과 같다.
-      </p>
-      
-      <p>
-        <code>answer[i] = x × (i + 1)</code> (<code>i = 0 ~ n-1</code>)
-      </p>
-      
-      <p>
-        주어진 코드는 이것을 <strong>누적합 방식</strong>으로 구현하고 있다.
-      </p>
-      
+
       <ul>
-        <li><code>sum</code>에 x를 계속 더해 가면서,
-          각 단계마다 현재 <code>sum</code> 값을 배열에 채우는 방식.</li>
+        <li>팀 노션 워크스페이스에 초대받고 기본 페이지 구조를 확인했다.</li>
+        <li>출석, 공지, 과제, 회고 등 앞으로 자주 사용할 섹션들의 위치를 익혔다.</li>
+        <li>멤버 카드에 이름, 기술 스택, 관심 분야, 부트캠프 목표, 연락 가능한 시간대를 정리했다.</li>
+        <li>내가 그동안 해온 프로젝트(쇼핑몰, 공모전, 연구실 경험)를 간단히 요약해서 넣었다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
+        노션에 정보를 채우면서 자연스럽게 “이번 캠프에서 무엇을 얻고 싶은지”를 다시 정리하게 되었고,
+        나중에 팀원들이 나를 이해하는 데 도움이 될 것 같다는 느낌을 받았다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <!-- 섹션 3: 슬랙 & 참여 환경 -->
+      <h2 class="section">슬랙 설정 — 소통 채널 정리와 참여 환경 만들기</h2>
+
+      <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드 동작 흐름
+          설정 & 적응
         </span>
-      </p>
-      
-      <ul>
-        <li><strong>변수 초기화</strong>
-          <ul>
-            <li><code>int idx = 0;</code> → 현재 채울 배열 인덱스</li>
-            <li><code>long sum = 0;</code> → 현재까지의 누적합 (long으로 선언)</li>
-            <li><code>long[] answer = new long[n];</code> → 결과 배열</li>
-          </ul>
-        </li>
-      
-        <li><strong>반복문으로 수열 채우기</strong>
-          <pre><code>while (idx &lt; n) {
-          sum += x;
-          answer[idx++] = sum;
-      }</code></pre>
-          <ul>
-            <li>매 반복마다 <code>sum</code>에 <code>x</code>를 더해준다.</li>
-            <li>그 직후의 <code>sum</code> 값을 <code>answer[idx]</code>에 저장하고, <code>idx</code>를 1 증가.</li>
-            <li>결과적으로:
-              <ul>
-                <li>첫 번째 반복 후: <code>sum = x</code> → <code>answer[0] = x</code></li>
-                <li>두 번째 반복 후: <code>sum = 2x</code> → <code>answer[1] = 2x</code></li>
-                <li>...</li>
-                <li>n번째 반복 후: <code>sum = n×x</code> → <code>answer[n-1] = n×x</code></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      
-        <li><strong>결과 반환</strong>
-          <ul>
-            <li>반복이 끝나면 <code>answer</code> 배열을 그대로 반환.</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      </h3>
+
       <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시
-        </span>
+        슬랙은 부트캠프 동안 <strong>가장 자주 보는 화면</strong>이 될 도구라서,
+        첫 주에 알림과 채널 구조를 확실히 잡아 두는 것이 중요했다.
       </p>
-      
+
       <ul>
-        <li>
-          <code>x = 2, n = 5</code>일 때
-          <ul>
-            <li>1번째: <code>sum = 2</code> → <code>answer[0] = 2</code></li>
-            <li>2번째: <code>sum = 4</code> → <code>answer[1] = 4</code></li>
-            <li>3번째: <code>sum = 6</code> → <code>answer[2] = 6</code></li>
-            <li>4번째: <code>sum = 8</code> → <code>answer[3] = 8</code></li>
-            <li>5번째: <code>sum = 10</code> → <code>answer[4] = 10</code></li>
-          </ul>
-          최종 결과:
-          <pre><code>[2, 4, 6, 8, 10]</code></pre>
-        </li>
-      
-        <li>
-          <code>x = -4, n = 3</code>일 때
-          <ul>
-            <li>1번째: <code>sum = -4</code> → <code>answer[0] = -4</code></li>
-            <li>2번째: <code>sum = -8</code> → <code>answer[1] = -8</code></li>
-            <li>3번째: <code>sum = -12</code> → <code>answer[2] = -12</code></li>
-          </ul>
-          최종 결과:
-          <pre><code>[-4, -8, -12]</code></pre>
-        </li>
+        <li>공지, 질문, 팀 채널 등 주요 채널에 조인하고 북마크를 설정했다.</li>
+        <li>업무 시간과 방해 금지 시간대를 설정해, 수업에 집중할 수 있는 알림 환경을 만들었다.</li>
+        <li>프로필과 상태 메시지를 수정해, 내가 어떤 역할을 맡고 싶은지 간단히 드러냈다.</li>
+        <li>멘토와 동료들이 주고받는 메시지 흐름을 보면서, 질문과 공유의 기준을 감 잡으려 했다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+
       <p>
+        슬랙에서 “조용히 눈팅만 하는 참가자”가 아니라, <strong>질문과 공유를 꾸준히 올리는 사람</strong>이 되는 것을
+        앞으로의 목표 중 하나로 삼게 되었다.
+      </p>
+
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+
+      <!-- 섹션 4: 각오 & 목표 -->
+      <h2 class="section">내일배움캠프에 대한 각오와 목표</h2>
+
+      <h3 class="section">
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 복잡도
+          왜 이 과정에 왔는가
         </span>
-      </p>
-      
-      <ul>
-        <li>반복문이 <code>idx = 0</code>부터 <code>n-1</code>까지 한 번씩 돌기 때문에,<br>
-            전체 연산 수는 <strong><code>O(n)</code></strong>이다.</li>
-      </ul>
-      
+      </h3>
+
       <p>
-        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          공간 복잡도
-        </span>
+        나는 단순히 “Spring Boot를 쓸 줄 아는 사람”이 아니라,
+        <strong>안정적으로 돌아가는 백엔드 서비스를 설계하고 운영할 수 있는 개발자</strong>가 되고 싶다.
+        혼자 프로젝트를 만들면서도 어느 정도까지는 해봤지만,
+        혼자만의 속도로 공부하다 보니 설계나 협업 관점에서 한계를 느꼈다.
       </p>
-      
+
+      <p>
+        내일배움캠프에서는 다음 세 가지를 꼭 가져가고 싶다.
+      </p>
+
       <ul>
-        <li>길이가 <code>n</code>인 <code>long[] answer</code> 배열 하나만 추가로 사용하므로<br>
-            공간 복잡도는 <strong><code>O(n)</code></strong>이다.</li>
-        <li><code>sum</code>, <code>idx</code> 등은 상수 개수의 변수이므로 무시 가능.</li>
+        <li>Java와 Spring의 기본기를 다시 다져서, “왜 이렇게 설계하는지”를 설명할 수 있는 수준으로 끌어올리기.</li>
+        <li>테이블 설계, 트랜잭션, 예외 처리, 인증/인가 같은 백엔드의 핵심 개념을 실습과 프로젝트로 몸에 익히기.</li>
+        <li>팀 프로젝트와 코드 리뷰를 통해, <strong>다른 사람과 함께 유지보수 가능한 코드를 작성하는 연습</strong>을 하기.</li>
       </ul>
-      
+
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
+
+      <!-- 섹션 5: 이번 주 회고 & 다음 주 계획 -->
+      <h2 class="section">이번 주 회고와 다음 주 목표</h2>
+
+      <h3 class="section">
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
+          이번 주 느낀 점
         </span>
-      </p>
-      
-      <ul>
-        <li><strong>자료형</strong>:
-          <ul>
-            <li><code>x</code>는 <code>int</code>이지만, <code>sum</code>과 <code>answer</code>는 <code>long</code>을 사용한다.</li>
-            <li>이는 <code>x</code>의 크기와 <code>n</code> 값이 커지는 경우를 대비해,
-                <strong>곱셈이나 누적합에서의 오버플로를 방지</strong>하기 위함이다.</li>
-          </ul>
-        </li>
-        <li><strong>반복 조건</strong>:
-          <ul>
-            <li><code>while (idx &lt; n)</code>으로 작성했기 때문에<br>
-                정확히 <code>n</code>개의 원소가 채워진다.</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
+      </h3>
+
       <p>
-        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          포인트 요약
-        </span>
+        아직 본격적인 코딩은 시작하지 않았지만, 첫 주에 <strong>환경과 사람</strong>을 세팅해 둔 덕분에
+        다음 주부터는 흐름을 타기 훨씬 수월할 것 같다.  
+        특히 노션과 슬랙을 직접 손대면서, 이 부트캠프가 “강의만 듣고 끝나는 곳”이 아니라
+        <strong>기록하고 공유하면서 함께 성장하는 공간</strong>이라는 인상을 받았다.
       </p>
-      
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          다음 주 목표
+        </span>
+      </h3>
+
       <ul>
-        <li>정수 <code>x</code>와 <code>n</code>이 주어지면 <strong>x의 배수 수열</strong> <code>x, 2x, ..., n×x</code>를 만든다.</li>
-        <li><code>sum</code>에 <code>x</code>를 계속 더해 나가며, 각 단계의 <code>sum</code>을 배열에 저장하는 방식으로 구현.</li>
-        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code>.</li>
-        <li>값 범위를 고려해 결과 타입과 누적합은 <code>long</code>으로 처리한다.</li>
+        <li>Java 문법과 객체지향 기본을 다시 훑고, 이해가 애매한 부분은 바로 정리하기.</li>
+        <li>매일 적어도 한 번은 TIL을 업데이트하고, 핵심만 짧게라도 남기는 습관 만들기.</li>
+        <li>궁금한 점이 생기면 혼자 오래 끌지 말고, 슬랙과 질의응답 시간을 활용해 질문하기.</li>
+        <li>앞으로 진행될 Spring, DB, 배포 파트를 위한 개발 환경을 미리 점검해 두기.</li>
       </ul>
 
+      <p>
+        1주차는 “준비 운동”이었다면, 2주차부터는 진짜로 근육을 키우는 시간이다.
+        매일 조금씩이라도 전날의 나보다 나아지도록, 꾸준히 기록하고 질문하면서 이 과정을 완주할 계획이다.
+      </p>
 
-
-
-
-
-
-
-
-
-      
-
-
-
-          
-      
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
-
-      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
-        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
-          https://school.programmers.co.kr/learn/challenges
-        </a>
-      </p>
     </article>
   </main>
 
@@ -451,7 +182,7 @@
   (function(){
     const article = document.querySelector('article.prose');
     if(!article) return;
-    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const headers = [...article.querySelectorAll('h2.section')];
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
