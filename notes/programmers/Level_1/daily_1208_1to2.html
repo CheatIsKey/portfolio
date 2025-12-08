@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-07 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-08 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 직사각형 별찍기</h2>
+      <h2 class="section">문제 1 — 행렬의 덧셈</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12969">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12950">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1208_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,62 +53,90 @@
       </h3>
       
       <p>
-        <strong>직사각형 별찍기 (프로그래머스 12969)</strong> 문제는<br>
-        입력으로 주어지는 두 정수 <code>a</code>, <code>b</code>를 이용해<br>
-        <strong>가로로 <code>a</code>개의 '*' 문자, 세로로 <code>b</code>줄</strong>을 출력하는 간단한 별 출력 문제다.
+        <strong>행렬의 덧셈 (프로그래머스 12950)</strong> 문제는<br>
+        같은 크기의 2차원 정수 배열 <code>arr1</code>, <code>arr2</code>가 주어졌을 때,<br>
+        <strong>각 위치의 원소를 더한 결과 행렬</strong>을 구하는 문제다.
       </p>
       
       <p>
-        즉, <strong>a × b 크기의 직사각형</strong> 모양으로 별을 찍어야 한다.
+        즉, 두 행렬이 모두 <code>n × m</code> 크기라면,<br>
+        결과 행렬 <code>answer</code>의 각 원소는 다음과 같이 정의된다.
       </p>
-      
-      <ul>
-        <li>각 줄마다 <code>a</code>개의 <code>*</code>를 연속해서 출력하고,</li>
-        <li>이 줄을 총 <code>b</code>번 반복해서 출력하면 된다.</li>
-      </ul>
       
       <p>
-        주어진 코드는 이를 <strong>중첩 반복문</strong>으로 구현하고 있다.
+        <code>answer[i][j] = arr1[i][j] + arr2[i][j]</code>
       </p>
       
-      <ul>
-        <li><code>Scanner</code>로 두 정수 <code>a</code>, <code>b</code>를 입력받는다.</li>
-        <li>바깥 <code>for</code> 루프: 줄 수를 담당, 총 <code>b</code>번 반복.</li>
-        <li>안쪽 <code>for</code> 루프: 한 줄에 <code>a</code>개의 별을 찍는 역할.</li>
-        <li>한 줄의 별 출력이 끝나면 <code>System.out.println()</code>으로 줄바꿈.</li>
-      </ul>
+      <p>
+        주어진 코드는 <strong>새 배열을 만들지 않고</strong>,<br>
+        <strong><code>arr1</code>을 곧바로 결과 행렬로 덮어 쓰는 방식</strong>으로 구현되어 있다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이 과정
+        </span>
+      </p>
+      
+      <ul>
+        <li>행의 개수: <code>arr1.length</code></li>
+        <li>열의 개수: <code>arr1[i].length</code> (각 행의 길이)</li>
+      </ul>
+      
+      <p>
+        이중 반복문을 사용하여 모든 인덱스 <code>(i, j)</code>에 대해 다음 연산을 수행한다.
+      </p>
+      
+      <ul>
+        <li>바깥 반복문: 각 행을 순회
+          <pre><code>for (int i = 0; i &lt; arr1.length; i++) { ... }</code></pre>
+        </li>
+        <li>안쪽 반복문: 해당 행의 각 열을 순회
+          <pre><code>for (int j = 0; j &lt; arr1[i].length; j++) {
+          arr1[i][j] += arr2[i][j];
+      }</code></pre>
+          <ul>
+            <li><code>arr1[i][j] += arr2[i][j];</code> 는
+              <code>arr1[i][j] = arr1[i][j] + arr2[i][j];</code> 와 같다.</li>
+            <li>즉, <strong>각 위치의 두 원소를 더한 값을 <code>arr1</code>에 다시 저장</strong>한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        모든 반복이 끝난 후, 이미 합으로 덮어 써진 <code>arr1</code>을 곧바로 반환한다.
+      </p>
+      
+      <pre><code>return arr1;</code></pre>
+      
+      <p>
+        문제에서 요구하는 것은 단순히 “두 행렬의 합”이므로,<br>
+        <strong>새 배열을 만들어도 되고, 기존 배열 중 하나를 재사용해도 상관없다</strong>.<br>
+        이 코드는 <code>arr1</code>을 재사용해 <strong>추가 메모리 사용을 줄이는 방식</strong>을 택한 것이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           예시
         </span>
       </p>
       
       <ul>
         <li>
-          입력:
-          <pre><code>5 3</code></pre>
-          동작:
-          <ul>
-            <li>가로 <code>a = 5</code> → 한 줄에 별 5개</li>
-            <li>세로 <code>b = 3</code> → 이런 줄을 3번 출력</li>
-          </ul>
-          출력:
-          <pre><code>*****
-      *****
-      *****</code></pre>
-        </li>
-      
-        <li>
-          입력:
-          <pre><code>2 4</code></pre>
-          출력:
-          <pre><code>**
-      **
-      **
-      **</code></pre>
+          <code>arr1 = [[1, 2], [3, 4]]</code><br>
+          <code>arr2 = [[5, 6], [7, 8]]</code>
+          <ol>
+            <li><code>(0,0)</code> 위치: <code>1 + 5 = 6</code></li>
+            <li><code>(0,1)</code> 위치: <code>2 + 6 = 8</code></li>
+            <li><code>(1,0)</code> 위치: <code>3 + 7 = 10</code></li>
+            <li><code>(1,1)</code> 위치: <code>4 + 8 = 12</code></li>
+          </ol>
+          <p>최종 결과 행렬은 <code>[[6, 8], [10, 12]]</code>가 되고,<br>
+             이 값들이 <code>arr1</code>에 덮어 써진 뒤 <code>arr1</code>이 반환된다.</p>
         </li>
       </ul>
       
@@ -121,12 +149,15 @@
       </p>
       
       <p>
-        바깥 반복문이 <code>b</code>번, 안쪽 반복문이 각 줄마다 <code>a</code>번 실행되므로<br>
-        전체 출력 연산 수는 <strong><code>a × b</code></strong>에 비례한다.
+        행렬 크기가 <code>n × m</code>일 때,
       </p>
       
+      <ul>
+        <li>각 원소마다 덧셈을 한 번 수행하므로 전체 연산 수는 <code>n × m</code>개</li>
+      </ul>
+      
       <p>
-        따라서 시간 복잡도는 <strong><code>O(a × b)</code></strong>이다.
+        따라서 전체 시간 복잡도는 <strong><code>O(n × m)</code></strong>이다.
       </p>
       
       <p>
@@ -136,13 +167,9 @@
       </p>
       
       <p>
-        입력으로 받은 두 정수와 반복문에서 사용하는 몇 개의 지역 변수만 사용한다.<br>
-        별 출력은 모두 <code>System.out.print</code>로 바로바로 찍기 때문에,<br>
-        별들을 따로 배열 등에 저장하지 않는다.
-      </p>
-      
-      <p>
-        따라서 추가 공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+        추가로 사용하는 것은 반복문 인덱스 변수뿐이며,<br>
+        결과를 <strong>기존 배열 <code>arr1</code>에 덮어 쓰기</strong> 때문에<br>
+        추가 공간은 <strong><code>O(1)</code></strong>이다.
       </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -154,15 +181,11 @@
       </p>
       
       <ul>
-        <li>바깥 루프 변수 <code>i</code>는 <strong>행 수(줄 수)</strong>를 의미한다: <code>0 ~ b-1</code>.</li>
-        <li>안쪽 루프 변수 <code>j</code>는 각 줄에서 <strong>열 수(별 개수)</strong>를 의미한다: <code>0 ~ a-1</code>.</li>
-        <li>각 줄 끝마다 <code>System.out.println();</code>으로 줄바꿈을 반드시 해줘야<br>
-            직사각형 모양으로 제대로 출력된다.</li>
-        <li>프로그래머스에서는 보통 <code>Solution</code> 클래스를 제출하고,<br>
-            <code>main</code>이 아니라 제공되는 입력/출력 환경을 사용한다는 점도 함께 기억해 두면 좋다.</li>
+        <li><strong>두 행렬의 크기가 같다는 전제</strong>가 있기 때문에,
+          인덱스 범위 체크는 따로 하지 않는다.</li>
+        <li><code>arr1</code>을 그대로 수정하므로,<br>
+            <strong>원본 <code>arr1</code>이 필요하면 먼저 복사한 뒤 연산</strong>해야 한다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -171,11 +194,12 @@
       </p>
       
       <ul>
-        <li><strong>a, b</strong>를 입력받아 <strong>a × b 크기의 별 직사각형</strong>을 출력하는 문제.</li>
-        <li>이중 반복문으로 바깥에서 <strong>줄 수 b</strong>, 안에서 <strong>별 개수 a</strong>를 제어한다.</li>
-        <li>각 줄마다 별을 <code>a</code>개 출력하고, 줄바꿈을 한 번 해주면 된다.</li>
-        <li>시간 복잡도는 <code>O(a × b)</code>, 공간 복잡도는 <code>O(1)</code>이다.</li>
+        <li>이중 for문으로 모든 <code>(i, j)</code> 위치를 순회한다.</li>
+        <li><code>arr1[i][j] += arr2[i][j];</code> 로 각 원소를 더해 <code>arr1</code>에 덮어 쓴다.</li>
+        <li>계산이 끝난 <code>arr1</code>을 결과 행렬로 반환한다.</li>
+        <li>시간 복잡도: <code>O(n × m)</code>, 공간 복잡도: <code>O(1)</code> (추가 메모리 거의 없음).</li>
       </ul>
+
 
 
 
@@ -233,14 +257,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — x만큼 간격이 있는 n개의 숫자</h2>
+      <h2 class="section">문제 2 — 핸드폰 번호 가리기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12954">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12948">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1207_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1208_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -253,102 +277,91 @@
       </h3>
       
       <p>
-        <strong>x만큼 간격이 있는 n개의 숫자 (프로그래머스 12954)</strong> 문제는<br>
-        정수 <code>x</code>와 <code>n</code>이 주어졌을 때,<br>
-        <strong>x, 2x, 3x, ..., n×x</strong> 형태의 수열을 길이 <code>n</code>짜리 배열로 만들어 반환하는 문제다.
+        <strong>핸드폰 번호 가리기 (프로그래머스 12948)</strong> 문제는<br>
+        문자열 <code>phone_number</code>에서 <strong>마지막 4자리만 그대로 두고</strong>,<br>
+        나머지 앞자리를 모두 <strong><code>*</code> 문자로 가리는</strong> 문제다.
       </p>
       
       <p>
-        즉, 결과 배열 <code>answer</code>의 i번째 원소(0-based)는 다음과 같다.
-      </p>
-      
-      <p>
-        <code>answer[i] = x × (i + 1)</code> (<code>i = 0 ~ n-1</code>)
-      </p>
-      
-      <p>
-        주어진 코드는 이것을 <strong>누적합 방식</strong>으로 구현하고 있다.
+        예를 들어,
       </p>
       
       <ul>
-        <li><code>sum</code>에 x를 계속 더해 가면서,
-          각 단계마다 현재 <code>sum</code> 값을 배열에 채우는 방식.</li>
+        <li><code>"01033334444"</code> → <code>"*******4444"</code></li>
+        <li><code>"027778888"</code> → <code>"*****8888"</code></li>
       </ul>
+      
+      <p>
+        즉, 길이가 <code>L</code>인 문자열에 대해
+        인덱스 <code>0 ~ L-5</code>까지는 <code>*</code>로, <code>L-4 ~ L-1</code>은 원래 숫자 그대로 남겨두면 된다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드 동작 흐름
+          풀이 과정
         </span>
       </p>
       
       <ul>
-        <li><strong>변수 초기화</strong>
-          <ul>
-            <li><code>int idx = 0;</code> → 현재 채울 배열 인덱스</li>
-            <li><code>long sum = 0;</code> → 현재까지의 누적합 (long으로 선언)</li>
-            <li><code>long[] answer = new long[n];</code> → 결과 배열</li>
-          </ul>
-        </li>
+        <li>결과를 만들 <code>StringBuilder sb</code>를 하나 만든다.</li>
+        <li>인덱스 <code>i = 0</code>부터 <code>phone_number.length() - 1</code>까지 한 글자씩 순회한다.</li>
+      </ul>
       
-        <li><strong>반복문으로 수열 채우기</strong>
-          <pre><code>while (idx &lt; n) {
-          sum += x;
-          answer[idx++] = sum;
+      <pre><code>for (int i = 0; i &lt; phone_number.length(); i++) {
+          if (i &lt; phone_number.length() - 4) {
+              sb.append("*");
+          } else {
+              sb.append(phone_number.charAt(i));
+          }
       }</code></pre>
+      
+      <ul>
+        <li><strong>앞부분 처리</strong>:
           <ul>
-            <li>매 반복마다 <code>sum</code>에 <code>x</code>를 더해준다.</li>
-            <li>그 직후의 <code>sum</code> 값을 <code>answer[idx]</code>에 저장하고, <code>idx</code>를 1 증가.</li>
-            <li>결과적으로:
-              <ul>
-                <li>첫 번째 반복 후: <code>sum = x</code> → <code>answer[0] = x</code></li>
-                <li>두 번째 반복 후: <code>sum = 2x</code> → <code>answer[1] = 2x</code></li>
-                <li>...</li>
-                <li>n번째 반복 후: <code>sum = n×x</code> → <code>answer[n-1] = n×x</code></li>
-              </ul>
-            </li>
+            <li><code>i &lt; phone_number.length() - 4</code> 인 구간은
+              <strong>마지막 4자리를 제외한 모든 위치</strong>이다.</li>
+            <li>이 구간에서는 숫자를 보지 않고 그냥 <code>"*"</code>를 붙인다.</li>
           </ul>
         </li>
-      
-        <li><strong>결과 반환</strong>
+        <li><strong>마지막 4자리 처리</strong>:
           <ul>
-            <li>반복이 끝나면 <code>answer</code> 배열을 그대로 반환.</li>
+            <li><code>i ≥ phone_number.length() - 4</code>인 경우,
+                원래 번호의 해당 문자 <code>phone_number.charAt(i)</code>를 그대로 붙인다.</li>
           </ul>
         </li>
       </ul>
       
+      <p>
+        이렇게 한 바퀴를 돌면 <code>sb</code> 안에는<br>
+        “앞은 전부 <code>*</code>, 뒤 4글자는 원래 번호” 형태의 문자열이 완성된다.
+      </p>
+      
+      <pre><code>return sb.toString();</code></pre>
+      
+      <p>
+        <code>StringBuilder</code>를 사용했기 때문에<br>
+        문자열을 매번 새로 만드는 것보다 효율적으로 결과 문자열을 생성할 수 있다.
+      </p>
+      
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
           예시
         </span>
       </p>
       
       <ul>
         <li>
-          <code>x = 2, n = 5</code>일 때
+          <code>phone_number = "01033334444"</code><br><br>
+          길이 <code>L = 11</code>이므로, <code>L - 4 = 7</code><br>
           <ul>
-            <li>1번째: <code>sum = 2</code> → <code>answer[0] = 2</code></li>
-            <li>2번째: <code>sum = 4</code> → <code>answer[1] = 4</code></li>
-            <li>3번째: <code>sum = 6</code> → <code>answer[2] = 6</code></li>
-            <li>4번째: <code>sum = 8</code> → <code>answer[3] = 8</code></li>
-            <li>5번째: <code>sum = 10</code> → <code>answer[4] = 10</code></li>
+            <li><code>i = 0 ~ 6</code> → <code>*</code> 7개 추가 → <code>"*******"</code></li>
+            <li><code>i = 7, 8, 9, 10</code> → <code>'4','4','4','4'</code> 그대로 추가</li>
           </ul>
-          최종 결과:
-          <pre><code>[2, 4, 6, 8, 10]</code></pre>
-        </li>
-      
-        <li>
-          <code>x = -4, n = 3</code>일 때
-          <ul>
-            <li>1번째: <code>sum = -4</code> → <code>answer[0] = -4</code></li>
-            <li>2번째: <code>sum = -8</code> → <code>answer[1] = -8</code></li>
-            <li>3번째: <code>sum = -12</code> → <code>answer[2] = -12</code></li>
-          </ul>
-          최종 결과:
-          <pre><code>[-4, -8, -12]</code></pre>
+          최종 결과: <code>"*******4444"</code>
         </li>
       </ul>
       
@@ -361,9 +374,16 @@
       </p>
       
       <ul>
-        <li>반복문이 <code>idx = 0</code>부터 <code>n-1</code>까지 한 번씩 돌기 때문에,<br>
-            전체 연산 수는 <strong><code>O(n)</code></strong>이다.</li>
+        <li>문자열 길이를 <code>L</code>이라고 하면,
+          <ul>
+            <li>for문에서 각 인덱스를 한 번씩만 방문 → <code>L</code>번 반복</li>
+          </ul>
+        </li>
       </ul>
+      
+      <p>
+        따라서 시간 복잡도는 <strong><code>O(L)</code></strong>이다.
+      </p>
       
       <p>
         <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -372,10 +392,13 @@
       </p>
       
       <ul>
-        <li>길이가 <code>n</code>인 <code>long[] answer</code> 배열 하나만 추가로 사용하므로<br>
-            공간 복잡도는 <strong><code>O(n)</code></strong>이다.</li>
-        <li><code>sum</code>, <code>idx</code> 등은 상수 개수의 변수이므로 무시 가능.</li>
+        <li>추가로 사용하는 공간은 결과 문자열을 담는 <code>StringBuilder</code> 한 개뿐이며,<br>
+            길이는 원본과 동일하게 <code>L</code>이다.</li>
       </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(L)</code></strong>이다.
+      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -386,22 +409,10 @@
       </p>
       
       <ul>
-        <li><strong>자료형</strong>:
-          <ul>
-            <li><code>x</code>는 <code>int</code>이지만, <code>sum</code>과 <code>answer</code>는 <code>long</code>을 사용한다.</li>
-            <li>이는 <code>x</code>의 크기와 <code>n</code> 값이 커지는 경우를 대비해,
-                <strong>곱셈이나 누적합에서의 오버플로를 방지</strong>하기 위함이다.</li>
-          </ul>
-        </li>
-        <li><strong>반복 조건</strong>:
-          <ul>
-            <li><code>while (idx &lt; n)</code>으로 작성했기 때문에<br>
-                정확히 <code>n</code>개의 원소가 채워진다.</li>
-          </ul>
-        </li>
+        <li>문제에서 항상 <strong>길이가 4 이상</strong>인 핸드폰 번호가 주어진다고 보장되므로,<br>
+            따로 “길이가 4 미만”인 경우를 처리하지 않아도 된다.</li>
+        <li><code>length() - 4</code> 기준으로 앞/뒤를 잘 나누는지만 조심하면 된다.</li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -410,10 +421,9 @@
       </p>
       
       <ul>
-        <li>정수 <code>x</code>와 <code>n</code>이 주어지면 <strong>x의 배수 수열</strong> <code>x, 2x, ..., n×x</code>를 만든다.</li>
-        <li><code>sum</code>에 <code>x</code>를 계속 더해 나가며, 각 단계의 <code>sum</code>을 배열에 저장하는 방식으로 구현.</li>
-        <li>시간 복잡도는 <code>O(n)</code>, 공간 복잡도는 <code>O(n)</code>.</li>
-        <li>값 범위를 고려해 결과 타입과 누적합은 <code>long</code>으로 처리한다.</li>
+        <li>핵심은 “뒤 4글자만 그대로, 앞은 모두 <code>*</code>로 치환”이다.</li>
+        <li>인덱스 <code>0 ~ (L-5)</code> → <code>*</code>, <code>(L-4 ~ L-1)</code> → 원래 문자.</li>
+        <li><code>StringBuilder</code>로 한 번에 문자열을 만들어 반환한다.</li>
       </ul>
 
 
