@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-08 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5800 — 성적 통계</h2>
+      <h2 class="section">문제 5840 — Breed Proximity</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5800">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5840">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1209_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,69 +55,78 @@
       </h3>
       
       <p>
-        <strong>성적 통계 (BOJ 5800)</strong> 문제는<br>
-        각 반의 수학 점수가 주어졌을 때, 반별로
+        <strong>Breed Proximity (BOJ 5840)</strong> 문제는<br>
+        한 줄에 서 있는 소들의 품종 ID가 주어졌을 때,<br>
+        <strong>서로의 위치 차이가 K 이하인 같은 품종 소 쌍</strong>들 중에서<br>
+        <strong>가장 큰 품종 ID</strong>를 구하는 문제다.
+      </p>
+      
+      <p>
+        정의를 다시 정리하면:
       </p>
       
       <ul>
-        <li><strong>최고 점수(Max)</strong></li>
-        <li><strong>최저 점수(Min)</strong></li>
-        <li><strong>정렬했을 때 인접한 점수들 사이의 최대 차이(Largest gap)</strong></li>
+        <li>소는 총 <code>N</code>마리, 줄 위치는 1번부터 N번까지.</li>
+        <li>각 소는 정수 품종 ID(0 ~ 1,000,000)를 가진다.</li>
+        <li>같은 품종 ID를 가진 두 소의 위치 차이가 <code>≤ K</code>이면 그 둘은 <strong>crowded</strong> 상태.</li>
+        <li>crowded 쌍이 여러 개라면 그 중 <strong>품종 ID가 최대인 값</strong>을 출력, 없으면 <code>-1</code> 출력.</li>
       </ul>
-      
-      <p>
-        를 구해서 출력하는 문제다.
-      </p>
-      
-      <p>
-        각 반의 점수들을 <strong>내림차순으로 정렬</strong>한 뒤,<br>
-        인접한 두 점수의 차이들 중에서 가장 큰 값을 구하면 된다.
-      </p>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 처리 순서
+          전략 개요
         </span>
       </p>
       
-      <ol>
-        <li>먼저 <code>K</code> (반의 개수)를 입력받는다.</li>
-        <li>각 반마다 다음을 반복한다.
+      <p>
+        N이 최대 50,000이므로, 모든 쌍을 다 보는 <code>O(N²)</code> 방식은 사용할 수 없다.<br>
+        대신, 각 품종별로 <strong>마지막으로 등장한 위치</strong>만 기억하면서 한 번만 훑어가면 된다.
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
           <ul>
-            <li>한 줄을 읽어 <code>StringTokenizer</code>로 나눈다.</li>
-            <li>첫 토큰: 학생 수 <code>N</code></li>
-            <li>이후 <code>N</code>개의 토큰: 각 학생의 점수 → <code>list</code>에 추가</li>
+            <li><code>cows[1..N]</code>에 각 위치의 품종 ID를 저장.</li>
           </ul>
         </li>
-        <li>해당 반의 점수 리스트 <code>list</code>를 <strong>내림차순</strong>으로 정렬한다.
-          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code></pre>
-        </li>
-        <li>정렬된 상태에서
+      
+        <li><strong>직전 위치 기록 배열</strong>
           <ul>
-            <li><strong>최고 점수</strong>: 리스트의 첫 원소 <code>list.get(0)</code></li>
-            <li><strong>최저 점수</strong>: 리스트의 마지막 원소 <code>list.get(list.size() - 1)</code></li>
-            <li><strong>Largest gap</strong>: 인접한 점수 차이의 최댓값
-              <pre><code>int max = 0;
-      for (int j = 0; j &lt; list.size() - 1; j++) {
-          int minus = list.get(j) - list.get(j + 1);  // 내림차순이므로 항상 0 이상
-          if (minus &gt; max) max = minus;
-      }</code></pre>
+            <li><code>lastPos[0..1_000_000]</code>를 0으로 초기화.</li>
+            <li><code>lastPos[b]</code> = 품종 <code>b</code>가 <strong>마지막으로 등장한 위치 인덱스</strong> (없으면 0).</li>
+          </ul>
+        </li>
+      
+        <li><strong>한 번 순회하면서 처리</strong>
+          <ul>
+            <li>i를 1부터 N까지 증가시키며:
+              <ul>
+                <li><code>num = cows[i]</code></li>
+                <li>이전에 같은 품종이 등장했다면(<code>lastPos[num] != 0</code>)</li>
+                <li><code>dist = i - lastPos[num]</code>를 계산해서
+                  <ul>
+                    <li><code>dist ≤ K</code>이면 이 두 소는 crowded → <code>max</code> 갱신</li>
+                  </ul>
+                </li>
+                <li>항상 <code>lastPos[num] = i</code> 로 현재 위치로 갱신</li>
+              </ul>
             </li>
           </ul>
         </li>
-        <li>해당 반에 대해
-          <pre><code>Class X
-      Max M, Min m, Largest gap G</code></pre>
-          형식으로 출력한다.
-        </li>
-        <li>다음 반을 위해 <code>list.clear()</code>로 리스트를 비우고 재활용한다.</li>
-      </ol>
+      
+        <li>마지막에 <code>max</code>를 출력한다. 초기값은 <code>-1</code>로 두어, crowded 쌍이 하나도 없으면 그대로 -1이 출력된다.</li>
+      </ul>
       
       <p>
-        이렇게 하면 각 반마다 요구하는 세 값을 모두 얻을 수 있다.
+        여기서 한 품종에 대해 <strong>가장 최근(오른쪽)의 위치만 기록</strong>해도 되는 이유:
       </p>
+      
+      <ul>
+        <li>현재 위치 i에서, 같은 품종의 위치들 중 <strong>가장 가까운 것</strong>은 항상 가장 최근 위치이다.</li>
+        <li>가장 최근 위치와의 거리도 K를 초과한다면, 그보다 더 왼쪽(옛날)의 위치와의 거리는 더 크므로 역시 K를 초과 → 어떤 쌍도 crowded가 될 수 없다.</li>
+      </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
@@ -127,66 +136,34 @@
         </span>
       </p>
       
-      <ul>
-        <li><strong>입력 처리</strong>
-          <ul>
-            <li><code>K</code>를 읽고, <code>K</code>번 반복</li>
-            <li>각 반에 대해, 첫 토큰은 버리고 나머지 점수들만 <code>list</code>에 저장</li>
-          </ul>
-        </li>
+      <pre><code>int[] cows = new int[N + 1];
+      for (int i = 1; i &lt;= N; i++) {
+          cows[i] = Integer.parseInt(br.readLine());
+      }
       
-        <li><strong>정렬 및 통계 계산</strong>
-          <ul>
-            <li><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code> 로 내림차순 정렬</li>
-            <li>최고 점수: <code>list.get(0)</code></li>
-            <li>최저 점수: <code>list.get(list.size() - 1)</code></li>
-            <li>Largest gap: 인접한 두 점수의 차이 최댓값</li>
-          </ul>
-        </li>
+      int dist = 0, max = -1;
+      int[] lastPos = new int[1000001];
       
-        <li><strong>출력 형식 맞추기</strong>
-          <ul>
-            <li><code>Class i</code> (1부터 시작)</li>
-            <li><code>Max ..., Min ..., Largest gap ...</code> 한 줄에 출력</li>
-          </ul>
-        </li>
+      for (int i = 1; i &lt;= N; i++) {
+          int num = cows[i];
       
-        <li><strong>리스트 재활용</strong>
-          <ul>
-            <li>각 반 처리 후 <code>list.clear()</code>를 호출해 다음 반에서 다시 사용</li>
-          </ul>
-        </li>
-      </ul>
+          if (lastPos[num] != 0) {        // 이 품종이 이전에 나온 적이 있다면
+              dist = i - lastPos[num];    // 거리 계산
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+              if (dist &lt;= K)              // K 이하면 crowded
+                  max = Math.max(max, num);
+          }
       
-      <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시
-        </span>
-      </p>
+          lastPos[num] = i;               // 이 품종의 마지막 위치 갱신
+      }
+      
+      System.out.println(max);
+      </code></pre>
       
       <ul>
-        <li>
-          입력: <code>5 30 25 76 23 78</code><br><br>
-          <ul>
-            <li>점수들: <code>[30, 25, 76, 23, 78]</code></li>
-            <li>내림차순 정렬: <code>[78, 76, 30, 25, 23]</code></li>
-            <li>Max = 78, Min = 23</li>
-            <li>인접 차이:
-              <ul>
-                <li>78 - 76 = 2</li>
-                <li>76 - 30 = 46</li>
-                <li>30 - 25 = 5</li>
-                <li>25 - 23 = 2</li>
-              </ul>
-            </li>
-            <li>Largest gap = <code>46</code></li>
-          </ul>
-          출력:
-          <pre><code>Class 1
-      Max 78, Min 23, Largest gap 46</code></pre>
-        </li>
+        <li><code>lastPos</code>의 초기값을 모두 0으로 두고, 소의 위치 인덱스는 1부터 시작하므로,
+            <strong><code>lastPos[num] == 0</code>이면 아직 등장하지 않은 품종</strong>이라는 의미가 된다.</li>
+        <li>품종 ID 0도 문제에서 허용되지만, 인덱스 0은 절대 실제 위치로 사용하지 않기 때문에 충돌이 없다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -198,13 +175,8 @@
       </p>
       
       <ul>
-        <li>각 반마다 학생 수를 <code>N</code>이라고 하면,
-          <ul>
-            <li>정렬: <code>O(N log N)</code></li>
-            <li>인접 차이 순회: <code>O(N)</code></li>
-          </ul>
-        </li>
-        <li>최대 <code>N = 50</code>, <code>K = 100</code>이므로 전체 연산량은 매우 작다.</li>
+        <li>소를 한 번씩만 보며, 각 위치에서 상수 시간 연산만 수행 → <strong><code>O(N)</code></strong></li>
+        <li><code>N ≤ 50,000</code> 이므로 충분히 빠르게 동작한다.</li>
       </ul>
       
       <p>
@@ -214,24 +186,36 @@
       </p>
       
       <ul>
-        <li>한 반의 점수를 담는 리스트 <code>list</code>만 사용 → <code>O(N)</code></li>
-        <li>반마다 재사용하므로 전체 공간 사용량도 작다.</li>
+        <li><code>cows[N+1]</code> 배열과 <code>lastPos[1_000_001]</code> 배열만 사용 → <strong><code>O(N + B)</code></strong></li>
+        <li>여기서 <code>B = 1,000,001</code> (품종 ID 범위). 메모리 제한 내에서 충분히 작다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          포인트 요약
+          주의
         </span>
       </p>
       
       <ul>
-        <li>각 반의 점수들을 <strong>내림차순 정렬</strong>한다.</li>
-        <li>첫 원소 → 최고 점수, 마지막 원소 → 최저 점수.</li>
-        <li>인접한 두 점수 차이의 최댓값이 <strong>Largest gap</strong>이다.</li>
-        <li>반 번호를 1부터 증가시키며 지정된 출력 형식대로 출력한다.</li>
+        <li><strong>배열 크기</strong>:
+          <ul>
+            <li>품종 ID가 최대 1,000,000이므로 <code>lastPos</code> 배열 크기를 정확히 <code>1000001</code>로 잡아야 한다.</li>
+          </ul>
+        </li>
+        <li><strong>인덱스 시작</strong>:
+          <ul>
+            <li>소의 위치 인덱스를 1부터 시작해야 <code>lastPos[num] == 0</code>을 “아직 안 나온 상태”로 안전하게 사용할 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>결과 초기값</strong>:
+          <ul>
+            <li>crowded 쌍이 하나도 없을 수도 있으므로 <code>max</code>를 <code>-1</code>로 초기화해 두는 것이 중요하다.</li>
+          </ul>
+        </li>
       </ul>
+
 
 
 
@@ -286,14 +270,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5839 — Cow Race</h2>
+      <h2 class="section">문제 5866 — Meet and Greet</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5839">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5866">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1209_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
