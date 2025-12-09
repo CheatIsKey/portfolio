@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 1주차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 2주차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -23,11 +23,11 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 1주차 TIL</h1>
-      <p class="muted">작성일 2025-12-08 · 분류: 부트캠프, TIL</p>
+      <h1>내일배움캠프 Spring 백엔드 2주차 TIL — SQL 기초 &amp; Java·Spring 이해</h1>
+      <p class="muted">작성일 2025-12-09 · 분류: 부트캠프, TIL, SQL, Java, Spring</p>
 
-      <!-- 섹션 1: 1주차 개요 -->
-      <h2 class="section">1주차 개요 — 온보딩과 환경 설정</h2>
+      <!-- 섹션 1: 2주차 개요 -->
+      <h2 class="section">2주차 개요 — SQL 기본 문법과 개념 정리</h2>
 
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -36,129 +36,365 @@
       </h3>
 
       <p>
-        내일배움캠프 Spring 백엔드 과정의 첫 주는 <strong>개발 공부를 본격적으로 시작하기 위한 준비 주간</strong>이었다.
-        아직 코드보다는 환경과 도구에 익숙해지는 시간이었고, 앞으로 몇 달 동안 함께할 동료들과
-        협업 도구를 맞추는 데 집중했다.
+        2주차 첫날은 <strong>SQL 기본 문법 복습과 Java·Spring 개념 정리</strong>에 집중했다.
+        제공된 퀘스트용 임시 데이터를 활용해 SELECT·WHERE·BETWEEN·LIKE·SUM 같은 기초 문법을 실제로 다시 써 보았고,
+        별도의 아티클을 통해 Java와 Spring의 역할과 관계를 백엔드 로드맵 관점에서 정리했다.
       </p>
 
       <ul>
-        <li>팀 노션 페이지에 합류하고, 공용 정보 구조를 함께 확인했다.</li>
-        <li>멤버 카드 작성으로 서로의 배경, 목표를 공유했다.</li>
-        <li>슬랙 채널과 알림, 프로필을 설정하며 소통 흐름을 맞췄다.</li>
-        <li>이 과정을 통해 “혼자가 아니라 팀으로 공부한다”는 점을 다시 느꼈다.</li>
+        <li>직원(camp_employees), 상품(camp_products), 주문(camp_orders) 테이블을 이용해 SQL 퀘스트 12문제를 풀이했다.</li>
+        <li>조건 조회, 중복 제거, 집계, 정렬 등 자주 쓰이는 패턴을 다시 한 번 손으로 써 보며 익혔다.</li>
+        <li>“Java는 언어, Spring은 프레임워크”라는 기본 관점을 정리하고, 내가 만들고 싶은 서비스에 어떻게 적용할지 생각해 보았다.</li>
       </ul>
 
-      <!-- 섹션 2: 노션 -->
-      <h2 class="section">노션 사용 — 팀 노션 정보 입력과 멤버 카드</h2>
+      <!-- 섹션 2: SQL 퀘스트 - 직원 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 직원 테이블(camp_employees)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 한 일
+          예시 데이터
         </span>
       </h3>
 
-      <p>
-        노션은 이번 부트캠프에서 <strong>팀의 기억을 저장하는 공간</strong>이 된다.
-        첫 주에는 주로 틀을 맞추고, 내가 어떤 사람인지 팀원들이 한눈에 볼 수 있도록 정보를 채워 넣는 데 집중했다.
-      </p>
+      <p>직원 정보를 담은 <code>camp_employees</code> 테이블 임시 데이터는 다음과 같다.</p>
 
-      <ul>
-        <li>팀 노션 워크스페이스에 초대받고 기본 페이지 구조를 확인했다.</li>
-        <li>출석, 공지, 과제, 회고 등 앞으로 자주 사용할 섹션들의 위치를 익혔다.</li>
-        <li>멤버 카드에 이름, 기술 스택, 관심 분야, 부트캠프 목표를 정리했다.</li>
-        <li>내가 그동안 해온 프로젝트(쇼핑몰, 공모전, 연구실 경험)를 간단히 요약해서 넣었다.</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>position</th>
+            <th>salary</th>
+            <th>hire_date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>홍길동</td>
+            <td>주니어 개발자</td>
+            <td>32000</td>
+            <td>2022-04-15</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>김개발</td>
+            <td>PM</td>
+            <td>42000</td>
+            <td>2021-09-10</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>박매니저</td>
+            <td>파트장</td>
+            <td>36000</td>
+            <td>2023-06-10</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>이팀장</td>
+            <td>팀장</td>
+            <td>52000</td>
+            <td>2021-07-01</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <p>
-        노션에 정보를 채우면서 자연스럽게 “이번 캠프에서 무엇을 얻고 싶은지”를 다시 정리하게 되었고,
-        나중에 팀원들이 나를 이해하는 데 도움이 될 것 같다는 느낌을 받았다.
-      </p>
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
 
-      <!-- 섹션 3: 슬랙 & 참여 환경 -->
-      <h2 class="section">슬랙 설정 — 소통 채널 정리와 참여 환경 만들기</h2>
+      <p><strong>1.</strong> <code>camp_employees</code> 테이블에서 모든 직원의 이름(<code>name</code>)과 직급(<code>position</code>)을 선택하는 쿼리</p>
+      <pre><code>SELECT name AS "이름", position AS "직급"
+FROM camp_employees;
+</code></pre>
+
+      <p><strong>2.</strong> <code>camp_employees</code> 테이블에서 중복 없이 모든 직급(<code>position</code>)을 선택하는 쿼리</p>
+      <pre><code>SELECT DISTINCT position
+FROM camp_employees;
+</code></pre>
+
+      <p><strong>3.</strong> <code>camp_employees</code> 테이블에서 연봉(<code>salary</code>)이 40000과 60000 사이인 직원들을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_employees
+WHERE salary BETWEEN 40000 AND 60000;
+</code></pre>
+
+      <p><strong>4.</strong> <code>camp_employees</code> 테이블에서 입사일(<code>hire_date</code>)이 2023년 1월 1일 이전인 모든 직원들을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_employees
+WHERE hire_date &lt; '2023-01-01';
+</code></pre>
+
+      <!-- 섹션 3: SQL 퀘스트 - 상품 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 상품 테이블(camp_products)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          설정 & 적응
+          예시 데이터
         </span>
       </h3>
 
-      <p>
-        슬랙은 부트캠프 동안 <strong>가장 자주 보는 화면</strong>이 될 도구라서,
-        첫 주에 알림과 채널 구조를 확실히 잡아 두는 것이 중요했다.
-      </p>
+      <p>상품 정보를 담은 <code>camp_products</code> 테이블 임시 데이터는 다음과 같다.</p>
 
-      <ul>
-        <li>공지, 질문, 팀 채널 등 주요 채널에 조인하고 북마크를 설정했다.</li>
-        <li>수업 시간과 방해 금지 시간대를 설정해, 수업에 집중할 수 있는 알림 환경을 만들었다.</li>
-        <li>프로필과 상태 메시지를 수정해, 내가 어떤 역할을 맡고 싶은지 간단히 드러냈다.</li>
-        <li>멘토와 동료들이 주고받는 메시지 흐름을 보면서, 질문과 공유의 기준을 감 잡으려 했다.</li>
-      </ul>
-
-      <p>
-        슬랙에서 “조용히 눈팅만 하는 참가자”가 아니라, <strong>질문과 공유를 꾸준히 올리는 사람</strong>이 되는 것을
-        앞으로의 목표 중 하나로 삼게 되었다.
-      </p>
-
-      <!-- 섹션 4: 각오 & 목표 -->
-      <h2 class="section">내일배움캠프에 대한 각오와 목표</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>product_name</th>
+            <th>price</th>
+            <th>category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>울트라북 프로</td>
+            <td>1200</td>
+            <td>컴퓨터</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>무선 청소기</td>
+            <td>300</td>
+            <td>생활가전</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>갤럭시 탭</td>
+            <td>600</td>
+            <td>컴퓨터</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>에스프레소 머신</td>
+            <td>200</td>
+            <td>주방가전</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          왜 이 과정에 왔는가
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>5.</strong> <code>camp_products</code> 테이블에서 제품 이름(<code>product_name</code>)과 가격(<code>price</code>)만을 선택하는 쿼리</p>
+      <pre><code>SELECT product_name AS "제품 이름", price AS "가격"
+FROM camp_products;
+</code></pre>
+
+      <p><strong>6.</strong> <code>camp_products</code> 테이블에서 제품 이름에 <code>'프로'</code>가 포함된 모든 제품을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_products
+WHERE product_name LIKE '%프로%';
+</code></pre>
+
+      <p><strong>7.</strong> <code>camp_products</code> 테이블에서 제품 이름이 <code>'갤'</code>로 시작하는 모든 제품을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_products
+WHERE product_name LIKE '갤%';
+</code></pre>
+
+      <p><strong>8.</strong> <code>camp_products</code> 테이블에서 모든 제품을 구매하기 위해 필요한 총 금액을 계산하는 쿼리</p>
+      <pre><code>SELECT SUM(price) AS "총액"
+FROM camp_products;
+</code></pre>
+
+      <!-- 섹션 4: SQL 퀘스트 - 주문 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 주문 테이블(camp_orders)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>주문 정보를 담은 <code>camp_orders</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>customer_id</th>
+            <th>product_id</th>
+            <th>amount</th>
+            <th>shipping_fee</th>
+            <th>order_date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>101</td>
+            <td>1</td>
+            <td>3</td>
+            <td>48000</td>
+            <td>2023-11-01</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>202</td>
+            <td>2</td>
+            <td>1</td>
+            <td>9000</td>
+            <td>2023-11-02</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>303</td>
+            <td>4</td>
+            <td>1</td>
+            <td>21000</td>
+            <td>2023-11-05</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>404</td>
+            <td>3</td>
+            <td>2</td>
+            <td>26000</td>
+            <td>2023-11-05</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>505</td>
+            <td>1</td>
+            <td>1</td>
+            <td>16000</td>
+            <td>2023-11-09</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>9.</strong> <code>camp_orders</code> 테이블에서 주문 수량(<code>amount</code>)이 2개 이상인 주문을 진행한 소비자의 ID(<code>customer_id</code>)만 선택하는 쿼리</p>
+      <pre><code>SELECT customer_id AS "소비자 ID"
+FROM camp_orders
+WHERE amount &gt;= 2;
+</code></pre>
+
+      <p><strong>10.</strong> <code>camp_orders</code> 테이블에서 2023년 11월 2일 이후에 주문된, 주문 수량(<code>amount</code>)이 2개 이상인 주문을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_orders
+WHERE order_date &gt; '2023-11-02'
+  AND amount &gt;= 2;
+</code></pre>
+
+      <p><strong>11.</strong> <code>camp_orders</code> 테이블에서 주문 수량이 3개 미만이면서 배송비(<code>shipping_fee</code>)가 15000원보다 비싼 주문을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM camp_orders
+WHERE amount &lt; 3
+  AND shipping_fee &gt; 15000;
+</code></pre>
+
+      <p><strong>12.</strong> <code>camp_orders</code> 테이블에서 배송비가 높은 금액 순으로 정렬하는 쿼리</p>
+      <pre><code>SELECT id, customer_id, product_id, amount, shipping_fee, order_date
+FROM camp_orders
+ORDER BY shipping_fee DESC;
+</code></pre>
+
+      <!-- 섹션 5: Java와 Spring 이해하기 -->
+      <h2 class="section">Java와 Spring 이해하기 — 언어와 프레임워크의 역할</h2>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 정리한 개념
         </span>
       </h3>
 
       <p>
-        나는 단순히 “Spring Boot를 쓸 줄 아는 사람”이 아니라,
-        <strong>안정적으로 돌아가는 백엔드 서비스를 설계하고 운영할 수 있는 개발자</strong>가 되고 싶다.
-        혼자 프로젝트를 만들면서도 어느 정도까지는 해봤지만,
-        혼자만의 속도로 공부하다 보니 설계나 협업 관점에서 한계를 느꼈다.
-      </p>
-
-      <p>
-        내일배움캠프에서는 다음 세 가지를 꼭 가져가고 싶다.
+        강의를 통해 “Java와 Spring의 차이와 관계”를 다시 정리했다.
+        단순 암기가 아니라, 내가 만들고 싶은 서비스를 예로 들면서 두 기술이 각각 어디에 쓰이는지 연결해 보는 데 집중했다.
       </p>
 
       <ul>
-        <li>Java와 Spring의 기본기를 다시 다져서, “왜 이렇게 설계하는지”를 설명할 수 있는 수준으로 끌어올리기.</li>
-        <li>테이블 설계, 트랜잭션, 예외 처리, 인증/인가 같은 백엔드의 핵심 개념을 실습과 프로젝트로 몸에 익히기.</li>
-        <li>팀 프로젝트와 코드 리뷰를 통해, <strong>다른 사람과 함께 유지보수 가능한 코드를 작성하는 연습</strong>을 하기.</li>
+        <li><strong>Java</strong><br>
+          객체 지향 프로그래밍 언어로, JVM 위에서 동작해 운영체제에 상관없이 실행될 수 있다.<br>
+          타입이 명확하고 안정성이 높아, 금융·공공·대규모 웹서비스 등에서 많이 사용된다.<br>
+          내가 작성하는 <strong>도메인 로직, 계산, 검증, 데이터 변환</strong>을 담당한다.
+        </li>
+        <li><strong>Spring</strong><br>
+          Java로 서버 개발을 할 때 반복되는 작업을 줄여주는 <strong>프레임워크</strong>이다.<br>
+          IoC/DI를 통해 객체 생성과 의존성 관리를 대신해 주고, MVC 구조로 웹 요청 흐름을 정리해 준다.<br>
+          트랜잭션, 예외 처리, 인증/인가, 설정 관리 등 인프라성 기능을 제공해 개발자는 비즈니스 로직에 집중할 수 있게 해준다.
+        </li>
+        <li><strong>Spring Boot</strong><br>
+          복잡한 설정을 자동화해 “바로 실행 가능한” Spring 애플리케이션을 만들기 쉽게 도와준다.<br>
+          내 쇼핑몰 프로젝트에서도 스타터 의존성과 자동 설정 덕분에 서버 구동에 드는 시간을 줄일 수 있었다.
+        </li>
       </ul>
 
-      <!-- 섹션 5: 이번 주 회고 & 다음 주 계획 -->
-      <h2 class="section">이번 주 회고와 다음 주 목표</h2>
+      <h3 class="section">
+        <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          나의 서비스에 대입해 보기
+        </span>
+      </h3>
+
+      <p>
+        예시로, 내가 이미 진행 중인 <strong>쇼핑몰 + 고객센터 백엔드 서비스</strong>를 기준으로 Java와 Spring의 역할을 다시 정리했다.
+      </p>
+
+      <ul>
+        <li><strong>Java가 맡는 역할</strong>
+          <ul>
+            <li>상품, 주문, 장바구니, 회원, 문의글 같은 도메인 모델과 비즈니스 로직 구현</li>
+            <li>가격 계산, 재고 검증, 주문 상태 변경, 유효성 검사 같은 순수 로직 처리</li>
+            <li>테스트 코드에서 동작을 검증할 수 있는 핵심 메서드 작성</li>
+          </ul>
+        </li>
+        <li><strong>Spring이 맡는 역할</strong>
+          <ul>
+            <li>HTTP 요청을 컨트롤러에 매핑하고, 서비스·리포지토리로 흐름을 전달</li>
+            <li>스프링 컨테이너를 통한 의존성 주입(DI)으로 객체 생명주기 관리</li>
+            <li>JPA와 연동해 트랜잭션을 관리하고, 예외를 공통 방식으로 처리</li>
+            <li>로그인, 권한 체크, 세션/토큰 기반 인증 구조 제공</li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- 섹션 6: 회고와 내일 계획 -->
+      <h2 class="section">오늘의 회고와 내일 계획</h2>
 
       <h3 class="section">
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          이번 주 느낀 점
+          오늘 느낀 점
         </span>
       </h3>
 
       <p>
-        아직 본격적인 코딩은 시작하지 않았지만, 첫 주에 <strong>환경과 사람</strong>을 세팅해 둔 덕분에
-        다음 주부터는 흐름을 타기 훨씬 수월할 것 같다.  
-        특히 노션과 슬랙을 직접 손대면서, 이 부트캠프가 “강의만 듣고 끝나는 곳”이 아니라
-        <strong>기록하고 공유하면서 함께 성장하는 공간</strong>이라는 인상을 받았다.
+        SQL 퀘스트는 이미 아는 문법이 많았지만, 실제 테이블 구조를 놓고 다시 쿼리를 쓰면서
+        <strong>WHERE 조건과 집계, 정렬</strong>을 자연스럽게 복습할 수 있었다.
+        특히 임시 데이터라도 직접 표로 정리해 보니, 나중에 포트폴리오에서 “어떤 데이터 모델을 상정하고 퀘스트를 풀었는지”
+        보여주기 좋은 자료가 될 것 같았다.
+      </p>
+
+      <p>
+        Java와 Spring에 대해서는 “Java는 언어, Spring은 구조(프레임워크)”라는 큰 그림을 다시 확인했다.
+        앞으로는 단순히 기능을 붙이는 데서 끝나는 것이 아니라,
+        <strong>비즈니스 로직은 Java 코드로, 인프라와 흐름 관리는 Spring으로</strong> 명확히 나눠서 생각하는 습관을 더 굳혀야겠다고 느꼈다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          다음 주 목표
+          내일 계획
         </span>
       </h3>
 
       <ul>
-        <li>Java 문법과 객체지향 기본을 다시 훑고, 이해가 애매한 부분은 바로 정리하기.</li>
-        <li>매일 적어도 한 번은 TIL을 업데이트하고, 핵심만 짧게라도 남기는 습관 만들기.</li>
-        <li>궁금한 점이 생기면 혼자 오래 끌지 말고, 슬랙과 질의응답 시간을 활용해 질문하기.</li>
-        <li>앞으로 진행될 Spring, DB, 배포 파트를 위한 개발 환경을 미리 점검해 두기.</li>
+        <li>SQL에서 JOIN과 GROUP BY, HAVING 같은 구문을 다시 정리하고 간단한 예제를 스스로 만들어 보기.</li>
+        <li>Java 기본 문법과 컬렉션, 예외 처리 파트를 복습하고, 이해가 애매한 부분은 TIL에 따로 정리하기.</li>
+        <li>Spring 핵심 개념(IoC/DI, 빈 스코프, MVC 흐름)에 대한 아티클을 읽고, 쇼핑몰 프로젝트 구조와 비교해 보기.</li>
+        <li>오늘 작성한 SQL 퀘스트와 개념 정리를 깃허브에 커밋해 학습 기록을 남기기.</li>
       </ul>
-
-      <p>
-        1주차는 “준비 운동”이었다면, 2주차부터는 진짜로 근육을 키우는 시간이다.
-        매일 조금씩이라도 전날의 나보다 나아지도록, 꾸준히 기록하고 질문하면서 이 과정을 완주할 계획이다.
-      </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
@@ -173,12 +409,12 @@
   <script>
   (function(){
     const article = document.querySelector('article.prose');
-    if(!article) return;
+    if (!article) return;
     const headers = [...article.querySelectorAll('h2.section')];
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
-    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
     const toc = document.getElementById('toc-list');
     toc.innerHTML = '';
     headers.forEach(h => {
