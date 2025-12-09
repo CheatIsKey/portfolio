@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-08 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5800 — 성적 통계</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5800">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>성적 통계 (BOJ 5800)</strong> 문제는<br>
+        각 반의 수학 점수가 주어졌을 때, 반별로
+      </p>
+      
+      <ul>
+        <li><strong>최고 점수(Max)</strong></li>
+        <li><strong>최저 점수(Min)</strong></li>
+        <li><strong>정렬했을 때 인접한 점수들 사이의 최대 차이(Largest gap)</strong></li>
+      </ul>
+      
+      <p>
+        를 구해서 출력하는 문제다.
+      </p>
+      
+      <p>
+        각 반의 점수들을 <strong>내림차순으로 정렬</strong>한 뒤,<br>
+        인접한 두 점수의 차이들 중에서 가장 큰 값을 구하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 처리 순서
+        </span>
+      </p>
+      
+      <ol>
+        <li>먼저 <code>K</code> (반의 개수)를 입력받는다.</li>
+        <li>각 반마다 다음을 반복한다.
+          <ul>
+            <li>한 줄을 읽어 <code>StringTokenizer</code>로 나눈다.</li>
+            <li>첫 토큰: 학생 수 <code>N</code></li>
+            <li>이후 <code>N</code>개의 토큰: 각 학생의 점수 → <code>list</code>에 추가</li>
+          </ul>
+        </li>
+        <li>해당 반의 점수 리스트 <code>list</code>를 <strong>내림차순</strong>으로 정렬한다.
+          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code></pre>
+        </li>
+        <li>정렬된 상태에서
+          <ul>
+            <li><strong>최고 점수</strong>: 리스트의 첫 원소 <code>list.get(0)</code></li>
+            <li><strong>최저 점수</strong>: 리스트의 마지막 원소 <code>list.get(list.size() - 1)</code></li>
+            <li><strong>Largest gap</strong>: 인접한 점수 차이의 최댓값
+              <pre><code>int max = 0;
+      for (int j = 0; j &lt; list.size() - 1; j++) {
+          int minus = list.get(j) - list.get(j + 1);  // 내림차순이므로 항상 0 이상
+          if (minus &gt; max) max = minus;
+      }</code></pre>
+            </li>
+          </ul>
+        </li>
+        <li>해당 반에 대해
+          <pre><code>Class X
+      Max M, Min m, Largest gap G</code></pre>
+          형식으로 출력한다.
+        </li>
+        <li>다음 반을 위해 <code>list.clear()</code>로 리스트를 비우고 재활용한다.</li>
+      </ol>
+      
+      <p>
+        이렇게 하면 각 반마다 요구하는 세 값을 모두 얻을 수 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리</strong>
+          <ul>
+            <li><code>K</code>를 읽고, <code>K</code>번 반복</li>
+            <li>각 반에 대해, 첫 토큰은 버리고 나머지 점수들만 <code>list</code>에 저장</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬 및 통계 계산</strong>
+          <ul>
+            <li><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code> 로 내림차순 정렬</li>
+            <li>최고 점수: <code>list.get(0)</code></li>
+            <li>최저 점수: <code>list.get(list.size() - 1)</code></li>
+            <li>Largest gap: 인접한 두 점수의 차이 최댓값</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력 형식 맞추기</strong>
+          <ul>
+            <li><code>Class i</code> (1부터 시작)</li>
+            <li><code>Max ..., Min ..., Largest gap ...</code> 한 줄에 출력</li>
+          </ul>
+        </li>
+      
+        <li><strong>리스트 재활용</strong>
+          <ul>
+            <li>각 반 처리 후 <code>list.clear()</code>를 호출해 다음 반에서 다시 사용</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          입력: <code>5 30 25 76 23 78</code><br><br>
+          <ul>
+            <li>점수들: <code>[30, 25, 76, 23, 78]</code></li>
+            <li>내림차순 정렬: <code>[78, 76, 30, 25, 23]</code></li>
+            <li>Max = 78, Min = 23</li>
+            <li>인접 차이:
+              <ul>
+                <li>78 - 76 = 2</li>
+                <li>76 - 30 = 46</li>
+                <li>30 - 25 = 5</li>
+                <li>25 - 23 = 2</li>
+              </ul>
+            </li>
+            <li>Largest gap = <code>46</code></li>
+          </ul>
+          출력:
+          <pre><code>Class 1
+      Max 78, Min 23, Largest gap 46</code></pre>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 반마다 학생 수를 <code>N</code>이라고 하면,
+          <ul>
+            <li>정렬: <code>O(N log N)</code></li>
+            <li>인접 차이 순회: <code>O(N)</code></li>
+          </ul>
+        </li>
+        <li>최대 <code>N = 50</code>, <code>K = 100</code>이므로 전체 연산량은 매우 작다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>한 반의 점수를 담는 리스트 <code>list</code>만 사용 → <code>O(N)</code></li>
+        <li>반마다 재사용하므로 전체 공간 사용량도 작다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 반의 점수들을 <strong>내림차순 정렬</strong>한다.</li>
+        <li>첫 원소 → 최고 점수, 마지막 원소 → 최저 점수.</li>
+        <li>인접한 두 점수 차이의 최댓값이 <strong>Largest gap</strong>이다.</li>
+        <li>반 번호를 1부터 증가시키며 지정된 출력 형식대로 출력한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5839 — Cow Race</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5839">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1208_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Cow Race (BOJ 5839)</strong> 문제는<br>
+        두 소 Bessie와 Elsie가 일정 시간 동안 달릴 때,
+        <strong>경기 중 선두가 몇 번 바뀌는지</strong>를 세는 문제다.
+      </p>
+      
+      <p>
+        각 소의 이동은 여러 구간(segment)으로 주어지고,<br>
+        각 구간에서는 <strong>일정한 속도로 일정 시간</strong> 동안 달린다.
+      </p>
+      
+      <ul>
+        <li>두 소의 전체 달리는 시간은 같다.</li>
+        <li>어떤 순간에 Bessie가 더 앞서면 Bessie가 선두, Elsie가 더 앞서면 Elsie가 선두, 같으면 동점이다.</li>
+        <li><strong>선두가 바뀌는 순간</strong>을 세어야 한다.
+          <ul>
+            <li>Bessie가 앞서다가 Elsie가 앞서게 되면 1회.</li>
+            <li>Elsie가 앞서다가 Bessie가 앞서게 되어도 1회.</li>
+            <li>선두 → 동점 → 다른 소가 선두가 되어도
+              이전 선두와 다르면 <strong>선두 교체 1회</strong>로 센다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ol>
+        <li>각 소(Bessie, Elsie)에 대해
+          <ul>
+            <li>구간 수와 각 구간의 <code>(속도, 시간)</code> 정보를 읽는다.</li>
+            <li>시간 단위(1초)마다의 속도를 저장하는 배열(또는 리스트)을 만든다.
+              <ul>
+                <li>예: 속도 5, 시간 3 → <code>5, 5, 5</code>를 차례대로 push.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>두 소의 전체 시간은 동일하므로, 같은 길이의 리스트 <code>traceB</code>, <code>traceE</code>가 만들어진다.</li>
+        <li>시간 <code>0</code>에서 시작해, 매 시간마다
+          <ul>
+            <li>Bessie의 누적 이동 거리 <code>distB</code>, Elsie의 누적 이동 거리 <code>distE</code>를 갱신한다.</li>
+            <li>누적 거리를 비교해 선두 상태를 구한다.
+              <ul>
+                <li>Bessie가 앞서면 <code>cur = 1</code></li>
+                <li>Elsie가 앞서면 <code>cur = 2</code></li>
+                <li>같으면 <code>cur = 0</code> (동점)</li>
+              </ul>
+            </li>
+            <li><strong>직전 선두</strong>를 저장해둔 변수(<code>last</code>)와 비교해서
+              <strong>선두가 다른 쪽으로 바뀌는 순간</strong>을 카운트한다.</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심: 코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리</strong>
+          <ul>
+            <li>첫 줄에서 <code>N, M</code>을 읽는다.
+              <ul>
+                <li><code>N</code>: Bessie의 구간 개수</li>
+                <li><code>M</code>: Elsie의 구간 개수</li>
+              </ul>
+            </li>
+            <li>다음 <code>N</code>줄에서 Bessie 구간 정보를 읽고,
+              각 구간의 속도를 구간 시간만큼 <code>traceB</code> 리스트에 채운다.
+              <pre><code>for (int i = 0; i &lt; N; i++) {
+          int speed = ...;
+          int hour  = ...;
+          for (int j = 0; j &lt; hour; j++) {
+              traceB.add(speed);
+          }
+      }</code></pre>
+            </li>
+            <li>다음 <code>M</code>줄에서 Elsie 구간 정보도 동일하게 읽어 <code>traceE</code>에 채운다.</li>
+            <li>두 리스트 길이 = 전체 경기 시간 <code>time</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>시간별 누적 거리 및 선두 판별</strong>
+          <pre><code>int distB = 0;
+      int distE = 0;
+      int change = 0; // 선두 교체 횟수
+      int last = 0;   // 마지막으로 선두였던 소 (0: 동점이나 아직 없음, 1: Bessie, 2: Elsie)
+      
+      for (int i = 0; i &lt; time; i++) {
+          distB += traceB.get(i);
+          distE += traceE.get(i);
+      
+          int cur;
+          if (distB &gt; distE) cur = 1;
+          else if (distB &lt; distE) cur = 2;
+          else cur = 0;
+      
+          if (cur != 0 && last != 0 && cur != last) {
+              change++;        // 선두가 Bessie ↔ Elsie로 바뀐 순간
+          }
+          if (cur != 0) {
+              last = cur;      // 동점이 아닐 때만 마지막 선두 갱신
+          }
+      }</code></pre>
+      
+          <ul>
+            <li>동점(<code>cur == 0</code>)인 구간에서는 <code>last</code>를 바꾸지 않아
+              <strong>“마지막 선두였던 소”</strong> 정보를 유지한다.</li>
+            <li>이후 다른 소가 처음 선두로 올라가는 순간,
+              <code>cur != last</code>가 되어 선두 교체 1회를 센다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 출력</strong>
+          <ul>
+            <li>최종적으로 <code>change</code>를 그대로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 흐름 (간단 요약)
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 시간 t마다:
+          <ul>
+            <li>Bessie의 누적 거리 <code>distB(t)</code>, Elsie의 누적 거리 <code>distE(t)</code> 계산</li>
+            <li>비교해서 선두가 누구인지 결정</li>
+            <li>이전 선두와 다르면 <strong>선두 교체 +1</strong></li>
+            <li>동점 구간은 “선두 없음” 상태이지만, <code>last</code>는 바꾸지 않고 유지 → 이후 다른 소가 앞으로 나가면 선두 교체로 카운트</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 구간을 시간 단위로 풀어서 리스트에 넣기: 전체 시간 <code>T</code>에 대해 <strong><code>O(T)</code></strong></li>
+        <li>시뮬레이션(누적 거리와 선두 비교): <strong><code>O(T)</code></strong></li>
+        <li>전체 시간은 최대 <code>1000 × 1000 = 10^6</code> 정도라 충분히 빠른 수준이다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>Bessie와 Elsie의 속도를 시간 단위로 저장하는 리스트 2개: <strong><code>O(T)</code></strong></li>
+        <li>추가 변수는 상수 개뿐이므로 전체 공간 복잡도는 <strong><code>O(T)</code></strong>이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 소의 구간 정보를 <strong>시간 단위 속도 배열</strong>로 펼친다.</li>
+        <li>매 시간마다 누적 거리를 갱신하며 누가 선두인지 계산한다.</li>
+        <li><strong>동점 구간을 건너뛰면서</strong>, 마지막으로 선두였던 소와 현재 선두를 비교해 선두 교체 횟수를 센다.</li>
+        <li>구현은 단순한 시뮬레이션이지만, <strong>동점 처리와 마지막 선두 관리</strong>가 핵심이다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

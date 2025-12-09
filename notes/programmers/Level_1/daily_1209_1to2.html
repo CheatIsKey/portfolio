@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-08 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 행렬의 덧셈</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12950">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1208_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>행렬의 덧셈 (프로그래머스 12950)</strong> 문제는<br>
+        같은 크기의 2차원 정수 배열 <code>arr1</code>, <code>arr2</code>가 주어졌을 때,<br>
+        <strong>각 위치의 원소를 더한 결과 행렬</strong>을 구하는 문제다.
+      </p>
+      
+      <p>
+        즉, 두 행렬이 모두 <code>n × m</code> 크기라면,<br>
+        결과 행렬 <code>answer</code>의 각 원소는 다음과 같이 정의된다.
+      </p>
+      
+      <p>
+        <code>answer[i][j] = arr1[i][j] + arr2[i][j]</code>
+      </p>
+      
+      <p>
+        주어진 코드는 <strong>새 배열을 만들지 않고</strong>,<br>
+        <strong><code>arr1</code>을 곧바로 결과 행렬로 덮어 쓰는 방식</strong>으로 구현되어 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이 과정
+        </span>
+      </p>
+      
+      <ul>
+        <li>행의 개수: <code>arr1.length</code></li>
+        <li>열의 개수: <code>arr1[i].length</code> (각 행의 길이)</li>
+      </ul>
+      
+      <p>
+        이중 반복문을 사용하여 모든 인덱스 <code>(i, j)</code>에 대해 다음 연산을 수행한다.
+      </p>
+      
+      <ul>
+        <li>바깥 반복문: 각 행을 순회
+          <pre><code>for (int i = 0; i &lt; arr1.length; i++) { ... }</code></pre>
+        </li>
+        <li>안쪽 반복문: 해당 행의 각 열을 순회
+          <pre><code>for (int j = 0; j &lt; arr1[i].length; j++) {
+          arr1[i][j] += arr2[i][j];
+      }</code></pre>
+          <ul>
+            <li><code>arr1[i][j] += arr2[i][j];</code> 는
+              <code>arr1[i][j] = arr1[i][j] + arr2[i][j];</code> 와 같다.</li>
+            <li>즉, <strong>각 위치의 두 원소를 더한 값을 <code>arr1</code>에 다시 저장</strong>한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        모든 반복이 끝난 후, 이미 합으로 덮어 써진 <code>arr1</code>을 곧바로 반환한다.
+      </p>
+      
+      <pre><code>return arr1;</code></pre>
+      
+      <p>
+        문제에서 요구하는 것은 단순히 “두 행렬의 합”이므로,<br>
+        <strong>새 배열을 만들어도 되고, 기존 배열 중 하나를 재사용해도 상관없다</strong>.<br>
+        이 코드는 <code>arr1</code>을 재사용해 <strong>추가 메모리 사용을 줄이는 방식</strong>을 택한 것이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>arr1 = [[1, 2], [3, 4]]</code><br>
+          <code>arr2 = [[5, 6], [7, 8]]</code>
+          <ol>
+            <li><code>(0,0)</code> 위치: <code>1 + 5 = 6</code></li>
+            <li><code>(0,1)</code> 위치: <code>2 + 6 = 8</code></li>
+            <li><code>(1,0)</code> 위치: <code>3 + 7 = 10</code></li>
+            <li><code>(1,1)</code> 위치: <code>4 + 8 = 12</code></li>
+          </ol>
+          <p>최종 결과 행렬은 <code>[[6, 8], [10, 12]]</code>가 되고,<br>
+             이 값들이 <code>arr1</code>에 덮어 써진 뒤 <code>arr1</code>이 반환된다.</p>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        행렬 크기가 <code>n × m</code>일 때,
+      </p>
+      
+      <ul>
+        <li>각 원소마다 덧셈을 한 번 수행하므로 전체 연산 수는 <code>n × m</code>개</li>
+      </ul>
+      
+      <p>
+        따라서 전체 시간 복잡도는 <strong><code>O(n × m)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가로 사용하는 것은 반복문 인덱스 변수뿐이며,<br>
+        결과를 <strong>기존 배열 <code>arr1</code>에 덮어 쓰기</strong> 때문에<br>
+        추가 공간은 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>두 행렬의 크기가 같다는 전제</strong>가 있기 때문에,
+          인덱스 범위 체크는 따로 하지 않는다.</li>
+        <li><code>arr1</code>을 그대로 수정하므로,<br>
+            <strong>원본 <code>arr1</code>이 필요하면 먼저 복사한 뒤 연산</strong>해야 한다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>이중 for문으로 모든 <code>(i, j)</code> 위치를 순회한다.</li>
+        <li><code>arr1[i][j] += arr2[i][j];</code> 로 각 원소를 더해 <code>arr1</code>에 덮어 쓴다.</li>
+        <li>계산이 끝난 <code>arr1</code>을 결과 행렬로 반환한다.</li>
+        <li>시간 복잡도: <code>O(n × m)</code>, 공간 복잡도: <code>O(1)</code> (추가 메모리 거의 없음).</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 핸드폰 번호 가리기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12948">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1208_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>핸드폰 번호 가리기 (프로그래머스 12948)</strong> 문제는<br>
+        문자열 <code>phone_number</code>에서 <strong>마지막 4자리만 그대로 두고</strong>,<br>
+        나머지 앞자리를 모두 <strong><code>*</code> 문자로 가리는</strong> 문제다.
+      </p>
+      
+      <p>
+        예를 들어,
+      </p>
+      
+      <ul>
+        <li><code>"01033334444"</code> → <code>"*******4444"</code></li>
+        <li><code>"027778888"</code> → <code>"*****8888"</code></li>
+      </ul>
+      
+      <p>
+        즉, 길이가 <code>L</code>인 문자열에 대해
+        인덱스 <code>0 ~ L-5</code>까지는 <code>*</code>로, <code>L-4 ~ L-1</code>은 원래 숫자 그대로 남겨두면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이 과정
+        </span>
+      </p>
+      
+      <ul>
+        <li>결과를 만들 <code>StringBuilder sb</code>를 하나 만든다.</li>
+        <li>인덱스 <code>i = 0</code>부터 <code>phone_number.length() - 1</code>까지 한 글자씩 순회한다.</li>
+      </ul>
+      
+      <pre><code>for (int i = 0; i &lt; phone_number.length(); i++) {
+          if (i &lt; phone_number.length() - 4) {
+              sb.append("*");
+          } else {
+              sb.append(phone_number.charAt(i));
+          }
+      }</code></pre>
+      
+      <ul>
+        <li><strong>앞부분 처리</strong>:
+          <ul>
+            <li><code>i &lt; phone_number.length() - 4</code> 인 구간은
+              <strong>마지막 4자리를 제외한 모든 위치</strong>이다.</li>
+            <li>이 구간에서는 숫자를 보지 않고 그냥 <code>"*"</code>를 붙인다.</li>
+          </ul>
+        </li>
+        <li><strong>마지막 4자리 처리</strong>:
+          <ul>
+            <li><code>i ≥ phone_number.length() - 4</code>인 경우,
+                원래 번호의 해당 문자 <code>phone_number.charAt(i)</code>를 그대로 붙인다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        이렇게 한 바퀴를 돌면 <code>sb</code> 안에는<br>
+        “앞은 전부 <code>*</code>, 뒤 4글자는 원래 번호” 형태의 문자열이 완성된다.
+      </p>
+      
+      <pre><code>return sb.toString();</code></pre>
+      
+      <p>
+        <code>StringBuilder</code>를 사용했기 때문에<br>
+        문자열을 매번 새로 만드는 것보다 효율적으로 결과 문자열을 생성할 수 있다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>phone_number = "01033334444"</code><br><br>
+          길이 <code>L = 11</code>이므로, <code>L - 4 = 7</code><br>
+          <ul>
+            <li><code>i = 0 ~ 6</code> → <code>*</code> 7개 추가 → <code>"*******"</code></li>
+            <li><code>i = 7, 8, 9, 10</code> → <code>'4','4','4','4'</code> 그대로 추가</li>
+          </ul>
+          최종 결과: <code>"*******4444"</code>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>문자열 길이를 <code>L</code>이라고 하면,
+          <ul>
+            <li>for문에서 각 인덱스를 한 번씩만 방문 → <code>L</code>번 반복</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        따라서 시간 복잡도는 <strong><code>O(L)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li>추가로 사용하는 공간은 결과 문자열을 담는 <code>StringBuilder</code> 한 개뿐이며,<br>
+            길이는 원본과 동일하게 <code>L</code>이다.</li>
+      </ul>
+      
+      <p>
+        따라서 공간 복잡도는 <strong><code>O(L)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li>문제에서 항상 <strong>길이가 4 이상</strong>인 핸드폰 번호가 주어진다고 보장되므로,<br>
+            따로 “길이가 4 미만”인 경우를 처리하지 않아도 된다.</li>
+        <li><code>length() - 4</code> 기준으로 앞/뒤를 잘 나누는지만 조심하면 된다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포인트 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li>핵심은 “뒤 4글자만 그대로, 앞은 모두 <code>*</code>로 치환”이다.</li>
+        <li>인덱스 <code>0 ~ (L-5)</code> → <code>*</code>, <code>(L-4 ~ L-1)</code> → 원래 문자.</li>
+        <li><code>StringBuilder</code>로 한 번에 문자열을 만들어 반환한다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
