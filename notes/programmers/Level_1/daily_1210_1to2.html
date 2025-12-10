@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-09 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 하샤드 수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12947">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1209_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>하샤드 수 (프로그래머스 12947)</strong> 문제는<br>
+        어떤 정수 <code>x</code>가 <strong>자릿수의 합으로 나누어떨어지는지</strong>를 판별하는 문제다.<br>
+        이런 수를 하샤드 수(또는 니븐 수)라고 부른다.
+      </p>
+      
+      <p>
+        정의를 정리하면:
+      </p>
+      
+      <ul>
+        <li><code>x</code>의 각 자릿수를 모두 더해서 <code>sum</code>을 만든다.</li>
+        <li><code>x % sum == 0</code>이면 <strong>하샤드 수</strong> → <code>true</code> 반환</li>
+        <li>나누어떨어지지 않으면 <strong>하샤드 수가 아님</strong> → <code>false</code> 반환</li>
+      </ul>
+      
+      <p>
+        자릿수의 합은 <strong>나머지와 나눗셈 연산</strong>으로 간단히 구할 수 있다.
+      </p>
+      
+      <ul>
+        <li><code>num = x</code>로 복사해 두고,</li>
+        <li>반복하면서:
+          <ul>
+            <li><code>sum += num % 10;</code>  → 마지막 자릿수 더하기</li>
+            <li><code>num /= 10;</code>       → 마지막 자릿수 제거</li>
+            <li><code>num</code>이 0이 될 때까지 반복</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <p>
+        최종적으로 <code>sum</code>이 완성되면,<br>
+        <code>x % sum == 0</code>인지 검사해서 그대로 반환하면 된다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>x = 10</code><br>
+          <ul>
+            <li>자릿수 합: <code>1 + 0 = 1</code></li>
+            <li><code>10 % 1 = 0</code> → 나누어떨어짐 → <strong>하샤드 수</strong> → <code>true</code></li>
+          </ul>
+        </li>
+      
+        <li>
+          <code>x = 12</code><br>
+          <ul>
+            <li>자릿수 합: <code>1 + 2 = 3</code></li>
+            <li><code>12 % 3 = 0</code> → 나누어떨어짐 → <strong>하샤드 수</strong> → <code>true</code></li>
+          </ul>
+        </li>
+      
+        <li>
+          <code>x = 11</code><br>
+          <ul>
+            <li>자릿수 합: <code>1 + 1 = 2</code></li>
+            <li><code>11 % 2 = 1</code> → 나머지 존재 → <strong>하샤드 수 아님</strong> → <code>false</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        자릿수 개수를 <code>d</code>라고 하면,
+      </p>
+      
+      <ul>
+        <li><code>while (num &gt; 0)</code> 루프에서 각 자릿수를 한 번씩만 보므로 <strong><code>O(d)</code></strong></li>
+        <li>이 문제에서 <code>x</code>의 자리 수는 매우 작기 때문에 사실상 상수 시간에 가깝다.</li>
+      </ul>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        추가로 사용하는 변수는 <code>sum</code>, <code>num</code> 뿐이므로<br>
+        공간 복잡도는 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>num</code>을 줄여가며 자릿수 합을 계산하므로, <strong>원래 값 <code>x</code>를 바로 나누지 않고 복사본</strong>을 쓰는 것이 중요하다.</li>
+        <li>문제 조건상 <code>x</code>는 양의 정수이므로, <code>sum</code>은 항상 0보다 크고 나눗셈에서 0으로 나누는 일은 발생하지 않는다.</li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 평균 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12944">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1209_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>평균 구하기 (프로그래머스 12944)</strong> 문제는<br>
+        정수 배열 <code>arr</code>가 주어졌을 때, <strong>모든 원소의 평균값</strong>을 <code>double</code> 형으로 반환하는 문제다.
+      </p>
+      
+      <p>
+        요구사항을 정리하면:
+      </p>
+      
+      <ul>
+        <li>배열의 모든 원소를 더해서 <code>sum</code>을 구한다.</li>
+        <li><code>sum / arr.length</code>를 계산해 평균을 구한다.</li>
+        <li>이때 <strong>실수 평균</strong>을 구해야 하므로, <strong>정수 나눗셈을 피하기 위해</strong> 형 변환이 필요하다.</li>
+      </ul>
+      
+      <p>
+        코드에서는 다음과 같은 순서로 처리한다.
+      </p>
+      
+      <ol>
+        <li><code>sum</code>을 0으로 초기화한다.</li>
+        <li><code>for (int i : arr)</code> 향상된 for문으로 배열을 순회하면서 <code>sum += i;</code>로 합을 구한다.</li>
+        <li>
+          마지막에
+          <code>(double) sum / arr.length;</code> 를 반환한다.
+          <ul>
+            <li><code>(double) sum</code>으로 먼저 <strong>실수 형변환</strong>을 한 뒤,</li>
+            <li>정수 <code>arr.length</code>로 나누면 <strong>실수 나눗셈</strong>이 수행된다.</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <p>
+        만약 <code>(double)</code> 캐스팅 없이 <code>sum / arr.length</code>만 사용하면,<br>
+        둘 다 <code>int</code>이기 때문에 <strong>정수 나눗셈</strong>이 되어 소수점 이하가 잘려 버린다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li>
+          <code>arr = [1, 2, 3, 4]</code><br>
+          <ul>
+            <li><code>sum = 1 + 2 + 3 + 4 = 10</code></li>
+            <li><code>arr.length = 4</code></li>
+            <li><code>(double) sum / arr.length = 10.0 / 4 = 2.5</code></li>
+          </ul>
+        </li>
+      
+        <li>
+          <code>arr = [5, 5]</code><br>
+          <ul>
+            <li><code>sum = 10</code></li>
+            <li><code>length = 2</code></li>
+            <li><code>10.0 / 2 = 5.0</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        배열 길이를 <code>n</code>이라고 하면,
+      </p>
+      
+      <ul>
+        <li>합을 구하는 <code>for</code> 루프는 모든 원소를 한 번씩만 순회 → <strong><code>O(n)</code></strong></li>
+        <li>나눗셈 연산은 한 번만 수행 → <code>O(1)</code></li>
+      </ul>
+      
+      <p>
+        전체 시간 복잡도는 <strong><code>O(n)</code></strong>이다.
+      </p>
+      
+      <p>
+        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공간 복잡도
+        </span>
+      </p>
+      
+      <p>
+        입력 배열 <code>arr</code> 외에 사용하는 변수는 <code>sum</code>과 반환값뿐이라<br>
+        추가 공간은 <strong><code>O(1)</code></strong>이다.
+      </p>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>형 변환 위치</strong>:
+          <ul>
+            <li><code>(double) (sum / arr.length)</code> 처럼 뒤에 캐스팅하면 이미 정수 나눗셈이 끝난 뒤라<br>
+                소수점 이하가 잘려버린 값을 실수로 바꾸는 것뿐이다.</li>
+            <li>반드시 <code>(double) sum / arr.length</code> 처럼 <strong>피제수 쪽을 먼저 실수로 변환</strong>해야 한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
