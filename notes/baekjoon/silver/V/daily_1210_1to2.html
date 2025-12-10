@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-09 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-10 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 5840 — Breed Proximity</h2>
+      <h2 class="section">문제 5929 — Awkward Digits</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5840">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5929">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1209_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1210_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,21 +55,17 @@
       </h3>
       
       <p>
-        <strong>Breed Proximity (BOJ 5840)</strong> 문제는<br>
-        한 줄에 서 있는 소들의 품종 ID가 주어졌을 때,<br>
-        <strong>서로의 위치 차이가 K 이하인 같은 품종 소 쌍</strong>들 중에서<br>
-        <strong>가장 큰 품종 ID</strong>를 구하는 문제다.
-      </p>
-      
-      <p>
-        정의를 다시 정리하면:
+        <strong>Awkward Digits (BOJ 5929)</strong> 문제는<br>
+        어떤 정수 <code>N</code>의
+        <strong>2진수 표기와 3진수 표기</strong>가 각각 <strong>한 자리씩만 잘못 적힌 상태</strong>로 주어졌을 때,<br>
+        원래의 정수 <code>N</code> (10진수)을 찾아내는 문제다.
       </p>
       
       <ul>
-        <li>소는 총 <code>N</code>마리, 줄 위치는 1번부터 N번까지.</li>
-        <li>각 소는 정수 품종 ID(0 ~ 1,000,000)를 가진다.</li>
-        <li>같은 품종 ID를 가진 두 소의 위치 차이가 <code>≤ K</code>이면 그 둘은 <strong>crowded</strong> 상태.</li>
-        <li>crowded 쌍이 여러 개라면 그 중 <strong>품종 ID가 최대인 값</strong>을 출력, 없으면 <code>-1</code> 출력.</li>
+        <li>2진수 문자열에는 <strong>정확히 한 자리</strong>가 잘못 적혀 있다. (0 ↔ 1)</li>
+        <li>3진수 문자열에도 <strong>정확히 한 자리</strong>가 잘못 적혀 있다. (0, 1, 2 중 하나 → 다른 둘 중 하나)</li>
+        <li>자릿수 개수는 변하지 않는다. (추가/삭제 없음, 앞에 0이 와도 허용)</li>
+        <li>조건을 만족하는 <code>N</code>은 <strong>유일하게 존재</strong>한다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
@@ -81,140 +77,150 @@
       </p>
       
       <p>
-        N이 최대 50,000이므로, 모든 쌍을 다 보는 <code>O(N²)</code> 방식은 사용할 수 없다.<br>
-        대신, 각 품종별로 <strong>마지막으로 등장한 위치</strong>만 기억하면서 한 번만 훑어가면 된다.
+        아이디어는 단순하다:
       </p>
       
-      <ul>
-        <li><strong>입력</strong>
+      <ol>
+        <li><strong>2진수 문자열에서 한 자리씩 뒤집어서</strong> 가능한 모든 후보 숫자를 만들어 본다.
           <ul>
-            <li><code>cows[1..N]</code>에 각 위치의 품종 ID를 저장.</li>
-          </ul>
-        </li>
-      
-        <li><strong>직전 위치 기록 배열</strong>
-          <ul>
-            <li><code>lastPos[0..1_000_000]</code>를 0으로 초기화.</li>
-            <li><code>lastPos[b]</code> = 품종 <code>b</code>가 <strong>마지막으로 등장한 위치 인덱스</strong> (없으면 0).</li>
-          </ul>
-        </li>
-      
-        <li><strong>한 번 순회하면서 처리</strong>
-          <ul>
-            <li>i를 1부터 N까지 증가시키며:
+            <li>각 자리 i에 대해:
               <ul>
-                <li><code>num = cows[i]</code></li>
-                <li>이전에 같은 품종이 등장했다면(<code>lastPos[num] != 0</code>)</li>
-                <li><code>dist = i - lastPos[num]</code>를 계산해서
-                  <ul>
-                    <li><code>dist ≤ K</code>이면 이 두 소는 crowded → <code>max</code> 갱신</li>
-                  </ul>
-                </li>
-                <li>항상 <code>lastPos[num] = i</code> 로 현재 위치로 갱신</li>
+                <li>현재 값이 <code>'0'</code>이면 → <code>'1'</code>로 바꾸고</li>
+                <li><code>'1'</code>이면 → <code>'0'</code>으로 바꾼 뒤,</li>
+                <li>그 결과를 2진수로 해석해 정수로 변환하고 <code>Set</code>에 넣는다.</li>
               </ul>
             </li>
+            <li>→ 이렇게 하면 “2진수 표현에서 한 자리만 틀렸을 때 만들 수 있는 모든 원래 숫자 후보”가 된다.</li>
           </ul>
         </li>
       
-        <li>마지막에 <code>max</code>를 출력한다. 초기값은 <code>-1</code>로 두어, crowded 쌍이 하나도 없으면 그대로 -1이 출력된다.</li>
-      </ul>
+        <li><strong>3진수 문자열에서도 한 자리만 수정해</strong> 가능한 숫자들을 만들어 보면서,<br>
+            동시에 1번에서 만든 <code>Set</code>과 교집합을 찾는다.
+          <ul>
+            <li>각 자리 i에 대해:
+              <ul>
+                <li>해당 자리가 <code>'0'</code>이면 → <code>'1'</code>, <code>'2'</code> 두 가지로 바꾸기</li>
+                <li><code>'1'</code>이면 → <code>'0'</code>, <code>'2'</code></li>
+                <li><code>'2'</code>이면 → <code>'0'</code>, <code>'1'</code></li>
+              </ul>
+            </li>
+            <li>각 변경 결과를 3진수로 해석해 정수로 바꾼 뒤,</li>
+            <li><code>Set</code> 안에 있는지 확인 → 있다면, 그 값이 바로 정답 <code>N</code>.</li>
+          </ul>
+        </li>
+      </ol>
       
       <p>
-        여기서 한 품종에 대해 <strong>가장 최근(오른쪽)의 위치만 기록</strong>해도 되는 이유:
+        왜 이게 맞을까?
       </p>
       
       <ul>
-        <li>현재 위치 i에서, 같은 품종의 위치들 중 <strong>가장 가까운 것</strong>은 항상 가장 최근 위치이다.</li>
-        <li>가장 최근 위치와의 거리도 K를 초과한다면, 그보다 더 왼쪽(옛날)의 위치와의 거리는 더 크므로 역시 K를 초과 → 어떤 쌍도 crowded가 될 수 없다.</li>
+        <li>실제 <code>N</code>은 “2진수에서 한 자리 수정” + “3진수에서 한 자리 수정”으로 동시에 얻을 수 있는 <strong>유일한 값</strong>이다.</li>
+        <li>그래서 2진수 후보들의 집합과 3진수 후보들을 한 자리씩 바꿔 가며 비교했을 때<br>
+            처음 만나는 교집합 원소가 곧 답이다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심: 코드가 하는 일
+          코드가 하는 일
         </span>
       </p>
       
-      <pre><code>int[] cows = new int[N + 1];
-      for (int i = 1; i &lt;= N; i++) {
-          cows[i] = Integer.parseInt(br.readLine());
-      }
+      <ul>
+        <li><strong>입력 처리</strong>
+          <pre><code>String str1 = br.readLine();  // 잘못된 2진수
+      String str2 = br.readLine();  // 잘못된 3진수</code></pre>
+        </li>
       
-      int dist = 0, max = -1;
-      int[] lastPos = new int[1000001];
+        <li><strong>1단계: 2진수 후보 생성 → Set에 저장</strong>
+          <pre><code>Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
       
-      for (int i = 1; i &lt;= N; i++) {
-          int num = cows[i];
+      char[] arr1 = str1.toCharArray();
+      for (int i = 0; i &lt; arr1.length; i++) {
+          char[] tmp = arr1.clone();
+          if (arr1[i] == '1') tmp[i] = '0';
+          else tmp[i] = '1';
       
-          if (lastPos[num] != 0) {        // 이 품종이 이전에 나온 적이 있다면
-              dist = i - lastPos[num];    // 거리 계산
+          String str = String.valueOf(tmp);
+          int value = Integer.parseInt(str, 2);
+          set.add(value);
+      }</code></pre>
+          <ul>
+            <li>각 인덱스 i 하나만 뒤집은 새로운 2진수 문자열을 만든 뒤 <code>Integer.parseInt(str, 2)</code>로 10진수로 변환.</li>
+            <li>모든 가능한 후보를 <code>set</code>에 저장해 둔다.</li>
+          </ul>
+        </li>
       
-              if (dist &lt;= K)              // K 이하면 crowded
-                  max = Math.max(max, num);
+        <li><strong>2단계: 3진수에서 한 자리씩 바꾸며 교집합 찾기</strong>
+          <pre><code>char[] arr2 = str2.toCharArray();
+      for (int i = 0; i &lt; arr2.length; i++) {
+          char[] tmp1 = arr2.clone();
+          char[] tmp2 = arr2.clone();
+          if (arr2[i] == '0') {
+              tmp1[i] = '1';
+              tmp2[i] = '2';
+          } else if (arr2[i] == '1') {
+              tmp1[i] = '0';
+              tmp2[i] = '2';
+          } else {
+              tmp1[i] = '0';
+              tmp2[i] = '1';
           }
       
-          lastPos[num] = i;               // 이 품종의 마지막 위치 갱신
-      }
+          String s1 = String.valueOf(tmp1);
+          String s2 = String.valueOf(tmp2);
+          int value1 = Integer.parseInt(s1, 3);
+          int value2 = Integer.parseInt(s2, 3);
       
-      System.out.println(max);
-      </code></pre>
-      
-      <ul>
-        <li><code>lastPos</code>의 초기값을 모두 0으로 두고, 소의 위치 인덱스는 1부터 시작하므로,
-            <strong><code>lastPos[num] == 0</code>이면 아직 등장하지 않은 품종</strong>이라는 의미가 된다.</li>
-        <li>품종 ID 0도 문제에서 허용되지만, 인덱스 0은 절대 실제 위치로 사용하지 않기 때문에 충돌이 없다.</li>
+          if (set.contains(value1)) {
+              System.out.println(value1);
+              return;
+          } else if (set.contains(value2)) {
+              System.out.println(value2);
+              return;
+          }
+      }</code></pre>
+          <ul>
+            <li>각 자리마다 가능한 다른 두 숫자로 바꾼 버전 <code>2개</code>를 만든다.</li>
+            <li>각 버전을 3진수로 해석해 10진수로 만들고,</li>
+            <li>아까 만들어 둔 2진수 후보 <code>set</code>에 들어 있는지 확인.</li>
+            <li>들어 있다면 그 값이 유일한 정답이므로 바로 출력하고 <code>return</code>.</li>
+          </ul>
+        </li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 복잡도
+          시간 · 공간 복잡도
         </span>
       </p>
       
       <ul>
-        <li>소를 한 번씩만 보며, 각 위치에서 상수 시간 연산만 수행 → <strong><code>O(N)</code></strong></li>
-        <li><code>N ≤ 50,000</code> 이므로 충분히 빠르게 동작한다.</li>
-      </ul>
-      
-      <p>
-        <span style="background-color:#ffe0b2; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          공간 복잡도
-        </span>
-      </p>
-      
-      <ul>
-        <li><code>cows[N+1]</code> 배열과 <code>lastPos[1_000_001]</code> 배열만 사용 → <strong><code>O(N + B)</code></strong></li>
-        <li>여기서 <code>B = 1,000,001</code> (품종 ID 범위). 메모리 제한 내에서 충분히 작다.</li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의
-        </span>
-      </p>
-      
-      <ul>
-        <li><strong>배열 크기</strong>:
+        <li><strong>시간 복잡도</strong>
           <ul>
-            <li>품종 ID가 최대 1,000,000이므로 <code>lastPos</code> 배열 크기를 정확히 <code>1000001</code>로 잡아야 한다.</li>
+            <li>2진수 길이를 <code>B</code>, 3진수 길이를 <code>T</code>라고 하면:
+              <ul>
+                <li>2진수 후보 생성: <code>O(B)</code>개 후보 × 각 변환 비용(길이만큼) → 대략 <code>O(B²)</code>에 가깝지만, 실제 입력 길이는 매우 짧다.</li>
+                <li>3진수 쪽: 각 자리마다 2개 후보 → <code>O(T)</code>번 변환 및 <code>Set</code> 조회.</li>
+              </ul>
+            </li>
+            <li>문제 조건에서 N ≤ 1,000,000,000이기 때문에 자릿수는 최대 31비트(2진), 20자리(3진) 정도 → <strong>실질적으로는 매우 빠르게 동작</strong>한다.</li>
           </ul>
         </li>
-        <li><strong>인덱스 시작</strong>:
+      
+        <li><strong>공간 복잡도</strong>
           <ul>
-            <li>소의 위치 인덱스를 1부터 시작해야 <code>lastPos[num] == 0</code>을 “아직 안 나온 상태”로 안전하게 사용할 수 있다.</li>
-          </ul>
-        </li>
-        <li><strong>결과 초기값</strong>:
-          <ul>
-            <li>crowded 쌍이 하나도 없을 수도 있으므로 <code>max</code>를 <code>-1</code>로 초기화해 두는 것이 중요하다.</li>
+            <li>2진수에서 만든 후보들의 개수는 최대 <code>B</code>개.</li>
+            <li>각 후보는 <code>int</code>로 저장되므로, 전체 공간은 <strong><code>O(B)</code></strong> 수준.</li>
+            <li>부가적으로 사용하는 문자열/배열도 자릿수 길이만큼이라 전체적으로 <strong>상수에 가까운</strong> 공간 사용이다.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -270,14 +276,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5866 — Meet and Greet</h2>
+      <h2 class="section">문제 5939 — Race Results</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5866">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/5939">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1209_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1210_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
