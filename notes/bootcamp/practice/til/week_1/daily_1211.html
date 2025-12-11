@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 3일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 4일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,11 +42,11 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 3일차 TIL — SQL 기초 &amp; JD 분석</h1>
-      <p class="muted">작성일 2025-12-10 · 분류: 부트캠프, TIL, SQL, JD</p>
+      <h1>내일배움캠프 Spring 백엔드 4일차 TIL — SQL 그룹 함수 &amp; Hello World</h1>
+      <p class="muted">작성일 2025-12-11 · 분류: 부트캠프, TIL, SQL, Article</p>
 
-      <!-- 섹션 1: 3일차 개요 -->
-      <h2 class="section">3일차 개요 — SQL 복습과 서버 JD 리서치</h2>
+      <!-- 섹션 1: 4일차 개요 -->
+      <h2 class="section">4일차 개요 — 집계·날짜 함수 복습과 Hello World 정리</h2>
 
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -55,20 +55,20 @@
       </h3>
 
       <p>
-        3일차에는 <strong>SQL 기본 문법 복습</strong>과 <strong>서버 개발자 JD 분석</strong>에 집중했다.
-        어제와 마찬가지로 예시 데이터를 표로 정리하고 직접 쿼리를 작성하면서 감각을 유지했고,
-        오후에는 커머스 백엔드와 공공데이터 기반 서비스에 가까운 <strong>토스증권·한울·카카오뱅크</strong>의 JD를 읽으면서
-        실제 현업에서 요구하는 역량을 정리했다.
+        4일차에는 <strong>SQL의 집계 함수와 날짜 함수</strong>를 다시 손으로 익히고,
+        개발자의 상징 같은 문장인 <strong>Hello World</strong>의 기원과 의미를 정리했다.
+        단순 문법 암기가 아니라, 실제로 자주 등장할 만한 테이블 구조를 상상해서 예시 데이터를 만들고
+        그 위에 쿼리를 올려 보는 흐름으로 공부했다.
       </p>
 
       <ul>
-        <li>학습용 학생/프로젝트/게임 유저 테이블을 만들어 조건 조회, 집계, 정렬, 윈도 함수 등을 복습했다.</li>
-        <li>관심 있는 서버 포지션 3개를 골라 기술 스택·요구 역량·도메인 특징을 비교했다.</li>
-        <li>JD를 기준으로 내가 잘하는 것과 부족한 부분을 나눠 보며, 앞으로의 공부 방향을 더 구체화했다.</li>
+        <li>피드백·의사·환자 테이블을 예시로, <strong>GROUP BY, COUNT, AVG, DATEDIFF, DATE_SUB</strong> 등을 복습했다.</li>
+        <li>윈도 함수 대신, 오늘은 그룹 단위 집계와 날짜 조건 중심으로 패턴을 다시 정리했다.</li>
+        <li>Hello World의 기원과 사용 방식, 개발자 문화에서 가지는 의미를 짧게 정리하며 “첫 출력문”의 느낌을 되짚었다.</li>
       </ul>
 
-      <!-- 섹션 2: SQL 퀘스트 - 학생 테이블 -->
-      <h2 class="section">SQL 기초 퀘스트 — 학생 테이블(bootcamp_students)</h2>
+      <!-- 섹션 2: SQL 퀘스트 - 피드백 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 피드백 테이블(game_feedbacks)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -76,212 +76,47 @@
         </span>
       </h3>
 
-      <p>학생 정보를 담은 <code>bootcamp_students</code> 테이블 임시 데이터는 다음과 같다.</p>
+      <p>피드백 정보를 담은 <code>game_feedbacks</code> 테이블 임시 데이터는 다음과 같다.</p>
 
       <table>
         <thead>
           <tr>
             <th>id</th>
-            <th>name</th>
-            <th>course</th>
-            <th>grade</th>
-            <th>start_year</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>르탄</td>
-            <td>Node.js</td>
-            <td>A</td>
-            <td>2023</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>배캠</td>
-            <td>Spring</td>
-            <td>B</td>
-            <td>2022</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>구구</td>
-            <td>Unity</td>
-            <td>C</td>
-            <td>2021</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>이션</td>
-            <td>Node.js</td>
-            <td>B</td>
-            <td>2022</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          풀이한 쿼리
-        </span>
-      </h3>
-
-      <p><strong>1.</strong> <code>bootcamp_students</code> 테이블에서 모든 학생의 이름(<code>name</code>)과 트랙(<code>course</code>)을 선택하는 쿼리</p>
-      <pre><code>SELECT name AS "이름", course AS "트랙"
-FROM bootcamp_students;
-</code></pre>
-
-      <p><strong>2.</strong> <code>bootcamp_students</code> 테이블에서 Unity 트랙 소속이 아닌 학생들을 선택하는 쿼리</p>
-      <pre><code>SELECT *
-FROM bootcamp_students
-WHERE course &lt;&gt; 'Unity';
-</code></pre>
-
-      <p><strong>3.</strong> <code>bootcamp_students</code> 테이블에서 시작 연도(<code>start_year</code>)가 2021년인 학생과 2023년인 학생을 선택하는 쿼리</p>
-      <pre><code>SELECT *
-FROM bootcamp_students
-WHERE start_year IN (2021, 2023);
-</code></pre>
-
-      <p><strong>4.</strong> <code>bootcamp_students</code> 테이블에서 Node.js 트랙 소속이고 학점이 ‘A’인 학생의 시작 연도(<code>start_year</code>)를 선택하는 쿼리</p>
-      <pre><code>SELECT name AS "이름", start_year AS "수강 시작년도"
-FROM bootcamp_students
-WHERE course = 'Node.js'
-  AND grade = 'A';
-</code></pre>
-
-      <!-- 섹션 3: SQL 퀘스트 - 프로젝트 테이블 -->
-      <h2 class="section">SQL 기초 퀘스트 — 프로젝트 테이블(bootcamp_projects)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 데이터
-        </span>
-      </h3>
-
-      <p>프로젝트 정보를 담은 <code>bootcamp_projects</code> 테이블 임시 데이터는 다음과 같다.</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>project_name</th>
-            <th>started_at</th>
-            <th>finished_at</th>
-            <th>cloud_cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>일조</td>
-            <td>2023-01-01</td>
-            <td>2023-01-07</td>
-            <td>30000</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>꿈꾸는이조</td>
-            <td>2023-03-15</td>
-            <td>2023-03-22</td>
-            <td>50000</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>보람삼조</td>
-            <td>2023-11-20</td>
-            <td>2023-11-30</td>
-            <td>80000</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>사조참치</td>
-            <td>2022-07-01</td>
-            <td>2022-07-30</td>
-            <td>75000</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          풀이한 쿼리
-        </span>
-      </h3>
-
-      <p><strong>1.</strong> <code>bootcamp_projects</code> 테이블에서 클라우드 예산(<code>cloud_cost</code>)이 40000 이상 들어간 프로젝트들의 이름을 선택하는 쿼리</p>
-      <pre><code>SELECT project_name AS "프로젝트 명"
-FROM bootcamp_projects
-WHERE cloud_cost &gt;= 40000;
-</code></pre>
-
-      <p><strong>2.</strong> <code>bootcamp_projects</code> 테이블에서 2022년에 시작된 프로젝트를 선택하는 쿼리 (단, <code>started_at &lt; '2023-01-01'</code> 조건 사용 X)</p>
-      <pre><code>SELECT *
-FROM bootcamp_projects
-WHERE YEAR(started_at) = 2022;
-</code></pre>
-
-      <p><strong>3.</strong> <code>bootcamp_projects</code> 테이블에서 현재 진행 중인 프로젝트를 선택하는 쿼리 (지금 시점의 날짜를 하드코딩하지 않기)</p>
-      <pre><code>SELECT *
-FROM bootcamp_projects
-WHERE CURDATE() BETWEEN started_at AND finished_at;
-</code></pre>
-
-      <p><strong>4.</strong> <code>bootcamp_projects</code> 테이블에서 각 프로젝트의 지속 기간을 일 수로 계산하는 쿼리</p>
-      <pre><code>SELECT project_name,
-       DATEDIFF(finished_at, started_at) AS duration_days
-FROM bootcamp_projects;
-</code></pre>
-
-      <!-- 섹션 4: SQL 퀘스트 - 게임 유저 테이블 -->
-      <h2 class="section">SQL 기초 퀘스트 — 게임 유저 테이블(summoner_users)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 데이터
-        </span>
-      </h3>
-
-      <p>게임 유저 정보를 담은 <code>summoner_users</code> 테이블 임시 데이터는 다음과 같다.</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>name</th>
-            <th>region</th>
-            <th>rank_score</th>
-            <th>joined_at</th>
+            <th>summoner_name</th>
+            <th>score</th>
+            <th>created_at</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>1</td>
             <td>르탄이</td>
-            <td>한국</td>
-            <td>1300</td>
-            <td>2019-06-15</td>
+            <td>5</td>
+            <td>2023-03-01</td>
           </tr>
           <tr>
             <td>2</td>
             <td>배캠이</td>
-            <td>미국</td>
-            <td>1500</td>
-            <td>2020-09-01</td>
+            <td>4</td>
+            <td>2023-03-02</td>
           </tr>
           <tr>
             <td>3</td>
             <td>구구이</td>
-            <td>한국</td>
-            <td>1400</td>
-            <td>2021-01-07</td>
+            <td>3</td>
+            <td>2023-03-01</td>
           </tr>
           <tr>
             <td>4</td>
             <td>이션이</td>
-            <td>미국</td>
-            <td>1350</td>
-            <td>2019-11-15</td>
+            <td>5</td>
+            <td>2023-03-03</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>구구이</td>
+            <td>4</td>
+            <td>2023-03-04</td>
           </tr>
         </tbody>
       </table>
@@ -292,88 +127,257 @@ FROM bootcamp_projects;
         </span>
       </h3>
 
-      <p><strong>1.</strong> <code>summoner_users</code> 테이블에서 각 유저의 레이팅(<code>rank_score</code>) 순위를 계산하는 쿼리 (전체 지역 기준, 점수가 높을수록 순위↑)</p>
-      <pre><code>SELECT *,
-       RANK() OVER (ORDER BY rank_score DESC) AS "순위"
-FROM summoner_users;
+      <p><strong>1.</strong> <code>game_feedbacks</code> 테이블에서 만족도 점수(<code>score</code>)에 따라 피드백을 내림차순으로 정렬하는 쿼리</p>
+      <pre><code>SELECT *
+FROM game_feedbacks
+ORDER BY score DESC;
 </code></pre>
 
-      <p><strong>2.</strong> <code>summoner_users</code> 테이블에서 가장 늦게 게임을 시작한(<code>joined_at</code>) 유저의 이름을 선택하는 쿼리</p>
-      <pre><code>SELECT name
-FROM summoner_users
-ORDER BY joined_at DESC
+      <p><strong>2.</strong> <code>game_feedbacks</code> 테이블에서 각 유저별 최신 피드백을 찾는 쿼리</p>
+      <pre><code>SELECT summoner_name,
+       MAX(created_at) AS latest_feedback_at
+FROM game_feedbacks
+GROUP BY summoner_name;
+</code></pre>
+
+      <p><strong>3.</strong> <code>game_feedbacks</code> 테이블에서 만족도 점수가 5점인 피드백의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS "5점 피드백 수"
+FROM game_feedbacks
+WHERE score = 5;
+</code></pre>
+
+      <p><strong>4.</strong> <code>game_feedbacks</code> 테이블에서 가장 많은 피드백을 남긴 상위 3명의 유저를 찾는 쿼리</p>
+      <pre><code>SELECT summoner_name,
+       COUNT(*) AS feedback_count
+FROM game_feedbacks
+GROUP BY summoner_name
+ORDER BY feedback_count DESC
+LIMIT 3;
+</code></pre>
+
+      <p><strong>5.</strong> <code>game_feedbacks</code> 테이블에서 평균 만족도 점수가 가장 높은 날짜를 찾는 쿼리</p>
+      <pre><code>SELECT created_at AS feedback_date
+FROM game_feedbacks
+GROUP BY created_at
+ORDER BY AVG(score) DESC
 LIMIT 1;
 </code></pre>
 
-      <p><strong>3.</strong> <code>summoner_users</code> 테이블에서 지역별로 레이팅이 높은 순으로 유저들을 정렬해서 나열하는 쿼리</p>
+      <!-- 섹션 3: SQL 퀘스트 - 의사 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 의사 테이블(hospital_doctors)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>의사 정보를 담은 <code>hospital_doctors</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>doctor_name</th>
+            <th>department</th>
+            <th>hired_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>르탄이</td>
+            <td>피부과</td>
+            <td>2018-05-10</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>배캠이</td>
+            <td>성형외과</td>
+            <td>2019-06-15</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>구구이</td>
+            <td>안과</td>
+            <td>2020-07-20</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> <code>hospital_doctors</code> 테이블에서 전공(<code>department</code>)이 성형외과인 의사의 이름을 알아내는 쿼리</p>
+      <pre><code>SELECT doctor_name
+FROM hospital_doctors
+WHERE department = '성형외과';
+</code></pre>
+
+      <p><strong>2.</strong> <code>hospital_doctors</code> 테이블에서 각 전공별 의사 수를 계산하는 쿼리</p>
+      <pre><code>SELECT department,
+       COUNT(*) AS doctor_count
+FROM hospital_doctors
+GROUP BY department;
+</code></pre>
+
+      <p><strong>3.</strong> <code>hospital_doctors</code> 테이블에서 현재 날짜 기준으로 5년 이상 근무한 의사 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS num_of_doctors
+FROM hospital_doctors
+WHERE hired_at &lt;= DATE_SUB(CURDATE(), INTERVAL 5 YEAR);
+</code></pre>
+
+      <p><strong>4.</strong> <code>hospital_doctors</code> 테이블에서 각 의사의 근무 기간을 계산하는 쿼리</p>
+      <pre><code>SELECT doctor_name,
+       DATEDIFF(CURDATE(), hired_at) AS worked_days
+FROM hospital_doctors;
+</code></pre>
+
+      <!-- 섹션 4: SQL 퀘스트 - 환자 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 환자 테이블(clinic_patients)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>환자 정보를 담은 <code>clinic_patients</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>patient_name</th>
+            <th>birth_date</th>
+            <th>gender</th>
+            <th>last_visit_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>르탄이</td>
+            <td>1985-04-12</td>
+            <td>남자</td>
+            <td>2023-03-15</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>배캠이</td>
+            <td>1990-08-05</td>
+            <td>여자</td>
+            <td>2023-03-20</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>구구이</td>
+            <td>1982-12-02</td>
+            <td>여자</td>
+            <td>2023-02-18</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>이션이</td>
+            <td>1999-03-02</td>
+            <td>남자</td>
+            <td>2023-03-17</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> <code>clinic_patients</code> 테이블에서 각 성별(<code>gender</code>)에 따른 환자 수를 계산하는 쿼리</p>
+      <pre><code>SELECT gender,
+       COUNT(*) AS patient_count
+FROM clinic_patients
+GROUP BY gender;
+</code></pre>
+
+      <p><strong>2.</strong> <code>clinic_patients</code> 테이블에서 현재 나이가 40세 이상인 환자들의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS over_40_count
+FROM clinic_patients
+WHERE birth_date &lt;= DATE_SUB(CURDATE(), INTERVAL 40 YEAR);
+</code></pre>
+
+      <p><strong>3.</strong> <code>clinic_patients</code> 테이블에서 마지막 방문 날짜(<code>last_visit_at</code>)가 1년 이상 된 환자들을 선택하는 쿼리</p>
       <pre><code>SELECT *
-FROM summoner_users
-ORDER BY region, rank_score DESC;
+FROM clinic_patients
+WHERE last_visit_at &lt;= DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
 </code></pre>
 
-      <p><strong>4.</strong> <code>summoner_users</code> 테이블에서 지역별로 평균 레이팅을 계산하는 쿼리</p>
-      <pre><code>SELECT region,
-       AVG(rank_score) AS "평균 점수"
-FROM summoner_users
-GROUP BY region;
+      <p><strong>4.</strong> <code>clinic_patients</code> 테이블에서 생년월일이 1980년대인 환자들의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS born_in_80s
+FROM clinic_patients
+WHERE YEAR(birth_date) BETWEEN 1980 AND 1989;
 </code></pre>
 
-      <!-- 섹션 5: JD 분석 & 커리어 방향 -->
-      <h2 class="section">JD 분석 — 서버 개발자 포지션과 나의 방향</h2>
+      <!-- 섹션 5: Hello World 아티클 정리 -->
+      <h2 class="section">Hello World — 개발자의 첫 인사</h2>
 
       <h3 class="section">
         <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          공통적으로 보이는 핵심 역량
+          기원과 의미
         </span>
       </h3>
 
       <p>
-        토스증권, 한울, 카카오뱅크의 JD를 같이 놓고 보니, 세 회사 모두 <strong>Java 계열과 Spring 기반 서버 개발 역량</strong>을
-        기본 전제로 두고 있다는 점이 가장 먼저 보였다. Java/Kotlin + Spring Framework, Kotlin/Java + Spring Boot + JPA 등
-        표현은 조금씩 다르지만, 결국 “실무에서 통하는 백엔드 개발자”의 축은 Java와 Spring 라인이라는 걸 다시 확인했다.
+        프로그래밍을 처음 배울 때 가장 먼저 출력해 보는 문장이 바로 <strong>Hello, World!</strong>다.
+        단순한 한 줄이지만, 대부분의 개발자에게는 “처음으로 컴퓨터와 대화가 통했던 순간”을 떠올리게 하는 문장이다.
       </p>
 
       <p>
-        또 하나의 공통점은 <strong>서비스 전체를 보는 시야</strong>다.
-        단순히 API를 만드는 수준이 아니라, 아키텍처 개선·기술 부채 해결·대용량 트래픽에서의 트러블슈팅과 지표 개선까지
-        함께 맡길 수 있는 개발자를 찾고 있었다. 코드리뷰·형상관리·피드백 문화 등 협업 역량도 빠지지 않고 등장한다.
+        정확한 기원은 명확하지 않지만, 오늘날 가장 유력하게 언급되는 출발점은
+        데니스 리치와 브라이언 커니핸이 집필한 C 언어 서적 <strong>『The C Programming Language』</strong>이다.
+        이 책에서 함수와 프로그램 구조를 설명하기 위한 예제 코드로 <code>hello, world</code>를 사용했고,
+        이후 여러 개정판과 다른 언어로 번역되면서 다양한 형태의 Hello World 예제가 퍼져 나갔다.
+      </p>
+
+      <p>
+        이 설이 절대적인 “정답”은 아닐 수 있지만,
+        오늘날 Hello World를 전 세계 개발자 사이에서 유명하게 만든 계기가 이 책이라는 점은 거의 합의된 사실에 가깝다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          각 JD의 차이점과 느낀 점
+          어떻게 쓰이고 있을까
         </span>
       </h3>
 
       <ul>
-        <li><strong>토스증권</strong>: 금융 원장, 주식 매매·결제·환전, 실시간 데이터 처리, Kubernetes·ELK 등 분산 인프라가 핵심이다.
-          “기술적으로 도전적인 환경에서 성장하고 싶은 서버 개발자”를 상정하고 있는 느낌을 받았다.</li>
-        <li><strong>한울</strong>: 출입통제·RFID·안전관리·IoT, 전자정부 프레임워크 기반 시스템 등 공공·SI 도메인이 중심이다.
-          Android/iOS, 웹, 서버를 모두 아우르는 실무형 개발자 이미지가 강하고, 정보처리기사 등 전통적인 우대요건을 중시한다.</li>
-        <li><strong>카카오뱅크</strong>: 수신·여신·지급결제·개인사업자 상품을 담당하는 뱅킹 백엔드 포지션으로, 서버 개발 5년 이상을 요구한다.
-          대용량 트래픽과 복잡한 금융 도메인 경험을 가진 시니어급 개발자를 찾는 JD라는 느낌이었다.</li>
+        <li>새로운 언어를 배울 때 가장 먼저 작성해 보는 <strong>출력 예제</strong>로 사용된다.</li>
+        <li>개발 환경을 구축한 뒤, 컴파일·실행이 제대로 되는지 확인하는 <strong>기본 점검 코드</strong>로 쓰인다.</li>
+        <li>펌웨어를 수정하거나 새로운 기기를 해킹했을 때 “정상적으로 내 코드가 올라갔다”는 신호로 출력하기도 한다.</li>
+        <li>개발을 넘어 게임·영상·노래 제목 등 대중문화 속에서도 종종 인용되는 표현이 되었다.</li>
       </ul>
+
+      <p>
+        C 언어를 만든 사람 중 한 명인 데니스 리치가 세상을 떠났을 때,
+        많은 개발자들이 “<strong>Goodbye, world!</strong>”라는 메시지로 추모를 남겼다는 이야기도 인상적이다.
+        한 줄짜리 예제가 세대와 언어를 넘어 하나의 상징처럼 자리 잡았다는 느낌이 든다.
+      </p>
 
       <h3 class="section">
         <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          나의 커리어 방향과 부족한 부분
+          개인적으로 느낀 점
         </span>
       </h3>
 
       <p>
-        지금까지의 경험을 정리해 보면, 나는 <strong>도메인 로직과 데이터 흐름을 설계하고, 예외·성능까지 함께 고민하는 영역</strong>에 제일 재미를 느낀다.
-        반수골 사람들에서 엑셀 매크로로 데이터 매핑·일괄 변환을 자동화할 때도 “어떻게 하면 더 안정적인 구조가 될까”를 먼저 생각했고,
-        음악 데이터 파이프라인에서는 파싱 오류 시 자동 복구·재시도, 로그 기반 검증 절차를 설계하면서 운영을 의식한 설계 경험을 쌓았다.
+        Hello World의 기원을 알고 나니, 앞으로 새로운 언어나 프레임워크를 시작할 때
+        단순한 예제 한 줄에서 끝내기보다는 “이 코드로 무엇을 해 보고 싶은지”를 같이 떠올려 보는 게 좋겠다는 생각이 들었다.
+        단순 출력문이지만, 나한테는 <strong>새로운 기술과 세상에 인사하는 첫 버튼</strong> 같은 역할을 하니까.
       </p>
 
-      <p>
-        JD를 보면서 특히 부족하다고 느낀 부분은 <strong>Redis·Kafka·Kubernetes·ELK 같은 분산 인프라 환경 경험</strong>과
-        금융·출입통제처럼 특정 도메인에서 수년 단위로 서비스를 운영해 본 경험이다.
-        단기간에 채울 수 있는 부분은 아니지만, 첫 커리어를 선택할 때
-        “어떤 도메인에서 장기적으로 깊이를 쌓을지”를 고민해야겠다는 생각이 들었다.
-      </p>
-
-      <!-- 섹션 6: 회고와 내일 계획 -->
+      <!-- 섹션 6: 오늘의 회고와 내일 계획 -->
       <h2 class="section">오늘의 회고와 내일 계획</h2>
 
       <h3 class="section">
@@ -383,16 +387,16 @@ GROUP BY region;
       </h3>
 
       <p>
-        SQL 문제는 이미 한 번 본 유형이 많았지만, 테이블 이름과 컬럼명을 바꿔서 다시 만들어 보니
-        “문제를 통째로 외우는 공부”를 피할 수 있어서 좋았다.
-        앞으로도 예제를 이렇게 변형해 가면서 연습해야, 진짜로 문법이 몸에 남을 것 같다.
+        오늘 SQL 퀘스트는 <strong>GROUP BY와 날짜 함수</strong>를 한 번에 복습하기 좋은 세트였다.
+        특히 <code>DATE_SUB</code>와 <code>DATEDIFF</code>처럼 날짜를 기준으로 “몇 년 이상 근무”, “나이 계산” 같은 로직을
+        쿼리 레벨에서 처리하는 패턴을 다시 써 보면서, 나중에 실제 서비스에서 자주 쓰게 될 장면들이 떠올랐다.
       </p>
 
       <p>
-        JD 분석을 하면서는 “언젠가 가고 싶다”라고 막연하게 생각하던 회사들이
-        실제로는 어떤 기술과 경험을 요구하는지 조금 더 구체적으로 보였다.
-        내가 쌓아 온 자동화·파이프라인 경험이 장점이 될 수 있는 부분과,
-        아직 비어 있는 분산 인프라·대규모 운영 경험을 뚜렷하게 나눠 볼 수 있었던 하루였다.
+        Hello World 아티클을 정리하면서는, 그냥 당연하게 치던 문장이 사실은 개발자 문화와 역사 속에서
+        꽤 상징적인 역할을 하고 있다는 걸 다시 느꼈다.
+        새 프로젝트를 시작할 때마다 찍어 보는 이 한 줄이,
+        앞으로는 “새로운 스택에 도전하는 나 자신”을 리셋하는 신호처럼 느껴지면 좋겠다.
       </p>
 
       <h3 class="section">
@@ -402,10 +406,10 @@ GROUP BY region;
       </h3>
 
       <ul>
-        <li>SQL에서 JOIN과 GROUP BY, HAVING을 활용한 예제를 직접 만들어 TIL에 이어서 정리하기.</li>
-        <li>오늘 정리한 JD 공통 역량을 기준으로, 쇼핑몰 프로젝트에서 보여 줄 수 있는 포인트를 따로 문서로 정리하기.</li>
-        <li>Spring 핵심 개념(IoC/DI, 트랜잭션, 예외 처리)이 JD 요구사항과 어떻게 연결되는지 간단한 메모로 남기기.</li>
-        <li>오늘 작성한 SQL 예제와 JD 분석 내용을 깃허브에 커밋해 학습 기록을 꾸준히 쌓아가기.</li>
+        <li>오늘 다룬 집계·날짜 함수에 이어, <strong>JOIN + GROUP BY</strong>가 섞인 문제를 직접 만들어 보고 풀어 보기.</li>
+        <li>쇼핑몰 프로젝트에서 “최근 3개월 주문 수” 같은 통계를 어떤 쿼리로 뽑을지 스케치해 보기.</li>
+        <li>Hello World처럼 자주 쓰는 예제 코드를, 내 프로젝트 기준으로 어떻게 바꿀지 작은 아이디어를 메모해 두기.</li>
+        <li>내일도 TIL을 이어 가면서, 하루에 적어도 하나는 “나중에 다시 써먹을 수 있는 쿼리 패턴”을 남기는 것을 목표로 하기.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
