@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-10 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-11 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 콜라츠 추측</h2>
+      <h2 class="section">문제 1 — 짝수와 홀수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12943">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12937">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1210_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1211_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,100 +53,51 @@
       </h3>
       
       <p>
-        이 문제는 주어진 정수 <code>num</code>에 대해, 콜라츠 추측 규칙을 따라가면서<br>
-        <strong>1이 될 때까지 몇 번 연산을 수행하는지</strong>를 구하는 문제다.<br>
-        단, <strong>연산 횟수가 500번을 넘으면 -1을 반환</strong>해야 한다.
+        이 문제는 주어진 정수 <strong>num이 짝수인지 홀수인지 판별</strong>해서<br>
+        짝수면 <code>"Even"</code>, 홀수면 <code>"Odd"</code> 문자열을 반환하는 매우 단순한 문제다.
       </p>
       
       <ul>
-        <li><strong>콜라츠 규칙</strong>
-          <ul>
-            <li>현재 수 <code>n</code>이 짝수라면: <code>n = n / 2</code></li>
-            <li>현재 수 <code>n</code>이 홀수라면: <code>n = n * 3 + 1</code></li>
-            <li>이 과정을 반복하다가 <code>n == 1</code>이 되면 멈춘다.</li>
-          </ul>
-        </li>
-        <li>최대 500번까지만 연산해 보고,
-          <ul>
-            <li>그 안에 1이 되면 걸린 횟수를 반환,</li>
-            <li>끝까지 1이 안 되면 <code>-1</code> 반환.</li>
-          </ul>
-        </li>
+        <li><strong>짝수 조건</strong>: <code>num % 2 == 0</code></li>
+        <li><strong>홀수 조건</strong>: 위 조건이 아니라면 모두 홀수로 간주</li>
+        <li>조건에 따라 삼항 연산자로 "Even" 또는 "Odd"를 돌려준다.</li>
       </ul>
       
       <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드 흐름 요약
+          코드가 하는 일
         </span>
       </p>
       
-      <ul>
-        <li><strong>초기 설정</strong>
-          <ul>
-            <li><code>long n = num;</code>으로 받는 이유:
-              <ul>
-                <li><code>n = n * 3 + 1</code> 과정에서 <code>int</code> 범위를 넘을 수 있으므로
-                    <code>long</code>으로 안전하게 계산.</li>
-              </ul>
-            </li>
-            <li>처음부터 <code>num == 1</code>이면 연산을 안 해도 되므로 <code>0</code>을 바로 반환.</li>
-          </ul>
-        </li>
-      
-        <li><strong>최대 500번까지 반복</strong>
-          <pre><code>for (int i = 0; i &lt; 500; i++) {
-          if (n % 2 == 0) {
-              n /= 2;
-          } else {
-              n = n * 3 + 1;
-          }
-      
-          if (n == 1) {
-              return i + 1;
+      <pre><code>class Solution {
+          public String solution(int num) {
+              return num % 2 == 0 ? "Even" : "Odd";
           }
       }</code></pre>
-          <ul>
-            <li>매 반복마다 현재 수 <code>n</code>이 짝수인지 홀수인지에 따라 콜라츠 규칙 적용.</li>
-            <li>연산을 한 번 수행한 후, <code>n == 1</code>이면
-              <ul>
-                <li>이번에 수행한 횟수 = <code>i + 1</code> 이므로 그 값을 반환.</li>
-              </ul>
-            </li>
-            <li><code>i</code>는 0부터 시작하므로, 실제 연산 횟수는 항상 <code>i + 1</code>이 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>500번 안에 1이 안 됐을 때</strong>
-          <pre><code>return -1;</code></pre>
-          <ul>
-            <li>for 루프를 다 돌고도 <code>n == 1</code>이 한 번도 안 나왔다면<br>
-                500회를 초과해도 1이 되지 않는다고 보고 <code>-1</code>을 반환한다.</li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 · 공간 복잡도
-        </span>
-      </p>
       
       <ul>
-        <li><strong>시간 복잡도</strong>:
+        <li><strong><code>num % 2 == 0</code></strong>
           <ul>
-            <li>최대 500번만 반복하므로 <code>O(1)</code> (상수 시간).</li>
+            <li><code>num</code>을 2로 나눈 나머지가 0이면 짝수이므로 <code>"Even"</code>을 반환한다.</li>
           </ul>
         </li>
-        <li><strong>공간 복잡도</strong>:
+        <li><strong><code>?:</code> 삼항 연산자</strong>
           <ul>
-            <li>추가로 사용하는 변수는 <code>long n</code>과 반복용 변수 정도이므로 <code>O(1)</code>.</li>
+            <li>조건이 참이면 왼쪽 값, 거짓이면 오른쪽 값을 선택한다.</li>
+            <li>여기서는
+              <br><code>조건 ? "Even" : "Odd"</code> 형태로 사용해서<br>
+              한 줄에 깔끔하게 짝/홀 판별 로직을 표현하고 있다.
+            </li>
           </ul>
         </li>
       </ul>
+      
+      <p>
+        최종적으로 입력 받은 <code>num</code>이 짝수면 <strong>"Even"</strong>, 아니면 <strong>"Odd"</strong>를 그대로 반환하면 된다.
+      </p>
+
 
 
 
@@ -206,14 +157,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 최대공약수와 최소공배수</h2>
+      <h2 class="section">문제 2 — 제일 작은 수 제거하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12940">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12935">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1210_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1211_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -226,23 +177,17 @@
       </h3>
       
       <p>
-        <strong>최대공약수와 최소공배수 (프로그래머스 12940)</strong> 문제는<br>
-        두 자연수 <code>n</code>, <code>m</code>이 주어졌을 때,
-        <strong>최대공약수(GCD)</strong>와 <strong>최소공배수(LCM)</strong>를 구해<br>
-        <code>[최대공약수, 최소공배수]</code> 형태의 배열로 반환하는 문제다.
+        이 문제는 정수 배열 <code>arr</code>에서 <strong>가장 작은 값들을 모두 제거한 배열</strong>을 반환하는 문제다.<br>
+        단, 제거하고 나서 배열이 비게 되면 <code>[-1]</code> 하나만 담긴 배열을 반환해야 한다.
       </p>
       
       <ul>
-        <li><strong>최대공약수(GCD)</strong>:
+        <li><strong>원소가 1개뿐인 경우</strong> → 무조건 그 값이 최소이므로 제거하면 빈 배열 → <code>{-1}</code> 반환.</li>
+        <li><strong>그 외의 경우</strong>
           <ul>
-            <li>두 수가 동시에 나누어떨어지는 양의 정수 중 가장 큰 값.</li>
-            <li>코드에서는 <strong>유클리드 호제법</strong>으로 계산한다.</li>
-          </ul>
-        </li>
-        <li><strong>최소공배수(LCM)</strong>:
-          <ul>
-            <li>두 수의 공통 배수 중 가장 작은 양의 정수.</li>
-            <li>공식: <code>lcm(n, m) = n * m / gcd(n, m)</code></li>
+            <li>배열에서 <strong>최소값</strong>을 한 번 찾고,</li>
+            <li>그 최소값과 <strong>다른 값들만</strong> 모아서 새 배열을 만든다.</li>
+            <li>이때 최소값이 여러 개면 모두 제거된다.</li>
           </ul>
         </li>
       </ul>
@@ -251,85 +196,69 @@
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드 핵심 로직
+          코드가 하는 일
         </span>
       </p>
       
-      <ul>
-        <li><strong><code>solution</code> 메서드</strong>
-          <ul>
-            <li><code>int gcd = gcd(n, m);</code><br>
-              → 아래에 정의된 재귀 함수 <code>gcd</code>로 최대공약수를 구한다.</li>
-            <li><code>int lcm = n * m / gcd;</code><br>
-              → <strong>곱 / GCD</strong> 공식을 사용해 최소공배수를 구한다.</li>
-            <li><code>return new int[]{gcd, lcm};</code><br>
-              → 결과를 <code>[최대공약수, 최소공배수]</code> 배열로 반환.</li>
-          </ul>
-        </li>
+      <pre><code>import java.util.*;
       
-        <li><strong><code>gcd</code> (유클리드 호제법)</strong>
-          <pre><code>private int gcd(int n, int m) {
-          if (m == 0) return n;
-          return gcd(m, n % m);
+      class Solution {
+          public int[] solution(int[] arr) {
+              // 1. 길이가 1이면 제거 후 비게 되므로 [-1] 반환
+              if (arr.length == 1) return new int[]{-1};
+      
+              // 2. 최소값(min) 찾기
+              int min = arr[0];
+              for (int i : arr) {
+                  if (i &lt; min) min = i;
+              }
+      
+              // 3. 최소값이 아닌 원소 개수(cnt) 세기
+              int cnt = 0;
+              for (int i : arr) {
+                  if (i != min) cnt++;
+              }
+      
+              // 4. 모두 최소값이었다면 (cnt == 0) → 제거 후 비어버리므로 [-1] 반환
+              if (cnt == 0) return new int[]{-1};
+      
+              // 5. 최소값이 아닌 원소들만 담을 배열 생성
+              int[] answer = new int[cnt];
+              int idx = 0;
+              for (int i : arr) {
+                  if (i != min) {
+                      answer[idx++] = i;
+                  }
+              }
+      
+              return answer;
+          }
       }</code></pre>
-          <ul>
-            <li>아이디어:
-              <ul>
-                <li><code>gcd(a, b)</code>에서 <code>b == 0</code> 이면, 최대공약수는 <code>a</code>.</li>
-                <li>그렇지 않으면 <code>gcd(b, a % b)</code>로 문제 크기를 줄여서 재귀 호출.</li>
-              </ul>
-            </li>
-            <li>예: <code>gcd(12, 8)</code>
-              <ol>
-                <li><code>gcd(12, 8)</code> → <code>gcd(8, 12 % 8 = 4)</code></li>
-                <li><code>gcd(8, 4)</code> → <code>gcd(4, 8 % 4 = 0)</code></li>
-                <li><code>gcd(4, 0)</code> → <code>4</code> 반환</li>
-              </ol>
-            </li>
-          </ul>
-        </li>
-      </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
-      
-      <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시
-        </span>
-      </p>
       
       <ul>
-        <li><code>n = 12, m = 18</code>일 때
-          <ol>
-            <li><code>gcd(12, 18) = 6</code></li>
-            <li><code>lcm = 12 * 18 / 6 = 216 / 6 = 36</code></li>
-            <li>반환 값: <code>[6, 36]</code></li>
-          </ol>
+        <li><strong>최소값 탐색</strong>
+          <ul>
+            <li><code>min</code>을 <code>arr[0]</code>으로 두고, 전체를 돌며 가장 작은 값을 갱신한다.</li>
+          </ul>
+        </li>
+        <li><strong>새 배열 크기 결정</strong>
+          <ul>
+            <li>최소값이 아닌 원소만 남겨야 하므로, 먼저 그런 원소의 개수를 <code>cnt</code>로 센다.</li>
+            <li><code>cnt == 0</code>이면 전부 최소값 → 제거하면 빈 배열 → <code>{-1}</code> 반환.</li>
+          </ul>
+        </li>
+        <li><strong>결과 배열 채우기</strong>
+          <ul>
+            <li>길이가 <code>cnt</code>인 <code>answer</code> 배열을 만들고,</li>
+            <li>다시 한 번 순회하면서 <strong>최소값이 아닌 값만</strong> 앞에서부터 차례로 채워 넣는다.</li>
+            <li>원래의 <strong>순서가 유지</strong>된 상태로 최소값만 제거된다.</li>
+          </ul>
         </li>
       </ul>
-      
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
       
       <p>
-        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시간 · 공간 복잡도
-        </span>
+        시간 복잡도는 배열을 여러 번 순회하지만 모두 <code>O(n)</code> 수준이라, 전체적으로 <strong><code>O(n)</code></strong>에 해결된다.
       </p>
-      
-      <ul>
-        <li><strong>시간 복잡도</strong>
-          <ul>
-            <li>유클리드 호제법은 <code>O(log(min(n, m)))</code> 시간에 동작.</li>
-            <li>나머지 연산은 상수 시간이므로 전체도 <strong><code>O(log(min(n, m))</code></strong> 수준.</li>
-          </ul>
-        </li>
-        <li><strong>공간 복잡도</strong>
-          <ul>
-            <li>재귀 깊이가 <code>O(log(min(n, m))</code>이지만, 별도 큰 자료구조는 없으므로<br>
-                공간 복잡도는 사실상 <strong><code>O(1)</code></strong>로 볼 수 있다.</li>
-          </ul>
-        </li>
-      </ul>
 
 
 
