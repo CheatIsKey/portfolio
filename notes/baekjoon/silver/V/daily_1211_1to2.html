@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-10 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5929 — Awkward Digits</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5929">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1210_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Awkward Digits (BOJ 5929)</strong> 문제는<br>
+        어떤 정수 <code>N</code>의
+        <strong>2진수 표기와 3진수 표기</strong>가 각각 <strong>한 자리씩만 잘못 적힌 상태</strong>로 주어졌을 때,<br>
+        원래의 정수 <code>N</code> (10진수)을 찾아내는 문제다.
+      </p>
+      
+      <ul>
+        <li>2진수 문자열에는 <strong>정확히 한 자리</strong>가 잘못 적혀 있다. (0 ↔ 1)</li>
+        <li>3진수 문자열에도 <strong>정확히 한 자리</strong>가 잘못 적혀 있다. (0, 1, 2 중 하나 → 다른 둘 중 하나)</li>
+        <li>자릿수 개수는 변하지 않는다. (추가/삭제 없음, 앞에 0이 와도 허용)</li>
+        <li>조건을 만족하는 <code>N</code>은 <strong>유일하게 존재</strong>한다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <p>
+        아이디어는 단순하다:
+      </p>
+      
+      <ol>
+        <li><strong>2진수 문자열에서 한 자리씩 뒤집어서</strong> 가능한 모든 후보 숫자를 만들어 본다.
+          <ul>
+            <li>각 자리 i에 대해:
+              <ul>
+                <li>현재 값이 <code>'0'</code>이면 → <code>'1'</code>로 바꾸고</li>
+                <li><code>'1'</code>이면 → <code>'0'</code>으로 바꾼 뒤,</li>
+                <li>그 결과를 2진수로 해석해 정수로 변환하고 <code>Set</code>에 넣는다.</li>
+              </ul>
+            </li>
+            <li>→ 이렇게 하면 “2진수 표현에서 한 자리만 틀렸을 때 만들 수 있는 모든 원래 숫자 후보”가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3진수 문자열에서도 한 자리만 수정해</strong> 가능한 숫자들을 만들어 보면서,<br>
+            동시에 1번에서 만든 <code>Set</code>과 교집합을 찾는다.
+          <ul>
+            <li>각 자리 i에 대해:
+              <ul>
+                <li>해당 자리가 <code>'0'</code>이면 → <code>'1'</code>, <code>'2'</code> 두 가지로 바꾸기</li>
+                <li><code>'1'</code>이면 → <code>'0'</code>, <code>'2'</code></li>
+                <li><code>'2'</code>이면 → <code>'0'</code>, <code>'1'</code></li>
+              </ul>
+            </li>
+            <li>각 변경 결과를 3진수로 해석해 정수로 바꾼 뒤,</li>
+            <li><code>Set</code> 안에 있는지 확인 → 있다면, 그 값이 바로 정답 <code>N</code>.</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <p>
+        왜 이게 맞을까?
+      </p>
+      
+      <ul>
+        <li>실제 <code>N</code>은 “2진수에서 한 자리 수정” + “3진수에서 한 자리 수정”으로 동시에 얻을 수 있는 <strong>유일한 값</strong>이다.</li>
+        <li>그래서 2진수 후보들의 집합과 3진수 후보들을 한 자리씩 바꿔 가며 비교했을 때<br>
+            처음 만나는 교집합 원소가 곧 답이다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 처리</strong>
+          <pre><code>String str1 = br.readLine();  // 잘못된 2진수
+      String str2 = br.readLine();  // 잘못된 3진수</code></pre>
+        </li>
+      
+        <li><strong>1단계: 2진수 후보 생성 → Set에 저장</strong>
+          <pre><code>Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+      
+      char[] arr1 = str1.toCharArray();
+      for (int i = 0; i &lt; arr1.length; i++) {
+          char[] tmp = arr1.clone();
+          if (arr1[i] == '1') tmp[i] = '0';
+          else tmp[i] = '1';
+      
+          String str = String.valueOf(tmp);
+          int value = Integer.parseInt(str, 2);
+          set.add(value);
+      }</code></pre>
+          <ul>
+            <li>각 인덱스 i 하나만 뒤집은 새로운 2진수 문자열을 만든 뒤 <code>Integer.parseInt(str, 2)</code>로 10진수로 변환.</li>
+            <li>모든 가능한 후보를 <code>set</code>에 저장해 둔다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2단계: 3진수에서 한 자리씩 바꾸며 교집합 찾기</strong>
+          <pre><code>char[] arr2 = str2.toCharArray();
+      for (int i = 0; i &lt; arr2.length; i++) {
+          char[] tmp1 = arr2.clone();
+          char[] tmp2 = arr2.clone();
+          if (arr2[i] == '0') {
+              tmp1[i] = '1';
+              tmp2[i] = '2';
+          } else if (arr2[i] == '1') {
+              tmp1[i] = '0';
+              tmp2[i] = '2';
+          } else {
+              tmp1[i] = '0';
+              tmp2[i] = '1';
+          }
+      
+          String s1 = String.valueOf(tmp1);
+          String s2 = String.valueOf(tmp2);
+          int value1 = Integer.parseInt(s1, 3);
+          int value2 = Integer.parseInt(s2, 3);
+      
+          if (set.contains(value1)) {
+              System.out.println(value1);
+              return;
+          } else if (set.contains(value2)) {
+              System.out.println(value2);
+              return;
+          }
+      }</code></pre>
+          <ul>
+            <li>각 자리마다 가능한 다른 두 숫자로 바꾼 버전 <code>2개</code>를 만든다.</li>
+            <li>각 버전을 3진수로 해석해 10진수로 만들고,</li>
+            <li>아까 만들어 둔 2진수 후보 <code>set</code>에 들어 있는지 확인.</li>
+            <li>들어 있다면 그 값이 유일한 정답이므로 바로 출력하고 <code>return</code>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>2진수 길이를 <code>B</code>, 3진수 길이를 <code>T</code>라고 하면:
+              <ul>
+                <li>2진수 후보 생성: <code>O(B)</code>개 후보 × 각 변환 비용(길이만큼) → 대략 <code>O(B²)</code>에 가깝지만, 실제 입력 길이는 매우 짧다.</li>
+                <li>3진수 쪽: 각 자리마다 2개 후보 → <code>O(T)</code>번 변환 및 <code>Set</code> 조회.</li>
+              </ul>
+            </li>
+            <li>문제 조건에서 N ≤ 1,000,000,000이기 때문에 자릿수는 최대 31비트(2진), 20자리(3진) 정도 → <strong>실질적으로는 매우 빠르게 동작</strong>한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>2진수에서 만든 후보들의 개수는 최대 <code>B</code>개.</li>
+            <li>각 후보는 <code>int</code>로 저장되므로, 전체 공간은 <strong><code>O(B)</code></strong> 수준.</li>
+            <li>부가적으로 사용하는 문자열/배열도 자릿수 길이만큼이라 전체적으로 <strong>상수에 가까운</strong> 공간 사용이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5939 — Race Results</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5939">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1210_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Race Results (BOJ 5939)</strong>는<br>
+        여러 마리 소들의 마라톤 기록을 <strong>시:분:초 기준 오름차순 정렬</strong>해서 출력하는 아주 단순한 정렬 문제다.
+      </p>
+      
+      <ul>
+        <li>각 기록은 <code>시(0~99)</code>, <code>분(0~59)</code>, <code>초(0~59)</code> 세 정수로 주어진다.</li>
+        <li>정렬 기준은
+          <ol>
+            <li>먼저 <strong>시</strong>가 작은 순</li>
+            <li>시가 같다면 <strong>분</strong>이 작은 순</li>
+            <li>시, 분이 모두 같다면 <strong>초</strong>가 작은 순</li>
+          </ol>
+        </li>
+        <li>정렬된 순서대로 다시 <code>시 분 초</code> 형태로 출력하면 된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li>첫 줄에서 소의 수 <code>N</code>을 읽는다.</li>
+            <li>이후 <code>N</code>줄에 대해, 각 줄에서 <code>시, 분, 초</code>를 읽어 3칸짜리 배열로 저장한다.</li>
+          </ul>
+        </li>
+        <li><strong>정렬</strong>
+          <ul>
+            <li><code>int[][] cows = new int[N][3];</code> 형태의 2차원 배열에 기록을 저장한다.</li>
+            <li><code>Arrays.sort</code>에 <strong>커스텀 Comparator</strong>를 넘겨
+              <ol>
+                <li><code>hour</code>(<code>a[0]</code>) 먼저 비교,</li>
+                <li>같으면 <code>minute</code>(<code>a[1]</code>) 비교,</li>
+                <li>그래도 같으면 <code>second</code>(<code>a[2]</code>) 비교</li>
+              </ol>
+              하는 방식으로 정렬한다.
+            </li>
+          </ul>
+        </li>
+        <li><strong>출력</strong>
+          <ul>
+            <li>정렬된 <code>cows</code> 배열을 앞에서부터 순회하며
+              <code>시 분 초</code>를 공백으로 구분해 한 줄에 하나씩 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 및 저장</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      
+      int[][] cows = new int[N][3];
+      for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int hour = Integer.parseInt(st.nextToken());
+          int minute = Integer.parseInt(st.nextToken());
+          int second = Integer.parseInt(st.nextToken());
+      
+          cows[i][0] = hour;
+          cows[i][1] = minute;
+          cows[i][2] = second;
+      }</code></pre>
+          <ul>
+            <li>각 줄에서 시간 3개를 읽어 <code>cows[i][0..2]</code>에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬 로직</strong>
+          <pre><code>Arrays.sort(cows, (a, b) -&gt; {
+          if (a[0] != b[0]) return Integer.compare(a[0], b[0]);
+          if (a[1] != b[1]) return Integer.compare(a[1], b[1]);
+          return Integer.compare(a[2], b[2]);
+      });</code></pre>
+          <ul>
+            <li><code>a[0]</code>, <code>b[0]</code>: 시(hour) 비교</li>
+            <li>시가 같으면 <code>a[1]</code>, <code>b[1]</code>: 분(minute) 비교</li>
+            <li>여기까지 같으면 <code>a[2]</code>, <code>b[2]</code>: 초(second) 비교</li>
+            <li>이 순서대로 오름차순 정렬이 이루어진다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <pre><code>for (int[] cow : cows) {
+          for (int i = 0; i &lt; cow.length; i++) {
+              sb.append(cow[i]).append(" ");
+          }
+          sb.append('\n');
+      }
+      
+      System.out.print(sb.toString());</code></pre>
+          <ul>
+            <li>정렬된 배열에서 각 레코드를 꺼내 <code>시 분 초</code> 형태로 붙이고 줄바꿈.</li>
+            <li><code>StringBuilder</code>를 사용해 출력 속도를 높였다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>정렬이 전체 시간의 대부분을 차지하며, <code>N</code>개의 원소 정렬이므로 <strong><code>O(N log N)</code></strong>.</li>
+            <li><code>N ≤ 5,000</code>이므로 충분히 빠르게 동작한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>int[ N ][ 3 ]</code> 배열만 사용하므로 <strong><code>O(N)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

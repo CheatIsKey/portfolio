@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-10 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 콜라츠 추측</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12943">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1210_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        이 문제는 주어진 정수 <code>num</code>에 대해, 콜라츠 추측 규칙을 따라가면서<br>
+        <strong>1이 될 때까지 몇 번 연산을 수행하는지</strong>를 구하는 문제다.<br>
+        단, <strong>연산 횟수가 500번을 넘으면 -1을 반환</strong>해야 한다.
+      </p>
+      
+      <ul>
+        <li><strong>콜라츠 규칙</strong>
+          <ul>
+            <li>현재 수 <code>n</code>이 짝수라면: <code>n = n / 2</code></li>
+            <li>현재 수 <code>n</code>이 홀수라면: <code>n = n * 3 + 1</code></li>
+            <li>이 과정을 반복하다가 <code>n == 1</code>이 되면 멈춘다.</li>
+          </ul>
+        </li>
+        <li>최대 500번까지만 연산해 보고,
+          <ul>
+            <li>그 안에 1이 되면 걸린 횟수를 반환,</li>
+            <li>끝까지 1이 안 되면 <code>-1</code> 반환.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드 흐름 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>초기 설정</strong>
+          <ul>
+            <li><code>long n = num;</code>으로 받는 이유:
+              <ul>
+                <li><code>n = n * 3 + 1</code> 과정에서 <code>int</code> 범위를 넘을 수 있으므로
+                    <code>long</code>으로 안전하게 계산.</li>
+              </ul>
+            </li>
+            <li>처음부터 <code>num == 1</code>이면 연산을 안 해도 되므로 <code>0</code>을 바로 반환.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최대 500번까지 반복</strong>
+          <pre><code>for (int i = 0; i &lt; 500; i++) {
+          if (n % 2 == 0) {
+              n /= 2;
+          } else {
+              n = n * 3 + 1;
+          }
+      
+          if (n == 1) {
+              return i + 1;
+          }
+      }</code></pre>
+          <ul>
+            <li>매 반복마다 현재 수 <code>n</code>이 짝수인지 홀수인지에 따라 콜라츠 규칙 적용.</li>
+            <li>연산을 한 번 수행한 후, <code>n == 1</code>이면
+              <ul>
+                <li>이번에 수행한 횟수 = <code>i + 1</code> 이므로 그 값을 반환.</li>
+              </ul>
+            </li>
+            <li><code>i</code>는 0부터 시작하므로, 실제 연산 횟수는 항상 <code>i + 1</code>이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>500번 안에 1이 안 됐을 때</strong>
+          <pre><code>return -1;</code></pre>
+          <ul>
+            <li>for 루프를 다 돌고도 <code>n == 1</code>이 한 번도 안 나왔다면<br>
+                500회를 초과해도 1이 되지 않는다고 보고 <code>-1</code>을 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>:
+          <ul>
+            <li>최대 500번만 반복하므로 <code>O(1)</code> (상수 시간).</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>:
+          <ul>
+            <li>추가로 사용하는 변수는 <code>long n</code>과 반복용 변수 정도이므로 <code>O(1)</code>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 최대공약수와 최소공배수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12940">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1210_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>최대공약수와 최소공배수 (프로그래머스 12940)</strong> 문제는<br>
+        두 자연수 <code>n</code>, <code>m</code>이 주어졌을 때,
+        <strong>최대공약수(GCD)</strong>와 <strong>최소공배수(LCM)</strong>를 구해<br>
+        <code>[최대공약수, 최소공배수]</code> 형태의 배열로 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><strong>최대공약수(GCD)</strong>:
+          <ul>
+            <li>두 수가 동시에 나누어떨어지는 양의 정수 중 가장 큰 값.</li>
+            <li>코드에서는 <strong>유클리드 호제법</strong>으로 계산한다.</li>
+          </ul>
+        </li>
+        <li><strong>최소공배수(LCM)</strong>:
+          <ul>
+            <li>두 수의 공통 배수 중 가장 작은 양의 정수.</li>
+            <li>공식: <code>lcm(n, m) = n * m / gcd(n, m)</code></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드 핵심 로직
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong><code>solution</code> 메서드</strong>
+          <ul>
+            <li><code>int gcd = gcd(n, m);</code><br>
+              → 아래에 정의된 재귀 함수 <code>gcd</code>로 최대공약수를 구한다.</li>
+            <li><code>int lcm = n * m / gcd;</code><br>
+              → <strong>곱 / GCD</strong> 공식을 사용해 최소공배수를 구한다.</li>
+            <li><code>return new int[]{gcd, lcm};</code><br>
+              → 결과를 <code>[최대공약수, 최소공배수]</code> 배열로 반환.</li>
+          </ul>
+        </li>
+      
+        <li><strong><code>gcd</code> (유클리드 호제법)</strong>
+          <pre><code>private int gcd(int n, int m) {
+          if (m == 0) return n;
+          return gcd(m, n % m);
+      }</code></pre>
+          <ul>
+            <li>아이디어:
+              <ul>
+                <li><code>gcd(a, b)</code>에서 <code>b == 0</code> 이면, 최대공약수는 <code>a</code>.</li>
+                <li>그렇지 않으면 <code>gcd(b, a % b)</code>로 문제 크기를 줄여서 재귀 호출.</li>
+              </ul>
+            </li>
+            <li>예: <code>gcd(12, 8)</code>
+              <ol>
+                <li><code>gcd(12, 8)</code> → <code>gcd(8, 12 % 8 = 4)</code></li>
+                <li><code>gcd(8, 4)</code> → <code>gcd(4, 8 % 4 = 0)</code></li>
+                <li><code>gcd(4, 0)</code> → <code>4</code> 반환</li>
+              </ol>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>n = 12, m = 18</code>일 때
+          <ol>
+            <li><code>gcd(12, 18) = 6</code></li>
+            <li><code>lcm = 12 * 18 / 6 = 216 / 6 = 36</code></li>
+            <li>반환 값: <code>[6, 36]</code></li>
+          </ol>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>유클리드 호제법은 <code>O(log(min(n, m)))</code> 시간에 동작.</li>
+            <li>나머지 연산은 상수 시간이므로 전체도 <strong><code>O(log(min(n, m))</code></strong> 수준.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>재귀 깊이가 <code>O(log(min(n, m))</code>이지만, 별도 큰 자료구조는 없으므로<br>
+                공간 복잡도는 사실상 <strong><code>O(1)</code></strong>로 볼 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
