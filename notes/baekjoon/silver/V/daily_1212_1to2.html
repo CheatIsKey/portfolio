@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-11 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5957 — Cleaning the Dishes</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5957">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1211_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Cleaning the Dishes (BOJ 5957)</strong>는<br>
+        더러운 접시 더미에서 시작해 Bessie(세척)와 Canmuu(건조)가 번갈아 작업할 때,
+        최종적으로 <strong>깨끗한 접시 스택의 위에서부터 아래까지 번호를 출력</strong>하는
+        시뮬레이션 문제다.
+      </p>
+      
+      <ul>
+        <li>접시는 <code>1</code>번이 맨 위, <code>N</code>번이 맨 아래인 상태에서 시작한다.</li>
+        <li>명령은 두 종류:
+          <ul>
+            <li><code>1 D</code> : Bessie가 더러운 접시 더미에서 <strong>D개를 순서대로 꺼내 씻고</strong>, 세척 전용 스택 위에 쌓는다.</li>
+            <li><code>2 D</code> : Canmuu가 세척된 스택에서 <strong>D개를 꺼내 말리고</strong>, 최종 깨끗한 스택 위에 쌓는다.</li>
+          </ul>
+        </li>
+        <li>두 사람 모두 “스택처럼” 위에서부터 하나씩 처리하고, 옮길 때마다 <strong>순서가 뒤집힌다</strong>.</li>
+        <li>모든 명령이 끝난 뒤, <strong>깨끗한 스택(dry)</strong>의 위에서부터 순서대로 접시 번호를 출력하면 된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 아이디어</strong>
+          <ul>
+            <li>스택 3개로 그대로 시뮬레이션한다.
+              <ul>
+                <li><code>dirty</code> : 아직 안 씻은 접시들</li>
+                <li><code>wash</code> : 씻었지만 아직 안 말린 접시들</li>
+                <li><code>dry</code> : 씻고 말리기까지 끝난 최종 스택</li>
+              </ul>
+            </li>
+            <li>각 명령에 따라 <code>dirty → wash → dry</code>로 접시가 이동한다.</li>
+            <li>한 번의 “세척 묶음”은 <strong>한 번 뒤집히고</strong>, 그 묶음이 통째로 “건조”될 때 다시 <strong>한 번 더 뒤집혀서</strong> 결국 <strong>원래 순서대로</strong> <code>dry</code>에 쌓이게 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>초기화</strong>
+          <ul>
+            <li><code>dirty</code> 스택에는 <code>N</code>부터 <code>1</code>까지 <code>push</code> 한다.
+              <ul>
+                <li>이렇게 하면 <code>dirty.pop()</code>을 했을 때 <code>1, 2, 3, ...</code> 순으로 꺼낼 수 있다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>명령 처리</strong>
+          <ul>
+            <li><code>1 D</code> (세척):
+              <ul>
+                <li><code>D</code>번 반복해서 <code>dirty.pop()</code>한 뒤 <code>wash.push()</code> 한다.</li>
+              </ul>
+            </li>
+            <li><code>2 D</code> (건조):
+              <ul>
+                <li><code>D</code>번 반복해서 <code>wash.pop()</code>한 뒤 <code>dry.push()</code> 한다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <ul>
+            <li>모든 명령 처리가 끝나면, <code>dry</code>의 top부터 bottom까지 순서대로 꺼내면서 출력한다.</li>
+            <li>문제에서 요구하는 “위에서부터 i번째 접시” 순서와 정확히 일치한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>스택 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      
+      Deque&lt;Integer&gt; dirty = new ArrayDeque&lt;&gt;();
+      Deque&lt;Integer&gt; wash  = new ArrayDeque&lt;&gt;();
+      Deque&lt;Integer&gt; dry   = new ArrayDeque&lt;&gt;();
+      
+      // dirty: top = 1, ..., bottom = N 이 되도록 push
+      for (int i = N; i &gt;= 1; i--) {
+          dirty.push(i);
+      }</code></pre>
+          <ul>
+            <li><code>dirty</code>에 <code>N, N-1, ..., 1</code>을 차례대로 <code>push</code> 하여, <code>pop()</code> 시 1부터 꺼내지도록 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>명령 처리 루프</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
+      
+          int C = Integer.parseInt(st.nextToken()); // 1: 세척, 2: 건조
+          int D = Integer.parseInt(st.nextToken()); // 처리할 접시 개수
+      
+          if (C == 1) {
+              // dirty -&gt; wash
+              for (int i = 0; i &lt; D; i++) {
+                  int toWash = dirty.pop();
+                  wash.push(toWash);
+              }
+          } else {
+              // wash -&gt; dry
+              for (int i = 0; i &lt; D; i++) {
+                  int toDry = wash.pop();
+                  dry.push(toDry);
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>C == 1</code>이면 더러운 접시에서 <code>D</code>개를 씻어서 <code>wash</code>에 쌓는다.</li>
+            <li><code>C == 2</code>이면 세척된 접시에서 <code>D</code>개를 말려서 <code>dry</code>에 쌓는다.</li>
+            <li>두 경우 모두 스택을 사용하므로, 각 “묶음”은 이동할 때마다 순서가 뒤집힌다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>최종 결과 출력</strong>
+          <pre><code>while (!dry.isEmpty()) {
+          int removed = dry.pop();
+          sb.append(removed).append('\n');
+      }
+      
+      System.out.print(sb.toString());</code></pre>
+          <ul>
+            <li><code>dry</code> 스택의 top부터 하나씩 꺼내서 출력한다.</li>
+            <li>문제에서 요구하는 “위에서부터 i번째 접시”에 해당하므로 그대로 출력하면 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 접시는 세척(한 번 pop/push), 건조(한 번 pop/push)를 최대 한 번씩만 거친다.</li>
+            <li>따라서 전체 연산은 <strong><code>O(N)</code></strong> 수준이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>세 개의 스택에 접시 번호를 저장하므로 필요한 추가 공간은 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5976 — A spiral walk</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5976">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1211_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>A spiral walk (BOJ 5976)</strong>는<br>
+        <strong>N×N 격자</strong>를 시계 방향 나선 형태로 채우는 고전적인 구현 문제다.
+      </p>
+      
+      <ul>
+        <li>시작 위치는 <strong>(0,0)</strong> (왼쪽 위)이고, 거기서부터 <strong>오른쪽 → 아래 → 왼쪽 → 위</strong> 순으로 나선을 그리며 채운다.</li>
+        <li>채우는 값은 <strong>1부터 N²까지</strong> 증가한다.</li>
+        <li>최종적으로 N행을 출력할 때, 각 행마다 <code>N개의 정수</code>를 공백으로 구분해서 출력하면 된다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>나선 채우기의 기본 아이디어</strong>
+          <ul>
+            <li>현재 “아직 안 채운 영역”을 <strong>상단, 하단, 좌측, 우측 경계</strong>로 관리한다.
+              <ul>
+                <li><code>top</code> : 아직 안 채운 영역의 가장 위 행 인덱스</li>
+                <li><code>bottom</code> : 가장 아래 행 인덱스</li>
+                <li><code>left</code> : 가장 왼쪽 열 인덱스</li>
+                <li><code>right</code> : 가장 오른쪽 열 인덱스</li>
+              </ul>
+            </li>
+            <li>한 “레이어”를 채울 때마다 순서대로:
+              <ol>
+                <li><strong>위쪽 행</strong>을 <code>left → right</code> 방향으로 채움, 그리고 <code>top++</code></li>
+                <li><strong>오른쪽 열</strong>을 <code>top → bottom</code> 방향으로 채움, 그리고 <code>right--</code></li>
+                <li><strong>아래쪽 행</strong>을 <code>right → left</code> 방향으로 채움, 그리고 <code>bottom--</code></li>
+                <li><strong>왼쪽 열</strong>을 <code>bottom → top</code> 방향으로 채움, 그리고 <code>left++</code></li>
+              </ol>
+            </li>
+            <li>이 과정을 <strong>현재 숫자 cur가 N²에 도달할 때까지</strong> 반복하면 나선 모양으로 전체가 채워진다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>배열 준비</strong>
+          <ul>
+            <li><code>int[][] field = new int[N][N];</code> 에 나선 순서대로 숫자를 기록한다.</li>
+            <li>초기 값:
+              <pre><code>int top = 0, bottom = N - 1;
+      int left = 0, right = N - 1;
+      int cur = 1, end = N * N;</code></pre>
+              <ul>
+                <li><code>cur</code>는 현재 채울 숫자 (1부터 시작해서 N²까지 증가).</li>
+                <li><code>end</code>는 종료 기준값(=N²).</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>나선 채우기 메인 루프</strong>
+          <pre><code>int[][] field = new int[N][N];
+      int top = 0, bottom = N - 1;
+      int left = 0, right = N - 1;
+      int cur = 1, end = N * N;
+      
+      while (cur &lt;= end) {
+          // 1. 위쪽 행: 왼쪽 → 오른쪽
+          for (int c = left; c &lt;= right; c++) {
+              field[top][c] = cur++;
+          }
+          top++;
+      
+          // 2. 오른쪽 열: 위 → 아래
+          for (int r = top; r &lt;= bottom; r++) {
+              field[r][right] = cur++;
+          }
+          right--;
+      
+          // 3. 아래쪽 행: 오른쪽 → 왼쪽
+          for (int c = right; c &gt;= left; c--) {
+              field[bottom][c] = cur++;
+          }
+          bottom--;
+      
+          // 4. 왼쪽 열: 아래 → 위
+          for (int r = bottom; r &gt;= top; r--) {
+              field[r][left] = cur++;
+          }
+          left++;
+      }</code></pre>
+      
+          <ul>
+            <li><strong>위 행 채우기</strong>: <code>(top, left) ~ (top, right)</code>에 현재 숫자를 채우고 <code>top</code>을 한 칸 내려 새로운 “안쪽” 레이어로 들어간다.</li>
+            <li><strong>오른쪽 열</strong>: <code>(top, right) ~ (bottom, right)</code>를 채우고 <code>right--</code> 해서 안쪽으로 이동.</li>
+            <li><strong>아래 행</strong>: <code>(bottom, right) ~ (bottom, left)</code>를 역방향으로 채우고 <code>bottom--</code>.</li>
+            <li><strong>왼쪽 열</strong>: <code>(bottom, left) ~ (top, left)</code>를 위로 채우고 <code>left++</code>.</li>
+            <li>이 네 방향을 한 번 돌면 바깥 “테두리” 한 겹이 채워지고, 경계를 좁혀가며 계속 나선으로 들어간다.</li>
+            <li><code>cur &lt;= end</code> 조건만 보고 돌기 때문에, N이 홀수/짝수 상관없이 가운데까지 정확히 채워지며,
+              더 이상 채울 숫자가 없으면 반복을 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력 부분</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          for (int j = 0; j &lt; N; j++) {
+              sb.append(field[i][j]).append(" ");
+          }
+          sb.append('\n');
+      }
+      
+      System.out.println(sb.toString());</code></pre>
+          <ul>
+            <li>완성된 <code>field</code>를 위에서부터 한 행씩 순회하면서, 각 행의 원소를 공백으로 구분해 출력한다.</li>
+            <li><code>StringBuilder</code>를 사용해 입출력 속도도 최적화했다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>전체 격자 크기가 <code>N×N</code>이고, 각 칸은 정확히 한 번만 채운다.</li>
+            <li>따라서 시간 복잡도는 <strong><code>O(N²)</code></strong>이다.</li>
+            <li><code>N ≤ 750</code>이므로 최대 약 56만 칸으로 충분히 여유 있다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>field</code> 배열 하나만 사용하므로, 공간 복잡도는 <strong><code>O(N²)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
