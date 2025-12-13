@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-12 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 정수 제곱근 판별</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12934">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1212_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>정수 제곱근 판별 (프로그래머스 12934)</strong>는<br>
+        어떤 양의 정수 <code>n</code>이 <strong>정수의 제곱</strong>인지 확인하고,
+        맞다면 그 다음 정수의 제곱을, 아니라면 <code>-1</code>을 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>n</code>이 어떤 정수 <code>r</code>에 대해 <code>r²</code>이라면 → <code>(r+1)²</code> 반환</li>
+        <li>그렇지 않다면 → <code>-1</code> 반환</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1. 제곱근 구하기</strong>
+          <ul>
+            <li><code>Math.sqrt(n)</code>을 이용해 <code>n</code>의 제곱근을 구한다.</li>
+            <li><code>double</code> 결과를 <code>long</code>으로 캐스팅해서 <strong>정수 부분</strong>만 떼온다.
+              <pre><code>long r = (long) Math.sqrt(n);</code></pre>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>2. 정수 제곱인지 확인</strong>
+          <ul>
+            <li><code>r * r</code>이 원래 값 <code>n</code>과 정확히 같은지 비교한다.</li>
+            <li>같다면 <code>n</code>은 어떤 정수의 완전제곱이다.
+              <pre><code>if (r * r == n) {
+          // n은 r² 형태
+      }</code></pre>
+            </li>
+            <li>다르면 정수의 제곱이 아니므로 <code>-1</code>을 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3. 결과 반환</strong>
+          <ul>
+            <li>정수 제곱이라면, 문제 조건에 따라 <code>(r+1)²</code>를 반환한다.
+              <pre><code>if (r * r == n) {
+          return (long) Math.pow(r + 1, 2);
+      } else {
+          return -1;
+      }</code></pre>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일 요약
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong><code>long r = (long) Math.sqrt(n);</code></strong>
+          <ul>
+            <li><code>n</code>의 제곱근을 구해서 정수 부분만 <code>r</code>에 담는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong><code>if (r * r == n)</code></strong>
+          <ul>
+            <li><code>r²</code>가 정확히 <code>n</code>과 같다면, <code>n</code>은 완전제곱수.</li>
+            <li>이때 <code>(r+1)²</code>를 반환 → 다음 완전제곱수.</li>
+          </ul>
+        </li>
+      
+        <li><strong>그 외의 경우</strong>
+          <ul>
+            <li><code>r² ≠ n</code>이면 정수 제곱이 아니므로 <code>-1</code> 반환.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>연산은 제곱근 계산 및 상수번의 산술·분기 뿐 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 변수만 사용하므로 <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 정수 내림차순으로 배치하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12933">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1212_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>정수 내림차순으로 배치하기 (프로그래머스 12933)</strong>는<br>
+        주어진 정수 <code>n</code>의 각 자릿수를 <strong>내림차순으로 정렬</strong>한 뒤,
+        다시 하나의 수로 만들어 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>n</code>을 10으로 나누면서 각 자릿수를 분리한다.</li>
+        <li>자릿수들을 내림차순으로 정렬한다.</li>
+        <li>정렬된 자릿수를 앞에서부터 이어붙여 새로운 수를 만든다.</li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>자릿수 분리</strong>
+          <ul>
+            <li><code>n % 10</code>으로 마지막 자릿수를 얻고, <code>n /= 10</code>으로 한 자리 줄인다.</li>
+            <li>이 과정을 반복하며 모든 자릿수를 리스트에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>내림차순 정렬</strong>
+          <ul>
+            <li>자릿수 리스트를 <code>Collections.reverseOrder()</code> 기준으로 내림차순 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>수 재구성</strong>
+          <ul>
+            <li><code>result = result * 10 + digit</code> 방식으로 자릿수를 순서대로 붙인다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>자릿수 추출</strong>
+          <pre><code>List&lt;Integer&gt; digits = new ArrayList&lt;&gt;();
+      
+      while (n &gt; 0) {
+          digits.add((int)(n % 10));
+          n /= 10;
+      }</code></pre>
+          <ul>
+            <li><code>n</code>의 각 자릿수를 뒤에서부터 하나씩 뽑아 <code>digits</code>에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>내림차순 정렬</strong>
+          <pre><code>digits.sort(Collections.reverseOrder());</code></pre>
+          <ul>
+            <li>자릿수들을 큰 값부터 오도록 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬된 자릿수로 결과 만들기</strong>
+          <pre><code>long result = 0;
+      for (int i : digits) {
+          result = result * 10 + i;
+      }
+      
+      return result;</code></pre>
+          <ul>
+            <li>앞에서부터 자릿수를 붙여 최종 숫자를 완성한다.</li>
+            <li><code>long</code> 범위에서 안전하게 결과를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>자릿수 개수를 <code>d</code>라 하면, 추출은 <code>O(d)</code>, 정렬은 <code>O(d log d)</code>, 재구성은 <code>O(d)</code>.</li>
+            <li>따라서 전체는 <strong><code>O(d log d)</code></strong>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>자릿수 리스트를 저장하므로 <strong><code>O(d)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
