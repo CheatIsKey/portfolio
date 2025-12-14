@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-13 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-14 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 6052 — Cow Pals</h2>
+      <h2 class="section">문제 6108 — The Perfect Cow</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6052">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6108">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1213_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1214_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,14 @@
       </h3>
       
       <p>
-        <strong>Cow Pals (BOJ 6052)</strong>는<br>
-        어떤 수 <code>n</code>에 대해 <strong>자기 자신을 제외한 약수의 합</strong>(proper divisor sum)을 <code>sumDiv(n)</code>이라 할 때,
-        <strong>서로가 서로의 cowpal인(= 우정수/amicable)</strong> 쌍을 찾는 문제다.
+        <strong>The Perfect Cow (BOJ 6108)</strong>는<br>
+        <strong>N×N</strong> 격자에 있는 소들의 아름다움 점수에서,
+        각 행의 <strong>중앙값(메디안)</strong>을 뽑고, 그 <strong>N개의 중앙값</strong> 중 다시 <strong>중앙값</strong>을 구하는 문제다.
       </p>
       
       <ul>
-        <li><code>sumDiv(n)</code> = <strong>n을 제외한 약수들의 합</strong></li>
-        <li><strong>superpal</strong>: 서로가 서로의 cowpal인 두 수 (<code>a != b</code>, <code>sumDiv(a)=b</code> 그리고 <code>sumDiv(b)=a</code>)</li>
-        <li><strong>자기 자신과의 superpal(완전수)</strong>은 제외하므로 <code>sumDiv(i) == i</code>는 건너뛴다.</li>
-        <li>입력 <code>S</code> 이상인 수 중에서 <strong>가장 처음으로 superpal을 가지는 수</strong> <code>i</code>를 찾아 <code>i</code>와 그 짝 <code>x</code>를 출력한다.</li>
+        <li><code>N</code>은 <strong>홀수</strong>이므로, 중앙값은 항상 <code>N/2</code>번째(0-index 기준)로 명확하다.</li>
+        <li>각 행을 정렬해서 중앙값을 구하고, 그 결과 리스트를 다시 정렬해서 중앙값을 출력하면 끝.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,10 +74,18 @@
       </p>
       
       <ul>
-        <li><strong>1) S부터 1씩 증가</strong>시키며 후보 <code>i</code>를 본다.</li>
-        <li><strong>2) x = sumDiv(i)</strong>를 계산한다.</li>
-        <li><strong>3) 완전수 제외</strong>: <code>x == i</code>면 continue</li>
-        <li><strong>4) 상호 검증</strong>: <code>sumDiv(x) == i</code>이면 <code>i x</code> 출력 후 종료</li>
+        <li><strong>1) 행 단위 중앙값 추출</strong>
+          <ul>
+            <li>각 행의 <code>N</code>개 점수를 임시 리스트에 담는다.</li>
+            <li>리스트를 오름차순 정렬한 뒤, <code>N/2</code>번째 값을 “그 행의 중앙값”으로 저장한다.</li>
+          </ul>
+        </li>
+        <li><strong>2) 중앙값들의 중앙값 계산</strong>
+          <ul>
+            <li>행 중앙값이 담긴 리스트(<code>N</code>개)를 정렬한다.</li>
+            <li>그 리스트의 <code>N/2</code>번째 값을 출력한다.</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -91,45 +97,32 @@
       </p>
       
       <ul>
-        <li><strong>superpal 찾는 루프</strong>
-          <pre><code>for (int i = S;; i++) {
-          int x = sumDiv(i);
+        <li><strong>각 행을 정렬해서 중앙값을 뽑고 list2에 저장</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
       
-          // superpal of itself(완전수)은 제외
-          if (x == i) continue;
-      
-          // 상호 cowpal이면 정답
-          if (x &gt; 0 &amp;&amp; sumDiv(x) == i) {
-              System.out.println(i + " " + x);
-              return;
+          for (int j = 0; j &lt; N; j++) {
+              space[i][j] = Integer.parseInt(st.nextToken());
+              list1.add(space[i][j]);
           }
+      
+          Collections.sort(list1);
+          list2.add(list1.get(N / 2));
+          list1.clear();
       }</code></pre>
           <ul>
-            <li><code>i</code>를 <code>S</code>부터 증가시키며 검사한다.</li>
-            <li><code>x == i</code>면 자기 자신과의 쌍이므로 제외.</li>
-            <li><code>sumDiv(x) == i</code>가 성립하면 <code>i</code>가 찾는 “첫 번째 superpal 보유 수”가 된다.</li>
+            <li><code>list1</code>은 “현재 행”의 값들을 담는 임시 버퍼.</li>
+            <li>정렬 후 <code>list1.get(N/2)</code>가 그 행의 중앙값.</li>
+            <li>중앙값은 <code>list2</code>에 누적하고, 다음 행을 위해 <code>list1</code>을 비운다.</li>
           </ul>
         </li>
       
-        <li><strong>약수 합(sumDiv) 계산</strong>
-          <pre><code>private static int sumDiv(int n) {
-          if (n &lt;= 1) return 0;
-      
-          int sum = 1; // 1은 항상 proper divisor
-          for (int d = 2; d * d &lt;= n; d++) {
-              if (n % d == 0) {
-                  sum += d;
-      
-                  int other = n / d;
-                  if (other != d) sum += other; // 제곱수면 중복 방지
-              }
-          }
-          return sum;
-      }</code></pre>
+        <li><strong>행 중앙값 리스트(list2)를 정렬한 뒤 중앙값 출력</strong>
+          <pre><code>Collections.sort(list2);
+      System.out.println(list2.get(list2.size() / 2));</code></pre>
           <ul>
-            <li><code>n</code>의 약수는 <code>d</code>와 <code>n/d</code>가 쌍으로 존재하므로 <code>d</code>를 <code>sqrt(n)</code>까지만 확인한다.</li>
-            <li><code>n</code> 자신은 제외해야 하므로 초기값을 <code>sum = 1</code>로 두고 시작한다.</li>
-            <li>제곱수인 경우(<code>d*d == n</code>)에는 같은 약수를 두 번 더하지 않도록 처리한다.</li>
+            <li><code>list2</code>에는 총 <code>N</code>개의 행 중앙값이 들어있다.</li>
+            <li>정렬 후 <code>N/2</code>번째가 “중앙값들의 중앙값” → 정답.</li>
           </ul>
         </li>
       </ul>
@@ -145,17 +138,17 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><code>sumDiv(n)</code>는 <strong><code>O(sqrt(n))</code></strong>.</li>
-            <li><code>i</code>를 <code>S</code>부터 정답까지 증가시키며(문제 조건상 해가 유일), 각 후보마다 <code>sumDiv</code>를 최대 2번 호출하므로 전체는 <strong>대략 <code>O(K * sqrt(V))</code></strong> 수준이다.</li>
-            <li>여기서 <code>V</code>는 탐색 중 만나는 수의 크기(최대가 커도 <code>S ≤ 18000</code>이라 충분히 빠르게 통과).</li>
+            <li>각 행 정렬: <code>N</code>번 × <code>O(N log N)</code> → <strong><code>O(N^2 log N)</code></strong></li>
+            <li>중앙값 리스트 정렬: <code>O(N log N)</code> (위에 비해 매우 작음)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 배열 없이 계산하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>입력 저장 <code>N×N</code> + 리스트들 → 대략 <strong><code>O(N^2)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -214,14 +207,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6107 — Plumbing the Pond</h2>
+      <h2 class="section">문제 6110 — Watering - 2</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6107">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6110">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1213_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1214_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
