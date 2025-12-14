@@ -207,10 +207,10 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6110 — Watering - 2</h2>
+      <h2 class="section">문제 6123 — O Those Fads</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6110">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6123">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
@@ -231,15 +231,15 @@
       </h3>
       
       <p>
-        <strong>Plumbing the Pond (BOJ 6107)</strong>는<br>
-        레이더 값이 튀는 경우를 고려해서, <strong>가장 깊은 값이라도 인접(8방향) 칸에 같은 값이 하나라도 있어야</strong> 믿는다는 규칙을 그대로 구현하면 되는 문제다.
+        <strong>O Those Fads (BOJ 6123)</strong>는<br>
+        초기 매력도 <code>L</code>에서 시작해서, 참여한 소 한 마리당 매력도가 <code>K</code>씩 증가할 때
+        <strong>최종적으로 몇 마리까지 참여하게 되는지</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>연못은 <code>R x C</code> 격자이며, 각 칸의 값은 깊이 <code>D</code>다.</li>
-        <li><code>0</code>은 연못이 아닌 칸이므로 무시한다.</li>
-        <li>어떤 깊이 <code>x</code>가 <strong>인접한(상하좌우+대각선=8방향)</strong> 두 칸 이상에서 동시에 나타나면 “검증된 깊이”로 인정한다.</li>
-        <li>그런 깊이들 중 <strong>최댓값</strong>을 출력한다.</li>
+        <li>소 i는 저항치 <code>R_i</code>가 있고, 현재 매력도 <code>A</code>가 <code>R_i</code> 이상이면 참여한다.</li>
+        <li>참여한 소 수를 <code>cnt</code>라 하면 현재 매력도는 <code>A = L + cnt * K</code>로 계속 증가한다.</li>
+        <li>매력도는 한 번 올라가면 절대 내려가지 않으므로, <strong>저항치가 낮은 소부터 순서대로 확인</strong>하는 게 핵심이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -251,10 +251,22 @@
       </p>
       
       <ul>
-        <li>모든 칸 <code>(i, j)</code>을 순회한다.</li>
-        <li>현재 칸이 <code>0</code>이면 continue.</li>
-        <li>8방향 이웃 <code>(i + dr[k], j + dc[k])</code>을 확인한다.</li>
-        <li>범위 안이고, 이웃 값이 현재 값과 같으면 “검증 성공”이므로 <code>max = max(max, 현재값)</code> 갱신.</li>
+        <li><strong>1) 저항치 정렬</strong>
+          <ul>
+            <li><code>R_i</code>를 오름차순 정렬한다.</li>
+            <li>가장 쉽게 참여할 수 있는 소부터 참여시키는 것이 최대로 참여시키는 방법이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 그리디로 참여 가능 여부 체크</strong>
+          <ul>
+            <li>현재 참여자 수를 <code>cnt</code>라고 할 때, 현재 매력도는 <code>L + cnt * K</code>.</li>
+            <li>정렬된 배열을 앞에서부터 보면서
+              <code>R_i &lt;= L + cnt * K</code>면 참여시켜 <code>cnt++</code>.</li>
+            <li>어떤 소가 조건을 만족 못하면(저항치가 너무 크면),
+              뒤에 있는 소들은 더 크거나 같으므로 <strong>즉시 종료</strong>한다.</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -266,54 +278,27 @@
       </p>
       
       <ul>
-        <li><strong>8방향 이동 벡터</strong>
-          <pre><code>static final int[] row = {-1, -1, -1, 0, 0, 1, 1, 1};
-      static final int[] col = {-1, 0, 1, -1, 1, -1, 0, 1};</code></pre>
+        <li><strong>저항치 정렬</strong>
+          <pre><code>Arrays.sort(cows);</code></pre>
           <ul>
-            <li>대각선을 포함한 8방향을 한 번에 탐색하기 위한 이동 배열이다.</li>
+            <li>저항치가 낮은 소부터 참여 여부를 확인하기 위해 오름차순 정렬.</li>
           </ul>
         </li>
       
-        <li><strong>격자 입력</strong>
-          <pre><code>int[][] field = new int[R][C];
-      for (int i = 0; i &lt; R; i++) {
-          st = new StringTokenizer(br.readLine());
-          for (int j = 0; j &lt; C; j++) {
-              field[i][j] = Integer.parseInt(st.nextToken());
-          }
+        <li><strong>현재 매력도 계산 + 참여 처리</strong>
+          <pre><code>int cnt = 0;
+      for (int i = 0; i &lt; N; i++) {
+          long A = L + (long) cnt * K;
+      
+          if (cows[i] &lt;= A) cnt++;
+          else break;
       }</code></pre>
           <ul>
-            <li>깊이 정보를 2차원 배열에 저장한다.</li>
+            <li><code>cnt</code>명 참여했으면 현재 매력도는 <code>A = L + cnt*K</code>.</li>
+            <li>현재 소의 저항치가 <code>A</code> 이하면 참여 → <code>cnt++</code>.</li>
+            <li>한 번 실패하면 뒤는 더 큰 저항치이므로 더 이상 참여 불가 → <code>break</code>.</li>
+            <li><code>long</code>을 쓰는 이유: <code>L + cnt*K</code>가 int 범위를 넘을 수 있어서 안전하게 계산.</li>
           </ul>
-        </li>
-      
-        <li><strong>모든 칸에서 인접한 같은 값 찾기</strong>
-          <pre><code>int max = 0;
-      for (int i = 0; i &lt; R; i++) {
-          for (int j = 0; j &lt; C; j++) {
-              if (field[i][j] == 0) continue;
-      
-              for (int k = 0; k &lt; 8; k++) {
-                  int nr = i + row[k];
-                  int nc = j + col[k];
-      
-                  if (nr &lt; 0 || nr &gt;= R || nc &lt; 0 || nc &gt;= C) continue;
-      
-                  if (field[i][j] == field[nr][nc] &amp;&amp; field[i][j] &gt; max) {
-                      max = field[i][j];
-                  }
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li><code>0</code>은 연못이 아니므로 건너뛴다.</li>
-            <li>8방향 이웃이 범위 밖이면 건너뛴다.</li>
-            <li>이웃과 값이 같다면 “인접한 동일 깊이 2개 이상” 조건을 만족하므로 최댓값을 갱신한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>정답 출력</strong>
-          <pre><code>System.out.println(max);</code></pre>
         </li>
       </ul>
       
@@ -328,13 +313,14 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>각 칸마다 최대 8개의 이웃만 확인하므로 <strong><code>O(R*C)</code></strong>.</li>
-            <li><code>R, C ≤ 50</code>이라 매우 여유롭다.</li>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>한 번 순회: <strong><code>O(N)</code></strong></li>
+            <li>총합: <strong><code>O(N log N)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>격자 저장용 배열 하나 사용: <strong><code>O(R*C)</code></strong>.</li>
+            <li>저항치 배열: <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
       </ul>
