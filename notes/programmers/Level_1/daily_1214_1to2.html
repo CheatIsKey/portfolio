@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-13 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-14 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 자연수 뒤집어 배열로 만들기</h2>
+      <h2 class="section">문제 1 — 이상한 문자 만들기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12932">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12930">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1213_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1214_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,17 +53,17 @@
       </h3>
       
       <p>
-        <strong>자연수 뒤집어 배열로 만들기 (프로그래머스 12932)</strong>는<br>
-        주어진 자연수 <code>n</code>의 각 자리 숫자를 <strong>뒤에서부터(일의 자리부터)</strong> 뽑아
-        배열에 담아 반환하는 문제다.
+        <strong>이상한 문자 만들기 (Programmers 12930)</strong>는<br>
+        문자열을 단어 단위로 보면서, <strong>각 단어의 0번째, 2번째, 4번째… 문자는 대문자</strong>,<br>
+        <strong>1번째, 3번째, 5번째… 문자는 소문자</strong>로 바꿔서 결과를 만드는 문제다.
       </p>
       
       <ul>
-        <li>예: <code>12345</code> → <code>[5, 4, 3, 2, 1]</code></li>
-        <li>핵심은 <strong><code>n % 10</code></strong>으로 마지막 자리를 얻고, <strong><code>n /= 10</code></strong>으로 한 자리씩 줄이는 것.</li>
+        <li>핵심은 <strong>공백을 만나면 “단어 인덱스”를 0으로 초기화</strong>하는 것.</li>
+        <li>공백은 그대로 유지해야 하므로, 입력 문자열을 왼쪽부터 끝까지 한 글자씩 처리하는 방식이 안전하다.</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -72,23 +72,17 @@
       </p>
       
       <ul>
-        <li><strong>1) 배열 크기 구하기</strong>
+        <li><code>StringBuilder</code>로 결과 문자열을 만든다.</li>
+        <li><code>idx</code>를 “현재 단어에서 몇 번째 글자인지”를 나타내는 카운터로 둔다.</li>
+        <li>문자를 하나씩 확인하면서
           <ul>
-            <li>정답 배열은 자릿수만큼 필요하므로, 임시 변수 <code>tmp</code>로 자릿수를 센다.</li>
-            <li><code>tmp &gt; 0</code> 동안 <code>tmp /= 10</code>을 반복하면 자릿수만큼 카운트 증가.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 뒤집어서 채우기</strong>
-          <ul>
-            <li><code>n</code>에서 <code>n % 10</code>을 꺼내 배열에 넣고</li>
-            <li><code>n /= 10</code>으로 자릿수를 하나 줄인다.</li>
-            <li>이 과정을 <code>n</code>이 0이 될 때까지 반복하면 자연스럽게 “뒤집힌 순서”로 들어간다.</li>
+            <li>공백이면: 그대로 추가하고 <code>idx = 0</code></li>
+            <li>문자면: <code>idx</code>가 짝수면 대문자, 홀수면 소문자로 바꾸고 <code>idx++</code></li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -97,37 +91,31 @@
       </p>
       
       <ul>
-        <li><strong>자릿수 계산</strong>
-          <pre><code>int length = 0;
-      long tmp = n;
-      
-      while (tmp &gt; 0) {
-          length++;
-          tmp /= 10;
+        <li><strong>단어 인덱스 관리(공백 처리)</strong>
+          <pre><code>if (c == ' ') {
+          sb.append(' ');
+          idx = 0;
       }</code></pre>
           <ul>
-            <li><code>tmp</code>를 10으로 계속 나누면서 자릿수를 센다.</li>
-            <li>이 값이 곧 정답 배열의 길이.</li>
+            <li>공백은 그대로 유지해야 하고, 공백 이후에는 새 단어가 시작되므로 인덱스를 0으로 초기화한다.</li>
           </ul>
         </li>
       
-        <li><strong>배열 채우기 (일의 자리부터)</strong>
-          <pre><code>int idx = 0;
-      int[] answer = new int[length];
-      
-      while (n &gt; 0) {
-          answer[idx++] = (int) (n % 10);
-          n /= 10;
+        <li><strong>짝/홀 인덱스에 따라 대소문자 변환</strong>
+          <pre><code>else {
+          if (idx % 2 == 0) sb.append(Character.toUpperCase(c));
+          else sb.append(Character.toLowerCase(c));
+          idx++;
       }</code></pre>
           <ul>
-            <li><code>n % 10</code> → 현재 일의 자리</li>
-            <li>배열에 넣고 <code>n /= 10</code>으로 다음 자리로 이동</li>
-            <li>결과적으로 뒤집힌 순서로 저장된다.</li>
+            <li><code>idx</code>가 짝수(0,2,4,...)면 대문자</li>
+            <li><code>idx</code>가 홀수(1,3,5,...)면 소문자</li>
+            <li>문자를 처리했으니 단어 인덱스를 1 증가</li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -138,16 +126,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>자릿수 계산 O(d) + 배열 채우기 O(d) → <strong><code>O(d)</code></strong></li>
-            <li>여기서 d는 자릿수(최대 19자리 수준)</li>
+            <li>문자열을 한 번만 순회하므로 <strong><code>O(L)</code></strong> (L = 문자열 길이)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>정답 배열 크기만 사용 → <strong><code>O(d)</code></strong></li>
+            <li>결과를 담는 <code>StringBuilder</code>만 사용하므로 <strong><code>O(L)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -210,14 +198,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 자릿수 더하기</h2>
+      <h2 class="section">문제 2 — 약수의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12931">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12928">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1213_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1214_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -230,16 +218,17 @@
       </h3>
       
       <p>
-        <strong>자릿수 더하기 (프로그래머스 12931)</strong>는<br>
-        정수 <code>n</code>이 주어졌을 때, <strong>각 자리 숫자의 합</strong>을 구하는 문제다.
+        <strong>약수의 합 (Programmers 12928)</strong>는<br>
+        정수 <code>n</code>의 <strong>모든 약수의 합</strong>을 구하는 문제다.
       </p>
       
       <ul>
-        <li>핵심은 <strong>일의 자리부터 하나씩 분리</strong>해서 누적하는 것.</li>
-        <li><code>n % 10</code>으로 마지막 자릿수를 얻고, <code>n /= 10</code>으로 자릿수를 하나 줄인다.</li>
+        <li>약수는 항상 <strong>짝(pair)</strong>으로 등장한다: <code>i</code>가 약수면 <code>n / i</code>도 약수.</li>
+        <li>그래서 <strong>1부터 √n까지만</strong> 검사해도 전체 약수를 모두 더할 수 있다.</li>
+        <li>단, <code>n</code>이 완전제곱수면 <code>i == n/i</code>가 되는 지점(√n)은 <strong>한 번만</strong> 더해야 한다.</li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -248,20 +237,16 @@
       </p>
       
       <ul>
-        <li><strong>반복 처리</strong>
+        <li><code>i</code>를 1부터 증가시키면서 <code>i*i &lt;= n</code>까지만 확인한다.</li>
+        <li><code>n % i == 0</code>이면
           <ul>
-            <li><code>n</code>이 0이 될 때까지 반복한다.</li>
-            <li>매 반복마다
-              <ol>
-                <li><code>n % 10</code> → 일의 자리 추출 후 합에 더하기</li>
-                <li><code>n /= 10</code> → 다음 자리로 이동</li>
-              </ol>
-            </li>
+            <li><code>sum += i</code></li>
+            <li><code>i*i == n</code>이 아니라면 짝 약수인 <code>n/i</code>도 더한다.</li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -270,22 +255,23 @@
       </p>
       
       <ul>
-        <li><strong>자릿수 누적</strong>
-          <pre><code>int sum = 0;
+        <li><strong>√n까지만 약수 탐색</strong>
+          <pre><code>for (int i = 1; i * i &lt;= n; i++) {
+          if (n % i == 0) {
+              sum += i;
       
-      while (n &gt; 0) {
-          sum += n % 10;
-          n /= 10;
+              if (i * i == n) continue;
+              else sum += n / i;
+          }
       }</code></pre>
           <ul>
-            <li><code>n % 10</code>으로 현재 일의 자리를 얻어 <code>sum</code>에 누적한다.</li>
-            <li><code>n /= 10</code>으로 맨 뒤 자릿수를 제거하며 다음 반복에서 그 다음 자리를 처리한다.</li>
-            <li>반복이 끝나면 <code>sum</code>이 곧 모든 자릿수의 합이다.</li>
+            <li><code>i</code>가 약수면 <code>i</code>를 더하고, 짝 약수 <code>n/i</code>도 더한다.</li>
+            <li>단, <code>i*i == n</code>이면 <code>i</code>와 <code>n/i</code>가 같아서 중복이므로 한 번만 더한다.</li>
           </ul>
         </li>
       </ul>
       
-      <hr style="border:none; border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;">
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -296,15 +282,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><code>n</code>의 자릿수를 d라고 하면, 한 자리씩 처리하므로 <strong><code>O(d)</code></strong>.</li>
+            <li><strong><code>O(√n)</code></strong> (1부터 √n까지만 검사)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 배열 없이 변수만 사용하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>추가 배열 없이 합계 변수만 쓰므로 <strong><code>O(1)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
