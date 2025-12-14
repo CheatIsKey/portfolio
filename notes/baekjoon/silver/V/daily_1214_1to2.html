@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-13 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6052 — Cow Pals</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6052">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1213_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Cow Pals (BOJ 6052)</strong>는<br>
+        어떤 수 <code>n</code>에 대해 <strong>자기 자신을 제외한 약수의 합</strong>(proper divisor sum)을 <code>sumDiv(n)</code>이라 할 때,
+        <strong>서로가 서로의 cowpal인(= 우정수/amicable)</strong> 쌍을 찾는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>sumDiv(n)</code> = <strong>n을 제외한 약수들의 합</strong></li>
+        <li><strong>superpal</strong>: 서로가 서로의 cowpal인 두 수 (<code>a != b</code>, <code>sumDiv(a)=b</code> 그리고 <code>sumDiv(b)=a</code>)</li>
+        <li><strong>자기 자신과의 superpal(완전수)</strong>은 제외하므로 <code>sumDiv(i) == i</code>는 건너뛴다.</li>
+        <li>입력 <code>S</code> 이상인 수 중에서 <strong>가장 처음으로 superpal을 가지는 수</strong> <code>i</code>를 찾아 <code>i</code>와 그 짝 <code>x</code>를 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) S부터 1씩 증가</strong>시키며 후보 <code>i</code>를 본다.</li>
+        <li><strong>2) x = sumDiv(i)</strong>를 계산한다.</li>
+        <li><strong>3) 완전수 제외</strong>: <code>x == i</code>면 continue</li>
+        <li><strong>4) 상호 검증</strong>: <code>sumDiv(x) == i</code>이면 <code>i x</code> 출력 후 종료</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>superpal 찾는 루프</strong>
+          <pre><code>for (int i = S;; i++) {
+          int x = sumDiv(i);
+      
+          // superpal of itself(완전수)은 제외
+          if (x == i) continue;
+      
+          // 상호 cowpal이면 정답
+          if (x &gt; 0 &amp;&amp; sumDiv(x) == i) {
+              System.out.println(i + " " + x);
+              return;
+          }
+      }</code></pre>
+          <ul>
+            <li><code>i</code>를 <code>S</code>부터 증가시키며 검사한다.</li>
+            <li><code>x == i</code>면 자기 자신과의 쌍이므로 제외.</li>
+            <li><code>sumDiv(x) == i</code>가 성립하면 <code>i</code>가 찾는 “첫 번째 superpal 보유 수”가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>약수 합(sumDiv) 계산</strong>
+          <pre><code>private static int sumDiv(int n) {
+          if (n &lt;= 1) return 0;
+      
+          int sum = 1; // 1은 항상 proper divisor
+          for (int d = 2; d * d &lt;= n; d++) {
+              if (n % d == 0) {
+                  sum += d;
+      
+                  int other = n / d;
+                  if (other != d) sum += other; // 제곱수면 중복 방지
+              }
+          }
+          return sum;
+      }</code></pre>
+          <ul>
+            <li><code>n</code>의 약수는 <code>d</code>와 <code>n/d</code>가 쌍으로 존재하므로 <code>d</code>를 <code>sqrt(n)</code>까지만 확인한다.</li>
+            <li><code>n</code> 자신은 제외해야 하므로 초기값을 <code>sum = 1</code>로 두고 시작한다.</li>
+            <li>제곱수인 경우(<code>d*d == n</code>)에는 같은 약수를 두 번 더하지 않도록 처리한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><code>sumDiv(n)</code>는 <strong><code>O(sqrt(n))</code></strong>.</li>
+            <li><code>i</code>를 <code>S</code>부터 정답까지 증가시키며(문제 조건상 해가 유일), 각 후보마다 <code>sumDiv</code>를 최대 2번 호출하므로 전체는 <strong>대략 <code>O(K * sqrt(V))</code></strong> 수준이다.</li>
+            <li>여기서 <code>V</code>는 탐색 중 만나는 수의 크기(최대가 커도 <code>S ≤ 18000</code>이라 충분히 빠르게 통과).</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 배열 없이 계산하므로 <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6107 — Plumbing the Pond</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6107">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1213_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Plumbing the Pond (BOJ 6107)</strong>는<br>
+        레이더 값이 튀는 경우를 고려해서, <strong>가장 깊은 값이라도 인접(8방향) 칸에 같은 값이 하나라도 있어야</strong> 믿는다는 규칙을 그대로 구현하면 되는 문제다.
+      </p>
+      
+      <ul>
+        <li>연못은 <code>R x C</code> 격자이며, 각 칸의 값은 깊이 <code>D</code>다.</li>
+        <li><code>0</code>은 연못이 아닌 칸이므로 무시한다.</li>
+        <li>어떤 깊이 <code>x</code>가 <strong>인접한(상하좌우+대각선=8방향)</strong> 두 칸 이상에서 동시에 나타나면 “검증된 깊이”로 인정한다.</li>
+        <li>그런 깊이들 중 <strong>최댓값</strong>을 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>모든 칸 <code>(i, j)</code>을 순회한다.</li>
+        <li>현재 칸이 <code>0</code>이면 continue.</li>
+        <li>8방향 이웃 <code>(i + dr[k], j + dc[k])</code>을 확인한다.</li>
+        <li>범위 안이고, 이웃 값이 현재 값과 같으면 “검증 성공”이므로 <code>max = max(max, 현재값)</code> 갱신.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>8방향 이동 벡터</strong>
+          <pre><code>static final int[] row = {-1, -1, -1, 0, 0, 1, 1, 1};
+      static final int[] col = {-1, 0, 1, -1, 1, -1, 0, 1};</code></pre>
+          <ul>
+            <li>대각선을 포함한 8방향을 한 번에 탐색하기 위한 이동 배열이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>격자 입력</strong>
+          <pre><code>int[][] field = new int[R][C];
+      for (int i = 0; i &lt; R; i++) {
+          st = new StringTokenizer(br.readLine());
+          for (int j = 0; j &lt; C; j++) {
+              field[i][j] = Integer.parseInt(st.nextToken());
+          }
+      }</code></pre>
+          <ul>
+            <li>깊이 정보를 2차원 배열에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>모든 칸에서 인접한 같은 값 찾기</strong>
+          <pre><code>int max = 0;
+      for (int i = 0; i &lt; R; i++) {
+          for (int j = 0; j &lt; C; j++) {
+              if (field[i][j] == 0) continue;
+      
+              for (int k = 0; k &lt; 8; k++) {
+                  int nr = i + row[k];
+                  int nc = j + col[k];
+      
+                  if (nr &lt; 0 || nr &gt;= R || nc &lt; 0 || nc &gt;= C) continue;
+      
+                  if (field[i][j] == field[nr][nc] &amp;&amp; field[i][j] &gt; max) {
+                      max = field[i][j];
+                  }
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>0</code>은 연못이 아니므로 건너뛴다.</li>
+            <li>8방향 이웃이 범위 밖이면 건너뛴다.</li>
+            <li>이웃과 값이 같다면 “인접한 동일 깊이 2개 이상” 조건을 만족하므로 최댓값을 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 출력</strong>
+          <pre><code>System.out.println(max);</code></pre>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 칸마다 최대 8개의 이웃만 확인하므로 <strong><code>O(R*C)</code></strong>.</li>
+            <li><code>R, C ≤ 50</code>이라 매우 여유롭다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>격자 저장용 배열 하나 사용: <strong><code>O(R*C)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
