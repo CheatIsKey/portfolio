@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 4일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 4일차 TIL — SQL 그룹 함수 &amp; Hello World</h1>
+      <p class="muted">작성일 2025-12-11 · 분류: 부트캠프, TIL, SQL, Article</p>
+
+      <!-- 섹션 1: 4일차 개요 -->
+      <h2 class="section">4일차 개요 — 집계·날짜 함수 복습과 Hello World 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        4일차에는 <strong>SQL의 집계 함수와 날짜 함수</strong>를 다시 손으로 익히고,
+        개발자의 상징 같은 문장인 <strong>Hello World</strong>의 기원과 의미를 정리했다.
+        단순 문법 암기가 아니라, 실제로 자주 등장할 만한 테이블 구조를 상상해서 예시 데이터를 만들고
+        그 위에 쿼리를 올려 보는 흐름으로 공부했다.
+      </p>
+
+      <ul>
+        <li>피드백·의사·환자 테이블을 예시로, <strong>GROUP BY, COUNT, AVG, DATEDIFF, DATE_SUB</strong> 등을 복습했다.</li>
+        <li>윈도 함수 대신, 오늘은 그룹 단위 집계와 날짜 조건 중심으로 패턴을 다시 정리했다.</li>
+        <li>Hello World의 기원과 사용 방식, 개발자 문화에서 가지는 의미를 짧게 정리하며 “첫 출력문”의 느낌을 되짚었다.</li>
+      </ul>
+
+      <!-- 섹션 2: SQL 퀘스트 - 피드백 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 피드백 테이블(game_feedbacks)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>피드백 정보를 담은 <code>game_feedbacks</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>summoner_name</th>
+            <th>score</th>
+            <th>created_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>르탄이</td>
+            <td>5</td>
+            <td>2023-03-01</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>배캠이</td>
+            <td>4</td>
+            <td>2023-03-02</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>구구이</td>
+            <td>3</td>
+            <td>2023-03-01</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>이션이</td>
+            <td>5</td>
+            <td>2023-03-03</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>구구이</td>
+            <td>4</td>
+            <td>2023-03-04</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> <code>game_feedbacks</code> 테이블에서 만족도 점수(<code>score</code>)에 따라 피드백을 내림차순으로 정렬하는 쿼리</p>
+      <pre><code>SELECT *
+FROM game_feedbacks
+ORDER BY score DESC;
+</code></pre>
+
+      <p><strong>2.</strong> <code>game_feedbacks</code> 테이블에서 각 유저별 최신 피드백을 찾는 쿼리</p>
+      <pre><code>SELECT summoner_name,
+       MAX(created_at) AS latest_feedback_at
+FROM game_feedbacks
+GROUP BY summoner_name;
+</code></pre>
+
+      <p><strong>3.</strong> <code>game_feedbacks</code> 테이블에서 만족도 점수가 5점인 피드백의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS "5점 피드백 수"
+FROM game_feedbacks
+WHERE score = 5;
+</code></pre>
+
+      <p><strong>4.</strong> <code>game_feedbacks</code> 테이블에서 가장 많은 피드백을 남긴 상위 3명의 유저를 찾는 쿼리</p>
+      <pre><code>SELECT summoner_name,
+       COUNT(*) AS feedback_count
+FROM game_feedbacks
+GROUP BY summoner_name
+ORDER BY feedback_count DESC
+LIMIT 3;
+</code></pre>
+
+      <p><strong>5.</strong> <code>game_feedbacks</code> 테이블에서 평균 만족도 점수가 가장 높은 날짜를 찾는 쿼리</p>
+      <pre><code>SELECT created_at AS feedback_date
+FROM game_feedbacks
+GROUP BY created_at
+ORDER BY AVG(score) DESC
+LIMIT 1;
+</code></pre>
+
+      <!-- 섹션 3: SQL 퀘스트 - 의사 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 의사 테이블(hospital_doctors)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>의사 정보를 담은 <code>hospital_doctors</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>doctor_name</th>
+            <th>department</th>
+            <th>hired_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>르탄이</td>
+            <td>피부과</td>
+            <td>2018-05-10</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>배캠이</td>
+            <td>성형외과</td>
+            <td>2019-06-15</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>구구이</td>
+            <td>안과</td>
+            <td>2020-07-20</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> <code>hospital_doctors</code> 테이블에서 전공(<code>department</code>)이 성형외과인 의사의 이름을 알아내는 쿼리</p>
+      <pre><code>SELECT doctor_name
+FROM hospital_doctors
+WHERE department = '성형외과';
+</code></pre>
+
+      <p><strong>2.</strong> <code>hospital_doctors</code> 테이블에서 각 전공별 의사 수를 계산하는 쿼리</p>
+      <pre><code>SELECT department,
+       COUNT(*) AS doctor_count
+FROM hospital_doctors
+GROUP BY department;
+</code></pre>
+
+      <p><strong>3.</strong> <code>hospital_doctors</code> 테이블에서 현재 날짜 기준으로 5년 이상 근무한 의사 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS num_of_doctors
+FROM hospital_doctors
+WHERE hired_at &lt;= DATE_SUB(CURDATE(), INTERVAL 5 YEAR);
+</code></pre>
+
+      <p><strong>4.</strong> <code>hospital_doctors</code> 테이블에서 각 의사의 근무 기간을 계산하는 쿼리</p>
+      <pre><code>SELECT doctor_name,
+       DATEDIFF(CURDATE(), hired_at) AS worked_days
+FROM hospital_doctors;
+</code></pre>
+
+      <!-- 섹션 4: SQL 퀘스트 - 환자 테이블 -->
+      <h2 class="section">SQL 기초 퀘스트 — 환자 테이블(clinic_patients)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>환자 정보를 담은 <code>clinic_patients</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>patient_name</th>
+            <th>birth_date</th>
+            <th>gender</th>
+            <th>last_visit_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>르탄이</td>
+            <td>1985-04-12</td>
+            <td>남자</td>
+            <td>2023-03-15</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>배캠이</td>
+            <td>1990-08-05</td>
+            <td>여자</td>
+            <td>2023-03-20</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>구구이</td>
+            <td>1982-12-02</td>
+            <td>여자</td>
+            <td>2023-02-18</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>이션이</td>
+            <td>1999-03-02</td>
+            <td>남자</td>
+            <td>2023-03-17</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          풀이한 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> <code>clinic_patients</code> 테이블에서 각 성별(<code>gender</code>)에 따른 환자 수를 계산하는 쿼리</p>
+      <pre><code>SELECT gender,
+       COUNT(*) AS patient_count
+FROM clinic_patients
+GROUP BY gender;
+</code></pre>
+
+      <p><strong>2.</strong> <code>clinic_patients</code> 테이블에서 현재 나이가 40세 이상인 환자들의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS over_40_count
+FROM clinic_patients
+WHERE birth_date &lt;= DATE_SUB(CURDATE(), INTERVAL 40 YEAR);
+</code></pre>
+
+      <p><strong>3.</strong> <code>clinic_patients</code> 테이블에서 마지막 방문 날짜(<code>last_visit_at</code>)가 1년 이상 된 환자들을 선택하는 쿼리</p>
+      <pre><code>SELECT *
+FROM clinic_patients
+WHERE last_visit_at &lt;= DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
+</code></pre>
+
+      <p><strong>4.</strong> <code>clinic_patients</code> 테이블에서 생년월일이 1980년대인 환자들의 수를 계산하는 쿼리</p>
+      <pre><code>SELECT COUNT(*) AS born_in_80s
+FROM clinic_patients
+WHERE YEAR(birth_date) BETWEEN 1980 AND 1989;
+</code></pre>
+
+      <!-- 섹션 5: Hello World 아티클 정리 -->
+      <h2 class="section">Hello World — 개발자의 첫 인사</h2>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          기원과 의미
+        </span>
+      </h3>
+
+      <p>
+        프로그래밍을 처음 배울 때 가장 먼저 출력해 보는 문장이 바로 <strong>Hello, World!</strong>다.
+        단순한 한 줄이지만, 대부분의 개발자에게는 “처음으로 컴퓨터와 대화가 통했던 순간”을 떠올리게 하는 문장이다.
+      </p>
+
+      <p>
+        정확한 기원은 명확하지 않지만, 오늘날 가장 유력하게 언급되는 출발점은
+        데니스 리치와 브라이언 커니핸이 집필한 C 언어 서적 <strong>『The C Programming Language』</strong>이다.
+        이 책에서 함수와 프로그램 구조를 설명하기 위한 예제 코드로 <code>hello, world</code>를 사용했고,
+        이후 여러 개정판과 다른 언어로 번역되면서 다양한 형태의 Hello World 예제가 퍼져 나갔다.
+      </p>
+
+      <p>
+        이 설이 절대적인 “정답”은 아닐 수 있지만,
+        오늘날 Hello World를 전 세계 개발자 사이에서 유명하게 만든 계기가 이 책이라는 점은 거의 합의된 사실에 가깝다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          어떻게 쓰이고 있을까
+        </span>
+      </h3>
+
+      <ul>
+        <li>새로운 언어를 배울 때 가장 먼저 작성해 보는 <strong>출력 예제</strong>로 사용된다.</li>
+        <li>개발 환경을 구축한 뒤, 컴파일·실행이 제대로 되는지 확인하는 <strong>기본 점검 코드</strong>로 쓰인다.</li>
+        <li>펌웨어를 수정하거나 새로운 기기를 해킹했을 때 “정상적으로 내 코드가 올라갔다”는 신호로 출력하기도 한다.</li>
+        <li>개발을 넘어 게임·영상·노래 제목 등 대중문화 속에서도 종종 인용되는 표현이 되었다.</li>
+      </ul>
+
+      <p>
+        C 언어를 만든 사람 중 한 명인 데니스 리치가 세상을 떠났을 때,
+        많은 개발자들이 “<strong>Goodbye, world!</strong>”라는 메시지로 추모를 남겼다는 이야기도 인상적이다.
+        한 줄짜리 예제가 세대와 언어를 넘어 하나의 상징처럼 자리 잡았다는 느낌이 든다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          개인적으로 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        Hello World의 기원을 알고 나니, 앞으로 새로운 언어나 프레임워크를 시작할 때
+        단순한 예제 한 줄에서 끝내기보다는 “이 코드로 무엇을 해 보고 싶은지”를 같이 떠올려 보는 게 좋겠다는 생각이 들었다.
+        단순 출력문이지만, 나한테는 <strong>새로운 기술과 세상에 인사하는 첫 버튼</strong> 같은 역할을 하니까.
+      </p>
+
+      <p class="muted" style="font-size:0.85rem;">
+        ※ 참고: 본 섹션은
+        <a href="https://godokan.github.io/개발이야기/Hello-World/" target="_blank" rel="noopener noreferrer">
+          Hello World - 고도칸 개발이야기
+        </a>
+        글을 바탕으로 재구성했습니다.
+      </p>
+
+      <!-- 섹션 6: 오늘의 회고와 다음 계획 -->
+      <h2 class="section">오늘의 회고와 다음 계획</h2>
+
+      <h3 class="section">
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        오늘 SQL 퀘스트는 <strong>GROUP BY와 날짜 함수</strong>를 한 번에 복습하기 좋은 세트였다.
+        특히 <code>DATE_SUB</code>와 <code>DATEDIFF</code>처럼 날짜를 기준으로 “몇 년 이상 근무”, “나이 계산” 같은 로직을
+        쿼리 레벨에서 처리하는 패턴을 다시 써 보면서, 나중에 실제 서비스에서 자주 쓰게 될 장면들이 떠올랐다.
+      </p>
+
+      <p>
+        Hello World 아티클을 정리하면서는, 그냥 당연하게 치던 문장이 사실은 개발자 문화와 역사 속에서
+        꽤 상징적인 역할을 하고 있다는 걸 다시 느꼈다.
+        새 프로젝트를 시작할 때마다 찍어 보는 이 한 줄이,
+        앞으로는 “새로운 스택에 도전하는 나 자신”을 리셋하는 신호처럼 느껴지면 좋겠다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          다음 계획
+        </span>
+      </h3>
+
+      <ul>
+        <li>오늘 다룬 집계·날짜 함수에 이어, <strong>JOIN + GROUP BY</strong>가 섞인 문제를 풀어 보기.</li>
+        <li>TIL을 이어 가면서, 하루에 적어도 하나는 “나중에 다시 써먹을 수 있는 쿼리 패턴”을 남기는 것을 목표로 하기.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
