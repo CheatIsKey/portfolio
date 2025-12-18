@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-15 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6124 — Good Grass</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6124">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1215_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Good Grass (BOJ 6124)</strong>는<br>
+        <strong>NR×NC 격자</strong>에서 <strong>3×3 칸의 합</strong>이 가장 큰 구간을 찾고,
+        그 때의 <strong>최대 합</strong>과 <strong>좌상단 좌표(행, 열)</strong>를 출력하는 문제다.
+      </p>
+      
+      <ul>
+        <li>가능한 3×3의 좌상단은 <code>(0..NR-3)</code>, <code>(0..NC-3)</code> 범위에서만 등장한다.</li>
+        <li>각 좌상단마다 9칸을 더해 합을 구하고, 최대값을 갱신한다.</li>
+        <li>동점일 때는 “행이 작은 것, 그 다음 열이 작은 것”을 선택해야 하는데,
+          <strong>행을 바깥 루프</strong>, <strong>열을 안쪽 루프</strong>로 오름차순 순회하면서
+          <code>sum &gt; max</code>일 때만 갱신하면 <strong>가장 먼저 나온 최대 구간</strong>이 자동으로 규칙을 만족한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li><code>NR, NC</code>를 읽고, <code>field[NR][NC]</code>에 값을 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>모든 3×3 구간 탐색</strong>
+          <ul>
+            <li>좌상단을 <code>(r, c)</code>라고 하면, <code>r = 0..NR-3</code>, <code>c = 0..NC-3</code>를 순회한다.</li>
+            <li>각 위치에서 <code>field[r+i][c+j]</code> (i,j=0..2) 9칸을 더해 <code>sum</code>을 만든다.</li>
+            <li><code>sum</code>이 현재 <code>max</code>보다 크면 <code>max</code>와 좌표를 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <ul>
+            <li>최대 합을 출력하고, 좌표는 문제 요구가 1-based이므로 <code>(r+1, c+1)</code>로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>격자 입력</strong>
+          <pre><code>int[][] field = new int[NR][NC];
+      for (int r = 0; r &lt; NR; r++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          for (int c = 0; c &lt; NC; c++) {
+              field[r][c] = Integer.parseInt(st.nextToken());
+          }
+      }</code></pre>
+          <ul>
+            <li>NR줄을 읽어 NC개 정수를 <code>field</code>에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3×3 합 계산 + 최대 갱신</strong>
+          <pre><code>int max = 0;
+      int bestR = 0, bestC = 0;
+      
+      for (int r = 0; r &lt;= NR - 3; r++) {
+          for (int c = 0; c &lt;= NC - 3; c++) {
+              int sum = 0;
+      
+              for (int i = 0; i &lt; 3; i++) {
+                  for (int j = 0; j &lt; 3; j++) {
+                      sum += field[r + i][c + j];
+                  }
+              }
+      
+              if (sum &gt; max) {
+                  max = sum;
+                  bestR = r;
+                  bestC = c;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>모든 좌상단 후보를 훑으며 9칸 합을 구한다.</li>
+            <li><code>sum &gt; max</code>일 때만 갱신하면, 같은 최대 합이 여러 개여도
+              <strong>가장 먼저 발견된(행/열이 가장 작은) 위치</strong>가 남아서 동점 규칙을 만족한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력(1-based 변환)</strong>
+          <pre><code>System.out.println(max);
+      System.out.println((bestR + 1) + " " + (bestC + 1));</code></pre>
+          <ul>
+            <li>문제는 행/열을 1부터 세므로 <code>+1</code> 해서 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>좌상단 후보가 약 <code>(NR-2)(NC-2)</code>개, 각 후보에서 9칸 합 → <strong><code>O(NR * NC)</code></strong>.</li>
+            <li>NR, NC 최대가 100이라 충분히 빠르다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>격자 저장 <code>field[NR][NC]</code> → <strong><code>O(NR * NC)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6138 — Exploration</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6138">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1215_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Exploration (BOJ 6138)</strong>는<br>
+        소들이 있는 좌표들 중에서, Bessie가 항상 <strong>원점(0)과의 거리가 가장 가까운 미방문 랜드마크</strong>부터 방문한다고 할 때,
+        제한 시간 <code>T</code> 안에 <strong>최대로 몇 개</strong>를 방문할 수 있는지 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>방문 순서는 “원점과의 거리” 기준이므로, 결국 <strong>|x| 오름차순</strong>으로 정해진다. (문제에서 같은 거리는 없음)</li>
+        <li>시작 위치는 <code>pos = 0</code>이고, 다음 랜드마크로 이동할 때 걸리는 시간은 <strong>거리만큼</strong> 누적된다.</li>
+        <li>정해진 순서대로 하나씩 시뮬레이션하면서, 누적 시간이 <code>T</code>를 넘는 순간 멈추면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬</strong>
+          <ul>
+            <li>모든 좌표를 배열에 담고, <code>|x|</code> 기준 오름차순 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>시뮬레이션</strong>
+          <ul>
+            <li>현재 위치 <code>pos</code>, 누적 이동시간 <code>dist</code>를 두고 정렬된 순서대로 이동한다.</li>
+            <li>각 랜드마크 <code>next</code>로 이동하는 비용은 <strong>1차원 직선 거리</strong>이므로 <code>|next - pos|</code>.</li>
+            <li>누적 시간이 <code>T</code>를 초과하면 중단, 아니면 방문 수를 증가.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <ul>
+            <li>방문에 성공한 개수만 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>|x| 기준 정렬</strong>
+          <pre><code>Arrays.sort(landmark, (a, b) -&gt; Long.compare(Math.abs(a), Math.abs(b)));</code></pre>
+          <ul>
+            <li>방문 규칙이 “원점에 가장 가까운 것부터”이므로, 방문 순서를 그대로 만들기 위해 <code>|x|</code>로 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>이동 시간 누적 + 방문 카운트</strong>
+          <pre><code>long pos = 0, dist = 0, cnt = 0;
+      
+      for (int i = 0; i &lt; landmark.length; i++) {
+          long next = landmark[i];
+      
+          // (코드는 부호 케이스로 나눠 계산하지만, 의미는 |next - pos| 누적이다)
+          if ((next &lt; 0 &amp;&amp; pos &gt; 0) || (next &gt; 0 &amp;&amp; pos &lt; 0)) {
+              dist += Math.abs(next) + Math.abs(pos);
+          } else {
+              long max = Math.max(Math.abs(next), Math.abs(pos));
+              long min = Math.min(Math.abs(next), Math.abs(pos));
+              dist += (max - min);
+          }
+      
+          pos = next;
+      
+          if (dist &gt; T) break;
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>정렬된 순서대로 다음 랜드마크로 이동하면서 이동시간을 누적한다.</li>
+            <li>누적 시간이 <code>T</code>를 넘는 순간 더 이상 방문 불가이므로 중단한다.</li>
+            <li><code>cnt</code>가 정답(방문한 랜드마크 수).</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>시뮬레이션: <strong><code>O(N)</code></strong></li>
+            <li>전체: <strong><code>O(N log N)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>좌표 배열 저장: <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
