@@ -1,9 +1,10 @@
+```html
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 5일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 6일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,11 +43,11 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 5일차 TIL — SQL JOIN &amp; 집계 심화</h1>
-      <p class="muted">작성일 2025-12-17 · 분류: 부트캠프, TIL, SQL</p>
+      <h1>내일배움캠프 Spring 백엔드 6일차 TIL — Java 핵심 문법 정리</h1>
+      <p class="muted">작성일 2025-12-18 · 분류: 부트캠프, TIL, Java</p>
 
-      <!-- 섹션 1: 5일차 개요 -->
-      <h2 class="section">5일차 개요 — JOIN과 GROUP BY 패턴 정리</h2>
+      <!-- 섹션 1: 6일차 개요 -->
+      <h2 class="section">6일차 개요 — Java 문법을 “왜 쓰는지” 기준으로 정리</h2>
 
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -55,272 +56,324 @@
       </h3>
 
       <p>
-        5일차에는 <strong>두 테이블을 묶는 JOIN</strong>과 <strong>집계 함수 + GROUP BY</strong> 패턴을 중심으로 SQL을 복습했다.
-        직원/부서, 상품/주문 테이블을 예시로 만들어 두고, 부서별 인원 수, 가장 많이 팔린 상품, 판매되지 않은 상품처럼
-        실제 서비스에서 자주 등장할 법한 쿼리들을 직접 작성해 보았다.
+        오늘은 SQL 퀘스트 없이, Java 문법 중에서 자주 헷갈리거나 “알고는 있는데 설명이 애매한” 키워드들을 정리했다.
+        단순 정의 암기보다는 <strong>왜 필요한지</strong>, <strong>언제 쓰는지</strong>, <strong>어디서 실수하는지</strong>를 기준으로 묶어서 정리했다.
       </p>
 
       <ul>
-        <li>직원·부서 테이블로 INNER JOIN, LEFT JOIN, GROUP BY, COUNT를 다시 한 번 손으로 쳐 보며 감을 잡았다.</li>
-        <li>상품·주문 테이블에서는 매출 합계, 평균 수량, 판매되지 않은 상품 찾기 등 리포트성 쿼리를 연습했다.</li>
-        <li>단순 SELECT를 넘어, “어떤 질문을 하고 싶은지”를 먼저 정하고 그에 맞는 쿼리를 설계하는 연습이 됐다.</li>
+        <li>래퍼 클래스(Wrapper Class)</li>
+        <li>오토 박싱 / 언박싱(Auto Boxing / Unboxing)</li>
+        <li>static(정적 변수/메서드, static 중첩 클래스)</li>
+        <li>final(변수/메서드/클래스)</li>
+        <li>인터페이스(Interface)</li>
       </ul>
 
-      <!-- 섹션 2: SQL 퀘스트 - 직원/부서 테이블 -->
-      <h2 class="section">SQL 기초 퀘스트 — 직원·부서 테이블(corp_employees, corp_departments)</h2>
+      <!-- 섹션 2: 래퍼 클래스 -->
+      <h2 class="section">래퍼 클래스(Wrapper Class) — 기본 타입을 객체로 다루기</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 데이터
+          핵심 정의
         </span>
       </h3>
 
       <p>
-        직원과 부서 정보를 담은 <code>corp_employees</code>, <code>corp_departments</code> 테이블 임시 데이터는 다음과 같다.
+        래퍼 클래스는 <strong>기본 타입(primitive)</strong>을 <strong>객체(Object)</strong>처럼 다루기 위해 제공되는 클래스다.
+        예를 들면 <code>int</code>는 <code>Integer</code>, <code>double</code>은 <code>Double</code> 같은 식이다.
       </p>
 
-      <p><strong>corp_employees</strong></p>
-      <table>
-        <thead>
-          <tr>
-            <th>emp_id</th>
-            <th>dept_id</th>
-            <th>emp_name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>101</td>
-            <td>르탄이</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>102</td>
-            <td>배캠이</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>103</td>
-            <td>구구이</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>101</td>
-            <td>이션이</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p><strong>corp_departments</strong></p>
-      <table>
-        <thead>
-          <tr>
-            <th>dept_id</th>
-            <th>dept_name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>101</td>
-            <td>인사팀</td>
-          </tr>
-          <tr>
-            <td>102</td>
-            <td>마케팅팀</td>
-          </tr>
-          <tr>
-            <td>103</td>
-            <td>기술팀</td>
-          </tr>
-        </tbody>
-      </table>
+      <ul>
+        <li><strong>기본 타입</strong>: <code>int, long, double, boolean</code> 등</li>
+        <li><strong>래퍼 타입</strong>: <code>Integer, Long, Double, Boolean</code> 등</li>
+      </ul>
 
       <h3 class="section">
         <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          풀이한 쿼리
+          언제 필요하나
         </span>
       </h3>
 
-      <p><strong>1.</strong> 현재 존재하고 있는 총 부서의 수를 구하는 쿼리</p>
-      <pre><code>SELECT COUNT(*) AS dept_count
-FROM corp_departments;
+      <ul>
+        <li><strong>컬렉션</strong>(List, Map 등)은 객체만 담을 수 있어서 래퍼 타입이 필요하다.</li>
+        <li><strong>null</strong>을 표현해야 할 때 기본 타입은 불가능하고, 래퍼 타입은 가능하다.</li>
+        <li><strong>제네릭</strong>을 쓸 때(예: <code>List&lt;Integer&gt;</code>)는 기본 타입을 그대로 넣을 수 없다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </h3>
+
+      <pre><code>// 기본 타입
+int a = 10;
+
+// 래퍼 타입
+Integer b = 10;              // 오토 박싱
+Integer c = Integer.valueOf(10);
+
+// 컬렉션에는 래퍼 타입
+java.util.List&lt;Integer&gt; list = new java.util.ArrayList&lt;&gt;();
+list.add(10);
 </code></pre>
 
-      <p><strong>2.</strong> 모든 직원과 그들이 속한 부서의 이름을 나열하는 쿼리</p>
-      <pre><code>SELECT e.emp_name  AS "직원 이름",
-       d.dept_name AS "부서 이름"
-FROM corp_employees   e
-JOIN corp_departments d ON e.dept_id = d.dept_id;
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>null</strong> 가능: 래퍼 타입은 null이 될 수 있으니, 언박싱 시 NPE(NullPointerException) 위험이 있다.</li>
+        <li>같은 숫자라도 <strong>== 비교</strong>는 조심해야 한다. 객체 비교는 보통 <code>equals</code>가 안전하다.</li>
+      </ul>
+
+      <pre><code>Integer x = null;
+// int y = x;  // 언박싱이 발생하면서 NullPointerException 위험
+
+Integer p = 1000;
+Integer q = 1000;
+// System.out.println(p == q);      // 객체 참조 비교라 결과가 기대와 다를 수 있음
+System.out.println(p.equals(q));    // 값 비교는 equals가 안전
 </code></pre>
 
-      <p><strong>3.</strong> '기술팀' 부서에 속한 직원들의 이름을 나열하는 쿼리</p>
-      <pre><code>SELECT e.emp_name AS "직원 이름"
-FROM corp_employees   e
-JOIN corp_departments d ON e.dept_id = d.dept_id
-WHERE d.dept_name = '기술팀';
-</code></pre>
-
-      <p><strong>4.</strong> 부서별로 직원 수를 계산하는 쿼리</p>
-      <pre><code>SELECT d.dept_name              AS "부서 이름",
-       COUNT(e.emp_id)          AS employee_count
-FROM corp_departments d
-LEFT JOIN corp_employees e ON d.dept_id = e.dept_id
-GROUP BY d.dept_id, d.dept_name;
-</code></pre>
-
-      <p><strong>5.</strong> 직원이 없는 부서의 이름을 찾는 쿼리</p>
-      <pre><code>SELECT d.dept_name
-FROM corp_departments d
-LEFT JOIN corp_employees e ON d.dept_id = e.dept_id
-WHERE e.emp_id IS NULL;
-</code></pre>
-
-      <p><strong>6.</strong> '마케팅팀' 부서에만 속한 직원들의 이름을 나열하는 쿼리</p>
-      <pre><code>SELECT e.emp_name AS "직원 이름"
-FROM corp_employees   e
-JOIN corp_departments d ON e.dept_id = d.dept_id
-WHERE d.dept_name = '마케팅팀';
-</code></pre>
-
-      <!-- 섹션 3: SQL 퀘스트 - 상품/주문 테이블 -->
-      <h2 class="section">SQL 기초 퀘스트 — 상품·주문 테이블(store_products, store_orders)</h2>
+      <!-- 섹션 3: 오토 박싱 / 언박싱 -->
+      <h2 class="section">오토 박싱 / 언박싱 — 편하지만 “자동”이라서 실수도 난다</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 데이터
+          핵심 정의
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>오토 박싱</strong>: 기본 타입 → 래퍼 타입으로 자동 변환</li>
+        <li><strong>언박싱</strong>: 래퍼 타입 → 기본 타입으로 자동 변환</li>
+      </ul>
+
+      <pre><code>// 오토 박싱
+Integer boxed = 10;
+
+// 언박싱
+int unboxed = boxed;
+
+// 연산 시에도 언박싱이 끼어들 수 있다
+Integer n = 5;
+int sum = n + 10; // n이 자동으로 언박싱된 뒤 연산됨
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>null 언박싱</strong>은 바로 예외로 이어질 수 있다.</li>
+        <li>반복문에서 과도한 박싱/언박싱이 발생하면 성능에 영향을 줄 수 있다(불필요한 객체 생성).</li>
+      </ul>
+
+      <pre><code>Integer maybeNull = null;
+// int v = maybeNull; // 언박싱 시도 → NullPointerException 위험
+</code></pre>
+
+      <!-- 섹션 4: static -->
+      <h2 class="section">static — “객체 없이도” 공유되는 영역</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 정의
         </span>
       </h3>
 
       <p>
-        상품과 주문 정보를 담은 <code>store_products</code>, <code>store_orders</code> 테이블 임시 데이터는 다음과 같다.
+        <code>static</code>은 <strong>클래스에 속한다</strong>는 의미에 가깝다.
+        즉, 인스턴스를 만들지 않아도 접근 가능하고, 모든 인스턴스가 같은 값을 공유한다.
       </p>
-
-      <p><strong>store_products</strong></p>
-      <table>
-        <thead>
-          <tr>
-            <th>product_id</th>
-            <th>product_name</th>
-            <th>unit_price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>랩톱</td>
-            <td>1200</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>핸드폰</td>
-            <td>800</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>타블렛</td>
-            <td>400</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p><strong>store_orders</strong></p>
-      <table>
-        <thead>
-          <tr>
-            <th>order_id</th>
-            <th>product_id</th>
-            <th>quantity</th>
-            <th>ordered_at</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>101</td>
-            <td>1</td>
-            <td>2</td>
-            <td>2023-03-01</td>
-          </tr>
-          <tr>
-            <td>102</td>
-            <td>2</td>
-            <td>1</td>
-            <td>2023-03-02</td>
-          </tr>
-          <tr>
-            <td>103</td>
-            <td>3</td>
-            <td>5</td>
-            <td>2023-03-04</td>
-          </tr>
-        </tbody>
-      </table>
 
       <h3 class="section">
         <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          풀이한 쿼리
+          static 변수/메서드
         </span>
       </h3>
 
-      <p><strong>1.</strong> 모든 주문의 주문 ID와 주문된 상품의 이름을 나열하는 쿼리</p>
-      <pre><code>SELECT o.order_id,
-       p.product_name
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id;
+      <pre><code>class Counter {
+    static int count = 0;
+
+    static void increase() {
+        count++;
+    }
+}
+
+// 인스턴스 없이 사용 가능
+Counter.increase();
+System.out.println(Counter.count);
 </code></pre>
 
-      <p><strong>2.</strong> 총 매출(<code>unit_price * quantity</code> 합)이 가장 높은 상품의 ID와 해당 상품의 총 매출을 가져오는 쿼리</p>
-      <pre><code>SELECT p.product_id,
-       SUM(p.unit_price * o.quantity) AS total_revenue
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id
-GROUP BY p.product_id
-ORDER BY total_revenue DESC
-LIMIT 1;
+      <ul>
+        <li><strong>static 메서드</strong>는 인스턴스 필드/인스턴스 메서드에 바로 접근할 수 없다.</li>
+        <li>전역처럼 쓰기 쉬워서 편하지만, 남발하면 의존관계가 꼬이고 테스트가 어려워질 수 있다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          static 중첩 클래스(정적 내부 클래스)
+        </span>
+      </h3>
+
+      <p>
+        Java에서 “static 클래스”는 보통 <strong>static 중첩 클래스</strong>를 의미한다.
+        외부 클래스의 인스턴스 없이도 생성할 수 있고, 외부 인스턴스에 묶이지 않는다.
+      </p>
+
+      <pre><code>class Outer {
+    static class Inner {
+        void hello() {
+            System.out.println("hi");
+        }
+    }
+}
+
+Outer.Inner inner = new Outer.Inner();
+inner.hello();
 </code></pre>
 
-      <p><strong>3.</strong> 각 상품 ID별로 판매된 총 수량(<code>quantity</code>)을 계산하는 쿼리</p>
-      <pre><code>SELECT p.product_id,
-       SUM(o.quantity) AS total_quantity
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id
-GROUP BY p.product_id;
+      <!-- 섹션 5: final -->
+      <h2 class="section">final — “변경 불가”를 의도로 박아두는 키워드</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 정리
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>final 변수</strong>: 재할당 불가</li>
+        <li><strong>final 메서드</strong>: 오버라이딩 불가</li>
+        <li><strong>final 클래스</strong>: 상속 불가</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </h3>
+
+      <pre><code>// final 변수: 재할당 불가
+final int MAX = 100;
+// MAX = 200; // 컴파일 에러
+
+// final 클래스: 상속 불가
+final class FinalService { }
+
+// final 메서드: 오버라이딩 불가
+class Parent {
+    final void fixed() { }
+}
+class Child extends Parent {
+    // void fixed() { } // 컴파일 에러
+}
 </code></pre>
 
-      <p><strong>4.</strong> 2023년 3월 3일 이후에 주문된 모든 상품의 이름을 나열하는 쿼리</p>
-      <pre><code>SELECT DISTINCT p.product_name
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id
-WHERE o.ordered_at &gt; '2023-03-03';
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <p>
+        <strong>final 참조 변수</strong>는 “객체 자체가 불변”이라는 뜻이 아니다.
+        참조(주소)를 바꾸지 못한다는 뜻이고, 객체 내부 값은 바뀔 수 있다.
+      </p>
+
+      <pre><code>final java.util.List&lt;String&gt; names = new java.util.ArrayList&lt;&gt;();
+// names = new java.util.ArrayList&lt;&gt;(); // 재할당 불가
+names.add("A"); // 내부 변경은 가능
 </code></pre>
 
-      <p><strong>5.</strong> 가장 많이 판매된 상품의 이름을 찾는 쿼리</p>
-      <pre><code>SELECT p.product_name,
-       SUM(o.quantity) AS total_sold
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id
-GROUP BY p.product_id, p.product_name
-ORDER BY total_sold DESC
-LIMIT 1;
+      <!-- 섹션 6: 인터페이스 -->
+      <h2 class="section">인터페이스(Interface) — “규약”을 먼저 정하고 구현을 분리하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 정의
+        </span>
+      </h3>
+
+      <p>
+        인터페이스는 “이 기능은 반드시 제공한다”라는 <strong>규약(약속)</strong>을 정의하는 역할이다.
+        구현체는 <code>implements</code>로 인터페이스를 구현하고, 호출하는 쪽은 구현체가 바뀌어도 같은 방식으로 사용할 수 있다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          왜 쓰나
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>결합도 낮추기</strong>: 구현이 바뀌어도 사용하는 코드는 덜 흔들리게 만든다.</li>
+        <li><strong>테스트 용이</strong>: 구현체 대신 가짜 구현(mock)을 끼워 넣기 쉬워진다.</li>
+        <li><strong>역할 분리</strong>: “무엇을 할지”와 “어떻게 할지”를 분리한다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시
+        </span>
+      </h3>
+
+      <pre><code>interface MessageSender {
+    void send(String message);
+}
+
+class EmailSender implements MessageSender {
+    public void send(String message) {
+        System.out.println("Email: " + message);
+    }
+}
+
+class SmsSender implements MessageSender {
+    public void send(String message) {
+        System.out.println("SMS: " + message);
+    }
+}
 </code></pre>
 
-      <p><strong>6.</strong> 각 상품 ID별로 평균 주문 수량을 계산하는 쿼리</p>
-      <pre><code>SELECT p.product_id,
-       AVG(o.quantity) AS avg_quantity
-FROM store_orders   o
-JOIN store_products p ON o.product_id = p.product_id
-GROUP BY p.product_id;
+      <pre><code>// 사용하는 쪽은 구현체가 바뀌어도 동일하게 호출 가능
+MessageSender sender1 = new EmailSender();
+sender1.send("hello");
+
+MessageSender sender2 = new SmsSender();
+sender2.send("hello");
 </code></pre>
 
-      <p><strong>7.</strong> 판매되지 않은 상품의 ID와 이름을 찾는 쿼리</p>
-      <pre><code>SELECT p.product_id,
-       p.product_name
-FROM store_products p
-LEFT JOIN store_orders o ON p.product_id = o.product_id
-WHERE o.order_id IS NULL;
+      <h3 class="section">
+        <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          알아두면 좋은 포인트
+        </span>
+      </h3>
+
+      <ul>
+        <li>인터페이스는 다중 구현이 가능하다(클래스 상속은 보통 단일 상속).</li>
+        <li>필요하면 <code>default</code> 메서드로 기본 구현을 제공할 수도 있다.</li>
+        <li><code>static</code> 메서드를 인터페이스 안에 둘 수도 있다.</li>
+      </ul>
+
+      <pre><code>interface Calculator {
+    int add(int a, int b);
+
+    default int addOne(int x) {
+        return add(x, 1);
+    }
+
+    static int triple(int x) {
+        return x * 3;
+    }
+}
 </code></pre>
 
-      <!-- 섹션 4: 오늘의 회고와 내일 계획 -->
+      <!-- 섹션 7: 회고와 내일 계획 -->
       <h2 class="section">오늘의 회고와 내일 계획</h2>
 
       <h3 class="section">
@@ -330,14 +383,8 @@ WHERE o.order_id IS NULL;
       </h3>
 
       <p>
-        오늘 문제들은 <strong>JOIN이 왜 필요한지</strong>, 그리고 <strong>GROUP BY와 집계 함수로 어떤 질문에 답할 수 있는지</strong>를
-        다시 떠올리게 해 줬다. 특히 “직원이 없는 부서”, “판매되지 않은 상품”처럼
-        <strong>LEFT JOIN + NULL 체크</strong> 패턴은 실제 서비스에서도 자주 쓰일 것 같아서 기억해 둘 만했다.
-      </p>
-
-      <p>
-        단순히 정답만 맞추는 것보다, 각 쿼리가 “어떤 비즈니스 질문에 대한 답인지”를 같이 붙여 생각하니
-        쇼핑몰 프로젝트나 이후 포트폴리오에서 어떤 통계를 뽑을 수 있을지 아이디어가 조금씩 정리되는 느낌이었다.
+        오늘 정리한 키워드들은 전부 “문법을 아는 것”보다 <strong>왜 쓰는지</strong>를 함께 알고 있어야 실수할 확률이 줄어든다.
+        특히 래퍼 타입과 언박싱은 <strong>null</strong> 때문에 사고가 나는 경우가 많아서, 코드를 작성할 때 더 의식적으로 보게 될 것 같다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
@@ -373,3 +420,4 @@ WHERE o.order_id IS NULL;
   </script>
 </body>
 </html>
+```
