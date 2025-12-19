@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-18 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 수박수박수박수박수박수?</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12922">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1218_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>수박수박수박수박수박수? (프로그래머스 12922)</strong>는<br>
+        길이 <code>n</code>의 문자열을 만들되, 인덱스가 <strong>짝수면 "수"</strong>, <strong>홀수면 "박"</strong>을 붙여서
+        <code>"수박수박..."</code> 형태로 완성하는 구현 문제다.
+      </p>
+      
+      <ul>
+        <li><code>n</code>번 반복하면서 문자열을 이어 붙이면 된다.</li>
+        <li>매번 문자열을 더하면 비효율적일 수 있으니 <code>StringBuilder</code>를 사용한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>반복</strong>
+          <ul>
+            <li><code>i = 0</code>부터 <code>n-1</code>까지 반복한다.</li>
+            <li><code>i % 2 == 0</code>이면 <code>"수"</code>, 아니면 <code>"박"</code>을 붙인다.</li>
+          </ul>
+        </li>
+        <li><strong>출력 문자열 생성</strong>
+          <ul>
+            <li><code>StringBuilder</code>에 누적 후 <code>toString()</code>으로 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>문자열 누적</strong>
+          <pre><code>StringBuilder sb = new StringBuilder();
+      
+      for (int i = 0; i &lt; n; i++) {
+          if (i % 2 == 0) {
+              sb.append("수");
+          } else {
+              sb.append("박");
+          }
+      }
+      
+      return sb.toString();</code></pre>
+          <ul>
+            <li><code>i</code>가 짝수면 "수", 홀수면 "박"을 차례대로 붙여 길이 <code>n</code>의 패턴 문자열을 만든다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><code>n</code>번 반복하면서 append → <strong><code>O(n)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>길이 <code>n</code> 문자열을 저장 → <strong><code>O(n)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 소수 찾기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12921">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1218_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>소수 찾기 (프로그래머스 12921)</strong>는<br>
+        <code>1</code>부터 <code>n</code>까지의 수 중에서 <strong>소수(prime)의 개수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>소수 판별을 매번 <code>O(√n)</code>으로 하면 전체가 느려질 수 있다.</li>
+        <li>여기서는 <strong>에라토스테네스의 체</strong>로 합성수를 미리 표시해서 빠르게 개수를 센다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>합성수 표시 배열</strong>
+          <ul>
+            <li><code>composite[i] = true</code>면 <code>i</code>는 합성수(소수 아님)로 처리한다.</li>
+            <li>초기에는 전부 <code>false</code>이며, 표시되지 않은 수는 소수로 본다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>체(Sieve) 수행</strong>
+          <ul>
+            <li><code>i</code>를 <code>2</code>부터 <code>√n</code>까지 돌면서,</li>
+            <li><code>i</code>가 아직 합성수가 아니면(<code>composite[i] == false</code>)</li>
+            <li><code>i*i</code>부터 시작해 <code>i</code>의 배수를 합성수로 표시한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>소수 개수 세기</strong>
+          <ul>
+            <li><code>2</code>부터 <code>n</code>까지 중 <code>composite[i] == false</code>인 수를 카운트한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>체 배열 생성</strong>
+          <pre><code>boolean[] composite = new boolean[n + 1];</code></pre>
+          <ul>
+            <li><code>0..n</code>까지 합성수 여부를 저장할 배열을 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>합성수 마킹 (에라토스테네스의 체)</strong>
+          <pre><code>for (int i = 2; (long)i * i &lt;= n; i++) {
+          if (!composite[i]) {
+              for (int j = i * i; j &lt;= n; j += i) {
+                  composite[j] = true;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>i</code>가 소수로 판정되면(<code>composite[i] == false</code>)</li>
+            <li><code>i*i</code>부터 시작해 배수들을 합성수로 표시한다.</li>
+            <li><code>i*i</code> 이전의 배수는 더 작은 소수에서 이미 걸러지므로 시작점을 <code>i*i</code>로 잡는다.</li>
+            <li>조건에서 <code>(long)i * i</code>로 캐스팅해 오버플로우를 방지한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>소수 개수 카운트</strong>
+          <pre><code>int count = 0;
+      for (int i = 2; i &lt;= n; i++) {
+          if (!composite[i]) count++;
+      }
+      return count;</code></pre>
+          <ul>
+            <li><code>2..n</code> 범위에서 합성수 표시가 안 된 값만 세면 소수의 개수가 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>에라토스테네스의 체: <strong><code>O(n log log n)</code></strong> 수준</li>
+            <li>소수 개수 세기: <strong><code>O(n)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>boolean[n+1]</code> 사용 → <strong><code>O(n)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

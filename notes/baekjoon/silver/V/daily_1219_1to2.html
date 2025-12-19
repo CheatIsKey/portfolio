@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-18 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6147 — Bookshelf</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6147">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1218_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Bookshelf (BOJ 6147)</strong>는<br>
+        여러 마리 소의 키 <code>H_i</code> 중 일부를 골라 <strong>합이 책장 높이 <code>B</code> 이상</strong>이 되게 만들 때,
+        그때 필요한 <strong>최소 소 마릿수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>키는 전부 양수이므로, 마릿수를 최소로 하려면 <strong>한 마리당 키가 큰 소부터</strong> 쓰는 게 유리하다.</li>
+        <li>“k마리로 만들 수 있는 최대 높이”는 <strong>키가 큰 순서대로 k마리를 고른 합</strong>이다.</li>
+        <li>따라서 큰 키부터 더해가며 합이 <code>B</code> 이상이 되는 순간의 마릿수가 정답이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li><code>N</code>, <code>B</code>를 읽고, <code>N</code>개의 키를 리스트에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬</strong>
+          <ul>
+            <li>키를 <strong>내림차순</strong>으로 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>누적</strong>
+          <ul>
+            <li>가장 큰 키부터 차례대로 더하며(또는 <code>B</code>에서 빼며) <code>B</code> 이상이 되는 순간의 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>키 내림차순 정렬</strong>
+          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code></pre>
+          <ul>
+            <li>큰 키부터 먼저 쓰기 위해 내림차순으로 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>큰 키부터 누적해서 최소 마릿수 찾기</strong>
+          <pre><code>int cnt = 0;
+      
+      for (int height : list) {
+          B -= height;
+          cnt++;
+      
+          if (B &lt;= 0) break;
+      }
+      
+      System.out.println(cnt);</code></pre>
+          <ul>
+            <li>정렬된 리스트를 앞에서부터 보며 <code>B</code>에서 키를 뺀다.</li>
+            <li><code>B</code>가 <code>0</code> 이하가 되는 순간, 그때까지 사용한 소의 수(<code>cnt</code>)가 최소다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>한 번 순회 누적: <strong><code>O(N)</code></strong></li>
+            <li>전체: <strong><code>O(N log N)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>키 리스트 저장: <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6159 — Costume Party</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6159">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1218_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Costume Party (BOJ 6159)</strong>는<br>
+        소들의 길이 <code>L_i</code>가 주어질 때, <strong>서로 다른 두 마리</strong>를 골라
+        <strong>합이 의상 길이 <code>S</code> 이하</strong>가 되는 <strong>쌍의 개수</strong>를 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>쌍은 순서가 없으므로 <code>(i, j)</code>와 <code>(j, i)</code>는 같은 쌍이다.</li>
+        <li><code>N</code>이 최대 <code>20,000</code>이라서, 모든 쌍을 전부 비교하는 방식은 비효율적이다.</li>
+        <li><strong>정렬 + 투 포인터</strong>로 쌍을 한 번의 스캔으로 계산할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 정렬</strong>
+          <ul>
+            <li>소들의 길이를 오름차순 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 투 포인터</strong>
+          <ul>
+            <li>가장 짧은 쪽 <code>l</code>, 가장 긴 쪽 <code>r</code>를 잡는다.</li>
+            <li>만약 <code>cows[l] + cows[r] &lt;= S</code>라면:
+              <ul>
+                <li>정렬되어 있으므로 <code>l</code>과 짝지을 수 있는 상대는 <code>l+1..r</code> 전부 가능하다.</li>
+                <li>따라서 한 번에 <code>(r - l)</code>개의 쌍을 더하고 <code>l++</code>.</li>
+              </ul>
+            </li>
+            <li>만약 <code>cows[l] + cows[r] &gt; S</code>라면:
+              <ul>
+                <li>가장 큰 값 <code>cows[r]</code>가 너무 커서 어떤 <code>l</code>과도 맞추기 어렵다.</li>
+                <li><code>r--</code>로 줄여서 합을 낮춘다.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 정답</strong>
+          <ul>
+            <li>누적한 쌍의 개수를 출력한다. (개수는 커질 수 있으니 <code>long</code> 권장)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬</strong>
+          <pre><code>Arrays.sort(cows);</code></pre>
+          <ul>
+            <li>오름차순 정렬로 투 포인터 판단이 가능해진다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>투 포인터로 쌍 개수 누적</strong>
+          <pre><code>int l = 0, r = N - 1;
+      long cnt = 0;
+      
+      while (l &lt; r) {
+          int sum = cows[l] + cows[r];
+      
+          if (sum &lt;= S) {
+              cnt += (r - l);
+              l++;
+          } else {
+              r--;
+          }
+      }</code></pre>
+          <ul>
+            <li><code>sum &lt;= S</code>면 <code>l</code>은 <code>l+1..r</code>와 전부 짝 가능 → <code>r-l</code>만큼 한 번에 더한다.</li>
+            <li><code>sum &gt; S</code>면 큰 쪽을 줄이기 위해 <code>r--</code>.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>투 포인터 스캔: <strong><code>O(N)</code></strong></li>
+            <li>전체: <strong><code>O(N log N)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>배열 저장: <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
