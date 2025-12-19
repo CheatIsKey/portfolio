@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-18 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-19 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 수박수박수박수박수박수?</h2>
+      <h2 class="section">문제 1 — 서울에서 김서방 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12922">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12919">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1218_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1219_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,14 +53,14 @@
       </h3>
       
       <p>
-        <strong>수박수박수박수박수박수? (프로그래머스 12922)</strong>는<br>
-        길이 <code>n</code>의 문자열을 만들되, 인덱스가 <strong>짝수면 "수"</strong>, <strong>홀수면 "박"</strong>을 붙여서
-        <code>"수박수박..."</code> 형태로 완성하는 구현 문제다.
+        <strong>서울에서 김서방 찾기 (프로그래머스 12919)</strong>는<br>
+        문자열 배열 <code>seoul</code> 안에서 문자열 <strong>"Kim"</strong>이 등장하는 위치(인덱스)를 찾아,
+        <strong>"김서방은 X에 있다"</strong> 형식으로 반환하는 문제다.
       </p>
       
       <ul>
-        <li><code>n</code>번 반복하면서 문자열을 이어 붙이면 된다.</li>
-        <li>매번 문자열을 더하면 비효율적일 수 있으니 <code>StringBuilder</code>를 사용한다.</li>
+        <li><code>seoul</code> 배열은 사람 이름들로 구성되어 있고, 그 중 하나는 반드시 <code>"Kim"</code>이다.</li>
+        <li>정답은 <code>"Kim"</code>이 있는 인덱스를 찾아 그대로 문자열에 넣어주면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -72,15 +72,15 @@
       </p>
       
       <ul>
-        <li><strong>반복</strong>
+        <li><strong>순회</strong>
           <ul>
-            <li><code>i = 0</code>부터 <code>n-1</code>까지 반복한다.</li>
-            <li><code>i % 2 == 0</code>이면 <code>"수"</code>, 아니면 <code>"박"</code>을 붙인다.</li>
+            <li>0부터 끝까지 배열을 돌면서 <code>seoul[i].equals("Kim")</code>인지 확인한다.</li>
+            <li>찾는 순간 그 인덱스를 저장하고 반복을 종료한다.</li>
           </ul>
         </li>
-        <li><strong>출력 문자열 생성</strong>
+        <li><strong>문자열 생성</strong>
           <ul>
-            <li><code>StringBuilder</code>에 누적 후 <code>toString()</code>으로 반환한다.</li>
+            <li><code>"김서방은 " + pos + "에 있다"</code> 형태로 만들어 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -94,20 +94,23 @@
       </p>
       
       <ul>
-        <li><strong>문자열 누적</strong>
-          <pre><code>StringBuilder sb = new StringBuilder();
-      
-      for (int i = 0; i &lt; n; i++) {
-          if (i % 2 == 0) {
-              sb.append("수");
-          } else {
-              sb.append("박");
+        <li><strong>Kim 위치 찾기</strong>
+          <pre><code>for (int i = 0; i &lt; seoul.length; i++) {
+          if (seoul[i].equals("Kim")) {
+              pos = i;
+              break;
           }
-      }
-      
-      return sb.toString();</code></pre>
+      }</code></pre>
           <ul>
-            <li><code>i</code>가 짝수면 "수", 홀수면 "박"을 차례대로 붙여 길이 <code>n</code>의 패턴 문자열을 만든다.</li>
+            <li><code>equals</code>로 문자열을 비교해서 정확히 <code>"Kim"</code>인지 확인한다.</li>
+            <li>찾았으면 <code>pos</code>에 인덱스를 저장하고 더 볼 필요가 없으니 <code>break</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정답 문자열 반환</strong>
+          <pre><code>return "김서방은 " + pos + "에 있다";</code></pre>
+          <ul>
+            <li>문제에서 요구하는 포맷 그대로 인덱스를 끼워 넣어 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -123,15 +126,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><code>n</code>번 반복하면서 append → <strong><code>O(n)</code></strong></li>
+            <li>배열을 한 번 순회하므로 <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>길이 <code>n</code> 문자열을 저장 → <strong><code>O(n)</code></strong></li>
+            <li>추가로 사용하는 변수는 상수 개라서 <strong><code>O(1)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -195,14 +199,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 소수 찾기</h2>
+      <h2 class="section">문제 2 — 문자열 다루기 기본</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12921">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12918">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1218_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1219_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -215,13 +219,15 @@
       </h3>
       
       <p>
-        <strong>소수 찾기 (프로그래머스 12921)</strong>는<br>
-        <code>1</code>부터 <code>n</code>까지의 수 중에서 <strong>소수(prime)의 개수</strong>를 구하는 문제다.
+        <strong>문자열 다루기 기본 (프로그래머스 12918)</strong>은<br>
+        주어진 문자열 <code>s</code>가 <strong>길이가 4 또는 6</strong>이고,
+        동시에 <strong>모든 문자가 숫자(0~9)</strong>로만 이루어져 있는지 판별하는 문제다.
       </p>
       
       <ul>
-        <li>소수 판별을 매번 <code>O(√n)</code>으로 하면 전체가 느려질 수 있다.</li>
-        <li>여기서는 <strong>에라토스테네스의 체</strong>로 합성수를 미리 표시해서 빠르게 개수를 센다.</li>
+        <li>길이가 <code>4</code>나 <code>6</code>이 아니면 무조건 <code>false</code>.</li>
+        <li>길이가 조건을 만족하더라도, 문자 하나라도 숫자가 아니면 <code>false</code>.</li>
+        <li>둘 다 만족하면 <code>true</code>.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -233,26 +239,19 @@
       </p>
       
       <ul>
-        <li><strong>합성수 표시 배열</strong>
+        <li><strong>1) 길이 체크</strong>
           <ul>
-            <li><code>composite[i] = true</code>면 <code>i</code>는 합성수(소수 아님)로 처리한다.</li>
-            <li>초기에는 전부 <code>false</code>이며, 표시되지 않은 수는 소수로 본다.</li>
+            <li><code>s.length()</code>가 4 또는 6인지 먼저 확인한다.</li>
+            <li>아니면 바로 <code>false</code> 반환.</li>
           </ul>
         </li>
-      
-        <li><strong>체(Sieve) 수행</strong>
+        <li><strong>2) 숫자만 있는지 검사</strong>
           <ul>
-            <li><code>i</code>를 <code>2</code>부터 <code>√n</code>까지 돌면서,</li>
-            <li><code>i</code>가 아직 합성수가 아니면(<code>composite[i] == false</code>)</li>
-            <li><code>i*i</code>부터 시작해 <code>i</code>의 배수를 합성수로 표시한다.</li>
+            <li>문자 배열로 순회하면서 각 문자가 <code>'0' ~ '9'</code> 범위인지 확인한다.</li>
+            <li>범위를 벗어나면 바로 <code>false</code>.</li>
           </ul>
         </li>
-      
-        <li><strong>소수 개수 세기</strong>
-          <ul>
-            <li><code>2</code>부터 <code>n</code>까지 중 <code>composite[i] == false</code>인 수를 카운트한다.</li>
-          </ul>
-        </li>
+        <li><strong>3) 모두 통과하면 true</strong></li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -264,37 +263,28 @@
       </p>
       
       <ul>
-        <li><strong>체 배열 생성</strong>
-          <pre><code>boolean[] composite = new boolean[n + 1];</code></pre>
+        <li><strong>길이 조건 확인</strong>
+          <pre><code>int length = s.length();
+      if (length != 4 &amp;&amp; length != 6) return false;</code></pre>
           <ul>
-            <li><code>0..n</code>까지 합성수 여부를 저장할 배열을 만든다.</li>
+            <li>길이가 4도 아니고 6도 아니면 조건 불만족이므로 즉시 <code>false</code>.</li>
           </ul>
         </li>
       
-        <li><strong>합성수 마킹 (에라토스테네스의 체)</strong>
-          <pre><code>for (int i = 2; (long)i * i &lt;= n; i++) {
-          if (!composite[i]) {
-              for (int j = i * i; j &lt;= n; j += i) {
-                  composite[j] = true;
-              }
-          }
+        <li><strong>문자 하나씩 숫자인지 검사</strong>
+          <pre><code>for (char c : s.toCharArray()) {
+          if (c &lt; '0' || '9' &lt; c) return false;
       }</code></pre>
           <ul>
-            <li><code>i</code>가 소수로 판정되면(<code>composite[i] == false</code>)</li>
-            <li><code>i*i</code>부터 시작해 배수들을 합성수로 표시한다.</li>
-            <li><code>i*i</code> 이전의 배수는 더 작은 소수에서 이미 걸러지므로 시작점을 <code>i*i</code>로 잡는다.</li>
-            <li>조건에서 <code>(long)i * i</code>로 캐스팅해 오버플로우를 방지한다.</li>
+            <li>각 문자가 ASCII 기준으로 <code>'0'</code>보다 작거나 <code>'9'</code>보다 크면 숫자가 아니다.</li>
+            <li>하나라도 걸리면 즉시 <code>false</code>.</li>
           </ul>
         </li>
       
-        <li><strong>소수 개수 카운트</strong>
-          <pre><code>int count = 0;
-      for (int i = 2; i &lt;= n; i++) {
-          if (!composite[i]) count++;
-      }
-      return count;</code></pre>
+        <li><strong>모두 통과하면 true</strong>
+          <pre><code>return true;</code></pre>
           <ul>
-            <li><code>2..n</code> 범위에서 합성수 표시가 안 된 값만 세면 소수의 개수가 된다.</li>
+            <li>길이 조건도 만족했고, 모든 문자가 숫자였으면 최종적으로 <code>true</code>.</li>
           </ul>
         </li>
       </ul>
@@ -310,16 +300,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>에라토스테네스의 체: <strong><code>O(n log log n)</code></strong> 수준</li>
-            <li>소수 개수 세기: <strong><code>O(n)</code></strong></li>
+            <li>문자열을 한 번 순회하므로 <strong><code>O(N)</code></strong> (N은 문자열 길이)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><code>boolean[n+1]</code> 사용 → <strong><code>O(n)</code></strong></li>
+            <li>추가 변수만 사용하므로 <strong><code>O(1)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
