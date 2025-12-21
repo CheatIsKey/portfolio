@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-18 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-19 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 6147 — Bookshelf</h2>
+      <h2 class="section">문제 6160 — Election Time</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6147">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6160">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1218_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1219_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,14 @@
       </h3>
       
       <p>
-        <strong>Bookshelf (BOJ 6147)</strong>는<br>
-        여러 마리 소의 키 <code>H_i</code> 중 일부를 골라 <strong>합이 책장 높이 <code>B</code> 이상</strong>이 되게 만들 때,
-        그때 필요한 <strong>최소 소 마릿수</strong>를 구하는 문제다.
+        <strong>Election Time (BOJ 6160)</strong>은 선거가 <strong>2단계</strong>로 진행되는 상황에서
+        최종 당선(2라운드 최다 득표) 후보의 <strong>인덱스</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>키는 전부 양수이므로, 마릿수를 최소로 하려면 <strong>한 마리당 키가 큰 소부터</strong> 쓰는 게 유리하다.</li>
-        <li>“k마리로 만들 수 있는 최대 높이”는 <strong>키가 큰 순서대로 k마리를 고른 합</strong>이다.</li>
-        <li>따라서 큰 키부터 더해가며 합이 <code>B</code> 이상이 되는 순간의 마릿수가 정답이다.</li>
+        <li>1라운드: <strong>A<sub>i</sub></strong> 표가 많은 순으로 <strong>상위 K명</strong>이 2라운드 진출</li>
+        <li>2라운드: 진출자 중 <strong>B<sub>i</sub></strong> 표가 가장 큰 후보가 당선</li>
+        <li><strong>A 목록은 중복 없음</strong>, <strong>B 목록도 중복 없음</strong> → 동점 처리를 고민할 필요가 없다</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,23 +74,9 @@
       </p>
       
       <ul>
-        <li><strong>입력</strong>
-          <ul>
-            <li><code>N</code>, <code>B</code>를 읽고, <code>N</code>개의 키를 리스트에 저장한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>정렬</strong>
-          <ul>
-            <li>키를 <strong>내림차순</strong>으로 정렬한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>누적</strong>
-          <ul>
-            <li>가장 큰 키부터 차례대로 더하며(또는 <code>B</code>에서 빼며) <code>B</code> 이상이 되는 순간의 개수를 출력한다.</li>
-          </ul>
-        </li>
+        <li>모든 후보를 <code>(idx, A, B)</code>로 저장한다.</li>
+        <li><strong>A 내림차순 정렬</strong>을 하면, 앞에서부터 <strong>K명</strong>이 2라운드 진출자다.</li>
+        <li>진출자 K명 중에서 <strong>B가 가장 큰 후보</strong>를 찾고 그 <code>idx</code>를 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -103,27 +88,31 @@
       </p>
       
       <ul>
-        <li><strong>키 내림차순 정렬</strong>
-          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b, a));</code></pre>
+        <li><strong>1) 1라운드 기준(A)으로 정렬</strong>
+          <pre><code>Collections.sort(list, (a, b) -&gt; Integer.compare(b.firstRound, a.firstRound));</code></pre>
           <ul>
-            <li>큰 키부터 먼저 쓰기 위해 내림차순으로 정렬한다.</li>
+            <li><code>firstRound</code>(= A)를 큰 순서대로 정렬한다.</li>
+            <li>정렬 후 <code>list[0..K-1]</code>가 2라운드 진출자다.</li>
           </ul>
         </li>
       
-        <li><strong>큰 키부터 누적해서 최소 마릿수 찾기</strong>
-          <pre><code>int cnt = 0;
-      
-      for (int height : list) {
-          B -= height;
-          cnt++;
-      
-          if (B &lt;= 0) break;
-      }
-      
-      System.out.println(cnt);</code></pre>
+        <li><strong>2) 진출자 K명 중 2라운드 표(B)가 가장 큰 후보 선택</strong>
+          <pre><code>Cows best = list.get(0);
+      for (int i = 1; i &lt; K; i++) {
+          if (list.get(i).finalRound &gt; best.finalRound) {
+              best = list.get(i);
+          }
+      }</code></pre>
           <ul>
-            <li>정렬된 리스트를 앞에서부터 보며 <code>B</code>에서 키를 뺀다.</li>
-            <li><code>B</code>가 <code>0</code> 이하가 되는 순간, 그때까지 사용한 소의 수(<code>cnt</code>)가 최소다.</li>
+            <li>진출자들만 보면서 <code>finalRound</code>(= B) 최대값을 가진 후보를 찾는다.</li>
+            <li>B도 중복이 없으므로 최댓값 후보는 유일하다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 정답 출력</strong>
+          <pre><code>System.out.println(best.idx);</code></pre>
+          <ul>
+            <li>당선 후보의 입력 순서(1-based 인덱스)를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -140,16 +129,17 @@
         <li><strong>시간 복잡도</strong>
           <ul>
             <li>정렬: <strong><code>O(N log N)</code></strong></li>
-            <li>한 번 순회 누적: <strong><code>O(N)</code></strong></li>
+            <li>진출자 K명 스캔: <strong><code>O(K)</code></strong></li>
             <li>전체: <strong><code>O(N log N)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>키 리스트 저장: <strong><code>O(N)</code></strong></li>
+            <li>후보 리스트 저장: <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -210,14 +200,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6159 — Costume Party</h2>
+      <h2 class="section">문제 6161 — iCow</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6159">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6161">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1218_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1219_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -234,18 +224,27 @@
       </h3>
       
       <p>
-        <strong>Costume Party (BOJ 6159)</strong>는<br>
-        소들의 길이 <code>L_i</code>가 주어질 때, <strong>서로 다른 두 마리</strong>를 골라
-        <strong>합이 의상 길이 <code>S</code> 이하</strong>가 되는 <strong>쌍의 개수</strong>를 세는 문제다.
+        <strong>iCow (BOJ 6161)</strong>은<br>
+        매번 <strong>현재 평점이 가장 높은 노래</strong>를 재생하고, 그 평점을 <strong>나머지 노래들에게 규칙대로 분배</strong>하는 과정을
+        <strong>T번 시뮬레이션</strong>해서 재생된 노래 번호를 출력하는 문제다.
       </p>
       
       <ul>
-        <li>쌍은 순서가 없으므로 <code>(i, j)</code>와 <code>(j, i)</code>는 같은 쌍이다.</li>
-        <li><code>N</code>이 최대 <code>20,000</code>이라서, 모든 쌍을 전부 비교하는 방식은 비효율적이다.</li>
-        <li><strong>정렬 + 투 포인터</strong>로 쌍을 한 번의 스캔으로 계산할 수 있다.</li>
+        <li>다음에 재생할 노래: 평점이 가장 큰 노래 (동점이면 <strong>인덱스가 가장 작은</strong> 노래)</li>
+        <li>재생 후 처리:
+          <ul>
+            <li>재생한 노래의 평점은 <strong>0</strong>이 된다.</li>
+            <li>그 평점 <code>x</code>를 <code>N-1</code>개의 다른 노래에 균등 분배:
+              <ul>
+                <li><code>q = x / (N-1)</code>는 모두에게 더해지고</li>
+                <li><code>r = x % (N-1)</code>는 앞에서부터 1점씩(단, 방금 재생한 노래는 제외) 추가로 배분</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
       </ul>
       
-      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -254,38 +253,32 @@
       </p>
       
       <ul>
-        <li><strong>1) 정렬</strong>
+        <li><strong>자료구조</strong>
           <ul>
-            <li>소들의 길이를 오름차순 정렬한다.</li>
+            <li><code>music[i]</code> = i번 노래의 현재 평점 (1-based)</li>
           </ul>
         </li>
       
-        <li><strong>2) 투 포인터</strong>
-          <ul>
-            <li>가장 짧은 쪽 <code>l</code>, 가장 긴 쪽 <code>r</code>를 잡는다.</li>
-            <li>만약 <code>cows[l] + cows[r] &lt;= S</code>라면:
-              <ul>
-                <li>정렬되어 있으므로 <code>l</code>과 짝지을 수 있는 상대는 <code>l+1..r</code> 전부 가능하다.</li>
-                <li>따라서 한 번에 <code>(r - l)</code>개의 쌍을 더하고 <code>l++</code>.</li>
-              </ul>
-            </li>
-            <li>만약 <code>cows[l] + cows[r] &gt; S</code>라면:
-              <ul>
-                <li>가장 큰 값 <code>cows[r]</code>가 너무 커서 어떤 <code>l</code>과도 맞추기 어렵다.</li>
-                <li><code>r--</code>로 줄여서 합을 낮춘다.</li>
-              </ul>
-            </li>
-          </ul>
+        <li><strong>T번 반복 시뮬레이션</strong>
+          <ol>
+            <li><code>music</code>에서 최댓값(동점이면 작은 인덱스)인 <code>cur</code>를 찾는다.</li>
+            <li><code>cur</code>를 출력한다.</li>
+            <li>평점 <code>x = music[cur]</code>를 꺼내고, <code>music[cur] = 0</code>으로 만든다.</li>
+            <li><code>q = x/(N-1)</code>, <code>r = x%(N-1)</code>를 구한다.</li>
+            <li><code>cur</code>를 제외한 모든 노래에 <code>q</code>를 더하고, 앞에서부터 <code>r</code>개 노래에 1씩 추가한다.</li>
+          </ol>
         </li>
       
-        <li><strong>3) 정답</strong>
+        <li style="margin-top:0.5em;">
+          <strong>주의</strong>
           <ul>
-            <li>누적한 쌍의 개수를 출력한다. (개수는 커질 수 있으니 <code>long</code> 권장)</li>
+            <li><code>N-1</code>로 나누는 구조라, <code>N=1</code> 입력이 가능한지는 문제 조건을 다시 확인하는 게 안전하다(가능하다면 예외 처리 필요). <span style="color:#666;">(확실하지 않음)</span></li>
+            <li>이 풀이(배열 선형 탐색/선형 분배)는 <code>N, T ≤ 1000</code> 수준이면 충분히 통과한다.</li>
           </ul>
         </li>
       </ul>
       
-      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -294,35 +287,51 @@
       </p>
       
       <ul>
-        <li><strong>정렬</strong>
-          <pre><code>Arrays.sort(cows);</code></pre>
+        <li><strong>1) 다음 재생 노래 선택 (최대 평점, 동점이면 작은 인덱스)</strong>
+          <pre><code>int cur = 1;
+      for (int j = 2; j &lt;= N; j++) {
+          if (music[j] &gt; music[cur]) cur = j;
+          else if (music[j] == music[cur] &amp;&amp; j &lt; cur) cur = j;
+      }</code></pre>
           <ul>
-            <li>오름차순 정렬로 투 포인터 판단이 가능해진다.</li>
+            <li>한 번의 재생마다 배열을 끝까지 훑어서 기준에 맞는 <code>cur</code>를 고른다.</li>
           </ul>
         </li>
       
-        <li><strong>투 포인터로 쌍 개수 누적</strong>
-          <pre><code>int l = 0, r = N - 1;
-      long cnt = 0;
+        <li><strong>2) 평점 분배 준비</strong>
+          <pre><code>int x = music[cur];
+      music[cur] = 0;
       
-      while (l &lt; r) {
-          int sum = cows[l] + cows[r];
+      int q = x / (N - 1);
+      int r = x % (N - 1);</code></pre>
+          <ul>
+            <li><code>x</code>를 꺼내고 <code>cur</code>은 0으로 만든 뒤, 몫/나머지를 구한다.</li>
+          </ul>
+        </li>
       
-          if (sum &lt;= S) {
-              cnt += (r - l);
-              l++;
-          } else {
-              r--;
-          }
+        <li><strong>3) 몫 q를 모든 다른 노래에 더하기</strong>
+          <pre><code>for (int j = 1; j &lt;= N; j++) {
+          if (j == cur) continue;
+          music[j] += q;
       }</code></pre>
           <ul>
-            <li><code>sum &lt;= S</code>면 <code>l</code>은 <code>l+1..r</code>와 전부 짝 가능 → <code>r-l</code>만큼 한 번에 더한다.</li>
-            <li><code>sum &gt; S</code>면 큰 쪽을 줄이기 위해 <code>r--</code>.</li>
+            <li><code>cur</code>만 제외하고 전부 <code>q</code>를 더한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 나머지 r을 앞에서부터 1씩 추가 (cur 제외)</strong>
+          <pre><code>for (int j = 1; j &lt;= N &amp;&amp; r &gt; 0; j++) {
+          if (j == cur) continue;
+          music[j] += 1;
+          r--;
+      }</code></pre>
+          <ul>
+            <li>인덱스가 작은 노래부터 1점씩 추가로 배분한다(단, 방금 재생한 노래는 제외).</li>
           </ul>
         </li>
       </ul>
       
-      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -333,17 +342,24 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>정렬: <strong><code>O(N log N)</code></strong></li>
-            <li>투 포인터 스캔: <strong><code>O(N)</code></strong></li>
-            <li>전체: <strong><code>O(N log N)</code></strong></li>
+            <li>재생 1회당
+              <ul>
+                <li>최대값 탐색: <code>O(N)</code></li>
+                <li>몫 분배: <code>O(N)</code></li>
+                <li>나머지 분배: 최악 <code>O(N)</code></li>
+              </ul>
+            </li>
+            <li>총 <strong><code>O(T · N)</code></strong> (상수 포함해도 <code>N,T ≤ 1000</code>이면 충분히 빠름)</li>
           </ul>
         </li>
+      
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>배열 저장: <strong><code>O(N)</code></strong></li>
+            <li>평점 배열 <code>music</code>만 사용하므로 <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
