@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-21 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6169 — Long Distance Racing</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6169">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1221_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Long Distance Racing (BOJ 6169)</strong>는<br>
+        출발점(농장)에서 <strong>앞으로 T칸</strong>짜리 길을 달릴 때, <strong>왕복 시간</strong>이 제한 시간 <code>M</code>을 넘지 않도록 하면서
+        <strong>가장 멀리(몇 칸)</strong>까지 갈 수 있는지 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>길은 한 칸씩 <code>u(오르막)</code>, <code>f(평지)</code>, <code>d(내리막)</code>로 주어진다.</li>
+        <li>갈 때 시간:
+          <ul>
+            <li><code>u</code>: 1칸에 <code>U</code>초</li>
+            <li><code>f</code>: 1칸에 <code>F</code>초</li>
+            <li><code>d</code>: 1칸에 <code>D</code>초</li>
+          </ul>
+        </li>
+        <li>올 때는 지형이 뒤집힌다:
+          <ul>
+            <li>갈 때 <code>u</code>였던 칸은 돌아올 때 <code>d</code>가 되어 <code>D</code>초</li>
+            <li>갈 때 <code>d</code>였던 칸은 돌아올 때 <code>u</code>가 되어 <code>U</code>초</li>
+            <li><code>f</code>는 왕복 모두 <code>F</code>초</li>
+          </ul>
+        </li>
+        <li>따라서 한 칸을 “왕복”하는 비용은
+          <ul>
+            <li><code>u</code> 또는 <code>d</code>: <strong><code>U + D</code></strong></li>
+            <li><code>f</code>: <strong><code>2 * F</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문제는 “연속된 앞부분을 몇 칸까지 밟을 수 있는가” 형태다.</li>
+        <li>1칸부터 순서대로 보면서 해당 칸의 왕복 비용을 누적한다.</li>
+        <li>누적 시간이 <code>M</code>을 초과하는 순간 더 이상 진행 불가 → 그 직전까지의 칸 수가 정답.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 기본 왕복 비용 계산</strong>
+          <pre><code>int M = ...;
+      int T = ...;
+      int U = ...;
+      int F = ...;
+      int D = ...;
+      
+      int hill = U + D;   // u/d 칸의 왕복 시간
+      int flat = 2 * F;   // f 칸의 왕복 시간</code></pre>
+          <ul>
+            <li><code>u</code>와 <code>d</code>는 왕복하면 항상 <code>U + D</code>로 동일하다.</li>
+            <li><code>f</code>는 왕복이면 <code>2F</code>.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 1칸씩 보면서 누적 시간 체크</strong>
+          <pre><code>int time = 0, cnt = 0;
+      
+      for (int i = 0; i &lt; T; i++) {
+          char s = br.readLine().charAt(0);
+      
+          int cost = (s == 'f') ? flat : hill;
+      
+          if (time + cost &gt; M) break;
+      
+          time += cost;
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>각 구간 문자를 읽고, 왕복 비용(<code>cost</code>)을 결정한다.</li>
+            <li>누적 시간에 더했을 때 <code>M</code>을 넘으면 즉시 중단한다.</li>
+            <li>가능한 구간 수를 <code>cnt</code>로 센다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>구간을 한 번만 순회하므로 <strong><code>O(T)</code></strong></li>
+            <li><code>T ≤ 100,000</code>이라 충분히 빠르다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 배열 없이 누적 변수만 사용 → <strong><code>O(1)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6177 — Statistics</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6177">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1221_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Statistics (BOJ 6177)</strong>는<br>
+        주어진 정수 <code>N</code>개의 데이터로부터 <strong>평균(mean)</strong>과 <strong>중앙값(median)</strong>을 구해 출력하는 기본 통계 문제다.
+      </p>
+      
+      <ul>
+        <li><strong>평균</strong>: 모든 수의 합을 <code>N</code>으로 나눈 값</li>
+        <li><strong>중앙값</strong>:
+          <ul>
+            <li><code>N</code>이 홀수면, 정렬했을 때 가운데 값</li>
+            <li><code>N</code>이 짝수면, 정렬했을 때 가운데 두 값의 평균</li>
+          </ul>
+        </li>
+        <li>출력은 정답과의 오차가 <code>0.002</code> 이내면 통과하므로, <code>double</code>로 계산 후 소수점 6자리 정도 출력하면 충분하다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력</strong>
+          <ul>
+            <li>정수 <code>N</code>을 읽고, 길이 <code>N</code> 배열에 값을 저장한다.</li>
+            <li>동시에 누적합 <code>sum</code>을 계산한다.</li>
+          </ul>
+        </li>
+        <li><strong>평균</strong>
+          <ul>
+            <li><code>mean = (double) sum / N</code></li>
+          </ul>
+        </li>
+        <li><strong>중앙값</strong>
+          <ul>
+            <li>배열을 오름차순 정렬한다.</li>
+            <li><code>N</code>이 홀수면 <code>arr[N/2]</code></li>
+            <li><code>N</code>이 짝수면 <code>(arr[N/2 - 1] + arr[N/2]) / 2.0</code></li>
+          </ul>
+        </li>
+        <li><strong>출력</strong>
+          <ul>
+            <li><code>printf("%.6f")</code> 형태로 평균과 중앙값을 각각 한 줄씩 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>입력 + 합 계산</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int[] arr = new int[N];
+      int sum = 0;
+      
+      for (int i = 0; i &lt; N; i++) {
+          int num = Integer.parseInt(br.readLine());
+          arr[i] = num;
+          sum += num;
+      }</code></pre>
+          <ul>
+            <li>배열에 값을 저장하면서 동시에 <code>sum</code>으로 누적합을 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>정렬</strong>
+          <pre><code>Arrays.sort(arr);</code></pre>
+          <ul>
+            <li>중앙값을 구하려면 정렬이 필요하다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>평균/중앙값 계산</strong>
+          <pre><code>double mean = (double) sum / N;
+      
+      int mid = N / 2;
+      double median;
+      
+      if (N % 2 == 0) {
+          median = (arr[mid - 1] + arr[mid]) / 2.0;
+      } else {
+          median = arr[mid];
+      }</code></pre>
+          <ul>
+            <li><code>N</code>이 짝수면 가운데 두 값의 평균을 내야 하므로 <code>2.0</code>으로 나눠 <code>double</code>로 만든다.</li>
+            <li><code>N</code>이 홀수면 가운데 값이 그대로 중앙값이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>출력</strong>
+          <pre><code>System.out.printf("%.6f\n", mean);
+      System.out.printf("%.6f\n", median);</code></pre>
+          <ul>
+            <li>소수점 6자리로 출력하면 오차 조건(<code>0.002</code>)을 충분히 만족한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>입력/합: <code>O(N)</code></li>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>전체: <strong><code>O(N log N)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>정수 배열 <code>arr</code>만 사용: <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
