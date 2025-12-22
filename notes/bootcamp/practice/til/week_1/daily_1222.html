@@ -42,11 +42,11 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 8일차 TIL — Java 계산기 프로젝트(예외 처리 &amp; 컬렉션)</h1>
-      <p class="muted">작성일 2025-12-22 · 분류: 부트캠프, TIL, Java, Project</p>
+      <h1>내일배움캠프 Spring 백엔드 8일차 TIL — 계산기 프로젝트 &amp; 예외/Optional/컬렉션/제네릭</h1>
+      <p class="muted">작성일 2025-12-22 · 분류: 부트캠프, TIL, Java</p>
 
       <!-- 섹션 1: 8일차 개요 -->
-      <h2 class="section">8일차 개요 — “입력 검증 + 예외 처리”가 프로젝트 완성도를 좌우한다</h2>
+      <h2 class="section">8일차 개요 — “안 멈추는 프로그램”을 만드는 핵심 개념들</h2>
 
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -55,147 +55,137 @@
       </h3>
 
       <p>
-        오늘은 Java로 구현한 <strong>콘솔 계산기 프로젝트</strong> 코드를 기준으로 정리했다.
-        단순히 연산만 되는 프로그램이 아니라, 사용자가 어떤 값을 입력하더라도 프로그램이 멈추지 않도록
-        <strong>입력 검증과 예외 처리</strong>를 넣었고, 결과를 <strong>List</strong>에 저장해 이력까지 확인할 수 있도록 구성했다.
+        오늘은 Java로 구현한 <strong>콘솔 계산기 프로젝트</strong> 코드를 기반으로,
+        프로그램이 예외 상황에서도 멈추지 않게 만드는 방법을 정리했다.
+        추가로 <strong>예외/예외 처리</strong>, <strong>Optional</strong>, <strong>컬렉션</strong>, <strong>제네릭</strong> 개념을 함께 묶어서,
+        나중에 다시 봤을 때 바로 떠올릴 수 있게 핵심만 정리했다.
       </p>
 
       <ul>
-        <li>메뉴 선택(계산/이력/삭제/종료)을 반복하는 콘솔 프로그램 구조</li>
-        <li><code>InputMismatchException</code>을 이용한 숫자 입력 검증</li>
-        <li><code>sqrt</code> 단항 연산 처리 및 음수 입력 차단</li>
-        <li><code>/</code>, <code>%</code>에서 분모 0 입력을 재입력 루프로 방지</li>
-        <li><code>List&lt;Double&gt;</code>로 결과 이력 저장 및 출력</li>
+        <li>계산기: 입력 검증(숫자/연산자), 분모 0 방지, sqrt 처리, 결과 이력 저장</li>
+        <li>예외: 검사/비검사 예외 차이, try-catch, throws, finally</li>
+        <li>Optional: null 안전 처리 기본 패턴</li>
+        <li>컬렉션: List/Set/Map 특징과 사용 상황</li>
+        <li>제네릭: 타입 안정성, 컴파일 타임 오류 방지</li>
       </ul>
 
-      <!-- 섹션 2: 계산기 전체 구조 -->
-      <h2 class="section">Java 계산기 프로젝트 구조 — 메뉴 루프와 역할 분리</h2>
+      <!-- 섹션 2: 계산기 프로젝트 -->
+      <h2 class="section">Java 계산기 프로젝트 — 입력 검증, 예외 처리, 이력 관리</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          코드 흐름
+          프로젝트 핵심 기능
         </span>
       </h3>
-
-      <p>
-        전체 구조는 <strong>무한 루프(while)</strong> 안에서 메뉴를 출력하고,
-        사용자 선택에 따라 <strong>switch</strong>로 분기하는 방식이다.
-        입력과 계산 로직은 아래처럼 메서드로 분리되어 있어서, 예외 대응과 유지보수가 쉬워진다.
-      </p>
 
       <table>
         <thead>
           <tr>
-            <th>구성 요소</th>
-            <th>역할</th>
-            <th>핵심 포인트</th>
+            <th>기능</th>
+            <th>구현 방식</th>
+            <th>포인트</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>inputNumber()</code></td>
-            <td>정수 입력 받기</td>
-            <td>숫자 외 입력을 예외로 잡고 재입력</td>
+            <td>메뉴 반복</td>
+            <td>while + switch</td>
+            <td>종료(0) 전까지 계속 실행</td>
           </tr>
           <tr>
-            <td><code>inputOperator()</code></td>
-            <td>연산자 입력 받기</td>
-            <td>지원하는 연산자만 통과(+,-,*,/,% ,^,sqrt)</td>
+            <td>숫자 입력 검증</td>
+            <td>try-catch(InputMismatchException)</td>
+            <td>숫자 외 입력 시 재입력</td>
           </tr>
           <tr>
-            <td><code>calculate()</code></td>
-            <td>연산 결과 반환</td>
-            <td>연산자별 분기, 잘못된 연산자면 예외 발생</td>
+            <td>연산자 입력 검증</td>
+            <td>허용 연산자 체크</td>
+            <td>+, -, *, /, %, ^, sqrt만 허용</td>
           </tr>
           <tr>
-            <td><code>resultList</code></td>
-            <td>결과 이력 저장</td>
-            <td>계산 결과를 누적, 이력 조회/삭제 가능</td>
+            <td>분모 0 방지</td>
+            <td>사전 검증 + 재입력 루프</td>
+            <td>/, %에서 0 입력 금지</td>
+          </tr>
+          <tr>
+            <td>sqrt 처리</td>
+            <td>단항 연산 분기</td>
+            <td>음수는 거부, 결과 저장</td>
+          </tr>
+          <tr>
+            <td>이력 관리</td>
+            <td>List&lt;Double&gt; + add/get/clear</td>
+            <td>조회/삭제 메뉴 제공</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          메인 루프 핵심 부분
+          입력 검증 메서드(숫자)
         </span>
       </h3>
-
-      <pre><code>while (true) {
-    System.out.println("=== 계산기 메뉴 ===");
-    System.out.println("1. 계산하기");
-    System.out.println("2. 계산 이력 보기");
-    System.out.println("3. 이력 지우기");
-    System.out.println("0. 종료");
-
-    int select = inputNumber(scanner, "선택: ");
-
-    switch (select) {
-        case 1:
-            // 계산하기
-            break;
-        case 2:
-            // 이력 보기
-            break;
-        case 3:
-            // 이력 지우기
-            break;
-        case 0:
-            // 종료
-            return;
-        default:
-            System.out.println("지원하지 않는 메뉴입니다.");
-    }
-}
-</code></pre>
-
-      <!-- 섹션 3: 입력 검증과 예외 처리 -->
-      <h2 class="section">입력 검증과 예외 처리 — 프로그램이 멈추지 않게 만드는 장치</h2>
-
-      <h3 class="section">
-        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          숫자 입력 검증(InputMismatchException)
-        </span>
-      </h3>
-
-      <p>
-        <code>Scanner.nextInt()</code>는 숫자가 아닌 값이 들어오면 <code>InputMismatchException</code>이 발생한다.
-        이 프로젝트에서는 예외를 잡고, 잘못 입력된 토큰을 <code>scanner.next()</code>로 버린 뒤 다시 입력받도록 했다.
-      </p>
 
       <pre><code>private static int inputNumber(Scanner scanner, String msg) {
     while (true) {
         System.out.print(msg);
-
         try {
             return scanner.nextInt();
         } catch (InputMismatchException e) {
             System.out.println("숫자를 입력해주세요.");
-            scanner.next(); // 잘못 들어온 토큰 소비
+            scanner.next(); // 잘못 입력된 토큰 제거
         }
     }
 }
 </code></pre>
 
-      <ul>
-        <li>핵심은 “예외가 나도 프로그램이 종료되지 않게” 루프를 유지하는 것이다.</li>
-        <li><code>scanner.next()</code>를 호출하지 않으면 같은 잘못된 입력이 계속 남아서 무한히 예외가 난다.</li>
-      </ul>
-
       <h3 class="section">
-        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          분모 0 입력 방지(/, %)
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          입력 검증 메서드(연산자)
         </span>
       </h3>
 
-      <p>
-        <code>/</code>와 <code>%</code>는 분모가 0이면 계산 자체가 불가능하므로,
-        0을 입력하면 다시 입력받도록 <strong>재입력 루프</strong>를 구성했다.
-      </p>
+      <pre><code>private static String inputOperator(Scanner scanner, String msg) {
+    while (true) {
+        System.out.print(msg);
+        String operator = scanner.next();
+
+        if (operator.equals("+") || operator.equals("-") || operator.equals("*") || operator.equals("/")
+                || operator.equals("%") || operator.equals("^") || operator.equals("sqrt")) {
+            return operator;
+        }
+        System.out.println("지원하지 않는 연산자입니다.");
+    }
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          단항 연산(sqrt) 처리 + 음수 방지
+        </span>
+      </h3>
+
+      <pre><code>if (operator.equals("sqrt")) {
+    if (num1 &lt; 0) {
+        System.out.println("음수의 제곱근은 실수 범위에서 계산할 수 없습니다.");
+        continue;
+    }
+    double sqrt = Math.sqrt(num1);
+    resultList.add(sqrt);
+    System.out.printf("결과: %d의 제곱근 = %.2f %n", num1, sqrt);
+    System.out.println();
+    continue;
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          분모 0 방지(/, %) — 사전 검증으로 안전하게
+        </span>
+      </h3>
 
       <pre><code>if ((operator.equals("/") || operator.equals("%")) && num2 == 0) {
     System.out.println("0은 분모로 입력할 수 없습니다. 다시 입력해주세요.");
-
     while (true) {
         num2 = inputNumber(scanner, "두 번째 숫자: ");
         if (num2 != 0) break;
@@ -204,125 +194,275 @@
 }
 </code></pre>
 
-      <ul>
-        <li>예외를 던져서 종료하는 대신, 사용자 입력을 유도해 정상 흐름으로 복귀시키는 방식이다.</li>
-        <li>이런 검증은 “예외 처리”라기보다 <strong>사전 검증</strong>에 가깝다.</li>
-      </ul>
-
       <h3 class="section">
         <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          sqrt 처리(단항 연산)와 음수 방지
+          계산 메서드(calculate) — 예상 밖 입력은 예외로 차단
         </span>
       </h3>
-
-      <p>
-        <code>sqrt</code>는 두 번째 숫자가 필요 없는 단항 연산이라서,
-        연산자가 <code>sqrt</code>인 경우는 별도로 처리했다.
-        또한 음수의 제곱근은 실수 범위에서 계산할 수 없다고 안내하고, 메뉴로 되돌아가도록 했다.
-      </p>
-
-      <pre><code>if (operator.equals("sqrt")) {
-    if (num1 &lt; 0) {
-        System.out.println("음수의 제곱근은 실수 범위에서 계산할 수 없습니다.");
-        continue;
-    }
-
-    System.out.printf("결과: %d의 제곱근 = %.2f %n", num1, Math.sqrt(num1));
-    System.out.println();
-    resultList.add(Math.sqrt(num1));
-    continue;
-}
-</code></pre>
-
-      <!-- 섹션 4: 연산 처리 메서드 -->
-      <h2 class="section">연산 처리(calculate) — switch로 연산자별 결과 반환</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          calculate 메서드 역할
-        </span>
-      </h3>
-
-      <p>
-        실제 계산은 <code>calculate(num1, operator, num2)</code>에서 처리한다.
-        여기서 <code>sqrt</code>는 메인 로직에서 이미 분기 처리되기 때문에,
-        <code>calculate</code>는 이항 연산 중심으로 동작한다.
-      </p>
 
       <pre><code>private static double calculate(int num1, String operator, int num2) {
     switch (operator) {
-        case "+":
-            return num1 + num2;
-        case "-":
-            return num1 - num2;
-        case "*":
-            return num1 * num2;
-        case "/":
-            return (double) num1 / num2;
-        case "%":
-            return num1 % num2;
-        case "^":
-            return Math.pow(num1, num2);
+        case "+": return num1 + num2;
+        case "-": return num1 - num2;
+        case "*": return num1 * num2;
+        case "/": return (double) num1 / num2;
+        case "%": return num1 % num2;
+        case "^": return Math.pow(num1, num2);
         default:
             throw new IllegalArgumentException("계산 과정에서 문제가 발생했습니다.");
     }
 }
 </code></pre>
 
-      <ul>
-        <li><code>/</code>는 정수 나눗셈이 아니라 실수 결과를 위해 <code>(double)</code> 캐스팅을 사용했다.</li>
-        <li><code>^</code>는 <code>Math.pow</code>를 사용해 제곱 연산을 처리했다.</li>
-        <li>기본값에서 <code>IllegalArgumentException</code>을 던져, 예상치 못한 연산자 유입을 방지한다.</li>
-      </ul>
-
-      <!-- 섹션 5: 결과 이력(List) -->
-      <h2 class="section">결과 이력 관리(List) — 저장, 조회, 삭제</h2>
+      <!-- 섹션 3: 예외/예외 처리 -->
+      <h2 class="section">예외와 예외 처리 — 검사 예외 vs 비검사 예외</h2>
 
       <h3 class="section">
-        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          List를 쓴 이유
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          개념 정리
         </span>
       </h3>
 
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>대표 예시</th>
+            <th>특징</th>
+            <th>대응 방법</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>검사(Checked) 예외</td>
+            <td>IOException, SQLException</td>
+            <td>컴파일 단계에서 처리 강제</td>
+            <td>try-catch 또는 throws</td>
+          </tr>
+          <tr>
+            <td>비검사(Unchecked) 예외</td>
+            <td>NullPointerException, IllegalArgumentException</td>
+            <td>런타임에 발생, 컴파일러가 강제하지 않음</td>
+            <td>사전 검증 + 필요한 경우 catch</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          try-catch 기본 패턴
+        </span>
+      </h3>
+
+      <pre><code>try {
+    int n = scanner.nextInt();
+} catch (InputMismatchException e) {
+    System.out.println("숫자를 입력해주세요.");
+    scanner.next();
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          검사 예외(Checked) 예시 — throws / try-catch
+        </span>
+      </h3>
+
+      <pre><code>// 컴파일러가 예외 처리를 강제하는 형태(개념 예시)
+void readFile() throws java.io.IOException {
+    // 파일 읽기 로직
+}
+</code></pre>
+
       <p>
-        이력은 “계산이 발생한 순서대로 쌓이고, 그 순서대로 출력”하는 구조다.
-        그래서 <strong>순서를 보장하는 List</strong>가 자연스럽고,
-        결과 타입을 통일하기 위해 <code>List&lt;Double&gt;</code>로 관리했다.
+        체크 예외는 “반드시 처리해야 컴파일이 되는 예외”라서,
+        호출하는 쪽에서 try-catch로 잡거나, 메서드 시그니처에 throws로 위임해야 한다.
       </p>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          비검사 예외(Unchecked) 예시 — 사전 검증이 우선
+        </span>
+      </h3>
+
+      <pre><code>// 잘못된 인자 유입을 방지(사전 검증)
+if (num2 == 0) {
+    throw new IllegalArgumentException("분모는 0이 될 수 없습니다.");
+}
+</code></pre>
+
+      <p>
+        비검사 예외는 “프로그램 논리/입력 자체가 잘못된 경우”가 많아서,
+        try-catch로 무조건 덮기보다 <strong>원인을 제거</strong>하는 방식(검증/설계)이 우선이다.
+      </p>
+
+      <!-- 섹션 4: Optional -->
+      <h2 class="section">Optional — null 안전 처리를 위한 기본 도구</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          왜 쓰는가
+        </span>
+      </h3>
+
+      <ul>
+        <li>null 반환/NullPointerException을 줄이기 위한 의도 표현</li>
+        <li>“값이 없을 수도 있다”를 타입 수준에서 드러내기</li>
+        <li>있으면 처리/없으면 대체값/없으면 예외 같은 패턴을 깔끔하게 작성</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자주 쓰는 패턴 예시
+        </span>
+      </h3>
+
+      <pre><code>import java.util.Optional;
+
+Optional&lt;String&gt; nick = Optional.ofNullable(getNickname());
+
+// 값이 없으면 기본값
+String value1 = nick.orElse("guest");
+
+// 값이 없으면 지연 계산(람다)
+String value2 = nick.orElseGet(() -&gt; "guest");
+
+// 값이 없으면 예외
+String value3 = nick.orElseThrow(() -&gt; new IllegalStateException("닉네임이 없습니다."));
+
+// 값이 있으면 실행
+nick.ifPresent(v -&gt; System.out.println(v));
+</code></pre>
+
+      <p>
+        Optional은 만능이 아니라, “없을 수 있는 값”을 명확하게 다루기 위한 도구로 쓰는 게 핵심이다.
+      </p>
+
+      <!-- 섹션 5: 컬렉션 -->
+      <h2 class="section">컬렉션 — List/Set/Map 핵심 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          컬렉션 선택 기준
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>종류</th>
+            <th>특징</th>
+            <th>언제 쓰는가</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>List</td>
+            <td>순서 O, 중복 O</td>
+            <td>이력/목록처럼 “순서가 중요”할 때</td>
+          </tr>
+          <tr>
+            <td>Set</td>
+            <td>순서 X(구현체에 따라 다름), 중복 X</td>
+            <td>중복 제거, 유일 값 관리</td>
+          </tr>
+          <tr>
+            <td>Map</td>
+            <td>Key-Value</td>
+            <td>빠른 조회(키 기반), 카운팅/인덱싱</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          계산기 코드에 적용된 컬렉션(List)
+        </span>
+      </h3>
 
       <pre><code>List&lt;Double&gt; resultList = new ArrayList&lt;&gt;();
 
-// 계산 결과 저장
 resultList.add(result);
 
-// 이력 출력
 for (int i = 0; i &lt; resultList.size(); i++) {
     System.out.printf("%d. %.2f %n", i + 1, resultList.get(i));
 }
 
-// 이력 삭제
 resultList.clear();
 </code></pre>
 
-      <ul>
-        <li>이력이 비어있을 때는 “계산 이력이 없습니다.”를 출력한다.</li>
-        <li>이력 출력은 인덱스를 이용해 번호를 붙여 보여준다.</li>
-      </ul>
+      <p>
+        계산 결과는 “계산이 수행된 순서대로” 쌓이고 출력되기 때문에 List 선택이 자연스럽다.
+      </p>
 
-      <!-- 섹션 6: 개선 포인트 -->
-      <h2 class="section">오늘 체크한 개선 포인트 — 다음 리팩토링 방향</h2>
+      <!-- 섹션 6: 제네릭 -->
+      <h2 class="section">제네릭(Generics) — 타입 안정성을 확보하는 문법</h2>
 
       <h3 class="section">
-        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          정리
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          제네릭을 쓰는 이유
         </span>
       </h3>
 
       <ul>
-        <li><strong>case 3(이력 지우기)</strong>에서 사용자 안내 메시지를 추가하면 UX가 좋아진다.</li>
-        <li><strong>연산자 처리 방식</strong>을 enum 또는 Map으로 바꾸면 조건 분기와 중복이 줄어든다.</li>
-        <li><strong>입력 타입 확장</strong>(정수 → 실수)을 고려하면 입력 메서드가 <code>double</code> 기반으로 바뀌어야 한다.</li>
-        <li><strong>결과 이력에 “식”도 함께 저장</strong>하려면 <code>List&lt;Double&gt;</code> 대신 DTO(예: ExpressionResult)를 쓰는 방식이 더 깔끔하다.</li>
+        <li>컬렉션에 들어가는 타입을 고정해서 <strong>컴파일 타임에 오류를 잡는다</strong></li>
+        <li>캐스팅을 줄이고 코드 가독성과 안정성을 높인다</li>
+        <li>재사용 가능한 클래스/메서드를 만들 수 있다</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          컬렉션 제네릭 예시
+        </span>
+      </h3>
+
+      <pre><code>List&lt;Double&gt; list = new ArrayList&lt;&gt;();
+list.add(3.14);
+
+// 컴파일 단계에서 타입 오류를 막아줌
+// list.add("문자열"); // 불가능
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          제네릭 메서드 예시(개념)
+        </span>
+      </h3>
+
+      <pre><code>public static &lt;T&gt; T first(List&lt;T&gt; list) {
+    return list.get(0);
+}
+</code></pre>
+
+      <p>
+        제네릭은 “아무 타입이나 받되, 그 타입을 유지한 채로 안전하게 처리”하는 게 핵심이다.
+      </p>
+
+      <!-- 섹션 7: 회고와 다음 계획 -->
+      <h2 class="section">오늘의 회고와 다음 주제</h2>
+
+      <h3 class="section">
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        계산기 프로젝트는 기능 자체는 단순하지만, 입력 검증/예외 처리/컬렉션 저장을 붙이는 순간
+        “서비스가 멈추지 않게 만드는 기본기”가 그대로 드러난다.
+        특히 <strong>예외를 무조건 잡는 것</strong>보다, <strong>사전 검증으로 예외를 발생시키지 않는 구조</strong>가 더 중요하다는 걸 다시 확인했다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          다음 주제
+        </span>
+      </h3>
+
+      <ul>
+        <li>List 대신 “식 + 결과”를 함께 저장하는 DTO 도입</li>
+        <li>연산자 처리 enum/Map으로 리팩토링</li>
+        <li>Optional과 예외 처리 기준을 실제 서비스(Repository/Service) 흐름에 대입해 보기</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
