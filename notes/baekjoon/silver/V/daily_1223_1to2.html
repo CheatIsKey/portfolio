@@ -206,14 +206,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6212 — Dream Counting</h2>
+      <h2 class="section">문제 6308 — Blowing Fuses</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6212">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6308">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1222_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -230,20 +230,17 @@
       </h3>
       
       <p>
-        <strong>Dream Counting (BOJ 6212)</strong>는<br>
-        두 정수 <code>M</code>부터 <code>N</code>까지의 모든 수를 순서대로 나열했을 때,
-        각 숫자 <code>0..9</code>가 <strong>몇 번 등장하는지</strong>를 세는 문제다.
+        <strong>Blowing Fuses (BOJ 6308)</strong>는<br>
+        여러 전기기기들을 순서대로 <strong>ON/OFF 토글</strong>할 때,
+        어떤 순간이라도 켜진 기기들의 소비 전류 합이 퓨즈 용량 <code>c</code>를 <strong>초과</strong>하면
+        퓨즈가 터지는지 확인하는 문제다.
       </p>
       
       <ul>
-        <li>예를 들어 <code>129..137</code>이면 <code>129, 130, 131, ... , 137</code>을 모두 보면서 각 자리의 숫자를 카운트한다.</li>
-        <li>출력은 <code>0</code>부터 <code>9</code>까지의 등장 횟수를 공백으로 구분해 한 줄에 출력한다.</li>
-        <li>범위 조건:
-          <ul>
-            <li><code>1 ≤ M ≤ N ≤ 2,000,000,000</code></li>
-            <li><code>N - M ≤ 500,000</code> (연속 구간 길이가 최대 500,001개)</li>
-          </ul>
-        </li>
+        <li>각 테스트케이스는 기기 개수 <code>n</code>, 동작 횟수 <code>m</code>, 퓨즈 용량 <code>c</code>로 주어진다.</li>
+        <li>각 기기에는 소비 전류 <code>ci</code>가 있고, 동작에서는 해당 기기의 상태가 <strong>반전(toggle)</strong>된다.</li>
+        <li>처음에는 모든 기기가 <strong>꺼져 있음</strong>.</li>
+        <li>퓨즈가 터지지 않았다면, 동작 과정에서의 <strong>최대 소비 전류(max)</strong>도 함께 출력해야 한다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -255,9 +252,21 @@
       </p>
       
       <ul>
-        <li><code>M</code>부터 <code>N</code>까지 모든 수를 순회한다.</li>
-        <li>각 수를 10으로 나누면서(<code>% 10</code>, <code>/= 10</code>) 자릿수를 하나씩 꺼내 <code>cnt[digit]</code>를 증가시킨다.</li>
-        <li>순회가 끝나면 <code>cnt[0..9]</code>를 차례대로 출력한다.</li>
+        <li>각 기기의 상태(켜짐/꺼짐)와 소비 전류를 저장해 둔다.</li>
+        <li>동작을 하나씩 처리하면서
+          <ul>
+            <li>켜져 있던 기기를 끄면 <code>current -= consume</code></li>
+            <li>꺼져 있던 기기를 켜면 <code>current += consume</code></li>
+          </ul>
+          처럼 현재 소비 전류 합(<code>current</code>)을 갱신한다.
+        </li>
+        <li>매 동작마다
+          <ul>
+            <li><code>max = Math.max(max, current)</code>로 최대값 갱신</li>
+            <li><code>current &gt; c</code>면 퓨즈 터짐(<code>blown = true</code>) 표시</li>
+          </ul>
+        </li>
+        <li>테스트케이스 종료 후, 조건에 맞게 문구를 출력한다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -269,38 +278,78 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 처리 및 카운트 배열 준비</strong>
-          <pre><code>long M = Integer.parseInt(st.nextToken());
-      long N = Integer.parseInt(st.nextToken());
+        <li><strong>1) 테스트케이스 루프 및 종료 조건 처리</strong>
+          <pre><code>int caseNum = 1;
+      String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
       
-      long[] cnt = new long[10];</code></pre>
+          int n = Integer.parseInt(st.nextToken());
+          int m = Integer.parseInt(st.nextToken());
+          int c = Integer.parseInt(st.nextToken());
+      
+          if (n == 0 &amp;&amp; m == 0 &amp;&amp; c == 0) break;
+      
+          sb.append("Sequence " + caseNum).append('\n');</code></pre>
           <ul>
-            <li><code>M</code>, <code>N</code>을 입력받고, 각 숫자(0~9) 등장 횟수를 담을 배열 <code>cnt</code>를 만든다.</li>
+            <li>여러 테스트케이스가 들어오므로 <code>while</code>로 반복 처리한다.</li>
+            <li><code>n = m = c = 0</code>이면 입력 종료.</li>
+            <li>각 케이스마다 <code>Sequence k</code> 헤더를 출력한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) M부터 N까지 순회하며 자릿수 카운트</strong>
-          <pre><code>for (long i = M; i &lt;= N; i++) {
-          long x = i;
+        <li><strong>2) 기기 정보 저장 (소비 전류 + 현재 상태)</strong>
+          <pre><code>Map&lt;Integer, Device&gt; map = new HashMap&lt;&gt;();
       
-          while (x &gt; 0) {
-              cnt[(int) (x % 10)]++;
-              x /= 10;
-          }
+      for (int i = 1; i &lt;= n; i++) {
+          int consume = Integer.parseInt(br.readLine());
+          map.put(i, new Device(consume, false));
       }</code></pre>
           <ul>
-            <li>각 수 <code>i</code>를 <code>x</code>에 복사한 뒤, <code>x</code>가 0이 될 때까지 반복한다.</li>
-            <li><code>x % 10</code>으로 마지막 자릿수를 꺼내 해당 인덱스의 카운트를 증가시킨다.</li>
-            <li><code>x /= 10</code>으로 마지막 자릿수를 제거한다.</li>
+            <li>기기 번호(1~n)를 키로 해서 소비 전류와 사용 여부를 저장한다.</li>
+            <li>초기 상태는 모두 OFF이므로 <code>false</code>로 시작한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>for (long i : cnt) {
-          System.out.print(i + " ");
+        <li><strong>3) 동작 처리: 토글하면서 current / max / blown 갱신</strong>
+          <pre><code>int current = 0, max = 0;
+      boolean blown = false;
+      
+      for (int i = 0; i &lt; m; i++) {
+          int num = Integer.parseInt(br.readLine());
+          int consume = map.get(num).consume;
+          boolean isUse = map.get(num).isUse;
+      
+          if (isUse) current -= consume;
+          else current += consume;
+      
+          map.get(num).isUse = !isUse;
+      
+          if (current &gt; max) max = current;
+          if (current &gt; c) blown = true;
       }</code></pre>
           <ul>
-            <li><code>cnt[0]</code>부터 <code>cnt[9]</code>까지 공백으로 구분해 출력한다.</li>
+            <li>입력으로 들어온 번호의 기기를 토글한다.</li>
+            <li>켜져 있던 상태면 끄는 것이므로 전류를 빼고, 꺼져 있던 상태면 켜는 것이므로 더한다.</li>
+            <li>토글 후 상태를 반전시킨다.</li>
+            <li>매번 최대 소비 전류 <code>max</code>를 갱신하고, 용량 초과면 <code>blown</code>을 표시한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 케이스별 출력 구성 + 빈 줄 처리</strong>
+          <pre><code>if (blown) {
+          sb.append("Fuse was blown.").append('\n');
+      } else {
+          sb.append("Fuse was not blown.").append('\n');
+          sb.append("Maximal power consumption was ").append(max).append(" amperes.").append('\n');
+      }
+      
+      sb.append('\n');
+      caseNum++;</code></pre>
+          <ul>
+            <li>퓨즈가 터졌다면 해당 문구만 출력한다.</li>
+            <li>터지지 않았다면 최대 소비 전류를 함께 출력한다.</li>
+            <li>문제 요구대로 테스트케이스마다 <strong>빈 줄</strong>을 한 줄 추가한다.</li>
           </ul>
         </li>
       </ul>
@@ -316,15 +365,13 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>수의 개수를 <code>K = N - M + 1</code>이라고 하면, 각 수는 자릿수만큼(최대 10자리) 나누기를 수행한다.</li>
-            <li>따라서 대략 <strong><code>O(K * 자릿수)</code></strong> ≈ <strong><code>O(K)</code></strong> (자릿수는 상수 수준).</li>
-            <li>단, 최악의 경우 <code>K</code>가 500,001이므로 반복문 기반 풀이도 충분히 동작한다.</li>
+            <li>각 테스트케이스에서 기기 입력 <code>O(n)</code>, 동작 처리 <code>O(m)</code>.</li>
+            <li>전체는 <strong><code>O(n + m)</code></strong>.</li>
           </ul>
         </li>
-      
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>카운트 배열(<code>10</code>칸)만 추가로 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li>기기 정보를 저장하는 자료구조가 <code>n</code>개이므로 <strong><code>O(n)</code></strong>.</li>
           </ul>
         </li>
       </ul>
