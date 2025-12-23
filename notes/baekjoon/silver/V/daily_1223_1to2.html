@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-21 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6186 — Best Grass</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6186">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1222_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Best Grass (BOJ 6186)</strong>는<br>
+        <code>R x C</code> 격자에서 <strong>'#'</strong>로 표시된 풀을 보고, 서로 <strong>상하좌우로 붙어 있는 '#'</strong>들이 이루는
+        <strong>풀 뭉치(clump)</strong>의 개수를 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>풀 뭉치는 <strong>최대 2칸</strong>으로만 이루어진다:
+          <ul>
+            <li>'#' 한 칸짜리</li>
+            <li>또는 상하좌우로 붙은 '# #'(대각선은 아님) 두 칸짜리</li>
+          </ul>
+        </li>
+        <li>서로 다른 뭉치끼리는 <strong>인접하지 않는다</strong>(붙어 있지 않다).</li>
+        <li>즉, 어떤 '#'(뭉치의 한 칸)를 발견하면 그 뭉치는
+          <strong>그 칸 + (있다면) 상하좌우 중 하나의 '#'</strong>로 끝난다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>격자를 위에서 아래로, 왼쪽에서 오른쪽으로 순회한다.</li>
+        <li><code>'#'</code>를 발견하면 <strong>새 풀 뭉치 1개</strong>로 세고(<code>cnt++</code>)</li>
+        <li>그 칸의 <strong>상하좌우</strong>를 확인해서 <code>'#'</code>가 있으면 <code>'.'</code>로 바꿔 <strong>같은 뭉치를 제거</strong>한다.</li>
+        <li>마지막으로 현재 칸도 <code>'.'</code>로 바꿔 중복 카운트를 막는다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 방향 배열 준비 (상/좌/우/하)</strong>
+          <pre><code>static final int[] ROW = {-1, 0, 0, 1};
+      static final int[] COL = {0, -1, 1, 0};</code></pre>
+          <ul>
+            <li>현재 칸 기준으로 상하좌우를 쉽게 확인하기 위한 오프셋이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 입력 받아 격자 구성</strong>
+          <pre><code>int R = Integer.parseInt(st.nextToken());
+      int C = Integer.parseInt(st.nextToken());
+      
+      char[][] field = new char[R][C];
+      for (int r = 0; r &lt; R; r++) {
+          field[r] = br.readLine().toCharArray();
+      }</code></pre>
+          <ul>
+            <li>각 줄을 그대로 <code>char[]</code>로 받아 <code>field</code>에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 격자 순회하며 뭉치 발견 시 카운트 + 제거</strong>
+          <pre><code>int cnt = 0;
+      for (int r = 0; r &lt; R; r++) {
+          for (int c = 0; c &lt; C; c++) {
+              if (field[r][c] == '#') {
+                  cnt++;
+      
+                  for (int i = 0; i &lt; 4; i++) {
+                      int row = r + ROW[i];
+                      int col = c + COL[i];
+      
+                      if (row &lt; 0 || R &lt;= row || col &lt; 0 || C &lt;= col) continue;
+                      if (field[row][col] == '#') field[row][col] = '.';
+                  }
+      
+                  field[r][c] = '.';
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>'#'</code>를 만나면 그 순간이 곧 <strong>새 뭉치의 시작</strong>이므로 <code>cnt++</code>.</li>
+            <li>상하좌우를 확인해 범위를 벗어나면 건너뛰고, 인접 칸이 <code>'#'</code>면 <code>'.'</code>로 바꾼다.</li>
+            <li>현재 칸도 마지막에 <code>'.'</code>로 바꿔 다음 순회에서 중복으로 세지 않게 한다.</li>
+            <li>문제 조건상 뭉치 크기가 최대 2칸이고 뭉치끼리 인접하지 않아서,
+              현재 칸 주변의 <code>'#'</code>를 지우는 것만으로도 같은 뭉치를 충분히 제거할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 정답 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>세어 둔 풀 뭉치 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>격자 전체를 한 번 순회하며, 각 <code>'#'</code>에서 상하좌우 4칸만 확인한다.</li>
+            <li>따라서 <strong><code>O(R * C)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>입력 격자 <code>field</code> 외 추가 자료구조는 거의 없으므로 <strong><code>O(R * C)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6212 — Dream Counting</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6212">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1222_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Dream Counting (BOJ 6212)</strong>는<br>
+        두 정수 <code>M</code>부터 <code>N</code>까지의 모든 수를 순서대로 나열했을 때,
+        각 숫자 <code>0..9</code>가 <strong>몇 번 등장하는지</strong>를 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>예를 들어 <code>129..137</code>이면 <code>129, 130, 131, ... , 137</code>을 모두 보면서 각 자리의 숫자를 카운트한다.</li>
+        <li>출력은 <code>0</code>부터 <code>9</code>까지의 등장 횟수를 공백으로 구분해 한 줄에 출력한다.</li>
+        <li>범위 조건:
+          <ul>
+            <li><code>1 ≤ M ≤ N ≤ 2,000,000,000</code></li>
+            <li><code>N - M ≤ 500,000</code> (연속 구간 길이가 최대 500,001개)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>M</code>부터 <code>N</code>까지 모든 수를 순회한다.</li>
+        <li>각 수를 10으로 나누면서(<code>% 10</code>, <code>/= 10</code>) 자릿수를 하나씩 꺼내 <code>cnt[digit]</code>를 증가시킨다.</li>
+        <li>순회가 끝나면 <code>cnt[0..9]</code>를 차례대로 출력한다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 처리 및 카운트 배열 준비</strong>
+          <pre><code>long M = Integer.parseInt(st.nextToken());
+      long N = Integer.parseInt(st.nextToken());
+      
+      long[] cnt = new long[10];</code></pre>
+          <ul>
+            <li><code>M</code>, <code>N</code>을 입력받고, 각 숫자(0~9) 등장 횟수를 담을 배열 <code>cnt</code>를 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) M부터 N까지 순회하며 자릿수 카운트</strong>
+          <pre><code>for (long i = M; i &lt;= N; i++) {
+          long x = i;
+      
+          while (x &gt; 0) {
+              cnt[(int) (x % 10)]++;
+              x /= 10;
+          }
+      }</code></pre>
+          <ul>
+            <li>각 수 <code>i</code>를 <code>x</code>에 복사한 뒤, <code>x</code>가 0이 될 때까지 반복한다.</li>
+            <li><code>x % 10</code>으로 마지막 자릿수를 꺼내 해당 인덱스의 카운트를 증가시킨다.</li>
+            <li><code>x /= 10</code>으로 마지막 자릿수를 제거한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>for (long i : cnt) {
+          System.out.print(i + " ");
+      }</code></pre>
+          <ul>
+            <li><code>cnt[0]</code>부터 <code>cnt[9]</code>까지 공백으로 구분해 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>수의 개수를 <code>K = N - M + 1</code>이라고 하면, 각 수는 자릿수만큼(최대 10자리) 나누기를 수행한다.</li>
+            <li>따라서 대략 <strong><code>O(K * 자릿수)</code></strong> ≈ <strong><code>O(K)</code></strong> (자릿수는 상수 수준).</li>
+            <li>단, 최악의 경우 <code>K</code>가 500,001이므로 반복문 기반 풀이도 충분히 동작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>카운트 배열(<code>10</code>칸)만 추가로 사용 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
