@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-23 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2025-12-24 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 6296 — Crazy Search</h2>
+      <h2 class="section">문제 6325 — Definite Values</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6296">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6325">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1224_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,22 @@
       </h3>
       
       <p>
-        <strong>Crazy Search (BOJ 6296)</strong>는<br>
-        길이가 <code>N</code>인 부분 문자열(substring)을 텍스트에서 모두 만들어 보고,
-        그중 <strong>서로 다른 부분 문자열의 개수</strong>를 구하는 문제다.
+        <strong>Definite Values (BOJ 6325)</strong>는<br>
+        여러 줄의 대입문 <code>variable1 = variable2</code>가 순서대로 실행될 때,
+        실행이 끝난 뒤 <strong>확정된 값(definite value)</strong>을 가지는 변수들을 찾는 문제다.
       </p>
       
       <ul>
-        <li>부분 문자열은 연속된 구간으로, 시작 위치 <code>i</code>에서 <code>N</code>글자를 뽑은 <code>text[i..i+N-1]</code> 형태다.</li>
-        <li><code>i</code>는 <code>0</code>부터 <code>text.length() - N</code>까지 가능하다.</li>
-        <li>입력에 <code>NC</code>(등장 가능한 문자 종류 수)가 주어지지만, 이 코드는 실제로는 <strong>슬라이딩 구간을 만들어 Set으로 중복 제거</strong>하는 방식으로 해결한다.</li>
+        <li>실행 전에는 <strong><code>a</code>만 확정된 값</strong>을 가지고, 나머지는 모두 <strong>정의되지 않음(unknown)</strong> 상태다.</li>
+        <li>대입 <code>x = y</code>는
+          <ul>
+            <li><code>y</code>가 확정이면 <code>x</code>도 확정</li>
+            <li><code>y</code>가 미정이면 <code>x</code>도 미정(기존 값이 무엇이든 “확정”이라고 할 수 없음)</li>
+          </ul>
+          으로 상태가 결정된다.
+        </li>
+        <li>모든 줄을 처리한 후, 확정 상태인 변수들을 알파벳 순으로 출력한다.</li>
+        <li>확정인 변수가 하나도 없으면 <code>none</code>을 출력한다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,10 +82,16 @@
       </p>
       
       <ul>
-        <li><code>HashSet</code>을 준비한다. (중복을 자동으로 제거)</li>
-        <li>텍스트를 왼쪽부터 훑으면서 길이 <code>N</code>짜리 부분 문자열을 하나씩 만든다.</li>
-        <li>만든 부분 문자열을 Set에 넣는다.</li>
-        <li>모든 구간을 처리한 뒤 Set의 크기(<code>size()</code>)가 곧 서로 다른 부분 문자열의 개수다.</li>
+        <li>변수는 <code>a~z</code>로 한정이므로 크기 26짜리 boolean 배열 <code>chk</code>로 “확정 여부”를 관리한다.</li>
+        <li>초기 상태는 <code>chk['a'] = true</code>, 나머지는 <code>false</code>.</li>
+        <li>각 대입문 <code>x = y</code>에 대해
+          <ul>
+            <li><code>chk[y] == true</code>면 <code>chk[x] = true</code></li>
+            <li><code>chk[y] == false</code>면 <code>chk[x] = false</code></li>
+          </ul>
+          로 갱신한다. (대입은 기존 상태를 덮어쓴다)
+        </li>
+        <li>마지막에 <code>true</code>인 변수들을 출력한다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -90,34 +103,62 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 처리 및 Set 준비</strong>
-          <pre><code>int N = Integer.parseInt(st.nextToken());
-      int NC = Integer.parseInt(st.nextToken());
+        <li><strong>1) 테스트케이스(프로그램 파트) 반복 및 초기화</strong>
+          <pre><code>int caseNum = 1;
       
-      Set&lt;String&gt; set = new HashSet&lt;&gt;();</code></pre>
+      String line;
+      while ((line = br.readLine()) != null) {
+          int n = Integer.parseInt(line);
+      
+          if (n == 0) break;
+      
+          boolean[] chk = new boolean[26];
+          chk[0] = true;</code></pre>
           <ul>
-            <li><code>N</code>(부분 문자열 길이)과 <code>NC</code>를 입력받는다.</li>
-            <li>중복 제거를 위해 <code>HashSet</code>을 사용한다.</li>
-            <li>이 풀이에서는 <code>NC</code>는 직접 활용하지 않는다.</li>
+            <li>각 프로그램 파트는 줄 수 <code>n</code>으로 시작한다.</li>
+            <li><code>n == 0</code>이면 종료.</li>
+            <li><code>chk[i]</code>는 변수(<code>'a'+i</code>)가 “확정”이면 <code>true</code>.</li>
+            <li>문제 조건에 따라 시작 시점에 <code>a</code>만 확정이므로 <code>chk[0] = true</code>.</li>
           </ul>
         </li>
       
-        <li><strong>2) 모든 길이 N 부분 문자열을 Set에 추가</strong>
-          <pre><code>String text = br.readLine();
-      for (int i = 0; i &lt;= text.length() - N; i++) {
-          set.add(text.substring(i, i + N));
+        <li><strong>2) 대입문 처리: target이 확정이면 assign도 확정</strong>
+          <pre><code>for (int i = 0; i &lt; n; i++) {
+          String[] split = br.readLine().split("=");
+          String assign = split[0].trim();
+          String target = split[1].trim();
+      
+          int assignIdx = assign.charAt(0) - 'a';
+          int targetIdx = target.charAt(0) - 'a';
+          if (chk[targetIdx]) chk[assignIdx] = true;
+          else chk[assignIdx] = false;
       }</code></pre>
           <ul>
-            <li><code>i</code>를 시작점으로 해서 <code>substring(i, i + N)</code>을 만든다.</li>
-            <li>같은 문자열이 여러 번 등장해도 Set에는 한 번만 저장된다.</li>
-            <li>따라서 마지막에는 “서로 다른 부분 문자열”만 남는다.</li>
+            <li>입력은 <code>x = y</code> 형태이므로 <code>=</code>로 분리한 뒤 <code>trim()</code>으로 공백을 제거한다.</li>
+            <li><code>y</code>(target)가 확정이면 <code>x</code>(assign)도 확정이 된다.</li>
+            <li><code>y</code>가 미정이면 대입 후 <code>x</code>도 미정이므로 <code>false</code>로 덮어쓴다.</li>
+            <li>중요 포인트는 “확정 여부”만 추적하면 되고, 실제 값은 필요 없다는 점이다.</li>
           </ul>
         </li>
       
-        <li><strong>3) Set 크기 출력</strong>
-          <pre><code>System.out.println(set.size());</code></pre>
+        <li><strong>3) 헤더 출력 + 확정 변수 출력(알파벳 순)</strong>
+          <pre><code>sb.append("Program #" + caseNum++).append('\n');
+      
+      int cnt = 0;
+      for (int i = 0; i &lt; chk.length; i++) {
+          if (chk[i]) {
+              sb.append((char) (i + 'a')).append(" ");
+              cnt++;
+          }
+      }
+      
+      if (cnt == 0) sb.append("none");
+      sb.append("\n\n");</code></pre>
           <ul>
-            <li>서로 다른 부분 문자열의 개수를 출력한다.</li>
+            <li>요구 형식대로 <code>Program #k</code>를 먼저 출력한다.</li>
+            <li><code>a</code>부터 <code>z</code>까지 순서대로 보며 확정(<code>true</code>)인 변수를 출력하면 자연스럽게 정렬 출력이 된다.</li>
+            <li>확정 변수가 하나도 없으면 <code>none</code>을 출력한다.</li>
+            <li>각 테스트케이스마다 빈 줄을 한 줄 추가한다.</li>
           </ul>
         </li>
       </ul>
@@ -133,14 +174,13 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>시작 위치가 총 <code>L - N + 1</code>개(<code>L = text.length()</code>)이고, 각 구간에서 <code>substring</code>을 만들어 Set에 넣는다.</li>
-            <li>따라서 전체는 대략 <strong><code>O((L - N + 1) * N)</code></strong> (부분 문자열 생성 비용 포함).</li>
+            <li>각 프로그램 파트에서 대입문 <code>n</code>개를 한 번 처리하므로 <strong><code>O(n)</code></strong>.</li>
+            <li>출력용으로 26개 변수를 한 번 확인하는 작업은 상수 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
-      
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>서로 다른 부분 문자열을 Set에 저장하므로, 서로 다른 개수를 <code>K</code>라 할 때 저장 공간은 대략 <strong><code>O(K * N)</code></strong> 수준이 된다.</li>
+            <li>확정 여부 배열 26칸만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
@@ -206,14 +246,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6308 — Blowing Fuses</h2>
+      <h2 class="section">문제 6344 — Prime Land</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6308">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/6344">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1224_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
