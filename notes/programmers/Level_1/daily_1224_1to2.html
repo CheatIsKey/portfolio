@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-23 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-24 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 나누어 떨어지는 숫자 배열</h2>
+      <h2 class="section">문제 1 — 2016년</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12910">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12901">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1224_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,15 +53,15 @@
       </h3>
       
       <p>
-        <strong>나누어 떨어지는 숫자 배열 (프로그래머스 12910)</strong>은<br>
-        정수 배열 <code>arr</code>에서 <code>divisor</code>로 <strong>나누어 떨어지는 값만</strong> 골라
-        <strong>오름차순 정렬</strong>해서 반환하는 문제다.
+        <strong>2016년 (프로그래머스 12901)</strong>은<br>
+        2016년의 <code>a</code>월 <code>b</code>일이 <strong>무슨 요일인지</strong>를 구해서,
+        요일을 문자열(<code>"MON"</code> 등)로 반환하는 문제다.
       </p>
       
       <ul>
-        <li><code>arr</code>의 원소 중 <code>divisor</code>로 나누어 떨어지는 수만 결과에 포함한다.</li>
-        <li>그런 수가 하나도 없으면 <strong><code>[-1]</code></strong>을 반환한다.</li>
-        <li>결과 배열은 <strong>오름차순 정렬</strong>되어야 한다.</li>
+        <li>2016년 1월 1일은 <strong>금요일(FRI)</strong>로 고정되어 있다.</li>
+        <li>2016년은 <strong>윤년</strong>이므로 2월은 <strong>29일</strong>이다.</li>
+        <li>입력된 날짜까지의 “일 수 오프셋”을 구한 뒤, <code>7</code>로 나눈 나머지로 요일을 찾으면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -73,10 +73,15 @@
       </p>
       
       <ul>
-        <li>먼저 한 번 순회하며 <code>divisor</code>로 나누어 떨어지는 원소의 개수(<code>cnt</code>)를 센다.</li>
-        <li><code>cnt == 0</code>이면 <code>[-1]</code>을 즉시 반환한다.</li>
-        <li>크기가 <code>cnt</code>인 배열을 만들고 다시 순회하며 조건을 만족하는 원소만 채운다.</li>
-        <li>채운 배열을 <code>Arrays.sort</code>로 정렬 후 반환한다.</li>
+        <li>각 달의 일 수를 배열로 준비한다. (2016년이므로 2월은 29)</li>
+        <li>1월 1일이 금요일이므로 요일 배열을 <code>{"FRI","SAT","SUN","MON","TUE","WED","THU"}</code>로 준비한다.</li>
+        <li><code>a</code>월 <code>b</code>일까지의 누적 일 수를 구한다:
+          <ul>
+            <li>1월부터 <code>(a-1)</code>월까지의 일 수 합</li>
+            <li>+ <code>(b-1)</code> (해당 달에서 몇 일 지났는지)</li>
+          </ul>
+        </li>
+        <li>구한 오프셋을 <code>offset % 7</code>로 요일 배열에서 찾아 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -88,44 +93,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 조건 만족 개수 세기</strong>
-          <pre><code>int cnt = 0;
+        <li><strong>1) 달별 일 수/요일 배열 준비</strong>
+          <pre><code>int[] days = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+      String[] str = {"FRI", "SAT", "SUN", "MON", "TUE", "WED", "THU"};</code></pre>
+          <ul>
+            <li><code>days</code>: 2016년 각 달의 일 수(윤년이라 2월=29).</li>
+            <li><code>str</code>: 2016-01-01이 금요일이므로 인덱스 0을 <code>FRI</code>로 둔다.</li>
+          </ul>
+        </li>
       
-      for (int i : arr) {
-          if (i % divisor == 0) {
-              cnt++;
-          }
+        <li><strong>2) a월 이전까지의 누적 일 수 계산</strong>
+          <pre><code>int offset = 0;
+      for (int i = 0; i &lt; a - 1; i++) {
+          offset += days[i];
       }</code></pre>
           <ul>
-            <li>배열을 한 번 훑으며 <code>i % divisor == 0</code>인 원소 개수를 <code>cnt</code>에 누적한다.</li>
+            <li><code>a</code>월의 직전 달(<code>a-1</code>월)까지 총 며칠이 있었는지 누적한다.</li>
+            <li>예: 5월이면 1~4월 일 수를 더한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 예외 처리: 하나도 없으면 [-1] 반환</strong>
-          <pre><code>if (cnt == 0) return new int[]{-1};</code></pre>
+        <li><strong>3) 해당 달에서 (b-1)일 더하기</strong>
+          <pre><code>offset += (b - 1);</code></pre>
           <ul>
-            <li>조건을 만족하는 원소가 없으면 문제 요구대로 <code>[-1]</code>을 반환한다.</li>
+            <li>1월 1일을 기준(오프셋 0)으로 잡았기 때문에, 같은 달의 날짜는 <code>b-1</code>만큼 이동한 값이 된다.</li>
+            <li>예: 1월 1일이면 <code>b-1 = 0</code>이라 그대로 금요일.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 배열 생성 후 값 채우기</strong>
-          <pre><code>int[] answer = new int[cnt];
-      int idx = 0;
-      for (int i : arr) {
-          if (i % divisor == 0) answer[idx++] = i;
-      }</code></pre>
+        <li><strong>4) 요일 배열에서 찾아 반환</strong>
+          <pre><code>return str[offset % 7];</code></pre>
           <ul>
-            <li>정확한 크기의 배열을 만든 뒤, 다시 순회하면서 조건을 만족하는 값만 차례대로 넣는다.</li>
-            <li><code>idx</code>는 현재 채울 위치를 가리킨다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 오름차순 정렬 후 반환</strong>
-          <pre><code>Arrays.sort(answer);
-      
-      return answer;</code></pre>
-          <ul>
-            <li>문제 조건에 맞게 <code>answer</code>를 오름차순으로 정렬하고 반환한다.</li>
+            <li>7일마다 요일이 반복되므로 <code>offset % 7</code> 인덱스로 요일을 선택한다.</li>
           </ul>
         </li>
       </ul>
@@ -141,14 +140,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>배열을 두 번 순회: <strong><code>O(N)</code></strong></li>
-            <li>결과 배열 정렬: 결과 크기를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
-            <li>전체는 <strong><code>O(N + K log K)</code></strong> (최악의 경우 <code>K = N</code>).</li>
+            <li>최대 12개월을 더하는 반복문만 수행하므로 <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>결과 배열 크기 <code>K</code>만큼 추가 사용 → <strong><code>O(K)</code></strong></li>
+            <li>고정 크기 배열과 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
@@ -219,14 +216,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 가운데 글자 가져오기</h2>
+      <h2 class="section">문제 2 — 택배 상자 꺼내기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12903">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/389478">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1224_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -239,14 +236,24 @@
       </h3>
       
       <p>
-        <strong>가운데 글자 가져오기 (프로그래머스 12903)</strong>은<br>
-        문자열 <code>s</code>의 길이에 따라 <strong>가운데 글자(들)</strong>을 반환하는 문제다.
+        <strong>(프로그래머스 389478)</strong>은<br>
+        <code>1</code>부터 <code>n</code>까지 번호가 붙은 상자를 가로 <code>w</code>칸짜리 선반에
+        <strong>지그재그(한 줄은 왼→오, 다음 줄은 오→왼)</strong>로 채워 놓았을 때,
+        특정 상자 번호 <code>num</code>을 꺼내기 위해 <strong>같은 열(column) 위에 쌓인 상자</strong>를 포함해서
+        총 몇 개를 꺼내야 하는지 구하는 문제다.
       </p>
       
       <ul>
-        <li>문자열 길이가 <strong>홀수</strong>면 가운데 글자 1개를 반환한다.</li>
-        <li>문자열 길이가 <strong>짝수</strong>면 가운데 글자 2개를 반환한다.</li>
-        <li>인덱스는 0부터 시작하므로, 가운데 위치를 계산할 때 이를 고려해야 한다.</li>
+        <li>선반은 한 줄에 <code>w</code>개씩 들어가며, 행(row)은 <code>ceil(n / w)</code>개가 된다.</li>
+        <li>배치는 지그재그로 진행된다:
+          <ul>
+            <li>0번째 행: 왼 → 오른쪽으로 채움</li>
+            <li>1번째 행: 오른쪽 → 왼으로 채움</li>
+            <li>2번째 행: 다시 왼 → 오른쪽 ...</li>
+          </ul>
+        </li>
+        <li><code>num</code>이 놓인 칸을 찾은 뒤, 같은 열에서 아래로 내려가며
+          <strong>실제로 존재하는 상자(0이 아닌 값)</strong>의 개수를 세면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -258,16 +265,11 @@
       </p>
       
       <ul>
-        <li>문자열 길이 <code>length</code>를 구한다.</li>
-        <li><code>mid = length / 2</code>로 가운데 기준 인덱스를 잡는다.</li>
-        <li>
-          <code>length</code>가
-          <ul>
-            <li><strong>홀수</strong>면 <code>s.charAt(mid)</code> 1개</li>
-            <li><strong>짝수</strong>면 <code>s.charAt(mid - 1)</code>, <code>s.charAt(mid)</code> 2개</li>
-          </ul>
-          를 이어서 반환한다.
-        </li>
+        <li><code>rows = (n + w - 1) / w</code>로 필요한 행 개수를 구한다.</li>
+        <li><code>rows x w</code> 크기의 2차원 배열 <code>box</code>를 만들고, <code>1..n</code>을 지그재그로 채운다.</li>
+        <li>배열을 순회하면서 <code>num</code>의 위치(<code>r, c</code>)를 찾는다.</li>
+        <li>찾은 위치 기준으로 같은 열 <code>c</code>에서 아래 행으로 내려가며
+          값이 <code>0</code>이 아닌 칸을 만날 때마다 카운트를 증가시킨다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -279,34 +281,65 @@
       </p>
       
       <ul>
-        <li><strong>1) 길이와 가운데 인덱스 계산</strong>
-          <pre><code>StringBuilder sb = new StringBuilder();
-      int length = s.length();
-      
-      int mid = length / 2;</code></pre>
+        <li><strong>1) 행 개수 계산</strong>
+          <pre><code>int rows = (n + w - 1) / w;</code></pre>
           <ul>
-            <li><code>length</code>는 문자열 길이, <code>mid</code>는 가운데 기준 인덱스다.</li>
-            <li>짝수 길이일 때는 가운데가 2칸이므로 <code>mid</code>를 기준으로 좌/우를 선택한다.</li>
+            <li>전체 <code>n</code>개를 한 줄에 <code>w</code>개씩 채울 때 필요한 행 수를 올림으로 계산한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 짝수/홀수에 따라 가운데 글자 추가</strong>
-          <pre><code>if (length % 2 == 0) {
-          sb.append(s.charAt(mid - 1));
-          sb.append(s.charAt(mid));
-      } else {
-          sb.append(s.charAt(mid));
+        <li><strong>2) 지그재그로 상자 번호 채우기</strong>
+          <pre><code>int idx = 1;
+      int[][] box = new int[rows][w];
+      for (int r = 0; r &lt; box.length; r++) {
+          if (r % 2 == 0) {
+              for (int c = 0; c &lt; box[r].length; c++) {
+                  if (idx &gt; n) break;
+                  box[r][c] = idx++;
+              }
+          } else {
+              for (int c = box[r].length - 1; c &gt;= 0; c--) {
+                  if (idx &gt; n) break;
+                  box[r][c] = idx++;
+              }
+          }
       }</code></pre>
           <ul>
-            <li><strong>짝수</strong>면 가운데 두 글자는 <code>mid - 1</code>, <code>mid</code> 위치다.</li>
-            <li><strong>홀수</strong>면 가운데 한 글자는 <code>mid</code> 위치다.</li>
+            <li>짝수 행은 왼→오로 채우고, 홀수 행은 오→왼으로 채운다.</li>
+            <li><code>idx &gt; n</code>이면 더 채울 상자가 없으므로 해당 행 채우기를 중단한다.</li>
+            <li>채워지지 않은 칸은 기본값 <code>0</code>으로 남는다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 문자열로 변환해 반환</strong>
-          <pre><code>return sb.toString();</code></pre>
+        <li><strong>3) num 위치 찾고 같은 열에서 아래로 카운트</strong>
+          <pre><code>int cnt = 1;
+      for (int r = 0; r &lt; box.length; r++) {
+          for (int c = 0; c &lt; box[r].length; c++) {
+              if (box[r][c] == num) {
+                  int curR = r + 1;
+      
+                  while (curR &lt; box.length) {
+                      if (box[curR][c] != 0) {
+                          cnt++;
+                      } else break;
+      
+                      curR++;
+                  }
+              }
+          }
+      }</code></pre>
           <ul>
-            <li><code>StringBuilder</code>에 모아둔 결과를 문자열로 반환한다.</li>
+            <li><code>num</code> 자체는 반드시 꺼내야 하므로 <code>cnt</code>를 1에서 시작한다.</li>
+            <li><code>num</code>을 발견하면 그 칸의 열 <code>c</code>를 고정하고, 아래 행(<code>r+1</code>)부터 내려간다.</li>
+            <li>아래 칸이 <code>0</code>이면 실제 상자가 없는 자리이므로 그 이후로는 더 내려가도 의미가 없어 중단한다.</li>
+            <li><code>0</code>이 아니면 그 칸의 상자도 같이 꺼내야 하므로 카운트를 증가시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 반환</strong>
+          <pre><code>return cnt;</code></pre>
+          <ul>
+            <li><code>num</code>을 꺼내기 위해 같이 꺼내야 하는 상자 총 개수를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -322,15 +355,19 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>인덱스 계산과 문자 접근만 수행하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>배열 채우기: <strong><code>O(rows * w)</code></strong> (최대 <code>n</code>칸까지 채움)</li>
+            <li><code>num</code> 찾기: <strong><code>O(rows * w)</code></strong></li>
+            <li>아래로 카운트: 최악에 <code>rows</code>만큼 내려가므로 <strong><code>O(rows)</code></strong></li>
+            <li>전체는 대략 <strong><code>O(rows * w)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>결과로 최대 2글자만 저장하므로 <strong><code>O(1)</code></strong>.</li>
+            <li><code>rows x w</code> 2차원 배열을 사용하므로 <strong><code>O(rows * w)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
