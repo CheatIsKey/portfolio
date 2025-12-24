@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-23 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 나누어 떨어지는 숫자 배열</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12910">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>나누어 떨어지는 숫자 배열 (프로그래머스 12910)</strong>은<br>
+        정수 배열 <code>arr</code>에서 <code>divisor</code>로 <strong>나누어 떨어지는 값만</strong> 골라
+        <strong>오름차순 정렬</strong>해서 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>arr</code>의 원소 중 <code>divisor</code>로 나누어 떨어지는 수만 결과에 포함한다.</li>
+        <li>그런 수가 하나도 없으면 <strong><code>[-1]</code></strong>을 반환한다.</li>
+        <li>결과 배열은 <strong>오름차순 정렬</strong>되어야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>먼저 한 번 순회하며 <code>divisor</code>로 나누어 떨어지는 원소의 개수(<code>cnt</code>)를 센다.</li>
+        <li><code>cnt == 0</code>이면 <code>[-1]</code>을 즉시 반환한다.</li>
+        <li>크기가 <code>cnt</code>인 배열을 만들고 다시 순회하며 조건을 만족하는 원소만 채운다.</li>
+        <li>채운 배열을 <code>Arrays.sort</code>로 정렬 후 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 조건 만족 개수 세기</strong>
+          <pre><code>int cnt = 0;
+      
+      for (int i : arr) {
+          if (i % divisor == 0) {
+              cnt++;
+          }
+      }</code></pre>
+          <ul>
+            <li>배열을 한 번 훑으며 <code>i % divisor == 0</code>인 원소 개수를 <code>cnt</code>에 누적한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 예외 처리: 하나도 없으면 [-1] 반환</strong>
+          <pre><code>if (cnt == 0) return new int[]{-1};</code></pre>
+          <ul>
+            <li>조건을 만족하는 원소가 없으면 문제 요구대로 <code>[-1]</code>을 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 배열 생성 후 값 채우기</strong>
+          <pre><code>int[] answer = new int[cnt];
+      int idx = 0;
+      for (int i : arr) {
+          if (i % divisor == 0) answer[idx++] = i;
+      }</code></pre>
+          <ul>
+            <li>정확한 크기의 배열을 만든 뒤, 다시 순회하면서 조건을 만족하는 값만 차례대로 넣는다.</li>
+            <li><code>idx</code>는 현재 채울 위치를 가리킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 오름차순 정렬 후 반환</strong>
+          <pre><code>Arrays.sort(answer);
+      
+      return answer;</code></pre>
+          <ul>
+            <li>문제 조건에 맞게 <code>answer</code>를 오름차순으로 정렬하고 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>배열을 두 번 순회: <strong><code>O(N)</code></strong></li>
+            <li>결과 배열 정렬: 결과 크기를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
+            <li>전체는 <strong><code>O(N + K log K)</code></strong> (최악의 경우 <code>K = N</code>).</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>결과 배열 크기 <code>K</code>만큼 추가 사용 → <strong><code>O(K)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 가운데 글자 가져오기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12903">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>가운데 글자 가져오기 (프로그래머스 12903)</strong>은<br>
+        문자열 <code>s</code>의 길이에 따라 <strong>가운데 글자(들)</strong>을 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li>문자열 길이가 <strong>홀수</strong>면 가운데 글자 1개를 반환한다.</li>
+        <li>문자열 길이가 <strong>짝수</strong>면 가운데 글자 2개를 반환한다.</li>
+        <li>인덱스는 0부터 시작하므로, 가운데 위치를 계산할 때 이를 고려해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문자열 길이 <code>length</code>를 구한다.</li>
+        <li><code>mid = length / 2</code>로 가운데 기준 인덱스를 잡는다.</li>
+        <li>
+          <code>length</code>가
+          <ul>
+            <li><strong>홀수</strong>면 <code>s.charAt(mid)</code> 1개</li>
+            <li><strong>짝수</strong>면 <code>s.charAt(mid - 1)</code>, <code>s.charAt(mid)</code> 2개</li>
+          </ul>
+          를 이어서 반환한다.
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 길이와 가운데 인덱스 계산</strong>
+          <pre><code>StringBuilder sb = new StringBuilder();
+      int length = s.length();
+      
+      int mid = length / 2;</code></pre>
+          <ul>
+            <li><code>length</code>는 문자열 길이, <code>mid</code>는 가운데 기준 인덱스다.</li>
+            <li>짝수 길이일 때는 가운데가 2칸이므로 <code>mid</code>를 기준으로 좌/우를 선택한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 짝수/홀수에 따라 가운데 글자 추가</strong>
+          <pre><code>if (length % 2 == 0) {
+          sb.append(s.charAt(mid - 1));
+          sb.append(s.charAt(mid));
+      } else {
+          sb.append(s.charAt(mid));
+      }</code></pre>
+          <ul>
+            <li><strong>짝수</strong>면 가운데 두 글자는 <code>mid - 1</code>, <code>mid</code> 위치다.</li>
+            <li><strong>홀수</strong>면 가운데 한 글자는 <code>mid</code> 위치다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 문자열로 변환해 반환</strong>
+          <pre><code>return sb.toString();</code></pre>
+          <ul>
+            <li><code>StringBuilder</code>에 모아둔 결과를 문자열로 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>인덱스 계산과 문자 접근만 수행하므로 <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>결과로 최대 2글자만 저장하므로 <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

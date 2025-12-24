@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-23 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6296 — Crazy Search</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6296">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Crazy Search (BOJ 6296)</strong>는<br>
+        길이가 <code>N</code>인 부분 문자열(substring)을 텍스트에서 모두 만들어 보고,
+        그중 <strong>서로 다른 부분 문자열의 개수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>부분 문자열은 연속된 구간으로, 시작 위치 <code>i</code>에서 <code>N</code>글자를 뽑은 <code>text[i..i+N-1]</code> 형태다.</li>
+        <li><code>i</code>는 <code>0</code>부터 <code>text.length() - N</code>까지 가능하다.</li>
+        <li>입력에 <code>NC</code>(등장 가능한 문자 종류 수)가 주어지지만, 이 코드는 실제로는 <strong>슬라이딩 구간을 만들어 Set으로 중복 제거</strong>하는 방식으로 해결한다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>HashSet</code>을 준비한다. (중복을 자동으로 제거)</li>
+        <li>텍스트를 왼쪽부터 훑으면서 길이 <code>N</code>짜리 부분 문자열을 하나씩 만든다.</li>
+        <li>만든 부분 문자열을 Set에 넣는다.</li>
+        <li>모든 구간을 처리한 뒤 Set의 크기(<code>size()</code>)가 곧 서로 다른 부분 문자열의 개수다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 처리 및 Set 준비</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+      int NC = Integer.parseInt(st.nextToken());
+      
+      Set&lt;String&gt; set = new HashSet&lt;&gt;();</code></pre>
+          <ul>
+            <li><code>N</code>(부분 문자열 길이)과 <code>NC</code>를 입력받는다.</li>
+            <li>중복 제거를 위해 <code>HashSet</code>을 사용한다.</li>
+            <li>이 풀이에서는 <code>NC</code>는 직접 활용하지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 모든 길이 N 부분 문자열을 Set에 추가</strong>
+          <pre><code>String text = br.readLine();
+      for (int i = 0; i &lt;= text.length() - N; i++) {
+          set.add(text.substring(i, i + N));
+      }</code></pre>
+          <ul>
+            <li><code>i</code>를 시작점으로 해서 <code>substring(i, i + N)</code>을 만든다.</li>
+            <li>같은 문자열이 여러 번 등장해도 Set에는 한 번만 저장된다.</li>
+            <li>따라서 마지막에는 “서로 다른 부분 문자열”만 남는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) Set 크기 출력</strong>
+          <pre><code>System.out.println(set.size());</code></pre>
+          <ul>
+            <li>서로 다른 부분 문자열의 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>시작 위치가 총 <code>L - N + 1</code>개(<code>L = text.length()</code>)이고, 각 구간에서 <code>substring</code>을 만들어 Set에 넣는다.</li>
+            <li>따라서 전체는 대략 <strong><code>O((L - N + 1) * N)</code></strong> (부분 문자열 생성 비용 포함).</li>
+          </ul>
+        </li>
+      
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>서로 다른 부분 문자열을 Set에 저장하므로, 서로 다른 개수를 <code>K</code>라 할 때 저장 공간은 대략 <strong><code>O(K * N)</code></strong> 수준이 된다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6308 — Blowing Fuses</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6308">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Blowing Fuses (BOJ 6308)</strong>는<br>
+        여러 전기기기들을 순서대로 <strong>ON/OFF 토글</strong>할 때,
+        어떤 순간이라도 켜진 기기들의 소비 전류 합이 퓨즈 용량 <code>c</code>를 <strong>초과</strong>하면
+        퓨즈가 터지는지 확인하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 테스트케이스는 기기 개수 <code>n</code>, 동작 횟수 <code>m</code>, 퓨즈 용량 <code>c</code>로 주어진다.</li>
+        <li>각 기기에는 소비 전류 <code>ci</code>가 있고, 동작에서는 해당 기기의 상태가 <strong>반전(toggle)</strong>된다.</li>
+        <li>처음에는 모든 기기가 <strong>꺼져 있음</strong>.</li>
+        <li>퓨즈가 터지지 않았다면, 동작 과정에서의 <strong>최대 소비 전류(max)</strong>도 함께 출력해야 한다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 기기의 상태(켜짐/꺼짐)와 소비 전류를 저장해 둔다.</li>
+        <li>동작을 하나씩 처리하면서
+          <ul>
+            <li>켜져 있던 기기를 끄면 <code>current -= consume</code></li>
+            <li>꺼져 있던 기기를 켜면 <code>current += consume</code></li>
+          </ul>
+          처럼 현재 소비 전류 합(<code>current</code>)을 갱신한다.
+        </li>
+        <li>매 동작마다
+          <ul>
+            <li><code>max = Math.max(max, current)</code>로 최대값 갱신</li>
+            <li><code>current &gt; c</code>면 퓨즈 터짐(<code>blown = true</code>) 표시</li>
+          </ul>
+        </li>
+        <li>테스트케이스 종료 후, 조건에 맞게 문구를 출력한다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 테스트케이스 루프 및 종료 조건 처리</strong>
+          <pre><code>int caseNum = 1;
+      String line;
+      while ((line = br.readLine()) != null) {
+          StringTokenizer st = new StringTokenizer(line);
+      
+          int n = Integer.parseInt(st.nextToken());
+          int m = Integer.parseInt(st.nextToken());
+          int c = Integer.parseInt(st.nextToken());
+      
+          if (n == 0 &amp;&amp; m == 0 &amp;&amp; c == 0) break;
+      
+          sb.append("Sequence " + caseNum).append('\n');</code></pre>
+          <ul>
+            <li>여러 테스트케이스가 들어오므로 <code>while</code>로 반복 처리한다.</li>
+            <li><code>n = m = c = 0</code>이면 입력 종료.</li>
+            <li>각 케이스마다 <code>Sequence k</code> 헤더를 출력한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 기기 정보 저장 (소비 전류 + 현재 상태)</strong>
+          <pre><code>Map&lt;Integer, Device&gt; map = new HashMap&lt;&gt;();
+      
+      for (int i = 1; i &lt;= n; i++) {
+          int consume = Integer.parseInt(br.readLine());
+          map.put(i, new Device(consume, false));
+      }</code></pre>
+          <ul>
+            <li>기기 번호(1~n)를 키로 해서 소비 전류와 사용 여부를 저장한다.</li>
+            <li>초기 상태는 모두 OFF이므로 <code>false</code>로 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 동작 처리: 토글하면서 current / max / blown 갱신</strong>
+          <pre><code>int current = 0, max = 0;
+      boolean blown = false;
+      
+      for (int i = 0; i &lt; m; i++) {
+          int num = Integer.parseInt(br.readLine());
+          int consume = map.get(num).consume;
+          boolean isUse = map.get(num).isUse;
+      
+          if (isUse) current -= consume;
+          else current += consume;
+      
+          map.get(num).isUse = !isUse;
+      
+          if (current &gt; max) max = current;
+          if (current &gt; c) blown = true;
+      }</code></pre>
+          <ul>
+            <li>입력으로 들어온 번호의 기기를 토글한다.</li>
+            <li>켜져 있던 상태면 끄는 것이므로 전류를 빼고, 꺼져 있던 상태면 켜는 것이므로 더한다.</li>
+            <li>토글 후 상태를 반전시킨다.</li>
+            <li>매번 최대 소비 전류 <code>max</code>를 갱신하고, 용량 초과면 <code>blown</code>을 표시한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 케이스별 출력 구성 + 빈 줄 처리</strong>
+          <pre><code>if (blown) {
+          sb.append("Fuse was blown.").append('\n');
+      } else {
+          sb.append("Fuse was not blown.").append('\n');
+          sb.append("Maximal power consumption was ").append(max).append(" amperes.").append('\n');
+      }
+      
+      sb.append('\n');
+      caseNum++;</code></pre>
+          <ul>
+            <li>퓨즈가 터졌다면 해당 문구만 출력한다.</li>
+            <li>터지지 않았다면 최대 소비 전류를 함께 출력한다.</li>
+            <li>문제 요구대로 테스트케이스마다 <strong>빈 줄</strong>을 한 줄 추가한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 테스트케이스에서 기기 입력 <code>O(n)</code>, 동작 처리 <code>O(m)</code>.</li>
+            <li>전체는 <strong><code>O(n + m)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>기기 정보를 저장하는 자료구조가 <code>n</code>개이므로 <strong><code>O(n)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
