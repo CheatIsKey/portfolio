@@ -270,17 +270,18 @@
       </h3>
       
       <p>
-        <strong>Blowing Fuses (BOJ 6308)</strong>는<br>
-        여러 전기기기들을 순서대로 <strong>ON/OFF 토글</strong>할 때,
-        어떤 순간이라도 켜진 기기들의 소비 전류 합이 퓨즈 용량 <code>c</code>를 <strong>초과</strong>하면
-        퓨즈가 터지는지 확인하는 문제다.
+        <strong>Prime Land (BOJ 6344)</strong>는<br>
+        한 줄에 “소수 <code>p</code>와 지수 <code>e</code>” 쌍들이 주어질 때,
+        그것이 나타내는 수 <code>x</code>를 실제로 계산한 뒤 <strong><code>x - 1</code></strong>을 구하고,
+        다시 <strong>소인수분해 형태(내림차순)</strong>로 출력하는 문제다.
       </p>
       
       <ul>
-        <li>각 테스트케이스는 기기 개수 <code>n</code>, 동작 횟수 <code>m</code>, 퓨즈 용량 <code>c</code>로 주어진다.</li>
-        <li>각 기기에는 소비 전류 <code>ci</code>가 있고, 동작에서는 해당 기기의 상태가 <strong>반전(toggle)</strong>된다.</li>
-        <li>처음에는 모든 기기가 <strong>꺼져 있음</strong>.</li>
-        <li>퓨즈가 터지지 않았다면, 동작 과정에서의 <strong>최대 소비 전류(max)</strong>도 함께 출력해야 한다.</li>
+        <li>입력 한 줄은 <code>p1 e1 p2 e2 ...</code> 형태이며, 각 쌍은 <code>p^e</code>를 의미한다.</li>
+        <li>해당 줄이 표현하는 값은 <code>x = ∏ p^e</code>.</li>
+        <li>출력은 <code>x - 1</code>을 소인수분해해서
+          <strong>소수 기준 내림차순</strong>으로 <code>p e</code> 쌍을 나열한다.</li>
+        <li>입력의 마지막 줄 <code>0</code>은 종료 신호이며 처리하지 않는다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -292,21 +293,16 @@
       </p>
       
       <ul>
-        <li>각 기기의 상태(켜짐/꺼짐)와 소비 전류를 저장해 둔다.</li>
-        <li>동작을 하나씩 처리하면서
+        <li>한 줄을 읽고, <code>(p, e)</code> 쌍들을 이용해 <code>x</code>를 직접 계산한다.</li>
+        <li><code>y = x - 1</code>을 만든다.</li>
+        <li><code>y</code>를 <code>2</code>부터 <code>sqrt(y)</code>까지 나누어 보면서 소인수분해를 수행한다:
           <ul>
-            <li>켜져 있던 기기를 끄면 <code>current -= consume</code></li>
-            <li>꺼져 있던 기기를 켜면 <code>current += consume</code></li>
-          </ul>
-          처럼 현재 소비 전류 합(<code>current</code>)을 갱신한다.
-        </li>
-        <li>매 동작마다
-          <ul>
-            <li><code>max = Math.max(max, current)</code>로 최대값 갱신</li>
-            <li><code>current &gt; c</code>면 퓨즈 터짐(<code>blown = true</code>) 표시</li>
+            <li>나누어 떨어지면 해당 소수로 더 이상 안 나눠질 때까지 나누며 지수 카운트</li>
+            <li><code>(소수, 지수)</code>를 리스트에 저장</li>
           </ul>
         </li>
-        <li>테스트케이스 종료 후, 조건에 맞게 문구를 출력한다.</li>
+        <li>마지막에 <code>y &gt; 1</code>이 남아있으면 그것도 소인수이므로 <code>(y, 1)</code> 추가</li>
+        <li>리스트는 작은 소수부터 쌓이므로, 출력은 역순으로 돌려 <strong>내림차순</strong>으로 찍는다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -318,78 +314,68 @@
       </p>
       
       <ul>
-        <li><strong>1) 테스트케이스 루프 및 종료 조건 처리</strong>
-          <pre><code>int caseNum = 1;
-      String line;
+        <li><strong>1) 한 줄 입력 처리 + x 계산</strong>
+          <pre><code>String line;
       while ((line = br.readLine()) != null) {
+          if (line.equals("0")) break;
           StringTokenizer st = new StringTokenizer(line);
       
-          int n = Integer.parseInt(st.nextToken());
-          int m = Integer.parseInt(st.nextToken());
-          int c = Integer.parseInt(st.nextToken());
+          int x = 1;
+          while (st.hasMoreTokens()) {
+              int p = Integer.parseInt(st.nextToken());
+              int e = Integer.parseInt(st.nextToken());
       
-          if (n == 0 &amp;&amp; m == 0 &amp;&amp; c == 0) break;
-      
-          sb.append("Sequence " + caseNum).append('\n');</code></pre>
+              for (int i = 0; i &lt; e; i++) {
+                  x *= p;
+              }
+          }</code></pre>
           <ul>
-            <li>여러 테스트케이스가 들어오므로 <code>while</code>로 반복 처리한다.</li>
-            <li><code>n = m = c = 0</code>이면 입력 종료.</li>
-            <li>각 케이스마다 <code>Sequence k</code> 헤더를 출력한다.</li>
+            <li>각 줄은 하나의 수 <code>x</code>를 나타낸다.</li>
+            <li><code>(p, e)</code>를 읽어 <code>p</code>를 <code>e</code>번 곱해 <code>x</code>에 누적한다.</li>
+            <li>문제 조건상 <code>x ≤ 32767</code>이므로 <code>int</code>로 계산해도 범위를 넘지 않는다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 기기 정보 저장 (소비 전류 + 현재 상태)</strong>
-          <pre><code>Map&lt;Integer, Device&gt; map = new HashMap&lt;&gt;();
-      
-      for (int i = 1; i &lt;= n; i++) {
-          int consume = Integer.parseInt(br.readLine());
-          map.put(i, new Device(consume, false));
-      }</code></pre>
+        <li><strong>2) y = x - 1 만들기</strong>
+          <pre><code>int y = x - 1;</code></pre>
           <ul>
-            <li>기기 번호(1~n)를 키로 해서 소비 전류와 사용 여부를 저장한다.</li>
-            <li>초기 상태는 모두 OFF이므로 <code>false</code>로 시작한다.</li>
+            <li>출력해야 하는 대상은 <code>x</code>가 아니라 <code>x - 1</code>이므로 <code>y</code>로 옮겨서 소인수분해한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 동작 처리: 토글하면서 current / max / blown 갱신</strong>
-          <pre><code>int current = 0, max = 0;
-      boolean blown = false;
+        <li><strong>3) y 소인수분해 (작은 소수부터)</strong>
+          <pre><code>List&lt;int[]&gt; list = new ArrayList&lt;&gt;();
+      for (int i = 2; i * i &lt;= y; i++) {
+          if (y % i == 0) {
+              int cnt = 0;
       
-      for (int i = 0; i &lt; m; i++) {
-          int num = Integer.parseInt(br.readLine());
-          int consume = map.get(num).consume;
-          boolean isUse = map.get(num).isUse;
+              while (y % i == 0) {
+                  y /= i;
+                  cnt++;
+              }
       
-          if (isUse) current -= consume;
-          else current += consume;
-      
-          map.get(num).isUse = !isUse;
-      
-          if (current &gt; max) max = current;
-          if (current &gt; c) blown = true;
-      }</code></pre>
-          <ul>
-            <li>입력으로 들어온 번호의 기기를 토글한다.</li>
-            <li>켜져 있던 상태면 끄는 것이므로 전류를 빼고, 꺼져 있던 상태면 켜는 것이므로 더한다.</li>
-            <li>토글 후 상태를 반전시킨다.</li>
-            <li>매번 최대 소비 전류 <code>max</code>를 갱신하고, 용량 초과면 <code>blown</code>을 표시한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 케이스별 출력 구성 + 빈 줄 처리</strong>
-          <pre><code>if (blown) {
-          sb.append("Fuse was blown.").append('\n');
-      } else {
-          sb.append("Fuse was not blown.").append('\n');
-          sb.append("Maximal power consumption was ").append(max).append(" amperes.").append('\n');
+              list.add(new int[]{i, cnt});
+          }
       }
       
-      sb.append('\n');
-      caseNum++;</code></pre>
+      if (y &gt; 1) list.add(new int[]{y, 1});</code></pre>
           <ul>
-            <li>퓨즈가 터졌다면 해당 문구만 출력한다.</li>
-            <li>터지지 않았다면 최대 소비 전류를 함께 출력한다.</li>
-            <li>문제 요구대로 테스트케이스마다 <strong>빈 줄</strong>을 한 줄 추가한다.</li>
+            <li><code>i</code>를 2부터 증가시키며 나눠 떨어지는지 검사한다.</li>
+            <li>나눠 떨어지면 <code>while</code>로 지수를 세면서 <code>y</code>를 계속 줄인다.</li>
+            <li>반복이 끝난 뒤 <code>y</code>가 1보다 크면, 남은 값은 마지막 소인수이므로 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 내림차순으로 출력</strong>
+          <pre><code>for (int i = list.size() - 1; i &gt;= 0; i--) {
+          sb.append(list.get(i)[0]).append('\n').append(list.get(i)[1]);
+      
+          if (i &gt; 0) sb.append(' ');
+      }
+      sb.append('\n');</code></pre>
+          <ul>
+            <li>리스트는 작은 소수부터 저장되어 있으므로, 역순으로 출력하면 큰 소수부터 출력된다.</li>
+            <li>각 <code>(p, e)</code>를 “<code>p e</code>” 형태로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -405,16 +391,18 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>각 테스트케이스에서 기기 입력 <code>O(n)</code>, 동작 처리 <code>O(m)</code>.</li>
-            <li>전체는 <strong><code>O(n + m)</code></strong>.</li>
+            <li><code>x</code> 계산: 입력된 쌍들의 지수 합을 <code>E</code라 하면, 단순 곱셈이라 <strong><code>O(E)</code></strong>.</li>
+            <li>소인수분해: <code>y</code>에 대해 <code>2..sqrt(y)</code>까지 시도하므로 <strong><code>O(√y)</code></strong>.</li>
+            <li>여기서 <code>y ≤ 32766</code>이라 충분히 빠르다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>기기 정보를 저장하는 자료구조가 <code>n</code>개이므로 <strong><code>O(n)</code></strong>.</li>
+            <li>소인수 목록을 저장하는 리스트만 사용 → <strong><code>O(소인수 개수)</code></strong> (최대 26 미만 수준).</li>
           </ul>
         </li>
       </ul>
+
 
 
 
