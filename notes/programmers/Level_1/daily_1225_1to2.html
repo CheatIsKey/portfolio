@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-24 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-25 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 2016년</h2>
+      <h2 class="section">문제 1 — 유연근무제</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12901">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/388351">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1224_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1225_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,15 +53,17 @@
       </h3>
       
       <p>
-        <strong>2016년 (프로그래머스 12901)</strong>은<br>
-        2016년의 <code>a</code>월 <code>b</code>일이 <strong>무슨 요일인지</strong>를 구해서,
-        요일을 문자열(<code>"MON"</code> 등)로 반환하는 문제다.
+        <strong>(프로그래머스 388351)</strong>은<br>
+        직원별로 정해진 출근 예정 시간 <code>schedules[i]</code>가 있을 때,
+        실제 출근 기록 <code>timelogs[i][j]</code>를 보고
+        <strong>평일(월~금)에 한 번도 지각하지 않은 직원 수</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>2016년 1월 1일은 <strong>금요일(FRI)</strong>로 고정되어 있다.</li>
-        <li>2016년은 <strong>윤년</strong>이므로 2월은 <strong>29일</strong>이다.</li>
-        <li>입력된 날짜까지의 “일 수 오프셋”을 구한 뒤, <code>7</code>로 나눈 나머지로 요일을 찾으면 된다.</li>
+        <li>각 직원은 예정 시간보다 <strong>10분 이내</strong>로 도착하면 통과다. (예정시간 + 10분이 “마감 시간”) </li>
+        <li>주말(토/일)은 평가에서 제외한다.</li>
+        <li><code>startday</code>는 <code>timelogs[i][0]</code>이 무슨 요일인지 나타내며,
+          요일은 <code>1~7</code>로 주어진다. (6, 7이 주말)</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -73,15 +75,15 @@
       </p>
       
       <ul>
-        <li>각 달의 일 수를 배열로 준비한다. (2016년이므로 2월은 29)</li>
-        <li>1월 1일이 금요일이므로 요일 배열을 <code>{"FRI","SAT","SUN","MON","TUE","WED","THU"}</code>로 준비한다.</li>
-        <li><code>a</code>월 <code>b</code>일까지의 누적 일 수를 구한다:
+        <li>직원별로 “마감 시간” <code>limit = schedules[i] + 10</code>을 만든다.</li>
+        <li>시간이 <code>HHMM</code> 형태이므로, <code>+10</code> 했을 때 분이 60 이상이 되면 보정한다:
           <ul>
-            <li>1월부터 <code>(a-1)</code>월까지의 일 수 합</li>
-            <li>+ <code>(b-1)</code> (해당 달에서 몇 일 지났는지)</li>
+            <li><code>limit % 100 &gt;= 60</code>이면 <code>limit += 40</code> (분 60 → 시 1 증가 효과)</li>
           </ul>
         </li>
-        <li>구한 오프셋을 <code>offset % 7</code>로 요일 배열에서 찾아 반환한다.</li>
+        <li>7일을 돌면서, 해당 요일이 주말(6,7)이면 건너뛰고 평일만 검사한다.</li>
+        <li>평일 중 한 번이라도 <code>timelogs[i][j] &gt; limit</code>이면 지각이므로 탈락.</li>
+        <li>끝까지 통과하면 카운트를 증가시킨다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -93,38 +95,55 @@
       </p>
       
       <ul>
-        <li><strong>1) 달별 일 수/요일 배열 준비</strong>
-          <pre><code>int[] days = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-      String[] str = {"FRI", "SAT", "SUN", "MON", "TUE", "WED", "THU"};</code></pre>
+        <li><strong>1) 직원 수 및 정답 카운터 준비</strong>
+          <pre><code>int employees = schedules.length;
+      int cnt = 0;</code></pre>
           <ul>
-            <li><code>days</code>: 2016년 각 달의 일 수(윤년이라 2월=29).</li>
-            <li><code>str</code>: 2016-01-01이 금요일이므로 인덱스 0을 <code>FRI</code>로 둔다.</li>
+            <li>직원 수만큼 반복하며 “통과한 직원”을 센다.</li>
           </ul>
         </li>
       
-        <li><strong>2) a월 이전까지의 누적 일 수 계산</strong>
-          <pre><code>int offset = 0;
-      for (int i = 0; i &lt; a - 1; i++) {
-          offset += days[i];
+        <li><strong>2) 직원별 마감 시간(limit) 계산 (10분 보정 포함)</strong>
+          <pre><code>int limit = schedules[i] + 10;
+      if (limit % 100 &gt;= 60) limit += 40;</code></pre>
+          <ul>
+            <li>예정 시간에 10분을 더해 마감 시간을 만든다.</li>
+            <li><code>HHMM</code> 형태에서 분이 60 이상이면 시로 넘겨야 하므로 <code>+40</code>으로 보정한다.</li>
+            <li>예: <code>0855 + 10 = 0865</code> → 분이 65이므로 <code>+40</code> 해서 <code>0905</code>로 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 7일 순회하며 평일만 검사</strong>
+          <pre><code>boolean ok = true;
+      
+      for (int j = 0; j &lt; 7; j++) {
+          int day = ((startday - 1 + j) % 7) + 1;
+          if (day == 6 || day == 7) continue;
+      
+          if (timelogs[i][j] &gt; limit) {
+              ok = false;
+              break;
+          }
       }</code></pre>
           <ul>
-            <li><code>a</code>월의 직전 달(<code>a-1</code>월)까지 총 며칠이 있었는지 누적한다.</li>
-            <li>예: 5월이면 1~4월 일 수를 더한다.</li>
+            <li><code>day</code> 계산은 <code>startday</code>를 기준으로 7일을 순환시키기 위한 식이다.</li>
+            <li><code>day == 6</code> 또는 <code>7</code>이면 주말이므로 평가 제외 → <code>continue</code>.</li>
+            <li>평일에 한 번이라도 마감 시간보다 늦으면(<code>&gt; limit</code>) 즉시 탈락 처리한다.</li>
+            <li>반대로 더 일찍 온 경우(<code>&lt;= limit</code>)는 정상 출근으로 그대로 통과한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 해당 달에서 (b-1)일 더하기</strong>
-          <pre><code>offset += (b - 1);</code></pre>
+        <li><strong>4) 통과한 직원 카운트</strong>
+          <pre><code>if (ok) cnt++;</code></pre>
           <ul>
-            <li>1월 1일을 기준(오프셋 0)으로 잡았기 때문에, 같은 달의 날짜는 <code>b-1</code>만큼 이동한 값이 된다.</li>
-            <li>예: 1월 1일이면 <code>b-1 = 0</code>이라 그대로 금요일.</li>
+            <li>평일 모두 지각이 없었던 직원만 정답에 포함한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 요일 배열에서 찾아 반환</strong>
-          <pre><code>return str[offset % 7];</code></pre>
+        <li><strong>5) 최종 반환</strong>
+          <pre><code>return cnt;</code></pre>
           <ul>
-            <li>7일마다 요일이 반복되므로 <code>offset % 7</code> 인덱스로 요일을 선택한다.</li>
+            <li>조건을 만족한 직원 수를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -140,15 +159,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>최대 12개월을 더하는 반복문만 수행하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>직원 수를 <code>E</code>라 하면, 각 직원에 대해 최대 7일을 확인하므로 <strong><code>O(E * 7)</code></strong> → <strong><code>O(E)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>고정 크기 배열과 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li>추가로 사용하는 변수는 상수 크기 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -216,14 +236,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 택배 상자 꺼내기</h2>
+      <h2 class="section">문제 2 — 동영상 재생기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/389478">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340213">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1224_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1225_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -236,24 +256,23 @@
       </h3>
       
       <p>
-        <strong>(프로그래머스 389478)</strong>은<br>
-        <code>1</code>부터 <code>n</code>까지 번호가 붙은 상자를 가로 <code>w</code>칸짜리 선반에
-        <strong>지그재그(한 줄은 왼→오, 다음 줄은 오→왼)</strong>로 채워 놓았을 때,
-        특정 상자 번호 <code>num</code>을 꺼내기 위해 <strong>같은 열(column) 위에 쌓인 상자</strong>를 포함해서
-        총 몇 개를 꺼내야 하는지 구하는 문제다.
+        <strong>(프로그래머스 340213)</strong>은<br>
+        영상 길이 <code>video_len</code>과 현재 위치 <code>pos</code>가 주어지고,
+        <strong>오프닝 구간</strong>(<code>op_start</code> ~ <code>op_end</code>)을 자동으로 건너뛰면서
+        <code>commands</code>에 따라 <strong>10초 전/후 이동</strong>을 반복한 뒤
+        최종 위치를 <code>"mm:ss"</code> 형식으로 반환하는 문제다.
       </p>
       
       <ul>
-        <li>선반은 한 줄에 <code>w</code>개씩 들어가며, 행(row)은 <code>ceil(n / w)</code>개가 된다.</li>
-        <li>배치는 지그재그로 진행된다:
+        <li>명령은 <code>"prev"</code>(10초 뒤로), <code>"next"</code>(10초 앞으로) 형태로 처리한다. (코드에서는 <code>prev</code>가 아니면 전부 next로 처리)</li>
+        <li>이동 후 위치는 범위를 벗어나지 않게 보정한다:
           <ul>
-            <li>0번째 행: 왼 → 오른쪽으로 채움</li>
-            <li>1번째 행: 오른쪽 → 왼으로 채움</li>
-            <li>2번째 행: 다시 왼 → 오른쪽 ...</li>
+            <li>최소 <code>0</code>초</li>
+            <li>최대 <code>video_len</code>초</li>
           </ul>
         </li>
-        <li><code>num</code>이 놓인 칸을 찾은 뒤, 같은 열에서 아래로 내려가며
-          <strong>실제로 존재하는 상자(0이 아닌 값)</strong>의 개수를 세면 된다.</li>
+        <li>현재 위치가 오프닝 구간에 들어가면 <strong>자동으로 op_end로 점프</strong>한다.</li>
+        <li>시간 문자열은 비교/계산이 불편하므로 <strong>초 단위(int)</strong>로 변환해서 처리한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -265,11 +284,22 @@
       </p>
       
       <ul>
-        <li><code>rows = (n + w - 1) / w</code>로 필요한 행 개수를 구한다.</li>
-        <li><code>rows x w</code> 크기의 2차원 배열 <code>box</code>를 만들고, <code>1..n</code>을 지그재그로 채운다.</li>
-        <li>배열을 순회하면서 <code>num</code>의 위치(<code>r, c</code>)를 찾는다.</li>
-        <li>찾은 위치 기준으로 같은 열 <code>c</code>에서 아래 행으로 내려가며
-          값이 <code>0</code>이 아닌 칸을 만날 때마다 카운트를 증가시킨다.</li>
+        <li><code>"mm:ss"</code> 문자열을 모두 초 단위로 변환한다:
+          <ul>
+            <li><code>len</code> = 영상 길이</li>
+            <li><code>cur</code> = 현재 위치</li>
+            <li><code>opS</code>, <code>opE</code> = 오프닝 시작/끝</li>
+          </ul>
+        </li>
+        <li>시작 위치가 오프닝 구간이면 먼저 <code>opE</code>로 이동시킨다.</li>
+        <li>명령을 순서대로 처리하면서
+          <ul>
+            <li><code>prev</code>면 <code>cur - 10</code>, <code>next</code>면 <code>cur + 10</code></li>
+            <li><code>0..len</code> 범위를 벗어나지 않게 clamp</li>
+            <li>이동 후 오프닝 구간에 들어가면 다시 <code>opE</code>로 스킵</li>
+          </ul>
+        </li>
+        <li>최종 초 값을 다시 <code>"mm:ss"</code>로 바꿔 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -281,65 +311,77 @@
       </p>
       
       <ul>
-        <li><strong>1) 행 개수 계산</strong>
-          <pre><code>int rows = (n + w - 1) / w;</code></pre>
+        <li><strong>1) 시간 문자열을 초로 변환</strong>
+          <pre><code>int len = toSec(video_len);
+      int cur = toSec(pos);
+      int opS = toSec(op_start);
+      int opE = toSec(op_end);</code></pre>
           <ul>
-            <li>전체 <code>n</code>개를 한 줄에 <code>w</code>개씩 채울 때 필요한 행 수를 올림으로 계산한다.</li>
+            <li>모든 비교/이동을 초 단위로 처리하기 위해 <code>toSec</code>로 변환한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 지그재그로 상자 번호 채우기</strong>
-          <pre><code>int idx = 1;
-      int[][] box = new int[rows][w];
-      for (int r = 0; r &lt; box.length; r++) {
-          if (r % 2 == 0) {
-              for (int c = 0; c &lt; box[r].length; c++) {
-                  if (idx &gt; n) break;
-                  box[r][c] = idx++;
-              }
+        <li><strong>2) 시작 위치에서 오프닝 스킵 적용</strong>
+          <pre><code>cur = skipOpening(cur, opS, opE);</code></pre>
+          <ul>
+            <li>현재 위치가 오프닝 구간(<code>opS..opE</code>)에 있으면 바로 <code>opE</code>로 이동시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 명령 처리: 10초 이동 + 범위 보정 + 오프닝 스킵</strong>
+          <pre><code>for (String cmd : commands) {
+          if (cmd.equals("prev")) {
+              cur = Math.max(0, cur - 10);
           } else {
-              for (int c = box[r].length - 1; c &gt;= 0; c--) {
-                  if (idx &gt; n) break;
-                  box[r][c] = idx++;
-              }
+              cur = Math.min(len, cur + 10);
           }
+      
+          cur = skipOpening(cur, opS, opE);
       }</code></pre>
           <ul>
-            <li>짝수 행은 왼→오로 채우고, 홀수 행은 오→왼으로 채운다.</li>
-            <li><code>idx &gt; n</code>이면 더 채울 상자가 없으므로 해당 행 채우기를 중단한다.</li>
-            <li>채워지지 않은 칸은 기본값 <code>0</code>으로 남는다.</li>
+            <li><code>prev</code>면 10초 뒤로 이동하되 <code>0</code> 아래로 내려가지 않게 한다.</li>
+            <li>그 외 명령은 10초 앞으로 이동하되 <code>len</code>을 넘지 않게 한다.</li>
+            <li>이동한 위치가 오프닝 구간에 걸리면 다시 <code>skipOpening</code>으로 <code>opE</code>로 점프한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) num 위치 찾고 같은 열에서 아래로 카운트</strong>
-          <pre><code>int cnt = 1;
-      for (int r = 0; r &lt; box.length; r++) {
-          for (int c = 0; c &lt; box[r].length; c++) {
-              if (box[r][c] == num) {
-                  int curR = r + 1;
-      
-                  while (curR &lt; box.length) {
-                      if (box[curR][c] != 0) {
-                          cnt++;
-                      } else break;
-      
-                      curR++;
-                  }
-              }
-          }
-      }</code></pre>
+        <li><strong>4) 최종 위치를 "mm:ss"로 변환해 반환</strong>
+          <pre><code>return toStr(cur);</code></pre>
           <ul>
-            <li><code>num</code> 자체는 반드시 꺼내야 하므로 <code>cnt</code>를 1에서 시작한다.</li>
-            <li><code>num</code>을 발견하면 그 칸의 열 <code>c</code>를 고정하고, 아래 행(<code>r+1</code>)부터 내려간다.</li>
-            <li>아래 칸이 <code>0</code>이면 실제 상자가 없는 자리이므로 그 이후로는 더 내려가도 의미가 없어 중단한다.</li>
-            <li><code>0</code>이 아니면 그 칸의 상자도 같이 꺼내야 하므로 카운트를 증가시킨다.</li>
+            <li>초 단위 결과를 <code>toStr</code>로 포맷팅해서 반환한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 결과 반환</strong>
-          <pre><code>return cnt;</code></pre>
+        <li><strong>5) 보조 메서드들</strong>
+          <pre><code>private int toSec(String s) {
+          String[] split = s.split(":");
+          int mm = Integer.parseInt(split[0]);
+          int sec = Integer.parseInt(split[1]);
+      
+          return mm * 60 + sec;
+      }</code></pre>
           <ul>
-            <li><code>num</code>을 꺼내기 위해 같이 꺼내야 하는 상자 총 개수를 반환한다.</li>
+            <li><code>"mm:ss"</code>를 <code>mm * 60 + ss</code>로 바꾼다.</li>
+          </ul>
+      
+          <pre><code>private int skipOpening(int cur, int opS, int opE) {
+          if (opS &lt;= cur &amp;&amp; cur &lt;= opE) return opE;
+      
+          return cur;
+      }</code></pre>
+          <ul>
+            <li>현재 위치가 오프닝 구간에 포함되면 <code>opE</code>로 스킵한다.</li>
+            <li>포함되지 않으면 그대로 유지한다.</li>
+          </ul>
+      
+          <pre><code>private String toStr(int t) {
+          int mm = t / 60;
+          int ss = t % 60;
+      
+          return String.format("%02d:%02d", mm, ss);
+      }</code></pre>
+          <ul>
+            <li>초를 분/초로 나누고, 두 자리(<code>%02d</code>)로 맞춰 <code>"mm:ss"</code> 형식으로 만든다.</li>
           </ul>
         </li>
       </ul>
@@ -355,18 +397,17 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>배열 채우기: <strong><code>O(rows * w)</code></strong> (최대 <code>n</code>칸까지 채움)</li>
-            <li><code>num</code> 찾기: <strong><code>O(rows * w)</code></strong></li>
-            <li>아래로 카운트: 최악에 <code>rows</code>만큼 내려가므로 <strong><code>O(rows)</code></strong></li>
-            <li>전체는 대략 <strong><code>O(rows * w)</code></strong>.</li>
+            <li>명령 개수를 <code>K</code>라 하면, 각 명령을 한 번씩 처리하므로 <strong><code>O(K)</code></strong>.</li>
+            <li>시간 변환/스킵은 모두 상수 시간.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><code>rows x w</code> 2차원 배열을 사용하므로 <strong><code>O(rows * w)</code></strong>.</li>
+            <li>추가로 쓰는 변수는 상수 크기 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
