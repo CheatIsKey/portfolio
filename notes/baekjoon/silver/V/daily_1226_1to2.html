@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-25 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 6361 — Number Base Conversion</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6361">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1225_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Number Base Conversion (BOJ 6361)</strong>은<br>
+        입력 진법 <code>inBase</code>(2~62)로 표현된 수 <code>num</code>을
+        출력 진법 <code>outBase</code>(2~62)로 변환해 출력하는 문제다.
+        사용 가능한 숫자(자리)는 <code>0-9</code>, <code>A-Z</code>, <code>a-z</code>로 총 62개다.
+      </p>
+      
+      <ul>
+        <li>각 테스트마다 출력은 3줄 형식이다:
+          <ul>
+            <li><code>inBase</code>와 입력 수를 그대로 출력</li>
+            <li><code>outBase</code>와 변환된 수 출력</li>
+            <li>빈 줄 1줄</li>
+          </ul>
+        </li>
+        <li>입력 수의 길이가 매우 길 수 있으므로 일반 정수형으로는 처리 불가 → <strong><code>BigInteger</code></strong>로 처리한다.</li>
+        <li>핵심은
+          <ul>
+            <li>입력 문자열을 “10진수(BigInteger)”로 해석(파싱)하고</li>
+            <li>그 값을 다시 원하는 진법 문자열로 변환하는 것</li>
+          </ul>
+          이다.
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>num</code>을 <code>inBase</code> 기준으로 해석해 <code>BigInteger</code> 값 <code>val</code>로 만든다.</li>
+        <li><code>val</code>을 <code>outBase</code> 기준으로 나누기/나머지로 변환한다:
+          <ul>
+            <li><code>val</code>을 <code>outBase</code>로 나눈 나머지가 마지막 자리</li>
+            <li>몫으로 계속 갱신하며 반복</li>
+            <li>나머지들을 뒤집으면 최종 진법 문자열</li>
+          </ul>
+        </li>
+        <li>문자 ↔ 값 매핑 규칙:
+          <ul>
+            <li><code>'0'~'9'</code> → 0~9</li>
+            <li><code>'A'~'Z'</code> → 10~35</li>
+            <li><code>'a'~'z'</code> → 36~61</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 테스트케이스 입력 및 출력 형식 구성</strong>
+          <pre><code>int n = Integer.parseInt(br.readLine());
+      for (int i = 0; i &lt; n; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int inBase = Integer.parseInt(st.nextToken());
+          int outBase = Integer.parseInt(st.nextToken());
+          String num = st.nextToken();
+      
+          sb.append(inBase).append(' ').append(num).append('\n');
+      
+          BigInteger bigInteger = parseToBigInteger(num, inBase);
+          String converted = toBaseString(bigInteger, outBase);
+      
+          sb.append(outBase).append(' ').append(converted).append('\n');
+          sb.append('\n');
+      }</code></pre>
+          <ul>
+            <li>각 줄마다 <code>inBase</code>, <code>outBase</code>, <code>num</code>을 읽는다.</li>
+            <li>첫 줄은 입력 그대로 출력한다.</li>
+            <li>파싱 → 변환 후, 둘째 줄에 변환 결과를 출력한다.</li>
+            <li>문제 요구대로 마지막에 빈 줄을 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) inBase 문자열을 BigInteger로 파싱</strong>
+          <pre><code>private static BigInteger parseToBigInteger(String num, int inBase) {
+          BigInteger b = BigInteger.valueOf(inBase);
+          BigInteger val = BigInteger.ZERO;
+      
+          for (int i = 0; i &lt; num.length(); i++) {
+              int d = digitValue(num.charAt(i));
+              val = val.multiply(b).add(BigInteger.valueOf(d));
+          }
+      
+          return val;
+      }</code></pre>
+          <ul>
+            <li>진법 수를 10진수로 바꾸는 표준 방식이다.</li>
+            <li>왼쪽부터 한 자리씩 보며 <code>val = val * base + digit</code>로 누적한다.</li>
+            <li>길이가 길어도 <code>BigInteger</code>라 안전하다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 문자 → 숫자 값 변환</strong>
+          <pre><code>private static int digitValue(char c) {
+          if ('0' &lt;= c &amp;&amp; c &lt;= '9') return c - '0';
+          if ('A' &lt;= c &amp;&amp; c &lt;= 'Z') return 10 + (c - 'A');
+          return 36 + (c - 'a');
+      }</code></pre>
+          <ul>
+            <li><code>0-9</code>, <code>A-Z</code>, <code>a-z</code>를 각각 0~61 범위로 매핑한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) BigInteger를 outBase 문자열로 변환</strong>
+          <pre><code>private static String toBaseString(BigInteger bigInteger, int outBase) {
+          if (bigInteger.equals(BigInteger.ZERO)) return "0";
+      
+          BigInteger b = BigInteger.valueOf(outBase);
+          StringBuilder sb = new StringBuilder();
+      
+          while (!bigInteger.equals(BigInteger.ZERO)) {
+              BigInteger[] dr = bigInteger.divideAndRemainder(b);
+              int rem = dr[1].intValue();
+              sb.append(digitChar(rem));
+              bigInteger = dr[0];
+          }
+      
+          return sb.reverse().toString();
+      }</code></pre>
+          <ul>
+            <li>반복해서 <code>outBase</code>로 나누며 나머지를 뽑는다.</li>
+            <li>나머지는 “뒤에서부터” 자리이므로 append 후 마지막에 reverse 한다.</li>
+            <li>값이 0이면 예외로 <code>"0"</code>을 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 숫자 값 → 문자 변환</strong>
+          <pre><code>private static char digitChar(int rem) {
+          if (rem &lt; 10) return (char)('0' + rem);
+          if (rem &lt; 36) return (char)('A' + (rem - 10));
+          return (char)('a' + (rem - 36));
+      }</code></pre>
+          <ul>
+            <li>0~61 값을 다시 <code>0-9</code>, <code>A-Z</code>, <code>a-z</code>로 역매핑한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>파싱: 입력 길이를 <code>L</code>이라 하면 <strong><code>O(L)</code></strong>번의 BigInteger 연산(<code>*</code>, <code>+</code>)을 수행한다.</li>
+            <li>변환: 출력 자리수를 <code>K</code>라 하면 <strong><code>O(K)</code></strong>번의 BigInteger 나눗셈을 수행한다.</li>
+            <li>따라서 전체는 대략 <strong><code>O(L + K)</code></strong> (BigInteger 연산 비용은 자리수에 따라 증가).</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>변환 문자열과 BigInteger를 저장하므로 대략 <strong><code>O(L + K)</code></strong> 수준.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 6463 — 팩트</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/6463">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/V/daily_1225_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>팩트 (BOJ 6463)</strong>는<br>
+        주어진 <code>N</code>에 대해 <code>N!</code>의 값에서 <strong>0이 아닌 마지막 자리</strong>를 구하는 문제다.
+        입력은 여러 줄로 들어오며, 각 줄마다 결과를 형식에 맞춰 출력한다.
+      </p>
+      
+      <ul>
+        <li><code>N! = 1 × 2 × ... × N</code></li>
+        <li>팩토리얼은 매우 커지므로 실제 값을 그대로 계산하면 overflow가 난다.</li>
+        <li>끝자리의 0은 <strong>2 × 5</strong>가 만들어내는 <strong>10</strong>의 개수 때문에 생긴다.</li>
+        <li>따라서 곱셈을 진행하면서 생기는 0을 즉시 제거하고, 값의 크기도 적당히 잘라서 관리한다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>mul</code>에 1부터 N까지 차례대로 곱한다.</li>
+        <li>곱할 때마다 <code>mul</code>의 끝자리가 0이면(= <code>mul % 10 == 0</code>) 10으로 나눠 <strong>0을 제거</strong>한다.</li>
+        <li><code>mul</code>이 너무 커지는 것을 막기 위해 매번 <code>mul %= 1_000_000_000</code>로 일부 자리만 유지한다.</li>
+        <li>마지막에 <code>mul % 10</code>이 곧 “0이 아닌 마지막 자리”가 된다.</li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 여러 줄 입력 처리</strong>
+          <pre><code>String line;
+      while ((line = br.readLine()) != null) {
+          int N = Integer.parseInt(line);</code></pre>
+          <ul>
+            <li>입력이 여러 줄로 주어지므로 EOF까지 반복한다.</li>
+            <li>각 줄의 <code>N</code>에 대해 결과를 한 줄씩 출력한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 1부터 N까지 곱하며 0 제거 + 크기 제한</strong>
+          <pre><code>long mul = 1;
+      
+      for (int i = 1; i &lt;= N; i++) {
+          mul *= i;
+      
+          while (mul % 10 == 0) {
+              mul /= 10;
+          }
+      
+          mul %= 1_000_000_000L;
+      }</code></pre>
+          <ul>
+            <li><code>mul *= i</code>로 팩토리얼을 순차적으로 만든다.</li>
+            <li>곱셈 결과의 끝자리가 0이면 그 0은 최종 “0이 아닌 마지막 자리” 계산에 방해가 되므로 즉시 제거한다.</li>
+            <li><code>mul</code>은 계속 커지므로, 뒤쪽 자리 계산에 충분한 범위만 남기고(여기서는 9자리) 잘라서 overflow를 방지한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 마지막 자리 추출 및 출력 포맷</strong>
+          <pre><code>int rem = (int)(mul % 10);
+      
+      String str = String.format("%5d -> %d", N, rem);
+      sb.append(str).append('\n');</code></pre>
+          <ul>
+            <li>0을 제거해가며 유지한 값의 마지막 자리(<code>mul % 10</code>)가 정답이다.</li>
+            <li>출력은 문제 요구대로 <code>N</code>을 5칸 오른쪽 정렬한 뒤 <code> -> </code>와 정답을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 입력에 대해 <code>1..N</code>을 한 번 순회하므로 <strong><code>O(N)</code></strong>.</li>
+            <li>중간의 <code>while (mul % 10 == 0)</code>는 10의 배수일 때만 짧게 수행되며, 전체적으로 큰 부담은 아니다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 배열 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
