@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 10일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 10일차 TIL — SQL 정리 &amp; AI 기본 개념</h1>
+      <p class="muted">작성일 2025-12-24 · 분류: 부트캠프, TIL, SQL, AI</p>
+
+      <!-- 섹션 1: 10일차 개요 -->
+      <h2 class="section">10일차 개요 — SQL 기능 정리 + AI 핵심 개념 잡기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        오늘은 SQL 문제 풀이보다는 <strong>자주 쓰이는 기능을 묶어서 정리</strong>하는 날이었다.
+        SQL에서는 <strong>피벗(조건부 집계), 윈도우 함수, DATE_FORMAT</strong>을 중심으로 “언제/왜 쓰는지”를 정리했고,
+        AI 파트에서는 <strong>학습 방식(지도/비지도/강화), 생성형 AI 개념, LLM/임베딩/트랜스포머, Fine-Tuning/RAG</strong>를 큰 흐름으로 연결해 보았다.
+      </p>
+
+      <ul>
+        <li>SQL은 “보고서 형태로 뽑기(피벗)”와 “순위/누적 같은 분석(윈도우)”이 핵심이었다.</li>
+        <li>DATE_FORMAT은 결과를 보기 좋게 만드는 용도이지만, <strong>문자열로 변환된다는 점</strong>을 항상 의식해야 한다.</li>
+        <li>AI는 용어가 많아서, 개념을 “정의 → 용도 → 장단점” 구조로 정리했다.</li>
+      </ul>
+
+      <!-- 섹션 2: SQL - 피벗 -->
+      <h2 class="section">SQL 정리 — 피벗(조건부 집계)과 MAX 사용 패턴</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 개념
+        </span>
+      </h3>
+
+      <p>
+        SQL에서 “피벗”은 <strong>행(row) 데이터를 열(column) 형태로 바꿔 보고서처럼 만드는 방식</strong>이다.
+        MySQL에서는 전용 PIVOT 문법이 없어서 보통 <strong>조건부 집계</strong>로 구현한다.
+      </p>
+
+      <ul>
+        <li><strong>SUM(CASE WHEN ... THEN 값 ELSE 0 END)</strong>: 한 그룹 안에서 여러 건이 누적될 수 있을 때</li>
+        <li><strong>MAX(CASE WHEN ... THEN 값 END)</strong>: 한 그룹 안에서 “해당 값이 1개”라고 확신할 때(없으면 NULL)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 데이터
+        </span>
+      </h3>
+
+      <p>월별 매출을 담은 <code>camp_sales</code> 테이블 임시 데이터는 다음과 같다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>product</th>
+            <th>sales_month</th>
+            <th>amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>laptop</td>
+            <td>2025-11</td>
+            <td>1200</td>
+          </tr>
+          <tr>
+            <td>laptop</td>
+            <td>2025-12</td>
+            <td>1800</td>
+          </tr>
+          <tr>
+            <td>tablet</td>
+            <td>2025-11</td>
+            <td>400</td>
+          </tr>
+          <tr>
+            <td>tablet</td>
+            <td>2025-12</td>
+            <td>600</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> 상품별 월 매출을 “열”로 펼쳐서 조회하기(피벗)</p>
+      <pre><code>SELECT
+  product,
+  SUM(CASE WHEN sales_month = '2025-11' THEN amount ELSE 0 END) AS "2025-11",
+  SUM(CASE WHEN sales_month = '2025-12' THEN amount ELSE 0 END) AS "2025-12"
+FROM camp_sales
+GROUP BY product;
+</code></pre>
+
+      <p><strong>2.</strong> “각 (product, sales_month)이 1건만 존재한다”면 MAX 패턴으로도 가능</p>
+      <pre><code>SELECT
+  product,
+  MAX(CASE WHEN sales_month = '2025-11' THEN amount END) AS "2025-11",
+  MAX(CASE WHEN sales_month = '2025-12' THEN amount END) AS "2025-12"
+FROM camp_sales
+GROUP BY product;
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>월 컬럼을 고정으로 박으면(‘2025-11’, ‘2025-12’) 데이터가 늘 때마다 쿼리를 수정해야 한다.</li>
+        <li>MAX는 “그룹 내 값이 1개”라는 전제가 흔들리면, 의도치 않은 결과가 나올 수 있다. (그때는 SUM이 안전하다)</li>
+      </ul>
+
+      <!-- 섹션 3: SQL - 윈도우 함수 -->
+      <h2 class="section">SQL 정리 — 윈도우 함수(Window Function)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 개념
+        </span>
+      </h3>
+
+      <p>
+        윈도우 함수는 <strong>행을 줄이지 않고(=GROUP BY처럼 뭉개지 않고)</strong> 집계/순위/누적 값을 “붙여서” 보여준다.
+        즉, 원본 행을 유지한 채로 분석 컬럼을 추가하는 느낌이다.
+      </p>
+
+      <ul>
+        <li><code>RANK()</code>, <code>DENSE_RANK()</code>, <code>ROW_NUMBER()</code>: 순위/번호</li>
+        <li><code>SUM() OVER(...)</code>: 누적합/구간합</li>
+        <li><code>PARTITION BY</code>: “그룹을 나누는 기준”</li>
+        <li><code>ORDER BY</code>: “그룹 안에서 정렬 기준”</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> 전체 매출 기준으로 주문 순위 매기기(동점 처리 포함)</p>
+      <pre><code>SELECT
+  order_id,
+  user_id,
+  amount,
+  RANK() OVER (ORDER BY amount DESC) AS amount_rank
+FROM camp_orders;
+</code></pre>
+
+      <p><strong>2.</strong> 유저별로 주문 날짜 순서대로 “누적 결제 금액” 붙이기</p>
+      <pre><code>SELECT
+  order_id,
+  user_id,
+  order_date,
+  amount,
+  SUM(amount) OVER (
+    PARTITION BY user_id
+    ORDER BY order_date
+  ) AS running_total
+FROM camp_orders;
+</code></pre>
+
+      <p><strong>3.</strong> “각 유저별 최신 주문 1건”만 뽑기(Top-N per group)</p>
+      <pre><code>SELECT *
+FROM (
+  SELECT
+    order_id,
+    user_id,
+    order_date,
+    amount,
+    ROW_NUMBER() OVER (
+      PARTITION BY user_id
+      ORDER BY order_date DESC
+    ) AS rn
+  FROM camp_orders
+) t
+WHERE t.rn = 1;
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>윈도우 함수는 “행을 유지”하므로, 결과가 커지기 쉽다. (필요 컬럼만 조회하는 습관)</li>
+        <li>대부분 <code>PARTITION BY</code>, <code>ORDER BY</code>에 걸리는 컬럼에 인덱스가 있으면 성능에 도움이 된다.</li>
+      </ul>
+
+      <!-- 섹션 4: SQL - DATE_FORMAT -->
+      <h2 class="section">SQL 정리 — DATE_FORMAT 함수(MySQL)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 개념
+        </span>
+      </h3>
+
+      <p>
+        <code>DATE_FORMAT(날짜/시간, '포맷')</code>은 날짜를 <strong>문자열로 보기 좋게 바꾸는 함수</strong>다.
+        리포트용(표시용)으로는 정말 편하지만, 문자열로 변환되므로 <strong>정렬/그룹핑 기준을 뭘로 잡는지</strong>는 항상 의식해야 한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자주 쓰는 포맷
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>목표</th>
+            <th>포맷</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>연-월-일</td>
+            <td><code>%Y-%m-%d</code></td>
+            <td>2025-12-24</td>
+          </tr>
+          <tr>
+            <td>연-월</td>
+            <td><code>%Y-%m</code></td>
+            <td>2025-12</td>
+          </tr>
+          <tr>
+            <td>시:분</td>
+            <td><code>%H:%i</code></td>
+            <td>13:05</td>
+          </tr>
+          <tr>
+            <td>연월일(숫자)</td>
+            <td><code>%Y%m%d</code></td>
+            <td>20251224</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#c5e1a5; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 쿼리
+        </span>
+      </h3>
+
+      <p><strong>1.</strong> 날짜별 평균 포인트(일 단위 그룹핑)</p>
+      <pre><code>SELECT
+  DATE_FORMAT(created_at, '%Y-%m-%d') AS created_date,
+  ROUND(AVG(point)) AS average_points
+FROM point_users
+GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d');
+</code></pre>
+
+      <p><strong>2.</strong> 월 단위 리포트(‘2025-12’ 형태)</p>
+      <pre><code>SELECT
+  DATE_FORMAT(created_at, '%Y-%m') AS ym,
+  COUNT(*) AS cnt
+FROM users
+GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+ORDER BY ym;
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주의할 점
+        </span>
+      </h3>
+
+      <ul>
+        <li><code>DATE_FORMAT</code>은 문자열이므로 “정확한 날짜 연산”이 필요하면 <code>DATE()</code>, <code>TIMESTAMP</code> 비교를 우선 고려한다.</li>
+        <li>그룹핑은 <strong>SELECT와 GROUP BY에 같은 표현식</strong>을 쓰는 습관을 들인다.</li>
+      </ul>
+
+      <!-- 섹션 5: AI 정리 -->
+      <h2 class="section">AI 정리 — 학습 방식, 생성형 AI, LLM/임베딩, Fine-Tuning과 RAG</h2>
+
+      <h3 class="section">
+        <span style="background-color:#ffe082; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AI 한 문장 정의
+        </span>
+      </h3>
+
+      <p>
+        AI는 데이터를 바탕으로 <strong>분류/예측/추천/의사결정</strong> 같은 작업을 수행하는 소프트웨어/모델의 묶음이다.
+        단순 규칙(if-else)만으로 처리하기 어려운 <strong>복잡한 패턴</strong>을 학습해서 다룰 수 있다는 점이 핵심이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AI 학습 방식 3가지
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>학습 데이터</th>
+            <th>목표</th>
+            <th>대표 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>지도 학습</strong></td>
+            <td>정답(라벨)이 있는 데이터</td>
+            <td>입력 → 정답으로 매핑 학습</td>
+            <td>스팸 분류, 가격 예측</td>
+          </tr>
+          <tr>
+            <td><strong>비지도 학습</strong></td>
+            <td>정답(라벨)이 없는 데이터</td>
+            <td>데이터 구조/패턴 발견</td>
+            <td>군집화, 이상치 탐지</td>
+          </tr>
+          <tr>
+            <td><strong>강화 학습</strong></td>
+            <td>환경과 상호작용 + 보상</td>
+            <td>보상을 최대화하는 정책 학습</td>
+            <td>게임 플레이, 로봇 제어</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          생성형 AI는 무엇이 다른가
+        </span>
+      </h3>
+
+      <p>
+        생성형 AI는 <strong>새로운 콘텐츠(텍스트/이미지/음성/코드 등)를 생성</strong>하는 모델을 말한다.
+        “AI가 결과를 낸다 = 생성형”은 아니고, 예를 들어 <strong>분류 모델</strong>은 ‘스팸/정상’ 같은 라벨을 내지만
+        이건 생성형 AI라고 부르지 않는다.
+      </p>
+
+      <ul>
+        <li><strong>생성형 예시</strong>: 문장 생성, 요약/번역 생성, 이미지 생성, 코드 생성</li>
+        <li><strong>비생성형 예시</strong>: 점수 예측(회귀), 라벨 분류(분류), 이상치 여부 판단</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#d1c4e9; color:#311b92; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          실무에서 이미 쓰이는 AI 사례 1가지
+        </span>
+      </h3>
+
+      <p>
+        대표적으로 금융/결제 분야에서는 <strong>이상 거래(부정 사용) 탐지</strong>에 AI가 널리 쓰인다.
+        카드/계좌 거래는 건수가 많고 패턴이 복잡해서, 단순 규칙만으로는 놓치는 경우가 생긴다.
+        그래서 과거 거래 데이터(금액, 시간대, 지역, 사용처, 빈도 등)를 기반으로
+        “평소와 다른 패턴”을 빠르게 감지해 추가 인증을 요청하거나 거래를 보류하는 방식으로 운영된다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          LLM, 임베딩, 트랜스포머를 한 번에 정리
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>LLM(Large Language Model)</strong><br>
+          방대한 텍스트로 학습되어, 입력 문맥을 바탕으로 <strong>다음 토큰(단어 조각)을 예측</strong>하는 방식으로 언어를 다룬다.
+          그 결과로 답변 생성, 요약, 번역, 코드 작성 같은 작업이 가능해진다.
+        </li>
+        <li><strong>임베딩(Embedding)</strong><br>
+          문장/단어를 <strong>숫자 벡터</strong>로 바꾸는 것. 의미가 비슷한 문장은 벡터 공간에서도 가깝게 위치한다.<br>
+          검색, 추천, 군집화, 유사도 비교(코사인 유사도 등)에 자주 쓰인다.
+        </li>
+        <li><strong>트랜스포머(Transformer)</strong><br>
+          문장 안에서 어떤 단어가 어떤 단어와 관련이 큰지 “주의(attention)”를 주는 방식으로 문맥을 처리한다.
+          LLM은 트랜스포머 구조를 기반으로 동작한다.
+        </li>
+      </ul>
+
+      <p>
+        정리하면, <strong>임베딩은 “의미를 숫자로 옮겨 담는 방법”</strong>이고,
+        <strong>트랜스포머는 그 숫자(토큰 임베딩)를 이용해 문맥을 계산하는 방식</strong>이며,
+        <strong>LLM은 트랜스포머 기반으로 다음 토큰을 예측해서 언어를 생성/이해하는 모델</strong>이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#ffccbc; color:#bf360c; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Fine-Tuning vs RAG
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>핵심 아이디어</th>
+            <th>장점</th>
+            <th>단점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Fine-Tuning</strong></td>
+            <td>모델 가중치를 추가 데이터로 미세 조정</td>
+            <td>특정 도메인/말투/작업에 강해짐</td>
+            <td>데이터 준비/평가가 필요, 비용 발생, 잘못하면 성능이 흔들릴 수 있음</td>
+          </tr>
+          <tr>
+            <td><strong>RAG</strong></td>
+            <td>외부 문서를 검색해(임베딩 기반) 답변 근거로 넣고 생성</td>
+            <td>최신/사내 문서 반영 가능, 별도 재학습 없이 업데이트 쉬움</td>
+            <td>검색 품질이 성능을 좌우, 인프라(벡터DB/파이프라인) 비용·복잡도 증가</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          실무 관점에서 한 줄 결론
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>Fine-Tuning</strong>: “모델 자체를 특정 업무에 맞게 바꾸고 싶다”에 강함</li>
+        <li><strong>RAG</strong>: “근거가 되는 최신/사내 데이터를 참고하게 하고 싶다”에 강함</li>
+        <li>그리고 <strong>Temperature</strong>는 모델을 재학습하는 게 아니라, 답변을 “더 보수적으로/더 창의적으로” 뽑는 <strong>추론(생성) 설정 값</strong>이다.</li>
+      </ul>
+
+      <!-- 섹션 6: 회고와 내일 계획 -->
+      <h2 class="section">오늘의 회고와 내일 계획</h2>
+
+      <h3 class="section">
+        <span style="background-color:#dcedc8; color:#33691e; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        SQL은 “쿼리를 아는 것”과 “리포트 형태로 뽑아내는 것”이 느낌이 다르다는 걸 다시 느꼈다.
+        특히 피벗과 윈도우 함수는 실무 데이터에서 바로 쓰이는 패턴이라, 오늘처럼 개념을 분리해서 정리해 두는 게 도움이 될 것 같다.
+        AI는 용어가 많아서 헷갈리기 쉬운데, <strong>학습 방식 → 생성형 → LLM 구성 요소 → Fine-Tuning/RAG</strong> 순서로 연결하니 흐름이 잡혔다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
