@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-26 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-27 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 지폐 접기</h2>
+      <h2 class="section">문제 1 — 붕대 감기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340199">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250137">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1226_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1227_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,17 +53,24 @@
       </h3>
       
       <p>
-        <strong>(프로그래머스 340199)</strong>은<br>
-        지갑 크기 <code>wallet</code>에 지폐 크기 <code>bill</code>을 넣을 수 있을 때까지,
-        지폐의 <strong>긴 변을 반으로 접는 작업</strong>을 반복했을 때
-        <strong>접는 횟수</strong>를 구하는 문제다.
+        <strong>붕대 감기 (프로그래머스 250137)</strong>은<br>
+        캐릭터가 시간 단위로 <strong>자동 회복(붕대)</strong>을 하다가,
+        특정 시간에 <strong>공격</strong>을 맞으면 체력이 감소하는 상황에서
+        <strong>마지막 공격 이후 남는 체력</strong>을 구하는 시뮬레이션 문제다.
       </p>
       
       <ul>
-        <li>지갑은 회전 가능하고, 지폐도 회전 가능하다고 보고
-          <strong>각각의 (짧은 변, 긴 변)</strong>을 비교해서 들어가는지 판단한다.</li>
-        <li>지폐가 안 들어가면 지폐의 두 변 중 <strong>더 긴 변</strong>을 반으로 줄인다.</li>
-        <li>들어갈 때까지 반복하며 줄인 횟수를 센다.</li>
+        <li><code>bandage = [t, x, y]</code>
+          <ul>
+            <li><code>t</code>: 연속으로 붕대를 유지해야 하는 시간(초)</li>
+            <li><code>x</code>: 1초마다 회복되는 체력</li>
+            <li><code>y</code>: <code>t</code>초 연속 성공 시 추가 회복량</li>
+          </ul>
+        </li>
+        <li><code>attacks[i] = [time, damage]</code>는 해당 시간에 공격을 받아 체력이 감소한다.</li>
+        <li>공격을 받으면 연속 성공(콤보)이 끊기고, 그 초에는 회복이 일어나지 않는다.</li>
+        <li>회복은 최대 체력(<code>health</code> 초기값) 이상으로 올라가지 않는다.</li>
+        <li>체력이 0 이하가 되는 순간 즉시 <code>-1</code>을 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,16 +82,22 @@
       </p>
       
       <ul>
-        <li>지갑과 지폐의 가로/세로를 각각 변수로 꺼낸다.</li>
-        <li>매 반복마다
+        <li>마지막 공격 시간까지(<code>t</code>) 1초씩 시뮬레이션한다.</li>
+        <li>현재 초가 공격 시간이라면
           <ul>
-            <li>지갑의 <code>(minimum, maximum)</code> = (짧은 변, 긴 변)</li>
-            <li>지폐의 <code>(min, max)</code> = (짧은 변, 긴 변)</li>
+            <li>체력을 감소시키고</li>
+            <li>연속 붕대 시간(<code>persist</code>)을 0으로 초기화</li>
+            <li>체력이 0 이하이면 <code>-1</code> 반환</li>
           </ul>
-          을 만든다.
         </li>
-        <li><code>minimum &gt;= min</code> 그리고 <code>maximum &gt;= max</code>면 회전 포함 조건으로 “들어감”이므로 종료한다.</li>
-        <li>안 들어가면 지폐의 긴 변을 반으로 줄이고(<code>/= 2</code>) 카운트를 증가시킨다.</li>
+        <li>공격이 없다면 붕대 회복:
+          <ul>
+            <li>연속 시간 <code>persist</code> 증가</li>
+            <li><code>persist == bandage[0]</code>이면 기본 회복 + 추가 회복 후 <code>persist</code>를 0으로 초기화</li>
+            <li>그 외에는 기본 회복만</li>
+          </ul>
+        </li>
+        <li>회복 후 체력은 항상 <code>maxHealth</code>를 넘지 않게 clamp 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -96,46 +109,69 @@
       </p>
       
       <ul>
-        <li><strong>1) 지갑/지폐 크기 변수로 분리</strong>
-          <pre><code>int widthSize = wallet[0];
-      int lengthSize = wallet[1];
-      int width = bill[0];
-      int length = bill[1];
-      int cnt = 0;</code></pre>
+        <li><strong>1) 기본 변수 세팅</strong>
+          <pre><code>int t = attacks[attacks.length - 1][0];
+      int persist = 0;
+      int time = bandage[0];
+      int heal = bandage[1];
+      int addHeal = bandage[2];
+      int maxHealth = health;
+      int idx = 0;</code></pre>
           <ul>
-            <li>지갑 크기와 지폐 크기를 각각 (가로/세로)로 꺼내 둔다.</li>
-            <li><code>cnt</code>는 지폐를 접은 횟수다.</li>
+            <li><code>t</code>: 마지막 공격 시간이 곧 시뮬레이션의 종료 시점이다.</li>
+            <li><code>persist</code>: 연속으로 붕대를 유지한 시간(초)을 누적한다.</li>
+            <li><code>time/heal/addHeal</code>: 붕대 스킬 정보.</li>
+            <li><code>maxHealth</code>: 최대 체력(초기 체력값) 저장.</li>
+            <li><code>idx</code>: 현재 처리할 공격 인덱스.</li>
           </ul>
         </li>
       
-        <li><strong>2) 들어갈 때까지 반복</strong>
-          <pre><code>while (true) {
-          int minimum = Math.min(widthSize, lengthSize);
-          int maximum = Math.max(widthSize, lengthSize);
-          int min = Math.min(width, length);
-          int max = Math.max(width, length);
-          if (minimum &gt;= min &amp;&amp; maximum &gt;= max) break;
+        <li><strong>2) 1초부터 마지막 공격 시간까지 시뮬레이션</strong>
+          <pre><code>for (int i = 1; i &lt;= t; i++) {</code></pre>
+          <ul>
+            <li>각 초마다 “공격인지 / 회복인지”를 판단한다.</li>
+          </ul>
+        </li>
       
-          if (width &gt; length) {
-              width /= 2;
-              cnt++;
-          } else {
-              length /= 2;
-              cnt++;
-          }
+        <li><strong>3) 공격 처리: 체력 감소 + 연속 초기화</strong>
+          <pre><code>if (idx &lt; attacks.length &amp;&amp; i == attacks[idx][0]) {
+          health -= attacks[idx][1];
+          if (health &lt;= 0) return -1;
+          persist = 0;
+          idx++;
+          continue;
       }</code></pre>
           <ul>
-            <li>지갑과 지폐 각각의 짧은 변/긴 변을 만들어 회전 가능한 상태로 비교한다.</li>
-            <li>지갑의 짧은 변이 지폐의 짧은 변 이상이고, 지갑의 긴 변이 지폐의 긴 변 이상이면 들어간다.</li>
-            <li>안 들어가면 지폐의 두 변 중 긴 쪽을 반으로 줄인다.</li>
-            <li>줄일 때마다 <code>cnt</code>를 1 증가시킨다.</li>
+            <li>현재 시간이 다음 공격 시간과 같으면 데미지를 적용한다.</li>
+            <li>체력이 0 이하가 되면 즉시 죽으므로 <code>-1</code>을 반환한다.</li>
+            <li>공격을 받으면 연속 붕대가 끊기므로 <code>persist = 0</code>.</li>
+            <li>공격이 있는 초에는 회복을 하지 않으므로 <code>continue</code>로 다음 초로 넘어간다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 접은 횟수 반환</strong>
-          <pre><code>return cnt;</code></pre>
+        <li><strong>4) 회복 처리: 기본 회복 / (t초 연속 성공 시) 추가 회복</strong>
+          <pre><code>persist++;
+      
+      if (time == persist) {
+          if (maxHealth &lt;= health + heal + addHeal) health = maxHealth;
+          else health += heal + addHeal;
+          persist = 0;
+      } else {
+          if (maxHealth &lt;= health + heal) health = maxHealth;
+          else health += heal;
+      }</code></pre>
           <ul>
-            <li>지폐가 들어갈 때까지 접은 총 횟수를 반환한다.</li>
+            <li>공격이 없으면 연속 시간이 1 증가한다.</li>
+            <li><code>persist == time</code>이면 “연속 성공”이므로 <code>heal + addHeal</code>만큼 회복하고, 콤보를 다시 0으로 만든다.</li>
+            <li>그 외에는 1초 회복(<code>heal</code>)만 적용한다.</li>
+            <li>회복은 항상 최대 체력(<code>maxHealth</code>)을 넘지 않도록 처리한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 최종 체력 반환</strong>
+          <pre><code>return health;</code></pre>
+          <ul>
+            <li>마지막 공격 시간까지 모두 처리한 뒤 남은 체력을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -151,8 +187,8 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>반복할 때마다 지폐의 한 변이 1/2로 줄어들므로 반복 횟수를 <code>K</code라 하면 <strong><code>O(K)</code></strong>.</li>
-            <li>실제로는 지폐 크기가 계속 절반으로 감소하므로 <code>K</code>는 매우 작다(로그 수준).</li>
+            <li>마지막 공격 시간(초)을 <code>T</code>라 하면, 1초씩 한 번 순회하므로 <strong><code>O(T)</code></strong>.</li>
+            <li>공격은 인덱스로 한 번씩만 처리하므로 추가 비용은 없다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
@@ -229,14 +265,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 공원</h2>
+      <h2 class="section">문제 2 — 이웃한 칸</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/340198">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250125">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1226_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1227_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -249,16 +285,16 @@
       </h3>
       
       <p>
-        <strong>(프로그래머스 340198)</strong>은<br>
-        공원 격자 <code>park</code>에서 <code>"-1"</code>로 표시된 칸들만 이용해
-        <strong>정사각형 매트</strong>를 깔 수 있을 때,
-        주어진 <code>mats</code> 중 <strong>가장 큰(한 변 길이)</strong> 매트를 깔 수 있는 값을 구하는 문제다.
+        <strong>이웃한 칸 (프로그래머스 250125)</strong>은<br>
+        2차원 격자 <code>board</code>에서 좌표 <code>(h, w)</code>를 기준으로
+        <strong>상/하/좌/우 인접 4칸</strong> 중
+        <code>board[h][w]</code>와 <strong>같은 값(색)</strong>을 가진 칸이 몇 개인지 세는 문제다.
       </p>
       
       <ul>
-        <li>매트는 <strong>한 변 길이</strong>가 <code>k</code>인 정사각형이며, <code>k x k</code> 영역이 전부 <code>"-1"</code>이어야 한다.</li>
-        <li>여러 크기의 매트 후보(<code>mats</code>)가 주어지며, 가능한 것 중 <strong>최댓값</strong>을 반환한다.</li>
-        <li>어떤 매트도 못 깔면 <code>-1</code>을 반환한다.</li>
+        <li>인접은 대각선이 아니라 <strong>상/하/좌/우</strong>만 포함한다.</li>
+        <li>격자 밖으로 나가는 방향은 무시한다.</li>
+        <li>조건을 만족하는 인접 칸의 개수를 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -270,18 +306,10 @@
       </p>
       
       <ul>
-        <li><code>field[r][c]</code>를 <strong>(r, c)를 오른쪽 아래 꼭짓점</strong>으로 하는
-          “<code>"-1"</code>로만 이루어진 최대 정사각형의 한 변 길이(DP)”로 정의한다.</li>
-        <li>DP 점화식:
-          <ul>
-            <li><code>park[r][c] != "-1"</code>이면 <code>field[r][c] = 0</code></li>
-            <li>첫 행/첫 열에서 <code>"-1"</code>이면 <code>field[r][c] = 1</code></li>
-            <li>그 외 <code>"-1"</code>이면
-              <strong><code>field[r][c] = min(field[r-1][c-1], field[r-1][c], field[r][c-1]) + 1</code></strong></li>
-          </ul>
-        </li>
-        <li>DP를 채우면서 가능한 정사각형의 최대 변 길이 <code>maxSize</code>를 구한다.</li>
-        <li><code>mats</code>를 정렬한 뒤, 큰 것부터 보며 <code>mats[i] &lt;= maxSize</code>인 첫 값을 반환한다.</li>
+        <li>상/하/좌/우 이동을 위한 방향 배열 <code>ROW</code>, <code>COL</code>을 만든다.</li>
+        <li>4방향을 하나씩 이동해 인접 칸 좌표 <code>(posR, posC)</code>를 계산한다.</li>
+        <li>좌표가 보드 범위를 벗어나면 건너뛴다.</li>
+        <li>범위 안이면 <code>board[h][w]</code>와 <code>board[posR][posC]</code>가 같은지 비교해 같으면 카운트한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -293,51 +321,47 @@
       </p>
       
       <ul>
-        <li><strong>1) DP 배열 준비 + 최대값 변수</strong>
-          <pre><code>int[][] field = new int[park.length][park[0].length];
-      int maxSize = 0;</code></pre>
+        <li><strong>1) 4방향 이동 배열 준비</strong>
+          <pre><code>static final int[] ROW = {-1, 0, 0, 1};
+      static final int[] COL = {0, -1, 1, 0};</code></pre>
           <ul>
-            <li><code>field[r][c]</code>에 각 칸을 오른쪽 아래로 하는 최대 정사각형 변 길이를 저장한다.</li>
-            <li><code>maxSize</code>는 전체에서 만들 수 있는 정사각형의 최대 변 길이.</li>
+            <li>같은 인덱스끼리 묶어서 보면
+              <ul>
+                <li><code>(-1, 0)</code>: 위</li>
+                <li><code>(0, -1)</code>: 왼쪽</li>
+                <li><code>(0, 1)</code>: 오른쪽</li>
+                <li><code>(1, 0)</code>: 아래</li>
+              </ul>
+              방향을 의미한다.
+            </li>
           </ul>
         </li>
       
-        <li><strong>2) 격자 순회하며 DP 채우기</strong>
-          <pre><code>for (int r = 0; r &lt; park.length; r++) {
-          for (int c = 0; c &lt; park[r].length; c++) {
-              if (!park[r][c].equals("-1")) field[r][c] = 0;
-              else if (r == 0 || c == 0) {
-                  field[r][c] = 1;
-              } else {
-                  int curDp = Math.min(Math.min(field[r - 1][c - 1], field[r - 1][c]), field[r][c - 1]) + 1;
-                  field[r][c] = curDp;
-              }
+        <li><strong>2) 4방향 순회하며 범위 체크 + 같은 값 세기</strong>
+          <pre><code>int cnt = 0;
       
-              if (field[r][c] &gt; maxSize) maxSize = field[r][c];
+      for (int i = 0; i &lt; 4; i++) {
+          int posR = h + ROW[i];
+          int posC = w + COL[i];
+      
+          if ((posR &lt; 0 || board.length &lt;= posR) || (posC &lt; 0 || board[posR].length &lt;= posC)) {
+              continue;
+          }
+      
+          if (board[h][w].equals(board[posR][posC])) {
+              cnt++;
           }
       }</code></pre>
           <ul>
-            <li><code>"-1"</code>이 아닌 칸은 매트를 놓을 수 없으므로 <code>0</code>.</li>
-            <li>첫 행/첫 열에서는 주변 3칸을 참고할 수 없으니, <code>"-1"</code>이면 최소 정사각형(1x1)만 가능 → <code>1</code>.</li>
-            <li>나머지 칸에서 <code>"-1"</code>이면,
-              위(<code>r-1,c</code>), 왼쪽(<code>r,c-1</code>), 좌상단(<code>r-1,c-1</code>) 중 가장 작은 정사각형 크기에 1을 더해 확장한다.</li>
-            <li>DP를 채우는 동시에 <code>maxSize</code>를 갱신한다.</li>
+            <li>인접 칸 좌표를 계산한 뒤, 보드 범위를 벗어나면 <code>continue</code>로 무시한다.</li>
+            <li>범위 안에 있으면 기준 칸과 값이 같은지 비교하고, 같으면 <code>cnt</code>를 증가시킨다.</li>
           </ul>
         </li>
       
-        <li><strong>3) mats에서 가능한 최대 매트 크기 찾기</strong>
-          <pre><code>Arrays.sort(mats);
-      
-      for (int i = mats.length - 1; i &gt;= 0 ; i--) {
-          if (mats[i] &lt;= maxSize) return mats[i];
-      }
-      
-      return -1;</code></pre>
+        <li><strong>3) 결과 반환</strong>
+          <pre><code>return cnt;</code></pre>
           <ul>
-            <li><code>mats</code>를 오름차순 정렬 후, 큰 값부터 확인한다.</li>
-            <li>전체 공원에서 만들 수 있는 최대 정사각형 변 길이가 <code>maxSize</code>이므로,
-              <code>mats[i] &lt;= maxSize</code>인 가장 큰 매트가 정답이다.</li>
-            <li>끝까지 없으면 어떤 매트도 못 깔므로 <code>-1</code>.</li>
+            <li>조건을 만족한 인접 칸의 개수를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -353,17 +377,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>DP 채우기: 격자 크기를 <code>R x C</code>라 하면 <strong><code>O(R * C)</code></strong></li>
-            <li>매트 정렬: 매트 개수를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
-            <li>전체: <strong><code>O(R * C + K log K)</code></strong></li>
+            <li>상/하/좌/우 4칸만 확인하므로 <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>DP 배열 <code>field</code> 사용 → <strong><code>O(R * C)</code></strong></li>
+            <li>추가 자료구조 없이 상수 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
