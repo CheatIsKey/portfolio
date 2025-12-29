@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-27 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2025-12-29 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 붕대 감기</h2>
+      <h2 class="section">문제 1 — 가장 많이 받은 선물</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250137">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/258712">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1227_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,24 +53,22 @@
       </h3>
       
       <p>
-        <strong>붕대 감기 (프로그래머스 250137)</strong>은<br>
-        캐릭터가 시간 단위로 <strong>자동 회복(붕대)</strong>을 하다가,
-        특정 시간에 <strong>공격</strong>을 맞으면 체력이 감소하는 상황에서
-        <strong>마지막 공격 이후 남는 체력</strong>을 구하는 시뮬레이션 문제다.
+        <strong>가장 많이 받은 선물 (프로그래머스 258712)</strong>은<br>
+        친구들 간의 선물 기록 <code>gifts</code>가 주어졌을 때,
+        다음 달에 각 친구가 받을 선물 개수를 규칙대로 계산하고
+        그 중 <strong>최댓값</strong>을 구하는 문제다.
       </p>
       
       <ul>
-        <li><code>bandage = [t, x, y]</code>
+        <li>두 친구 <code>A</code>, <code>B</code>를 비교한다.
           <ul>
-            <li><code>t</code>: 연속으로 붕대를 유지해야 하는 시간(초)</li>
-            <li><code>x</code>: 1초마다 회복되는 체력</li>
-            <li><code>y</code>: <code>t</code>초 연속 성공 시 추가 회복량</li>
+            <li>이번 달에 <code>A → B</code>가 더 많으면 다음 달에는 <code>A</code>가 <strong>선물 1개</strong> 받는다.</li>
+            <li>이번 달에 <code>B → A</code>가 더 많으면 다음 달에는 <code>B</code>가 <strong>선물 1개</strong> 받는다.</li>
+            <li>서로 주고받은 수가 같으면 “선물 지수”로 비교한다.</li>
           </ul>
         </li>
-        <li><code>attacks[i] = [time, damage]</code>는 해당 시간에 공격을 받아 체력이 감소한다.</li>
-        <li>공격을 받으면 연속 성공(콤보)이 끊기고, 그 초에는 회복이 일어나지 않는다.</li>
-        <li>회복은 최대 체력(<code>health</code> 초기값) 이상으로 올라가지 않는다.</li>
-        <li>체력이 0 이하가 되는 순간 즉시 <code>-1</code>을 반환한다.</li>
+        <li><strong>선물 지수</strong> = (내가 준 선물 수) - (내가 받은 선물 수)</li>
+        <li>지수도 같으면 다음 달에는 서로 선물을 주고받지 않는다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -82,22 +80,12 @@
       </p>
       
       <ul>
-        <li>마지막 공격 시간까지(<code>t</code>) 1초씩 시뮬레이션한다.</li>
-        <li>현재 초가 공격 시간이라면
-          <ul>
-            <li>체력을 감소시키고</li>
-            <li>연속 붕대 시간(<code>persist</code>)을 0으로 초기화</li>
-            <li>체력이 0 이하이면 <code>-1</code> 반환</li>
-          </ul>
-        </li>
-        <li>공격이 없다면 붕대 회복:
-          <ul>
-            <li>연속 시간 <code>persist</code> 증가</li>
-            <li><code>persist == bandage[0]</code>이면 기본 회복 + 추가 회복 후 <code>persist</code>를 0으로 초기화</li>
-            <li>그 외에는 기본 회복만</li>
-          </ul>
-        </li>
-        <li>회복 후 체력은 항상 <code>maxHealth</code>를 넘지 않게 clamp 한다.</li>
+        <li>이름을 인덱스로 바꾸기 위해 <code>Map&lt;String, Integer&gt;</code>로 매핑한다.</li>
+        <li><code>give[a][b]</code>에 “a가 b에게 준 선물 횟수”를 누적한다.</li>
+        <li>각 사람의 총 준 개수(<code>out</code>) / 받은 개수(<code>in</code>)를 누적하고,
+          <code>score[i] = out[i] - in[i]</code>로 선물 지수를 만든다.</li>
+        <li>모든 친구 쌍 <code>(i, j)</code>에 대해 규칙대로 “다음 달에 받을 선물” 카운트(<code>recv</code>)를 증가시킨다.</li>
+        <li><code>recv</code> 중 최대값을 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -109,69 +97,71 @@
       </p>
       
       <ul>
-        <li><strong>1) 기본 변수 세팅</strong>
-          <pre><code>int t = attacks[attacks.length - 1][0];
-      int persist = 0;
-      int time = bandage[0];
-      int heal = bandage[1];
-      int addHeal = bandage[2];
-      int maxHealth = health;
-      int idx = 0;</code></pre>
+        <li><strong>1) 친구 이름 → 인덱스 매핑</strong>
+          <pre><code>int n = friends.length;
+      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      for (int i = 0; i &lt; n; i++) map.put(friends[i], i);</code></pre>
           <ul>
-            <li><code>t</code>: 마지막 공격 시간이 곧 시뮬레이션의 종료 시점이다.</li>
-            <li><code>persist</code>: 연속으로 붕대를 유지한 시간(초)을 누적한다.</li>
-            <li><code>time/heal/addHeal</code>: 붕대 스킬 정보.</li>
-            <li><code>maxHealth</code>: 최대 체력(초기 체력값) 저장.</li>
-            <li><code>idx</code>: 현재 처리할 공격 인덱스.</li>
+            <li>이름을 배열 인덱스로 바꿔서 2차원 카운팅을 쉽게 만든다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 1초부터 마지막 공격 시간까지 시뮬레이션</strong>
-          <pre><code>for (int i = 1; i &lt;= t; i++) {</code></pre>
-          <ul>
-            <li>각 초마다 “공격인지 / 회복인지”를 판단한다.</li>
-          </ul>
-        </li>
+        <li><strong>2) 이번 달 선물 기록 누적 (give/out/in)</strong>
+          <pre><code>int[][] give = new int[n][n];
+      int[] out = new int[n];
+      int[] in = new int[n];
       
-        <li><strong>3) 공격 처리: 체력 감소 + 연속 초기화</strong>
-          <pre><code>if (idx &lt; attacks.length &amp;&amp; i == attacks[idx][0]) {
-          health -= attacks[idx][1];
-          if (health &lt;= 0) return -1;
-          persist = 0;
-          idx++;
-          continue;
+      for (String gift : gifts) {
+          String[] split = gift.split(" ");
+          int a = map.get(split[0]);
+          int b = map.get(split[1]);
+          give[a][b]++;
+          out[a]++;
+          in[b]++;
       }</code></pre>
           <ul>
-            <li>현재 시간이 다음 공격 시간과 같으면 데미지를 적용한다.</li>
-            <li>체력이 0 이하가 되면 즉시 죽으므로 <code>-1</code>을 반환한다.</li>
-            <li>공격을 받으면 연속 붕대가 끊기므로 <code>persist = 0</code>.</li>
-            <li>공격이 있는 초에는 회복을 하지 않으므로 <code>continue</code>로 다음 초로 넘어간다.</li>
+            <li><code>give[a][b]</code>: a가 b에게 준 횟수</li>
+            <li><code>out[a]</code>: a가 준 총합</li>
+            <li><code>in[b]</code>: b가 받은 총합</li>
           </ul>
         </li>
       
-        <li><strong>4) 회복 처리: 기본 회복 / (t초 연속 성공 시) 추가 회복</strong>
-          <pre><code>persist++;
+        <li><strong>3) 선물 지수(score) 계산</strong>
+          <pre><code>int[] score = new int[n];
+      for (int i = 0; i &lt; n; i++) score[i] = out[i] - in[i];</code></pre>
+          <ul>
+            <li>문제에서 정의한 선물 지수: (준 선물) - (받은 선물)</li>
+          </ul>
+        </li>
       
-      if (time == persist) {
-          if (maxHealth &lt;= health + heal + addHeal) health = maxHealth;
-          else health += heal + addHeal;
-          persist = 0;
-      } else {
-          if (maxHealth &lt;= health + heal) health = maxHealth;
-          else health += heal;
+        <li><strong>4) 모든 친구 쌍 비교해서 다음 달 받을 선물 계산</strong>
+          <pre><code>int[] recv = new int[n];
+      
+      for (int i = 0; i &lt; n; i++) {
+          for (int j = i + 1; j &lt; n; j++) {
+              if (give[i][j] &gt; give[j][i]) recv[i]++;
+              else if (give[i][j] &lt; give[j][i]) recv[j]++;
+              else {
+                  if (score[i] &gt; score[j]) recv[i]++;
+                  else if (score[i] &lt; score[j]) recv[j]++;
+              }
+          }
       }</code></pre>
           <ul>
-            <li>공격이 없으면 연속 시간이 1 증가한다.</li>
-            <li><code>persist == time</code>이면 “연속 성공”이므로 <code>heal + addHeal</code>만큼 회복하고, 콤보를 다시 0으로 만든다.</li>
-            <li>그 외에는 1초 회복(<code>heal</code>)만 적용한다.</li>
-            <li>회복은 항상 최대 체력(<code>maxHealth</code>)을 넘지 않도록 처리한다.</li>
+            <li>쌍을 중복 없이 보기 위해 <code>j = i + 1</code>부터 순회한다.</li>
+            <li>이번 달에 더 많이 준 사람이 다음 달에 1개를 받는다.</li>
+            <li>주고받은 개수가 같으면 선물 지수로 비교한다.</li>
+            <li>지수까지 같으면 아무도 받지 않으므로 카운트 변화 없음.</li>
           </ul>
         </li>
       
-        <li><strong>5) 최종 체력 반환</strong>
-          <pre><code>return health;</code></pre>
+        <li><strong>5) recv 배열의 최댓값 반환</strong>
+          <pre><code>int max = 0;
+      for (int i : recv) if (i &gt; max) max = i;
+      
+      return max;</code></pre>
           <ul>
-            <li>마지막 공격 시간까지 모두 처리한 뒤 남은 체력을 반환한다.</li>
+            <li>다음 달에 가장 많이 받는 선물 개수를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -187,13 +177,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>마지막 공격 시간(초)을 <code>T</code>라 하면, 1초씩 한 번 순회하므로 <strong><code>O(T)</code></strong>.</li>
-            <li>공격은 인덱스로 한 번씩만 처리하므로 추가 비용은 없다.</li>
+            <li>선물 기록 누적: <code>gifts</code> 길이를 <code>G</code>라 하면 <strong><code>O(G)</code></strong></li>
+            <li>친구 쌍 비교: 친구 수를 <code>N</code>이라 하면 <strong><code>O(N^2)</code></strong></li>
+            <li>전체: <strong><code>O(G + N^2)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li><code>give</code>가 <code>N x N</code>이므로 <strong><code>O(N^2)</code></strong></li>
+            <li>나머지 배열은 <code>O(N)</code></li>
           </ul>
         </li>
       </ul>
@@ -265,14 +257,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 이웃한 칸</h2>
+      <h2 class="section">문제 2 — 데이터 분석</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250125">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250121">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1227_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -285,16 +277,23 @@
       </h3>
       
       <p>
-        <strong>이웃한 칸 (프로그래머스 250125)</strong>은<br>
-        2차원 격자 <code>board</code>에서 좌표 <code>(h, w)</code>를 기준으로
-        <strong>상/하/좌/우 인접 4칸</strong> 중
-        <code>board[h][w]</code>와 <strong>같은 값(색)</strong>을 가진 칸이 몇 개인지 세는 문제다.
+        <strong>데이터 분석 (프로그래머스 250121)</strong>은<br>
+        2차원 배열 <code>data</code>에서 특정 컬럼(<code>ext</code>)의 값이 <code>val_ext</code>보다 작은 행만 골라낸 뒤,
+        다른 컬럼(<code>sort_by</code>) 기준으로 오름차순 정렬하여 반환하는 문제다.
       </p>
       
       <ul>
-        <li>인접은 대각선이 아니라 <strong>상/하/좌/우</strong>만 포함한다.</li>
-        <li>격자 밖으로 나가는 방향은 무시한다.</li>
-        <li>조건을 만족하는 인접 칸의 개수를 반환한다.</li>
+        <li><code>data</code>의 각 행은 항상 길이 4이고, 컬럼 의미는 다음과 같다:
+          <ul>
+            <li><code>code</code></li>
+            <li><code>date</code></li>
+            <li><code>maximum</code></li>
+            <li><code>remain</code></li>
+          </ul>
+        </li>
+        <li><code>ext</code>로 주어진 컬럼에서 <strong><code>&lt; val_ext</code></strong> 조건을 만족하는 행만 추출한다.</li>
+        <li>추출한 결과를 <code>sort_by</code> 컬럼 기준으로 <strong>오름차순 정렬</strong>한다.</li>
+        <li>정렬된 결과를 2차원 배열 형태로 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -306,10 +305,10 @@
       </p>
       
       <ul>
-        <li>상/하/좌/우 이동을 위한 방향 배열 <code>ROW</code>, <code>COL</code>을 만든다.</li>
-        <li>4방향을 하나씩 이동해 인접 칸 좌표 <code>(posR, posC)</code>를 계산한다.</li>
-        <li>좌표가 보드 범위를 벗어나면 건너뛴다.</li>
-        <li>범위 안이면 <code>board[h][w]</code>와 <code>board[posR][posC]</code>가 같은지 비교해 같으면 카운트한다.</li>
+        <li>문자열로 주어진 컬럼명(<code>ext</code>, <code>sort_by</code>)을 실제 인덱스로 바꾼다.</li>
+        <li><code>data</code>를 순회하며 <code>datum[extIdx] &lt; val_ext</code>인 행만 리스트에 담는다.</li>
+        <li>리스트를 <code>sortIdx</code> 기준으로 오름차순 정렬한다.</li>
+        <li>리스트를 2차원 배열로 변환해 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -321,47 +320,58 @@
       </p>
       
       <ul>
-        <li><strong>1) 4방향 이동 배열 준비</strong>
-          <pre><code>static final int[] ROW = {-1, 0, 0, 1};
-      static final int[] COL = {0, -1, 1, 0};</code></pre>
+        <li><strong>1) 컬럼명 → 인덱스 변환</strong>
+          <pre><code>int extIdx = col(ext);
+      int sortIdx = col(sort_by);</code></pre>
           <ul>
-            <li>같은 인덱스끼리 묶어서 보면
-              <ul>
-                <li><code>(-1, 0)</code>: 위</li>
-                <li><code>(0, -1)</code>: 왼쪽</li>
-                <li><code>(0, 1)</code>: 오른쪽</li>
-                <li><code>(1, 0)</code>: 아래</li>
-              </ul>
-              방향을 의미한다.
-            </li>
+            <li><code>ext</code>, <code>sort_by</code>는 문자열이므로 실제 배열 인덱스로 변환해 사용한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 4방향 순회하며 범위 체크 + 같은 값 세기</strong>
-          <pre><code>int cnt = 0;
-      
-      for (int i = 0; i &lt; 4; i++) {
-          int posR = h + ROW[i];
-          int posC = w + COL[i];
-      
-          if ((posR &lt; 0 || board.length &lt;= posR) || (posC &lt; 0 || board[posR].length &lt;= posC)) {
-              continue;
-          }
-      
-          if (board[h][w].equals(board[posR][posC])) {
-              cnt++;
-          }
+        <li><strong>2) 조건에 맞는 행만 필터링</strong>
+          <pre><code>List&lt;int[]&gt; list = new ArrayList&lt;&gt;();
+      for (int[] datum : data) {
+          if (datum[extIdx] &lt; val_ext) list.add(datum);
       }</code></pre>
           <ul>
-            <li>인접 칸 좌표를 계산한 뒤, 보드 범위를 벗어나면 <code>continue</code>로 무시한다.</li>
-            <li>범위 안에 있으면 기준 칸과 값이 같은지 비교하고, 같으면 <code>cnt</code>를 증가시킨다.</li>
+            <li><code>ext</code> 컬럼 값이 <code>val_ext</code>보다 작은 행만 <code>list</code>에 담는다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 반환</strong>
-          <pre><code>return cnt;</code></pre>
+        <li><strong>3) sort_by 기준 오름차순 정렬</strong>
+          <pre><code>list.sort(Comparator.comparingInt(a -&gt; a[sortIdx]));</code></pre>
           <ul>
-            <li>조건을 만족한 인접 칸의 개수를 반환한다.</li>
+            <li>정렬 기준 컬럼의 값을 비교하도록 Comparator를 만들어 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 리스트 → 2차원 배열 변환</strong>
+          <pre><code>int[][] ans = new int[list.size()][4];
+      for (int i = 0; i &lt; list.size(); i++) {
+          ans[i] = list.get(i);
+      }
+      
+      return ans;</code></pre>
+          <ul>
+            <li>필터링된 행 개수만큼 배열을 만들고, 리스트 원소를 그대로 옮긴다.</li>
+            <li>정렬된 결과를 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) col(): 컬럼 문자열을 인덱스로 매핑</strong>
+          <pre><code>private int col(String str) {
+          switch (str) {
+              case "code": return 0;
+              case "date": return 1;
+              case "maximum": return 2;
+              case "remain": return 3;
+          }
+      
+          return -1;
+      }</code></pre>
+          <ul>
+            <li>문제에서 정한 컬럼 순서를 그대로 인덱스로 매핑한다.</li>
+            <li>유효하지 않은 값은 입력으로 주어지지 않지만, 방어적으로 <code>-1</code>을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -377,15 +387,18 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>상/하/좌/우 4칸만 확인하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>필터링: 데이터 개수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
+            <li>정렬: 필터링 결과를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
+            <li>전체: <strong><code>O(N + K log K)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 자료구조 없이 상수 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li>필터링 결과 리스트/배열 저장 → <strong><code>O(K)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
