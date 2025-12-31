@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 13일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 14일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,11 +42,11 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 13일차 TIL — 웹개발 1차 과제: 맛집 관리 API 설계</h1>
+      <h1>내일배움캠프 Spring 백엔드 14일차 TIL — 웹개발 1차 과제: 맛집 관리 API 설계</h1>
       <p class="muted">작성일 2025-12-31 · 분류: 부트캠프, TIL, Web, API, Postman, Mock Server</p>
 
-      <!-- 섹션 1: 13일차 개요 -->
-      <h2 class="section">13일차 개요 — “맛집 관리 API 설계하기” 과제 진행</h2>
+      <!-- 섹션 1: 14일차 개요 -->
+      <h2 class="section">14일차 개요 — “맛집 관리 API 설계하기” 과제 진행</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -200,7 +200,6 @@
 
       <p><strong>요청 바디 예시</strong></p>
       <pre><code>{
-  "id": 112,
   "name": "돌솥비빔밥",
   "address": "서울 종로구 ...",
   "call": "02-123-4567",
@@ -228,12 +227,6 @@
 
       <p><strong>요청 예시</strong></p>
       <pre><code>DELETE /api/places/112
-</code></pre>
-
-      <p><strong>응답 예시</strong></p>
-      <pre><code>{
-  "success": true
-}
 </code></pre>
 
       <!-- 섹션 4: Postman Mock Server -->
@@ -297,22 +290,6 @@
 POST   ${baseUrl}/api/places
 DELETE ${baseUrl}/api/places/{id}
 </code></pre>
-
-      <figure>
-        <img src="./Screenshot_2025-11-18_at_11.13.35_AM.png" alt="v0로 생성한 맛집 관리 UI" style="max-width:100%; border:1px solid rgba(0,0,0,0.15); border-radius:10px;">
-        <figcaption class="muted">v0로 생성한 화면 예시(노션 정리에서 가져온 스크린샷)</figcaption>
-      </figure>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          산출물 정리
-        </span>
-      </h3>
-
-      <ul>
-        <li><strong>Postman Collection</strong>: <code>맛집관리_API.postman_collection.json</code></li>
-        <li><strong>프론트엔드 소스</strong>: <code>restaurant-management-frontend.zip</code></li>
-      </ul>
 
       <!-- 섹션 6: 요청-응답 흐름 -->
       <h2 class="section">요청-응답 흐름 — 조회/등록/삭제 시나리오로 정리</h2>
