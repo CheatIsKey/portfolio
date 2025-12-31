@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 13일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 13일차 TIL — 프레임워크, DB, Firebase, AI 활용</h1>
+      <p class="muted">작성일 2025-12-30 · 분류: 부트캠프, TIL, Web, Framework, DB, AI</p>
+
+      <!-- 섹션 1: 13일차 개요 -->
+      <h2 class="section">13일차 개요 — “왜 프레임워크가 필요할까?”를 큰 그림으로 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        오늘은 “웹 서비스를 만들 때 왜 프레임워크/DB/AI가 같이 등장하는가”를 한 번에 정리했다.
+        핵심은 <strong>복잡도를 낮추고(표준화), 변경에 강한 구조를 만들고(분리), 빠르게 검증하는 것(도구 활용)</strong>이다.
+      </p>
+
+      <ul>
+        <li>프론트엔드 프레임워크: <strong>컴포넌트</strong>로 UI를 쪼개고, <strong>상태(State)</strong> 변화에 맞춰 화면을 자동 동기화한다.</li>
+        <li>백엔드 프레임워크: 요청/응답 처리, 라우팅, DI, 트랜잭션 등 공통 문제를 제공해 <strong>비즈니스 로직에 집중</strong>하게 한다.</li>
+        <li>DB: 단순 저장이 아니라 <strong>동시성/일관성/무결성</strong>을 보장하는 “데이터 관리 시스템(DBMS)”이다.</li>
+        <li>Firebase(BaaS): 인증/DB/스토리지/호스팅 등을 API로 제공해 <strong>인프라 구축 부담을 줄인다</strong>.</li>
+        <li>AI: “대신 개발”이 아니라 <strong>학습 코치/보조 도구</strong>로 쓰되, 검증과 책임은 개발자가 가진다.</li>
+      </ul>
+
+      <!-- 섹션 2: 프론트엔드 프레임워크 -->
+      <h2 class="section">프론트엔드 프레임워크 — 컴포넌트와 상태 관리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 개념
+        </span>
+      </h3>
+
+      <p>
+        프론트엔드 프레임워크(또는 라이브러리)는 UI 개발을 <strong>구조화</strong>하는 도구다.
+        HTML/CSS/JS만으로도 만들 수 있지만, 규모가 커질수록 “화면 조각 재사용”, “데이터 변화에 따른 UI 갱신”, “상태 공유”가 어려워진다.
+        이때 프레임워크는 다음 두 축을 가장 강하게 제공한다.
+      </p>
+
+      <ul>
+        <li><strong>컴포넌트(Component)</strong>: UI를 기능 단위 블록으로 쪼개 재사용/테스트/유지보수를 쉽게 만든다.</li>
+        <li><strong>상태(State)와 화면 동기화</strong>: 앱이 기억해야 할 데이터(state)가 바뀌면, 프레임워크가 UI를 자동으로 다시 그려준다.</li>
+      </ul>
+
+      <p>
+        “상태 관리(State Management)”는 단순히 라이브러리 이름이 아니라, <strong>상태를 어디에 두고 어떻게 공유/갱신할지</strong>에 대한 전략이다.
+        (규모가 작으면 컴포넌트 내부 state로 충분하고, 커지면 전역 상태/서버 상태 관리가 필요해진다.)
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>기술</th>
+            <th>핵심 특징</th>
+            <th>강점</th>
+            <th>주의할 점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>React</td>
+            <td>컴포넌트 기반 UI 구성(라이브러리)</td>
+            <td>생태계가 매우 크고 실무/레퍼런스가 많음</td>
+            <td>선택지가 많아(상태/라우팅 등) 초기에 조합을 정해야 함</td>
+          </tr>
+          <tr>
+            <td>Vue</td>
+            <td>점진적 도입이 쉬운 프레임워크</td>
+            <td>문법/구조가 비교적 직관적이라 학습 진입이 쉬움</td>
+            <td>프로젝트 규모가 커질수록 구조(컨벤션)를 초기에 잡는 게 중요</td>
+          </tr>
+          <tr>
+            <td>Svelte</td>
+            <td>빌드 시점에 컴파일(런타임 부담 감소)</td>
+            <td>간결한 문법 + 성능/번들 최적화에 유리한 편</td>
+            <td>React/Vue 대비 생태계/레거시 프로젝트 수는 적은 편</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          axios와 서버 통신
+        </span>
+      </h3>
+
+      <p>
+        <code>axios</code>는 브라우저/Node.js에서 HTTP 요청을 편하게 보내는 라이브러리다.
+        기본 <code>fetch</code>로도 가능하지만, axios는 <strong>인스턴스 기본 설정(baseURL, 공통 헤더)</strong>, <strong>인터셉터(요청/응답 가로채기)</strong> 등으로 실무에서 자주 쓰인다.
+      </p>
+
+      <pre><code>// 예시: 공통 설정을 가진 axios 인스턴스
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: "https://api.example.com",
+  timeout: 5000,
+});
+
+// 예시: 토큰을 자동으로 붙이는 인터셉터(개념용)
+api.interceptors.request.use((config) =&gt; {
+  const token = localStorage.getItem("accessToken");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+</code></pre>
+
+      <!-- 섹션 3: 개발 서버 -->
+      <h2 class="section">개발 서버 실행 — npm run dev가 하는 일</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        <code>npm run dev</code>는 “정해진 이름의 마법 명령”이 아니라,
+        <strong>package.json의 scripts에 등록된 dev 스크립트를 실행</strong>하는 명령이다.
+        보통은 Vite/Next 같은 도구가 개발 서버를 켜고, 터미널에 <code>http://localhost:PORT</code> 형태의 접속 주소를 출력한다.
+        (환경에 따라 자동으로 브라우저를 열 수도 있고, 아닐 수도 있다.)
+      </p>
+
+      <pre><code>// package.json 예시 (개념)
+{
+  "scripts": {
+    "dev": "vite"
+  }
+}
+</code></pre>
+
+      <!-- 섹션 4: 백엔드 프레임워크 -->
+      <h2 class="section">백엔드 프레임워크 — 공통 문제를 표준화하고 비즈니스 로직에 집중</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          왜 필요한가
+        </span>
+      </h3>
+
+      <p>
+        프레임워크 없이 순수 Java만으로 서버를 만들면, HTTP 요청 파싱/라우팅/JSON 직렬화/예외 처리/스레드 처리/보안 등
+        “서비스마다 반복되는 문제”를 직접 설계해야 한다.
+        백엔드 프레임워크는 이런 공통 문제를 제공하고, 개발자가 <strong>도메인 로직</strong>에 집중할 수 있게 만든다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>분류</th>
+            <th>대표 선택지</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Java</td>
+            <td>Spring (Spring Boot)</td>
+            <td>DI/트랜잭션/검증/보안/웹 MVC 등 엔터프라이즈 요구에 강함 (국내 공공/기업에서 흔함)</td>
+          </tr>
+          <tr>
+            <td>JavaScript</td>
+            <td>Node.js + (Express/NestJS 등)</td>
+            <td>Node.js는 런타임, Express/NestJS가 웹 프레임워크 역할을 담당하는 경우가 많음</td>
+          </tr>
+          <tr>
+            <td>Python</td>
+            <td>Django / Flask</td>
+            <td>Django는 기능이 풍부한 “풀스택”, Flask는 가볍게 조립하는 “마이크로” 성격</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 5: 레이어드 아키텍처 -->
+      <h2 class="section">레이어드 아키텍처 — Controller / Service / Repository 분리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          구조
+        </span>
+      </h3>
+
+      <p>
+        Spring에서는 역할을 계층으로 나누는 구조가 흔하다. (레이어드 아키텍처)
+        요청 흐름은 보통 <strong>Controller → Service → Repository → DB</strong>로 내려가고,
+        응답은 반대로 올라온다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>계층</th>
+            <th>책임</th>
+            <th>핵심 포인트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Controller</td>
+            <td>HTTP 요청/응답의 진입점</td>
+            <td>검증/매핑/응답 형태 구성에 집중, “일은 서비스에게”</td>
+          </tr>
+          <tr>
+            <td>Service</td>
+            <td>비즈니스 로직</td>
+            <td>트랜잭션 경계, 도메인 규칙, 유스케이스 중심으로 설계</td>
+          </tr>
+          <tr>
+            <td>Repository</td>
+            <td>DB 접근</td>
+            <td>저장/조회 책임만, 구현 기술(JPA/MyBatis 등)을 캡슐화</td>
+          </tr>
+          <tr>
+            <td>Entity</td>
+            <td>도메인 모델(주로 영속 대상)</td>
+            <td>테이블과 매핑되는 경우가 많음(JPA), 핵심 속성과 관계를 표현</td>
+          </tr>
+          <tr>
+            <td>DTO</td>
+            <td>데이터 전송 객체</td>
+            <td>계층/경계(요청/응답)에서 필요한 데이터만 전달</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code>// DTO 예시(개념): 요청/응답에 필요한 값만 가진다
+public record CreateItemRequest(String name, int price) {}
+
+// Controller는 요청을 받고 Service에 위임한다(개념)
+@PostMapping("/items")
+public ItemResponse create(@RequestBody CreateItemRequest req) {
+    return itemService.create(req);
+}
+</code></pre>
+
+      <p>
+        이 구조의 큰 장점은 <strong>변경 영향 범위를 줄이는 것</strong>이다.
+        예를 들어 저장소 구현이 바뀌어도(메모리 → DB) 서비스/컨트롤러의 핵심 흐름이 흔들리지 않도록 설계할 수 있다.
+      </p>
+
+      <!-- 섹션 6: 데이터베이스 -->
+      <h2 class="section">데이터베이스 — “저장”이 아니라 “관리”를 위한 시스템</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DBMS가 제공하는 것
+        </span>
+      </h3>
+
+      <p>
+        데이터베이스(DB)는 보통 <strong>DBMS(Database Management System)</strong>를 의미한다.
+        즉, 데이터를 파일처럼 두는 것이 아니라 “동시 접근과 규칙을 관리해주는 프로그램”이다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>특성</th>
+            <th>의미</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>영속성(Durability)</td>
+            <td>저장이 완료된 데이터는 장애 후에도 보존</td>
+            <td>커밋된 주문 데이터가 서버 재시작 후에도 남아있음</td>
+          </tr>
+          <tr>
+            <td>동시성(Concurrency)</td>
+            <td>여러 사용자가 동시에 읽고/써도 제어</td>
+            <td>동시 주문 시 재고가 꼬이지 않도록 락/트랜잭션 활용</td>
+          </tr>
+          <tr>
+            <td>일관성(Consistency)</td>
+            <td>규칙을 깨는 상태로 저장되지 않게 관리</td>
+            <td>결제 완료면 주문 상태도 함께 변경되는 등 규칙 유지</td>
+          </tr>
+          <tr>
+            <td>무결성(Integrity)</td>
+            <td>데이터 제약(키/참조/도메인)을 지키게 함</td>
+            <td>중복 PK 금지, 존재하지 않는 고객ID로 주문 저장 금지(FK)</td>
+          </tr>
+          <tr>
+            <td>질의(Query)</td>
+            <td>필요한 데이터를 효율적으로 조회/가공</td>
+            <td>SQL로 “이번 달 매출 TOP10 상품”을 조회</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          RDB vs NoSQL
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>RDB(관계형)</th>
+            <th>NoSQL(비관계형)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대표</td>
+            <td>MySQL, PostgreSQL, Oracle</td>
+            <td>MongoDB, Redis, Firestore</td>
+          </tr>
+          <tr>
+            <td>모델</td>
+            <td>테이블/관계(조인) 중심</td>
+            <td>문서/키값/컬럼/그래프 등 다양</td>
+          </tr>
+          <tr>
+            <td>강점</td>
+            <td>관계가 명확하고 무결성/정합성 관리에 강함</td>
+            <td>유연한 스키마, 특정 워크로드에서 확장/성능에 유리</td>
+          </tr>
+          <tr>
+            <td>주의</td>
+            <td>스키마 변경이 비용일 수 있음</td>
+            <td>제품마다 질의 방식/모델이 달라 표준화가 약함</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        “RDB가 무조건 정답, NoSQL이 무조건 정답”이 아니라,
+        <strong>데이터의 형태/관계/트래픽/요구 정합성</strong>에 따라 선택이 갈린다.
+      </p>
+
+      <!-- 섹션 7: Firebase -->
+      <h2 class="section">Firebase와 BaaS — 빠르게 기능을 붙이는 백엔드 서비스</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          개념
+        </span>
+      </h3>
+
+      <p>
+        Firebase는 Google의 개발 플랫폼으로, DB/인증/스토리지/호스팅 등을 제공한다.
+        이런 형태를 보통 <strong>BaaS(Backend as a Service)</strong>라고 부른다.
+        즉 “백엔드에서 자주 필요한 기능을 API로 제공”해 개발 속도를 올릴 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>기능</th>
+            <th>설명</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Firestore</td>
+            <td>NoSQL 문서 DB</td>
+            <td>게시물/댓글/채팅 메시지 저장</td>
+          </tr>
+          <tr>
+            <td>Authentication</td>
+            <td>로그인/토큰/소셜 로그인</td>
+            <td>Google 로그인으로 회원가입/로그인 처리</td>
+          </tr>
+          <tr>
+            <td>Storage</td>
+            <td>파일 저장(이미지/동영상 등)</td>
+            <td>프로필 이미지 업로드</td>
+          </tr>
+          <tr>
+            <td>Hosting</td>
+            <td>정적 웹 배포</td>
+            <td>SPA 배포</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        장점은 빠른 개발이고, 주의점은 <strong>벤더 종속(락인), 비용 구조, 보안 규칙(Security Rules) 설계</strong>다.
+        “편하니까 안전하다”가 아니라, 편한 만큼 <strong>접근 제어 규칙을 명확히 설계</strong>해야 한다.
+      </p>
+
+      <!-- 섹션 8: AI 활용 -->
+      <h2 class="section">AI를 학습 코치로 활용하기 — “의존”이 아니라 “검증 가능한 가속”</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          함정과 원칙
+        </span>
+      </h3>
+
+      <p>
+        AI는 답을 “검색”하는 기계가 아니라, 입력을 바탕으로 <strong>그럴듯한 출력을 생성</strong>할 수 있는 모델이다.
+        그래서 기본기 없이 그대로 복붙하면 위험하다. 특히 다음 상황에 취약하다.
+      </p>
+
+      <ul>
+        <li><strong>맥락 부족</strong>: 프로젝트 전체 요구사항/제약을 모르면, 일부를 망가뜨리는 수정(부작용)을 제안할 수 있다.</li>
+        <li><strong>환각(Hallucination)</strong>: 존재하지 않는 API/옵션/원인을 “있는 것처럼” 말할 수 있다.</li>
+        <li><strong>책임 부재</strong>: 일정/장애/운영 책임은 개발자에게 있고, AI는 결과를 보장하지 않는다.</li>
+      </ul>
+
+      <p>
+        그래서 AI는 “대신 해결”이 아니라 <strong>코치</strong>로 쓰는 게 안전하다.
+        질문도 <strong>What(뭐야?)</strong>보다 <strong>Why(왜 그렇게 설계해?)</strong>로 가져가야 내가 성장한다.
+      </p>
+
+      <pre><code>// 질문 템플릿(예시)
+- 목표: (내가 만들고 싶은 것)
+- 제약: (사용 기술/시간/성능/보안)
+- 현재 상태: (지금 코드/구조/문제 증상)
+- 질문: 왜 이 선택이 적절한지, 대안은 무엇인지, 트레이드오프는 무엇인지
+- 검증: 내가 확인해야 할 체크리스트(테스트/로그/재현 방법)
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AI를 활용하는 3가지 방향
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>AI Engineer</strong>: 모델/학습/평가 자체를 연구·개발</li>
+        <li><strong>AI 서비스 개발자</strong>: 완성된 모델(API)을 서비스에 붙여 기능화</li>
+        <li><strong>AI 학습 활용</strong>: 학습/디버깅/문서화/리뷰 보조로 사용(검증은 필수)</li>
+      </ul>
+
+      <!-- 섹션 9: v0 -->
+      <h2 class="section">v0 같은 UI 생성 도구 — 빠른 프로토타이핑과 한계</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        v0는 “요구 UI를 자연어/이미지로 입력하면 컴포넌트 코드를 생성”하는 유형의 도구다.
+        강점은 <strong>초기 화면 제작 속도</strong>이고, 한계는 “도메인 요구사항/접근성/상태 흐름/에러 처리” 같은
+        <strong>서비스 핵심 규칙</strong>은 결국 사람이 설계해야 한다는 점이다.
+      </p>
+
+      <ul>
+        <li>적합: 화면 초안, 레이아웃 구성, 컴포넌트 조합 시안</li>
+        <li>주의: 생성된 코드의 접근성/보안/상태 흐름을 반드시 검토하고, 프로젝트 규칙에 맞게 정리</li>
+      </ul>
+
+      <!-- 섹션 10: 아이템 이름 수정 패턴 -->
+      <h2 class="section">아이템 이름 수정 UI 패턴 — 인라인 / 페이지 / 모달</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>방식</th>
+            <th>설명</th>
+            <th>장점</th>
+            <th>주의/추천 상황</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>인라인 수정</td>
+            <td>텍스트 클릭 → input 전환 → 저장</td>
+            <td>가장 직관적, 흐름이 끊기지 않음</td>
+            <td>포커스/취소/검증/동시 수정 처리까지 고려해야 함</td>
+          </tr>
+          <tr>
+            <td>별도 수정 페이지</td>
+            <td>/edit 같은 폼 화면에서 수정</td>
+            <td>항목이 많을수록 안정적, 검증/안내를 넣기 쉬움</td>
+            <td>단순 수정에는 이동 비용이 과할 수 있음</td>
+          </tr>
+          <tr>
+            <td>모달</td>
+            <td>현재 화면 위에 팝업 형태</td>
+            <td>페이지 이동 없이 수정 가능</td>
+            <td>접근성(키보드 포커스), 닫기/취소 UX를 신경 써야 함</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 11: 회고 & 계획 -->
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        “프론트엔드/백엔드/DB/AI”를 따로 외우는 게 아니라,
+        결국은 <strong>서비스 개발의 복잡도를 낮추기 위한 도구들의 조합</strong>이라는 관점으로 연결되었다.
+        특히 레이어드 아키텍처와 DTO는 앞으로 팀 프로젝트에서 “변경에 강한 구조”를 만들 때 계속 쓰일 개념이라,
+        정의만이 아니라 <strong>왜 분리하는지</strong>까지 같이 기억하는 게 중요하다고 느꼈다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
