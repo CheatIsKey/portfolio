@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-29 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2026-01-01 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 가장 많이 받은 선물</h2>
+      <h2 class="section">문제 1 — 개인정보 수집 유효기간</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/258712">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/150370">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0101_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,22 +53,23 @@
       </h3>
       
       <p>
-        <strong>가장 많이 받은 선물 (프로그래머스 258712)</strong>은<br>
-        친구들 간의 선물 기록 <code>gifts</code>가 주어졌을 때,
-        다음 달에 각 친구가 받을 선물 개수를 규칙대로 계산하고
-        그 중 <strong>최댓값</strong>을 구하는 문제다.
+        <strong>개인정보 수집 유효기간 (프로그래머스 150370)</strong>은<br>
+        오늘 날짜 <code>today</code>와 약관별 유효기간 <code>terms</code>,
+        그리고 개인정보 수집 날짜/약관 종류 <code>privacies</code>가 주어졌을 때,
+        <strong>파기해야 하는 개인정보의 번호</strong>를 오름차순으로 구하는 문제다.
       </p>
       
       <ul>
-        <li>두 친구 <code>A</code>, <code>B</code>를 비교한다.
+        <li>모든 달은 <strong>28일</strong>로 고정이다.</li>
+        <li>개인정보는 “수집일 + 약관 개월 수”까지 유효하며,
+          <strong>그 다음 날부터 파기 대상</strong>이 된다.</li>
+        <li>즉, 만료일은
           <ul>
-            <li>이번 달에 <code>A → B</code>가 더 많으면 다음 달에는 <code>A</code>가 <strong>선물 1개</strong> 받는다.</li>
-            <li>이번 달에 <code>B → A</code>가 더 많으면 다음 달에는 <code>B</code>가 <strong>선물 1개</strong> 받는다.</li>
-            <li>서로 주고받은 수가 같으면 “선물 지수”로 비교한다.</li>
+            <li><code>expire = (수집일 + months * 28) - 1</code></li>
           </ul>
+          로 계산할 수 있다.
         </li>
-        <li><strong>선물 지수</strong> = (내가 준 선물 수) - (내가 받은 선물 수)</li>
-        <li>지수도 같으면 다음 달에는 서로 선물을 주고받지 않는다.</li>
+        <li>만료일이 오늘보다 <strong>이전</strong>이면 파기 대상이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -80,12 +81,14 @@
       </p>
       
       <ul>
-        <li>이름을 인덱스로 바꾸기 위해 <code>Map&lt;String, Integer&gt;</code>로 매핑한다.</li>
-        <li><code>give[a][b]</code>에 “a가 b에게 준 선물 횟수”를 누적한다.</li>
-        <li>각 사람의 총 준 개수(<code>out</code>) / 받은 개수(<code>in</code>)를 누적하고,
-          <code>score[i] = out[i] - in[i]</code>로 선물 지수를 만든다.</li>
-        <li>모든 친구 쌍 <code>(i, j)</code>에 대해 규칙대로 “다음 달에 받을 선물” 카운트(<code>recv</code>)를 증가시킨다.</li>
-        <li><code>recv</code> 중 최대값을 반환한다.</li>
+        <li>날짜를 비교하기 쉽게, 모든 날짜를 “총 일수”로 변환한다.</li>
+        <li>28일/달이므로
+          <ul>
+            <li><code>total = (YYYY * 12 + MM) * 28 + DD</code></li>
+          </ul>
+          형태로 단일 정수로 바꿀 수 있다.</li>
+        <li><code>terms</code>는 약관 종류 → 개월 수를 <code>Map</code>에 저장한다.</li>
+        <li>각 개인정보에 대해 만료일을 계산하고, 만료일이 오늘보다 작으면(이미 만료) 인덱스를 결과에 추가한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -97,71 +100,66 @@
       </p>
       
       <ul>
-        <li><strong>1) 친구 이름 → 인덱스 매핑</strong>
-          <pre><code>int n = friends.length;
-      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
-      for (int i = 0; i &lt; n; i++) map.put(friends[i], i);</code></pre>
+        <li><strong>1) today를 총 일수로 변환</strong>
+          <pre><code>String[] split = today.split("\\.");
+      int YYYY = Integer.parseInt(split[0]);
+      int MM = Integer.parseInt(split[1]);
+      int DD = Integer.parseInt(split[2]);
+      
+      int totalToday = (YYYY * 12 + MM) * 28 + DD;</code></pre>
           <ul>
-            <li>이름을 배열 인덱스로 바꿔서 2차원 카운팅을 쉽게 만든다.</li>
+            <li>문자열 날짜를 파싱해서 정수로 바꾼다.</li>
+            <li>모든 달이 28일이므로 “YYYY/MM/DD”를 단일 값으로 변환해 비교한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 이번 달 선물 기록 누적 (give/out/in)</strong>
-          <pre><code>int[][] give = new int[n][n];
-      int[] out = new int[n];
-      int[] in = new int[n];
-      
-      for (String gift : gifts) {
-          String[] split = gift.split(" ");
-          int a = map.get(split[0]);
-          int b = map.get(split[1]);
-          give[a][b]++;
-          out[a]++;
-          in[b]++;
+        <li><strong>2) 약관 종류별 개월 수를 Map에 저장</strong>
+          <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      for (String term : terms) {
+          String[] s = term.split(" ");
+          map.put(s[0], Integer.parseInt(s[1]));
       }</code></pre>
           <ul>
-            <li><code>give[a][b]</code>: a가 b에게 준 횟수</li>
-            <li><code>out[a]</code>: a가 준 총합</li>
-            <li><code>in[b]</code>: b가 받은 총합</li>
+            <li>예: <code>"A 6"</code>이면 <code>map.get("A") == 6</code>으로 저장된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 선물 지수(score) 계산</strong>
-          <pre><code>int[] score = new int[n];
-      for (int i = 0; i &lt; n; i++) score[i] = out[i] - in[i];</code></pre>
-          <ul>
-            <li>문제에서 정의한 선물 지수: (준 선물) - (받은 선물)</li>
-          </ul>
-        </li>
+        <li><strong>3) 각 개인정보의 만료일 계산 후 파기 대상 체크</strong>
+          <pre><code>List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+      for (int i = 0; i &lt; privacies.length; i++) {
+          String[] s = privacies[i].split(" ");
+          String[] date = s[0].split("\\.");
       
-        <li><strong>4) 모든 친구 쌍 비교해서 다음 달 받을 선물 계산</strong>
-          <pre><code>int[] recv = new int[n];
+          YYYY = Integer.parseInt(date[0]);
+          MM = Integer.parseInt(date[1]);
+          DD = Integer.parseInt(date[2]);
       
-      for (int i = 0; i &lt; n; i++) {
-          for (int j = i + 1; j &lt; n; j++) {
-              if (give[i][j] &gt; give[j][i]) recv[i]++;
-              else if (give[i][j] &lt; give[j][i]) recv[j]++;
-              else {
-                  if (score[i] &gt; score[j]) recv[i]++;
-                  else if (score[i] &lt; score[j]) recv[j]++;
-              }
+          int totalExpire = ((YYYY * 12 + MM) * 28 + DD);
+          int months = map.get(s[1]);
+      
+          int expire = totalExpire + months * 28 - 1;
+          if (expire &lt; totalToday) {
+              list.add(i + 1);
           }
       }</code></pre>
           <ul>
-            <li>쌍을 중복 없이 보기 위해 <code>j = i + 1</code>부터 순회한다.</li>
-            <li>이번 달에 더 많이 준 사람이 다음 달에 1개를 받는다.</li>
-            <li>주고받은 개수가 같으면 선물 지수로 비교한다.</li>
-            <li>지수까지 같으면 아무도 받지 않으므로 카운트 변화 없음.</li>
+            <li><code>totalExpire</code>는 수집일을 총 일수로 바꾼 값이다.</li>
+            <li>만료일은 “수집일 + 유효기간 - 1일”이므로 <code>-1</code>을 해준다.</li>
+            <li><code>expire &lt; totalToday</code>이면 오늘 기준 이미 만료 → 파기 대상이다.</li>
+            <li>문제에서 번호는 1부터 시작하므로 <code>i + 1</code>을 넣는다.</li>
           </ul>
         </li>
       
-        <li><strong>5) recv 배열의 최댓값 반환</strong>
-          <pre><code>int max = 0;
-      for (int i : recv) if (i &gt; max) max = i;
+        <li><strong>4) 리스트를 배열로 변환해 반환</strong>
+          <pre><code>int idx = 0;
+      int[] answer = new int[list.size()];
+      for (int i : list) {
+          answer[idx++] = i;
+      }
       
-      return max;</code></pre>
+      return answer;</code></pre>
           <ul>
-            <li>다음 달에 가장 많이 받는 선물 개수를 반환한다.</li>
+            <li>파기 대상 번호를 담은 리스트를 정답 배열로 옮겨 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -177,15 +175,14 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>선물 기록 누적: <code>gifts</code> 길이를 <code>G</code>라 하면 <strong><code>O(G)</code></strong></li>
-            <li>친구 쌍 비교: 친구 수를 <code>N</code>이라 하면 <strong><code>O(N^2)</code></strong></li>
-            <li>전체: <strong><code>O(G + N^2)</code></strong></li>
+            <li>약관 파싱: <code>terms</code> 길이를 <code>T</code>라 하면 <strong><code>O(T)</code></strong></li>
+            <li>개인정보 검사: <code>privacies</code> 길이를 <code>P</code>라 하면 <strong><code>O(P)</code></strong></li>
+            <li>전체: <strong><code>O(T + P)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><code>give</code>가 <code>N x N</code>이므로 <strong><code>O(N^2)</code></strong></li>
-            <li>나머지 배열은 <code>O(N)</code></li>
+            <li>약관 Map과 결과 리스트를 저장 → <strong><code>O(T + P)</code></strong> (결과는 최대 P개)</li>
           </ul>
         </li>
       </ul>
@@ -257,14 +254,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 데이터 분석</h2>
+      <h2 class="section">문제 2 — 성격 유형 검사하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250121">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/118666">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0101_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
