@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2025-12-29 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 가장 많이 받은 선물</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/258712">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>가장 많이 받은 선물 (프로그래머스 258712)</strong>은<br>
+        친구들 간의 선물 기록 <code>gifts</code>가 주어졌을 때,
+        다음 달에 각 친구가 받을 선물 개수를 규칙대로 계산하고
+        그 중 <strong>최댓값</strong>을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>두 친구 <code>A</code>, <code>B</code>를 비교한다.
+          <ul>
+            <li>이번 달에 <code>A → B</code>가 더 많으면 다음 달에는 <code>A</code>가 <strong>선물 1개</strong> 받는다.</li>
+            <li>이번 달에 <code>B → A</code>가 더 많으면 다음 달에는 <code>B</code>가 <strong>선물 1개</strong> 받는다.</li>
+            <li>서로 주고받은 수가 같으면 “선물 지수”로 비교한다.</li>
+          </ul>
+        </li>
+        <li><strong>선물 지수</strong> = (내가 준 선물 수) - (내가 받은 선물 수)</li>
+        <li>지수도 같으면 다음 달에는 서로 선물을 주고받지 않는다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>이름을 인덱스로 바꾸기 위해 <code>Map&lt;String, Integer&gt;</code>로 매핑한다.</li>
+        <li><code>give[a][b]</code>에 “a가 b에게 준 선물 횟수”를 누적한다.</li>
+        <li>각 사람의 총 준 개수(<code>out</code>) / 받은 개수(<code>in</code>)를 누적하고,
+          <code>score[i] = out[i] - in[i]</code>로 선물 지수를 만든다.</li>
+        <li>모든 친구 쌍 <code>(i, j)</code>에 대해 규칙대로 “다음 달에 받을 선물” 카운트(<code>recv</code>)를 증가시킨다.</li>
+        <li><code>recv</code> 중 최대값을 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 친구 이름 → 인덱스 매핑</strong>
+          <pre><code>int n = friends.length;
+      Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      for (int i = 0; i &lt; n; i++) map.put(friends[i], i);</code></pre>
+          <ul>
+            <li>이름을 배열 인덱스로 바꿔서 2차원 카운팅을 쉽게 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 이번 달 선물 기록 누적 (give/out/in)</strong>
+          <pre><code>int[][] give = new int[n][n];
+      int[] out = new int[n];
+      int[] in = new int[n];
+      
+      for (String gift : gifts) {
+          String[] split = gift.split(" ");
+          int a = map.get(split[0]);
+          int b = map.get(split[1]);
+          give[a][b]++;
+          out[a]++;
+          in[b]++;
+      }</code></pre>
+          <ul>
+            <li><code>give[a][b]</code>: a가 b에게 준 횟수</li>
+            <li><code>out[a]</code>: a가 준 총합</li>
+            <li><code>in[b]</code>: b가 받은 총합</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 선물 지수(score) 계산</strong>
+          <pre><code>int[] score = new int[n];
+      for (int i = 0; i &lt; n; i++) score[i] = out[i] - in[i];</code></pre>
+          <ul>
+            <li>문제에서 정의한 선물 지수: (준 선물) - (받은 선물)</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 모든 친구 쌍 비교해서 다음 달 받을 선물 계산</strong>
+          <pre><code>int[] recv = new int[n];
+      
+      for (int i = 0; i &lt; n; i++) {
+          for (int j = i + 1; j &lt; n; j++) {
+              if (give[i][j] &gt; give[j][i]) recv[i]++;
+              else if (give[i][j] &lt; give[j][i]) recv[j]++;
+              else {
+                  if (score[i] &gt; score[j]) recv[i]++;
+                  else if (score[i] &lt; score[j]) recv[j]++;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>쌍을 중복 없이 보기 위해 <code>j = i + 1</code>부터 순회한다.</li>
+            <li>이번 달에 더 많이 준 사람이 다음 달에 1개를 받는다.</li>
+            <li>주고받은 개수가 같으면 선물 지수로 비교한다.</li>
+            <li>지수까지 같으면 아무도 받지 않으므로 카운트 변화 없음.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) recv 배열의 최댓값 반환</strong>
+          <pre><code>int max = 0;
+      for (int i : recv) if (i &gt; max) max = i;
+      
+      return max;</code></pre>
+          <ul>
+            <li>다음 달에 가장 많이 받는 선물 개수를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>선물 기록 누적: <code>gifts</code> 길이를 <code>G</code>라 하면 <strong><code>O(G)</code></strong></li>
+            <li>친구 쌍 비교: 친구 수를 <code>N</code>이라 하면 <strong><code>O(N^2)</code></strong></li>
+            <li>전체: <strong><code>O(G + N^2)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>give</code>가 <code>N x N</code>이므로 <strong><code>O(N^2)</code></strong></li>
+            <li>나머지 배열은 <code>O(N)</code></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 데이터 분석</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/250121">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_1229_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>데이터 분석 (프로그래머스 250121)</strong>은<br>
+        2차원 배열 <code>data</code>에서 특정 컬럼(<code>ext</code>)의 값이 <code>val_ext</code>보다 작은 행만 골라낸 뒤,
+        다른 컬럼(<code>sort_by</code>) 기준으로 오름차순 정렬하여 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>data</code>의 각 행은 항상 길이 4이고, 컬럼 의미는 다음과 같다:
+          <ul>
+            <li><code>code</code></li>
+            <li><code>date</code></li>
+            <li><code>maximum</code></li>
+            <li><code>remain</code></li>
+          </ul>
+        </li>
+        <li><code>ext</code>로 주어진 컬럼에서 <strong><code>&lt; val_ext</code></strong> 조건을 만족하는 행만 추출한다.</li>
+        <li>추출한 결과를 <code>sort_by</code> 컬럼 기준으로 <strong>오름차순 정렬</strong>한다.</li>
+        <li>정렬된 결과를 2차원 배열 형태로 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문자열로 주어진 컬럼명(<code>ext</code>, <code>sort_by</code>)을 실제 인덱스로 바꾼다.</li>
+        <li><code>data</code>를 순회하며 <code>datum[extIdx] &lt; val_ext</code>인 행만 리스트에 담는다.</li>
+        <li>리스트를 <code>sortIdx</code> 기준으로 오름차순 정렬한다.</li>
+        <li>리스트를 2차원 배열로 변환해 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 컬럼명 → 인덱스 변환</strong>
+          <pre><code>int extIdx = col(ext);
+      int sortIdx = col(sort_by);</code></pre>
+          <ul>
+            <li><code>ext</code>, <code>sort_by</code>는 문자열이므로 실제 배열 인덱스로 변환해 사용한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 조건에 맞는 행만 필터링</strong>
+          <pre><code>List&lt;int[]&gt; list = new ArrayList&lt;&gt;();
+      for (int[] datum : data) {
+          if (datum[extIdx] &lt; val_ext) list.add(datum);
+      }</code></pre>
+          <ul>
+            <li><code>ext</code> 컬럼 값이 <code>val_ext</code>보다 작은 행만 <code>list</code>에 담는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) sort_by 기준 오름차순 정렬</strong>
+          <pre><code>list.sort(Comparator.comparingInt(a -&gt; a[sortIdx]));</code></pre>
+          <ul>
+            <li>정렬 기준 컬럼의 값을 비교하도록 Comparator를 만들어 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 리스트 → 2차원 배열 변환</strong>
+          <pre><code>int[][] ans = new int[list.size()][4];
+      for (int i = 0; i &lt; list.size(); i++) {
+          ans[i] = list.get(i);
+      }
+      
+      return ans;</code></pre>
+          <ul>
+            <li>필터링된 행 개수만큼 배열을 만들고, 리스트 원소를 그대로 옮긴다.</li>
+            <li>정렬된 결과를 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) col(): 컬럼 문자열을 인덱스로 매핑</strong>
+          <pre><code>private int col(String str) {
+          switch (str) {
+              case "code": return 0;
+              case "date": return 1;
+              case "maximum": return 2;
+              case "remain": return 3;
+          }
+      
+          return -1;
+      }</code></pre>
+          <ul>
+            <li>문제에서 정한 컬럼 순서를 그대로 인덱스로 매핑한다.</li>
+            <li>유효하지 않은 값은 입력으로 주어지지 않지만, 방어적으로 <code>-1</code>을 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>필터링: 데이터 개수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
+            <li>정렬: 필터링 결과를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
+            <li>전체: <strong><code>O(N + K log K)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>필터링 결과 리스트/배열 저장 → <strong><code>O(K)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
