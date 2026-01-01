@@ -39,7 +39,7 @@
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1230_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_1230_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -263,14 +263,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6474 — Palindromes</h2>
+      <h2 class="section">문제 1105 — 팔</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6474">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1105">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1226_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_0101_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -287,20 +287,17 @@
       </h3>
       
       <p>
-        <strong>Palindromes (BOJ 6474)</strong>는<br>
-        입력으로 주어진 문자열이
-        <strong>일반 회문(palindrome)</strong>인지,
-        <strong>거울 문자열(mirrored string)</strong>인지,
-        혹은 둘 다 만족하는 <strong>거울 회문(mirrored palindrome)</strong>인지 판별해
-        정해진 문장을 출력하는 문제다.
+        <strong>팔 (BOJ 1105)</strong>는<br>
+        <code>L</code>부터 <code>R</code> 사이(포함)의 자연수 중에서,
+        <strong>숫자 8이 가장 적게 들어있는 수</strong>에 포함된 8의 개수를 구하는 문제다.
       </p>
       
       <ul>
-        <li><strong>palindrome</strong>: 문자열을 뒤집어도 동일한 문자열</li>
-        <li><strong>mirrored string</strong>: 문자열을 뒤집은 뒤 각 문자를 “거울 대응 문자”로 치환했을 때 원래 문자열과 같음</li>
-        <li><strong>mirrored palindrome</strong>: 위 두 조건을 모두 만족</li>
-        <li>입력은 EOF까지 여러 줄로 주어진다.</li>
-        <li>출력은 문자열 + <code>" -- "</code> + 판정 문구, 그리고 <strong>빈 줄 1줄</strong>이 추가된다.</li>
+        <li>핵심 포인트는 “어떤 수를 골라도 반드시 포함될 수밖에 없는 8의 개수”를 찾는 것이다.</li>
+        <li><code>L</code>과 <code>R</code>의 자릿수가 다르면, 자릿수가 더 작은 수(또는 8을 피할 수 있는 수)를 만들 수 있으므로 정답은 0이 된다.</li>
+        <li>자릿수가 같다면, 왼쪽(가장 큰 자리)부터 비교했을 때
+          <strong>두 수가 같은 접두사(prefix)를 공유하는 동안</strong>은 그 자릿값이 모든 수에서 고정된다.</li>
+        <li>따라서 공통 접두사 부분에서 숫자가 <code>8</code>인 자리의 개수만큼은 어떤 수를 골라도 피할 수 없다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -312,14 +309,16 @@
       </p>
       
       <ul>
-        <li>문제에서 제공한 “거울 대응” 규칙을 <code>Map&lt;Character, Character&gt;</code>으로 만든다.</li>
-        <li>각 문자열에 대해
+        <li><code>L</code>, <code>R</code>의 자릿수를 구한다.</li>
+        <li>자릿수가 다르면 바로 <code>0</code> 출력.</li>
+        <li>자릿수가 같으면 각 자리를 배열로 분해한다(가장 높은 자리부터).</li>
+        <li>앞자리부터 순서대로 보면서
           <ul>
-            <li>앞/뒤 문자가 같은지 비교해서 palindrome 여부 판단</li>
-            <li>뒤쪽 문자에 대한 거울 대응 문자를 찾아서 앞쪽 문자와 같은지 비교해 mirrored 여부 판단</li>
+            <li>자리가 서로 다르면 그 순간부터는 해당 자리 이후 숫자를 바꿔서 8을 피할 수 있으므로 중단</li>
+            <li>자리가 같고 그 값이 8이면 정답 카운트 증가</li>
           </ul>
         </li>
-        <li>두 boolean 값(<code>palindrome</code>, <code>mirrored</code>) 조합으로 출력 문구를 결정한다.</li>
+        <li>누적된 값이 “최소로 포함될 수밖에 없는 8의 개수”가 된다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -331,95 +330,80 @@
       </p>
       
       <ul>
-        <li><strong>1) 거울 문자 매핑(Map) 구성</strong>
-          <pre><code>Map&lt;Character, Character&gt; map = new HashMap&lt;&gt;();
-      map.put('E', '3');
-      map.put('3', 'E');
-      map.put('J', 'L');
-      map.put('L', 'J');
-      map.put('S', '2');
-      map.put('2', 'S');
-      map.put('Z', '5');
-      map.put('5', 'Z');
-      map.put('A', 'A');
-      map.put('H', 'H');
-      map.put('I', 'I');
-      map.put('M', 'M');
-      map.put('O', 'O');
-      map.put('T', 'T');
-      map.put('U', 'U');
-      map.put('V', 'V');
-      map.put('W', 'W');
-      map.put('X', 'X');
-      map.put('Y', 'Y');
-      map.put('1', '1');
-      map.put('8', '8');</code></pre>
+        <li><strong>1) L과 R 입력 및 자릿수 계산</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+      int L = Integer.parseInt(st.nextToken());
+      int R = Integer.parseInt(st.nextToken());
+      
+      int A = L;
+      int B = R;
+      int lenA = 0;
+      int lenB = 0;
+      
+      while (A != 0) {
+          A /= 10;
+          lenA++;
+      }
+      
+      while (B != 0) {
+          B /= 10;
+          lenB++;
+      }</code></pre>
           <ul>
-            <li>문제 표에 나온 “문자 ↔ 거울 문자” 관계를 그대로 저장한다.</li>
-            <li>서로 바뀌는 쌍(<code>E↔3</code>, <code>J↔L</code> 등)은 양방향으로 모두 넣는다.</li>
-            <li>자기 자신으로 대응되는 문자(<code>A, H, I, ...</code>)도 넣는다.</li>
+            <li>원본 <code>L</code>, <code>R</code>을 복사해 자릿수를 센다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 입력 문자열을 EOF까지 처리</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          boolean palindrome = true;
-          boolean mirrored = true;</code></pre>
+        <li><strong>2) 자릿수가 다르면 정답은 0</strong>
+          <pre><code>if (lenA != lenB) {
+          System.out.println(0);
+          return;
+      }</code></pre>
           <ul>
-            <li>한 줄이 하나의 문자열이고, EOF까지 반복한다.</li>
-            <li>각 문자열마다 두 조건을 각각 검사한다.</li>
+            <li>자리수가 다르면 공통 접두사가 강제되지 않으므로 8을 0개로 만들 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) palindrome 판별: 양끝에서 가운데로 비교</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          if (i &gt; line.length() - 1 - i) break;
-          if (line.charAt(i) != line.charAt(line.length() - 1 - i)) {
-              palindrome = false;
+        <li><strong>3) 각 자리를 배열로 분해 (가장 높은 자리부터)</strong>
+          <pre><code>int[] LArr = new int[lenA];
+      int[] RArr = new int[lenA];
+      
+      for (int i = lenA - 1; i &gt;= 0; i--) {
+          LArr[i] = L % 10;
+          RArr[i] = R % 10;
+      
+          L /= 10;
+          R /= 10;
+      }</code></pre>
+          <ul>
+            <li>뒤에서부터(1의 자리부터) 뽑아서 배열의 뒤쪽 인덱스에 채운다.</li>
+            <li>결과적으로 <code>LArr[0]</code>, <code>RArr[0]</code>이 가장 높은 자리가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 공통 접두사 구간에서만 8 카운트</strong>
+          <pre><code>int min = 0;
+      for (int i = 0; i &lt; lenA; i++) {
+          int a = LArr[i];
+          int b = RArr[i];
+      
+          if (a != b) {
               break;
+          } else if (a == 8){
+              min++;
           }
       }</code></pre>
           <ul>
-            <li><code>i</code>와 <code>len-1-i</code>를 비교하며 회문인지 확인한다.</li>
-            <li>한 번이라도 다르면 회문이 아니므로 <code>false</code>로 바꾸고 종료한다.</li>
-            <li>가운데를 지나면 더 볼 필요가 없어 중단한다.</li>
+            <li>왼쪽 자리부터 비교한다.</li>
+            <li>어느 자리에서든 <code>L</code>과 <code>R</code>의 숫자가 달라지면 그 뒤는 선택의 폭이 생겨 8을 피할 수 있으므로 중단한다.</li>
+            <li>달라지기 전까지 동일한 자리 값이 8이면 그 자리는 모든 후보에 강제로 포함되므로 <code>min++</code>.</li>
           </ul>
         </li>
       
-        <li><strong>4) mirrored 판별: 뒤쪽 문자의 거울값이 앞쪽 문자와 같은지 확인</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          int backIdx = line.length() - 1 - i;
-          Character c = map.get(line.charAt(backIdx));
-      
-          if (c == null || line.charAt(i) != c) {
-              mirrored = false;
-              break;
-          }
-      }</code></pre>
+        <li><strong>5) 결과 출력</strong>
+          <pre><code>System.out.println(min);</code></pre>
           <ul>
-            <li>거울 문자열 조건은 “뒤에서 i번째 문자를 거울 변환한 값”이 “앞에서 i번째 문자”와 같아야 한다.</li>
-            <li>따라서 <code>backIdx</code> 위치 문자를 맵에서 변환한 뒤, <code>line.charAt(i)</code>와 비교한다.</li>
-            <li>대응 문자가 없거나(<code>null</code>) 값이 다르면 mirrored가 아니다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) 조건 조합에 따라 문구 출력</strong>
-          <pre><code>sb.append(line).append(" -- ");
-      
-      if (palindrome &amp;&amp; mirrored) {
-          sb.append("is a mirrored palindrome.").append('\n').append('\n');
-          continue;
-      } else if (palindrome) {
-          sb.append("is a palindrome.").append('\n').append('\n');
-      } else if (mirrored) {
-          sb.append("is a mirrored string.").append('\n').append('\n');
-      } else {
-          sb.append("is not a palindrome.").append('\n').append('\n');
-      }</code></pre>
-          <ul>
-            <li>문제에서 요구한 출력 형식을 그대로 따른다.</li>
-            <li>각 케이스마다 마지막에 빈 줄을 추가한다.</li>
+            <li>공통 접두사에서 강제되는 8의 개수를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -435,14 +419,13 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>문자열 길이를 <code>L</code>이라 하면,
-              palindrome 검사 <code>O(L)</code>, mirrored 검사 <code>O(L)</code> → 전체 <strong><code>O(L)</code></strong>.</li>
-            <li><code>L ≤ 20</code>이라 매우 작다.</li>
+            <li>자릿수는 최대 10자리 수준(2,000,000,000 이하)이므로 전부 상수 시간이다.</li>
+            <li>자리 비교도 최대 자릿수만큼만 수행 → <strong><code>O(d)</code></strong> (d=자릿수, 사실상 <code>O(1)</code>)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>거울 매핑 테이블은 고정 크기 → <strong><code>O(1)</code></strong>.</li>
+            <li>자릿수 배열 2개만 사용 → <strong><code>O(d)</code></strong> (사실상 <code>O(1)</code>)</li>
           </ul>
         </li>
       </ul>
