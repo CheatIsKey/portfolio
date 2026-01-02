@@ -265,20 +265,15 @@
       </h3>
       
       <p>
-        <strong>Palindromes (BOJ 6474)</strong>는<br>
-        입력으로 주어진 문자열이
-        <strong>일반 회문(palindrome)</strong>인지,
-        <strong>거울 문자열(mirrored string)</strong>인지,
-        혹은 둘 다 만족하는 <strong>거울 회문(mirrored palindrome)</strong>인지 판별해
-        정해진 문장을 출력하는 문제다.
+        <strong>접두사 (BOJ 1141)</strong>는<br>
+        주어진 단어들 중에서, 어떤 단어도 다른 단어의 <strong>접두어(prefix)</strong>가 되지 않도록 골라 만든
+        <strong>접두사X 집합</strong>의 최대 크기를 구하는 문제다.
       </p>
       
       <ul>
-        <li><strong>palindrome</strong>: 문자열을 뒤집어도 동일한 문자열</li>
-        <li><strong>mirrored string</strong>: 문자열을 뒤집은 뒤 각 문자를 “거울 대응 문자”로 치환했을 때 원래 문자열과 같음</li>
-        <li><strong>mirrored palindrome</strong>: 위 두 조건을 모두 만족</li>
-        <li>입력은 EOF까지 여러 줄로 주어진다.</li>
-        <li>출력은 문자열 + <code>" -- "</code> + 판정 문구, 그리고 <strong>빈 줄 1줄</strong>이 추가된다.</li>
+        <li>어떤 단어가 다른 단어의 접두어가 되면 그 두 단어를 동시에 포함할 수 없다.</li>
+        <li>중복 단어가 입력될 수 있지만, 집합의 원소는 “단어”이므로 같은 단어는 하나로 취급할 수 있다.</li>
+        <li>정답을 크게 하려면, “접두어가 되는 단어”는 제외하고 “더 긴 단어”를 남기는 것이 유리하다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -290,14 +285,17 @@
       </p>
       
       <ul>
-        <li>문제에서 제공한 “거울 대응” 규칙을 <code>Map&lt;Character, Character&gt;</code>으로 만든다.</li>
-        <li>각 문자열에 대해
+        <li>중복 단어는 <code>Set</code>으로 제거한다.</li>
+        <li>단어들을 사전순으로 정렬한다.</li>
+        <li>사전순 정렬을 하면, 어떤 단어 <code>s</code>가 다른 단어의 접두어라면
+          <strong>접두어 관계가 발생하는 후보는 인접한 위치</strong>에서 확인할 수 있다.</li>
+        <li>따라서 정렬된 리스트에서
           <ul>
-            <li>앞/뒤 문자가 같은지 비교해서 palindrome 여부 판단</li>
-            <li>뒤쪽 문자에 대한 거울 대응 문자를 찾아서 앞쪽 문자와 같은지 비교해 mirrored 여부 판단</li>
+            <li>현재 단어가 다음 단어의 접두어면 현재 단어는 포함시키지 않는다.</li>
+            <li>접두어가 아니라면 현재 단어는 안전하므로 포함(카운트 증가)한다.</li>
           </ul>
         </li>
-        <li>두 boolean 값(<code>palindrome</code>, <code>mirrored</code>) 조합으로 출력 문구를 결정한다.</li>
+        <li>마지막 단어는 항상 “다음 단어가 없으므로” 접두어로 판단될 일이 없어 포함된다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -309,95 +307,51 @@
       </p>
       
       <ul>
-        <li><strong>1) 거울 문자 매핑(Map) 구성</strong>
-          <pre><code>Map&lt;Character, Character&gt; map = new HashMap&lt;&gt;();
-      map.put('E', '3');
-      map.put('3', 'E');
-      map.put('J', 'L');
-      map.put('L', 'J');
-      map.put('S', '2');
-      map.put('2', 'S');
-      map.put('Z', '5');
-      map.put('5', 'Z');
-      map.put('A', 'A');
-      map.put('H', 'H');
-      map.put('I', 'I');
-      map.put('M', 'M');
-      map.put('O', 'O');
-      map.put('T', 'T');
-      map.put('U', 'U');
-      map.put('V', 'V');
-      map.put('W', 'W');
-      map.put('X', 'X');
-      map.put('Y', 'Y');
-      map.put('1', '1');
-      map.put('8', '8');</code></pre>
+        <li><strong>1) 입력 후 중복 제거</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      
+      Set&lt;String&gt; set = new HashSet&lt;&gt;();
+      for (int i = 0; i &lt; N; i++) {
+          set.add(br.readLine());
+      }</code></pre>
           <ul>
-            <li>문제 표에 나온 “문자 ↔ 거울 문자” 관계를 그대로 저장한다.</li>
-            <li>서로 바뀌는 쌍(<code>E↔3</code>, <code>J↔L</code> 등)은 양방향으로 모두 넣는다.</li>
-            <li>자기 자신으로 대응되는 문자(<code>A, H, I, ...</code>)도 넣는다.</li>
+            <li>같은 단어가 여러 번 들어올 수 있으므로 <code>Set</code>으로 중복을 제거한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 입력 문자열을 EOF까지 처리</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          boolean palindrome = true;
-          boolean mirrored = true;</code></pre>
+        <li><strong>2) 정렬을 위해 List로 변환</strong>
+          <pre><code>List&lt;String&gt; list = new ArrayList&lt;&gt;(set);
+      Collections.sort(list);</code></pre>
           <ul>
-            <li>한 줄이 하나의 문자열이고, EOF까지 반복한다.</li>
-            <li>각 문자열마다 두 조건을 각각 검사한다.</li>
+            <li>사전순 정렬을 하면 접두어 관계를 인접 비교로 처리할 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) palindrome 판별: 양끝에서 가운데로 비교</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          if (i &gt; line.length() - 1 - i) break;
-          if (line.charAt(i) != line.charAt(line.length() - 1 - i)) {
-              palindrome = false;
-              break;
+        <li><strong>3) 인접 원소끼리 접두어 여부 확인하며 카운트</strong>
+          <pre><code>int answer = 0;
+      for (int i = 0; i &lt; list.size() - 1; i++) {
+          if (!list.get(i + 1).startsWith(list.get(i))) {
+              answer++;
           }
       }</code></pre>
           <ul>
-            <li><code>i</code>와 <code>len-1-i</code>를 비교하며 회문인지 확인한다.</li>
-            <li>한 번이라도 다르면 회문이 아니므로 <code>false</code>로 바꾸고 종료한다.</li>
-            <li>가운데를 지나면 더 볼 필요가 없어 중단한다.</li>
+            <li><code>list[i]</code>가 <code>list[i+1]</code>의 접두어이면 <code>list[i]</code>는 포함하면 안 된다.</li>
+            <li>접두어가 아니라면 안전하므로 <code>answer++</code>.</li>
           </ul>
         </li>
       
-        <li><strong>4) mirrored 판별: 뒤쪽 문자의 거울값이 앞쪽 문자와 같은지 확인</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          int backIdx = line.length() - 1 - i;
-          Character c = map.get(line.charAt(backIdx));
-      
-          if (c == null || line.charAt(i) != c) {
-              mirrored = false;
-              break;
-          }
-      }</code></pre>
+        <li><strong>4) 마지막 단어 처리</strong>
+          <pre><code>if (!list.isEmpty()) answer++;</code></pre>
           <ul>
-            <li>거울 문자열 조건은 “뒤에서 i번째 문자를 거울 변환한 값”이 “앞에서 i번째 문자”와 같아야 한다.</li>
-            <li>따라서 <code>backIdx</code> 위치 문자를 맵에서 변환한 뒤, <code>line.charAt(i)</code>와 비교한다.</li>
-            <li>대응 문자가 없거나(<code>null</code>) 값이 다르면 mirrored가 아니다.</li>
+            <li>마지막 단어는 “다음 단어”가 없어서 접두어 판정을 당하지 않으므로 항상 포함된다.</li>
+            <li>단어가 하나도 없을 수는 없지만(문제상 N≥1), 방어적으로 빈 리스트를 체크한다.</li>
           </ul>
         </li>
       
-        <li><strong>5) 조건 조합에 따라 문구 출력</strong>
-          <pre><code>sb.append(line).append(" -- ");
-      
-      if (palindrome &amp;&amp; mirrored) {
-          sb.append("is a mirrored palindrome.").append('\n').append('\n');
-          continue;
-      } else if (palindrome) {
-          sb.append("is a palindrome.").append('\n').append('\n');
-      } else if (mirrored) {
-          sb.append("is a mirrored string.").append('\n').append('\n');
-      } else {
-          sb.append("is not a palindrome.").append('\n').append('\n');
-      }</code></pre>
+        <li><strong>5) 정답 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>문제에서 요구한 출력 형식을 그대로 따른다.</li>
-            <li>각 케이스마다 마지막에 빈 줄을 추가한다.</li>
+            <li>최대 크기의 접두사X 부분집합 크기를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -413,17 +367,19 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>문자열 길이를 <code>L</code>이라 하면,
-              palindrome 검사 <code>O(L)</code>, mirrored 검사 <code>O(L)</code> → 전체 <strong><code>O(L)</code></strong>.</li>
-            <li><code>L ≤ 20</code>이라 매우 작다.</li>
+            <li>중복 제거: <strong><code>O(N)</code></strong></li>
+            <li>정렬: 중복 제거 후 단어 수를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
+            <li>인접 비교: <strong><code>O(K)</code></strong></li>
+            <li>전체: <strong><code>O(K log K)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>거울 매핑 테이블은 고정 크기 → <strong><code>O(1)</code></strong>.</li>
+            <li>Set/List에 단어 저장 → <strong><code>O(K)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
