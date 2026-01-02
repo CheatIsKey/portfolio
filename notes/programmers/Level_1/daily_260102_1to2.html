@@ -272,84 +272,85 @@
 
       
       <h3 class="section">
-  <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-    해설
-  </span>
-</h3>
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>나머지가 1이 되는 수 찾기 (프로그래머스 87389)</strong>는<br>
+        자연수 <code>n</code>이 주어졌을 때,
+        <code>n</code>을 어떤 자연수 <code>x</code>로 나눈 나머지가 1이 되도록 하는
+        <strong>가장 작은</strong> <code>x</code>를 찾는 문제다.
+      </p>
+      
+      <ul>
+        <li>조건: <code>n % x == 1</code></li>
+        <li>정답은 조건을 만족하는 <code>x</code> 중 최솟값이다.</li>
+        <li>가장 작은 값을 찾는 문제이므로 <code>x</code>를 1부터 순서대로 검사하면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>x</code>를 <code>1</code>부터 <code>n-1</code>까지 증가시키며 확인한다.</li>
+        <li><code>n % x == 1</code>을 만족하는 순간의 <code>x</code>가 최솟값이므로 즉시 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 1부터 n-1까지 순회하며 조건 확인</strong>
+          <pre><code>for (int i = 1; i &lt; n; i++) {
+          if (n % i == 1) return i;
+      }</code></pre>
+          <ul>
+            <li><code>i</code>를 후보 <code>x</code>로 두고 <code>n % i</code>를 확인한다.</li>
+            <li>나머지가 1인 가장 첫 번째 <code>i</code>를 만나면 바로 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) (도달하지 않는) 기본 반환</strong>
+          <pre><code>return -1;</code></pre>
+          <ul>
+            <li>문제 조건상 항상 정답이 존재하므로 실제로는 실행되지 않는 안전장치다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>최악의 경우 <code>1</code>부터 <code>n-1</code>까지 확인하므로 <strong><code>O(n)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
 
-<p>
-  <strong>나머지가 1이 되는 수 찾기 (프로그래머스 87389)</strong>는<br>
-  자연수 <code>n</code>이 주어졌을 때,
-  <code>n</code>을 어떤 자연수 <code>x</code>로 나눈 나머지가 1이 되도록 하는
-  <strong>가장 작은</strong> <code>x</code>를 찾는 문제다.
-</p>
-
-<ul>
-  <li>조건: <code>n % x == 1</code></li>
-  <li>정답은 조건을 만족하는 <code>x</code> 중 최솟값이다.</li>
-  <li>가장 작은 값을 찾는 문제이므로 <code>x</code>를 1부터 순서대로 검사하면 된다.</li>
-</ul>
-
-<div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
-
-<p>
-  <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-    전략 개요
-  </span>
-</p>
-
-<ul>
-  <li><code>x</code>를 <code>1</code>부터 <code>n-1</code>까지 증가시키며 확인한다.</li>
-  <li><code>n % x == 1</code>을 만족하는 순간의 <code>x</code>가 최솟값이므로 즉시 반환한다.</li>
-</ul>
-
-<div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
-
-<p>
-  <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-    코드가 하는 일
-  </span>
-</p>
-
-<ul>
-  <li><strong>1) 1부터 n-1까지 순회하며 조건 확인</strong>
-    <pre><code>for (int i = 1; i &lt; n; i++) {
-    if (n % i == 1) return i;
-}</code></pre>
-    <ul>
-      <li><code>i</code>를 후보 <code>x</code>로 두고 <code>n % i</code>를 확인한다.</li>
-      <li>나머지가 1인 가장 첫 번째 <code>i</code>를 만나면 바로 반환한다.</li>
-    </ul>
-  </li>
-
-  <li><strong>2) (도달하지 않는) 기본 반환</strong>
-    <pre><code>return -1;</code></pre>
-    <ul>
-      <li>문제 조건상 항상 정답이 존재하므로 실제로는 실행되지 않는 안전장치다.</li>
-    </ul>
-  </li>
-</ul>
-
-<div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
-
-<p>
-  <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
-    시간 · 공간 복잡도
-  </span>
-</p>
-
-<ul>
-  <li><strong>시간 복잡도</strong>
-    <ul>
-      <li>최악의 경우 <code>1</code>부터 <code>n-1</code>까지 확인하므로 <strong><code>O(n)</code></strong>.</li>
-    </ul>
-  </li>
-  <li><strong>공간 복잡도</strong>
-    <ul>
-      <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
-    </ul>
-  </li>
-</ul>
 
 
 
