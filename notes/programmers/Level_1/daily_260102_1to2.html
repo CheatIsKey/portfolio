@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-01 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 개인정보 수집 유효기간</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/150370">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0101_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>개인정보 수집 유효기간 (프로그래머스 150370)</strong>은<br>
+        오늘 날짜 <code>today</code>와 약관별 유효기간 <code>terms</code>,
+        그리고 개인정보 수집 날짜/약관 종류 <code>privacies</code>가 주어졌을 때,
+        <strong>파기해야 하는 개인정보의 번호</strong>를 오름차순으로 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>모든 달은 <strong>28일</strong>로 고정이다.</li>
+        <li>개인정보는 “수집일 + 약관 개월 수”까지 유효하며,
+          <strong>그 다음 날부터 파기 대상</strong>이 된다.</li>
+        <li>즉, 만료일은
+          <ul>
+            <li><code>expire = (수집일 + months * 28) - 1</code></li>
+          </ul>
+          로 계산할 수 있다.
+        </li>
+        <li>만료일이 오늘보다 <strong>이전</strong>이면 파기 대상이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>날짜를 비교하기 쉽게, 모든 날짜를 “총 일수”로 변환한다.</li>
+        <li>28일/달이므로
+          <ul>
+            <li><code>total = (YYYY * 12 + MM) * 28 + DD</code></li>
+          </ul>
+          형태로 단일 정수로 바꿀 수 있다.</li>
+        <li><code>terms</code>는 약관 종류 → 개월 수를 <code>Map</code>에 저장한다.</li>
+        <li>각 개인정보에 대해 만료일을 계산하고, 만료일이 오늘보다 작으면(이미 만료) 인덱스를 결과에 추가한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) today를 총 일수로 변환</strong>
+          <pre><code>String[] split = today.split("\\.");
+      int YYYY = Integer.parseInt(split[0]);
+      int MM = Integer.parseInt(split[1]);
+      int DD = Integer.parseInt(split[2]);
+      
+      int totalToday = (YYYY * 12 + MM) * 28 + DD;</code></pre>
+          <ul>
+            <li>문자열 날짜를 파싱해서 정수로 바꾼다.</li>
+            <li>모든 달이 28일이므로 “YYYY/MM/DD”를 단일 값으로 변환해 비교한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 약관 종류별 개월 수를 Map에 저장</strong>
+          <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      for (String term : terms) {
+          String[] s = term.split(" ");
+          map.put(s[0], Integer.parseInt(s[1]));
+      }</code></pre>
+          <ul>
+            <li>예: <code>"A 6"</code>이면 <code>map.get("A") == 6</code>으로 저장된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 각 개인정보의 만료일 계산 후 파기 대상 체크</strong>
+          <pre><code>List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+      for (int i = 0; i &lt; privacies.length; i++) {
+          String[] s = privacies[i].split(" ");
+          String[] date = s[0].split("\\.");
+      
+          YYYY = Integer.parseInt(date[0]);
+          MM = Integer.parseInt(date[1]);
+          DD = Integer.parseInt(date[2]);
+      
+          int totalExpire = ((YYYY * 12 + MM) * 28 + DD);
+          int months = map.get(s[1]);
+      
+          int expire = totalExpire + months * 28 - 1;
+          if (expire &lt; totalToday) {
+              list.add(i + 1);
+          }
+      }</code></pre>
+          <ul>
+            <li><code>totalExpire</code>는 수집일을 총 일수로 바꾼 값이다.</li>
+            <li>만료일은 “수집일 + 유효기간 - 1일”이므로 <code>-1</code>을 해준다.</li>
+            <li><code>expire &lt; totalToday</code>이면 오늘 기준 이미 만료 → 파기 대상이다.</li>
+            <li>문제에서 번호는 1부터 시작하므로 <code>i + 1</code>을 넣는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 리스트를 배열로 변환해 반환</strong>
+          <pre><code>int idx = 0;
+      int[] answer = new int[list.size()];
+      for (int i : list) {
+          answer[idx++] = i;
+      }
+      
+      return answer;</code></pre>
+          <ul>
+            <li>파기 대상 번호를 담은 리스트를 정답 배열로 옮겨 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>약관 파싱: <code>terms</code> 길이를 <code>T</code>라 하면 <strong><code>O(T)</code></strong></li>
+            <li>개인정보 검사: <code>privacies</code> 길이를 <code>P</code>라 하면 <strong><code>O(P)</code></strong></li>
+            <li>전체: <strong><code>O(T + P)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>약관 Map과 결과 리스트를 저장 → <strong><code>O(T + P)</code></strong> (결과는 최대 P개)</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 성격 유형 검사하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/118666">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0101_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>데이터 분석 (프로그래머스 250121)</strong>은<br>
+        2차원 배열 <code>data</code>에서 특정 컬럼(<code>ext</code>)의 값이 <code>val_ext</code>보다 작은 행만 골라낸 뒤,
+        다른 컬럼(<code>sort_by</code>) 기준으로 오름차순 정렬하여 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>data</code>의 각 행은 항상 길이 4이고, 컬럼 의미는 다음과 같다:
+          <ul>
+            <li><code>code</code></li>
+            <li><code>date</code></li>
+            <li><code>maximum</code></li>
+            <li><code>remain</code></li>
+          </ul>
+        </li>
+        <li><code>ext</code>로 주어진 컬럼에서 <strong><code>&lt; val_ext</code></strong> 조건을 만족하는 행만 추출한다.</li>
+        <li>추출한 결과를 <code>sort_by</code> 컬럼 기준으로 <strong>오름차순 정렬</strong>한다.</li>
+        <li>정렬된 결과를 2차원 배열 형태로 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문자열로 주어진 컬럼명(<code>ext</code>, <code>sort_by</code>)을 실제 인덱스로 바꾼다.</li>
+        <li><code>data</code>를 순회하며 <code>datum[extIdx] &lt; val_ext</code>인 행만 리스트에 담는다.</li>
+        <li>리스트를 <code>sortIdx</code> 기준으로 오름차순 정렬한다.</li>
+        <li>리스트를 2차원 배열로 변환해 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 컬럼명 → 인덱스 변환</strong>
+          <pre><code>int extIdx = col(ext);
+      int sortIdx = col(sort_by);</code></pre>
+          <ul>
+            <li><code>ext</code>, <code>sort_by</code>는 문자열이므로 실제 배열 인덱스로 변환해 사용한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 조건에 맞는 행만 필터링</strong>
+          <pre><code>List&lt;int[]&gt; list = new ArrayList&lt;&gt;();
+      for (int[] datum : data) {
+          if (datum[extIdx] &lt; val_ext) list.add(datum);
+      }</code></pre>
+          <ul>
+            <li><code>ext</code> 컬럼 값이 <code>val_ext</code>보다 작은 행만 <code>list</code>에 담는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) sort_by 기준 오름차순 정렬</strong>
+          <pre><code>list.sort(Comparator.comparingInt(a -&gt; a[sortIdx]));</code></pre>
+          <ul>
+            <li>정렬 기준 컬럼의 값을 비교하도록 Comparator를 만들어 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 리스트 → 2차원 배열 변환</strong>
+          <pre><code>int[][] ans = new int[list.size()][4];
+      for (int i = 0; i &lt; list.size(); i++) {
+          ans[i] = list.get(i);
+      }
+      
+      return ans;</code></pre>
+          <ul>
+            <li>필터링된 행 개수만큼 배열을 만들고, 리스트 원소를 그대로 옮긴다.</li>
+            <li>정렬된 결과를 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) col(): 컬럼 문자열을 인덱스로 매핑</strong>
+          <pre><code>private int col(String str) {
+          switch (str) {
+              case "code": return 0;
+              case "date": return 1;
+              case "maximum": return 2;
+              case "remain": return 3;
+          }
+      
+          return -1;
+      }</code></pre>
+          <ul>
+            <li>문제에서 정한 컬럼 순서를 그대로 인덱스로 매핑한다.</li>
+            <li>유효하지 않은 값은 입력으로 주어지지 않지만, 방어적으로 <code>-1</code>을 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>필터링: 데이터 개수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
+            <li>정렬: 필터링 결과를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
+            <li>전체: <strong><code>O(N + K log K)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>필터링 결과 리스트/배열 저장 → <strong><code>O(K)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
