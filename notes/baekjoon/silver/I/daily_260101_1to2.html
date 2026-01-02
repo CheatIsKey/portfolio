@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2026-01-01 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1080 — 행렬</h2>
+      <h2 class="section">문제 1124 — 언더프라임</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1080">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1124">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1230_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_0101_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,21 @@
       </h3>
       
       <p>
-        <strong>행렬 (BOJ 1080)</strong>은<br>
-        0과 1로 이루어진 행렬 <code>A</code>를 행렬 <code>B</code>로 바꾸기 위해,
-        <strong>3×3 부분 행렬을 뒤집는 연산</strong>을 최소 몇 번 해야 하는지 구하는 문제다.
+        <strong>언더프라임 (BOJ 1124)</strong>는<br>
+        정수 <code>X</code>를 소인수분해했을 때 나오는 <strong>소수 인수(중복 포함)의 개수</strong>가
+        <strong>소수</strong>이면 <code>X</code>를 언더프라임이라 정의하고,
+        <code>A</code>부터 <code>B</code> 사이(포함)에서 언더프라임의 개수를 세는 문제다.
       </p>
       
       <ul>
-        <li>연산 1회는 선택한 3×3 영역의 모든 원소를 <code>0 ↔ 1</code>로 뒤집는다.</li>
-        <li><code>N</code> 또는 <code>M</code>이 3보다 작으면 3×3 연산 자체가 불가능하다.</li>
-        <li>가능한 경우에는 좌상단부터 비교하면서 “필요할 때만” 뒤집는 그리디가 정답이 된다.</li>
+        <li>예: <code>12 = 2 × 2 × 3</code> → 소수 인수 개수는 3개, 3은 소수이므로 12는 언더프라임.</li>
+        <li>1은 소수가 아니며, 소인수 개수도 0 또는 1이면(예: 소수 자체) 언더프라임이 될 수 없다.</li>
+        <li>따라서 각 수마다
+          <ul>
+            <li>소인수(중복 포함) 개수 <code>cnt</code>를 구하고</li>
+            <li><code>cnt</code>가 소수인지 판별</li>
+          </ul>
+          을 하면 된다.</li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,11 +81,14 @@
       </p>
       
       <ul>
-        <li><code>(i, j)</code>를 3×3 뒤집기의 좌상단으로 둘 수 있는 범위(<code>0..N-3</code>, <code>0..M-3</code>)를 순회한다.</li>
-        <li>좌상단부터 보면서 <code>A[i][j] != B[i][j]</code>이면,
-          그 칸을 맞추기 위해서는 <strong>반드시</strong> <code>(i, j)</code>에서 3×3 뒤집기를 해야 한다.</li>
-        <li>따라서 차이가 나는 순간에만 <code>flip(A, i, j)</code>를 수행하고 횟수를 증가시킨다.</li>
-        <li>전체 순회가 끝난 뒤 <code>A</code>와 <code>B</code>가 완전히 같으면 횟수를 출력하고, 아니면 <code>-1</code>을 출력한다.</li>
+        <li><code>x = A..B</code>까지 하나씩 보면서:
+          <ul>
+            <li><code>x</code>를 <code>2</code>부터 <code>sqrt(x)</code>까지 나눠 소인수분해하며 (중복 포함) 인수 개수 <code>cnt</code>를 센다.</li>
+            <li>마지막에 <code>n &gt; 1</code>이면 남은 소인수가 1개 더 있으므로 <code>cnt++</code>.</li>
+            <li><code>cnt</code>가 2 이상일 때만(소수 인수 개수가 0/1이면 소수가 될 수 없음) 소수 판정을 한다.</li>
+            <li><code>cnt</code>가 소수이면 정답 카운트 증가.</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -91,88 +100,58 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력으로 행렬 A, B 구성</strong>
-          <pre><code>int[][] A = new int[N][M];
-      for (int i = 0; i &lt; N; i++) {
-          String s = br.readLine();
-          for (int j = 0; j &lt; M; j++) {
-              A[i][j] = s.charAt(j) - '0';
+        <li><strong>1) 입력 처리</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+      int A = Integer.parseInt(st.nextToken());
+      int B = Integer.parseInt(st.nextToken());</code></pre>
+          <ul>
+            <li>구간 <code>[A, B]</code>를 입력받는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) A부터 B까지 순회하며 소인수 개수 계산</strong>
+          <pre><code>int total = 0;
+      
+      for (int x = A; x &lt;= B; x++) {
+          int n = x;
+          int cnt = 0;
+          boolean ok = true;
+      
+          for (int i = 2; i * i &lt;= n; i++) {
+              while (n % i == 0) {
+                  cnt++;
+                  n /= i;
+              }
+          }
+      
+          if (n &gt; 1) cnt++;
+          if (cnt &lt; 2) continue;</code></pre>
+          <ul>
+            <li><code>n</code>을 나누어가며 소인수(중복 포함) 개수를 <code>cnt</code>에 누적한다.</li>
+            <li>루프가 끝난 뒤 <code>n</code>이 1보다 크면 마지막 소인수가 남은 것이므로 <code>cnt++</code>.</li>
+            <li><code>cnt</code>가 0 또는 1이면 소수가 아니므로(2 이상부터 소수 가능) 바로 다음 수로 넘어간다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) cnt가 소수인지 판별</strong>
+          <pre><code>for (int i = 2; i * i &lt;= cnt; i++) {
+          if (cnt % i == 0) {
+              ok = false;
+              break;
           }
       }
       
-      int[][] B = new int[N][M];
-      for (int i = 0; i &lt; N; i++) {
-          String s = br.readLine();
-          for (int j = 0; j &lt; M; j++) {
-              B[i][j] = s.charAt(j) - '0';
-          }
-      }</code></pre>
+      if (ok) total++;</code></pre>
           <ul>
-            <li>문자열로 들어오는 0/1을 정수로 변환해 2차원 배열에 저장한다.</li>
+            <li><code>cnt</code>를 2부터 <code>sqrt(cnt)</code>까지 나눠보며 약수가 있으면 소수가 아니다.</li>
+            <li>소수라면 언더프라임이므로 <code>total</code>을 증가시킨다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 3×3 연산 자체가 불가능한 경우 처리</strong>
-          <pre><code>if (N &lt; 3 || M &lt; 3) {
-          System.out.println(same(A, B) ? 0 : -1);
-          return;
-      }</code></pre>
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(total);</code></pre>
           <ul>
-            <li><code>N</code>이나 <code>M</code>이 3보다 작으면 뒤집기 연산을 할 수 없다.</li>
-            <li>이때는 처음부터 같으면 0, 다르면 -1이 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 좌상단부터 그리디로 뒤집기 수행</strong>
-          <pre><code>int cnt = 0;
-      for (int i = 0; i &lt;= N - 3; i++) {
-          for (int j = 0; j &lt;= M - 3; j++) {
-              if (A[i][j] != B[i][j]) {
-                  flip(A, i, j);
-                  cnt++;
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li><code>(i, j)</code> 위치를 “이제부터는 다시 건드릴 수 없는 좌상단”으로 생각한다.</li>
-            <li>해당 칸이 다르면, 그 칸을 뒤집는 방법은 <code>(i, j)</code>에서 flip하는 것뿐이므로 즉시 수행한다.</li>
-            <li>이 과정을 통해 좌상단부터 순서대로 맞춰 나간다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 최종 동일 여부 판단 후 출력</strong>
-          <pre><code>System.out.println(same(A, B) ? cnt : -1);</code></pre>
-          <ul>
-            <li>모든 뒤집기가 끝난 뒤 <code>A</code>와 <code>B</code>가 같으면 <code>cnt</code>가 최솟값이다.</li>
-            <li>끝까지 맞출 수 없으면 불가능이므로 <code>-1</code>.</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) flip(): 3×3 부분 행렬 뒤집기</strong>
-          <pre><code>private static void flip(int[][] a, int i, int j) {
-          for (int k = i; k &lt; i + 3; k++) {
-              for (int l = j; l &lt; j + 3; l++) {
-                  a[k][l] = 1 - a[k][l];
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li><code>0 → 1</code>, <code>1 → 0</code>을 <code>1 - 값</code>으로 처리한다.</li>
-            <li>좌상단 (<code>i, j</code>) 기준 3×3 영역을 정확히 뒤집는다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>6) same(): 두 행렬이 완전히 같은지 검사</strong>
-          <pre><code>private static boolean same(int[][] a, int[][] b) {
-          for (int i = 0; i &lt; a.length; i++) {
-              for (int j = 0; j &lt; a[0].length; j++) {
-                  if (a[i][j] != b[i][j]) return false;
-              }
-          }
-          return true;
-      }</code></pre>
-          <ul>
-            <li>모든 칸이 같아야 true를 반환한다.</li>
+            <li>구간 내 언더프라임 개수를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -188,18 +167,17 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>좌상단 순회는 <strong><code>O(N*M)</code></strong>.</li>
-            <li>각 flip은 3×3(9칸)만 뒤집으므로 상수 시간.</li>
-            <li>전체는 <strong><code>O(N*M)</code></strong>이며, <code>N, M ≤ 50</code>이라 충분히 빠르다.</li>
+            <li>각 <code>x</code>에 대해 소인수분해를 최대 <code>sqrt(x)</code>까지 시도하므로 대략 <strong><code>O((B-A+1) * sqrt(B))</code></strong>.</li>
+            <li><code>B ≤ 100,000</code>이라 가능한 수준이지만, 더 빠르게 하려면 소수 체/최소 소인수(SPF)를 쓰는 방식도 가능하다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>행렬 A, B 저장에 <strong><code>O(N*M)</code></strong>.</li>
-            <li>추가로 큰 자료구조는 사용하지 않는다.</li>
+            <li>추가 배열 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -263,14 +241,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6474 — Palindromes</h2>
+      <h2 class="section">문제 1141 — 접두사</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6474">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1141">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1226_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_0101_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
