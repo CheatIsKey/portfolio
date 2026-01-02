@@ -274,23 +274,25 @@
       </h3>
       
       <p>
-        <strong>데이터 분석 (프로그래머스 250121)</strong>은<br>
-        2차원 배열 <code>data</code>에서 특정 컬럼(<code>ext</code>)의 값이 <code>val_ext</code>보다 작은 행만 골라낸 뒤,
-        다른 컬럼(<code>sort_by</code>) 기준으로 오름차순 정렬하여 반환하는 문제다.
+        <strong>성격 유형 검사하기 (프로그래머스 118666)</strong>는<br>
+        설문 문항 <code>survey</code>와 선택지 <code>choices</code>가 주어졌을 때,
+        각 성격 지표(4쌍)에서 점수를 계산해 최종 성격 유형 문자열을 만드는 문제다.
       </p>
       
       <ul>
-        <li><code>data</code>의 각 행은 항상 길이 4이고, 컬럼 의미는 다음과 같다:
+        <li>각 문항은 두 성격 유형 문자로 구성된다. 예: <code>"RT"</code></li>
+        <li>선택지 <code>choices</code>는 1~7이며, 4는 중립이다.</li>
+        <li>1~3은 첫 번째 문자(<code>c1</code>)에 점수, 5~7은 두 번째 문자(<code>c2</code>)에 점수를 준다.</li>
+        <li>점수 크기는 중립(4)과의 거리로 결정된다:
           <ul>
-            <li><code>code</code></li>
-            <li><code>date</code></li>
-            <li><code>maximum</code></li>
-            <li><code>remain</code></li>
+            <li>1,7 → 3점</li>
+            <li>2,6 → 2점</li>
+            <li>3,5 → 1점</li>
+            <li>4 → 0점</li>
           </ul>
         </li>
-        <li><code>ext</code>로 주어진 컬럼에서 <strong><code>&lt; val_ext</code></strong> 조건을 만족하는 행만 추출한다.</li>
-        <li>추출한 결과를 <code>sort_by</code> 컬럼 기준으로 <strong>오름차순 정렬</strong>한다.</li>
-        <li>정렬된 결과를 2차원 배열 형태로 반환한다.</li>
+        <li>각 지표 쌍은 <code>RT</code>, <code>CF</code>, <code>JM</code>, <code>AN</code> 순서로 결정한다.</li>
+        <li>동점이면 사전순(알파벳이 더 빠른 문자)을 선택한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -302,10 +304,15 @@
       </p>
       
       <ul>
-        <li>문자열로 주어진 컬럼명(<code>ext</code>, <code>sort_by</code>)을 실제 인덱스로 바꾼다.</li>
-        <li><code>data</code>를 순회하며 <code>datum[extIdx] &lt; val_ext</code>인 행만 리스트에 담는다.</li>
-        <li>리스트를 <code>sortIdx</code> 기준으로 오름차순 정렬한다.</li>
-        <li>리스트를 2차원 배열로 변환해 반환한다.</li>
+        <li><code>choices[i]</code>를 <code>choice = choices[i] - 4</code>로 변환하면,
+          <ul>
+            <li><code>choice &lt; 0</code>: 첫 번째 유형에 점수(<code>-choice</code>)</li>
+            <li><code>choice &gt; 0</code>: 두 번째 유형에 점수(<code>choice</code>)</li>
+            <li><code>choice == 0</code>: 점수 없음</li>
+          </ul>
+          처럼 한 번에 처리할 수 있다.</li>
+        <li>문자별 누적 점수는 알파벳 인덱스를 이용해 <code>total[26]</code>에 저장한다.</li>
+        <li>각 지표 쌍에 대해 누적 점수를 비교해 더 큰 쪽을 선택하고, 같으면 사전순으로 선택한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -317,58 +324,60 @@
       </p>
       
       <ul>
-        <li><strong>1) 컬럼명 → 인덱스 변환</strong>
-          <pre><code>int extIdx = col(ext);
-      int sortIdx = col(sort_by);</code></pre>
+        <li><strong>1) 문자별 점수 누적 배열 준비</strong>
+          <pre><code>int[] total = new int[26];</code></pre>
           <ul>
-            <li><code>ext</code>, <code>sort_by</code>는 문자열이므로 실제 배열 인덱스로 변환해 사용한다.</li>
+            <li><code>total['A' - 'A']</code>부터 <code>total['Z' - 'A']</code>까지, 각 문자 점수를 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 조건에 맞는 행만 필터링</strong>
-          <pre><code>List&lt;int[]&gt; list = new ArrayList&lt;&gt;();
-      for (int[] datum : data) {
-          if (datum[extIdx] &lt; val_ext) list.add(datum);
-      }</code></pre>
-          <ul>
-            <li><code>ext</code> 컬럼 값이 <code>val_ext</code>보다 작은 행만 <code>list</code>에 담는다.</li>
-          </ul>
-        </li>
+        <li><strong>2) 설문 문항을 돌며 점수 누적</strong>
+          <pre><code>for (int i = 0; i &lt; survey.length; i++) {
+          char c1 = survey[i].charAt(0);
+          char c2 = survey[i].charAt(1);
+          int choice = choices[i] - 4;
       
-        <li><strong>3) sort_by 기준 오름차순 정렬</strong>
-          <pre><code>list.sort(Comparator.comparingInt(a -&gt; a[sortIdx]));</code></pre>
-          <ul>
-            <li>정렬 기준 컬럼의 값을 비교하도록 Comparator를 만들어 정렬한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 리스트 → 2차원 배열 변환</strong>
-          <pre><code>int[][] ans = new int[list.size()][4];
-      for (int i = 0; i &lt; list.size(); i++) {
-          ans[i] = list.get(i);
-      }
-      
-      return ans;</code></pre>
-          <ul>
-            <li>필터링된 행 개수만큼 배열을 만들고, 리스트 원소를 그대로 옮긴다.</li>
-            <li>정렬된 결과를 반환한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) col(): 컬럼 문자열을 인덱스로 매핑</strong>
-          <pre><code>private int col(String str) {
-          switch (str) {
-              case "code": return 0;
-              case "date": return 1;
-              case "maximum": return 2;
-              case "remain": return 3;
+          if (choice &lt; 0) {
+              total[c1 - 'A'] += -choice;
+          } else if (choice &gt; 0) {
+              total[c2 - 'A'] += choice;
           }
-      
-          return -1;
       }</code></pre>
           <ul>
-            <li>문제에서 정한 컬럼 순서를 그대로 인덱스로 매핑한다.</li>
-            <li>유효하지 않은 값은 입력으로 주어지지 않지만, 방어적으로 <code>-1</code>을 반환한다.</li>
+            <li><code>choices[i] - 4</code>로 중립 기준 거리(점수)를 바로 계산한다.</li>
+            <li>음수면 첫 번째 유형(<code>c1</code>)에 <code>-choice</code>만큼 누적한다.</li>
+            <li>양수면 두 번째 유형(<code>c2</code>)에 <code>choice</code>만큼 누적한다.</li>
+            <li>0이면 중립이므로 아무 것도 하지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 4개 지표쌍을 순서대로 선택해 문자열 만들기</strong>
+          <pre><code>StringBuilder sb = new StringBuilder();
+      sb.append(selectChar(total, 'R', 'T'));
+      sb.append(selectChar(total, 'C', 'F'));
+      sb.append(selectChar(total, 'J', 'M'));
+      sb.append(selectChar(total, 'A', 'N'));
+      
+      return sb.toString();</code></pre>
+          <ul>
+            <li><code>RT</code>, <code>CF</code>, <code>JM</code>, <code>AN</code> 순서로 한 글자씩 결정한다.</li>
+            <li>결정된 4글자를 이어 최종 성격 유형을 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) selectChar(): 두 문자 점수 비교 후 선택</strong>
+          <pre><code>private char selectChar(int[] total, char c1, char c2) {
+          if (total[c1 - 'A'] &gt; total[c2 - 'A']) {
+              return c1;
+          } else if (total[c1 - 'A'] &lt; total[c2 - 'A']) {
+              return c2;
+          } else {
+              return c1 &lt; c2 ? c1 : c2;
+          }
+      }</code></pre>
+          <ul>
+            <li>누적 점수가 큰 문자를 선택한다.</li>
+            <li>동점이면 사전순으로 더 빠른 문자를 선택한다. (예: <code>R</code> vs <code>T</code>면 <code>R</code>)</li>
           </ul>
         </li>
       </ul>
@@ -384,14 +393,13 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>필터링: 데이터 개수를 <code>N</code>이라 하면 <strong><code>O(N)</code></strong></li>
-            <li>정렬: 필터링 결과를 <code>K</code>라 하면 <strong><code>O(K log K)</code></strong></li>
-            <li>전체: <strong><code>O(N + K log K)</code></strong></li>
+            <li>설문 문항 수를 <code>N</code>이라 하면 한 번 순회하므로 <strong><code>O(N)</code></strong>.</li>
+            <li>최종 선택은 4쌍 비교로 상수 시간이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>필터링 결과 리스트/배열 저장 → <strong><code>O(K)</code></strong></li>
+            <li>알파벳 점수 배열 <code>total[26]</code>만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
