@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-02 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2026-01-03 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 신고 결과 받기</h2>
+      <h2 class="section">문제 1 — 최소직사각형</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/92334">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/86491">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0102_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0103_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,17 +53,15 @@
       </h3>
       
       <p>
-        <strong>신고 결과 받기 (프로그래머스 92334)</strong>는<br>
-        유저 목록 <code>id_list</code>와 신고 기록 <code>report</code>, 정지 기준 <code>k</code>가 주어졌을 때,
-        각 유저가 <strong>받게 될 메일(정지 결과 알림) 횟수</strong>를 구하는 문제다.
+        <strong>최소직사각형 (프로그래머스 86491)</strong>은<br>
+        명함들의 가로/세로 크기 <code>sizes</code>가 주어졌을 때,
+        모든 명함을 담을 수 있는 <strong>가장 작은 지갑의 넓이</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>신고 기록은 <code>"신고자 피신고자"</code> 형태다.</li>
-        <li>같은 신고자가 같은 대상을 여러 번 신고해도 <strong>1번으로만</strong> 처리한다.</li>
-        <li>어떤 유저가 <strong>k번 이상</strong> 신고되면 정지 대상이다.</li>
-        <li>정지된 유저를 신고한 사람들에게 메일이 발송된다.</li>
-        <li>정답은 <code>id_list</code> 순서대로 메일 횟수를 담은 배열이다.</li>
+        <li>각 명함은 회전(가로/세로를 바꾸는 것)이 가능하다.</li>
+        <li>지갑의 가로/세로는 한 번 정하면 모든 명함을 그 방향으로 넣어야 한다.</li>
+        <li>정답은 <code>(지갑 가로 최대) × (지갑 세로 최대)</code>가 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,15 +73,21 @@
       </p>
       
       <ul>
-        <li>중복 신고를 제거하기 위해 “신고자 → (신고한 대상 Set)” 구조를 만든다.</li>
-        <li>신고 데이터를 순회하며
+        <li>각 명함은 회전 가능하므로, 항상
           <ul>
-            <li>신고자의 Set에 대상이 새로 추가되는 경우에만</li>
-            <li>피신고자의 신고 횟수를 1 증가시킨다.</li>
+            <li><code>w = max(가로, 세로)</code></li>
+            <li><code>h = min(가로, 세로)</code></li>
           </ul>
+          로 정리한다. (큰 변을 지갑의 “가로”, 작은 변을 “세로”로 통일)
         </li>
-        <li>신고 횟수가 <code>k</code> 이상인 유저들을 <code>banned</code> Set에 모은다.</li>
-        <li>각 유저가 신고한 대상 중 <code>banned</code>에 포함된 대상 수를 세어 결과 배열에 넣는다.</li>
+        <li>모든 명함에 대해
+          <ul>
+            <li>가로 후보 중 최대값 = <code>maxW</code></li>
+            <li>세로 후보 중 최대값 = <code>maxH</code></li>
+          </ul>
+          를 구한다.
+        </li>
+        <li>그럼 어떤 명함이든 <code>maxW × maxH</code> 지갑 안에 들어가므로 정답은 <code>maxW * maxH</code>.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -95,70 +99,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 신고자 → 신고 대상 Set 초기화</strong>
-          <pre><code>Map&lt;String, Set&lt;String&gt;&gt; map = new HashMap&lt;&gt;();
-      
-      for (String s : id_list) {
-          map.put(s, new HashSet&lt;&gt;());
-      }</code></pre>
+        <li><strong>1) 지갑 가로/세로의 최대 후보 변수 준비</strong>
+          <pre><code>int maxW = 0;
+      int maxH = 0;</code></pre>
           <ul>
-            <li>각 유저마다 “내가 신고한 대상들”을 저장할 Set을 준비한다.</li>
-            <li>Set을 쓰면 동일 대상 중복 신고가 자동으로 걸러진다.</li>
+            <li>명함을 담기 위한 최종 지갑 크기의 기준값을 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) report 순회하며 중복 제거 + 피신고 횟수 누적</strong>
-          <pre><code>Map&lt;String, Integer&gt; cnt = new HashMap&lt;&gt;();
-      
-      for (String s : report) {
-          String[] split = s.split(" ");
-          String reporter = split[0];
-          String target = split[1];
-      
-          Set&lt;String&gt; set = map.get(reporter);
-      
-          if (set.add(target)) {
-              cnt.put(target, cnt.getOrDefault(target, 0) + 1);
-          }
-      }</code></pre>
+        <li><strong>2) 각 명함을 회전 고려해서 (큰 변, 작은 변)으로 정규화</strong>
+          <pre><code>for (int[] size : sizes) {
+          int w = Math.max(size[0], size[1]);
+          int h = Math.min(size[0], size[1]);</code></pre>
           <ul>
-            <li><code>set.add(target)</code>가 <code>true</code>일 때만 “처음 신고”이므로 피신고자 카운트를 올린다.</li>
-            <li>이미 신고했던 대상이면 Set에 추가되지 않으므로 카운트도 증가하지 않는다.</li>
+            <li>회전이 가능하므로 큰 변을 “가로”로, 작은 변을 “세로”로 통일한다.</li>
+            <li>이렇게 해야 모든 명함을 같은 기준으로 비교할 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) k 이상 신고된 유저를 banned로 수집</strong>
-          <pre><code>Set&lt;String&gt; banned = new HashSet&lt;&gt;();
-      for (Map.Entry&lt;String, Integer&gt; entry : cnt.entrySet()) {
-          if (entry.getValue() &gt;= k) banned.add(entry.getKey());
+        <li><strong>3) 가로 최대/세로 최대 갱신</strong>
+          <pre><code>    maxW = Math.max(maxW, w);
+          maxH = Math.max(maxH, h);
       }</code></pre>
           <ul>
-            <li>피신고 횟수가 <code>k</code> 이상인 유저는 정지 대상이므로 <code>banned</code>에 넣는다.</li>
+            <li>모든 명함이 들어가려면 지갑 가로는 모든 <code>w</code>를 커버해야 하므로 최대값을 취한다.</li>
+            <li>지갑 세로도 마찬가지로 모든 <code>h</code>를 커버해야 하므로 최대값을 취한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 각 유저가 받을 메일 횟수 계산</strong>
-          <pre><code>int[] result = new int[id_list.length];
-      for (int i = 0; i &lt; id_list.length; i++) {
-          Set&lt;String&gt; value = map.get(id_list[i]);
-          int mail = 0;
-      
-          for (String s : value) {
-              if (banned.contains(s)) mail++;
-          }
-      
-          result[i] = mail;
-      }</code></pre>
+        <li><strong>4) 넓이 반환</strong>
+          <pre><code>return maxW * maxH;</code></pre>
           <ul>
-            <li><code>id_list</code> 순서대로 해당 유저가 신고한 대상 Set을 가져온다.</li>
-            <li>그 중 <code>banned</code>에 포함된 대상의 개수를 세면, 그 유저가 받을 메일 수가 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) 결과 반환</strong>
-          <pre><code>return result;</code></pre>
-          <ul>
-            <li>유저 순서대로 메일 횟수를 담은 배열을 반환한다.</li>
+            <li>최종 지갑 크기는 <code>maxW × maxH</code>, 정답은 그 넓이이다.</li>
           </ul>
         </li>
       </ul>
@@ -174,18 +146,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><code>report</code> 길이를 <code>R</code>, 유저 수를 <code>N</code이라 하면
-              <ul>
-                <li>신고 처리: <strong><code>O(R)</code></strong> (Set/Map 평균 O(1))</li>
-                <li>메일 계산: 각 유저의 신고 목록을 합쳐도 최대 <code>R</code>개 수준 → 평균적으로 <strong><code>O(R)</code></strong></li>
-              </ul>
-            </li>
-            <li>전체적으로 <strong><code>O(N + R)</code></strong>로 충분히 빠르다.</li>
+            <li>명함 개수를 <code>N</code>이라 하면 한 번 순회하며 최대값만 갱신 → <strong><code>O(N)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>신고 관계 저장(Set) + 카운트(Map) → 최악의 경우 신고 수만큼 저장하므로 <strong><code>O(R)</code></strong>.</li>
+            <li>추가 배열 없이 상수 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
@@ -258,14 +224,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 나머지가 1이 되는 수 찾기</h2>
+      <h2 class="section">문제 2 — 없는 숫자 더하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/87389">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/86051">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0102_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0103_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -278,16 +244,13 @@
       </h3>
       
       <p>
-        <strong>나머지가 1이 되는 수 찾기 (프로그래머스 87389)</strong>는<br>
-        자연수 <code>n</code>이 주어졌을 때,
-        <code>n</code>을 어떤 자연수 <code>x</code>로 나눈 나머지가 1이 되도록 하는
-        <strong>가장 작은</strong> <code>x</code>를 찾는 문제다.
+        <strong>없는 숫자 더하기 (프로그래머스 86051)</strong>는<br>
+        0~9 중에서 <code>numbers</code>에 <strong>없는 숫자들의 합</strong>을 구하는 문제다.
       </p>
       
       <ul>
-        <li>조건: <code>n % x == 1</code></li>
-        <li>정답은 조건을 만족하는 <code>x</code> 중 최솟값이다.</li>
-        <li>가장 작은 값을 찾는 문제이므로 <code>x</code>를 1부터 순서대로 검사하면 된다.</li>
+        <li><code>numbers</code>에는 0~9 사이의 일부 숫자만 들어있다.</li>
+        <li>0~9 전체를 기준으로 “등장하지 않은 숫자”를 찾아 합산하면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -299,8 +262,9 @@
       </p>
       
       <ul>
-        <li><code>x</code>를 <code>1</code>부터 <code>n-1</code>까지 증가시키며 확인한다.</li>
-        <li><code>n % x == 1</code>을 만족하는 순간의 <code>x</code>가 최솟값이므로 즉시 반환한다.</li>
+        <li>0~9의 등장 여부를 체크할 <code>boolean[10]</code> 배열을 만든다.</li>
+        <li><code>numbers</code>를 순회하며 등장한 숫자만 <code>true</code>로 표시한다.</li>
+        <li>0부터 9까지 다시 순회하면서 <code>false</code>인 숫자만 합산한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -312,21 +276,36 @@
       </p>
       
       <ul>
-        <li><strong>1) 1부터 n-1까지 순회하며 조건 확인</strong>
-          <pre><code>for (int i = 1; i &lt; n; i++) {
-          if (n % i == 1) return i;
-      }</code></pre>
+        <li><strong>1) 0~9 체크 배열 준비</strong>
+          <pre><code>boolean[] chk = new boolean[10];</code></pre>
           <ul>
-            <li><code>i</code>를 후보 <code>x</code>로 두고 <code>n % i</code>를 확인한다.</li>
-            <li>나머지가 1인 가장 첫 번째 <code>i</code>를 만나면 바로 반환한다.</li>
+            <li>인덱스가 숫자 자체(0~9)가 되도록 만든다.</li>
           </ul>
         </li>
       
-        <li><strong>2) (도달하지 않는) 기본 반환</strong>
-          <pre><code>return -1;</code></pre>
+        <li><strong>2) numbers에 등장한 숫자 표시</strong>
+          <pre><code>for (int number : numbers) {
+          chk[number] = true;
+      }</code></pre>
           <ul>
-            <li>문제 조건상 항상 정답이 존재하므로 실제로는 실행되지 않는 안전장치다.</li>
+            <li><code>chk[x] = true</code>면 숫자 <code>x</code>가 존재한다는 뜻이다.</li>
           </ul>
+        </li>
+      
+        <li><strong>3) 등장하지 않은 숫자만 합산</strong>
+          <pre><code>int sum = 0;
+      
+      for (int i = 0; i &lt; chk.length; i++) {
+          if (chk[i]) continue;
+          sum += i;
+      }</code></pre>
+          <ul>
+            <li><code>false</code>인 인덱스(숫자)만 더해준다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 반환</strong>
+          <pre><code>return sum;</code></pre>
         </li>
       </ul>
       
@@ -341,12 +320,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>최악의 경우 <code>1</code>부터 <code>n-1</code>까지 확인하므로 <strong><code>O(n)</code></strong>.</li>
+            <li><code>numbers</code> 길이를 <code>N</code>이라 하면, 표시 <code>O(N)</code> + 0~9 순회 <code>O(10)</code> → <strong><code>O(N)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li><code>boolean[10]</code>만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
