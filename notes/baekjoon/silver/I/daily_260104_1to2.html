@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver I - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver I - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1149 — RGB거리</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1149">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260103_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>RGB거리 (백준 1149)</strong>는<br>
+        N개의 집을 <code>R/G/B</code> 중 하나로 칠할 때,
+        <strong>인접한 집끼리는 같은 색을 사용할 수 없다</strong>는 조건 하에서
+        <strong>전체 비용의 최솟값</strong>을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 집 i(0-index)의 색 비용: <code>RGB[i][0]=R</code>, <code>RGB[i][1]=G</code>, <code>RGB[i][2]=B</code></li>
+        <li>제약: i번 집과 i-1번 집의 색은 달라야 한다.</li>
+        <li>목표: 모든 집을 칠하는 총 비용 최소화</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>전형적인 DP 문제로, “i번째 집을 특정 색으로 칠했을 때의 최소 누적 비용”을 저장한다.</li>
+        <li>DP 정의:
+          <ul>
+            <li><code>cost[i][c]</code> = i번째 집을 색 <code>c</code>로 칠했을 때 0~i까지 최소 비용</li>
+          </ul>
+        </li>
+        <li>점화식:
+          <ul>
+            <li><code>cost[i][0] = RGB[i][0] + min(cost[i-1][1], cost[i-1][2])</code></li>
+            <li><code>cost[i][1] = RGB[i][1] + min(cost[i-1][0], cost[i-1][2])</code></li>
+            <li><code>cost[i][2] = RGB[i][2] + min(cost[i-1][0], cost[i-1][1])</code></li>
+          </ul>
+        </li>
+        <li>마지막 답: <code>min(cost[N-1][0], cost[N-1][1], cost[N-1][2])</code></li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력을 RGB 비용 배열에 저장</strong>
+          <pre><code>int[][] RGB = new int[N][3];
+      
+      for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          int R = Integer.parseInt(st.nextToken());
+          int G = Integer.parseInt(st.nextToken());
+          int B = Integer.parseInt(st.nextToken());
+      
+          RGB[i][0] = R;
+          RGB[i][1] = G;
+          RGB[i][2] = B;
+      }</code></pre>
+          <ul>
+            <li>각 집의 색별 비용을 <code>RGB[i][0..2]</code>에 담는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) DP 테이블 초기값 설정 (0번째 집)</strong>
+          <pre><code>int[][] cost = new int[N][3];
+      cost[0][0] = RGB[0][0];
+      cost[0][1] = RGB[0][1];
+      cost[0][2] = RGB[0][2];</code></pre>
+          <ul>
+            <li>첫 집은 이전 집이 없으므로, 그대로 비용이 누적 비용이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 1번째 집부터 점화식으로 최소 누적 비용 갱신</strong>
+          <pre><code>for (int i = 1; i &lt; N; i++) {
+          cost[i][0] = RGB[i][0] + Math.min(cost[i-1][1], cost[i-1][2]);
+          cost[i][1] = RGB[i][1] + Math.min(cost[i-1][0], cost[i-1][2]);
+          cost[i][2] = RGB[i][2] + Math.min(cost[i-1][0], cost[i-1][1]);
+      }</code></pre>
+          <ul>
+            <li>현재 색이 R이면 이전 집은 G/B만 가능 → 그 중 최소를 더한다.</li>
+            <li>현재 색이 G이면 이전 집은 R/B만 가능 → 그 중 최소를 더한다.</li>
+            <li>현재 색이 B이면 이전 집은 R/G만 가능 → 그 중 최소를 더한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 마지막 집까지 칠했을 때 최소값 출력</strong>
+          <pre><code>System.out.println(Math.min(cost[N-1][0], Math.min(cost[N-1][1], cost[N-1][2])));</code></pre>
+          <ul>
+            <li>마지막 집의 색이 무엇이든 상관 없으므로 3개 중 최소를 정답으로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>집 N개를 한 번 순회하며 각 집에서 상수 연산(3색) → <strong><code>O(N)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>RGB[N][3]</code>, <code>cost[N][3]</code> 사용 → <strong><code>O(N)</code></strong>.</li>
+            <li>(참고) 직전 행만 필요하므로 <code>O(1)</code>로도 최적화 가능하지만, 현재 코드는 표 형태로 명확하게 구현한 버전이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1189 — 컴백홈</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1189">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260103_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>컴백홈 (백준 1189)</strong>은<br>
+        R×C 격자에서 시작점 <code>(R-1, 0)</code>에서 도착점 <code>(0, C-1)</code>까지
+        <strong>정확히 K칸을 이동</strong>해서 도달하는 경로의 개수를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>이동은 상/하/좌/우 4방향</li>
+        <li><code>T</code>는 장애물(이동 불가)</li>
+        <li>같은 칸을 두 번 방문할 수 없음</li>
+        <li>정확히 K칸 이동(시작 칸 포함 거리 카운트 방식에 주의)</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>방문 체크가 필요한 “경로 개수 세기” 유형이므로 DFS(백트래킹)로 모든 가능한 경로를 탐색한다.</li>
+        <li>DFS 상태:
+          <ul>
+            <li>현재 좌표 <code>(r, c)</code></li>
+            <li>현재까지 이동한 칸 수(거리) <code>dist</code></li>
+          </ul>
+        </li>
+        <li>가지치기(Pruning):
+          <ul>
+            <li>도착점에 도달했을 때 <code>dist == K</code>면 정답 카운트 증가</li>
+            <li><code>dist == K</code>인데 아직 도착점이 아니면 더 진행해도 실패 → 즉시 종료</li>
+          </ul>
+        </li>
+        <li>각 이동에서 다음 칸이
+          <ul>
+            <li>격자 범위 안</li>
+            <li>장애물(T)이 아님</li>
+            <li>미방문</li>
+          </ul>
+          조건을 만족할 때만 진행한다.
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 처리 + 시작점 방문 처리</strong>
+          <pre><code>R = Integer.parseInt(st.nextToken());
+      C = Integer.parseInt(st.nextToken());
+      K = Integer.parseInt(st.nextToken());
+      
+      map = new char[R][C];
+      visited = new boolean[R][C];
+      visited[R-1][0] = true;
+      
+      for (int r = 0; r &lt; R; r++) {
+          map[r] = br.readLine().toCharArray();
+      }</code></pre>
+          <ul>
+            <li>격자와 방문 배열을 준비한다.</li>
+            <li>시작점 <code>(R-1, 0)</code>은 출발 즉시 방문 처리한다. (중복 방문 방지)</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) DFS 시작 (dist=1부터)</strong>
+          <pre><code>dfs(R-1, 0, 1);</code></pre>
+          <ul>
+            <li>현재 칸을 포함해 거리를 세므로 시작 시 <code>dist=1</code>로 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 도착점에 도달했을 때 dist==K인지 확인</strong>
+          <pre><code>if (r == 0 &amp;&amp; c == C - 1) {
+          if (dist == K) total++;
+          return;
+      }</code></pre>
+          <ul>
+            <li>도착점이라도 거리가 K가 아니면 정답이 아니다.</li>
+            <li>도착점에서 더 이동하는 경우는 허용되지 않으므로 바로 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) dist가 K에 도달했는데 아직 도착점이 아니면 가지치기</strong>
+          <pre><code>if (dist == K) return;</code></pre>
+          <ul>
+            <li>정확히 K칸이어야 하므로, 여기서 더 가면 dist가 K를 초과해 무조건 실패다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 4방향 탐색 + 조건 체크 + 백트래킹</strong>
+          <pre><code>for (int i = 0; i &lt; 4; i++) {
+          int dr = r + ROW[i];
+          int dc = c + COL[i];
+      
+          if (dr &lt; 0 || R &lt;= dr || dc &lt; 0 || C &lt;= dc) continue;
+          if (map[dr][dc] == 'T') continue;
+          if (visited[dr][dc]) continue;
+      
+          visited[dr][dc] = true;
+          dfs(dr, dc, dist + 1);
+          visited[dr][dc] = false;
+      }</code></pre>
+          <ul>
+            <li>범위/장애물/방문 여부를 검사하고 통과하면 방문 처리 후 재귀 호출한다.</li>
+            <li>재귀가 끝나면 방문을 되돌려(백트래킹) 다른 경로를 탐색할 수 있게 한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>최악의 경우(장애물 거의 없음) 경로를 모두 탐색하므로 지수적으로 증가한다.</li>
+            <li>상한은 대략 분기 최대 4, 깊이 K 수준 → <strong><code>O(4^K)</code></strong> (실제로는 방문 제한 때문에 더 줄어듦)</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>방문 배열 <code>visited[R][C]</code> → <strong><code>O(R*C)</code></strong></li>
+            <li>재귀 호출 스택 깊이 최대 K → <strong><code>O(K)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
