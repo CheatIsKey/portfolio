@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>백준 알고리즘 Silver V - Daily 문제 묶음</title>
+  <title>백준 알고리즘 Silver I - Daily 문제 묶음</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -23,8 +23,8 @@
     </aside>
 
     <article class="prose">
-      <h1>백준 알고리즘 Silver V - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2025-12-30 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <h1>백준 알고리즘 Silver I - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-03 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1080 — 행렬</h2>
+      <h2 class="section">문제 1149 — RGB거리</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1080">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1149">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1230_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260103_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,18 +55,19 @@
       </h3>
       
       <p>
-        <strong>행렬 (BOJ 1080)</strong>은<br>
-        0과 1로 이루어진 행렬 <code>A</code>를 행렬 <code>B</code>로 바꾸기 위해,
-        <strong>3×3 부분 행렬을 뒤집는 연산</strong>을 최소 몇 번 해야 하는지 구하는 문제다.
+        <strong>RGB거리 (백준 1149)</strong>는<br>
+        N개의 집을 <code>R/G/B</code> 중 하나로 칠할 때,
+        <strong>인접한 집끼리는 같은 색을 사용할 수 없다</strong>는 조건 하에서
+        <strong>전체 비용의 최솟값</strong>을 구하는 문제다.
       </p>
       
       <ul>
-        <li>연산 1회는 선택한 3×3 영역의 모든 원소를 <code>0 ↔ 1</code>로 뒤집는다.</li>
-        <li><code>N</code> 또는 <code>M</code>이 3보다 작으면 3×3 연산 자체가 불가능하다.</li>
-        <li>가능한 경우에는 좌상단부터 비교하면서 “필요할 때만” 뒤집는 그리디가 정답이 된다.</li>
+        <li>각 집 i(0-index)의 색 비용: <code>RGB[i][0]=R</code>, <code>RGB[i][1]=G</code>, <code>RGB[i][2]=B</code></li>
+        <li>제약: i번 집과 i-1번 집의 색은 달라야 한다.</li>
+        <li>목표: 모든 집을 칠하는 총 비용 최소화</li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -75,14 +76,23 @@
       </p>
       
       <ul>
-        <li><code>(i, j)</code>를 3×3 뒤집기의 좌상단으로 둘 수 있는 범위(<code>0..N-3</code>, <code>0..M-3</code>)를 순회한다.</li>
-        <li>좌상단부터 보면서 <code>A[i][j] != B[i][j]</code>이면,
-          그 칸을 맞추기 위해서는 <strong>반드시</strong> <code>(i, j)</code>에서 3×3 뒤집기를 해야 한다.</li>
-        <li>따라서 차이가 나는 순간에만 <code>flip(A, i, j)</code>를 수행하고 횟수를 증가시킨다.</li>
-        <li>전체 순회가 끝난 뒤 <code>A</code>와 <code>B</code>가 완전히 같으면 횟수를 출력하고, 아니면 <code>-1</code>을 출력한다.</li>
+        <li>전형적인 DP 문제로, “i번째 집을 특정 색으로 칠했을 때의 최소 누적 비용”을 저장한다.</li>
+        <li>DP 정의:
+          <ul>
+            <li><code>cost[i][c]</code> = i번째 집을 색 <code>c</code>로 칠했을 때 0~i까지 최소 비용</li>
+          </ul>
+        </li>
+        <li>점화식:
+          <ul>
+            <li><code>cost[i][0] = RGB[i][0] + min(cost[i-1][1], cost[i-1][2])</code></li>
+            <li><code>cost[i][1] = RGB[i][1] + min(cost[i-1][0], cost[i-1][2])</code></li>
+            <li><code>cost[i][2] = RGB[i][2] + min(cost[i-1][0], cost[i-1][1])</code></li>
+          </ul>
+        </li>
+        <li>마지막 답: <code>min(cost[N-1][0], cost[N-1][1], cost[N-1][2])</code></li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -91,93 +101,56 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력으로 행렬 A, B 구성</strong>
-          <pre><code>int[][] A = new int[N][M];
+        <li><strong>1) 입력을 RGB 비용 배열에 저장</strong>
+          <pre><code>int[][] RGB = new int[N][3];
+      
       for (int i = 0; i &lt; N; i++) {
-          String s = br.readLine();
-          for (int j = 0; j &lt; M; j++) {
-              A[i][j] = s.charAt(j) - '0';
-          }
-      }
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          int R = Integer.parseInt(st.nextToken());
+          int G = Integer.parseInt(st.nextToken());
+          int B = Integer.parseInt(st.nextToken());
       
-      int[][] B = new int[N][M];
-      for (int i = 0; i &lt; N; i++) {
-          String s = br.readLine();
-          for (int j = 0; j &lt; M; j++) {
-              B[i][j] = s.charAt(j) - '0';
-          }
+          RGB[i][0] = R;
+          RGB[i][1] = G;
+          RGB[i][2] = B;
       }</code></pre>
           <ul>
-            <li>문자열로 들어오는 0/1을 정수로 변환해 2차원 배열에 저장한다.</li>
+            <li>각 집의 색별 비용을 <code>RGB[i][0..2]</code>에 담는다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 3×3 연산 자체가 불가능한 경우 처리</strong>
-          <pre><code>if (N &lt; 3 || M &lt; 3) {
-          System.out.println(same(A, B) ? 0 : -1);
-          return;
-      }</code></pre>
+        <li><strong>2) DP 테이블 초기값 설정 (0번째 집)</strong>
+          <pre><code>int[][] cost = new int[N][3];
+      cost[0][0] = RGB[0][0];
+      cost[0][1] = RGB[0][1];
+      cost[0][2] = RGB[0][2];</code></pre>
           <ul>
-            <li><code>N</code>이나 <code>M</code>이 3보다 작으면 뒤집기 연산을 할 수 없다.</li>
-            <li>이때는 처음부터 같으면 0, 다르면 -1이 된다.</li>
+            <li>첫 집은 이전 집이 없으므로, 그대로 비용이 누적 비용이 된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 좌상단부터 그리디로 뒤집기 수행</strong>
-          <pre><code>int cnt = 0;
-      for (int i = 0; i &lt;= N - 3; i++) {
-          for (int j = 0; j &lt;= M - 3; j++) {
-              if (A[i][j] != B[i][j]) {
-                  flip(A, i, j);
-                  cnt++;
-              }
-          }
+        <li><strong>3) 1번째 집부터 점화식으로 최소 누적 비용 갱신</strong>
+          <pre><code>for (int i = 1; i &lt; N; i++) {
+          cost[i][0] = RGB[i][0] + Math.min(cost[i-1][1], cost[i-1][2]);
+          cost[i][1] = RGB[i][1] + Math.min(cost[i-1][0], cost[i-1][2]);
+          cost[i][2] = RGB[i][2] + Math.min(cost[i-1][0], cost[i-1][1]);
       }</code></pre>
           <ul>
-            <li><code>(i, j)</code> 위치를 “이제부터는 다시 건드릴 수 없는 좌상단”으로 생각한다.</li>
-            <li>해당 칸이 다르면, 그 칸을 뒤집는 방법은 <code>(i, j)</code>에서 flip하는 것뿐이므로 즉시 수행한다.</li>
-            <li>이 과정을 통해 좌상단부터 순서대로 맞춰 나간다.</li>
+            <li>현재 색이 R이면 이전 집은 G/B만 가능 → 그 중 최소를 더한다.</li>
+            <li>현재 색이 G이면 이전 집은 R/B만 가능 → 그 중 최소를 더한다.</li>
+            <li>현재 색이 B이면 이전 집은 R/G만 가능 → 그 중 최소를 더한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 최종 동일 여부 판단 후 출력</strong>
-          <pre><code>System.out.println(same(A, B) ? cnt : -1);</code></pre>
+        <li><strong>4) 마지막 집까지 칠했을 때 최소값 출력</strong>
+          <pre><code>System.out.println(Math.min(cost[N-1][0], Math.min(cost[N-1][1], cost[N-1][2])));</code></pre>
           <ul>
-            <li>모든 뒤집기가 끝난 뒤 <code>A</code>와 <code>B</code>가 같으면 <code>cnt</code>가 최솟값이다.</li>
-            <li>끝까지 맞출 수 없으면 불가능이므로 <code>-1</code>.</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) flip(): 3×3 부분 행렬 뒤집기</strong>
-          <pre><code>private static void flip(int[][] a, int i, int j) {
-          for (int k = i; k &lt; i + 3; k++) {
-              for (int l = j; l &lt; j + 3; l++) {
-                  a[k][l] = 1 - a[k][l];
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li><code>0 → 1</code>, <code>1 → 0</code>을 <code>1 - 값</code>으로 처리한다.</li>
-            <li>좌상단 (<code>i, j</code>) 기준 3×3 영역을 정확히 뒤집는다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>6) same(): 두 행렬이 완전히 같은지 검사</strong>
-          <pre><code>private static boolean same(int[][] a, int[][] b) {
-          for (int i = 0; i &lt; a.length; i++) {
-              for (int j = 0; j &lt; a[0].length; j++) {
-                  if (a[i][j] != b[i][j]) return false;
-              }
-          }
-          return true;
-      }</code></pre>
-          <ul>
-            <li>모든 칸이 같아야 true를 반환한다.</li>
+            <li>마지막 집의 색이 무엇이든 상관 없으므로 3개 중 최소를 정답으로 출력한다.</li>
           </ul>
         </li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -188,18 +161,17 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>좌상단 순회는 <strong><code>O(N*M)</code></strong>.</li>
-            <li>각 flip은 3×3(9칸)만 뒤집으므로 상수 시간.</li>
-            <li>전체는 <strong><code>O(N*M)</code></strong>이며, <code>N, M ≤ 50</code>이라 충분히 빠르다.</li>
+            <li>집 N개를 한 번 순회하며 각 집에서 상수 연산(3색) → <strong><code>O(N)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>행렬 A, B 저장에 <strong><code>O(N*M)</code></strong>.</li>
-            <li>추가로 큰 자료구조는 사용하지 않는다.</li>
+            <li><code>RGB[N][3]</code>, <code>cost[N][3]</code> 사용 → <strong><code>O(N)</code></strong>.</li>
+            <li>(참고) 직전 행만 필요하므로 <code>O(1)</code>로도 최적화 가능하지만, 현재 코드는 표 형태로 명확하게 구현한 버전이다.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -263,14 +235,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 6474 — Palindromes</h2>
+      <h2 class="section">문제 1189 — 컴백홈</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/6474">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1189">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/V/daily_1226_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260103_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -287,23 +259,19 @@
       </h3>
       
       <p>
-        <strong>Palindromes (BOJ 6474)</strong>는<br>
-        입력으로 주어진 문자열이
-        <strong>일반 회문(palindrome)</strong>인지,
-        <strong>거울 문자열(mirrored string)</strong>인지,
-        혹은 둘 다 만족하는 <strong>거울 회문(mirrored palindrome)</strong>인지 판별해
-        정해진 문장을 출력하는 문제다.
+        <strong>컴백홈 (백준 1189)</strong>은<br>
+        R×C 격자에서 시작점 <code>(R-1, 0)</code>에서 도착점 <code>(0, C-1)</code>까지
+        <strong>정확히 K칸을 이동</strong>해서 도달하는 경로의 개수를 구하는 문제다.
       </p>
       
       <ul>
-        <li><strong>palindrome</strong>: 문자열을 뒤집어도 동일한 문자열</li>
-        <li><strong>mirrored string</strong>: 문자열을 뒤집은 뒤 각 문자를 “거울 대응 문자”로 치환했을 때 원래 문자열과 같음</li>
-        <li><strong>mirrored palindrome</strong>: 위 두 조건을 모두 만족</li>
-        <li>입력은 EOF까지 여러 줄로 주어진다.</li>
-        <li>출력은 문자열 + <code>" -- "</code> + 판정 문구, 그리고 <strong>빈 줄 1줄</strong>이 추가된다.</li>
+        <li>이동은 상/하/좌/우 4방향</li>
+        <li><code>T</code>는 장애물(이동 불가)</li>
+        <li>같은 칸을 두 번 방문할 수 없음</li>
+        <li>정확히 K칸 이동(시작 칸 포함 거리 카운트 방식에 주의)</li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -312,17 +280,30 @@
       </p>
       
       <ul>
-        <li>문제에서 제공한 “거울 대응” 규칙을 <code>Map&lt;Character, Character&gt;</code>으로 만든다.</li>
-        <li>각 문자열에 대해
+        <li>방문 체크가 필요한 “경로 개수 세기” 유형이므로 DFS(백트래킹)로 모든 가능한 경로를 탐색한다.</li>
+        <li>DFS 상태:
           <ul>
-            <li>앞/뒤 문자가 같은지 비교해서 palindrome 여부 판단</li>
-            <li>뒤쪽 문자에 대한 거울 대응 문자를 찾아서 앞쪽 문자와 같은지 비교해 mirrored 여부 판단</li>
+            <li>현재 좌표 <code>(r, c)</code></li>
+            <li>현재까지 이동한 칸 수(거리) <code>dist</code></li>
           </ul>
         </li>
-        <li>두 boolean 값(<code>palindrome</code>, <code>mirrored</code>) 조합으로 출력 문구를 결정한다.</li>
+        <li>가지치기(Pruning):
+          <ul>
+            <li>도착점에 도달했을 때 <code>dist == K</code>면 정답 카운트 증가</li>
+            <li><code>dist == K</code>인데 아직 도착점이 아니면 더 진행해도 실패 → 즉시 종료</li>
+          </ul>
+        </li>
+        <li>각 이동에서 다음 칸이
+          <ul>
+            <li>격자 범위 안</li>
+            <li>장애물(T)이 아님</li>
+            <li>미방문</li>
+          </ul>
+          조건을 만족할 때만 진행한다.
+        </li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -331,100 +312,70 @@
       </p>
       
       <ul>
-        <li><strong>1) 거울 문자 매핑(Map) 구성</strong>
-          <pre><code>Map&lt;Character, Character&gt; map = new HashMap&lt;&gt;();
-      map.put('E', '3');
-      map.put('3', 'E');
-      map.put('J', 'L');
-      map.put('L', 'J');
-      map.put('S', '2');
-      map.put('2', 'S');
-      map.put('Z', '5');
-      map.put('5', 'Z');
-      map.put('A', 'A');
-      map.put('H', 'H');
-      map.put('I', 'I');
-      map.put('M', 'M');
-      map.put('O', 'O');
-      map.put('T', 'T');
-      map.put('U', 'U');
-      map.put('V', 'V');
-      map.put('W', 'W');
-      map.put('X', 'X');
-      map.put('Y', 'Y');
-      map.put('1', '1');
-      map.put('8', '8');</code></pre>
-          <ul>
-            <li>문제 표에 나온 “문자 ↔ 거울 문자” 관계를 그대로 저장한다.</li>
-            <li>서로 바뀌는 쌍(<code>E↔3</code>, <code>J↔L</code> 등)은 양방향으로 모두 넣는다.</li>
-            <li>자기 자신으로 대응되는 문자(<code>A, H, I, ...</code>)도 넣는다.</li>
-          </ul>
-        </li>
+        <li><strong>1) 입력 처리 + 시작점 방문 처리</strong>
+          <pre><code>R = Integer.parseInt(st.nextToken());
+      C = Integer.parseInt(st.nextToken());
+      K = Integer.parseInt(st.nextToken());
       
-        <li><strong>2) 입력 문자열을 EOF까지 처리</strong>
-          <pre><code>String line;
-      while ((line = br.readLine()) != null) {
-          boolean palindrome = true;
-          boolean mirrored = true;</code></pre>
-          <ul>
-            <li>한 줄이 하나의 문자열이고, EOF까지 반복한다.</li>
-            <li>각 문자열마다 두 조건을 각각 검사한다.</li>
-          </ul>
-        </li>
+      map = new char[R][C];
+      visited = new boolean[R][C];
+      visited[R-1][0] = true;
       
-        <li><strong>3) palindrome 판별: 양끝에서 가운데로 비교</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          if (i &gt; line.length() - 1 - i) break;
-          if (line.charAt(i) != line.charAt(line.length() - 1 - i)) {
-              palindrome = false;
-              break;
-          }
+      for (int r = 0; r &lt; R; r++) {
+          map[r] = br.readLine().toCharArray();
       }</code></pre>
           <ul>
-            <li><code>i</code>와 <code>len-1-i</code>를 비교하며 회문인지 확인한다.</li>
-            <li>한 번이라도 다르면 회문이 아니므로 <code>false</code>로 바꾸고 종료한다.</li>
-            <li>가운데를 지나면 더 볼 필요가 없어 중단한다.</li>
+            <li>격자와 방문 배열을 준비한다.</li>
+            <li>시작점 <code>(R-1, 0)</code>은 출발 즉시 방문 처리한다. (중복 방문 방지)</li>
           </ul>
         </li>
       
-        <li><strong>4) mirrored 판별: 뒤쪽 문자의 거울값이 앞쪽 문자와 같은지 확인</strong>
-          <pre><code>for (int i = 0; i &lt; line.length(); i++) {
-          int backIdx = line.length() - 1 - i;
-          Character c = map.get(line.charAt(backIdx));
-      
-          if (c == null || line.charAt(i) != c) {
-              mirrored = false;
-              break;
-          }
-      }</code></pre>
+        <li><strong>2) DFS 시작 (dist=1부터)</strong>
+          <pre><code>dfs(R-1, 0, 1);</code></pre>
           <ul>
-            <li>거울 문자열 조건은 “뒤에서 i번째 문자를 거울 변환한 값”이 “앞에서 i번째 문자”와 같아야 한다.</li>
-            <li>따라서 <code>backIdx</code> 위치 문자를 맵에서 변환한 뒤, <code>line.charAt(i)</code>와 비교한다.</li>
-            <li>대응 문자가 없거나(<code>null</code>) 값이 다르면 mirrored가 아니다.</li>
+            <li>현재 칸을 포함해 거리를 세므로 시작 시 <code>dist=1</code>로 시작한다.</li>
           </ul>
         </li>
       
-        <li><strong>5) 조건 조합에 따라 문구 출력</strong>
-          <pre><code>sb.append(line).append(" -- ");
-      
-      if (palindrome &amp;&amp; mirrored) {
-          sb.append("is a mirrored palindrome.").append('\n').append('\n');
-          continue;
-      } else if (palindrome) {
-          sb.append("is a palindrome.").append('\n').append('\n');
-      } else if (mirrored) {
-          sb.append("is a mirrored string.").append('\n').append('\n');
-      } else {
-          sb.append("is not a palindrome.").append('\n').append('\n');
+        <li><strong>3) 도착점에 도달했을 때 dist==K인지 확인</strong>
+          <pre><code>if (r == 0 &amp;&amp; c == C - 1) {
+          if (dist == K) total++;
+          return;
       }</code></pre>
           <ul>
-            <li>문제에서 요구한 출력 형식을 그대로 따른다.</li>
-            <li>각 케이스마다 마지막에 빈 줄을 추가한다.</li>
+            <li>도착점이라도 거리가 K가 아니면 정답이 아니다.</li>
+            <li>도착점에서 더 이동하는 경우는 허용되지 않으므로 바로 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) dist가 K에 도달했는데 아직 도착점이 아니면 가지치기</strong>
+          <pre><code>if (dist == K) return;</code></pre>
+          <ul>
+            <li>정확히 K칸이어야 하므로, 여기서 더 가면 dist가 K를 초과해 무조건 실패다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 4방향 탐색 + 조건 체크 + 백트래킹</strong>
+          <pre><code>for (int i = 0; i &lt; 4; i++) {
+          int dr = r + ROW[i];
+          int dc = c + COL[i];
+      
+          if (dr &lt; 0 || R &lt;= dr || dc &lt; 0 || C &lt;= dc) continue;
+          if (map[dr][dc] == 'T') continue;
+          if (visited[dr][dc]) continue;
+      
+          visited[dr][dc] = true;
+          dfs(dr, dc, dist + 1);
+          visited[dr][dc] = false;
+      }</code></pre>
+          <ul>
+            <li>범위/장애물/방문 여부를 검사하고 통과하면 방문 처리 후 재귀 호출한다.</li>
+            <li>재귀가 끝나면 방문을 되돌려(백트래킹) 다른 경로를 탐색할 수 있게 한다.</li>
           </ul>
         </li>
       </ul>
       
-      <div style="border-top:1px solid rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
       
       <p>
         <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -435,17 +386,18 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>문자열 길이를 <code>L</code>이라 하면,
-              palindrome 검사 <code>O(L)</code>, mirrored 검사 <code>O(L)</code> → 전체 <strong><code>O(L)</code></strong>.</li>
-            <li><code>L ≤ 20</code>이라 매우 작다.</li>
+            <li>최악의 경우(장애물 거의 없음) 경로를 모두 탐색하므로 지수적으로 증가한다.</li>
+            <li>상한은 대략 분기 최대 4, 깊이 K 수준 → <strong><code>O(4^K)</code></strong> (실제로는 방문 제한 때문에 더 줄어듦)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>거울 매핑 테이블은 고정 크기 → <strong><code>O(1)</code></strong>.</li>
+            <li>방문 배열 <code>visited[R][C]</code> → <strong><code>O(R*C)</code></strong></li>
+            <li>재귀 호출 스택 깊이 최대 K → <strong><code>O(K)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
