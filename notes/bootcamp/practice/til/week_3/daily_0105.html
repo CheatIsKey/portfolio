@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 15일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 15일차 TIL — 알고리즘 풀이 정리 &amp; 스프링 빈 조회</h1>
+      <p class="muted">작성일 2026-01-02 · 분류: 부트캠프, TIL, Algorithm, Java, Spring</p>
+
+      <!-- 섹션 1: 15일차 개요 -->
+      <h2 class="section">15일차 개요 — 코테 정리 + 스프링 컨테이너/빈 조회 복습</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정리
+        </span>
+      </h3>
+
+      <p>
+        오늘은 <strong>프로그래머스 3문제 + 백준 2문제</strong>에서 정리한 핵심 포인트(키워드/접근/실수/깨달음)를 정리했고,
+        이어서 <strong>스프링 컨테이너에서 빈 조회</strong> 흐름과 예외/테스트 방식까지 함께 복습했다.
+      </p>
+
+      <ul>
+        <li>코테는 “정답 로직”보다 <strong>실수 포인트</strong>와 <strong>안전한 구현 패턴</strong> 중심으로 정리했다.</li>
+        <li>스프링은 <code>ApplicationContext</code>, <code>getBean()</code>, 다건 조회, 예외와 테스트 작성 흐름을 정리했다.</li>
+      </ul>
+
+      <!-- 섹션 2: 알고리즘 풀이 정리 -->
+      <h2 class="section">알고리즘 풀이 정리 — 프로그래머스 3 + 백준 2</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프로그래머스 118666 — 성격 유형 검사하기
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>키워드</td>
+            <td>구현, 누적 점수, 선택지 점수 매핑, 동점 처리</td>
+          </tr>
+          <tr>
+            <td>핵심 접근</td>
+            <td>
+              <code>diff = choices[i] - 4</code>로 (-3..+3) 변환 후,
+              diff&lt;0이면 첫 글자 점수에 <code>-diff</code> 누적, diff&gt;0이면 둘째 글자 점수에 <code>diff</code> 누적.
+              마지막에 (R/T, C/F, J/M, A/N) 쌍 비교로 결과 문자열 생성(동점이면 알파벳 빠른 쪽).
+            </td>
+          </tr>
+          <tr>
+            <td>자주 터지는 실수</td>
+            <td>
+              점수 배열을 직접 만들다가 5~7점 매핑이 꼬이는 버그가 나기 쉬움 → <code>choices - 4</code>가 가장 안전.
+              동점 처리(사전순 선택)를 반대로 쓰기 쉬움.
+            </td>
+          </tr>
+          <tr>
+            <td>깨달은 점</td>
+            <td>“매핑 규칙이 보이면 수식으로 줄여라.” → 구현 실수 가능성을 크게 낮춘다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프로그래머스 92334 — 신고 결과 받기
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>키워드</td>
+            <td>중복 신고 제거, id_list 순서 고정, Set/Map</td>
+          </tr>
+          <tr>
+            <td>핵심 접근</td>
+            <td>
+              <strong>(1)</strong> <code>reporter -&gt; Set&lt;target&gt;</code>으로 “누가 누구를 신고했는지” 저장<br>
+              <strong>(2)</strong> Set에 “새로 추가될 때만” target 신고 수 증가<br>
+              <strong>(3)</strong> <code>cnt[target] &gt;= k</code>인 target은 정지 대상<br>
+              <strong>(4)</strong> reporter별로 “정지 대상에게 한 신고 수”를 세어 메일 수 결정<br>
+              <strong>(5)</strong> 정답은 반드시 <code>id_list</code> 순서대로 채우기
+            </td>
+          </tr>
+          <tr>
+            <td>자주 터지는 실수</td>
+            <td>
+              Set 중복인데도 신고 수를 올려버리면 오답.
+              Map 순회로 결과를 만들면 순서가 흔들릴 수 있음 → <code>for (i in id_list)</code>로 채우기.
+            </td>
+          </tr>
+          <tr>
+            <td>깨달은 점</td>
+            <td>“중복 제거”가 문제의 본체. Set 추가 성공 여부를 기준으로 카운트하는 습관이 중요.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프로그래머스 87389 — 나머지가 1이 되는 수 찾기
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>키워드</td>
+            <td>브루트포스, 최소값 탐색</td>
+          </tr>
+          <tr>
+            <td>핵심 접근</td>
+            <td><code>x=2</code>부터 증가시키며 <code>n % x == 1</code>인 첫 x를 즉시 반환</td>
+          </tr>
+          <tr>
+            <td>자주 터지는 실수</td>
+            <td><code>x=1</code>부터 시작(의미 없는 검사), “최소”인데 끝까지 다 돌고 min 갱신하는 불필요한 구현</td>
+          </tr>
+          <tr>
+            <td>깨달은 점</td>
+            <td>최소값 문제는 “작은 것부터 탐색 + 첫 발견 즉시 return”이 가장 명확하고 안전하다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          백준 1124 — 언더프라임
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>키워드</td>
+            <td>소인수분해, 소인수 개수(중복 포함), 개수의 소수 판정, SPF(최소 소인수)</td>
+          </tr>
+          <tr>
+            <td>핵심 접근</td>
+            <td>
+              수 x의 소인수 “개수” <code>cnt(x)</code>를 구하고, 그 값이 소수면 언더프라임.<br>
+              빠른 방식은 <code>spf[]</code>(최소 소인수)를 체로 만들고
+              <code>cnt[n] = cnt[n / spf[n]] + 1</code>로 2..B까지 누적 계산 후 A..B를 검사.
+            </td>
+          </tr>
+          <tr>
+            <td>자주 터지는 실수</td>
+            <td>
+              소인수분해 과정에서 루프용 변수를 직접 나눠버려 흐름이 꼬이는 실수.
+              남은 소인수 처리(마지막에 n&gt;1이면 cnt++) 누락.
+              <code>cnt=1</code>을 소수로 착각(소수는 2부터).
+            </td>
+          </tr>
+          <tr>
+            <td>깨달은 점</td>
+            <td>“판정 기준”이 숫자 자체가 아니라 “소인수 개수”라는 점을 놓치면 문제 전체가 흔들린다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          백준 1141 — 접두사
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>키워드</td>
+            <td>정렬, 인접 비교, <code>startsWith</code>, 중복 제거</td>
+          </tr>
+          <tr>
+            <td>핵심 접근</td>
+            <td>
+              (1) 중복 제거(Set) → (2) 사전순 정렬 → (3) 인접한 두 단어만 비교.<br>
+              정렬 후에는 어떤 단어가 다른 단어의 접두사라면, 그 단어 바로 뒤쪽에 접두사를 공유하는 단어가 연속으로 온다.<br>
+              따라서 <code>word[i+1].startsWith(word[i])</code>이면 <code>word[i]</code>는 최대 집합에서 제외.
+            </td>
+          </tr>
+          <tr>
+            <td>자주 터지는 실수</td>
+            <td>
+              substring으로 접두사 판정 시 경계 조건 실수 → <code>startsWith</code>가 가장 안전.
+              “남긴 개수”를 출력해야 하는데 전체 개수를 출력하는 실수.
+            </td>
+          </tr>
+          <tr>
+            <td>깨달은 점</td>
+            <td>정렬 + 인접 비교로 O(N log N)에서 깔끔하게 끝난다(불필요한 전수 비교 제거).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 3: 스프링 빈 조회 -->
+      <h2 class="section">스프링 빈 조회 — ApplicationContext, 조회 방식, 예외/테스트</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          기본 세팅 (컨테이너 생성)
+        </span>
+      </h3>
+
+      <p>
+        <code>ApplicationContext</code>(보통 변수명 <code>ac</code>)는 스프링 컨테이너를 의미한다.
+        아래 코드는 <code>AppConfig.class</code> 설정을 읽어 <code>@Bean</code>으로 등록된 빈을 컨테이너에 올리고 관리한다.
+      </p>
+
+      <pre><code>ApplicationContext ac =
+    new AnnotationConfigApplicationContext(AppConfig.class);
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          빈 조회 방법 정리 (가장 기본)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>방법</th>
+            <th>예시</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>이름 + 타입</td>
+            <td><code>ac.getBean("memberService", MemberService.class)</code></td>
+            <td>가장 명확하고 안전</td>
+          </tr>
+          <tr>
+            <td>타입만</td>
+            <td><code>ac.getBean(MemberService.class)</code></td>
+            <td>동일 타입이 2개 이상이면 예외 발생 가능</td>
+          </tr>
+          <tr>
+            <td>구현체 타입 조회</td>
+            <td><code>ac.getBean(MemberServiceImpl.class)</code></td>
+            <td>가능은 하지만 구현체 의존이 강해져 권장되지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          조회 실패/중복 시 예외
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>상황</th>
+            <th>예외</th>
+            <th>해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>빈이 존재하지 않음</td>
+            <td><code>NoSuchBeanDefinitionException</code></td>
+            <td>등록 여부 확인, 이름/타입 확인</td>
+          </tr>
+          <tr>
+            <td>타입으로 조회했는데 동일 타입이 2개 이상</td>
+            <td><code>NoUniqueBeanDefinitionException</code></td>
+            <td>빈 이름을 지정해서 조회하거나, 다건 조회로 변경</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          테스트에서 검증하는 패턴 (isInstanceOf / assertThrows)
+        </span>
+      </h3>
+
+      <p><strong>1) 조회 결과 타입 검증(AssertJ)</strong></p>
+      <pre><code>Object bean = ac.getBean("memberService");
+org.assertj.core.api.Assertions.assertThat(bean)
+    .isInstanceOf(MemberService.class);
+</code></pre>
+
+      <p><strong>2) 예외 검증(JUnit)</strong></p>
+      <pre><code>org.junit.jupiter.api.Assertions.assertThrows(
+    org.springframework.beans.factory.NoSuchBeanDefinitionException.class,
+    () -&gt; ac.getBean("noBean", MemberService.class)
+);
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          특정 타입 “전체” 조회하기 (getBeansOfType)
+        </span>
+      </h3>
+
+      <p>
+        특정 타입의 빈을 모두 가져오고 싶다면 <code>ac.getBeansOfType(타입)</code>을 사용한다.
+        반환값은 <code>Map&lt;String, T&gt;</code> 형태(빈 이름 -&gt; 빈 객체)이다.
+      </p>
+
+      <pre><code>Map&lt;String, DiscountPolicy&gt; beans =
+    ac.getBeansOfType(DiscountPolicy.class);
+
+// beans.forEach((name, bean) -&gt; System.out.println(name + " = " + bean));
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          “부모 타입”으로 조회하면 자식 타입도 함께 조회된다
+        </span>
+      </h3>
+
+      <p>
+        스프링의 타입 조회는 “할당 가능(다형성)” 기준이다.
+        예를 들어 인터페이스 타입으로 조회하면, 그 인터페이스를 구현한 구현체 빈도 함께 조회 대상이 된다.
+        (주의: 동일 부모 타입의 빈이 여러 개면, 타입 단독 조회는 중복 예외가 날 수 있다.)
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ApplicationContext 계층 구조 (큰 그림)
+        </span>
+      </h3>
+
+      <pre><code>&lt;&lt;interface&gt;&gt; BeanFactory
+        ▲
+        │
+&lt;&lt;interface&gt;&gt; ApplicationContext
+        ▲
+        │
+AnnotationConfigApplicationContext (구현체)
+</code></pre>
+
+      <p>
+        <strong>BeanFactory</strong>는 스프링 컨테이너의 최상위 인터페이스로 “빈 관리/조회”의 핵심 기능을 제공한다.
+        <strong>ApplicationContext</strong>는 여기에 더해 애플리케이션에 필요한 부가기능(국제화, 환경 정보, 이벤트, 리소스 조회 등)을 포함한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          스프링 빈 설정 메타 정보: BeanDefinition
+        </span>
+      </h3>
+
+      <p>
+        스프링은 빈을 만들 때 “설정 메타정보”인 <code>BeanDefinition</code>을 기반으로 생성한다.
+        <code>@Bean</code>(자바 설정)이나 <code>&lt;bean&gt;</code>(XML 설정) 같은 “설정 방식”은 달라도,
+        컨테이너 내부에서는 <code>BeanDefinition</code>이라는 동일한 추상화로 관리된다.
+      </p>
+
+      <p>
+        예를 들어 <code>AnnotationConfigApplicationContext</code>는 내부에서 설정 클래스를 읽어
+        <code>BeanDefinition</code>을 만들고, 그 정보를 토대로 빈을 등록/생성한다.
+      </p>
+
+      <!-- 섹션 4: 프레임워크 vs 라이브러리 -->
+      <h2 class="section">프레임워크 vs 라이브러리 — 제어 흐름 관점</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 구분
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>핵심</th>
+            <th>감각적인 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>프레임워크</td>
+            <td>프레임워크가 전체 흐름을 제어하고, 필요한 시점에 “내 코드”를 호출한다(IoC).</td>
+            <td>스프링이 요청 흐름을 잡고, 컨트롤러/서비스를 호출</td>
+          </tr>
+          <tr>
+            <td>라이브러리</td>
+            <td>내 코드가 흐름을 제어하고, 필요할 때 라이브러리를 호출한다.</td>
+            <td>내가 필요할 때 문자열/컬렉션 유틸을 직접 호출</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 5: 회고와 내일 계획 -->
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <p>
+        알고리즘은 “정답 풀이”보다도 <strong>실수 패턴을 고정적으로 피하는 구조</strong>가 더 중요하다는 걸 다시 확인했다.
+        스프링은 <code>getBean()</code>만 외우는 게 아니라, “왜 타입 조회가 중복 예외가 나는지”와
+        “다건 조회로 어떻게 안전하게 풀어야 하는지”까지 같이 이해해야 실무 코드에서도 흔들리지 않는다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
