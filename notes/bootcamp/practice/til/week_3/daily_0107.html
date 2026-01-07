@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 17일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 18일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,502 +42,501 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 17일차 TIL — Git/GitHub 핵심 개념 &amp; CLI 기본</h1>
-      <p class="muted">작성일 2026-01-06 · 분류: 부트캠프, TIL, Git, GitHub</p>
+      <h1>내일배움캠프 Spring 백엔드 18일차 TIL — Issues로 일감 관리 &amp; 브랜치 전략 &amp; Rebase/Tag</h1>
+      <p class="muted">작성일 2026-01-07 · 분류: 부트캠프, TIL, Git, GitHub</p>
 
       <!-- 섹션 1: 개요 -->
-      <h2 class="section">17일차 개요</h2>
+      <h2 class="section">18일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 목표
+          오늘 정리 범위
         </span>
       </h3>
 
       <ul>
-        <li>Git과 GitHub의 역할을 명확히 구분한다</li>
-        <li>Working Directory → Staging Area → Local Repo(.git) → Remote Repo 흐름을 이해한다</li>
-        <li>되돌리기(restore/reset/revert) 차이를 정리하고 “협업에서 안전한 선택”을 기준으로 판단한다</li>
-        <li>CLI(터미널) 기본 명령과 Git 명령을 실무 관점으로 정리한다</li>
+        <li>GitHub Issues로 “작업을 계획/토론/추적”하는 방식</li>
+        <li>Dev/Stage/Prod 환경을 분리하는 브랜치 구성과 릴리스 리스크 관리</li>
+        <li>feature/release/hotfix 브랜치의 목적(대표 워크플로 관점)</li>
+        <li>SemVer(시맨틱 버저닝), Release Notes, Tag로 배포 이력 관리</li>
+        <li>충돌(conflict)과 rebase 개념/주의점/실전 명령</li>
       </ul>
 
-      <!-- 섹션 2: Git vs GitHub -->
-      <h2 class="section">Git vs GitHub</h2>
+      <!-- 섹션 2: Issues -->
+      <h2 class="section">GitHub Issues로 작업을 “계획하고 추적”하기</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심 정의
+          Issues가 해결해 주는 문제
+        </span>
+      </h3>
+
+      <p>
+        GitHub Issues는 리포지토리에서 <strong>해야 할 일(작업/버그/아이디어/피드백)</strong>을
+        하나의 “문제 단위”로 만들고, 토론과 진행 상태를 추적할 수 있게 해준다.
+        즉, 코드를 바꾸기 전에 “무엇을, 왜, 어떻게” 할지를 합의하고 기록으로 남기는 도구다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          실무에서 자주 쓰는 구성 요소
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th>구분</th>
-            <th>정의</th>
-            <th>한 줄 요약</th>
+            <th>기능</th>
+            <th>의미</th>
+            <th>활용 예시</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Git</td>
-            <td>파일/코드 변경 이력을 저장하고 관리하는 분산 버전 관리 시스템(VCS)</td>
-            <td>내 PC에서 버전 기록을 관리하는 도구</td>
+            <td>Labels</td>
+            <td>이슈 분류(성격/우선순위/영역)</td>
+            <td><code>bug</code>, <code>feature</code>, <code>docs</code>, <code>priority:high</code></td>
           </tr>
           <tr>
-            <td>GitHub</td>
-            <td>Git 저장소를 원격(인터넷)에서 보관/공유/협업할 수 있는 웹 서비스(플랫폼)</td>
-            <td>Git 저장소를 올려두고 협업하는 공간</td>
+            <td>Assignees</td>
+            <td>담당자 지정</td>
+            <td>누가 처리하는지 명확히 하기</td>
+          </tr>
+          <tr>
+            <td>Milestone</td>
+            <td>버전/스프린트 단위로 묶기</td>
+            <td><code>v1.1.0</code> 릴리스에 포함될 이슈 묶기</td>
+          </tr>
+          <tr>
+            <td>Link to PR</td>
+            <td>이슈 ↔ PR 연결</td>
+            <td>PR 본문에 <code>Fixes #12</code>를 적으면 merge 시 자동 닫힘</td>
           </tr>
         </tbody>
       </table>
 
-      <p>
-        로컬에서만 작업하면 “내 컴퓨터가 고장났을 때”, “협업자가 내 이력을 봐야 할 때”, “여러 장소에서 작업해야 할 때” 문제가 커진다.
-        그래서 원격 저장소(리모트)를 두고 <strong>백업 + 협업</strong>을 같이 해결한다.
-      </p>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          이슈 작성 최소 템플릿(추천)
+        </span>
+      </h3>
 
-      <!-- 섹션 3: 분산형 VCS -->
-      <h2 class="section">분산형 버전 관리(DVCS)가 중요한 이유</h2>
+      <pre><code>제목: [bug] 로그인 시 500 발생
+
+1) 현상(What)
+- 특정 조건에서 로그인 시 500 에러가 발생한다.
+
+2) 재현 방법(How)
+- /login 에서 잘못된 비밀번호 입력
+- 다시 올바른 비밀번호 입력 후 로그인
+
+3) 기대 결과(Expected)
+- 정상적으로 로그인되고 홈으로 이동한다.
+
+4) 참고(Reference)
+- 서버 로그: NullPointerException at AuthService#...
+</code></pre>
+
+      <!-- 섹션 3: 코드 검색 도구 -->
+      <h2 class="section">코드 검색: grep.app(코드 서치) 활용</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DVCS 관점에서 “로컬”은 부가물이 아니라 핵심
+          언제 도움이 되나
         </span>
       </h3>
 
       <ul>
-        <li>중앙 서버만 망가지면 끝나는 구조가 아니라, 각자 로컬에 저장소(이력)가 존재한다</li>
-        <li>네트워크가 불안정해도 로컬에서 커밋/브랜치 작업이 가능하다</li>
-        <li>원격 저장소는 협업과 공유를 위한 “합류 지점” 역할을 한다</li>
+        <li>공개 저장소에서 “이 에러/이 패턴을 실제로 어떻게 해결했는지” 빠르게 사례를 찾고 싶을 때</li>
+        <li>특정 API/라이브러리의 사용 예제를 “코드 그대로” 보고 싶을 때</li>
+        <li>정확한 키워드(함수명/클래스명/에러 메시지)로 전역 검색이 필요할 때</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Git 기반 대표 플랫폼(실무 관점)
+          주의할 점(실무 기준)
         </span>
       </h3>
 
-      <table>
-        <thead>
-          <tr>
-            <th>플랫폼</th>
-            <th>특징</th>
-            <th>주요 사용 맥락</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>GitHub</td>
-            <td>오픈소스 생태계/PR 기반 협업에 강함</td>
-            <td>공개/사내 협업, 포트폴리오</td>
-          </tr>
-          <tr>
-            <td>GitLab</td>
-            <td>사내 구축(Self-hosted) 지원이 강하고 DevOps 기능이 풍부한 편</td>
-            <td>기업 내부망/보안 환경에서 운영</td>
-          </tr>
-          <tr>
-            <td>Gerrit</td>
-            <td>코드 리뷰(변경 단위) 중심의 엄격한 검토 흐름에 강함</td>
-            <td>리뷰 프로세스가 매우 엄격한 조직</td>
-          </tr>
-          <tr>
-            <td>Bitbucket</td>
-            <td>Atlassian 제품군(Jira 등)과 연동이 좋은 편</td>
-            <td>Jira 중심으로 업무 관리하는 팀</td>
-          </tr>
-        </tbody>
-      </table>
+      <ul>
+        <li>찾은 코드는 “그대로 복붙”보다 <strong>내 프로젝트 요구사항에 맞게 이해 후 적용</strong>이 우선이다</li>
+        <li>라이선스/저작권(특히 큰 코드 덩어리)과 보안(비밀키/토큰 노출) 이슈를 항상 확인한다</li>
+        <li>코드가 오래된 경우(버전 차이) 동작이 달라질 수 있어 공식 문서로 최종 검증한다</li>
+      </ul>
 
-      <!-- 섹션 4: Git 내부 구조 -->
-      <h2 class="section">Git의 내부 구조: Working Directory → Staging Area → Local Repo → Remote</h2>
+      <!-- 섹션 4: Dev/Stage/Prod -->
+      <h2 class="section">Dev / Stage / Prod 브랜치로 환경을 분리하는 이유</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          4단계 흐름
+          목적: 개발/검증/운영을 분리해서 안정성을 확보
         </span>
       </h3>
-
-      <pre><code>Working Directory(내가 파일 편집하는 곳)
-  └─ git add
-Staging Area(커밋에 포함할 변경만 “선별”)
-  └─ git commit
-Local Repository(.git)(내 PC의 커밋 이력 저장소)
-  └─ git push
-Remote Repository(GitHub 등 원격 저장소)
-</code></pre>
-
-      <table>
-        <thead>
-          <tr>
-            <th>영역</th>
-            <th>의미</th>
-            <th>대표 명령</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Working Directory</td>
-            <td>실제 파일을 수정/생성하는 작업 공간</td>
-            <td><code>git status</code></td>
-          </tr>
-          <tr>
-            <td>Staging Area</td>
-            <td>“이번 커밋에 포함할 변경”을 고르는 중간 단계</td>
-            <td><code>git add</code>, <code>git restore --staged</code></td>
-          </tr>
-          <tr>
-            <td>Local Repo(.git)</td>
-            <td>커밋(스냅샷) 히스토리가 저장되는 로컬 저장소</td>
-            <td><code>git commit</code>, <code>git log</code></td>
-          </tr>
-          <tr>
-            <td>Remote Repo</td>
-            <td>원격에 올려 공유/백업/협업하는 저장소</td>
-            <td><code>git push</code>, <code>git pull</code>, <code>git fetch</code></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 섹션 5: 핵심 용어 -->
-      <h2 class="section">핵심 용어 정리</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          협업에서 자주 나오는 단어들
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th>용어</th>
-            <th>의미</th>
-            <th>핵심 포인트</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>commit</td>
-            <td>프로젝트 상태를 기록한 “스냅샷(버전)”</td>
-            <td>원격에 올리기 전에도 로컬에서 반드시 생성해야 함</td>
-          </tr>
-          <tr>
-            <td>snapshot</td>
-            <td>특정 시점의 코드 상태(버전)</td>
-            <td>문제 생기면 특정 커밋으로 되돌아갈 수 있음</td>
-          </tr>
-          <tr>
-            <td>hash</td>
-            <td>커밋을 식별하는 값(보통 앞부분만 축약해 사용)</td>
-            <td>로그에서 커밋을 찾는 기준</td>
-          </tr>
-          <tr>
-            <td>HEAD</td>
-            <td>현재 내가 바라보는 커밋(대개 현재 브랜치의 최신 커밋)</td>
-            <td><code>HEAD~1</code>은 직전 커밋을 의미</td>
-          </tr>
-          <tr>
-            <td>branch</td>
-            <td>작업 흐름을 분리하는 “커밋 포인터”</td>
-            <td>기능 개발/버그 수정/배포 단계 분리에 필수</td>
-          </tr>
-          <tr>
-            <td>merge</td>
-            <td>브랜치의 변경을 합치는 작업</td>
-            <td>충돌(conflict)이 나면 수동으로 해결 필요</td>
-          </tr>
-          <tr>
-            <td>remote</td>
-            <td>원격 저장소(예: origin, upstream)</td>
-            <td>push/pull/fetch 대상</td>
-          </tr>
-          <tr>
-            <td>fork</td>
-            <td>다른 사람 저장소를 “내 GitHub 계정”으로 복제</td>
-            <td>계정에 복제될 뿐, 로컬로 내려오는 것은 아님</td>
-          </tr>
-          <tr>
-            <td>clone</td>
-            <td>원격 저장소를 “내 로컬 PC”로 복제</td>
-            <td>로컬 개발 시작 단계</td>
-          </tr>
-          <tr>
-            <td>PR(Pull Request)</td>
-            <td>변경 사항을 공유하고 코드 리뷰/병합을 요청하는 단위</td>
-            <td>협업에서 변경 공유 + 합의의 표준 흐름</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 섹션 6: 실전 명령어 -->
-      <h2 class="section">실전 Git 명령 흐름</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          가장 기본: 로컬에서 커밋하고 원격에 올리기
-        </span>
-      </h3>
-
-      <pre><code># 1) 저장소 초기화(또는 clone으로 시작)
-git init
-
-# 2) 변경 확인
-git status
-
-# 3) 스테이징(이번 커밋에 포함할 변경 선택)
-git add .
-
-# 4) 커밋(스냅샷 생성)
-git commit -m "docs: add til day17"
-
-# 5) 원격 저장소 연결(처음 1회)
-git remote add origin &lt;REMOTE_URL&gt;
-
-# 6) 원격에 업로드
-git push -u origin main
-</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          브랜치 작업(기능 개발의 표준)
-        </span>
-      </h3>
-
-      <pre><code># 브랜치 생성
-git branch feature/til-day17
-
-# 브랜치 이동(최근에는 switch를 더 자주 사용)
-git checkout feature/til-day17
-# 또는
-git switch feature/til-day17
-
-# 작업 후 커밋 → PR → merge(보통 GitHub에서)
-</code></pre>
 
       <p>
-        브랜치는 “파일을 복사하는 기능”이 아니라, 커밋 흐름을 분리하는 포인터다.
-        기능 단위로 브랜치를 나눠 두면 리뷰/테스트/롤백이 훨씬 쉬워진다.
+        환경별 브랜치 구성을 쓰는 이유는
+        <strong>개발 중인 코드</strong>와 <strong>검증된 코드</strong>와 <strong>실제 운영 코드</strong>를 분리해서
+        “누가 봐도 지금 무엇이 배포 가능한지”를 명확히 하기 위함이다.
       </p>
-
-      <!-- 섹션 7: 되돌리기 -->
-      <h2 class="section">되돌리기 전략: restore vs reset vs revert</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          협업 기준으로 정리
-        </span>
-      </h3>
 
       <table>
         <thead>
           <tr>
-            <th>명령</th>
-            <th>무엇을 되돌리나</th>
-            <th>히스토리(커밋 로그)</th>
-            <th>협업 안전성</th>
+            <th>브랜치</th>
+            <th>역할</th>
+            <th>대표 규칙</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>restore</td>
-            <td>파일 단위(Working Directory / Staging) 상태 복구</td>
-            <td>유지됨</td>
-            <td>안전</td>
+            <td>Dev(또는 develop)</td>
+            <td>기능 개발/버그 수정이 합쳐지는 통합 개발 브랜치</td>
+            <td>feature 브랜치를 여기로 병합(코드 리뷰/테스트 포함)</td>
           </tr>
           <tr>
-            <td>reset</td>
-            <td>커밋 기준으로 “현재 위치(HEAD)”를 이동</td>
-            <td>커밋이 사라질 수 있음</td>
-            <td>주의(공유 브랜치에서 위험)</td>
+            <td>Stage(또는 staging/release)</td>
+            <td>배포 직전 최종 검증(QA/통합 테스트) 브랜치</td>
+            <td>운영과 유사한 설정에서 “배포 가능” 상태만 유지</td>
           </tr>
           <tr>
-            <td>revert</td>
-            <td>특정 커밋의 변경을 “취소하는 새 커밋” 생성</td>
-            <td>유지됨(취소 기록도 남음)</td>
-            <td>가장 안전</td>
+            <td>Prod(보통 main/master)</td>
+            <td>실 사용자에게 제공되는 운영 코드</td>
+            <td>항상 안정적이어야 하며, 배포는 이 브랜치 기준으로 수행</td>
           </tr>
         </tbody>
       </table>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          자주 쓰는 예시
-        </span>
-      </h3>
-
-      <pre><code># (1) 워킹 디렉토리 파일을 마지막 커밋 상태로 되돌리기(수정 내용 폐기)
-git restore README.md
-
-# (2) 스테이징만 취소(파일 수정 내용은 유지)
-git restore --staged README.md
-
-# (3) 직전 커밋을 취소하되, 변경 내용을 스테이징에 유지(커밋만 다시 만들고 싶을 때)
-git reset --soft HEAD~1
-
-# (4) 직전 커밋을 취소하고, 스테이징도 취소(변경 내용은 워킹에 남음)
-git reset HEAD~1
-
-# (5) 직전 커밋을 완전히 삭제(히스토리/작업까지 날림) - 협업 브랜치에서는 매우 위험
-git reset --hard HEAD~1
-
-# (6) 특정 커밋을 “취소하는 커밋” 생성(협업에서 권장)
-git revert &lt;COMMIT_HASH&gt;
+      <pre><code>feature/*  ──&gt;  dev(develop)  ──&gt;  stage(staging)  ──&gt;  prod(main)
+(개별 기능)      (통합 개발)         (최종 검증)            (운영 배포)
 </code></pre>
 
-      <!-- 섹션 8: 터미널/리눅스 기초 -->
-      <h2 class="section">터미널/리눅스 기초 명령 (Git Bash 포함)</h2>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          자주 쓰는 명령 모음
+          배포 리스크 키워드: Risky / Slow / Fat Release
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th>명령</th>
+            <th>키워드</th>
             <th>의미</th>
+            <th>대응 전략</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Risky</td>
+            <td>검증(스테이징/QA) 없이 운영에 바로 반영되어 장애 가능성이 커지는 상태</td>
+            <td>최소한의 QA 게이트 유지, 롤백 플랜/모니터링 준비</td>
+          </tr>
+          <tr>
+            <td>Slow</td>
+            <td>변경량이 커져서 테스트/배포/원인 파악이 느려지는 상태</td>
+            <td>변경을 작게 쪼개고, 자동화 테스트/배포 파이프라인 강화</td>
+          </tr>
+          <tr>
+            <td>Fat Release</td>
+            <td>한 번 배포에 너무 많은 변경이 포함되어 “문제 발생 시 원인 추적이 어려운” 릴리스</td>
+            <td>Small Release(점진 배포), 기능 플래그(Feature Flag) 활용</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 5: feature/release/hotfix -->
+      <h2 class="section">feature / release / hotfix 브랜치의 역할</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          기능/배포/긴급수정의 분리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>브랜치</th>
+            <th>분기(일반적)</th>
+            <th>목적</th>
+            <th>병합(일반적)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>feature/*</td>
+            <td>dev(develop)</td>
+            <td>새 기능/개선 사항을 독립적으로 개발</td>
+            <td>dev(develop)로 PR/merge</td>
+          </tr>
+          <tr>
+            <td>release/*</td>
+            <td>dev(develop)</td>
+            <td>배포 직전 안정화(QA, 버그 수정)</td>
+            <td>prod(main) + dev(develop)로 병합(정책에 따라)</td>
+          </tr>
+          <tr>
+            <td>hotfix/*</td>
+            <td>prod(main)</td>
+            <td>운영 장애/긴급 버그를 빠르게 수정</td>
+            <td>prod(main) + dev(develop)로 병합(재발 방지)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 6: SemVer -->
+      <h2 class="section">Semantic Versioning(SemVer): x.y.z 버전 규칙</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          MAJOR.MINOR.PATCH 의미
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구성</th>
+            <th>언제 올리나</th>
             <th>예시</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>pwd</code></td>
-            <td>현재 디렉토리 절대 경로 출력</td>
-            <td><code>pwd</code></td>
+            <td>MAJOR</td>
+            <td>호환되지 않는 변경(Breaking Change)</td>
+            <td><code>1.0.0 → 2.0.0</code></td>
           </tr>
           <tr>
-            <td><code>ls</code></td>
-            <td>목록 보기</td>
-            <td><code>ls -al</code></td>
+            <td>MINOR</td>
+            <td>호환되는 기능 추가</td>
+            <td><code>1.0.0 → 1.1.0</code></td>
           </tr>
           <tr>
-            <td><code>cd</code></td>
-            <td>디렉토리 이동</td>
-            <td><code>cd ..</code></td>
+            <td>PATCH</td>
+            <td>호환되는 버그 수정</td>
+            <td><code>1.0.1 → 1.0.2</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 7: 워크플로 모델 -->
+      <h2 class="section">브랜치 운영 전략: Git Flow vs GitHub Flow vs Trunk-based</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          3가지 모델 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>전략</th>
+            <th>핵심 아이디어</th>
+            <th>잘 맞는 상황</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Git Flow</td>
+            <td>feature/release/hotfix 등 브랜치를 세분화해 “버전/배포”를 엄격히 관리</td>
+            <td>릴리스 주기가 길고, 배포 안정화 단계가 중요한 조직</td>
           </tr>
           <tr>
-            <td><code>mkdir</code></td>
-            <td>폴더 생성</td>
-            <td><code>mkdir til</code></td>
+            <td>GitHub Flow</td>
+            <td><code>main</code>은 항상 배포 가능, feature 브랜치 → PR → main 병합 후 바로 배포</td>
+            <td>자주 배포하고, CI/CD가 갖춰진 환경</td>
           </tr>
           <tr>
-            <td><code>touch</code></td>
-            <td>빈 파일 생성(또는 타임스탬프 갱신)</td>
-            <td><code>touch README.md</code></td>
+            <td>Trunk-based Development</td>
+            <td>하나의 메인(trunk/main)에 “아주 작은 변경”을 자주 통합(짧은 브랜치 수명)</td>
+            <td>Small Release, 빠른 피드백, 자동화 테스트가 강한 팀</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 8: 충돌 & rebase -->
+      <h2 class="section">충돌(conflict)과 Rebase</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          충돌이 발생하는 이유
+        </span>
+      </h3>
+
+      <p>
+        충돌은 여러 사람이 <strong>같은 파일의 같은 구간</strong>을 서로 다르게 수정했을 때,
+        Git이 “어느 변경이 맞는지” 자동으로 결정할 수 없어서 발생한다.
+        이 경우 최종 의도는 사람만이 판단할 수 있으므로, 사람이 직접 해결하도록 멈춰준다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Rebase 개념: “기록을 다시 쌓아” 히스토리를 깔끔하게 만들기
+        </span>
+      </h3>
+
+      <p>
+        <strong>rebase</strong>는 한 브랜치의 커밋들을 다른 브랜치(기준) 위로 “다시 적용”하여
+        커밋 흐름을 일직선으로 정리하는 방식이다.
+        이 과정에서 커밋이 새로 만들어지므로 <strong>커밋 해시가 바뀐다(히스토리 재작성)</strong>.
+      </p>
+
+      <pre><code># 예시: feature 브랜치를 최신 main 위로 다시 쌓기
+git checkout feature/login
+git fetch origin
+git rebase origin/main
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          rebase 충돌 해결 흐름(대표)
+        </span>
+      </h3>
+
+      <pre><code># 1) 충돌 파일 수정(표시된 충돌 마커 해결)
+# 2) 해결한 파일을 스테이징
+git add &lt;파일명&gt;
+
+# 3) rebase 계속 진행
+git rebase --continue
+
+# 중간에 그만두고 싶다면
+git rebase --abort
+</code></pre>
+
+      <p>
+        rebase 진행 중 에디터가 열리면, 안내에 따라 커밋 메시지를 확인/수정하고 저장 후 종료하면 된다
+        (vim 기준으로는 저장 후 종료: <code>:wq</code>).
+      </p>
+
+      <!-- 섹션 9: amend / interactive rebase -->
+      <h2 class="section">커밋 히스토리 다듬기: amend &amp; interactive rebase</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          git commit --amend: 마지막 커밋 수정
+        </span>
+      </h3>
+
+      <p>
+        <code>git commit --amend</code>는 <strong>가장 최근 커밋</strong>의 메시지를 바꾸거나,
+        빠뜨린 파일을 추가해서 “마지막 커밋 자체를 고치는” 명령이다.
+        결과적으로 마지막 커밋이 새로 만들어지므로 해시가 바뀐다.
+      </p>
+
+      <pre><code># (1) 파일을 추가로 스테이징
+git add &lt;빠진파일&gt;
+
+# (2) 마지막 커밋에 포함 + 메시지 수정(또는 유지)
+git commit --amend
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          interactive rebase(-i): 커밋 합치기/수정/정리
+        </span>
+      </h3>
+
+      <pre><code># 최근 2개 커밋을 대상으로 편집
+git rebase -i HEAD~2
+</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th>명령(대표)</th>
+            <th>의미</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>pick</code></td>
+            <td>커밋 유지</td>
           </tr>
           <tr>
-            <td><code>cat</code></td>
-            <td>파일 내용 출력</td>
-            <td><code>cat README.md</code></td>
+            <td><code>reword</code></td>
+            <td>커밋 메시지만 수정</td>
           </tr>
           <tr>
-            <td><code>less</code></td>
-            <td>페이지 단위로 파일 보기(q로 종료)</td>
-            <td><code>less README.md</code></td>
+            <td><code>edit</code></td>
+            <td>커밋을 멈추고 내용 수정(추가 커밋/분할 등)</td>
           </tr>
           <tr>
-            <td><code>head</code>/<code>tail</code></td>
-            <td>앞/뒤 일부 출력</td>
-            <td><code>tail -n 20 app.log</code></td>
-          </tr>
-          <tr>
-            <td><code>mv</code></td>
-            <td>이동/이름 변경</td>
-            <td><code>mv a.txt b.txt</code></td>
-          </tr>
-          <tr>
-            <td><code>cp</code></td>
-            <td>복사</td>
-            <td><code>cp a.txt backup/</code></td>
-          </tr>
-          <tr>
-            <td><code>rm</code></td>
-            <td>삭제(복구 어려움)</td>
-            <td><code>rm a.txt</code></td>
-          </tr>
-          <tr>
-            <td><code>clear</code></td>
-            <td>화면 지우기</td>
-            <td><code>clear</code></td>
-          </tr>
-          <tr>
-            <td><code>history</code></td>
-            <td>입력 명령 이력</td>
-            <td><code>history</code></td>
-          </tr>
-          <tr>
-            <td><code>whoami</code></td>
-            <td>현재 사용자</td>
-            <td><code>whoami</code></td>
-          </tr>
-          <tr>
-            <td><code>df -h</code></td>
-            <td>디스크 사용량(사람이 읽기 쉬운 단위)</td>
-            <td><code>df -h</code></td>
-          </tr>
-          <tr>
-            <td><code>du -sh</code></td>
-            <td>특정 경로 용량</td>
-            <td><code>du -sh .</code></td>
+            <td><code>squash</code></td>
+            <td>이전 커밋과 합치고 메시지를 통합/정리</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문자열 검색: grep와 git grep
+          매우 중요한 원칙: 공유된 커밋은 rebase로 재작성하지 않는다
         </span>
       </h3>
 
-      <pre><code># 파일 내용에서 문자열 찾기
-grep "TODO" README.md
+      <ul>
+        <li>이미 원격에 push되어 팀이 공유하는 브랜치(예: main/develop)의 커밋을 rebase하면 히스토리가 갈라져 혼란이 커진다</li>
+        <li>정말 불가피하게 재작성해야 한다면, 팀 합의 후 <code>--force-with-lease</code> 같은 안전 장치를 고려한다</li>
+        <li>공유 브랜치에서는 보통 <strong>merge</strong> 또는 <strong>revert</strong>가 더 안전한 선택이다</li>
+      </ul>
 
-# 특정 폴더 하위에서 재귀 검색(-r)
-grep -r "TODO" .
-
-# Git 저장소(추적 파일)에서 검색할 때
-git grep "TODO"
-</code></pre>
-
-      <!-- 섹션 9: 협업 흐름 -->
-      <h2 class="section">협업 흐름: fork/clone/upstream/PR</h2>
+      <!-- 섹션 10: pull --rebase -->
+      <h2 class="section">pull 충돌/히스토리 꼬임 줄이기: git pull --rebase</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          fork 기반 협업의 기본 흐름
+          의미
         </span>
       </h3>
 
-      <ol>
-        <li>원본 저장소를 내 계정으로 <strong>fork</strong>한다</li>
-        <li>내 fork 저장소를 로컬로 <strong>clone</strong>한다</li>
-        <li>기능 브랜치를 만들고 커밋한다</li>
-        <li>내 fork 저장소로 push 후 <strong>Pull Request(PR)</strong>를 만든다</li>
-        <li>리뷰/합의 후 원본(upstream)에 merge 된다</li>
-      </ol>
+      <p>
+        로컬 커밋이 있는 상태에서 원격 변경을 가져올 때,
+        <code>pull</code>이 merge 커밋을 만들지 않고
+        “내 커밋을 위로 다시 쌓는 방식”으로 히스토리를 깔끔하게 유지하고 싶으면
+        <code>git pull --rebase</code>를 사용할 수 있다.
+      </p>
+
+      <pre><code># 원격 main을 가져오면서 rebase로 정리
+git pull --rebase origin main
+</code></pre>
+
+      <!-- 섹션 11: Tag & Release Notes -->
+      <h2 class="section">Tag와 Release Notes로 배포 이력 관리</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          upstream 최신 반영(대표 예시)
+          Tag란?
         </span>
       </h3>
 
-      <pre><code># 원본 저장소를 upstream으로 추가(처음 1회)
-git remote add upstream &lt;UPSTREAM_URL&gt;
+      <p>
+        <strong>tag</strong>는 특정 커밋을 “버전 스냅샷”처럼 고정해서,
+        그 시점으로 쉽게 돌아갈 수 있게 만든다.
+        보통 배포 버전(<code>v1.2.0</code>)을 태그로 남겨 릴리스 기준점을 만든다.
+      </p>
 
-# upstream 변경 가져오기
-git fetch upstream
+      <pre><code># annotated tag(메시지 포함)를 만드는 방식(대표)
+git tag -a v1.1.0 -m "release v1.1.0"
 
-# 내 main에 반영(상황에 따라 merge 또는 rebase 선택)
-git checkout main
-git merge upstream/main
+# 태그를 원격에 푸시
+git push origin v1.1.0
 </code></pre>
 
-      <!-- 섹션 10: 오늘의 회고 -->
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Release Notes란?
+        </span>
+      </h3>
+
+      <p>
+        Release Notes는 새 버전을 배포할 때,
+        <strong>추가된 기능 / 수정된 버그 / 주의사항 / 업그레이드 힌트</strong> 등을 정리한 문서다.
+        변경이 많아질수록 “사용자/팀”에게 전달해야 하는 정보도 늘어나므로,
+        작은 릴리스와 함께 Release Notes를 꾸준히 관리하면 운영 품질이 올라간다.
+      </p>
+
+      <!-- 섹션 12: 회고 -->
       <h2 class="section">오늘의 회고</h2>
 
       <h3 class="section">
@@ -547,9 +546,10 @@ git merge upstream/main
       </h3>
 
       <ul>
-        <li><strong>Staging Area</strong>는 “커밋 단위를 깔끔하게 만들기 위한 선별 공간”이라는 감각이 중요했다</li>
-        <li>협업에서는 <strong>reset보다 revert</strong>가 안전한 경우가 많다(히스토리를 지우지 않기 때문)</li>
-        <li>CLI는 결국 “파일/폴더/텍스트를 빠르게 다루는 기술”이라, Git과 함께 익히면 생산성이 확 올라간다</li>
+        <li>Issues는 “할 일 목록”을 넘어, 팀이 같은 목표/상태를 공유하는 커뮤니케이션의 기준점이 된다</li>
+        <li>브랜치 전략은 정답이 하나가 아니라, 배포 빈도/자동화 수준/팀 규모에 따라 선택해야 한다</li>
+        <li>rebase는 강력하지만 히스토리를 재작성하는 도구라서, “공유된 커밋에는 쓰지 않는다”는 원칙이 제일 중요했다</li>
+        <li>tag + release notes를 습관화하면 배포 이력이 명확해지고, 장애 대응 속도도 빨라진다</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
