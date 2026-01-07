@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 17일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 17일차 TIL — Git/GitHub 핵심 개념 &amp; CLI 기본</h1>
+      <p class="muted">작성일 2026-01-06 · 분류: 부트캠프, TIL, Git, GitHub</p>
+
+      <!-- 섹션 1: 개요 -->
+      <h2 class="section">17일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li>Git과 GitHub의 역할을 명확히 구분한다</li>
+        <li>Working Directory → Staging Area → Local Repo(.git) → Remote Repo 흐름을 이해한다</li>
+        <li>되돌리기(restore/reset/revert) 차이를 정리하고 “협업에서 안전한 선택”을 기준으로 판단한다</li>
+        <li>CLI(터미널) 기본 명령과 Git 명령을 실무 관점으로 정리한다</li>
+      </ul>
+
+      <!-- 섹션 2: Git vs GitHub -->
+      <h2 class="section">Git vs GitHub</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 정의
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>정의</th>
+            <th>한 줄 요약</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Git</td>
+            <td>파일/코드 변경 이력을 저장하고 관리하는 분산 버전 관리 시스템(VCS)</td>
+            <td>내 PC에서 버전 기록을 관리하는 도구</td>
+          </tr>
+          <tr>
+            <td>GitHub</td>
+            <td>Git 저장소를 원격(인터넷)에서 보관/공유/협업할 수 있는 웹 서비스(플랫폼)</td>
+            <td>Git 저장소를 올려두고 협업하는 공간</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        로컬에서만 작업하면 “내 컴퓨터가 고장났을 때”, “협업자가 내 이력을 봐야 할 때”, “여러 장소에서 작업해야 할 때” 문제가 커진다.
+        그래서 원격 저장소(리모트)를 두고 <strong>백업 + 협업</strong>을 같이 해결한다.
+      </p>
+
+      <!-- 섹션 3: 분산형 VCS -->
+      <h2 class="section">분산형 버전 관리(DVCS)가 중요한 이유</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DVCS 관점에서 “로컬”은 부가물이 아니라 핵심
+        </span>
+      </h3>
+
+      <ul>
+        <li>중앙 서버만 망가지면 끝나는 구조가 아니라, 각자 로컬에 저장소(이력)가 존재한다</li>
+        <li>네트워크가 불안정해도 로컬에서 커밋/브랜치 작업이 가능하다</li>
+        <li>원격 저장소는 협업과 공유를 위한 “합류 지점” 역할을 한다</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Git 기반 대표 플랫폼(실무 관점)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>플랫폼</th>
+            <th>특징</th>
+            <th>주요 사용 맥락</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GitHub</td>
+            <td>오픈소스 생태계/PR 기반 협업에 강함</td>
+            <td>공개/사내 협업, 포트폴리오</td>
+          </tr>
+          <tr>
+            <td>GitLab</td>
+            <td>사내 구축(Self-hosted) 지원이 강하고 DevOps 기능이 풍부한 편</td>
+            <td>기업 내부망/보안 환경에서 운영</td>
+          </tr>
+          <tr>
+            <td>Gerrit</td>
+            <td>코드 리뷰(변경 단위) 중심의 엄격한 검토 흐름에 강함</td>
+            <td>리뷰 프로세스가 매우 엄격한 조직</td>
+          </tr>
+          <tr>
+            <td>Bitbucket</td>
+            <td>Atlassian 제품군(Jira 등)과 연동이 좋은 편</td>
+            <td>Jira 중심으로 업무 관리하는 팀</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 4: Git 내부 구조 -->
+      <h2 class="section">Git의 내부 구조: Working Directory → Staging Area → Local Repo → Remote</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          4단계 흐름
+        </span>
+      </h3>
+
+      <pre><code>Working Directory(내가 파일 편집하는 곳)
+  └─ git add
+Staging Area(커밋에 포함할 변경만 “선별”)
+  └─ git commit
+Local Repository(.git)(내 PC의 커밋 이력 저장소)
+  └─ git push
+Remote Repository(GitHub 등 원격 저장소)
+</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th>영역</th>
+            <th>의미</th>
+            <th>대표 명령</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Working Directory</td>
+            <td>실제 파일을 수정/생성하는 작업 공간</td>
+            <td><code>git status</code></td>
+          </tr>
+          <tr>
+            <td>Staging Area</td>
+            <td>“이번 커밋에 포함할 변경”을 고르는 중간 단계</td>
+            <td><code>git add</code>, <code>git restore --staged</code></td>
+          </tr>
+          <tr>
+            <td>Local Repo(.git)</td>
+            <td>커밋(스냅샷) 히스토리가 저장되는 로컬 저장소</td>
+            <td><code>git commit</code>, <code>git log</code></td>
+          </tr>
+          <tr>
+            <td>Remote Repo</td>
+            <td>원격에 올려 공유/백업/협업하는 저장소</td>
+            <td><code>git push</code>, <code>git pull</code>, <code>git fetch</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 5: 핵심 용어 -->
+      <h2 class="section">핵심 용어 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          협업에서 자주 나오는 단어들
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>용어</th>
+            <th>의미</th>
+            <th>핵심 포인트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>commit</td>
+            <td>프로젝트 상태를 기록한 “스냅샷(버전)”</td>
+            <td>원격에 올리기 전에도 로컬에서 반드시 생성해야 함</td>
+          </tr>
+          <tr>
+            <td>snapshot</td>
+            <td>특정 시점의 코드 상태(버전)</td>
+            <td>문제 생기면 특정 커밋으로 되돌아갈 수 있음</td>
+          </tr>
+          <tr>
+            <td>hash</td>
+            <td>커밋을 식별하는 값(보통 앞부분만 축약해 사용)</td>
+            <td>로그에서 커밋을 찾는 기준</td>
+          </tr>
+          <tr>
+            <td>HEAD</td>
+            <td>현재 내가 바라보는 커밋(대개 현재 브랜치의 최신 커밋)</td>
+            <td><code>HEAD~1</code>은 직전 커밋을 의미</td>
+          </tr>
+          <tr>
+            <td>branch</td>
+            <td>작업 흐름을 분리하는 “커밋 포인터”</td>
+            <td>기능 개발/버그 수정/배포 단계 분리에 필수</td>
+          </tr>
+          <tr>
+            <td>merge</td>
+            <td>브랜치의 변경을 합치는 작업</td>
+            <td>충돌(conflict)이 나면 수동으로 해결 필요</td>
+          </tr>
+          <tr>
+            <td>remote</td>
+            <td>원격 저장소(예: origin, upstream)</td>
+            <td>push/pull/fetch 대상</td>
+          </tr>
+          <tr>
+            <td>fork</td>
+            <td>다른 사람 저장소를 “내 GitHub 계정”으로 복제</td>
+            <td>계정에 복제될 뿐, 로컬로 내려오는 것은 아님</td>
+          </tr>
+          <tr>
+            <td>clone</td>
+            <td>원격 저장소를 “내 로컬 PC”로 복제</td>
+            <td>로컬 개발 시작 단계</td>
+          </tr>
+          <tr>
+            <td>PR(Pull Request)</td>
+            <td>변경 사항을 공유하고 코드 리뷰/병합을 요청하는 단위</td>
+            <td>협업에서 변경 공유 + 합의의 표준 흐름</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 6: 실전 명령어 -->
+      <h2 class="section">실전 Git 명령 흐름</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          가장 기본: 로컬에서 커밋하고 원격에 올리기
+        </span>
+      </h3>
+
+      <pre><code># 1) 저장소 초기화(또는 clone으로 시작)
+git init
+
+# 2) 변경 확인
+git status
+
+# 3) 스테이징(이번 커밋에 포함할 변경 선택)
+git add .
+
+# 4) 커밋(스냅샷 생성)
+git commit -m "docs: add til day17"
+
+# 5) 원격 저장소 연결(처음 1회)
+git remote add origin &lt;REMOTE_URL&gt;
+
+# 6) 원격에 업로드
+git push -u origin main
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          브랜치 작업(기능 개발의 표준)
+        </span>
+      </h3>
+
+      <pre><code># 브랜치 생성
+git branch feature/til-day17
+
+# 브랜치 이동(최근에는 switch를 더 자주 사용)
+git checkout feature/til-day17
+# 또는
+git switch feature/til-day17
+
+# 작업 후 커밋 → PR → merge(보통 GitHub에서)
+</code></pre>
+
+      <p>
+        브랜치는 “파일을 복사하는 기능”이 아니라, 커밋 흐름을 분리하는 포인터다.
+        기능 단위로 브랜치를 나눠 두면 리뷰/테스트/롤백이 훨씬 쉬워진다.
+      </p>
+
+      <!-- 섹션 7: 되돌리기 -->
+      <h2 class="section">되돌리기 전략: restore vs reset vs revert</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          협업 기준으로 정리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>무엇을 되돌리나</th>
+            <th>히스토리(커밋 로그)</th>
+            <th>협업 안전성</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>restore</td>
+            <td>파일 단위(Working Directory / Staging) 상태 복구</td>
+            <td>유지됨</td>
+            <td>안전</td>
+          </tr>
+          <tr>
+            <td>reset</td>
+            <td>커밋 기준으로 “현재 위치(HEAD)”를 이동</td>
+            <td>커밋이 사라질 수 있음</td>
+            <td>주의(공유 브랜치에서 위험)</td>
+          </tr>
+          <tr>
+            <td>revert</td>
+            <td>특정 커밋의 변경을 “취소하는 새 커밋” 생성</td>
+            <td>유지됨(취소 기록도 남음)</td>
+            <td>가장 안전</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자주 쓰는 예시
+        </span>
+      </h3>
+
+      <pre><code># (1) 워킹 디렉토리 파일을 마지막 커밋 상태로 되돌리기(수정 내용 폐기)
+git restore README.md
+
+# (2) 스테이징만 취소(파일 수정 내용은 유지)
+git restore --staged README.md
+
+# (3) 직전 커밋을 취소하되, 변경 내용을 스테이징에 유지(커밋만 다시 만들고 싶을 때)
+git reset --soft HEAD~1
+
+# (4) 직전 커밋을 취소하고, 스테이징도 취소(변경 내용은 워킹에 남음)
+git reset HEAD~1
+
+# (5) 직전 커밋을 완전히 삭제(히스토리/작업까지 날림) - 협업 브랜치에서는 매우 위험
+git reset --hard HEAD~1
+
+# (6) 특정 커밋을 “취소하는 커밋” 생성(협업에서 권장)
+git revert &lt;COMMIT_HASH&gt;
+</code></pre>
+
+      <!-- 섹션 8: 터미널/리눅스 기초 -->
+      <h2 class="section">터미널/리눅스 기초 명령 (Git Bash 포함)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자주 쓰는 명령 모음
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>의미</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>pwd</code></td>
+            <td>현재 디렉토리 절대 경로 출력</td>
+            <td><code>pwd</code></td>
+          </tr>
+          <tr>
+            <td><code>ls</code></td>
+            <td>목록 보기</td>
+            <td><code>ls -al</code></td>
+          </tr>
+          <tr>
+            <td><code>cd</code></td>
+            <td>디렉토리 이동</td>
+            <td><code>cd ..</code></td>
+          </tr>
+          <tr>
+            <td><code>mkdir</code></td>
+            <td>폴더 생성</td>
+            <td><code>mkdir til</code></td>
+          </tr>
+          <tr>
+            <td><code>touch</code></td>
+            <td>빈 파일 생성(또는 타임스탬프 갱신)</td>
+            <td><code>touch README.md</code></td>
+          </tr>
+          <tr>
+            <td><code>cat</code></td>
+            <td>파일 내용 출력</td>
+            <td><code>cat README.md</code></td>
+          </tr>
+          <tr>
+            <td><code>less</code></td>
+            <td>페이지 단위로 파일 보기(q로 종료)</td>
+            <td><code>less README.md</code></td>
+          </tr>
+          <tr>
+            <td><code>head</code>/<code>tail</code></td>
+            <td>앞/뒤 일부 출력</td>
+            <td><code>tail -n 20 app.log</code></td>
+          </tr>
+          <tr>
+            <td><code>mv</code></td>
+            <td>이동/이름 변경</td>
+            <td><code>mv a.txt b.txt</code></td>
+          </tr>
+          <tr>
+            <td><code>cp</code></td>
+            <td>복사</td>
+            <td><code>cp a.txt backup/</code></td>
+          </tr>
+          <tr>
+            <td><code>rm</code></td>
+            <td>삭제(복구 어려움)</td>
+            <td><code>rm a.txt</code></td>
+          </tr>
+          <tr>
+            <td><code>clear</code></td>
+            <td>화면 지우기</td>
+            <td><code>clear</code></td>
+          </tr>
+          <tr>
+            <td><code>history</code></td>
+            <td>입력 명령 이력</td>
+            <td><code>history</code></td>
+          </tr>
+          <tr>
+            <td><code>whoami</code></td>
+            <td>현재 사용자</td>
+            <td><code>whoami</code></td>
+          </tr>
+          <tr>
+            <td><code>df -h</code></td>
+            <td>디스크 사용량(사람이 읽기 쉬운 단위)</td>
+            <td><code>df -h</code></td>
+          </tr>
+          <tr>
+            <td><code>du -sh</code></td>
+            <td>특정 경로 용량</td>
+            <td><code>du -sh .</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문자열 검색: grep와 git grep
+        </span>
+      </h3>
+
+      <pre><code># 파일 내용에서 문자열 찾기
+grep "TODO" README.md
+
+# 특정 폴더 하위에서 재귀 검색(-r)
+grep -r "TODO" .
+
+# Git 저장소(추적 파일)에서 검색할 때
+git grep "TODO"
+</code></pre>
+
+      <!-- 섹션 9: 협업 흐름 -->
+      <h2 class="section">협업 흐름: fork/clone/upstream/PR</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          fork 기반 협업의 기본 흐름
+        </span>
+      </h3>
+
+      <ol>
+        <li>원본 저장소를 내 계정으로 <strong>fork</strong>한다</li>
+        <li>내 fork 저장소를 로컬로 <strong>clone</strong>한다</li>
+        <li>기능 브랜치를 만들고 커밋한다</li>
+        <li>내 fork 저장소로 push 후 <strong>Pull Request(PR)</strong>를 만든다</li>
+        <li>리뷰/합의 후 원본(upstream)에 merge 된다</li>
+      </ol>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          upstream 최신 반영(대표 예시)
+        </span>
+      </h3>
+
+      <pre><code># 원본 저장소를 upstream으로 추가(처음 1회)
+git remote add upstream &lt;UPSTREAM_URL&gt;
+
+# upstream 변경 가져오기
+git fetch upstream
+
+# 내 main에 반영(상황에 따라 merge 또는 rebase 선택)
+git checkout main
+git merge upstream/main
+</code></pre>
+
+      <!-- 섹션 10: 오늘의 회고 -->
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>Staging Area</strong>는 “커밋 단위를 깔끔하게 만들기 위한 선별 공간”이라는 감각이 중요했다</li>
+        <li>협업에서는 <strong>reset보다 revert</strong>가 안전한 경우가 많다(히스토리를 지우지 않기 때문)</li>
+        <li>CLI는 결국 “파일/폴더/텍스트를 빠르게 다루는 기술”이라, Git과 함께 익히면 생산성이 확 올라간다</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
