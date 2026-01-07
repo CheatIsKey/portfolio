@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-05 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2026-01-07 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 부족한 금액 계산하기</h2>
+      <h2 class="section">문제 1 — 약수의 개수와 덧셈</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/82612">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/77884">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0105_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0107_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,16 +53,15 @@
       </h3>
       
       <p>
-        <strong>부족한 금액 계산하기 (프로그래머스 82612)</strong>는<br>
-        놀이기구 이용료가 <code>price</code>이고, i번째 이용 시 비용이 <code>price * i</code>로 증가할 때,
-        총 <code>count</code>번 타기 위해 필요한 금액에서 현재 가진 돈 <code>money</code>를 뺀
-        <strong>부족한 금액</strong>을 구하는 문제다.
+        <strong>약수의 개수와 덧셈 (프로그래머스 77884)</strong>는<br>
+        구간 <code>[left, right]</code>의 각 정수 <code>i</code>에 대해
+        <strong>약수의 개수</strong>가 짝수면 더하고, 홀수면 빼서 최종 합을 구하는 문제다.
       </p>
       
       <ul>
-        <li>총 비용 = <code>price * (1 + 2 + ... + count)</code></li>
-        <li>부족한 금액 = <code>총 비용 - money</code></li>
-        <li>만약 돈이 충분하면 정답은 <code>0</code>이다.</li>
+        <li>약수 개수 짝수 → <code>sum += i</code></li>
+        <li>약수 개수 홀수 → <code>sum -= i</code></li>
+        <li>핵심은 각 <code>i</code>의 약수 개수를 빠르게 세는 것이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -74,16 +73,16 @@
       </p>
       
       <ul>
-        <li>1부터 <code>count</code>까지의 합은 등차수열 합 공식으로 구한다.</li>
-        <li>
-          <code>1 + 2 + ... + n = n(n+1)/2</code> 이므로,
+        <li>각 수 <code>i</code>에 대해 <code>1</code>부터 <code>sqrt(i)</code>까지만 검사한다.</li>
+        <li><code>j</code>가 <code>i</code>의 약수라면, 보통은 <code>j</code>와 <code>i/j</code>가 한 쌍으로 생긴다.</li>
+        <li>따라서
           <ul>
-            <li><code>total = price * count * (count + 1) / 2</code></li>
+            <li><code>j * j == i</code>(제곱수)면 약수 1개만 추가</li>
+            <li>그 외에는 약수 2개 추가</li>
           </ul>
-          로 총 비용을 한 번에 계산할 수 있다.
+          로 약수 개수를 셀 수 있다.
         </li>
-        <li>정답은 <code>max(0, total - money)</code>.</li>
-        <li>곱셈 과정에서 int 범위를 넘을 수 있으므로 <code>long</code>으로 계산한다.</li>
+        <li>약수 개수의 홀짝에 따라 더/빼기를 결정한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -95,28 +94,40 @@
       </p>
       
       <ul>
-        <li><strong>1) count를 long으로 변환</strong>
-          <pre><code>long n = count;</code></pre>
+        <li><strong>1) left부터 right까지 순회</strong>
+          <pre><code>for (int i = left; i &lt;= right; i++) {
+          int cnt = 0;
+          ...
+      }</code></pre>
           <ul>
-            <li>뒤에서 곱셈을 할 때 오버플로우를 피하기 위해 <code>long</code>으로 승격한다.</li>
+            <li>각 수 <code>i</code>의 약수 개수(<code>cnt</code>)를 구해서 홀짝을 판단한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 총 비용 계산 (등차수열 합)</strong>
-          <pre><code>long result = (long) price * n * (n + 1) / 2;</code></pre>
+        <li><strong>2) 1부터 sqrt(i)까지 약수 검사</strong>
+          <pre><code>for (int j = 1; j * j &lt;= i; j++) {
+          if (i % j == 0) {
+              if (j * j == i) cnt += 1;
+              else cnt += 2;
+          }
+      }</code></pre>
           <ul>
-            <li>i번째 비용이 <code>price * i</code>이므로 총합은 <code>price * (1+...+n)</code>.</li>
-            <li>합 공식 <code>n(n+1)/2</code>를 사용해 한 줄로 계산한다.</li>
-            <li><code>(long) price</code>로 먼저 캐스팅해 연산 전체가 <code>long</code>으로 진행되게 한다.</li>
+            <li><code>j</code>가 약수면, 보통 <code>j</code>와 <code>i/j</code> 두 개가 생긴다 → <code>cnt += 2</code></li>
+            <li>단, <code>j * j == i</code>인 경우는 같은 약수(제곱근)라서 하나만 추가 → <code>cnt += 1</code></li>
+            <li>이렇게 하면 전체 약수를 전부 찾지 않고도 개수만 정확히 셀 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 부족한 금액 반환 (충분하면 0)</strong>
-          <pre><code>return Math.max(0L, result - money);</code></pre>
+        <li><strong>3) 약수 개수의 홀짝에 따라 더/빼기</strong>
+          <pre><code>if (cnt % 2 == 0) sum += i;
+      else sum -= i;</code></pre>
           <ul>
-            <li><code>result - money</code>가 음수(돈이 충분)면 0을 반환한다.</li>
-            <li>부족하면 그 차액을 그대로 반환한다.</li>
+            <li>짝수면 더하고, 홀수면 뺀다.</li>
           </ul>
+        </li>
+      
+        <li><strong>4) 최종 합 반환</strong>
+          <pre><code>return sum;</code></pre>
         </li>
       </ul>
       
@@ -131,15 +142,18 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>공식으로 한 번에 계산하므로 <strong><code>O(1)</code></strong>.</li>
+            <li>각 <code>i</code>마다 <code>1</code>부터 <code>sqrt(i)</code>까지 확인한다.</li>
+            <li>구간 길이를 <code>R = right - left + 1</code>이라 하면 대략 <strong><code>O(R * sqrt(right))</code></strong>.</li>
+            <li>문제 범위가 크지 않아 충분히 통과 가능한 방식이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>상수 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -209,14 +223,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 숫자 문자열과 영단어</h2>
+      <h2 class="section">문제 2 — 로또의 최고 순위와 최저 순위</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/81301">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/77484">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0105_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0107_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -229,14 +243,16 @@
       </h3>
       
       <p>
-        <strong>숫자 문자열과 영단어 (프로그래머스 81301)</strong>은<br>
-        숫자(0~9)와 영단어(<code>zero</code>~<code>nine</code>)가 섞여 있는 문자열 <code>s</code>가 주어졌을 때,
-        이를 전부 숫자로 바꿔서 최종 정수로 반환하는 문제다.
+        <strong>로또의 최고 순위와 최저 순위 (프로그래머스 77484)</strong>는<br>
+        로또 번호 배열 <code>lottos</code>와 당첨 번호 배열 <code>win_nums</code>가 주어졌을 때,
+        0(알 수 없는 번호)을 어떻게 채우느냐에 따라 가능한 <strong>최고 순위</strong>와 <strong>최저 순위</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>예: <code>"one4seveneight"</code> → <code>"1478"</code></li>
-        <li>문자열에서 영단어를 해당 숫자로 치환한 뒤 정수로 변환하면 된다.</li>
+        <li><code>lottos</code>의 <code>0</code>은 가려진 번호(미확인)다.</li>
+        <li><strong>최고 순위</strong>: 0이 전부 당첨 번호로 채워진다고 가정</li>
+        <li><strong>최저 순위</strong>: 0이 전부 꽝(당첨 번호가 아님)이라고 가정</li>
+        <li>순위는 “맞춘 개수”로 결정된다. (6개면 1등, …, 0~1개면 6등)</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -248,9 +264,20 @@
       </p>
       
       <ul>
-        <li><code>zero</code>부터 <code>nine</code>까지의 매핑을 <code>Map</code>으로 만든다.</li>
-        <li>매핑을 순회하며 <code>s</code>에서 해당 영단어를 숫자 문자열로 <code>replace</code>한다.</li>
-        <li>모든 치환이 끝난 문자열은 숫자만 남으므로 <code>Integer.parseInt</code>로 변환한다.</li>
+        <li>당첨 번호를 빠르게 확인하기 위해 <code>win_nums</code>를 boolean 배열에 표시한다.</li>
+        <li><code>lottos</code>를 순회하며
+          <ul>
+            <li><code>0</code>의 개수(<code>zero</code>)를 센다.</li>
+            <li>0이 아닌 숫자는 당첨 여부를 확인해 실제로 맞춘 개수(<code>cnt</code>)를 센다.</li>
+          </ul>
+        </li>
+        <li>가능한 맞춘 개수 범위는
+          <ul>
+            <li>최고: <code>cnt + zero</code></li>
+            <li>최저: <code>cnt</code></li>
+          </ul>
+          이므로, 각각을 순위로 변환한다.
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -262,41 +289,61 @@
       </p>
       
       <ul>
-        <li><strong>1) 영단어 → 숫자 매핑 준비</strong>
-          <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
-      map.put("zero", 0);
-      map.put("one", 1);
-      map.put("two", 2);
-      map.put("three", 3);
-      map.put("four", 4);
-      map.put("five", 5);
-      map.put("six", 6);
-      map.put("seven", 7);
-      map.put("eight", 8);
-      map.put("nine", 9);</code></pre>
-          <ul>
-            <li>문제에서 주어진 영단어 10개를 숫자 값으로 연결해 둔다.</li>
-          </ul>
-        </li>
+        <li><strong>1) 당첨 번호를 boolean 배열에 표시</strong>
+          <pre><code>boolean[] lotto = new boolean[46];
       
-        <li><strong>2) map을 순회하며 문자열 치환</strong>
-          <pre><code>for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
-          String key = entry.getKey();
-          int value = entry.getValue();
-      
-          s = s.replace(key, String.valueOf(value));
+      for (int winNum : win_nums) {
+          lotto[winNum] = true;
       }</code></pre>
           <ul>
-            <li><code>replace(key, value)</code>는 문자열 내의 모든 <code>key</code>를 전부 치환한다.</li>
-            <li>예: <code>"oneone"</code>도 한 번에 <code>"11"</code>로 바뀐다.</li>
-            <li>치환 결과는 새 문자열이므로 다시 <code>s</code>에 재할당한다.</li>
+            <li>로또 번호 범위가 1~45이므로 크기 46 배열을 사용한다.</li>
+            <li><code>lotto[x] == true</code>면 x는 당첨 번호다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 숫자 문자열을 정수로 변환</strong>
-          <pre><code>return Integer.parseInt(s);</code></pre>
+        <li><strong>2) 실제 일치 개수(cnt)와 0 개수(zero) 계산</strong>
+          <pre><code>int cnt = 0;
+      int zero = 0;
+      
+      for (int i : lottos) {
+          if (i == 0) {
+              zero++;
+          } else if (lotto[i]) {
+              cnt++;
+          }
+      }</code></pre>
           <ul>
-            <li>모든 영단어가 숫자로 바뀐 뒤에는 숫자만 남으므로 정수 변환이 가능하다.</li>
+            <li><code>0</code>이면 미확인 번호이므로 <code>zero</code> 증가.</li>
+            <li>0이 아니면 당첨 여부를 확인해 맞으면 <code>cnt</code> 증가.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 최고/최저 순위 계산</strong>
+          <pre><code>int max = lottoCase(cnt + zero);
+      int min = lottoCase(cnt);
+      
+      return new int[]{max, min};</code></pre>
+          <ul>
+            <li>최고는 0이 전부 맞는 경우이므로 <code>cnt + zero</code>.</li>
+            <li>최저는 0이 전부 틀리는 경우이므로 <code>cnt</code>.</li>
+            <li>각각 맞춘 개수를 순위로 변환해 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) lottoCase(): 맞춘 개수 → 순위 변환</strong>
+          <pre><code>private int lottoCase(int i) {
+          return switch (i) {
+              case 6 -> 1;
+              case 5 -> 2;
+              case 4 -> 3;
+              case 3 -> 4;
+              case 2 -> 5;
+              default -> 6;
+          };
+      }</code></pre>
+          <ul>
+            <li>맞춘 개수에 따라 등수를 고정 매핑한다.</li>
+            <li>0~1개는 모두 6등이므로 <code>default</code>로 처리한다.</li>
           </ul>
         </li>
       </ul>
@@ -312,16 +359,18 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>영단어 10개에 대해 <code>replace</code>를 수행한다.</li>
-            <li>문자열 길이를 <code>L</code>이라 하면, 각 치환이 문자열을 훑으므로 대략 <strong><code>O(10 * L)</code></strong> → <strong><code>O(L)</code></strong>.</li>
+            <li><code>win_nums</code> 표시: <strong><code>O(6)</code></strong> → 사실상 상수</li>
+            <li><code>lottos</code> 순회: <strong><code>O(6)</code></strong> → 사실상 상수</li>
+            <li>전체: <strong><code>O(1)</code></strong></li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>치환 과정에서 새 문자열이 만들어지며, map도 상수 크기(10개) → <strong><code>O(L)</code></strong> (실질적으로는 문자열 저장 비용).</li>
+            <li>boolean 배열 <code>lotto[46]</code> 사용 → <strong><code>O(1)</code></strong></li>
           </ul>
         </li>
       </ul>
+
 
 
 
