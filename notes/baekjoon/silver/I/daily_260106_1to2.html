@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver I - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-04 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+      <p class="muted">작성일 2026-01-06 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1195 — 킥다운</h2>
+      <h2 class="section">문제 1276 — PLATFORME</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1195">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1276">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/I/daily_260104_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260106_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,21 @@
       </h3>
       
       <p>
-        <strong>킥다운 (백준 1195)</strong>는<br>
-        두 개의 톱니(기어)를 문자열로 표현했을 때,
-        한 기어를 좌우로 이동(겹치게)시키며 <strong>서로 맞물릴 수 있는지</strong> 확인하고,
-        가능한 배치들 중 <strong>전체 길이(겹친 결과의 최소 길이)</strong>를 구하는 문제다.
+        <strong>PLATFORME (백준 1276)</strong>는<br>
+        여러 개의 플랫폼(수평 구간)이 주어졌을 때, 각 플랫폼의 <strong>양 끝</strong>을 지지하기 위한 기둥(pillar)의
+        <strong>총 길이</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>각 기어는 문자열로 주어지며, 문자 <code>'1'</code> 또는 <code>'2'</code>로 구성된다.</li>
-        <li>두 기어가 겹치는 구간에서 <code>'2'</code>와 <code>'2'</code>가 겹치면 충돌이 발생해 불가능한 배치다.</li>
-        <li>충돌이 없는 배치 중, 두 문자열을 합쳐서 덮는 구간의 길이를 최소화해야 한다.</li>
+        <li>플랫폼은 높이 <code>Y</code>, 구간 <code>[X1, X2]</code>로 주어진다.</li>
+        <li>기둥은 플랫폼 끝에서 <strong>0.5</strong>만큼 안쪽 위치에 세운다.
+          <ul>
+            <li>왼쪽 끝 지점: <code>X1 + 0.5</code></li>
+            <li>오른쪽 끝 지점: <code>X2 - 0.5</code></li>
+          </ul>
+        </li>
+        <li>각 기둥은 <strong>바닥(0)</strong> 또는 그 지점 아래에 존재하는 <strong>다른 플랫폼의 윗면</strong> 위에 서야 한다.</li>
+        <li>따라서 기둥 길이는 <code>현재 플랫폼 높이 - (아래에서 받쳐주는 높이)</code>가 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,14 +81,21 @@
       </p>
       
       <ul>
-        <li>한 기어(<code>gearTwo</code>)를 다른 기어(<code>gearOne</code>) 위에서 좌우로 슬라이딩하며 모든 위치를 검사한다.</li>
-        <li>각 이동량 <code>move</code>에 대해
+        <li>플랫폼을 <strong>높이(Y) 오름차순</strong>으로 정렬한다.</li>
+        <li>현재 플랫폼의 두 지지점(왼쪽/오른쪽)에 대해,
           <ul>
-            <li>겹치는 구간에서 <code>'2'</code>가 동시에 등장하는지(충돌) 확인한다.</li>
-            <li>충돌이 없으면 해당 배치에서의 전체 길이를 계산해 최솟값을 갱신한다.</li>
+            <li>그 지점 아래에 있는 플랫폼들 중, 해당 x좌표를 포함하는 플랫폼의 <strong>최대 높이</strong>를 찾는다.</li>
+            <li>그 높이가 “바닥 역할”이므로 <code>현재 높이 - 최대 높이</code>만큼이 기둥 길이이다.</li>
           </ul>
         </li>
-        <li>이동 범위는 “완전히 왼쪽으로 벗어난 상태”부터 “완전히 오른쪽으로 벗어난 상태”까지 포함하면 된다.</li>
+        <li>정렬 순서대로 진행하면 “이미 처리한 플랫폼”만 보아도 아래 지지대를 결정할 수 있다.</li>
+        <li>x좌표의 <code>0.5</code>를 다루기 위해, 모든 x를 <strong>2배 스케일</strong>로 정수화한다.
+          <ul>
+            <li><code>X1 + 0.5</code> → <code>2*X1 + 1</code></li>
+            <li><code>X2 - 0.5</code> → <code>2*X2 - 1</code></li>
+            <li>플랫폼 구간은 열린 구간으로 체크: <code>2*X1 &lt; col &lt; 2*X2</code></li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -95,82 +107,77 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 기본 정보 준비</strong>
-          <pre><code>String gearOne = br.readLine();
-      String gearTwo = br.readLine();
+        <li><strong>1) 입력 플랫폼을 배열로 받고, 높이 기준 정렬</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      Board[] boards = new Board[N];
       
-      int gearOneLength = gearOne.length();
-      int gearTwoLength = gearTwo.length();
-      int min = Integer.MAX_VALUE;</code></pre>
+      for (int i = 0; i &lt; N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int r = Integer.parseInt(st.nextToken());
+          int c1 = Integer.parseInt(st.nextToken());
+          int c2 = Integer.parseInt(st.nextToken());
+      
+          boards[i] = new Board(r, c1, c2);
+      }
+      
+      Arrays.sort(boards, (a, b) -&gt; {
+          return Integer.compare(a.r, b.r);
+      });</code></pre>
           <ul>
-            <li>두 기어 문자열과 길이를 받아 둔다.</li>
-            <li>정답(최소 전체 길이)을 <code>min</code>으로 관리한다.</li>
+            <li><code>r</code>는 높이(Y), <code>c1</code>/<code>c2</code>는 X1/X2이다.</li>
+            <li>낮은 플랫폼부터 처리하면 “아래 플랫폼”은 항상 이미 처리된 것들이다.</li>
           </ul>
         </li>
       
-        <li><strong>2) gearTwo를 좌우로 이동시키며 모든 배치 검사</strong>
-          <pre><code>for (int move = -gearTwoLength; move &lt;= gearOneLength; move++) {
-          if (chk(gearOne, gearTwo, move)) {
-              int len = Math.max(gearOneLength, gearTwoLength + move) - Math.min(0, move);
-              min = Math.min(min, len);
-          }
+        <li><strong>2) 각 플랫폼의 두 지지점(왼쪽/오른쪽)에서 필요한 기둥 길이를 더함</strong>
+          <pre><code>long sum = 0;
+      List&lt;Board&gt; list = new ArrayList&lt;&gt;();
+      
+      for (Board board : boards) {
+          int left = 2 * board.c1 + 1;
+          int right = 2 * board.c2 - 1;
+      
+          sum += board.r - height(list, left);
+          sum += board.r - height(list, right);
+      
+          list.add(board);
       }</code></pre>
           <ul>
-            <li><code>move</code>는 <code>gearTwo</code>의 인덱스 0이 <code>gearOne</code>의 어디에 위치하는지를 의미한다.</li>
-            <li>
-              예) <code>move = 0</code>이면 <code>gearTwo[0]</code>가 <code>gearOne[0]</code>와 정렬된다.
-            </li>
-            <li>
-              <code>move &lt; 0</code>이면 <code>gearTwo</code>가 왼쪽으로 튀어나온 상태,
-              <code>move &gt; 0</code>이면 오른쪽으로 밀려 들어간 상태가 된다.
-            </li>
-            <li>
-              가능한 배치인지(<code>chk</code>)를 확인하고, 가능하면 전체 덮는 길이 <code>len</code>을 계산해 최솟값 갱신한다.
-            </li>
+            <li>왼쪽 지지점은 <code>2*X1+1</code>, 오른쪽 지지점은 <code>2*X2-1</code>로 정수화한다.</li>
+            <li><code>height(list, col)</code>는 그 x지점 아래에서 받쳐줄 수 있는 플랫폼의 최대 높이(없으면 0)를 반환한다.</li>
+            <li>현재 높이에서 그 값을 빼면 필요한 기둥 길이가 된다.</li>
+            <li>현재 플랫폼을 처리한 뒤 <code>list</code>에 추가해서 이후 플랫폼의 받침 후보가 되게 한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 전체 길이(len) 계산 방식</strong>
-          <pre><code>int len = Math.max(gearOneLength, gearTwoLength + move) - Math.min(0, move);</code></pre>
-          <ul>
-            <li>두 기어가 차지하는 “가장 왼쪽 위치”는 <code>min(0, move)</code></li>
-            <li>“가장 오른쪽 끝”은
-              <ul>
-                <li><code>gearOne</code>의 끝: <code>gearOneLength</code></li>
-                <li><code>gearTwo</code>의 끝: <code>move + gearTwoLength</code></li>
-              </ul>
-              이 둘 중 큰 값이므로 <code>max(gearOneLength, move + gearTwoLength)</code></li>
-            <li>따라서 전체 길이 = (오른쪽 끝) - (왼쪽 시작)으로 계산된다.</li>
-          </ul>
-        </li>
+        <li><strong>3) height(): 특정 지점(col) 아래의 최대 받침 높이 찾기</strong>
+          <pre><code>private static int height(List&lt;Board&gt; list, int col) {
+          int floor = 0;
       
-        <li><strong>4) 충돌 검사 함수 chk()</strong>
-          <pre><code>private static boolean chk(String gearOne, String gearTwo, int move) {
-          int gearOneLength = gearOne.length();
-          int gearTwoLength = gearTwo.length();
+          for (Board board : list) {
+              int left = 2 * board.c1;
+              int right = 2 * board.c2;
       
-          for (int i = 0; i &lt; gearTwoLength; i++) {
-              int pos = i + move;
-      
-              if (0 &lt;= pos &amp;&amp; pos &lt; gearOneLength) {
-                  if (gearOne.charAt(pos) == '2' &amp;&amp; gearTwo.charAt(i) == '2') return false;
+              if (left &lt; col &amp;&amp; col &lt; right) {
+                  if (board.r &gt; floor) floor = board.r;
               }
           }
       
-          return true;
+          return floor;
       }</code></pre>
           <ul>
-            <li><code>gearTwo</code>의 각 문자 <code>i</code>가 <code>gearOne</code>에서 겹치는 위치 <code>pos = i + move</code>를 계산한다.</li>
-            <li><code>pos</code>가 <code>gearOne</code> 범위 내일 때만 “겹침”이므로 그때만 비교한다.</li>
-            <li>겹치는 칸에서 둘 다 <code>'2'</code>이면 충돌 → 불가능 → <code>false</code></li>
-            <li>끝까지 충돌이 없으면 가능한 배치 → <code>true</code></li>
+            <li>각 플랫폼 구간을 2배 스케일로 <code>(2*X1, 2*X2)</code>로 보고,</li>
+            <li>지지점 <code>col</code>이 그 열린 구간 안에 있으면 그 플랫폼이 해당 지점을 “덮는” 것이다.</li>
+            <li>덮는 플랫폼들 중 가장 높은 <code>r</code>이 실제로 기둥이 닿는 받침 높이가 된다.</li>
+            <li>아무 것도 없으면 바닥(0)이다.</li>
           </ul>
         </li>
       
-        <li><strong>5) 최솟값 출력</strong>
-          <pre><code>System.out.println(min);</code></pre>
+        <li><strong>4) 누적 합 출력</strong>
+          <pre><code>System.out.println(sum);</code></pre>
           <ul>
-            <li>가능한 모든 배치 중 최소 전체 길이를 출력한다.</li>
+            <li>모든 플랫폼의 양 끝 기둥 길이를 합친 결과를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -186,15 +193,16 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>이동 횟수는 대략 <code>(gearOneLength + gearTwoLength)</code> 수준이다.</li>
-            <li>각 이동마다 <code>gearTwo</code> 전체를 훑으며 충돌을 검사하므로 <strong><code>O(L1 + L2) * O(L2)</code></strong> 형태가 된다.</li>
-            <li>즉, <strong><code>O((L1 + L2) * L2)</code></strong> (L1=gearOne 길이, L2=gearTwo 길이)</li>
-            <li>문제 크기에서 충분히 빠르게 동작한다.</li>
+            <li>정렬: <strong><code>O(N log N)</code></strong></li>
+            <li>각 플랫폼마다 지지점 2개를 검사하고, <code>height()</code>가 현재까지의 플랫폼을 선형 탐색 → 최악 <strong><code>O(N)</code></strong></li>
+            <li>총합: <strong><code>O(N log N + N^2)</code></strong></li>
+            <li>문제 제한이 <code>N ≤ 100</code>이라서 <code>N^2</code>도 충분히 빠르다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 배열 없이 입력 문자열과 상수 변수만 사용 → <strong><code>O(1)</code></strong></li>
+            <li>플랫폼 저장 배열/리스트: <strong><code>O(N)</code></strong></li>
+            <li>추가로 큰 자료구조는 사용하지 않는다.</li>
           </ul>
         </li>
       </ul>
@@ -263,14 +271,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1262 — 알파벳 다이아몬드</h2>
+      <h2 class="section">문제 1283 — 단축키 지정</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1262">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1283">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/I/daily_260104_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260106_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -287,17 +295,20 @@
       </h3>
       
       <p>
-        <strong>알파벳 다이아몬드 (백준 1262)</strong>는<br>
-        크기 <code>N</code>으로 만들어지는 <strong>다이아몬드 패턴</strong>이 무한히 반복되는 평면에서,
-        직사각형 범위 <code>(R1, C1) ~ (R2, C2)</code>만 잘라 출력하는 문제다.
+        <strong>단축키 지정 (백준 1283)</strong>은<br>
+        메뉴 이름이 여러 줄로 주어질 때, 각 줄마다 <strong>단축키(알파벳 1개)</strong>를 하나 지정해서
+        해당 문자를 <strong>[ ]</strong>로 감싸 출력하는 문제다.
       </p>
       
       <ul>
-        <li>한 타일(한 주기)의 크기는 <code>(2N-1) × (2N-1)</code>이다.</li>
-        <li>각 칸의 문자는 중심에서의 맨해튼 거리로 결정된다.</li>
-        <li>거리 <code>dist</code>가 <code>N</code> 이상이면 다이아몬드 밖이므로 <code>'.'</code>를 출력한다.</li>
-        <li>다이아몬드 안이면 <code>'a' + dist</code> 형태로 출력하되, 알파벳은 26으로 순환한다. (즉 <code>dist % 26</code>)</li>
-        <li>전체 평면은 주기적으로 반복되므로, 실제 좌표를 한 주기 내부 좌표로 줄이면 된다. (모듈러)</li>
+        <li>단축키로 지정된 알파벳은 <strong>다른 줄에서 다시 사용할 수 없다.</strong> (대소문자 구분 없이 동일)</li>
+        <li>단축키 선택 규칙은 다음 우선순위를 따른다.
+          <ul>
+            <li><strong>1순위:</strong> 각 단어의 첫 글자(문장 시작 또는 공백 다음 글자) 중에서 가능한 것</li>
+            <li><strong>2순위:</strong> 문장 전체를 왼쪽부터 보면서 가능한 것</li>
+            <li>끝까지 없으면 그 줄은 그대로 출력</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -309,16 +320,14 @@
       </p>
       
       <ul>
-        <li>출력해야 할 범위는 <code>R1..R2</code>, <code>C1..C2</code>로 최대 1001×1001 정도라서(문제 조건) 칸별로 바로 계산해도 된다.</li>
-        <li>좌표 <code>(r, c)</code>가 주어지면,
+        <li>알파벳 사용 여부를 <code>boolean[26]</code>으로 관리한다. (대소문자 통일해서 체크)</li>
+        <li>각 입력 줄에 대해:
           <ul>
-            <li>주기 크기 <code>size = 2N - 1</code></li>
-            <li>주기 내부 좌표 <code>x = r % size</code>, <code>y = c % size</code></li>
-            <li>중심 좌표는 <code>(N-1, N-1)</code></li>
-            <li>맨해튼 거리 <code>dist = |(N-1)-x| + |(N-1)-y|</code></li>
+            <li>먼저 “단어의 첫 글자” 위치를 순회하며 아직 안 쓴 알파벳이 있으면 그 위치를 선택한다.</li>
+            <li>없으면 전체 문자열을 왼쪽부터 순회하며 아직 안 쓴 알파벳이 있으면 그 위치를 선택한다.</li>
+            <li>선택된 위치가 있으면 해당 문자를 <code>[문자]</code>로 감싸 출력하고, 사용 체크를 한다.</li>
           </ul>
         </li>
-        <li><code>dist >= N</code>이면 <code>'.'</code>, 아니면 <code>(char)('a' + (dist % 26))</code>를 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -330,52 +339,79 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 파싱 및 출력 범위 순회</strong>
-          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
-      int N = Integer.parseInt(st.nextToken());
-      int R1 = Integer.parseInt(st.nextToken());
-      int C1 = Integer.parseInt(st.nextToken());
-      int R2 = Integer.parseInt(st.nextToken());
-      int C2 = Integer.parseInt(st.nextToken());
+        <li><strong>1) 알파벳 사용 체크 배열 준비</strong>
+          <pre><code>boolean[] charChk = new boolean[26];
+      int N = Integer.parseInt(br.readLine());</code></pre>
+          <ul>
+            <li><code>charChk[i]</code>는 알파벳 <code>('a' + i)</code>가 이미 단축키로 쓰였는지 여부다.</li>
+            <li>대소문자 구분이 없으므로 항상 <code>toLowerCase</code>로 통일해 인덱싱한다.</li>
+          </ul>
+        </li>
       
-      for (int r = R1; r &lt;= R2; r++) {
-          for (int c = C1; c &lt;= C2; c++) {
-              sb.append(getChar(N, r, c));
+        <li><strong>2) 1순위: 각 단어 첫 글자에서 단축키 후보 찾기</strong>
+          <pre><code>String line = br.readLine();
+      int idx = -1;
+      
+      for (int j = 0; j &lt; line.length(); j++) {
+          if (j == 0 || line.charAt(j - 1) == ' ') {
+              char c = line.charAt(j);
+      
+              if (isAlpha(c) &amp;&amp; !charChk[Character.toLowerCase(c) - 'a']) {
+                  idx = j;
+                  break;
+              }
           }
-          sb.append('\n');
       }</code></pre>
           <ul>
-            <li>요구한 직사각형 영역만 이중 루프로 순회한다.</li>
-            <li>각 칸의 문자는 <code>getChar()</code>로 즉시 계산해서 붙인다.</li>
+            <li><code>j == 0</code> 또는 <code>line.charAt(j-1) == ' '</code>이면 “단어의 첫 글자” 위치다.</li>
+            <li>그 문자가 알파벳이고 아직 사용하지 않았다면 그 위치 <code>idx</code>를 확정한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) (r, c) 한 칸의 문자를 결정하는 getChar()</strong>
-          <pre><code>private static char getChar(int N, int r, int c) {
-          int size = 2 * N - 1;
-          int x = r % size;
-          int y = c % size;
+        <li><strong>3) 2순위: 전체 문자열에서 단축키 후보 찾기</strong>
+          <pre><code>if (idx == -1) {
+          for (int j = 0; j &lt; line.length(); j++) {
+              char c = line.charAt(j);
       
-          int dist = Math.abs((N - 1) - x) + Math.abs((N - 1) - y);
-      
-          if (dist &gt;= N) return '.';
-          return (char) ('a' + (dist % 26));
+              if (isAlpha(c) &amp;&amp; !charChk[Character.toLowerCase(c) - 'a']) {
+                  idx = j;
+                  break;
+              }
+          }
       }</code></pre>
           <ul>
-            <li><code>size = 2N-1</code>로 한 주기의 크기를 만든다.</li>
-            <li>무한 반복이므로 <code>(r, c)</code>를 한 주기 내부 좌표 <code>(x, y)</code>로 축소한다.</li>
-            <li>중심 <code>(N-1, N-1)</code>에서의 맨해튼 거리 <code>dist</code>를 계산한다.</li>
-            <li>
-              <code>dist &gt;= N</code>이면 다이아몬드 밖이므로 <code>'.'</code> 출력.
-              그렇지 않으면 거리만큼 알파벳이 증가하며, 26으로 순환한다.
+            <li>1순위에서 못 찾았으면, 문자열 전체를 왼쪽부터 순회하며 가능한 첫 알파벳을 찾는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 출력 문자열 만들기 (선택/미선택 분기)</strong>
+          <pre><code>if (idx == -1) {
+          sb.append(line);
+      } else {
+          char c = line.charAt(idx);
+          charChk[Character.toLowerCase(c) - 'a'] = true;
+          sb.append(line, 0, idx).append('[').append(c).append(']').append(line.substring(idx + 1));
+      }
+      
+      sb.append('\n');</code></pre>
+          <ul>
+            <li>끝까지 후보가 없으면 원문 그대로 출력한다.</li>
+            <li>후보가 있으면:
+              <ul>
+                <li>사용 체크를 하고</li>
+                <li><code>idx</code> 위치의 문자를 <code>[ ]</code>로 감싸서 출력한다.</li>
+              </ul>
             </li>
+            <li><code>sb.append(line, 0, idx)</code>는 Java의 부분 문자열 append로 깔끔하게 앞부분을 붙인다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 출력</strong>
-          <pre><code>System.out.println(sb);</code></pre>
+        <li><strong>5) 알파벳 판별 함수</strong>
+          <pre><code>private static boolean isAlpha(char c) {
+          return ('a' &lt;= c &amp;&amp; c &lt;= 'z') || ('A' &lt;= c &amp;&amp; c &lt;= 'Z');
+      }</code></pre>
           <ul>
-            <li>한 번에 모아 출력해 I/O 비용을 줄인다.</li>
+            <li>입력에는 공백도 포함되므로 알파벳만 단축키 후보로 인정하기 위해 체크한다.</li>
           </ul>
         </li>
       </ul>
@@ -391,13 +427,17 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>출력하는 칸 수를 <code>H = R2-R1+1</code>, <code>W = C2-C1+1</code>이라 하면</li>
-            <li>각 칸을 O(1)에 계산하므로 전체는 <strong><code>O(H * W)</code></strong>.</li>
+            <li>각 줄 길이를 <code>L</code>이라 하면
+              <ul>
+                <li>1순위 탐색 <code>O(L)</code> + (필요 시) 2순위 탐색 <code>O(L)</code></li>
+              </ul>
+            </li>
+            <li>한 줄당 최악 <strong><code>O(L)</code></strong> 수준(상수배 2)이고, 전체는 입력 크기에 비례한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>추가 배열 없이 상수 변수 + 출력 버퍼만 사용 → <strong><code>O(1)</code></strong> (출력 문자열 제외).</li>
+            <li>알파벳 체크 배열 <code>boolean[26]</code>만 추가로 사용 → <strong><code>O(1)</code></strong>.</li>
           </ul>
         </li>
       </ul>
