@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-07 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 약수의 개수와 덧셈</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/77884">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0107_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>약수의 개수와 덧셈 (프로그래머스 77884)</strong>는<br>
+        구간 <code>[left, right]</code>의 각 정수 <code>i</code>에 대해
+        <strong>약수의 개수</strong>가 짝수면 더하고, 홀수면 빼서 최종 합을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>약수 개수 짝수 → <code>sum += i</code></li>
+        <li>약수 개수 홀수 → <code>sum -= i</code></li>
+        <li>핵심은 각 <code>i</code>의 약수 개수를 빠르게 세는 것이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>각 수 <code>i</code>에 대해 <code>1</code>부터 <code>sqrt(i)</code>까지만 검사한다.</li>
+        <li><code>j</code>가 <code>i</code>의 약수라면, 보통은 <code>j</code>와 <code>i/j</code>가 한 쌍으로 생긴다.</li>
+        <li>따라서
+          <ul>
+            <li><code>j * j == i</code>(제곱수)면 약수 1개만 추가</li>
+            <li>그 외에는 약수 2개 추가</li>
+          </ul>
+          로 약수 개수를 셀 수 있다.
+        </li>
+        <li>약수 개수의 홀짝에 따라 더/빼기를 결정한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) left부터 right까지 순회</strong>
+          <pre><code>for (int i = left; i &lt;= right; i++) {
+          int cnt = 0;
+          ...
+      }</code></pre>
+          <ul>
+            <li>각 수 <code>i</code>의 약수 개수(<code>cnt</code>)를 구해서 홀짝을 판단한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 1부터 sqrt(i)까지 약수 검사</strong>
+          <pre><code>for (int j = 1; j * j &lt;= i; j++) {
+          if (i % j == 0) {
+              if (j * j == i) cnt += 1;
+              else cnt += 2;
+          }
+      }</code></pre>
+          <ul>
+            <li><code>j</code>가 약수면, 보통 <code>j</code>와 <code>i/j</code> 두 개가 생긴다 → <code>cnt += 2</code></li>
+            <li>단, <code>j * j == i</code>인 경우는 같은 약수(제곱근)라서 하나만 추가 → <code>cnt += 1</code></li>
+            <li>이렇게 하면 전체 약수를 전부 찾지 않고도 개수만 정확히 셀 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 약수 개수의 홀짝에 따라 더/빼기</strong>
+          <pre><code>if (cnt % 2 == 0) sum += i;
+      else sum -= i;</code></pre>
+          <ul>
+            <li>짝수면 더하고, 홀수면 뺀다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 최종 합 반환</strong>
+          <pre><code>return sum;</code></pre>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 <code>i</code>마다 <code>1</code>부터 <code>sqrt(i)</code>까지 확인한다.</li>
+            <li>구간 길이를 <code>R = right - left + 1</code>이라 하면 대략 <strong><code>O(R * sqrt(right))</code></strong>.</li>
+            <li>문제 범위가 크지 않아 충분히 통과 가능한 방식이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 로또의 최고 순위와 최저 순위</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/77484">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0107_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>로또의 최고 순위와 최저 순위 (프로그래머스 77484)</strong>는<br>
+        로또 번호 배열 <code>lottos</code>와 당첨 번호 배열 <code>win_nums</code>가 주어졌을 때,
+        0(알 수 없는 번호)을 어떻게 채우느냐에 따라 가능한 <strong>최고 순위</strong>와 <strong>최저 순위</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>lottos</code>의 <code>0</code>은 가려진 번호(미확인)다.</li>
+        <li><strong>최고 순위</strong>: 0이 전부 당첨 번호로 채워진다고 가정</li>
+        <li><strong>최저 순위</strong>: 0이 전부 꽝(당첨 번호가 아님)이라고 가정</li>
+        <li>순위는 “맞춘 개수”로 결정된다. (6개면 1등, …, 0~1개면 6등)</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>당첨 번호를 빠르게 확인하기 위해 <code>win_nums</code>를 boolean 배열에 표시한다.</li>
+        <li><code>lottos</code>를 순회하며
+          <ul>
+            <li><code>0</code>의 개수(<code>zero</code>)를 센다.</li>
+            <li>0이 아닌 숫자는 당첨 여부를 확인해 실제로 맞춘 개수(<code>cnt</code>)를 센다.</li>
+          </ul>
+        </li>
+        <li>가능한 맞춘 개수 범위는
+          <ul>
+            <li>최고: <code>cnt + zero</code></li>
+            <li>최저: <code>cnt</code></li>
+          </ul>
+          이므로, 각각을 순위로 변환한다.
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 당첨 번호를 boolean 배열에 표시</strong>
+          <pre><code>boolean[] lotto = new boolean[46];
+      
+      for (int winNum : win_nums) {
+          lotto[winNum] = true;
+      }</code></pre>
+          <ul>
+            <li>로또 번호 범위가 1~45이므로 크기 46 배열을 사용한다.</li>
+            <li><code>lotto[x] == true</code>면 x는 당첨 번호다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 실제 일치 개수(cnt)와 0 개수(zero) 계산</strong>
+          <pre><code>int cnt = 0;
+      int zero = 0;
+      
+      for (int i : lottos) {
+          if (i == 0) {
+              zero++;
+          } else if (lotto[i]) {
+              cnt++;
+          }
+      }</code></pre>
+          <ul>
+            <li><code>0</code>이면 미확인 번호이므로 <code>zero</code> 증가.</li>
+            <li>0이 아니면 당첨 여부를 확인해 맞으면 <code>cnt</code> 증가.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 최고/최저 순위 계산</strong>
+          <pre><code>int max = lottoCase(cnt + zero);
+      int min = lottoCase(cnt);
+      
+      return new int[]{max, min};</code></pre>
+          <ul>
+            <li>최고는 0이 전부 맞는 경우이므로 <code>cnt + zero</code>.</li>
+            <li>최저는 0이 전부 틀리는 경우이므로 <code>cnt</code>.</li>
+            <li>각각 맞춘 개수를 순위로 변환해 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) lottoCase(): 맞춘 개수 → 순위 변환</strong>
+          <pre><code>private int lottoCase(int i) {
+          return switch (i) {
+              case 6 -> 1;
+              case 5 -> 2;
+              case 4 -> 3;
+              case 3 -> 4;
+              case 2 -> 5;
+              default -> 6;
+          };
+      }</code></pre>
+          <ul>
+            <li>맞춘 개수에 따라 등수를 고정 매핑한다.</li>
+            <li>0~1개는 모두 6등이므로 <code>default</code>로 처리한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><code>win_nums</code> 표시: <strong><code>O(6)</code></strong> → 사실상 상수</li>
+            <li><code>lottos</code> 순회: <strong><code>O(6)</code></strong> → 사실상 상수</li>
+            <li>전체: <strong><code>O(1)</code></strong></li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>boolean 배열 <code>lotto[46]</code> 사용 → <strong><code>O(1)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
