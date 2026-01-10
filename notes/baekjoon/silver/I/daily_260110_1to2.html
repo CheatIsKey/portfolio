@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1303 — 전쟁 - 전투</h2>
+      <h2 class="section">문제 1325 — 효율적인 해킹</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1303">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1325">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/I/daily_260108_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260110_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,16 @@
       </h3>
       
       <p>
-        <strong>전쟁 - 전투 (백준 1303)</strong>는<br>
-        전장 맵에서 병사들이 <strong>상하좌우로 연결된 그룹</strong>을 이룰 때,
-        각 팀(<code>W</code>, <code>B</code>)의 전투력을 계산해 출력하는 문제다.
+        <strong>효율적인 해킹 (백준 1325)</strong>는<br>
+        신뢰 관계(단방향 그래프)가 주어졌을 때,
+        <strong>어떤 컴퓨터를 해킹했을 때 가장 많은 컴퓨터를 해킹할 수 있는지</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>전투력 규칙: 같은 팀이 연결된 한 그룹의 크기를 <code>k</code>라 하면 그 그룹 전투력은 <strong><code>k²</code></strong>.</li>
-        <li>전체 전투력은 팀별로 모든 그룹의 <code>k²</code>를 합한 값이다.</li>
-        <li>즉, 맵을 돌면서 방문하지 않은 칸에서 시작해 같은 팀으로 연결된 영역 크기를 구하면 된다.</li>
+        <li>입력 <code>A B</code>는 “A가 B를 신뢰한다”는 뜻이다.</li>
+        <li>B가 해킹되면, B를 신뢰하는 A도 연쇄적으로 해킹할 수 있다.</li>
+        <li>따라서 B에서 시작하면 도달 가능한 컴퓨터 수(정점 수)를 세어야 한다.</li>
+        <li>도달 가능한 수가 최대가 되는 시작점(컴퓨터 번호)을 모두 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +76,10 @@
       </p>
       
       <ul>
-        <li>각 칸을 한 번씩만 처리하기 위해 <code>visited</code> 배열을 사용한다.</li>
-        <li>모든 칸을 순회하면서 아직 방문하지 않은 칸을 발견하면:
-          <ul>
-            <li>그 칸의 팀 문자(<code>W</code> 또는 <code>B</code>)를 기준으로 BFS를 수행한다.</li>
-            <li>BFS로 같은 팀으로 연결된 칸 개수 <code>cnt</code>를 구한다.</li>
-            <li>해당 팀 전투력에 <code>cnt * cnt</code>를 더한다.</li>
-          </ul>
-        </li>
+        <li>문제의 전파 방향을 그대로 쓰면 “B → A”로 이동해야 한다.</li>
+        <li>따라서 입력 <code>A B</code>를 받을 때 인접 리스트를 <code>computers[B].add(A)</code>로 <strong>역방향 그래프</strong>로 만든다.</li>
+        <li>각 노드 <code>i</code>를 시작점으로 BFS(또는 DFS)를 돌려, 방문 가능한 노드 수를 센다.</li>
+        <li>그 중 최대 방문 수를 갱신하고, 최대값과 같은 노드만 모아 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -94,90 +91,76 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 맵/방문 배열 준비</strong>
-          <pre><code>int N = Integer.parseInt(st.nextToken());
-      int M = Integer.parseInt(st.nextToken());
+        <li><strong>1) 입력을 역방향 인접 리스트로 저장</strong>
+          <pre><code>List&lt;Integer&gt;[] computers = new ArrayList[N + 1];
+      for (int i = 1; i &lt;= N; i++) computers[i] = new ArrayList&lt;&gt;();
       
-      war = new char[M][N];
-      visited = new boolean[M][N];
+      for (int i = 0; i &lt; M; i++) {
+          st = new StringTokenizer(br.readLine());
       
-      for (int r = 0; r &lt; M; r++) {
-          war[r] = br.readLine().toCharArray();
+          int computer1 = Integer.parseInt(st.nextToken());
+          int computer2 = Integer.parseInt(st.nextToken());
+      
+          computers[computer2].add(computer1);
       }</code></pre>
           <ul>
-            <li>문제 입력은 <code>N</code>(가로), <code>M</code>(세로) 순서다.</li>
-            <li>코드는 <code>war[M][N]</code>로 (행=M, 열=N) 형태로 저장한다.</li>
+            <li><code>A B</code>는 “A가 B를 신뢰”이므로, 해킹 전파는 <code>B → A</code>로 이동한다.</li>
+            <li>그래서 <code>computers[B]</code>에 <code>A</code>를 넣어 “B에서 갈 수 있는 노드들”을 만든다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 전체 맵 순회하며 그룹 단위로 BFS 수행</strong>
-          <pre><code>int white = 0;
-      int blue = 0;
+        <li><strong>2) 모든 시작점 i에 대해 도달 가능한 정점 수 계산</strong>
+          <pre><code>int[] reach = new int[N + 1];
+      int max = 0;
       
-      for (int r = 0; r &lt; M; r++) {
-          for (int c = 0; c &lt; N; c++) {
-              if (!visited[r][c]) {
-                  char team = war[r][c];
-                  int cnt = bfs(r, c, team);
-      
-                  if (team == 'W') white += cnt * cnt;
-                  else blue += cnt * cnt;
-              }
-          }
+      for (int i = 1; i &lt;= N; i++) {
+          reach[i] = cnt(i, computers, N);
+          if (reach[i] &gt; max) max = reach[i];
       }</code></pre>
           <ul>
-            <li>방문하지 않은 칸에서 시작해 연결된 같은 팀의 크기 <code>cnt</code>를 구한다.</li>
-            <li>팀에 따라 <code>white</code> 또는 <code>blue</code>에 <code>cnt²</code>를 누적한다.</li>
+            <li><code>cnt(i)</code>는 i에서 시작했을 때 BFS로 방문 가능한 노드 수를 반환한다.</li>
+            <li>각 i에 대해 결과를 저장하고 최대값을 갱신한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) bfs(): 같은 팀으로 연결된 영역 크기 계산</strong>
-          <pre><code>private static int bfs(int row, int col, char team) {
-          ArrayDeque&lt;int[]&gt; queue = new ArrayDeque&lt;&gt;();
-          visited[row][col] = true;
-          queue.add(new int[]{row, col});
+        <li><strong>3) 최대 도달 수를 가진 노드만 출력</strong>
+          <pre><code>for (int i = 1; i &lt;= N; i++) {
+          if (reach[i] == max) sb.append(i).append(" ");
+      }
       
-          int cnt = 1;
+      System.out.print(sb.toString());</code></pre>
+          <ul>
+            <li>최대값과 동일한 노드 번호를 공백으로 이어 출력한다.</li>
+          </ul>
+        </li>
       
-          while (!queue.isEmpty()) {
-              int[] cur = queue.poll();
-              int r = cur[0];
-              int c = cur[1];
+        <li><strong>4) cnt(): BFS로 방문 가능한 노드 수 세기</strong>
+          <pre><code>static int cnt(int computer, List&lt;Integer&gt;[] computers, int size) {
+          boolean[] visited = new boolean[size + 1];
+          ArrayDeque&lt;Integer&gt; deque = new ArrayDeque&lt;&gt;();
       
-              for (int i = 0; i &lt; 4; i++) {
-                  int nr = r + ROW[i];
-                  int nc = c + COL[i];
+          visited[computer] = true;
+          deque.add(computer);
       
-                  if (nr &lt; 0 || war.length &lt;= nr || nc &lt; 0 || war[0].length &lt;= nc) continue;
-                  if (visited[nr][nc]) continue;
-                  if (war[nr][nc] != team) continue;
+          int cnt = 0;
+          while (!deque.isEmpty()) {
+              int cur = deque.poll();
+              cnt++;
       
-                  visited[nr][nc] = true;
-                  queue.add(new int[]{nr, nc});
-                  cnt++;
+              for (int i : computers[cur]) {
+                  if (!visited[i]) {
+                      visited[i] = true;
+                      deque.add(i);
+                  }
               }
           }
       
           return cnt;
       }</code></pre>
           <ul>
-            <li>시작 칸을 방문 처리하고 큐에 넣은 뒤, BFS로 상하좌우를 확장한다.</li>
-            <li>확장 조건:
-              <ul>
-                <li>범위 안</li>
-                <li>미방문</li>
-                <li>같은 팀 문자</li>
-              </ul>
-            </li>
-            <li>조건을 만족하면 방문 처리 후 큐에 넣고 카운트를 증가시킨다.</li>
-            <li>BFS가 끝나면 해당 그룹의 크기 <code>cnt</code>를 반환한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 최종 출력</strong>
-          <pre><code>System.out.println(white + " " + blue);</code></pre>
-          <ul>
-            <li>요구 출력 형식대로 <code>W팀 전투력</code>과 <code>B팀 전투력</code>을 공백으로 구분해 출력한다.</li>
+            <li>시작 노드를 큐에 넣고, 방문 체크 배열로 중복 방문을 막는다.</li>
+            <li>큐에서 하나씩 꺼내며 인접 노드를 확장하고, 방문한 노드 수를 누적한다.</li>
+            <li>최종적으로 방문한 정점 개수를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -193,16 +176,20 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>각 칸은 BFS 과정에서 최대 한 번만 큐에 들어가므로 전체가 <strong><code>O(M * N)</code></strong>.</li>
+            <li>각 노드(최대 N개)마다 BFS를 수행한다.</li>
+            <li>BFS 1회는 최악의 경우 간선/정점을 모두 훑으므로 <strong><code>O(N + M)</code></strong>.</li>
+            <li>총합은 <strong><code>O(N * (N + M))</code></strong>이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><code>war</code>, <code>visited</code> 배열이 <strong><code>O(M * N)</code></strong>.</li>
-            <li>BFS 큐는 최악의 경우 한 컴포넌트 크기만큼 커질 수 있어 <strong><code>O(M * N)</code></strong>.</li>
+            <li>인접 리스트: <strong><code>O(N + M)</code></strong></li>
+            <li>각 BFS의 방문 배열/큐: <strong><code>O(N)</code></strong></li>
+            <li>전체적으로 <strong><code>O(N + M)</code></strong> 수준이다.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
@@ -269,14 +256,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1309 — 동물원</h2>
+      <h2 class="section">문제 1342 — 행운의 문자열</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1309">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1342">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/I/daily_260108_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260110_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -293,21 +280,16 @@
       </h3>
       
       <p>
-        <strong>동물원 (백준 1309)</strong>는<br>
-        세로로 <code>N</code>칸(행), 가로로 2칸(열)인 우리에 사자를 배치할 때,
-        <strong>가로/세로로 인접한 칸에 사자를 동시에 둘 수 없다는 조건</strong>을 만족하는 배치 경우의 수를 구하는 문제다.
+        <strong>행운의 문자열 (백준 1342)</strong>는<br>
+        주어진 문자열의 문자를 재배열했을 때,
+        <strong>인접한 두 문자가 같은 경우가 한 번도 없는 문자열</strong>(행운의 문자열)이
+        총 몇 개인지 세는 문제다.
       </p>
       
       <ul>
-        <li>각 행(가로 2칸)에서 사자를 둘 수 있는 상태는 3가지다:
-          <ul>
-            <li><strong>0</strong>: 해당 행에 사자를 두지 않음</li>
-            <li><strong>1</strong>: 왼쪽 칸에만 둠</li>
-            <li><strong>2</strong>: 오른쪽 칸에만 둠</li>
-          </ul>
-        </li>
-        <li>한 행에서 양쪽 칸을 동시에 채우는 경우는 가로 인접이므로 불가능하다.</li>
-        <li>정답은 매우 커질 수 있어 <strong>9901로 나눈 나머지</strong>를 출력한다.</li>
+        <li>문자열 길이는 최대 10이지만, 같은 문자가 여러 번 등장할 수 있다.</li>
+        <li>단순 순열 생성은 중복이 폭발하므로, <strong>문자 개수(빈도)</strong> 기반으로 조합을 세는 게 핵심이다.</li>
+        <li>인접 문자 중복 금지 조건 때문에 직전에 쓴 문자와 같은 문자는 다음에 사용할 수 없다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -319,15 +301,15 @@
       </p>
       
       <ul>
-        <li><strong>DP</strong>로 “i번째 행까지 배치했을 때의 경우의 수”를 누적한다.</li>
-        <li><code>field[i][state]</code>를 다음과 같이 정의한다:
+        <li>문자열을 직접 섞지 말고, 알파벳 26개의 <code>빈도 배열</code>로 관리한다.</li>
+        <li>DFS(백트래킹)로 한 글자씩 선택한다.
           <ul>
-            <li><code>field[i][0]</code>: i번째 행에 사자를 두지 않는 경우의 수</li>
-            <li><code>field[i][1]</code>: i번째 행 왼쪽에만 사자를 둔 경우의 수</li>
-            <li><code>field[i][2]</code>: i번째 행 오른쪽에만 사자를 둔 경우의 수</li>
+            <li>아직 남은 문자가 있고(<code>s[i] &gt; 0</code>)</li>
+            <li>직전에 고른 문자(<code>prev</code>)와 다르면 선택 가능</li>
           </ul>
         </li>
-        <li>i행의 상태는 (i-1)행의 상태와 인접 제한에 따라 전이된다.</li>
+        <li>한 글자를 선택하면 빈도를 1 줄이고 다음 깊이로 진행, 복귀 시 다시 1 늘린다.</li>
+        <li>남은 글자 수(<code>left</code>)가 0이면 유효한 문자열 1개를 만든 것이므로 1을 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -339,36 +321,55 @@
       </p>
       
       <ul>
-        <li><strong>1) DP 테이블 준비 및 초기값 설정</strong>
-          <pre><code>int[][] field = new int[N + 1][3];
+        <li><strong>1) 입력 문자열을 빈도 배열로 변환</strong>
+          <pre><code>String line = br.readLine();
+      int[] s = new int[26];
       
-      field[1][0] = 1;
-      field[1][1] = 1;
-      field[1][2] = 1;</code></pre>
-          <ul>
-            <li>1행은 가능한 상태가 3가지(비움/왼쪽/오른쪽)이고 각각 1가지씩 존재한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 점화식으로 i행 상태 갱신</strong>
-          <pre><code>for (int i = 2; i &lt;= N; i++) {
-          field[i][0] = (field[i-1][0] + field[i-1][1] + field[i-1][2]) % 9901;
-          field[i][1] = (field[i-1][0] + field[i-1][2]) % 9901;
-          field[i][2] = (field[i-1][0] + field[i-1][1]) % 9901;
+      for (char c : line.toCharArray()) {
+          s[c - 'a']++;
       }</code></pre>
           <ul>
-            <li><strong>i행이 비어있음(0)</strong>: (i-1)행이 어떤 상태든 가능 → 모두 합</li>
-            <li><strong>i행 왼쪽(1)</strong>: (i-1)행 왼쪽(1)은 세로 인접이라 불가 → 0, 2만 가능</li>
-            <li><strong>i행 오른쪽(2)</strong>: (i-1)행 오른쪽(2)은 세로 인접이라 불가 → 0, 1만 가능</li>
-            <li>각 단계마다 9901로 나머지 처리한다.</li>
+            <li><code>s[i]</code>는 i번째 알파벳(0=a, 1=b, …)의 남은 개수다.</li>
+            <li>이 구조를 쓰면 같은 문자 때문에 생기는 <strong>중복 순열을 자동으로 제거</strong>할 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) N행에서 가능한 모든 상태 합이 정답</strong>
-          <pre><code>int result = (field[N][0] + field[N][1] + field[N][2]) % 9901;
-      System.out.println(result);</code></pre>
+        <li><strong>2) DFS로 가능한 경우의 수 세기</strong>
+          <pre><code>int cnt = dfs(s, -1, line.length());
+      System.out.print(cnt);</code></pre>
           <ul>
-            <li>N행이 어떤 상태로 끝나든 조건만 만족하면 valid이므로 3상태를 합친다.</li>
+            <li><code>prev</code>를 -1로 두면 “이전에 선택한 문자가 없음”을 의미한다.</li>
+            <li>총 길이만큼 문자를 채워야 하므로 <code>left = line.length()</code>로 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) dfs(): 남은 문자로 만들 수 있는 행운의 문자열 개수 반환</strong>
+          <pre><code>private static int dfs(int[] s, int prev, int left) {
+          if (left == 0) return 1;
+      
+          int cnt = 0;
+      
+          for (int i = 0; i &lt; 26; i++) {
+              if (s[i] == 0) continue;
+              if (i == prev) continue;
+      
+              s[i]--;
+              cnt += dfs(s, i, left - 1);
+              s[i]++;
+          }
+      
+          return cnt;
+      }</code></pre>
+          <ul>
+            <li><code>left == 0</code>이면 모든 자리를 채웠고, 조건을 지키며 완성한 문자열 1개이므로 1 반환.</li>
+            <li>각 문자 i에 대해
+              <ul>
+                <li>남은 개수가 0이면 선택 불가</li>
+                <li>직전 문자와 같은 i면 인접 중복이므로 선택 불가</li>
+                <li>그 외에는 선택 → 재귀 → 복구(백트래킹)</li>
+              </ul>
+            </li>
+            <li>이렇게 누적한 값이 “현재 상태에서 만들 수 있는 행운의 문자열 개수”가 된다.</li>
           </ul>
         </li>
       </ul>
@@ -384,13 +385,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>행을 2부터 N까지 한 번씩 갱신하고, 각 행은 상수(3칸) 연산 → <strong><code>O(N)</code></strong>.</li>
+            <li>최악의 경우(모든 문자가 서로 다름) 길이를 <code>N</code이라 하면 가능한 순열이 <code>N!</code> 수준으로 증가한다.</li>
+            <li>하지만 <code>N ≤ 10</code>이고, 같은 문자가 많을수록 경우의 수가 크게 줄어든다.</li>
+            <li>따라서 백트래킹으로 충분히 통과 가능한 범위다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>DP 테이블 <code>(N+1) x 3</code> 사용 → <strong><code>O(N)</code></strong>.</li>
-            <li>원하면 이전 행만 유지해 <strong><code>O(1)</code></strong>로도 줄일 수 있다.</li>
+            <li>빈도 배열 <code>s[26]</code>는 상수 크기 → <strong><code>O(1)</code></strong></li>
+            <li>재귀 깊이는 최대 문자열 길이 <code>N</code> → <strong><code>O(N)</code></strong></li>
           </ul>
         </li>
       </ul>
