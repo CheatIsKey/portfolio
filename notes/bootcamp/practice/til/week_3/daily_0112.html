@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 20일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 20일차 TIL — Java 복습 &amp; 계산기 프로젝트 정리</h1>
+      <p class="muted">작성일 2026-01-09 · 분류: 부트캠프, TIL, Java, Project</p>
+
+      <!-- 섹션 1: 개요 -->
+      <h2 class="section">20일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>인터페이스</strong>와 <strong>추상 클래스</strong>를 계약 관점으로 정리한다</li>
+        <li><strong>컬렉션 + 접근 제어자</strong>와 <strong>필드 설계</strong>에서 실수 포인트를 체크한다</li>
+        <li><strong>스코프</strong>와 <strong>객체 생성</strong> 때문에 데이터가 덮이는 상황을 다시 잡는다</li>
+        <li>계산기 프로젝트를 기준으로 <strong>흐름</strong>과 <strong>개선한 포인트</strong>를 한 번에 정리한다</li>
+      </ul>
+
+      <!-- 섹션 2: Interface vs Abstract -->
+      <h2 class="section">인터페이스 vs 추상 클래스</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          공통점: 계약을 제공한다
+        </span>
+      </h3>
+
+      <p>
+        인터페이스와 추상 클래스는 공통적으로 구현 클래스가 따라야 할 <strong>계약</strong>을 제공한다.
+        결국 핵심은 메서드 규격을 고정해서, 구현체가 바뀌어도 사용 코드가 안정적으로 동작하게 만드는 데 있다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          차이점 정리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>인터페이스</th>
+            <th>추상 클래스</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>목적</td>
+            <td>기능 규격을 강제하는 계약</td>
+            <td>공통 상태/동작을 묶는 뼈대</td>
+          </tr>
+          <tr>
+            <td>상속 형태</td>
+            <td>다중 구현 가능</td>
+            <td>단일 상속</td>
+          </tr>
+          <tr>
+            <td>상태(필드)</td>
+            <td>상태를 들고 가는 설계는 보통 지양</td>
+            <td>공통 필드/생성자 설계 가능</td>
+          </tr>
+          <tr>
+            <td>현업 감각</td>
+            <td>역할 분리, 확장 포인트 만들 때 강함</td>
+            <td>공통 코드 재사용, 템플릿 구조 만들 때 강함</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 3: Collections + Fields -->
+      <h2 class="section">컬렉션과 접근 제어자, 필드 설계 감각</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          컬렉션도 똑같이 캡슐화 대상이다
+        </span>
+      </h3>
+
+      <p>
+        컬렉션도 결국 객체라서, 필드로 둘 경우 <strong>접근 제어자</strong>를 붙여서 외부에서 마음대로 바꾸지 못하게 막는 게 기본이다.
+        계산기 프로젝트에서도 결과 목록을 <strong>private</strong>로 막고, 추가/삭제/조회 메서드로만 조작하도록 흐름을 만든 게 핵심 개선이었다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          필드는 먼저 의심하고, 필요할 때만 둔다
+        </span>
+      </h3>
+
+      <ul>
+        <li>클래스를 만들 때 멤버 변수/필드가 꼭 필요한지 먼저 생각해본다</li>
+        <li>입력값처럼 매번 바뀌는 값은, 필드보다 <strong>메서드 파라미터</strong>로 전달하는 편이 안전하다</li>
+        <li>필드가 늘어날수록 객체 상태가 복잡해지고, 디버깅 포인트도 같이 늘어난다</li>
+      </ul>
+
+      <!-- 섹션 4: Scope -->
+      <h2 class="section">스코프와 객체 생성에서 터지는 실수 포인트</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전역 변수 vs 지역 변수 스코프
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>범위</th>
+            <th>주의점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>필드(전역에 가까운 상태)</td>
+            <td>객체가 살아있는 동안 유지</td>
+            <td>상태가 쌓이거나, 의도치 않게 공유될 수 있음</td>
+          </tr>
+          <tr>
+            <td>지역 변수</td>
+            <td>블록이 끝나면 소멸</td>
+            <td>반복문/조건문 안에서만 유효하니 흐름을 잘 봐야 함</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          new를 반복문 안에서 호출하면 데이터가 끊길 수 있다
+        </span>
+      </h3>
+
+      <p>
+        반복문 안에서 <strong>new</strong>로 객체를 계속 생성하면, 기존 객체가 들고 있던 데이터는 새 객체로 이어지지 않는다.
+        계산기 프로젝트 기준으로는, 계산 결과 목록을 들고 있는 Calculator를 반복마다 새로 만들면
+        <strong>결과 리스트가 초기화</strong>되는 문제가 생길 수 있다.
+      </p>
+
+      <!-- 섹션 5: Project -->
+      <h2 class="section">계산기 프로젝트 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프로젝트 상태 및 링크
+        </span>
+      </h3>
+
+      <p>
+        계산기 프로젝트는 현재 <strong>개발 진행 중</strong>이고,
+        코드는 GitHub에 정리해 두었다.
+        <a href="https://github.com/CheatIsKey/CalculatorProject.git">CalculatorProject Repository</a>
+      </p>
+
+      <figure>
+        <img
+          src="\assets\notes\bootcamp\practice\til\week_3\계산기_Step2.png"
+          alt="Calculator 프로젝트 클래스 정리 이미지"
+          style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
+        />
+        <figcaption class="muted">클래스 구성과 메서드 시그니처를 기준으로 전체 흐름을 한 번에 보도록 정리했다.</figcaption>
+      </figure>
+
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 흐름
+        </span>
+      </h3>
+
+      <ol>
+        <li>숫자 입력은 <strong>정수만</strong> 받도록 검증한다</li>
+        <li>연산자는 <strong>사칙연산 기호</strong>만 통과시킨다</li>
+        <li>계산 결과를 출력하고, 결과를 리스트에 누적 저장한다</li>
+        <li>사용자 입력에 따라 종료하거나, 저장된 결과를 삭제한다</li>
+      </ol>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          내가 잡아낸 실수 포인트와 바로잡은 점
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>실수 포인트</th>
+            <th>왜 문제였나</th>
+            <th>어떻게 바꿨나</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>반복문 안에서 Calculator를 새로 생성할 뻔함</td>
+            <td>새 인스턴스가 만들어지면 기존 결과 리스트가 끊길 수 있음</td>
+            <td>Calculator는 한 번만 만들고, 입력값은 <strong>calculate(a, b, operator)</strong>로 전달</td>
+          </tr>
+          <tr>
+            <td>숫자 입력 검증이 약했음</td>
+            <td>문자 입력 시 프로그램이 깨질 수 있음</td>
+            <td><strong>InputMismatchException</strong>을 잡고, 잘못된 입력은 버린 뒤 다시 입력 받도록 분리</td>
+          </tr>
+          <tr>
+            <td>연산자 검증이 분산될 수 있었음</td>
+            <td>유효하지 않은 연산자가 들어오면 예외가 흔들림</td>
+            <td>연산자 입력을 <strong>inputOperator</strong>로 고정하고, 통과 조건을 한 곳으로 모음</td>
+          </tr>
+          <tr>
+            <td>나눗셈 분모 0 처리 누락 위험</td>
+            <td>실제 실행 중 <strong>예외 상황</strong>이 발생할 수 있음</td>
+            <td>Calculator에서 분모 0이면 <strong>IllegalArgumentException</strong>을 던지고, Main에서 메시지 출력</td>
+          </tr>
+          <tr>
+            <td>컬렉션 출력 방식이 불필요하게 복잡할 뻔함</td>
+            <td>배열로 옮겨 담으면 코드가 길어지고 관리가 어려움</td>
+            <td><strong>list.toString()</strong>으로 결과 목록을 바로 확인하도록 단순화</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예외 처리와 입력 검증의 역할 분리
+        </span>
+      </h3>
+
+      <p>
+        흐름을 분리한 기준은 단순했다.
+        입력 단계에서 걸러낼 수 있는 건 입력 단계에서 막고,
+        계산 로직 자체에서 방어해야 하는 건 Calculator 내부에서 예외로 처리한다.
+        그래서 Main은 최대한 <strong>진행 흐름</strong>에 집중하고,
+        Calculator는 <strong>계산 규칙</strong>과 <strong>데이터 보관</strong>에 집중하도록 역할이 정리됐다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          다음에 같은 실수를 안 하려면
+        </span>
+      </h3>
+
+      <ul>
+        <li>반복문 안에서 <strong>new</strong>를 치기 전에, 그 객체가 들고 있어야 하는 데이터가 무엇인지 먼저 확인한다</li>
+        <li>입력 검증은 한 번에 끝내지 말고, <strong>입력 메서드로 분리</strong>해서 재사용한다</li>
+        <li>컬렉션은 무조건 <strong>private</strong>로 막고, 외부에서는 메서드로만 건드리게 만든다</li>
+        <li>삭제 기능처럼 상태가 바뀌는 기능은, <strong>빈 컬렉션 처리</strong>를 먼저 넣고 시작한다</li>
+      </ul>
+
+      <!-- 섹션 6: 회고 -->
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>코드를 늘리기 전에, 역할과 책임을 먼저 나누니까 수정이 훨씬 편했다</li>
+        <li>입력 검증과 예외 처리를 분리하니, 어디서 막아야 하는지가 명확해졌다</li>
+        <li>작은 프로젝트도 결국 <strong>스코프</strong>와 <strong>객체 생명주기</strong>를 이해하는 게 핵심이었다</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

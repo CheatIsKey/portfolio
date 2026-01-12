@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver I - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver I - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-08 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1325 — 효율적인 해킹</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1325">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260110_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>효율적인 해킹 (백준 1325)</strong>는<br>
+        신뢰 관계(단방향 그래프)가 주어졌을 때,
+        <strong>어떤 컴퓨터를 해킹했을 때 가장 많은 컴퓨터를 해킹할 수 있는지</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>입력 <code>A B</code>는 “A가 B를 신뢰한다”는 뜻이다.</li>
+        <li>B가 해킹되면, B를 신뢰하는 A도 연쇄적으로 해킹할 수 있다.</li>
+        <li>따라서 B에서 시작하면 도달 가능한 컴퓨터 수(정점 수)를 세어야 한다.</li>
+        <li>도달 가능한 수가 최대가 되는 시작점(컴퓨터 번호)을 모두 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문제의 전파 방향을 그대로 쓰면 “B → A”로 이동해야 한다.</li>
+        <li>따라서 입력 <code>A B</code>를 받을 때 인접 리스트를 <code>computers[B].add(A)</code>로 <strong>역방향 그래프</strong>로 만든다.</li>
+        <li>각 노드 <code>i</code>를 시작점으로 BFS(또는 DFS)를 돌려, 방문 가능한 노드 수를 센다.</li>
+        <li>그 중 최대 방문 수를 갱신하고, 최대값과 같은 노드만 모아 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력을 역방향 인접 리스트로 저장</strong>
+          <pre><code>List&lt;Integer&gt;[] computers = new ArrayList[N + 1];
+      for (int i = 1; i &lt;= N; i++) computers[i] = new ArrayList&lt;&gt;();
+      
+      for (int i = 0; i &lt; M; i++) {
+          st = new StringTokenizer(br.readLine());
+      
+          int computer1 = Integer.parseInt(st.nextToken());
+          int computer2 = Integer.parseInt(st.nextToken());
+      
+          computers[computer2].add(computer1);
+      }</code></pre>
+          <ul>
+            <li><code>A B</code>는 “A가 B를 신뢰”이므로, 해킹 전파는 <code>B → A</code>로 이동한다.</li>
+            <li>그래서 <code>computers[B]</code>에 <code>A</code>를 넣어 “B에서 갈 수 있는 노드들”을 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 모든 시작점 i에 대해 도달 가능한 정점 수 계산</strong>
+          <pre><code>int[] reach = new int[N + 1];
+      int max = 0;
+      
+      for (int i = 1; i &lt;= N; i++) {
+          reach[i] = cnt(i, computers, N);
+          if (reach[i] &gt; max) max = reach[i];
+      }</code></pre>
+          <ul>
+            <li><code>cnt(i)</code>는 i에서 시작했을 때 BFS로 방문 가능한 노드 수를 반환한다.</li>
+            <li>각 i에 대해 결과를 저장하고 최대값을 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 최대 도달 수를 가진 노드만 출력</strong>
+          <pre><code>for (int i = 1; i &lt;= N; i++) {
+          if (reach[i] == max) sb.append(i).append(" ");
+      }
+      
+      System.out.print(sb.toString());</code></pre>
+          <ul>
+            <li>최대값과 동일한 노드 번호를 공백으로 이어 출력한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) cnt(): BFS로 방문 가능한 노드 수 세기</strong>
+          <pre><code>static int cnt(int computer, List&lt;Integer&gt;[] computers, int size) {
+          boolean[] visited = new boolean[size + 1];
+          ArrayDeque&lt;Integer&gt; deque = new ArrayDeque&lt;&gt;();
+      
+          visited[computer] = true;
+          deque.add(computer);
+      
+          int cnt = 0;
+          while (!deque.isEmpty()) {
+              int cur = deque.poll();
+              cnt++;
+      
+              for (int i : computers[cur]) {
+                  if (!visited[i]) {
+                      visited[i] = true;
+                      deque.add(i);
+                  }
+              }
+          }
+      
+          return cnt;
+      }</code></pre>
+          <ul>
+            <li>시작 노드를 큐에 넣고, 방문 체크 배열로 중복 방문을 막는다.</li>
+            <li>큐에서 하나씩 꺼내며 인접 노드를 확장하고, 방문한 노드 수를 누적한다.</li>
+            <li>최종적으로 방문한 정점 개수를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 노드(최대 N개)마다 BFS를 수행한다.</li>
+            <li>BFS 1회는 최악의 경우 간선/정점을 모두 훑으므로 <strong><code>O(N + M)</code></strong>.</li>
+            <li>총합은 <strong><code>O(N * (N + M))</code></strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>인접 리스트: <strong><code>O(N + M)</code></strong></li>
+            <li>각 BFS의 방문 배열/큐: <strong><code>O(N)</code></strong></li>
+            <li>전체적으로 <strong><code>O(N + M)</code></strong> 수준이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1342 — 행운의 문자열</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1342">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260110_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>행운의 문자열 (백준 1342)</strong>는<br>
+        주어진 문자열의 문자를 재배열했을 때,
+        <strong>인접한 두 문자가 같은 경우가 한 번도 없는 문자열</strong>(행운의 문자열)이
+        총 몇 개인지 세는 문제다.
+      </p>
+      
+      <ul>
+        <li>문자열 길이는 최대 10이지만, 같은 문자가 여러 번 등장할 수 있다.</li>
+        <li>단순 순열 생성은 중복이 폭발하므로, <strong>문자 개수(빈도)</strong> 기반으로 조합을 세는 게 핵심이다.</li>
+        <li>인접 문자 중복 금지 조건 때문에 직전에 쓴 문자와 같은 문자는 다음에 사용할 수 없다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>문자열을 직접 섞지 말고, 알파벳 26개의 <code>빈도 배열</code>로 관리한다.</li>
+        <li>DFS(백트래킹)로 한 글자씩 선택한다.
+          <ul>
+            <li>아직 남은 문자가 있고(<code>s[i] &gt; 0</code>)</li>
+            <li>직전에 고른 문자(<code>prev</code>)와 다르면 선택 가능</li>
+          </ul>
+        </li>
+        <li>한 글자를 선택하면 빈도를 1 줄이고 다음 깊이로 진행, 복귀 시 다시 1 늘린다.</li>
+        <li>남은 글자 수(<code>left</code>)가 0이면 유효한 문자열 1개를 만든 것이므로 1을 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 문자열을 빈도 배열로 변환</strong>
+          <pre><code>String line = br.readLine();
+      int[] s = new int[26];
+      
+      for (char c : line.toCharArray()) {
+          s[c - 'a']++;
+      }</code></pre>
+          <ul>
+            <li><code>s[i]</code>는 i번째 알파벳(0=a, 1=b, …)의 남은 개수다.</li>
+            <li>이 구조를 쓰면 같은 문자 때문에 생기는 <strong>중복 순열을 자동으로 제거</strong>할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) DFS로 가능한 경우의 수 세기</strong>
+          <pre><code>int cnt = dfs(s, -1, line.length());
+      System.out.print(cnt);</code></pre>
+          <ul>
+            <li><code>prev</code>를 -1로 두면 “이전에 선택한 문자가 없음”을 의미한다.</li>
+            <li>총 길이만큼 문자를 채워야 하므로 <code>left = line.length()</code>로 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) dfs(): 남은 문자로 만들 수 있는 행운의 문자열 개수 반환</strong>
+          <pre><code>private static int dfs(int[] s, int prev, int left) {
+          if (left == 0) return 1;
+      
+          int cnt = 0;
+      
+          for (int i = 0; i &lt; 26; i++) {
+              if (s[i] == 0) continue;
+              if (i == prev) continue;
+      
+              s[i]--;
+              cnt += dfs(s, i, left - 1);
+              s[i]++;
+          }
+      
+          return cnt;
+      }</code></pre>
+          <ul>
+            <li><code>left == 0</code>이면 모든 자리를 채웠고, 조건을 지키며 완성한 문자열 1개이므로 1 반환.</li>
+            <li>각 문자 i에 대해
+              <ul>
+                <li>남은 개수가 0이면 선택 불가</li>
+                <li>직전 문자와 같은 i면 인접 중복이므로 선택 불가</li>
+                <li>그 외에는 선택 → 재귀 → 복구(백트래킹)</li>
+              </ul>
+            </li>
+            <li>이렇게 누적한 값이 “현재 상태에서 만들 수 있는 행운의 문자열 개수”가 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>최악의 경우(모든 문자가 서로 다름) 길이를 <code>N</code이라 하면 가능한 순열이 <code>N!</code> 수준으로 증가한다.</li>
+            <li>하지만 <code>N ≤ 10</code>이고, 같은 문자가 많을수록 경우의 수가 크게 줄어든다.</li>
+            <li>따라서 백트래킹으로 충분히 통과 가능한 범위다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>빈도 배열 <code>s[26]</code>는 상수 크기 → <strong><code>O(1)</code></strong></li>
+            <li>재귀 깊이는 최대 문자열 길이 <code>N</code> → <strong><code>O(N)</code></strong></li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
