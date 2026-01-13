@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-11 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 내적</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/70128">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0111_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>내적 (프로그래머스 70128)</strong>은<br>
+        길이가 같은 두 배열 <code>a</code>, <code>b</code>가 주어졌을 때,
+        같은 인덱스끼리 곱한 값을 모두 더해 <strong>내적</strong>을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 인덱스 <code>i</code>마다 <code>a[i] * b[i]</code>를 계산한다.</li>
+        <li>계산한 곱들을 전부 더한 값을 반환한다.</li>
+        <li>배열을 한 번만 순회하면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>배열 길이 <code>length</code>를 구한다.</li>
+        <li>누적합 변수 <code>sum</code>을 0으로 시작한다.</li>
+        <li><code>i = 0</code>부터 <code>length - 1</code>까지 순회하며 <code>a[i] * b[i]</code>를 누적한다.</li>
+        <li>최종 <code>sum</code>을 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 길이와 누적합 변수 준비</strong>
+          <pre><code>int length = a.length;
+int sum = 0;</code></pre>
+          <ul>
+            <li><code>length</code>는 반복 범위를 정하기 위한 배열 길이다.</li>
+            <li><code>sum</code>은 내적 결과를 누적할 변수다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 같은 인덱스끼리 곱해서 누적</strong>
+          <pre><code>for (int i = 0; i &lt; length; i++) {
+    sum += a[i] * b[i];
+}</code></pre>
+          <ul>
+            <li><code>a[i]</code>와 <code>b[i]</code>를 곱한 값을 <code>sum</code>에 더한다.</li>
+            <li>모든 인덱스를 한 번씩만 처리한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 누적합 반환</strong>
+          <pre><code>return sum;</code></pre>
+          <ul>
+            <li>모든 곱셈 결과를 더한 값이 곧 내적이므로 그대로 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>배열 길이를 <code>N</code>이라 하면 한 번 순회 → <strong><code>O(N)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>추가 자료구조 없이 변수만 사용 → <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 3진법 뒤집기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/68935">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_1/daily_0111_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>3진법 뒤집기 (프로그래머스 68935)</strong>은<br>
+        자연수 <code>n</code>을 <strong>3진법</strong>으로 바꾼 뒤,
+        그 숫자를 <strong>뒤집어서</strong> 다시 <strong>10진법</strong>으로 변환해 반환하는 문제다.
+      </p>
+      
+      <ul>
+        <li><code>n</code>을 3진법 문자열로 변환한다.</li>
+        <li>문자열을 뒤집는다.</li>
+        <li>뒤집힌 3진법 문자열을 다시 10진법 정수로 변환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>Integer.toString(n, 3)</code>로 <code>n</code>을 3진법 문자열로 만든다.</li>
+        <li><code>StringBuilder</code>로 문자열을 뒤집는다.</li>
+        <li><code>Integer.parseInt(뒤집힌문자열, 3)</code>로 3진법을 10진법으로 해석해 반환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 3진법 문자열로 변환</strong>
+          <pre><code>String s = Integer.toString(n, 3);</code></pre>
+          <ul>
+            <li><code>n</code>을 3진법 형태의 문자열로 만든다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) StringBuilder로 뒤집기</strong>
+          <pre><code>StringBuilder sb = new StringBuilder(s);
+sb.reverse();</code></pre>
+          <ul>
+            <li><code>StringBuilder</code>는 문자열 뒤집기 같은 조작에 편하다.</li>
+            <li><code>reverse()</code>로 3진법 문자열을 뒤집는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 뒤집힌 3진법을 10진법으로 변환해 반환</strong>
+          <pre><code>return Integer.parseInt(sb.toString(), 3);</code></pre>
+          <ul>
+            <li><code>parseInt(문자열, 3)</code>은 해당 문자열을 3진법 숫자로 해석해 10진법 정수로 바꾼다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><code>n</code>의 3진법 자릿수를 <code>L</code>이라 하면 변환/뒤집기/파싱이 모두 자릿수만큼 처리 → <strong><code>O(L)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>3진법 문자열과 빌더를 저장 → <strong><code>O(L)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
