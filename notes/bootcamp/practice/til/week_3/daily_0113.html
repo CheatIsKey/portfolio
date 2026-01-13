@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 21일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 21일차 TIL — Java 복습 &amp; Flowchart 정리</h1>
+      <p class="muted">작성일 2026-01-12 · 분류: 부트캠프, TIL, Java, Flowchart</p>
+
+      <!-- 섹션 1: 개요 -->
+      <h2 class="section">21일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>cv</strong>와 <strong>iv</strong> 차이와 초기화 순서를 예시로 정리한다</li>
+        <li><strong>상속</strong>과 <strong>포함</strong> 관계를 기준으로 설계를 판단한다</li>
+        <li><strong>Singleton</strong>, <strong>다형성</strong>, <strong>Enum</strong> 핵심 포인트를 다시 잡는다</li>
+        <li><strong>Flowchart</strong> 기본 요소와 문제 풀이 흐름을 코드로 변환한다</li>
+      </ul>
+
+      <!-- 섹션 2: cv / iv -->
+      <h2 class="section">cv와 iv 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정의
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>의미</th>
+            <th>접근 방식</th>
+            <th>저장/공유 감각</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>cv(Class Variable)</td>
+            <td><strong>static 필드</strong>로 선언되는 클래스 변수</td>
+            <td>클래스명으로 접근 가능</td>
+            <td>클래스 단위로 <strong>공유</strong></td>
+          </tr>
+          <tr>
+            <td>iv(Instance Variable)</td>
+            <td>인스턴스가 가지는 <strong>멤버 변수</strong></td>
+            <td>인스턴스 생성 후 접근</td>
+            <td>인스턴스마다 <strong>개별 값</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 코드
+        </span>
+      </h3>
+
+      <pre><code>class Counter {
+  static int cv = 0;  // 클래스 변수
+  int iv = 0;         // 인스턴스 변수
+
+  void increase() {
+    cv++;
+    iv++;
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Counter a = new Counter();
+    Counter b = new Counter();
+
+    a.increase();
+    a.increase();
+    b.increase();
+
+    System.out.println(Counter.cv); // 3 (공유)
+    System.out.println(a.iv);       // 2 (개별)
+    System.out.println(b.iv);       // 1 (개별)
+  }
+}
+</code></pre>
+
+      <!-- 섹션 3: init order -->
+      <h2 class="section">멤버 변수 초기화 순서</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          큰 흐름
+        </span>
+      </h3>
+
+      <p>
+        초기화는 크게 <strong>클래스 초기화</strong>가 먼저, 그 다음 <strong>인스턴스 초기화</strong>가 진행된다.
+        그리고 각 단계 안에서 <strong>기본값</strong> → <strong>명시적 초기화</strong> → <strong>블록/생성자</strong> 순으로 흐름이 이어진다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>단계</th>
+            <th>순서</th>
+            <th>무슨 의미인가</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>클래스 초기화(cv)</td>
+            <td>기본값 → 명시적 초기화 → 클래스 초기화 블록(static)</td>
+            <td>클래스가 로딩될 때 1회 진행</td>
+          </tr>
+          <tr>
+            <td>인스턴스 초기화(iv)</td>
+            <td>기본값 → 명시적 초기화 → 인스턴스 초기화 블록 → 생성자</td>
+            <td>인스턴스 생성할 때마다 진행</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 코드로 확인
+        </span>
+      </h3>
+
+      <pre><code>class InitOrder {
+  static int cv = 1;
+
+  int iv = 10;
+
+  static {
+    cv = 2;
+    System.out.println("static block: cv=" + cv);
+  }
+
+  {
+    iv = 20;
+    System.out.println("instance block: iv=" + iv);
+  }
+
+  InitOrder() {
+    iv = 30;
+    System.out.println("constructor: iv=" + iv);
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("start main");
+    new InitOrder();
+    new InitOrder();
+  }
+}
+</code></pre>
+
+      <ul>
+        <li>static 블록은 클래스 로딩 시점에 1회 실행된다</li>
+        <li>인스턴스 블록과 생성자는 인스턴스 생성할 때마다 실행된다</li>
+      </ul>
+
+      <!-- 섹션 4: 관계 -->
+      <h2 class="section">클래스 관계: 상속과 포함</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 기준
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>관계</th>
+            <th>설명</th>
+            <th>판단 문장</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>상속</td>
+            <td>부모의 기능을 재사용하고 확장</td>
+            <td><strong>is-a</strong></td>
+            <td>Dog is an Animal</td>
+          </tr>
+          <tr>
+            <td>포함</td>
+            <td>클래스 내부에 참조형 변수를 둬서 조립</td>
+            <td><strong>has-a</strong></td>
+            <td>Car has an Engine</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 코드
+        </span>
+      </h3>
+
+      <pre><code>// 상속(is-a)
+class Animal {
+  void move() {}
+}
+class Dog extends Animal {
+  void bark() {}
+}
+
+// 포함(has-a)
+class Engine {
+  void start() {}
+}
+class Car {
+  private final Engine engine = new Engine();
+  void run() {
+    engine.start();
+  }
+}
+</code></pre>
+
+      <!-- 섹션 5: super -->
+      <h2 class="section">super()가 생성자 첫 줄에 오는 이유</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 포인트
+        </span>
+      </h3>
+
+      <ul>
+        <li>자식 객체 안에는 부모 영역이 포함되기 때문에, <strong>부모 초기화</strong>가 먼저 끝나야 자식 초기화가 안전하다</li>
+        <li>그래서 생성자에서 <strong>super()</strong> 호출은 반드시 첫 줄이어야 한다</li>
+        <li>명시하지 않으면 컴파일러가 기본 <strong>super()</strong> 호출을 자동으로 넣는다</li>
+      </ul>
+
+      <!-- 섹션 6: Singleton -->
+      <h2 class="section">Singleton과 객체 반환 메서드</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Singleton 기본 형태
+        </span>
+      </h3>
+
+      <pre><code>class Singleton {
+  private static final Singleton INSTANCE = new Singleton();
+
+  private Singleton() {}
+
+  public static Singleton getInstance() {
+    return INSTANCE;
+  }
+}
+</code></pre>
+
+      
+      <ul>
+        <li><strong>private 생성자</strong>로 외부에서 new를 막는다</li>
+        <li>클래스 내부에서 인스턴스를 1개 만들어 두고, <strong>같은 인스턴스</strong>만 반환한다</li>
+        <li>이런 형태의 getInstance는 실무에서 <strong>정적 팩터리 메서드</strong>로 자주 부른다</li>
+      </ul>
+
+      <!-- 섹션 7: polymorphism -->
+      <h2 class="section">다형성 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정의
+        </span>
+      </h3>
+
+      <p>
+        <strong>다형성</strong>은 참조변수 하나로 여러 종류의 객체를 다루는 것이다.
+        즉, <strong>조상 타입 참조변수</strong>로 <strong>자손 객체</strong>를 참조할 수 있다.
+      </p>
+
+      <pre><code>class Animal { void sound() {} }
+class Dog extends Animal { void sound() { System.out.println("bow"); } }
+class Cat extends Animal { void sound() { System.out.println("meow"); } }
+
+public class Main {
+  public static void main(String[] args) {
+    Animal a1 = new Dog();
+    Animal a2 = new Cat();
+    a1.sound(); // Dog 동작
+    a2.sound(); // Cat 동작
+  }
+}
+</code></pre>
+
+      <!-- 섹션 8: enum -->
+      <h2 class="section">열거형(Enum) 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Enum 특징
+        </span>
+      </h3>
+
+      <ul>
+        <li>열거형은 <strong>상수들의 모음</strong>을 타입으로 묶어 관리한다</li>
+        <li>필드/생성자/메서드를 함께 둘 수 있어, 의미 있는 값을 가진 상수 집합을 만들기 좋다</li>
+        <li>Enum 생성자는 외부에서 호출할 수 없고, <strong>암묵적으로 private</strong>다</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 코드
+        </span>
+      </h3>
+
+      <pre><code>import java.util.Arrays;
+
+public enum InputMenu {
+  CALCULATE(1),
+  PRINT_RESULT(2),
+  REMOVE_FIRST_RESULT(3),
+  EXIT(0);
+
+  private final int menuNumber;
+
+  InputMenu(int menuNumber) {
+    this.menuNumber = menuNumber;
+  }
+
+  public static InputMenu findMenuByNumber(int menuNumber) {
+    return Arrays.stream(InputMenu.values())
+      .filter(x -&gt; x.menuNumber == menuNumber)
+      .findFirst()
+      .orElseThrow(() -&gt; new IllegalArgumentException("메뉴 번호가 올바르지 않습니다."));
+  }
+}
+</code></pre>
+
+      <!-- 섹션 9: Flowchart basics -->
+      <h2 class="section">Flowchart 기본 요소</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          도형 의미 정리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>도형</th>
+            <th>이름</th>
+            <th>의미</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>타원형</td>
+            <td>Terminal</td>
+            <td>시작과 종료</td>
+          </tr>
+          <tr>
+            <td>직사각형</td>
+            <td>Process</td>
+            <td>처리 과정</td>
+          </tr>
+          <tr>
+            <td>마름모</td>
+            <td>Decision</td>
+            <td>조건 분기</td>
+          </tr>
+          <tr>
+            <td>평행사변형</td>
+            <td>Input/Output</td>
+            <td>입력과 출력</td>
+          </tr>
+          <tr>
+            <td>화살표</td>
+            <td>Arrow</td>
+            <td>흐름 방향</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 섹션 10: Exercise 1 -->
+      <h2 class="section">연습 1) 0이 입력될 때까지 누적합 구하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 흐름 요약
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>입력</td>
+            <td>사용자가 입력하는 정수 num</td>
+          </tr>
+          <tr>
+            <td>출력</td>
+            <td>최종 합계 sum</td>
+          </tr>
+          <tr>
+            <td>상태</td>
+            <td>누적합 sum(초기값 0)</td>
+          </tr>
+          <tr>
+            <td>종료 조건</td>
+            <td>num이 0이면 종료</td>
+          </tr>
+          <tr>
+            <td>예외 조건</td>
+            <td>정수가 아니면 안내 후 다시 입력</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img
+          src="\assets\notes\bootcamp\practice\til\week_3\flowchart\sum.jpg"
+          alt="누적합 Flowchart"
+          style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
+        />
+        <figcaption class="muted">입력 → 종료 조건 판단 → 누적 → 반복 흐름을 그대로 코드로 옮기면 된다.</figcaption>
+      </figure>
+
+      <!-- 섹션 11: Exercise 2 -->
+      <h2 class="section">연습 2) 0이 입력될 때까지 입력값 중 최댓값 구하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 흐름 요약
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>입력</td>
+            <td>사용자가 입력하는 정수 num</td>
+          </tr>
+          <tr>
+            <td>출력</td>
+            <td>입력값 중 최댓값 max</td>
+          </tr>
+          <tr>
+            <td>상태</td>
+            <td>max, 그리고 입력이 있었는지 표시하는 hasInput</td>
+          </tr>
+          <tr>
+            <td>종료 조건</td>
+            <td>num이 0이면 종료</td>
+          </tr>
+          <tr>
+            <td>분기 조건</td>
+            <td>num이 max보다 크면 max 갱신</td>
+          </tr>
+          <tr>
+            <td>예외 조건</td>
+            <td>정수가 아니면 안내 후 다시 입력</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img
+          src="\assets\notes\bootcamp\practice\til\week_3\flowchart\max.jpg"
+          alt="최댓값 Flowchart"
+          style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
+        />
+        <figcaption class="muted">입력값이 0인지 확인한 뒤, 0이 아니면 최댓값 갱신 여부를 판단한다.</figcaption>
+      </figure>
+
+      <!-- 섹션 12: 오늘의 회고 -->
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>cv/iv는 결국 <strong>공유 범위</strong>를 분리해서 생각하니 헷갈림이 줄었다</li>
+        <li>초기화 순서는 외우기보다, <strong>클래스 먼저</strong> 그리고 <strong>인스턴스 나중</strong> 흐름만 잡으면 정리가 빨랐다</li>
+        <li>Flowchart는 그림 자체보다, <strong>조건 분기와 반복</strong>을 코드로 옮기는 연습이 핵심이었다</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
