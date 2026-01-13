@@ -23,6 +23,101 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
+
+    /* figcaption 중앙 정렬 */
+    .prose figure figcaption {
+      text-align: center;
+    }
+
+    /* 이미지 클릭 확대(모달) */
+    .prose img.zoomable {
+      cursor: zoom-in;
+    }
+
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.75);
+      z-index: 9999;
+      padding: 1rem;
+    }
+
+    .image-modal.open {
+      display: flex;
+    }
+
+    .image-modal__inner {
+      position: relative;
+      width: min(96vw, 1200px);
+      height: min(92vh, 900px);
+      background: rgba(15,15,15,0.95);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+
+    .image-modal__img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      max-width: 96%;
+      max-height: 92%;
+      user-select: none;
+      -webkit-user-drag: none;
+      cursor: grab;
+    }
+
+    .image-modal__img:active {
+      cursor: grabbing;
+    }
+
+    .image-modal__toolbar {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .image-modal__btn {
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .image-modal__close {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 2;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .image-modal__hint {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 2;
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -48,6 +143,7 @@
       <h2 class="section">1. 카페 포인트 적립 시스템</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\cafe_point.jpg"
           alt="카페 포인트 적립 시스템 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -60,6 +156,7 @@
       <h2 class="section">2. 버스 요금 입력 프로그램</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\bus_fee.jpg"
           alt="버스 요금 입력 프로그램 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -72,6 +169,7 @@
       <h2 class="section">3. 하루 동안 걸음 수 합산 프로그램</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\step_sum.jpg"
           alt="하루 동안 걸음 수 합산 프로그램 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -84,6 +182,7 @@
       <h2 class="section">4. 전자사전(단어 뜻 조회) 프로그램</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\dictionary.jpg"
           alt="전자사전 단어 뜻 조회 프로그램 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -96,6 +195,7 @@
       <h2 class="section">5. 간단 회원가입 + 로그인 시스템</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\register.jpg"
           alt="간단 회원가입 시스템 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -108,6 +208,7 @@
       <h2 class="section">6. 간단 회원가입 + 로그인 시스템</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\login.jpg"
           alt="간단 로그인 시스템 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -120,6 +221,7 @@
       <h2 class="section">7. 영화관 포인트 적립 시스템</h2>
       <figure>
         <img
+          class="zoomable"
           src="\assets\notes\bootcamp\practice\til\week_3\flowchart\day2\movie_point.jpg"
           alt="영화관 포인트 적립 시스템 Flowchart"
           style="width:100%; max-width:920px; border:1px solid rgba(0,0,0,0.15); border-radius:10px;"
@@ -135,6 +237,19 @@
     <span>© spring-jpa.dev</span>
     <span class="muted">Built with Spring • JPA • QueryDSL</span>
   </footer>
+
+  <div class="image-modal" id="image-modal" aria-hidden="true">
+    <div class="image-modal__inner" role="dialog" aria-modal="true" aria-label="이미지 확대 보기">
+      <div class="image-modal__toolbar">
+        <button type="button" class="image-modal__btn" id="zoom-out">-</button>
+        <button type="button" class="image-modal__btn" id="zoom-reset">100%</button>
+        <button type="button" class="image-modal__btn" id="zoom-in">+</button>
+      </div>
+      <button type="button" class="image-modal__close" id="zoom-close">닫기</button>
+      <div class="image-modal__hint">마우스 휠: 확대/축소 · 드래그: 이동 · ESC: 닫기</div>
+      <img class="image-modal__img" id="image-modal-img" alt="" />
+    </div>
+  </div>
 
   <!-- H2(.section)만 목차로 사용 -->
   <script>
@@ -155,6 +270,116 @@
       a.textContent = h.textContent.trim();
       li.appendChild(a);
       toc.appendChild(li);
+    });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('image-modal-img');
+    const btnClose = document.getElementById('zoom-close');
+    const btnIn = document.getElementById('zoom-in');
+    const btnOut = document.getElementById('zoom-out');
+    const btnReset = document.getElementById('zoom-reset');
+
+    if (!modal || !modalImg || !btnClose || !btnIn || !btnOut || !btnReset) return;
+
+    let scale = 1;
+    let tx = 0;
+    let ty = 0;
+
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+    function applyTransform() {
+      modalImg.style.transform =
+        `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale})`;
+      btnReset.textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    function openModal(src, alt) {
+      modalImg.src = src;
+      modalImg.alt = alt || '';
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      applyTransform();
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      modalImg.src = '';
+    }
+
+    document.querySelectorAll('img.zoomable').forEach(img => {
+      img.addEventListener('click', () => {
+        openModal(img.getAttribute('src'), img.getAttribute('alt'));
+      });
+    });
+
+    btnClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+
+    btnIn.addEventListener('click', () => {
+      scale = clamp(scale + 0.2, 0.5, 5);
+      applyTransform();
+    });
+
+    btnOut.addEventListener('click', () => {
+      scale = clamp(scale - 0.2, 0.5, 5);
+      applyTransform();
+    });
+
+    btnReset.addEventListener('click', () => {
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      applyTransform();
+    });
+
+    modal.addEventListener('wheel', (e) => {
+      if (!modal.classList.contains('open')) return;
+      e.preventDefault();
+
+      const delta = e.deltaY > 0 ? -0.12 : 0.12;
+      scale = clamp(scale + delta, 0.5, 5);
+      applyTransform();
+    }, { passive: false });
+
+    modalImg.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      startX = e.clientX - tx;
+      startY = e.clientY - ty;
+      modalImg.setPointerCapture(e.pointerId);
+    });
+
+    modalImg.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      tx = e.clientX - startX;
+      ty = e.clientY - startY;
+      applyTransform();
+    });
+
+    modalImg.addEventListener('pointerup', () => {
+      dragging = false;
+    });
+
+    modalImg.addEventListener('pointercancel', () => {
+      dragging = false;
     });
   })();
   </script>
