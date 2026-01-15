@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 23일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 24일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,11 +42,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 23일차 TIL — Java 핵심 복습(인터페이스, 예외, String)</h1>
-      <p class="muted">작성일 2026-01-14 · 분류: 부트캠프, TIL, Java</p>
+      <h1>내일배움캠프 Spring 백엔드 24일차 TIL — 객체지향, DI, DIP/OCP, record</h1>
+      <p class="muted">작성일 2026-01-15 · 분류: 부트캠프, TIL, Java, OOP, DI</p>
 
-      <!-- 섹션 1: 개요 -->
-      <h2 class="section">23일차 개요</h2>
+      <h2 class="section">24일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -55,18 +54,223 @@
       </h3>
 
       <ul>
-        <li><strong>인터페이스</strong>와 <strong>추상 클래스</strong> 차이를 계약 관점으로 정리한다</li>
-        <li><strong>default/private 메서드</strong>가 왜 생겼는지 흐름을 잡는다</li>
-        <li><strong>예외 되던지기</strong>와 <strong>연결된 예외</strong>를 실전 관점으로 정리한다</li>
-        <li><strong>얕은 복사</strong>/<strong>깊은 복사</strong>, <strong>String</strong> 관련 메서드들을 다시 묶는다</li>
+        <li><strong>객체지향</strong>을 협력 관점에서 다시 정리한다</li>
+        <li><strong>결합도</strong>와 <strong>응집도</strong>를 설계 판단 기준으로 잡는다</li>
+        <li><strong>의존 관계</strong>와 <strong>의존성 주입</strong>이 왜 필요한지 예시로 묶는다</li>
+        <li><strong>DIP</strong>, <strong>OCP</strong>를 코드 구조로 연결한다</li>
+        <li><strong>record</strong>를 비전공자도 이해할 수 있게 설명한다</li>
       </ul>
 
-      <!-- 섹션 2: Interface vs Abstract -->
-      <h2 class="section">인터페이스 vs 추상 클래스</h2>
+      <h2 class="section">객체지향이란 무엇인가</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          정의
+          핵심 정의
+        </span>
+      </h3>
+
+      <p>
+        객체지향은 <strong>서로 관련 있는 데이터와 기능을 묶어 객체로 만들고</strong>,
+        객체들이 <strong>메시지를 주고받으며 협력</strong>하도록 설계하는 방식이다.
+        이때, 서로 관련 없어 보이는 클래스들도 <strong>공통 규격</strong>으로 묶을 수 있는데,
+        그 역할을 <strong>인터페이스</strong>가 담당한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          객체지향의 중심은 캡슐화
+        </span>
+      </h3>
+
+      <p>
+        객체지향의 감각은 결국 <strong>데이터를 가진 객체가 그 데이터를 직접 처리</strong>하게 만들고,
+        외부에서는 내부 구조를 몰라도 <strong>정해진 사용법만으로</strong> 동작하게 만드는 것이다.
+        이걸 <strong>캡슐화</strong>라고 한다.
+      </p>
+
+      <h2 class="section">좋은 설계 기준: 결합도, 응집도, 데이터 무결성</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          세 가지 기준을 한 번에 잡기
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>기준</th>
+            <th>의미</th>
+            <th>실전 체크 포인트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>결합도 낮추기</td>
+            <td>서로를 너무 많이 알지 않게 만들기</td>
+            <td>구체 클래스 대신 <strong>인터페이스</strong>에 의존하는가</td>
+          </tr>
+          <tr>
+            <td>응집도 높이기</td>
+            <td>하나의 클래스는 하나의 책임에 집중</td>
+            <td>한 클래스가 입력, 처리, 출력, 저장을 다 떠안지 않는가</td>
+          </tr>
+          <tr>
+            <td>데이터 무결성 보장</td>
+            <td>객체의 상태가 규칙을 깨지 않게 유지</td>
+            <td>필드는 <strong>private</strong>로 숨기고, 검증된 메서드로만 변경하는가</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">의존 관계와 협력: 카페 주문 예시</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          의존 관계란
+        </span>
+      </h3>
+
+      <p>
+        어떤 객체가 자신의 일을 수행하기 위해 <strong>다른 객체의 도움이 필요한 상태</strong>를 의존 관계라고 본다.
+        예를 들어 주문 로직에서 캐셔가 바리스타에게 커피 제조를 맡긴다면, 캐셔는 바리스타에 의존한다.
+      </p>
+
+      <pre><code>public void order(String menuName, Barista barista) {
+  // barista가 없으면 커피 제조를 진행할 수 없다
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          손님은 바리스타를 몰라도 되게 만들기
+        </span>
+      </h3>
+
+      <p>
+        손님이 바리스타를 직접 호출하면, 손님이 커피 제조 과정을 알아야 한다.
+        그래서 <strong>손님 → 캐셔 → 바리스타</strong> 흐름으로 협력 구조를 만들면,
+        손님은 바리스타를 몰라도 주문이 가능해진다.
+      </p>
+
+      <pre><code>Customer → Cashier → Barista
+</code></pre>
+
+      <h2 class="section">DI: 매개변수로 받을지, 필드로 가질지</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          선택 기준
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>상황</th>
+            <th>추천 방식</th>
+            <th>이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>호출할 때만 잠깐 필요한 협력자</td>
+            <td>메서드 매개변수로 전달</td>
+            <td>생명주기가 짧고, 의존을 최소화하기 좋다</td>
+          </tr>
+          <tr>
+            <td>함께 생성되고 함께 소멸하는 협력자</td>
+            <td>필드로 보관하고 생성자에서 주입</td>
+            <td><strong>객체 생명주기 동기화</strong>가 자연스럽다</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          생성자 주입 예시
+        </span>
+      </h3>
+
+      <pre><code>class Cashier {
+  private final CoffeeMaker coffeeMaker;
+
+  public Cashier(CoffeeMaker coffeeMaker) {
+    this.coffeeMaker = coffeeMaker;
+  }
+
+  public Coffee order(String menuName) {
+    return coffeeMaker.make(menuName);
+  }
+}
+</code></pre>
+
+      <p>
+        이 방식이 흔히 말하는 <strong>의존성 주입</strong>이다.
+        협력과 메시징을 더 깔끔하게 만들고, 결합도는 낮추고 응집도는 높이기 좋다.
+      </p>
+
+      <h2 class="section">DIP와 OCP를 구조로 이해하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DIP: 고수준은 추상에 의존
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>High Level</strong>인 Cashier는 구체 클래스 Barista가 아니라 <strong>추상</strong>인 CoffeeMaker에 의존한다</li>
+        <li><strong>Low Level</strong>인 Barista가 CoffeeMaker를 구현한다</li>
+        <li>둘을 연결하는 조립 책임은 밖에서 수행한다</li>
+      </ul>
+
+      <pre><code>interface CoffeeMaker {
+  Coffee make(String menuName);
+}
+
+class Barista implements CoffeeMaker {
+  public Coffee make(String menuName) {
+    return new Coffee(menuName);
+  }
+}
+
+class Config {
+  public static Cashier cashier() {
+    return new Cashier(new Barista());
+  }
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          OCP: 확장에는 열려 있고 변경에는 닫혀 있게
+        </span>
+      </h3>
+
+      <p>
+        새로운 바리스타 구현체를 추가해도, Cashier 코드는 바뀌지 않게 만드는 것이 핵심이다.
+        바뀌는 건 조립 코드만 바뀌고, 주문 로직은 그대로 유지된다.
+      </p>
+
+      <pre><code>class CatBarista implements CoffeeMaker {
+  public Coffee make(String menuName) {
+    return new Coffee(menuName);
+  }
+}
+
+// 변경은 Config에서만
+class Config {
+  public static Cashier cashier() {
+    return new Cashier(new CatBarista());
+  }
+}
+</code></pre>
+
+      <h2 class="section">추상 클래스와 인터페이스를 언제 쓰나</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          판단 기준
         </span>
       </h3>
 
@@ -74,305 +278,111 @@
         <thead>
           <tr>
             <th>구분</th>
-            <th>핵심 역할</th>
-            <th>가장 큰 차이</th>
+            <th>자연스러운 관계</th>
+            <th>추천 상황</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>인터페이스</td>
-            <td>구현체가 따라야 할 <strong>계약</strong>을 제공</td>
-            <td>주로 <strong>동작 규격</strong> 중심(다중 구현 가능)</td>
-          </tr>
           <tr>
             <td>추상 클래스</td>
-            <td>공통 상태/동작을 묶는 <strong>뼈대</strong> 제공</td>
-            <td><strong>필드/생성자</strong>로 공통 상태를 가질 수 있음(단일 상속)</td>
+            <td>IS-A</td>
+            <td>공통 상태와 공통 메서드를 공유해야 할 때</td>
+          </tr>
+          <tr>
+            <td>인터페이스</td>
+            <td>CAN-DO</td>
+            <td>서로 다른 클래스에 공통 기능을 붙이고, 역할 중심으로 설계하고 싶을 때</td>
           </tr>
         </tbody>
       </table>
 
-      <p>
-        인터페이스를 무조건 완전 미완성, 추상 클래스를 일부 미완성으로 외우기보다는,
-        인터페이스는 <strong>역할(계약)</strong>, 추상 클래스는 <strong>공통 구현 + 공통 상태</strong>라는 감각으로 보는 게 더 안전했다.
-      </p>
-
-      <!-- 섹션 3: interface default/private -->
-      <h2 class="section">인터페이스의 default 메서드와 private 메서드</h2>
+      <h2 class="section">다형성: 하나의 타입으로 여러 객체를 다루기</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          default 메서드가 나온 이유
+          핵심 정의
         </span>
       </h3>
 
       <p>
-        인터페이스에 메서드를 추가하면, 그 인터페이스를 구현하는 모든 클래스가 해당 메서드를 구현해야 한다.
-        이 부담을 줄이기 위해 <strong>default 메서드</strong>가 생겼고, 기본 구현을 제공해서 기존 구현체들이 깨지지 않게 해준다.
+        다형성은 <strong>부모 타입</strong> 하나로 <strong>여러 자식 타입 객체</strong>를 다루는 기술이다.
+        역할을 기준으로 코드를 작성하면, 구현체가 바뀌어도 코드가 덜 흔들린다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          private 메서드의 역할
+          매개변수 다형성, 리턴 타입 다형성
         </span>
       </h3>
 
-      <ul>
-        <li>인터페이스 내부에서 <strong>default</strong> 또는 <strong>static</strong> 메서드가 공통으로 쓰는 로직을 분리하기 위해 사용한다</li>
-        <li><strong>반드시 구현부</strong>가 있어야 한다</li>
-        <li>static 메서드에서 호출할 private 메서드는 <strong>private static</strong>이어야 한다</li>
-      </ul>
+      <pre><code>// 매개변수 다형성: 부모 타입을 받으면 모든 자식을 받을 수 있다
+public void serve(CoffeeMaker maker) {
+  maker.make("latte");
+}
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 코드
-        </span>
-      </h3>
-
-      <pre><code>interface Loggable {
-  default void log(String msg) {
-    validate(msg);
-    System.out.println("[LOG] " + msg);
-  }
-
-  static void staticLog(String msg) {
-    staticValidate(msg);
-    System.out.println("[STATIC] " + msg);
-  }
-
-  private void validate(String msg) {
-    if (msg == null || msg.isBlank()) {
-      throw new IllegalArgumentException("msg must not be blank");
-    }
-  }
-
-  private static void staticValidate(String msg) {
-    if (msg == null || msg.isBlank()) {
-      throw new IllegalArgumentException("msg must not be blank");
-    }
-  }
+// 리턴 타입 다형성: 부모 타입으로 반환하면, 내부에서 어떤 자식을 반환해도 된다
+public CoffeeMaker selectMaker(boolean isMorning) {
+  return isMorning ? new Barista() : new CatBarista();
 }
 </code></pre>
 
-      <!-- 섹션 4: Exceptions -->
-      <h2 class="section">예외 되던지기와 연결된 예외</h2>
+      <h2 class="section">record 클래스란 무엇인가</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예외 되던지기(rethrow)
+          한 줄 정의
         </span>
       </h3>
 
       <p>
-        <strong>예외 되던지기</strong>는 예외를 한 번 처리(로그/정리/메시지 보강 등)한 뒤, 다시 던져서
-        호출자 쪽에서도 예외 처리를 하게 만드는 방식이다.
-        스프링에서도 하위 계층에서 상황을 정리하고, 상위 계층에서 최종 응답을 결정하는 흐름이 많아서 자주 만난다.
+        <strong>record</strong>는 값만 담는 객체를 만들 때 반복되는 코드를 줄여주는 문법이다.
+        보통 DTO처럼 <strong>데이터 전달</strong>이 목적일 때 유용하다.
       </p>
 
-      <pre><code>try {
-  doSomething();
-} catch (Exception e) {
-  System.out.println("하위 로직에서 예외 로그를 남김: " + e.getMessage());
-  throw e; // 다시 던져서 상위 로직에서도 처리하게 함
-}
-</code></pre>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          연결된 예외(chained exception)
-        </span>
-      </h3>
-
-      <ul>
-        <li>예외 안에 다른 예외를 <strong>원인(cause)</strong>으로 저장하는 방식이다</li>
-        <li>여러 예외를 상위 관점의 예외 하나로 <strong>묶어서</strong> 다루기 좋다</li>
-        <li>검사 예외를 비검사 예외로 바꾸고 싶을 때, 원인을 유지한 채로 <strong>RuntimeException</strong>으로 감싸는 방식이 자주 쓰인다</li>
-      </ul>
-
-      <pre><code>try {
-  readFile();
-} catch (java.io.IOException e) {
-  throw new IllegalStateException("파일 처리 중 문제가 발생했습니다.", e);
-}
-</code></pre>
-
-      <!-- 섹션 5: Copy -->
-      <h2 class="section">얕은 복사와 깊은 복사</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          정의와 차이
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th>구분</th>
-            <th>무엇을 복사하나</th>
-            <th>특징</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>얕은 복사</td>
-            <td>객체의 필드 값만 복사(참조 필드는 <strong>주소 공유</strong>)</td>
-            <td>내부 참조 객체를 수정하면 서로 영향이 갈 수 있음</td>
-          </tr>
-          <tr>
-            <td>깊은 복사</td>
-            <td>참조하는 객체까지 <strong>새로</strong> 복사</td>
-            <td>공유가 끊겨서 독립적으로 수정 가능</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시(얕은 복사 상황)
-        </span>
-      </h3>
-
-      <pre><code>class Holder {
-  int[] arr;
-  Holder(int[] arr) { this.arr = arr; }
-}
-
-public class Main {
-  public static void main(String[] args) {
-    int[] origin = {1, 2, 3};
-    Holder a = new Holder(origin);
-    Holder b = new Holder(origin); // 같은 배열을 공유
-
-    b.arr[0] = 999;
-
-    System.out.println(a.arr[0]); // 999 (공유 영향)
-  }
-}
-</code></pre>
-
-      <!-- 섹션 6: String intern -->
-      <h2 class="section">String intern() 정리</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          정의
+          왜 필요한가
         </span>
       </h3>
 
       <p>
-        <strong>intern()</strong>은 문자열을 String 풀에서 관리하도록 만들고,
-        같은 내용이 이미 풀에 있으면 그 <strong>대표 참조</strong>를 돌려준다.
+        일반 클래스로 값을 담는 객체를 만들면 생성자, getter, equals, hashCode, toString을 매번 작성하게 된다.
+        record를 쓰면 이런 반복을 줄이고, 의도가 더 명확해진다.
       </p>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주의점
-        </span>
-      </h3>
+      <pre><code>// 일반 클래스라면 이런 코드가 계속 늘어난다
+class Menu {
+  private final String name;
+  private final int price;
 
-      <ul>
-        <li><strong>== 비교가 항상 안전해지는 건 아니다</strong>. 둘 다 intern된 참조일 때만 같은 주소를 가리킨다</li>
-        <li>intern은 내부 풀을 건드리기 때문에, 상황에 따라 비용이 커질 수 있다</li>
-        <li>문자열 비교는 기본적으로 <strong>equals()</strong>를 쓰는 게 안전하다</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 코드
-        </span>
-      </h3>
-
-      <pre><code>public class Main {
-  public static void main(String[] args) {
-    String a = new String("hello");
-    String b = new String("hello");
-
-    System.out.println(a == b);          // false
-    System.out.println(a.equals(b));     // true
-
-    String ai = a.intern();
-    String bi = b.intern();
-
-    System.out.println(ai == bi);        // true (둘 다 풀의 대표 참조)
+  public Menu(String name, int price) {
+    this.name = name;
+    this.price = price;
   }
+
+  public String getName() { return name; }
+  public int getPrice() { return price; }
 }
+
+// record는 핵심만 적는다
+record MenuRecord(String name, int price) { }
 </code></pre>
 
-      <!-- 섹션 7: trim vs strip -->
-      <h2 class="section">trim() vs strip()</h2>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          차이점
+          머릿속 그림
         </span>
       </h3>
 
-      <p>
-        둘 다 앞뒤 공백을 제거하지만, <strong>strip()</strong>은 유니코드 공백까지 더 넓게 처리한다.
-        반면 <strong>trim()</strong>은 비교적 제한된 범위의 공백만 제거한다.
-      </p>
+      <pre><code>record MenuRecord(name, price)
 
-      <table>
-        <thead>
-          <tr>
-            <th>메서드</th>
-            <th>처리 범위</th>
-            <th>추천</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>trim()</td>
-            <td>전통적인 공백 처리(제한적)</td>
-            <td>레거시 호환 필요할 때</td>
-          </tr>
-          <tr>
-            <td>strip()</td>
-            <td>유니코드 공백 포함(더 넓음)</td>
-            <td>가능하면 strip() 쪽이 더 안정적</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 섹션 8: join split -->
-      <h2 class="section">join()과 split(), StringJoiner</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          개념 정리
-        </span>
-      </h3>
-
-      <ul>
-        <li><strong>split()</strong>: 문자열을 구분 기준으로 쪼개서 배열로 만든다</li>
-        <li><strong>join()</strong>: 배열/컬렉션을 구분자로 이어서 하나의 문자열로 만든다</li>
-        <li><strong>StringJoiner</strong>: 구분자 + prefix/suffix까지 포함해 조합할 때 깔끔하다</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 코드
-        </span>
-      </h3>
-
-      <pre><code>import java.util.StringJoiner;
-
-public class Main {
-  public static void main(String[] args) {
-    StringJoiner sj = new StringJoiner(", ", "[", "]");
-    String[] strArr = {"aaa", "bbb", "ccc"};
-
-    for (String s : strArr) {
-      sj.add(s.toUpperCase());
-    }
-
-    System.out.println(sj.toString()); // [AAA, BBB, CCC]
-  }
-}
+  자동으로 제공되는 것들
+  - 생성자
+  - name(), price() 접근 메서드
+  - equals(), hashCode()
+  - toString()
 </code></pre>
 
-      <!-- 섹션 9: 회고 -->
       <h2 class="section">오늘의 회고</h2>
 
       <h3 class="section">
@@ -382,9 +392,9 @@ public class Main {
       </h3>
 
       <ul>
-        <li>인터페이스는 결국 <strong>계약</strong>이라는 감각으로 잡으니까 default/private가 자연스럽게 이해됐다</li>
-        <li>예외는 한 곳에서 끝내려 하기보다, <strong>정보 보강</strong>하고 <strong>원인 유지</strong>하는 게 더 중요했다</li>
-        <li>String 쪽은 성능 이야기로 급하게 결론 내리기보다, <strong>안전한 기본값</strong>을 먼저 지키는 게 맞았다</li>
+        <li>객체지향은 클래스 개수 늘리는 게 아니라, <strong>협력 구조</strong>를 잘 잡는 게 핵심이었다</li>
+        <li>DI는 편의 기능이 아니라, <strong>결합도를 낮추는 설계 도구</strong>였다</li>
+        <li>record는 DTO를 만들 때 반복 코드를 줄여서, 의도를 더 선명하게 만들어줬다</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
