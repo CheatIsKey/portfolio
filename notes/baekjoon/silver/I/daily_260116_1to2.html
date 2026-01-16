@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver I - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver I - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-14 · 분류: 코딩 테스트(백준 알고리즘), Silver V</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1421 — 나무꾼 이다솜</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1421">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260114_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>나무꾼 이다솜 (백준 1421)</strong>은<br>
+        길이가 서로 다른 나무 <code>N</code>개가 주어졌을 때,
+        어떤 길이 <code>L</code>로 나무를 잘라 <strong>길이 L짜리 조각</strong>들을 팔아 얻는 이익의 최댓값을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>길이 <code>L</code>짜리 나무 조각 1개를 팔면 수익은 <code>W * L</code>이다.</li>
+        <li>나무를 자를 때마다 비용 <code>C</code>가 든다.</li>
+        <li>어떤 <code>L</code>을 선택하느냐에 따라 만들 수 있는 조각 수와 자르는 횟수(비용)가 달라진다.</li>
+        <li>모든 가능한 <code>L</code>(1부터 최댓값까지)를 시도해 이익의 최댓값을 찾으면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>자르는 조각의 길이를 <code>L</code>이라고 두고, <code>L = 1</code>부터 가장 긴 나무 길이까지 전부 시도한다.</li>
+        <li>각 나무 길이 <code>wood</code>에 대해
+          <ul>
+            <li>만들 수 있는 조각 수: <code>slices = wood / L</code></li>
+            <li>나머지: <code>rest = wood % L</code></li>
+            <li>자르는 횟수(비용 계산용):
+              <ul>
+                <li><code>rest == 0</code>이면 정확히 딱 떨어지므로 절단 횟수는 <code>slices - 1</code></li>
+                <li><code>rest != 0</code>이면 남는 부분이 생기므로 절단 횟수는 <code>slices</code></li>
+              </ul>
+            </li>
+            <li>이 나무의 이익: <code>slices * W * L - cost * C</code></li>
+          </ul>
+        </li>
+        <li>이익이 0 이하인 나무는 아예 팔지 않는 게 낫기 때문에 합산하지 않는다.</li>
+        <li>모든 나무의 이익을 합친 값의 최댓값을 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 정렬</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+int C = Integer.parseInt(st.nextToken());
+int W = Integer.parseInt(st.nextToken());
+
+int[] woods = new int[N];
+for (int i = 0; i &lt; N; i++) {
+    woods[i] = Integer.parseInt(br.readLine());
+}
+
+Arrays.sort(woods);</code></pre>
+          <ul>
+            <li>가장 긴 나무 길이를 쉽게 알기 위해 정렬한다. (마지막 값이 최댓값)</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 가능한 모든 길이 L(코드에서는 maxLen) 시도</strong>
+          <pre><code>int maxLen = 1;
+long max = 0;
+
+while (maxLen &lt;= woods[N-1]) {
+    long totalSum = 0;
+    ...
+    max = Math.max(totalSum, max);
+    maxLen++;
+}</code></pre>
+          <ul>
+            <li><code>L</code>은 최소 1부터 최대 <code>maxWood</code>까지가 후보가 된다.</li>
+            <li>각 <code>L</code>마다 전체 이익 <code>totalSum</code>을 계산해 최댓값을 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 한 나무에서 만들 수 있는 조각 수와 절단 비용 계산</strong>
+          <pre><code>int slices = wood / maxLen;
+
+if (slices == 0) continue;
+
+int rest = wood % maxLen;
+
+int cost = 0;
+
+if (rest == 0) {
+    cost = slices - 1;
+} else {
+    cost = slices;
+}</code></pre>
+          <ul>
+            <li><code>slices</code>는 길이 <code>L</code>짜리 조각이 몇 개 나오는지다.</li>
+            <li><code>slices == 0</code>이면 아예 조각을 못 만들므로 넘어간다.</li>
+            <li><code>rest</code>가 0이면 딱 떨어져서 마지막 조각을 만들 때는 추가 절단이 필요 없다.</li>
+            <li>그래서
+              <ul>
+                <li><code>rest == 0</code>이면 절단 횟수 = <code>slices - 1</code></li>
+                <li><code>rest != 0</code>이면 절단 횟수 = <code>slices</code></li>
+              </ul>
+            </li>
+          </ul>
+          
+          <pre><code>예)
+wood = 10, L = 5 → slices = 2, rest = 0
+10을 5,5로 만들려면 한 번만 자르면 된다 → cost = 2 - 1 = 1
+
+wood = 11, L = 5 → slices = 2, rest = 1
+5,5를 만들고 남은 1이 생기므로 두 번 자르는 경우가 된다 → cost = 2</code></pre>
+        </li>
+      
+        <li><strong>4) 이익 계산 후, 손해면 제외</strong>
+          <pre><code>long price = (long) slices * W * maxLen - (long) cost * C;
+
+if (price &gt; 0) totalSum += price;</code></pre>
+          <ul>
+            <li>판매 수익: <code>slices * (W * L)</code></li>
+            <li>절단 비용: <code>cost * C</code></li>
+            <li>이익이 0 이하이면 팔지 않는 게 더 낫기 때문에 합산하지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 정답 출력</strong>
+          <pre><code>System.out.println(max);</code></pre>
+          <ul>
+            <li>모든 <code>L</code>에 대해 계산한 전체 이익의 최댓값을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>가능한 길이 <code>L</code>의 개수는 최대 <code>maxWood</code>(가장 긴 나무 길이)다.</li>
+            <li>각 <code>L</code>마다 모든 나무 <code>N</code>개를 확인 → <strong><code>O(N * maxWood)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>나무 배열 외 추가 자료구조 없음 → <strong><code>O(N)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1446 — 지름길</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1446">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/I/daily_260114_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>지름길 (백준 1446)</strong>은<br>
+        0부터 <code>D</code>까지 이어진 고속도로가 있고,
+        중간중간 이용할 수 있는 지름길(시작, 끝, 거리)이 주어질 때
+        <strong>0에서 D까지 가는 최소 거리</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>기본 도로는 1씩 이동하면 거리 1이 늘어난다. (즉, i → i+1 비용 1)</li>
+        <li>지름길은 <code>start → end</code>로 바로 이동하며 비용이 <code>dist</code>다.</li>
+        <li>단, 지름길이 이득이 되려면 <code>end - start &gt; dist</code>여야 한다.</li>
+        <li>또한 목적지 <code>D</code>를 넘어가는 지름길은 사용할 수 없다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><code>dp[x]</code>를 <strong>0에서 x까지 가는 최소 거리</strong>로 둔다.</li>
+        <li>기본값은 지름길을 하나도 안 쓰는 경우이므로 <code>dp[i] = i</code>로 초기화한다.</li>
+        <li>좌표 <code>i</code>를 0부터 <code>D</code>까지 순서대로 보면서
+          <ul>
+            <li>일반 도로 이동: <code>dp[i+1] = min(dp[i+1], dp[i] + 1)</code></li>
+            <li>지름길이 있으면: <code>dp[end] = min(dp[end], dp[i] + dist)</code></li>
+          </ul>
+        </li>
+        <li>최종 답은 <code>dp[D]</code>다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) dp 초기화 (지름길 없이 가는 거리)</strong>
+          <pre><code>List&lt;int[]&gt;[] optimalRoute = new ArrayList[D + 1];
+int[] dp = new int[D + 1];
+
+for (int i = 0; i &lt;= D; i++) dp[i] = i;</code></pre>
+          <ul>
+            <li><code>dp[i] = i</code>는 0에서 i까지 그냥 직진(1칸씩)만 했을 때 거리다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 지름길 입력 저장 (쓸모없는 지름길은 제거)</strong>
+          <pre><code>int start = Integer.parseInt(st.nextToken());
+int end = Integer.parseInt(st.nextToken());
+int dist = Integer.parseInt(st.nextToken());
+
+if (end - start &lt;= dist || D &lt; end) continue;
+
+if (optimalRoute[start] == null) optimalRoute[start] = new ArrayList&lt;&gt;();
+optimalRoute[start].add(new int[]{end, dist});</code></pre>
+          <ul>
+            <li><code>end - start &lt;= dist</code>면 지름길이 오히려 이득이 아니므로 버린다.</li>
+            <li><code>end &gt; D</code>면 목적지 밖으로 나가서 사용할 수 없으므로 버린다.</li>
+            <li>유효한 지름길만 <code>start</code> 인덱스에 모아 둔다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 0부터 D까지 순회하며 dp 갱신</strong>
+          <pre><code>for (int i = 0; i &lt; D; i++) {
+    dp[i + 1] = Math.min(dp[i + 1], dp[i] + 1);
+
+    if (optimalRoute[i] != null) {
+        for (int[] route : optimalRoute[i]) {
+            int end = route[0];
+            int dist = route[1];
+
+            dp[end] = Math.min(dp[end], dp[i] + dist);
+        }
+    }
+}</code></pre>
+          <ul>
+            <li>기본 도로로 한 칸 가는 경우를 먼저 반영한다.</li>
+            <li>현재 위치 <code>i</code>에서 시작하는 지름길이 있다면 그 지름길을 타는 경우도 반영한다.</li>
+            <li>좌표를 작은 것부터 순서대로 보므로, <code>dp[i]</code>는 이미 그 시점의 최솟값에 가깝게 갱신된 상태다.</li>
+          </ul>
+          
+          <pre><code>핵심 갱신식
+
+1) 일반 도로:
+dp[i+1] = min(dp[i+1], dp[i] + 1)
+
+2) 지름길:
+dp[end] = min(dp[end], dp[i] + dist)</code></pre>
+        </li>
+      
+        <li><strong>4) 정답 출력</strong>
+          <pre><code>System.out.println(dp[D]);</code></pre>
+          <ul>
+            <li>0에서 D까지의 최소 거리를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>좌표를 0부터 D까지 한 번 순회 → <code>O(D)</code>.</li>
+            <li>각 지름길은 한 번씩만 처리 → 총 <code>O(N)</code>.</li>
+            <li>합치면 <strong><code>O(D + N)</code></strong>.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><code>dp</code> 배열 <code>O(D)</code>, 지름길 저장 <code>O(N)</code> → <strong><code>O(D + N)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
