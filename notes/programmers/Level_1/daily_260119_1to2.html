@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-17 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2026-01-19 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 체육복</h2>
+      <h2 class="section">문제 1 — K번째수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/42862">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/42748">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0117_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0119_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,17 +53,17 @@
       </h3>
       
       <p>
-        <strong>체육복 (프로그래머스 42862)</strong>는<br>
-        학생 <code>1..n</code> 중 체육복을 도난당한 학생(<code>lost</code>)과 여벌 체육복이 있는 학생(<code>reserve</code>)이 주어질 때,
-        인접한 학생에게만 체육복을 빌릴 수 있다는 규칙으로
-        <strong>체육수업을 들을 수 있는 학생 수의 최댓값</strong>을 구하는 문제다.
+        <strong>K번째수 (프로그래머스 42748)</strong>는<br>
+        배열 <code>array</code>와 여러 개의 명령 <code>commands</code>가 주어졌을 때,
+        각 명령 <code>[i, j, k]</code>마다
+        <code>array</code>의 i번째부터 j번째까지 자른 뒤 정렬하고,
+        그 중 k번째 원소를 찾아 결과 배열로 반환하는 문제다.
       </p>
       
       <ul>
-        <li>각 학생은 기본적으로 체육복 1벌을 가지고 시작한다.</li>
-        <li><code>lost</code>에 있으면 1벌을 잃어서 0벌이 된다.</li>
-        <li><code>reserve</code>에 있으면 여벌 1벌이 추가되어 2벌이 된다.</li>
-        <li>빌려줄 수 있는 대상은 <strong>바로 앞/바로 뒤</strong> 학생뿐이다.</li>
+        <li>각 명령은 1-based 인덱스(<code>i, j, k</code>)로 주어진다.</li>
+        <li>부분 배열을 만든 뒤 오름차순 정렬한다.</li>
+        <li>정렬된 배열에서 k번째 값을 뽑아 정답 배열에 담는다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,21 +75,15 @@
       </p>
       
       <ul>
-        <li><code>students[i]</code>를 i번째 학생의 체육복 개수로 관리한다. (0, 1, 2)</li>
-        <li>초기값은 모두 1로 채운 뒤,
+        <li>명령 개수만큼 결과 배열 <code>answer</code>를 만든다.</li>
+        <li>각 명령마다
           <ul>
-            <li><code>lost</code>는 1 감소</li>
-            <li><code>reserve</code>는 1 증가</li>
+            <li>구간 길이만큼 새 배열을 만든다.</li>
+            <li><code>array</code>에서 해당 구간을 복사한다.</li>
+            <li>정렬 후 <code>k-1</code> 인덱스 값을 결과에 저장한다.</li>
           </ul>
         </li>
-        <li>왼쪽부터 순회하면서 체육복이 0인 학생을 발견하면
-          <ul>
-            <li>먼저 앞 학생이 2벌이면 빌린다.</li>
-            <li>그게 안 되면 뒤 학생이 2벌이면 빌린다.</li>
-            <li>둘 다 안 되면 수업을 못 들으므로 카운트를 1 감소시킨다.</li>
-          </ul>
-        </li>
-        <li>이 과정을 마치면 남은 카운트가 최댓값이 된다.</li>
+        <li>모든 명령을 처리한 <code>answer</code>를 반환한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -101,64 +95,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 학생 체육복 배열 초기화</strong>
-          <pre><code>int[] students = new int[n];
-Arrays.fill(students, 1);</code></pre>
+        <li><strong>1) 정답 배열 준비</strong>
+          <pre><code>int[] answer = new int[commands.length];</code></pre>
           <ul>
-            <li>모든 학생은 기본 1벌로 시작한다.</li>
+            <li>명령 개수만큼 결과를 담을 배열을 만든다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 도난/여벌 정보 반영</strong>
-          <pre><code>for (int idx : lost) students[idx - 1]--;
-for (int idx : reserve) students[idx - 1]++;</code></pre>
-          <ul>
-            <li><code>lost</code>에 있으면 1벌을 잃으므로 <code>-1</code>.</li>
-            <li><code>reserve</code>에 있으면 여벌이 있으므로 <code>+1</code>.</li>
-            <li>같은 학생이 lost와 reserve에 모두 있으면 결과적으로 <code>1</code>이 되어 “빌려줄 여벌도 없고, 잃지도 않은 상태”처럼 처리된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 수업 가능 인원 카운트 준비</strong>
-          <pre><code>int cnt = n;</code></pre>
-          <ul>
-            <li>일단 모두 수업 가능하다고 가정하고 시작한 뒤, 못 듣는 경우에만 줄인다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 왼쪽부터 순회하며 0인 학생 처리(그리디)</strong>
-          <pre><code>for (int i = 0; i &lt; n; i++) {
-    if (students[i] == 0) {
-        int prev = i - 1;
-        int next = i + 1;
+        <li><strong>2) 각 명령을 순회하며 i~j 구간 추출</strong>
+          <pre><code>for (int i = 0; i &lt; commands.length; i++) {
+    int s = commands[i][0];
+    int e = commands[i][1];
+    int k = commands[i][2];
 
-        if (0 &lt;= prev &amp;&amp; students[prev] == 2) {
-            students[prev] = 1;
-            students[i] = 1;
-        } else if (next &lt; n &amp;&amp; students[next] == 2) {
-            students[next] = 1;
-            students[i] = 1;
-        } else {
-            cnt--;
-        }
+    int size = e - s + 1;
+    int[] arr = new int[size];
+    int pos = 0;
+
+    for (int j = s - 1; j &lt; e; j++) {
+        arr[pos++] = array[j];
     }
+
+    Arrays.sort(arr);
+
+    answer[i] = arr[k - 1];
 }</code></pre>
           <ul>
-            <li>체육복이 없는 학생(<code>0</code>)이면 주변에서 빌릴 수 있는지 확인한다.</li>
-            <li>먼저 <code>prev</code>(앞 학생)를 우선으로 보는 이유는
-              <ul>
-                <li>왼쪽부터 순회 중이므로, 앞에서 해결 가능한 건 앞에서 확정해두는 게 깔끔하고</li>
-                <li>뒤 학생의 여벌은 다음 인덱스에서도 필요할 수 있어 “뒤의 선택지”를 남겨두는 효과가 있다.</li>
-              </ul>
-            </li>
-            <li>앞/뒤 모두 2벌이 아니면 빌릴 수 없으므로 수업 불가 → <code>cnt--</code>.</li>
+            <li><code>s, e, k</code>는 1-based이므로 실제 배열 인덱스는 <code>s-1</code>부터 <code>e-1</code>까지다.</li>
+            <li><code>size = e - s + 1</code>만큼 새 배열을 만들고 해당 구간을 복사한다.</li>
+            <li>부분 배열을 정렬한 뒤 <code>k-1</code>번째 값을 결과로 저장한다.</li>
           </ul>
+          
+          <pre><code>예)
+array = [1,5,2,6,3,7,4]
+command = [2,5,3]
+→ 2~5 구간: [5,2,6,3]
+→ 정렬: [2,3,5,6]
+→ 3번째: 5</code></pre>
         </li>
       
-        <li><strong>5) 최종 수업 가능 인원 반환</strong>
-          <pre><code>return cnt;</code></pre>
+        <li><strong>3) 최종 결과 반환</strong>
+          <pre><code>return answer;</code></pre>
           <ul>
-            <li>그리디로 최대한 빌려준 뒤 남은 수업 가능 인원을 반환한다.</li>
+            <li>모든 명령에 대한 k번째 수를 담은 배열을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -174,12 +153,13 @@ for (int idx : reserve) students[idx - 1]++;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><code>lost</code>, <code>reserve</code> 반영 + 학생 순회 → <strong><code>O(n + |lost| + |reserve|)</code></strong>.</li>
+            <li>명령 개수를 <code>C</code>, 각 구간 길이를 평균 <code>L</code이라 하면,</li>
+            <li>구간 복사 <code>O(L)</code> + 정렬 <code>O(L log L)</code>를 명령마다 수행 → <strong><code>O(C · L log L)</code></strong>.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>학생 배열 <code>students</code> 사용 → <strong><code>O(n)</code></strong>.</li>
+            <li>명령마다 부분 배열 <code>arr</code>를 생성 → <strong><code>O(L)</code></strong> (최대 구간 길이 기준).</li>
           </ul>
         </li>
       </ul>
@@ -255,14 +235,14 @@ for (int idx : reserve) students[idx - 1]++;</code></pre>
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 모의고사</h2>
+      <h2 class="section">문제 2 — 완주하지 못한 선수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/42840">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/42576">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0117_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_1/daily_0119_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -275,16 +255,16 @@ for (int idx : reserve) students[idx - 1]++;</code></pre>
       </h3>
       
       <p>
-        <strong>모의고사 (프로그래머스 42840)</strong>는<br>
-        문제의 정답 배열 <code>answers</code>가 주어질 때,
-        각 수포자가 정해진 찍기 패턴대로 답을 찍었을 때의 점수를 계산하고,
-        <strong>가장 많이 맞힌 사람(들)의 번호</strong>를 오름차순으로 반환하는 문제다.
+        <strong>완주하지 못한 선수 (프로그래머스 42576)</strong>는<br>
+        마라톤 참가자 명단 <code>participant</code>와 완주자 명단 <code>completion</code>이 주어질 때,
+        완주하지 못한 선수 1명의 이름을 찾는 문제다.
+        동명이인이 있을 수 있으므로 단순 비교가 아니라 <strong>개수(카운트)</strong>까지 고려해야 한다.
       </p>
       
       <ul>
-        <li>각 수포자는 고정된 패턴을 반복한다.</li>
-        <li><code>answers[i]</code>와 각 수포자의 i번째 찍는 답을 비교해 맞힌 개수를 센다.</li>
-        <li>최대 점수를 가진 사람 번호를 모두 반환한다.</li>
+        <li><code>completion</code>은 <code>participant</code>보다 길이가 1 작다.</li>
+        <li>동명이인이 있을 수 있어 이름만으로는 구분이 안 된다.</li>
+        <li>따라서 이름별 등장 횟수를 세고, 완주자를 하나씩 빼는 방식이 안전하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -296,15 +276,13 @@ for (int idx : reserve) students[idx - 1]++;</code></pre>
       </p>
       
       <ul>
-        <li>각 수포자의 찍기 패턴을 배열로 미리 저장한다.</li>
-        <li>문제를 0번부터 끝까지 돌면서,
+        <li><code>HashMap&lt;이름, 개수&gt;</code>로 참가자 이름을 카운트한다.</li>
+        <li>완주자 배열을 순회하며 해당 이름의 카운트를 1씩 감소시킨다.
           <ul>
-            <li>각 수포자의 패턴 인덱스를 <code>i % 패턴길이</code>로 구한다.</li>
-            <li>정답과 같으면 해당 수포자 점수를 +1 한다.</li>
+            <li>감소 후 0이 되면 Map에서 제거한다.</li>
           </ul>
         </li>
-        <li>점수 배열에서 최댓값을 찾고, 최댓값과 같은 사람 번호를 리스트에 모은다.</li>
-        <li>리스트를 배열로 바꿔 반환한다.</li>
+        <li>마지막에 Map에 남아 있는 키 1개가 완주하지 못한 선수다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -316,75 +294,40 @@ for (int idx : reserve) students[idx - 1]++;</code></pre>
       </p>
       
       <ul>
-        <li><strong>1) 수포자 패턴과 점수 배열 준비</strong>
-          <pre><code>int[][] students = {
-        {1,2,3,4,5},
-        {2,1,2,3,2,4,2,5},
-        {3,3,1,1,2,2,4,4,5,5}
-};
+        <li><strong>1) 참가자 이름 카운팅</strong>
+          <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
 
-int[] score = new int[3];</code></pre>
-          <ul>
-            <li><code>students[k]</code>는 k번째 수포자의 반복 패턴이다.</li>
-            <li><code>score[k]</code>는 k번째 수포자가 맞힌 개수(점수)다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) answers를 순회하며 각 수포자의 답과 비교</strong>
-          <pre><code>for (int i = 0; i &lt; answers.length; i++) {
-    int answer = answers[i];
-
-    int firstStudent = i % students[0].length;
-    int secondStudent = i % students[1].length;
-    int thirdStudent = i % students[2].length;
-
-    if (students[0][firstStudent] == answer) score[0]++;
-    if (students[1][secondStudent] == answer) score[1]++;
-    if (students[2][thirdStudent] == answer) score[2]++;
+for (String runner : participant) {
+    map.put(runner, map.getOrDefault(runner, 0) + 1);
 }</code></pre>
           <ul>
-            <li><code>i % 패턴길이</code>를 쓰면 패턴이 끝나도 다시 처음으로 돌아가며 반복된다.</li>
-            <li>각 수포자의 i번째 찍는 답을 구해서 정답과 같으면 점수를 올린다.</li>
+            <li><code>getOrDefault</code>로 기존 값이 없으면 0부터 시작해 +1 한다.</li>
+            <li>동명이인도 이름별로 개수를 올려서 정확히 관리한다.</li>
           </ul>
-          
-          <pre><code>예)
-1번 패턴 길이 5라면,
-i=0..4는 그대로,
-i=5부터는 5%5=0으로 다시 첫 패턴으로 돌아간다.</code></pre>
         </li>
       
-        <li><strong>3) 최고 점수 찾고 해당 수포자 번호 모으기</strong>
-          <pre><code>List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
-int max = -1;
+        <li><strong>2) 완주자 처리: 카운트 감소(0이면 제거)</strong>
+          <pre><code>for (String runner : completion) {
+    int num = map.get(runner);
 
-for (int i = 0; i &lt; score.length; i++) {
-    if (max &lt; score[i]) {
-        max = score[i];
-        list.clear();
-        list.add(i + 1);
-    } else if (max == score[i]) {
-        list.add(i + 1);
+    if (num == 1) {
+        map.remove(runner);
+    } else {
+        map.put(runner, num - 1);
     }
 }</code></pre>
           <ul>
-            <li><code>max</code>보다 큰 점수를 발견하면 최댓값을 갱신하고 리스트를 초기화한다.</li>
-            <li>점수가 최댓값과 같으면 공동 1등이므로 리스트에 추가한다.</li>
-            <li>수포자 번호는 1번부터이므로 <code>i + 1</code>로 넣는다.</li>
+            <li>완주자는 참가자에서 “한 명씩 빠지는 것”과 동일하다.</li>
+            <li>현재 카운트가 1이면 감소 후 0이 되므로 Map에서 제거한다.</li>
+            <li>카운트가 2 이상이면 1 감소시켜 다시 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 리스트를 int 배열로 변환해 반환</strong>
-          <pre><code>int[] answer = new int[list.size()];
-int idx = 0;
-
-for (int i : list) {
-    answer[idx++] = i;
-}
-
-return answer;</code></pre>
+        <li><strong>3) Map에 남은 키가 정답</strong>
+          <pre><code>return map.keySet().iterator().next();</code></pre>
           <ul>
-            <li>문제 요구사항이 <code>int[]</code> 반환이므로 리스트를 배열로 옮겨 담는다.</li>
-            <li>리스트에는 이미 오름차순(1,2,3 순회하면서 추가)으로 들어가므로 그대로 반환해도 된다.</li>
+            <li>완주자 처리 후에는 완주하지 못한 선수 이름만 Map에 남는다.</li>
+            <li>문제 조건상 남는 선수는 1명이므로 첫 번째 키를 꺼내 반환하면 된다.</li>
           </ul>
         </li>
       </ul>
@@ -400,16 +343,17 @@ return answer;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>정답 배열 길이를 <code>N</code>이라 하면 한 번 순회하며 비교 → <strong><code>O(N)</code></strong>.</li>
-            <li>최댓값 찾기는 수포자 3명이라 상수 시간.</li>
+            <li>참가자 카운팅 <code>O(N)</code> + 완주자 처리 <code>O(N)</code> → 평균적으로 <strong><code>O(N)</code></strong>.</li>
+            <li>(HashMap 평균 접근/삽입/삭제가 O(1) 기준)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>점수 배열과 결과 리스트만 사용 → <strong><code>O(1)</code></strong> (패턴 배열은 고정 상수).</li>
+            <li>이름별 카운트를 저장하는 Map 사용 → <strong><code>O(N)</code></strong> (최악: 전부 다른 이름).</li>
           </ul>
         </li>
       </ul>
+
 
 
 
