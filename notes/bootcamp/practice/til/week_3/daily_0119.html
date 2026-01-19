@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 25일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: H2(.section) 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 25일차 TIL — 전략 패턴, 익명 클래스, Lambda</h1>
+      <p class="muted">작성일 2026-01-16 · 분류: 부트캠프, TIL, Java, Design Pattern</p>
+
+      <h2 class="section">25일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>전략 패턴</strong>의 목적과 구조를 정확히 잡는다</li>
+        <li>전략(알고리즘) 수가 많아질 때의 단점과 대안을 정리한다</li>
+        <li><strong>익명 클래스</strong>와 <strong>람다</strong>로 전략을 주입하는 흐름을 비교한다</li>
+        <li><strong>함수형 인터페이스</strong> 제약과 <strong>@FunctionalInterface</strong> 의미를 정리한다</li>
+      </ul>
+
+      <h2 class="section">전략 패턴(Strategy Pattern)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          정의
+        </span>
+      </h3>
+
+      <p>
+        전략 패턴은 알고리즘(전략)을 별도의 클래스로 <strong>캡슐화</strong>하고,
+        필요할 때마다 <strong>교체</strong>해서 사용하는 패턴이다.
+        핵심은 <strong>무엇을 하는가(인터페이스)</strong>와 <strong>어떻게 하는가(구현체)</strong>를 완전히 분리하는 것이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          이점
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>OCP</strong>를 지키기 좋다: 새로운 전략이 추가되어도 기존 코드를 수정하지 않는다</li>
+        <li><strong>런타임 교체</strong>가 가능하다: 실행 중 상황에 맞게 알고리즘을 바꿀 수 있다</li>
+        <li><strong>단위 테스트</strong>가 편하다: 전략이 독립된 단위라 원하는 알고리즘만 분리해 검증 가능하다</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          단점과 현실적인 해결
+        </span>
+      </h3>
+
+      <p>
+        전략이 늘어날수록 클래스 수도 같이 늘어나는 문제가 생긴다.
+        재사용이 필요 없거나 전략이 단순한 경우에는 <strong>익명 클래스</strong> 또는 <strong>람다</strong>로 전략을 바로 전달하는 방식이 유용했다.
+      </p>
+
+      <h2 class="section">전략 패턴 구조: 인터페이스를 매개변수로 받기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 구조
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>역할</th>
+            <th>의미</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Context</td>
+            <td>전략을 사용해서 일을 수행하는 쪽</td>
+            <td>HamburgerChef</td>
+          </tr>
+          <tr>
+            <td>Strategy</td>
+            <td>무엇을 할지 규격만 정의한 인터페이스</td>
+            <td>BurgerRecipe</td>
+          </tr>
+          <tr>
+            <td>Concrete Strategy</td>
+            <td>실제 알고리즘 구현체</td>
+            <td>특정 레시피 구현</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        매개변수를 <strong>인터페이스 타입</strong>으로 받으면,
+        구현체는 무엇이든 들어올 수 있고,
+        Context는 구체 구현을 몰라도 된다.
+        이 구조가 전략 패턴을 성립시키는 기반이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예시 코드(HamburgerChef)
+        </span>
+      </h3>
+
+      <pre><code>public class HamburgerChef {
+  // 전략 패턴을 쓸 때는 알고리즘이 변경될 수 있으므로 final을 두지 않는다
+  private BurgerRecipe recipe;
+
+  // 전략 변경 메서드(Setter)
+  public void setRecipe(BurgerRecipe recipe) {
+    this.recipe = recipe;
+  }
+
+  public void makeBurger() {
+    System.out.println("--- 🍔 조리 시작 ---");
+    System.out.println("# 번(빵)을 따뜻하게 굽습니다.");
+    System.out.println("# 육즙 가득한 패티를 올립니다.");
+
+    if (recipe != null) {
+      recipe.cook(); // 어떤 전략이 들어왔는지는 모르지만, 규격대로 실행한다
+    }
+
+    System.out.println("# 빵을 덮고 포장합니다.");
+    System.out.println("--- ✅ 조리 완료 ---\n");
+  }
+}
+</code></pre>
+
+      <h2 class="section">전략을 주입하는 방법 1: 구현 클래스로 분리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          장점
+        </span>
+      </h3>
+
+      <ul>
+        <li>전략이 명확하게 이름을 가진다</li>
+        <li>재사용이 쉽고 테스트하기 편하다</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          단점
+        </span>
+      </h3>
+
+      <p>
+        전략이 많아지면 클래스 파일도 같이 늘어나서 관리 포인트가 늘어난다.
+        특히 재사용하지 않을 전략까지 모두 클래스로 만들면 오히려 피로도가 올라간다.
+      </p>
+
+      <h2 class="section">전략을 주입하는 방법 2: 익명 클래스</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          재사용하지 않을 전략을 빠르게 만들기
+        </span>
+      </h3>
+
+      <p>
+        특정 상황에서 한 번만 쓰는 전략이면, 익명 클래스로 바로 만들어 전달하면 된다.
+        필요하면 변수에 담아서 재사용할 수도 있다.
+      </p>
+
+      <pre><code>public class Main {
+  public static void main(String[] args) {
+    HamburgerChef chef = new HamburgerChef();
+
+    BurgerRecipe hellRecipe = new BurgerRecipe() {
+      @Override
+      public void cook() {
+        System.out.println("# 지옥에서 만든 특제 소스를 곁들입니다.");
+      }
+    };
+
+    chef.setRecipe(hellRecipe);
+    chef.makeBurger();
+
+    chef.setRecipe(new BurgerRecipe() {
+      @Override
+      public void cook() {
+        System.out.println("# 양상추 3장을 추가합니다.");
+      }
+    });
+    chef.makeBurger();
+  }
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          한계
+        </span>
+      </h3>
+
+      <p>
+        익명 클래스는 코드가 길어지기 쉽다.
+        전략이 단순한데도 문법이 무거워져서, 읽는 입장에서 흐름이 끊긴다.
+      </p>
+
+      <h2 class="section">전략을 주입하는 방법 3: Lambda</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          짧은 전략은 람다가 깔끔하다
+        </span>
+      </h3>
+
+      <pre><code>public class Main {
+  public static void main(String[] args) {
+    HamburgerChef chef = new HamburgerChef();
+
+    BurgerRecipe hellRecipe = () -> {
+      System.out.println("# 지옥에서 만든 특제 소스를 곁들입니다.");
+    };
+
+    chef.setRecipe(hellRecipe);
+    chef.makeBurger();
+
+    chef.setRecipe(() ->
+      System.out.println("# 양상추 3장을 추가합니다.")
+    );
+    chef.makeBurger();
+  }
+}
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          제약사항(중요)
+        </span>
+      </h3>
+
+      <p>
+        람다는 <strong>추상 메서드가 정확히 1개</strong>인 인터페이스에서만 사용할 수 있다.
+        그래서 이 조건을 만족하는 인터페이스를 <strong>함수형 인터페이스</strong>라고 부른다.
+      </p>
+
+      <pre><code>@FunctionalInterface
+public interface BurgerRecipe {
+  void cook();
+
+  // 추상 메서드가 아닌 메서드는 추가 가능
+  static void foo() {}
+  default void bar() {}
+}
+</code></pre>
+
+      <p>
+        <strong>@FunctionalInterface</strong>는 기능을 강제로 만드는 게 아니라,
+        개발자가 실수로 추상 메서드를 2개 이상 추가하지 않도록 컴파일 단계에서 알려주는 역할을 한다.
+      </p>
+
+      <h2 class="section">계산기 예제로 보는 전략 패턴</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 아이디어
+        </span>
+      </h3>
+
+      <p>
+        계산도 결국 전략이다.
+        같은 입력을 받아도 덧셈, 뺄셈, 곱셈처럼 알고리즘만 바뀌는 구조라서,
+        인터페이스를 전략으로 두고 구현을 교체하는 방식이 자연스럽다.
+      </p>
+
+      <pre><code>// 덧셈(람다)
+Calculator add = (num1, num2) -> num1 + num2;
+
+// 뺄셈(익명 클래스)
+Calculator sub = new Calculator() {
+  @Override
+  public int operate(int num1, int num2) {
+    return num1 - num2;
+  }
+};
+
+// 곱셈(람다)
+Calculator multiply = (num1, num2) -> num1 * num2;
+</code></pre>
+
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>전략 패턴은 결국 <strong>역할과 구현</strong>을 분리해서 유연함을 확보하는 방식이었다</li>
+        <li>전략이 단순하고 재사용이 없으면 <strong>익명 클래스</strong>나 <strong>람다</strong>가 더 실용적이었다</li>
+        <li>람다를 쓰려면 인터페이스가 <strong>함수형 인터페이스</strong>인지 먼저 확인하는 습관이 필요했다</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
