@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 25일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 26일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,10 +42,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 25일차 TIL — 전략 패턴, 익명 클래스, Lambda</h1>
-      <p class="muted">작성일 2026-01-16 · 분류: 부트캠프, TIL, Java, Design Pattern</p>
+      <h1>내일배움캠프 Spring 백엔드 26일차 TIL — 제네릭 복습과 Stream 기본 흐름</h1>
+      <p class="muted">작성일 2026-01-19 · 분류: 부트캠프, TIL, Java, Generic, Stream</p>
 
-      <h2 class="section">25일차 개요</h2>
+      <h2 class="section">26일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -54,274 +54,356 @@
       </h3>
 
       <ul>
-        <li><strong>전략 패턴</strong>의 목적과 구조를 정확히 잡는다</li>
-        <li>전략(알고리즘) 수가 많아질 때의 단점과 대안을 정리한다</li>
-        <li><strong>익명 클래스</strong>와 <strong>람다</strong>로 전략을 주입하는 흐름을 비교한다</li>
-        <li><strong>함수형 인터페이스</strong> 제약과 <strong>@FunctionalInterface</strong> 의미를 정리한다</li>
+        <li><strong>제네릭</strong>으로 타입 안정성을 확보하는 이유를 다시 잡는다</li>
+        <li><strong>제네릭 클래스</strong>와 <strong>제네릭 메서드</strong>를 구분해서 이해한다</li>
+        <li>Stream이 기존 반복문 코드와 무엇이 다른지, 흐름을 기준으로 정리한다</li>
+        <li>자주 쓰는 Stream 연산(필터링, 변환, 정렬, 최종 연산)을 예제로 묶는다</li>
       </ul>
 
-      <h2 class="section">전략 패턴(Strategy Pattern)</h2>
+      <h2 class="section">제네릭이 필요한 이유</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          정의
+          Object로 처리할 때의 문제
         </span>
       </h3>
 
       <p>
-        전략 패턴은 알고리즘(전략)을 별도의 클래스로 <strong>캡슐화</strong>하고,
-        필요할 때마다 <strong>교체</strong>해서 사용하는 패턴이다.
-        핵심은 <strong>무엇을 하는가(인터페이스)</strong>와 <strong>어떻게 하는가(구현체)</strong>를 완전히 분리하는 것이다.
+        제네릭이 없으면 모든 타입을 담기 위해 <strong>Object</strong>를 사용할 수 있다.
+        문제는 꺼낼 때 <strong>형변환</strong>이 필요해지고, 잘못된 다운캐스팅이 섞이면 <strong>실행 중 예외</strong>가 터진다는 점이다.
+        즉, 코드가 길어지고 안전하지도 않다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          이점
-        </span>
-      </h3>
-
-      <ul>
-        <li><strong>OCP</strong>를 지키기 좋다: 새로운 전략이 추가되어도 기존 코드를 수정하지 않는다</li>
-        <li><strong>런타임 교체</strong>가 가능하다: 실행 중 상황에 맞게 알고리즘을 바꿀 수 있다</li>
-        <li><strong>단위 테스트</strong>가 편하다: 전략이 독립된 단위라 원하는 알고리즘만 분리해 검증 가능하다</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          단점과 현실적인 해결
-        </span>
-      </h3>
-
-      <p>
-        전략이 늘어날수록 클래스 수도 같이 늘어나는 문제가 생긴다.
-        재사용이 필요 없거나 전략이 단순한 경우에는 <strong>익명 클래스</strong> 또는 <strong>람다</strong>로 전략을 바로 전달하는 방식이 유용했다.
-      </p>
-
-      <h2 class="section">전략 패턴 구조: 인터페이스를 매개변수로 받기</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심 구조
+          제네릭이 해결하는 것
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th>역할</th>
-            <th>의미</th>
-            <th>예시</th>
+            <th>포인트</th>
+            <th>설명</th>
+            <th>결과</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Context</td>
-            <td>전략을 사용해서 일을 수행하는 쪽</td>
-            <td>HamburgerChef</td>
+            <td>타입 안정성</td>
+            <td>선언한 타입 외에는 들어오지 못하게 막는다</td>
+            <td>엉뚱한 타입으로 인한 예외 가능성이 크게 줄어든다</td>
           </tr>
           <tr>
-            <td>Strategy</td>
-            <td>무엇을 할지 규격만 정의한 인터페이스</td>
-            <td>BurgerRecipe</td>
-          </tr>
-          <tr>
-            <td>Concrete Strategy</td>
-            <td>실제 알고리즘 구현체</td>
-            <td>특정 레시피 구현</td>
+            <td>형변환 제거</td>
+            <td>꺼낼 때 형변환을 하지 않는다</td>
+            <td>코드가 깔끔해지고 실수 포인트가 줄어든다</td>
           </tr>
         </tbody>
       </table>
 
-      <p>
-        매개변수를 <strong>인터페이스 타입</strong>으로 받으면,
-        구현체는 무엇이든 들어올 수 있고,
-        Context는 구체 구현을 몰라도 된다.
-        이 구조가 전략 패턴을 성립시키는 기반이다.
-      </p>
+      <h2 class="section">제네릭 클래스 vs 제네릭 메서드</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          예시 코드(HamburgerChef)
-        </span>
-      </h3>
-
-      <pre><code>public class HamburgerChef {
-  // 전략 패턴을 쓸 때는 알고리즘이 변경될 수 있으므로 final을 두지 않는다
-  private BurgerRecipe recipe;
-
-  // 전략 변경 메서드(Setter)
-  public void setRecipe(BurgerRecipe recipe) {
-    this.recipe = recipe;
-  }
-
-  public void makeBurger() {
-    System.out.println("--- 🍔 조리 시작 ---");
-    System.out.println("# 번(빵)을 따뜻하게 굽습니다.");
-    System.out.println("# 육즙 가득한 패티를 올립니다.");
-
-    if (recipe != null) {
-      recipe.cook(); // 어떤 전략이 들어왔는지는 모르지만, 규격대로 실행한다
-    }
-
-    System.out.println("# 빵을 덮고 포장합니다.");
-    System.out.println("--- ✅ 조리 완료 ---\n");
-  }
-}
-</code></pre>
-
-      <h2 class="section">전략을 주입하는 방법 1: 구현 클래스로 분리</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          장점
+          왜 둘을 나눠서 쓰나
         </span>
       </h3>
 
       <ul>
-        <li>전략이 명확하게 이름을 가진다</li>
-        <li>재사용이 쉽고 테스트하기 편하다</li>
+        <li><strong>유연함</strong>: 클래스 전체를 바꾸지 않고, 필요한 메서드만 제네릭으로 만들 수 있다</li>
+        <li><strong>범위</strong>: 제네릭 클래스의 타입 파라미터는 클래스 전체에 영향, 제네릭 메서드는 해당 메서드 안에서만 영향</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          단점
+          예시 코드
         </span>
       </h3>
 
-      <p>
-        전략이 많아지면 클래스 파일도 같이 늘어나서 관리 포인트가 늘어난다.
-        특히 재사용하지 않을 전략까지 모두 클래스로 만들면 오히려 피로도가 올라간다.
-      </p>
+      <pre><code>// 제네릭 메서드: 메서드 선언부에 타입 파라미터를 붙인다
+public static &lt;T&gt; T scanAndReturn(T item) {
+  return item;
+}
 
-      <h2 class="section">전략을 주입하는 방법 2: 익명 클래스</h2>
+// 타입 제한: Number 하위만 허용
+public static &lt;T extends Number&gt; double toDouble(T number) {
+  return number.doubleValue();
+}
+</code></pre>
+
+      <h2 class="section">타입 제한(extends)을 거는 이유</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          재사용하지 않을 전략을 빠르게 만들기
+          제한이 없으면 생기는 문제
         </span>
       </h3>
 
       <p>
-        특정 상황에서 한 번만 쓰는 전략이면, 익명 클래스로 바로 만들어 전달하면 된다.
-        필요하면 변수에 담아서 재사용할 수도 있다.
+        타입 제한이 없으면 메서드 내부에서 해당 타입이 가진 기능을 확신하고 쓰기 어렵다.
+        반대로 제한을 걸면, 그 <strong>부모 타입의 기능</strong>을 전제로 코드 작성이 가능해진다.
       </p>
 
-      <pre><code>public class Main {
+      <ul>
+        <li><strong>최소한의 안전장치</strong>: 관련 있는 타입만 통과하도록 제한한다</li>
+        <li><strong>부모의 능력 사용</strong>: 예를 들어 Number로 제한하면 doubleValue 같은 메서드를 안정적으로 쓸 수 있다</li>
+      </ul>
+
+      <h2 class="section">Stream이 필요한 이유</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          반복문 중심 코드의 한계
+        </span>
+      </h3>
+
+      <p>
+        기존 방식은 임시 리스트를 만들고, 반복문과 조건문으로 걸러내고, 정렬하고, 다시 반복문으로 출력하는 흐름이 많았다.
+        과정이 길어질수록 한 번에 읽기가 어렵고, 실수 포인트도 늘어난다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Stream이 바꾸는 관점
+        </span>
+      </h3>
+
+      <p>
+        Stream은 작업을 <strong>파이프라인</strong>으로 연결해서,
+        어떻게 반복할지보다 <strong>무엇을 할지</strong>에 집중하게 만든다.
+        그래서 흐름이 짧아지고, 의도가 더 잘 보인다.
+      </p>
+
+      <h2 class="section">Stream 핵심 연산 정리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          중간 연산과 최종 연산
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>분류</th>
+            <th>연산</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>필터링/슬라이싱</td>
+            <td>filter</td>
+            <td>조건이 true인 데이터만 통과</td>
+          </tr>
+          <tr>
+            <td>필터링/슬라이싱</td>
+            <td>distinct</td>
+            <td>중복 제거( equals, hashCode 구현이 중요 )</td>
+          </tr>
+          <tr>
+            <td>필터링/슬라이싱</td>
+            <td>limit</td>
+            <td>정해진 개수만 통과</td>
+          </tr>
+          <tr>
+            <td>변환</td>
+            <td>map</td>
+            <td>데이터 형태 변환, 특정 필드만 추출</td>
+          </tr>
+          <tr>
+            <td>정렬</td>
+            <td>sorted</td>
+            <td>정렬 기준을 지정해서 정렬</td>
+          </tr>
+          <tr>
+            <td>최종 연산</td>
+            <td>collect</td>
+            <td>리스트/맵 등으로 수집</td>
+          </tr>
+          <tr>
+            <td>최종 연산</td>
+            <td>reduce</td>
+            <td>누적 연산으로 하나의 결과로 만들기</td>
+          </tr>
+          <tr>
+            <td>최종 연산</td>
+            <td>groupingBy</td>
+            <td>그룹별로 묶기</td>
+          </tr>
+          <tr>
+            <td>최종 연산</td>
+            <td>partitioningBy</td>
+            <td>true/false 두 그룹으로 나누기</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">실수 포인트 메모</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          NPE 방지 습관
+        </span>
+      </h3>
+
+      <p>
+        equals 비교는 null 가능성이 있는 쪽을 뒤로 보내는 습관이 안전했다.
+      </p>
+
+      <pre><code>// 위험: idol.getTeam()이 null이면 NullPointerException 가능
+// idol.getTeam().equals("IVE");
+
+// 안전: 앞쪽이 상수라 null이 아니다
+"IVE".equals(idol.getTeam());
+</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          distinct 사용 조건
+        </span>
+      </h3>
+
+      <p>
+        distinct는 같은 객체를 알아보려면 비교 기준이 필요하다.
+        객체 타입에서 중복 제거를 기대한다면 <strong>equals</strong>와 <strong>hashCode</strong> 구현이 전제다.
+      </p>
+
+      <h2 class="section">예제 1: map으로 변환하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          이름만 추출, 길이 변환, DTO로 변환
+        </span>
+      </h3>
+
+      <pre><code>package kr.spartaclub.running.day03.step2;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static kr.spartaclub.running.day03.step2.Menu.menuList;
+
+public class Mapping {
   public static void main(String[] args) {
-    HamburgerChef chef = new HamburgerChef();
 
-    BurgerRecipe hellRecipe = new BurgerRecipe() {
-      @Override
-      public void cook() {
-        System.out.println("# 지옥에서 만든 특제 소스를 곁들입니다.");
-      }
-    };
+    // 요리 이름들만 추출
+    List&lt;String&gt; dishNames = menuList.stream()
+      .map(Dish::getName)
+      .toList();
 
-    chef.setRecipe(hellRecipe);
-    chef.makeBurger();
+    System.out.println(dishNames);
 
-    chef.setRecipe(new BurgerRecipe() {
-      @Override
-      public void cook() {
-        System.out.println("# 양상추 3장을 추가합니다.");
-      }
-    });
-    chef.makeBurger();
+    System.out.println("==========================================================");
+
+    List&lt;String&gt; browsers = List.of("safari", "chrome", "ms edge", "opera", "firefox");
+
+    browsers.stream()
+      .map(String::length)
+      .forEach(len -&gt; System.out.printf("%d ", len));
+
+    System.out.println();
+    System.out.println("==========================================================");
+
+    browsers.stream()
+      .map(browser -&gt; browser.charAt(0))
+      .forEach(System.out::println);
+
+    System.out.println("==========================================================");
+
+    // 보기 좋게 조합(이름:칼로리)
+    menuList.stream()
+      .map(dish -&gt; dish.getName() + ":" + dish.getCalories())
+      .forEach(System.out::println);
+
+    System.out.println("==========================================================");
+
+    // 요리 이름과 칼로리만 Map으로 추출
+    List&lt;Map&lt;String, Object&gt;&gt; results = menuList.stream()
+      .map(dish -&gt; {
+        Map&lt;String, Object&gt; menuMap = new HashMap&lt;&gt;();
+        menuMap.put("menuName", dish.getName());
+        menuMap.put("calories", dish.getCalories());
+        return menuMap;
+      })
+      .toList();
+
+    results.forEach(System.out::println);
+
+    System.out.println("==========================================================");
+
+    // DTO로 변환해서 필요한 컬럼만 다루기
+    List&lt;SimpleDish&gt; simpleDishList = menuList.stream()
+      .map(SimpleDish::new)
+      .toList();
+
+    simpleDishList.forEach(System.out::println);
+
+    System.out.println("==========================================================");
+
+    // 500칼로리 이상인 요리 이름만 출력
+    menuList.stream()
+      .filter(dish -&gt; dish.getCalories() &gt;= 500)
+      .map(Dish::getName)
+      .forEach(System.out::println);
+
+    System.out.println("==========================================================");
+
+    // 500칼로리 이상인 요리 이름과 칼로리 출력(DTO)
+    menuList.stream()
+      .filter(dish -&gt; dish.getCalories() &gt;= 500)
+      .map(SimpleDish::new)
+      .forEach(System.out::println);
   }
 }
 </code></pre>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          한계
-        </span>
-      </h3>
-
-      <p>
-        익명 클래스는 코드가 길어지기 쉽다.
-        전략이 단순한데도 문법이 무거워져서, 읽는 입장에서 흐름이 끊긴다.
-      </p>
-
-      <h2 class="section">전략을 주입하는 방법 3: Lambda</h2>
+      <h2 class="section">예제 2: 정렬과 limit 조합</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          짧은 전략은 람다가 깔끔하다
+          필터링 + 정렬 + 상위 N개
         </span>
       </h3>
 
-      <pre><code>public class Main {
+      <pre><code>package kr.spartaclub.running.day03.step2;
+
+import java.util.Comparator;
+import java.util.List;
+
+import static kr.spartaclub.running.day03.step2.DishType.MEAT;
+import static kr.spartaclub.running.day03.step2.Menu.menuList;
+
+public class Sorting {
   public static void main(String[] args) {
-    HamburgerChef chef = new HamburgerChef();
 
-    BurgerRecipe hellRecipe = () -> {
-      System.out.println("# 지옥에서 만든 특제 소스를 곁들입니다.");
-    };
+    // 육류 요리 중 칼로리가 낮은 순으로 정렬
+    List&lt;Dish&gt; lowCalorieMeats = menuList.stream()
+      .filter(menu -&gt; menu.getType() == MEAT)
+      .sorted(Comparator.comparing(Dish::getCalories))
+      .toList();
 
-    chef.setRecipe(hellRecipe);
-    chef.makeBurger();
+    lowCalorieMeats.forEach(System.out::println);
 
-    chef.setRecipe(() ->
-      System.out.println("# 양상추 3장을 추가합니다.")
-    );
-    chef.makeBurger();
+    System.out.println("========================");
+
+    // 메뉴들을 이름 내림차순으로 정렬
+    menuList.stream()
+      .sorted(Comparator.comparing(Dish::getName).reversed())
+      .forEach(System.out::println);
+
+    System.out.println("========================");
+
+    // 300칼로리 이상인 요리 중 칼로리가 낮은 Top3
+    menuList.stream()
+      .filter(m -&gt; m.getCalories() &gt;= 300)
+      .sorted(Comparator.comparing(Dish::getCalories))
+      .limit(3)
+      .forEach(System.out::println);
   }
 }
-</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          제약사항(중요)
-        </span>
-      </h3>
-
-      <p>
-        람다는 <strong>추상 메서드가 정확히 1개</strong>인 인터페이스에서만 사용할 수 있다.
-        그래서 이 조건을 만족하는 인터페이스를 <strong>함수형 인터페이스</strong>라고 부른다.
-      </p>
-
-      <pre><code>@FunctionalInterface
-public interface BurgerRecipe {
-  void cook();
-
-  // 추상 메서드가 아닌 메서드는 추가 가능
-  static void foo() {}
-  default void bar() {}
-}
-</code></pre>
-
-      <p>
-        <strong>@FunctionalInterface</strong>는 기능을 강제로 만드는 게 아니라,
-        개발자가 실수로 추상 메서드를 2개 이상 추가하지 않도록 컴파일 단계에서 알려주는 역할을 한다.
-      </p>
-
-      <h2 class="section">계산기 예제로 보는 전략 패턴</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          핵심 아이디어
-        </span>
-      </h3>
-
-      <p>
-        계산도 결국 전략이다.
-        같은 입력을 받아도 덧셈, 뺄셈, 곱셈처럼 알고리즘만 바뀌는 구조라서,
-        인터페이스를 전략으로 두고 구현을 교체하는 방식이 자연스럽다.
-      </p>
-
-      <pre><code>// 덧셈(람다)
-Calculator add = (num1, num2) -> num1 + num2;
-
-// 뺄셈(익명 클래스)
-Calculator sub = new Calculator() {
-  @Override
-  public int operate(int num1, int num2) {
-    return num1 - num2;
-  }
-};
-
-// 곱셈(람다)
-Calculator multiply = (num1, num2) -> num1 * num2;
 </code></pre>
 
       <h2 class="section">오늘의 회고</h2>
@@ -333,9 +415,9 @@ Calculator multiply = (num1, num2) -> num1 * num2;
       </h3>
 
       <ul>
-        <li>전략 패턴은 결국 <strong>역할과 구현</strong>을 분리해서 유연함을 확보하는 방식이었다</li>
-        <li>전략이 단순하고 재사용이 없으면 <strong>익명 클래스</strong>나 <strong>람다</strong>가 더 실용적이었다</li>
-        <li>람다를 쓰려면 인터페이스가 <strong>함수형 인터페이스</strong>인지 먼저 확인하는 습관이 필요했다</li>
+        <li>제네릭은 결국 <strong>타입 안정성</strong>을 얻기 위한 장치라는 감각이 더 선명해졌다</li>
+        <li>Stream은 기능 자체보다, 파이프라인으로 의도를 드러내는 방식이 더 강력했다</li>
+        <li>distinct와 equals, hashCode 관계는 앞으로도 실수하기 쉬운 포인트라 따로 기억해두기로 했다</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
