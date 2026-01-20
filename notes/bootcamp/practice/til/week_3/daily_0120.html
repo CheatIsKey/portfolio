@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 26일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 27일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -42,10 +42,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 26일차 TIL — 제네릭 복습과 Stream 기본 흐름</h1>
-      <p class="muted">작성일 2026-01-19 · 분류: 부트캠프, TIL, Java, Generic, Stream</p>
+      <h1>내일배움캠프 Spring 백엔드 27일차 TIL — 커스텀 예외와 Optional 실전 감각</h1>
+      <p class="muted">작성일 2026-01-20 · 분류: 부트캠프, TIL, Java, Exception, Optional</p>
 
-      <h2 class="section">26일차 개요</h2>
+      <h2 class="section">27일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -54,66 +54,38 @@
       </h3>
 
       <ul>
-        <li><strong>제네릭</strong>으로 타입 안정성을 확보하는 이유를 다시 잡는다</li>
-        <li><strong>제네릭 클래스</strong>와 <strong>제네릭 메서드</strong>를 구분해서 이해한다</li>
-        <li>Stream이 기존 반복문 코드와 무엇이 다른지, 흐름을 기준으로 정리한다</li>
-        <li>자주 쓰는 Stream 연산(필터링, 변환, 정렬, 최종 연산)을 예제로 묶는다</li>
+        <li><strong>예외를 의미 있게 던지는 방법</strong>을 정리한다</li>
+        <li><strong>커스텀 예외</strong>로 상황을 명확히 만드는 기준을 잡는다</li>
+        <li><strong>Optional</strong>로 NPE를 줄이는 흐름을 예제로 익힌다</li>
       </ul>
 
-      <h2 class="section">제네릭이 필요한 이유</h2>
+      <h2 class="section">왜 커스텀 예외가 필요할까</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Object로 처리할 때의 문제
+          정의
         </span>
       </h3>
 
       <p>
-        제네릭이 없으면 모든 타입을 담기 위해 <strong>Object</strong>를 사용할 수 있다.
-        문제는 꺼낼 때 <strong>형변환</strong>이 필요해지고, 잘못된 다운캐스팅이 섞이면 <strong>실행 중 예외</strong>가 터진다는 점이다.
-        즉, 코드가 길어지고 안전하지도 않다.
+        <strong>커스텀 예외</strong>는 우리 서비스의 실패 상황을 예외 타입으로 명확하게 표현하는 방식이다.
+        단순히 <code>Exception</code>이나 <code>RuntimeException</code>을 그대로 던지면
+        로그를 봤을 때 어떤 문제가 터진 건지 한 번에 파악하기 어렵다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          제네릭이 해결하는 것
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th>포인트</th>
-            <th>설명</th>
-            <th>결과</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>타입 안정성</td>
-            <td>선언한 타입 외에는 들어오지 못하게 막는다</td>
-            <td>엉뚱한 타입으로 인한 예외 가능성이 크게 줄어든다</td>
-          </tr>
-          <tr>
-            <td>형변환 제거</td>
-            <td>꺼낼 때 형변환을 하지 않는다</td>
-            <td>코드가 깔끔해지고 실수 포인트가 줄어든다</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2 class="section">제네릭 클래스 vs 제네릭 메서드</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          왜 둘을 나눠서 쓰나
+          용도
         </span>
       </h3>
 
       <ul>
-        <li><strong>유연함</strong>: 클래스 전체를 바꾸지 않고, 필요한 메서드만 제네릭으로 만들 수 있다</li>
-        <li><strong>범위</strong>: 제네릭 클래스의 타입 파라미터는 클래스 전체에 영향, 제네릭 메서드는 해당 메서드 안에서만 영향</li>
+        <li>예외 타입만 봐도 <strong>의도</strong>가 드러나게 만든다</li>
+        <li>에러 응답이 필요한 상황에서 <strong>상태코드, 발생 시각</strong> 같은 부가 정보를 같이 들고 갈 수 있다</li>
+        <li>공통 처리(로깅, 응답 변환)에서 <strong>분기 기준</strong>을 예외 타입으로 세울 수 있다</li>
       </ul>
+
+      <h2 class="section">커스텀 예외 기본 형태</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -121,290 +93,179 @@
         </span>
       </h3>
 
-      <pre><code>// 제네릭 메서드: 메서드 선언부에 타입 파라미터를 붙인다
-public static &lt;T&gt; T scanAndReturn(T item) {
-  return item;
-}
+      <pre><code>import java.time.LocalDateTime;
 
-// 타입 제한: Number 하위만 허용
-public static &lt;T extends Number&gt; double toDouble(T number) {
-  return number.doubleValue();
+public class BusinessException extends RuntimeException {
+
+  private final int status;
+  private final LocalDateTime timeStamp;
+
+  public BusinessException(int status, String message) {
+    super(message);
+    this.status = status;
+    this.timeStamp = LocalDateTime.now();
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public LocalDateTime getTimeStamp() {
+    return timeStamp;
+  }
 }
 </code></pre>
 
-      <h2 class="section">타입 제한(extends)을 거는 이유</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          제한이 없으면 생기는 문제
-        </span>
-      </h3>
-
       <p>
-        타입 제한이 없으면 메서드 내부에서 해당 타입이 가진 기능을 확신하고 쓰기 어렵다.
-        반대로 제한을 걸면, 그 <strong>부모 타입의 기능</strong>을 전제로 코드 작성이 가능해진다.
+        예외에 필드를 추가하면, 단순 메시지보다 더 풍부한 정보를 함께 전달할 수 있다.
+        실제로는 프로젝트 스타일에 맞춰 필드 구성은 달라질 수 있다.
       </p>
 
-      <ul>
-        <li><strong>최소한의 안전장치</strong>: 관련 있는 타입만 통과하도록 제한한다</li>
-        <li><strong>부모의 능력 사용</strong>: 예를 들어 Number로 제한하면 doubleValue 같은 메서드를 안정적으로 쓸 수 있다</li>
-      </ul>
-
-      <h2 class="section">Stream이 필요한 이유</h2>
+      <h2 class="section">검사 예외와 비검사 예외 선택 기준</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          반복문 중심 코드의 한계
-        </span>
-      </h3>
-
-      <p>
-        기존 방식은 임시 리스트를 만들고, 반복문과 조건문으로 걸러내고, 정렬하고, 다시 반복문으로 출력하는 흐름이 많았다.
-        과정이 길어질수록 한 번에 읽기가 어렵고, 실수 포인트도 늘어난다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Stream이 바꾸는 관점
-        </span>
-      </h3>
-
-      <p>
-        Stream은 작업을 <strong>파이프라인</strong>으로 연결해서,
-        어떻게 반복할지보다 <strong>무엇을 할지</strong>에 집중하게 만든다.
-        그래서 흐름이 짧아지고, 의도가 더 잘 보인다.
-      </p>
-
-      <h2 class="section">Stream 핵심 연산 정리</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          중간 연산과 최종 연산
+          핵심 정리
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th>분류</th>
-            <th>연산</th>
-            <th>설명</th>
+            <th>구분</th>
+            <th>대표 상속</th>
+            <th>특징</th>
+            <th>어울리는 상황</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>필터링/슬라이싱</td>
-            <td>filter</td>
-            <td>조건이 true인 데이터만 통과</td>
+            <td>검사 예외</td>
+            <td><code>Exception</code></td>
+            <td>컴파일 단계에서 처리 강제</td>
+            <td>호출자가 현실적으로 복구 로직을 가질 수 있는 경우</td>
           </tr>
           <tr>
-            <td>필터링/슬라이싱</td>
-            <td>distinct</td>
-            <td>중복 제거( equals, hashCode 구현이 중요 )</td>
-          </tr>
-          <tr>
-            <td>필터링/슬라이싱</td>
-            <td>limit</td>
-            <td>정해진 개수만 통과</td>
-          </tr>
-          <tr>
-            <td>변환</td>
-            <td>map</td>
-            <td>데이터 형태 변환, 특정 필드만 추출</td>
-          </tr>
-          <tr>
-            <td>정렬</td>
-            <td>sorted</td>
-            <td>정렬 기준을 지정해서 정렬</td>
-          </tr>
-          <tr>
-            <td>최종 연산</td>
-            <td>collect</td>
-            <td>리스트/맵 등으로 수집</td>
-          </tr>
-          <tr>
-            <td>최종 연산</td>
-            <td>reduce</td>
-            <td>누적 연산으로 하나의 결과로 만들기</td>
-          </tr>
-          <tr>
-            <td>최종 연산</td>
-            <td>groupingBy</td>
-            <td>그룹별로 묶기</td>
-          </tr>
-          <tr>
-            <td>최종 연산</td>
-            <td>partitioningBy</td>
-            <td>true/false 두 그룹으로 나누기</td>
+            <td>비검사 예외</td>
+            <td><code>RuntimeException</code></td>
+            <td>처리 강제가 없고 흐름이 단순</td>
+            <td>프로그래밍 오류, 계약 위반, 입력 검증 실패처럼 보통은 호출자가 즉시 복구하지 않는 경우</td>
           </tr>
         </tbody>
       </table>
 
-      <h2 class="section">실수 포인트 메모</h2>
+      <p>
+        중요한 건 검사 예외가 무조건 더 좋은 것도 아니고,
+        비검사 예외가 무조건 대충 던지는 것도 아니라는 점이다.
+        팀 규칙과 처리 전략(로깅, 응답 변환, 재시도 정책)에 맞춰 일관되게 선택하는 게 더 중요했다.
+      </p>
+
+      <h2 class="section">Optional로 NPE 줄이기</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          NPE 방지 습관
+          정의
         </span>
       </h3>
 
       <p>
-        equals 비교는 null 가능성이 있는 쪽을 뒤로 보내는 습관이 안전했다.
+        <strong>Optional</strong>은 값이 있을 수도, 없을 수도 있다는 상태를 타입으로 표현하는 컨테이너다.
+        값이 없을 가능성이 있는 결과를 그냥 <code>null</code>로 던져두면,
+        결국 호출자는 방어 코드(<code>!= null</code>)를 계속 쓰게 되고 코드가 지저분해진다.
       </p>
 
-      <pre><code>// 위험: idol.getTeam()이 null이면 NullPointerException 가능
-// idol.getTeam().equals("IVE");
-
-// 안전: 앞쪽이 상수라 null이 아니다
-"IVE".equals(idol.getTeam());
-</code></pre>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          distinct 사용 조건
+          생성 방식
         </span>
       </h3>
 
-      <p>
-        distinct는 같은 객체를 알아보려면 비교 기준이 필요하다.
-        객체 타입에서 중복 제거를 기대한다면 <strong>equals</strong>와 <strong>hashCode</strong> 구현이 전제다.
-      </p>
+      <pre><code>// null 가능성이 있는 값을 감싸기
+Optional&lt;Coffee&gt; coffeeOpt = Optional.ofNullable(coffee);
+</code></pre>
 
-      <h2 class="section">예제 1: map으로 변환하기</h2>
+      <h2 class="section">Optional API 자주 쓰는 패턴</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          이름만 추출, 길이 변환, DTO로 변환
+          핵심 메서드 정리
         </span>
       </h3>
 
-      <pre><code>package kr.spartaclub.running.day03.step2;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static kr.spartaclub.running.day03.step2.Menu.menuList;
-
-public class Mapping {
-  public static void main(String[] args) {
-
-    // 요리 이름들만 추출
-    List&lt;String&gt; dishNames = menuList.stream()
-      .map(Dish::getName)
-      .toList();
-
-    System.out.println(dishNames);
-
-    System.out.println("==========================================================");
-
-    List&lt;String&gt; browsers = List.of("safari", "chrome", "ms edge", "opera", "firefox");
-
-    browsers.stream()
-      .map(String::length)
-      .forEach(len -&gt; System.out.printf("%d ", len));
-
-    System.out.println();
-    System.out.println("==========================================================");
-
-    browsers.stream()
-      .map(browser -&gt; browser.charAt(0))
-      .forEach(System.out::println);
-
-    System.out.println("==========================================================");
-
-    // 보기 좋게 조합(이름:칼로리)
-    menuList.stream()
-      .map(dish -&gt; dish.getName() + ":" + dish.getCalories())
-      .forEach(System.out::println);
-
-    System.out.println("==========================================================");
-
-    // 요리 이름과 칼로리만 Map으로 추출
-    List&lt;Map&lt;String, Object&gt;&gt; results = menuList.stream()
-      .map(dish -&gt; {
-        Map&lt;String, Object&gt; menuMap = new HashMap&lt;&gt;();
-        menuMap.put("menuName", dish.getName());
-        menuMap.put("calories", dish.getCalories());
-        return menuMap;
-      })
-      .toList();
-
-    results.forEach(System.out::println);
-
-    System.out.println("==========================================================");
-
-    // DTO로 변환해서 필요한 컬럼만 다루기
-    List&lt;SimpleDish&gt; simpleDishList = menuList.stream()
-      .map(SimpleDish::new)
-      .toList();
-
-    simpleDishList.forEach(System.out::println);
-
-    System.out.println("==========================================================");
-
-    // 500칼로리 이상인 요리 이름만 출력
-    menuList.stream()
-      .filter(dish -&gt; dish.getCalories() &gt;= 500)
-      .map(Dish::getName)
-      .forEach(System.out::println);
-
-    System.out.println("==========================================================");
-
-    // 500칼로리 이상인 요리 이름과 칼로리 출력(DTO)
-    menuList.stream()
-      .filter(dish -&gt; dish.getCalories() &gt;= 500)
-      .map(SimpleDish::new)
-      .forEach(System.out::println);
-  }
-}
-</code></pre>
-
-      <h2 class="section">예제 2: 정렬과 limit 조합</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>메서드</th>
+            <th>의미</th>
+            <th>한 줄 감각</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ifPresent</code></td>
+            <td>값이 있으면 실행</td>
+            <td>있을 때만 동작</td>
+          </tr>
+          <tr>
+            <td><code>orElse</code></td>
+            <td>없으면 기본값 사용</td>
+            <td>기본값 즉시 준비</td>
+          </tr>
+          <tr>
+            <td><code>orElseGet</code></td>
+            <td>없으면 공급자 함수 실행</td>
+            <td>필요할 때만 생성</td>
+          </tr>
+          <tr>
+            <td><code>orElseThrow</code></td>
+            <td>없으면 예외 발생</td>
+            <td>없으면 실패로 처리</td>
+          </tr>
+          <tr>
+            <td><code>map</code></td>
+            <td>꺼내지 않고 내부에서 변환</td>
+            <td>변환을 체인으로</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          필터링 + 정렬 + 상위 N개
+          예시 코드
         </span>
       </h3>
 
-      <pre><code>package kr.spartaclub.running.day03.step2;
+      <pre><code>// 1) 있으면 실행
+coffeeOpt.ifPresent(c -&gt; System.out.println(c));
 
-import java.util.Comparator;
-import java.util.List;
+// 2) 없으면 기본값
+Coffee coffee = coffeeOpt.orElse(new Coffee("아메리카노"));
 
-import static kr.spartaclub.running.day03.step2.DishType.MEAT;
-import static kr.spartaclub.running.day03.step2.Menu.menuList;
+// 3) 없으면 기본값을 지연 생성
+Coffee coffee2 = coffeeOpt.orElseGet(() -&gt; new Coffee("아메리카노"));
 
-public class Sorting {
-  public static void main(String[] args) {
+// 4) 없으면 예외
+Coffee coffee3 = coffeeOpt.orElseThrow(() -&gt; new RuntimeException("값이 없습니다."));
 
-    // 육류 요리 중 칼로리가 낮은 순으로 정렬
-    List&lt;Dish&gt; lowCalorieMeats = menuList.stream()
-      .filter(menu -&gt; menu.getType() == MEAT)
-      .sorted(Comparator.comparing(Dish::getCalories))
-      .toList();
-
-    lowCalorieMeats.forEach(System.out::println);
-
-    System.out.println("========================");
-
-    // 메뉴들을 이름 내림차순으로 정렬
-    menuList.stream()
-      .sorted(Comparator.comparing(Dish::getName).reversed())
-      .forEach(System.out::println);
-
-    System.out.println("========================");
-
-    // 300칼로리 이상인 요리 중 칼로리가 낮은 Top3
-    menuList.stream()
-      .filter(m -&gt; m.getCalories() &gt;= 300)
-      .sorted(Comparator.comparing(Dish::getCalories))
-      .limit(3)
-      .forEach(System.out::println);
-  }
-}
+// 5) 꺼내지 말고 안에서 변환하는 방식 권장
+String name = coffeeOpt
+  .map(Coffee::getCoffeeName)
+  .orElse("커피 없음");
 </code></pre>
+
+      <h2 class="section">Optional 사용 주의점</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          체크리스트
+        </span>
+      </h3>
+
+      <ul>
+        <li><code>Optional</code> 자체를 <strong>null</strong>로 리턴하지 않는다. 값이 없으면 <code>Optional.empty()</code>가 기본이다</li>
+        <li>필드나 파라미터에 Optional을 쓰는 건 <strong>일반적으로 권장되지 않는다</strong>. 보통은 <strong>리턴 타입</strong>에서 의미가 가장 선명하다</li>
+        <li>무조건 Optional이 정답은 아니다. 리스트라면 <code>Collections.emptyList()</code>처럼 빈 컬렉션이 더 자연스러운 경우도 많다</li>
+      </ul>
 
       <h2 class="section">오늘의 회고</h2>
 
@@ -415,9 +276,9 @@ public class Sorting {
       </h3>
 
       <ul>
-        <li>제네릭은 결국 <strong>타입 안정성</strong>을 얻기 위한 장치라는 감각이 더 선명해졌다</li>
-        <li>Stream은 기능 자체보다, 파이프라인으로 의도를 드러내는 방식이 더 강력했다</li>
-        <li>distinct와 equals, hashCode 관계는 앞으로도 실수하기 쉬운 포인트라 따로 기억해두기로 했다</li>
+        <li>예외는 던지는 것보다, <strong>읽히게 만드는 것</strong>이 더 중요하다는 감각이 생겼다</li>
+        <li>Optional은 null 방어를 줄여주지만, <strong>상황에 맞게</strong> 쓰는 기준을 같이 가져가야 했다</li>
+        <li><code>orElse</code>와 <code>orElseGet</code> 차이는 다음에 성능 이슈 잡을 때 바로 써먹을 수 있을 것 같다</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
