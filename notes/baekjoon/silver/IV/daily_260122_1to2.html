@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2839 — 설탕 배달</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2839">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260120_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>설탕 배달 (백준 2839)</strong>은<br>
+        정확히 <code>N</code> 킬로그램의 설탕을 배달해야 할 때, 3kg 봉지와 5kg 봉지를 사용하여
+        가져가야 할 <strong>봉지의 최소 개수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>봉지는 3kg, 5kg 두 종류만 있다.</li>
+        <li>정확하게 N킬로그램을 만들 수 없으면 <code>-1</code>을 출력한다.</li>
+        <li>최소 개수를 구하기 위해서는 <strong>가장 무거운 5kg 봉지</strong>를 최대한 많이 사용하는 것이 유리하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>전형적인 <strong>그리디(Greedy)</strong> 문제로, 5kg 봉지를 최대한 많이 쓰는 상황부터 가정한다.</li>
+        <li>우선 <code>N</code>을 5로 나눈 몫만큼 5kg 봉지를 챙긴다.</li>
+        <li>남은 무게(<code>remain</code>)가 3으로 나누어 떨어지는지 확인한다.
+          <ul>
+            <li>나누어 떨어지면: (5kg 봉지 수 + 3kg 봉지 수)가 정답이다.</li>
+            <li>나누어 떨어지지 않으면: 5kg 봉지를 하나 줄이고, 남은 무게에 5kg를 더한 뒤 다시 확인한다.</li>
+          </ul>
+        </li>
+        <li>5kg 봉지 개수가 0개 미만이 될 때까지 해결되지 않으면 만들 수 없는 무게다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 5kg 봉지 최대 개수와 초기 나머지 계산</strong>
+          <pre><code>int fiveCnt = N / 5;
+int remain = N % 5;</code></pre>
+          <ul>
+            <li>일단 가능한 최대의 5kg 봉지 개수(<code>fiveCnt</code>)를 구한다.</li>
+            <li>5kg로 채우고 남은 무게를 <code>remain</code>에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 조건을 만족할 때까지 5kg 봉지를 줄여가며 탐색</strong>
+          <pre><code>while (fiveCnt &gt;= 0) {
+    if (remain % 3 == 0) {
+        int threeCnt = remain / 3;
+        System.out.println(fiveCnt + threeCnt);
+        return;
+    } else {
+        fiveCnt--;
+        remain += 5;
+    }
+}</code></pre>
+          <ul>
+            <li>현재 남은 무게 <code>remain</code>이 3으로 나누어 떨어지면, 최소 봉지 개수를 찾은 것이다.</li>
+            <li>그렇지 않다면 <code>fiveCnt</code>를 1 감소시키고, <code>remain</code>에 5를 더해(즉, 5kg 봉지 하나를 풀어서 나머지에 보탬) 다시 검사한다.</li>
+          </ul>
+          
+          <pre><code>예) N = 18일 때
+1. fiveCnt = 3, remain = 3
+   → remain(3) % 3 == 0 이므로 정답은 3 + 1 = 4
+
+예) N = 4일 때
+1. fiveCnt = 0, remain = 4 (X)
+2. fiveCnt = -1, remain = 9 (loop 종료)
+   → -1 출력</code></pre>
+        </li>
+      
+        <li><strong>3) 불가능한 경우 처리</strong>
+          <pre><code>System.out.println(-1);</code></pre>
+          <ul>
+            <li>반복문이 <code>fiveCnt &lt; 0</code>이 되어 종료될 때까지 리턴되지 않았다면, 정확한 무게를 만들 수 없는 경우다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>최대 반복 횟수는 <code>N/5</code>번에 비례한다.</li>
+            <li>N ≤ 5000이므로 매우 빠르게 동작하며, <strong><code>O(N)</code></strong>으로 볼 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>별도 배열 없이 정수 변수만 사용하므로 <strong><code>O(1)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 9012 — 괄호</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/9012">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260120_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>괄호 (백준 9012)</strong>는<br>
+        주어진 괄호 문자열이 짝이 올바르게 맞는 <strong>VPS(Valid Parenthesis String)</strong>인지 판단하여 "YES" 또는 "NO"를 출력하는 문제다.
+      </p>
+      
+      <ul>
+        <li>여는 괄호 <code>(</code>와 닫는 괄호 <code>)</code>는 1:1로 매칭되어야 한다.</li>
+        <li>닫는 괄호가 나올 때, 대응되는 여는 괄호가 이미 스택에 있어야 한다.</li>
+        <li>모든 처리가 끝난 후 스택에 남은 괄호가 없어야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li>자료구조 <strong>스택(Stack)</strong>을 사용하여 괄호의 짝을 검사한다.</li>
+        <li>문자열을 순회하면서:
+          <ul>
+            <li><code>(</code>를 만나면 스택에 넣는다(push).</li>
+            <li><code>)</code>를 만나면 스택에서 뺀다(pop). 이때 스택이 비어있다면 잘못된 문자열이다.</li>
+          </ul>
+        </li>
+        <li>문자열 순회가 끝난 뒤 스택이 비어있어야 올바른 괄호 문자열이다. 남은 게 있다면 <code>(</code>가 너무 많은 경우다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 여는 괄호와 닫는 괄호 처리</strong>
+          <pre><code>if (line.charAt(i) == ')') {
+    if (stack.isEmpty()) {
+        ok = false;
+        break;
+    }
+    Character pop = stack.pop();
+    if (pop != '(') { // (스택에 '('만 넣으므로 사실상 불필요하지만 방어적 코드)
+        ok = false;
+        break;
+    }
+} else {
+    stack.push(line.charAt(i));
+}</code></pre>
+          <ul>
+            <li><code>)</code>가 나왔을 때 스택이 비어있으면 짝이 안 맞으므로 실패(NO) 처리한다.</li>
+            <li><code>(</code>가 나오면 스택에 쌓아서 나중에 짝을 맞출 수 있게 대기시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 최종 검증 및 초기화</strong>
+          <pre><code>if (!stack.isEmpty()) {
+    ok = false;
+}
+
+if (ok) sb.append("YES").append('\n');
+else sb.append("NO").append('\n');
+
+stack.clear();</code></pre>
+          <ul>
+            <li>반복문 종료 후 스택에 잔여물이 있으면 여는 괄호가 더 많은 것이므로 실패 처리한다.</li>
+            <li>결과를 버퍼(StringBuilder)에 기록하고, 다음 테스트 케이스를 위해 <code>stack.clear()</code>로 비워준다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>문자열의 길이를 N이라 할 때, 각 문자를 한 번씩 순회하므로 <strong><code>O(N)</code></strong>.</li>
+            <li>테스트 케이스가 T개이므로 전체는 <code>O(T × N)</code>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>스택에 최대 N개의 괄호가 쌓일 수 있으므로 <strong><code>O(N)</code></strong>.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
