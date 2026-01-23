@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 29일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+    /* 플로우차트 이미지 스타일 */
+    .flowchart-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 1rem 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 29일차 TIL — 논리적 사고와 플로우차트 설계</h1>
+      <p class="muted">작성일 2026-01-22 · 분류: 부트캠프, TIL, Flowchart, Logic</p>
+
+      <h2 class="section">29일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li>코드를 작성하기 전에 <strong>로직의 흐름을 먼저 설계</strong>하는 습관을 기른다</li>
+        <li><strong>순서도(Flowchart)</strong>를 통해 조건과 반복의 분기점을 시각화한다</li>
+        <li>명세서(입출력, 조건, 흐름)를 기반으로 논리적 오류를 사전에 차단한다</li>
+      </ul>
+
+      <h2 class="section">1. 1부터 10까지 출력</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_3/flowchart/challenge_Lv4/1부터10까지_출력.jpg" 
+             alt="1부터 10까지 출력 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          입력/출력 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 없음</li>
+        <li><strong>출력</strong>: 1부터 10까지 순서대로 출력</li>
+        <li><strong>상태</strong>: 카운터 변수(<code>cnt</code>)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          조건 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>종료 조건</strong>: <code>cnt</code>가 10을 초과하는 순간 종료</li>
+        <li><strong>분기 조건</strong>: <code>cnt &gt;= 11</code> 조건을 달성하는 경우</li>
+        <li><strong>예외/에러</strong>: 없음 (정상 범위 내 동작)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          흐름 설계
+        </span>
+      </h3>
+      <ol>
+        <li><strong>초기화</strong>: 시작할 때 <code>cnt</code>를 1로 설정한다.</li>
+        <li><strong>반복 구간</strong>:
+          <ul>
+            <li><code>cnt</code>가 10을 초과하는지 검사한다.</li>
+            <li><strong>Yes (종료)</strong>: 프로그램을 종료한다.</li>
+            <li><strong>No (진행)</strong>: 현재 <code>cnt</code> 값을 출력한다.</li>
+            <li><code>cnt</code>를 1 증가시키고 다시 검사 단계로 돌아간다.</li>
+          </ul>
+        </li>
+        <li><strong>종료</strong>: 1부터 10까지 출력이 완료된다.</li>
+      </ol>
+
+      <h2 class="section">2. 구구단 출력 (특정 단)</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_3/flowchart/challenge_Lv4/구구단_출력.jpg" 
+             alt="구구단 출력 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          입력/출력 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 정수 <code>input</code></li>
+        <li><strong>출력</strong>: 입력 받은 <code>input</code>에 해당하는 구구단</li>
+        <li><strong>상태</strong>: 없음 (임시 변수만 사용)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          조건 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>종료 조건</strong>: 0을 입력받는 순간</li>
+        <li><strong>분기 조건</strong>:
+          <ul>
+            <li>입력한 값이 정수가 아닌 경우</li>
+            <li>입력한 값이 0인 경우</li>
+            <li>반복문에서 <code>num</code>이 9가 되는 경우</li>
+          </ul>
+        </li>
+        <li><strong>예외 처리</strong>: 정수가 아닐 때 "정수를 입력해주세요" 출력</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          흐름 설계
+        </span>
+      </h3>
+      <ol>
+        <li><strong>입력 단계</strong>: 사용자로부터 값을 입력받는다.</li>
+        <li><strong>검증 단계</strong>:
+          <ul>
+            <li>값이 정수인지 확인한다. (아니면 에러 메시지 후 재입력)</li>
+            <li>값이 0인지 확인한다. (맞으면 프로그램 종료)</li>
+          </ul>
+        </li>
+        <li><strong>구구단 출력 반복</strong>:
+          <ul>
+            <li><code>num</code>을 1로 초기화한다.</li>
+            <li>구구단을 출력하고 <code>num</code>이 9인지 검사한다.</li>
+            <li>9가 아니라면 <code>num</code>을 1 증가시키고 반복한다.</li>
+            <li>9라면 출력을 마치고 다시 입력 단계(1번)로 돌아간다.</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h2 class="section">3. 팩토리얼 계산</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_3/flowchart/challenge_Lv4/팩토리얼계산_출력.jpg" 
+             alt="팩토리얼 계산 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          입력/출력 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 양의 정수 <code>n</code></li>
+        <li><strong>출력</strong>: 팩토리얼 <code>n</code>의 결과값</li>
+        <li><strong>상태</strong>: 누적곱 변수 <code>multi</code></li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          조건 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>종료 조건</strong>: <code>(n - i)</code> 값이 1이 되는 순간</li>
+        <li><strong>분기 조건</strong>: 정수 여부, 0 여부, 음수 여부, 계산 완료 여부</li>
+        <li><strong>예외 처리</strong>:
+          <ul>
+            <li>정수가 아닐 때: "정수를 입력해주세요."</li>
+            <li>음수일 때: "음수는 입력할 수 없습니다."</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          흐름 설계
+        </span>
+      </h3>
+      <ol>
+        <li><strong>초기화</strong>: <code>multi</code> 변수를 1로 설정한다.</li>
+        <li><strong>검증 단계</strong>:
+          <ul>
+            <li><code>n</code>을 입력받고 정수인지, 음수인지 검사한다. (실패 시 에러 출력 후 재입력)</li>
+            <li><code>n</code>이 0이면 1을 출력하고 종료한다.</li>
+          </ul>
+        </li>
+        <li><strong>계산 반복</strong>:
+          <ul>
+            <li><code>i = 0</code>으로 초기화한다.</li>
+            <li><code>multi</code>에 <code>(n - i)</code>를 곱하여 누적한다.</li>
+            <li><code>(n - i)</code>가 1이 되면 반복을 멈추고 결과를 출력한다.</li>
+            <li>아니라면 <code>i</code>를 1 증가시키고 계속 곱한다.</li>
+          </ul>
+        </li>
+      </ol>
+
+      <h2 class="section">4. 성적 등급 변환기</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_3/flowchart/challenge_Lv4/성적을_문자로_입력받아_점수_범위_출력.jpg" 
+             alt="성적 등급 변환 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          입력/출력 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 성적 등급 문자열 <code>grade</code> (A, B, C, D, F)</li>
+        <li><strong>출력</strong>: 해당 등급의 정수 점수 구간</li>
+        <li><strong>상태</strong>: 없음</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          조건 정리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>종료 조건</strong>: 점수 구간을 정상적으로 출력하거나, 잘못된 값을 입력받은 경우</li>
+        <li><strong>분기 조건</strong>: <code>grade</code>가 A, B, C, D, F 중 어디에 해당하는가</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          흐름 설계
+        </span>
+      </h3>
+      <ol>
+        <li><strong>입력</strong>: <code>grade</code>를 입력받고 대문자로 변환한다.</li>
+        <li><strong>조건 분기 (Switch/If 구조)</strong>:
+          <ul>
+            <li><strong>A</strong>: "90-100" 출력</li>
+            <li><strong>B</strong>: "80-89" 출력</li>
+            <li><strong>C</strong>: "70-79" 출력</li>
+            <li><strong>D</strong>: "60-69" 출력</li>
+            <li><strong>F</strong>: "0-59" 출력</li>
+            <li><strong>그 외</strong>: "성적 등급에 없는 값이 입력되었습니다." 출력</li>
+          </ul>
+        </li>
+        <li><strong>종료</strong>: 결과를 출력한 후 프로그램을 즉시 종료한다.</li>
+      </ol>
+
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>코딩보다 <strong>설계</strong>가 먼저라는 말을 체감했다. 흐름을 그림으로 그리니 예외 상황(음수, 0, 문자 입력 등)이 한눈에 보였다.</li>
+        <li>조건문이 복잡해질 때, <code>switch</code> 문이나 다중 <code>if</code> 문 중 무엇을 쓸지 결정하는 기준이 명확해졌다.</li>
+        <li>앞으로 복잡한 비즈니스 로직을 짤 때도 오늘처럼 흐름도를 먼저 그려보는 습관을 들여야겠다.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
