@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-01-26 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 11047 — 동전 0</h2>
+      <h2 class="section">문제 1065 — 한수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11047">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1065">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260124_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260126_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,14 +55,15 @@
       </h3>
       
       <p>
-        <strong>동전 0 (백준 11047)</strong>은<br>
-        동전 N종류가 주어졌을 때, 그 가치의 합을 K로 만들기 위해 필요한 <strong>동전 개수의 최솟값</strong>을 구하는 문제다.
+        <strong>한수 (백준 1065)</strong>는<br>
+        어떤 양의 정수 X의 각 자릿수가 등차수열을 이룰 때, 이를 '한수'라고 한다.<br>
+        자연수 N이 주어졌을 때, 1부터 N까지의 숫자 중 <strong>한수의 개수</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>동전의 가치는 오름차순으로 주어지며, <strong>큰 단위의 동전은 항상 작은 단위 동전의 배수</strong>라는 조건이 있다.</li>
-        <li>이 조건 덕분에 단순히 큰 동전부터 최대한 많이 사용하는 <strong>그리디(Greedy)</strong> 방식이 최적해를 보장한다.</li>
-        <li>목표 금액 K를 0으로 만들 때까지 가장 큰 동전부터 차감해 나간다.</li>
+        <li><strong>등차수열</strong>: 연속된 두 수의 차이가 일정한 수열이다.</li>
+        <li><strong>1~99 범위</strong>: 1자리 수나 2자리 수는 항상 등차수열을 이룬다. (비교할 차이가 하나뿐이거나 없기 때문)</li>
+        <li><strong>100 이상</strong>: 100의 자리, 10의 자리, 1의 자리 숫자를 비교하여 <code>(백 - 십) == (십 - 일)</code> 인지 확인해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -74,12 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>그리디 알고리즘</strong>: 가치가 큰 동전부터 사용하여 금액을 채우는 것이 개수를 줄이는 가장 빠른 방법이다.</li>
-        <li>입력받은 동전들을 배열에 저장한 뒤, <strong>가장 큰 가치의 동전(마지막 인덱스)부터 역순</strong>으로 탐색한다.</li>
-        <li>현재 동전 가치가 남은 금액 K보다 작거나 같다면:
+        <li><strong>두 자리 수 이하 처리</strong>: N이 99 이하인 경우, 1부터 N까지 모든 수가 한수이므로 <strong>N을 그대로 출력</strong>한다.</li>
+        <li><strong>세 자리 수 이상 처리</strong>:
           <ul>
-            <li>해당 동전으로 낼 수 있는 최대 개수(<code>K / coin</code>)를 카운트에 더한다.</li>
-            <li>남은 금액을 <code>K % coin</code>으로 갱신한다.</li>
+            <li>이미 1~99는 모두 한수이므로 <code>cnt</code>를 99로 초기화하고 시작한다.</li>
+            <li>100부터 N까지 반복하며 각 숫자의 자릿수를 분리한다.</li>
+            <li>각 자리의 차이가 일정한지(등차수열 조건) 확인하여 카운트를 증가시킨다.</li>
+            <li>입력 N은 최대 1,000이지만, 1,000은 한수가 아니므로 3자리 수 로직으로(또는 루프 내 로직으로) 자연스럽게 걸러진다.</li>
           </ul>
         </li>
       </ul>
@@ -93,48 +95,37 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 동전 정보 저장</strong>
-          <pre><code>int[] wallet = new int[N];
-
-for (int i = 0; i &lt; N; i++) {
-    wallet[i] = Integer.parseInt(br.readLine());
+        <li><strong>1) 99 이하인 경우 예외 처리</strong>
+          <pre><code>if (N &lt;= 99) {
+    sb.append(N);
 }</code></pre>
           <ul>
-            <li>동전의 개수 N과 목표 금액 K를 입력받고, N개의 동전 가치를 배열 <code>wallet</code>에 저장한다.</li>
-            <li>입력이 오름차순으로 주어지므로 별도의 정렬은 필요 없다.</li>
+            <li>1부터 99까지는 모두 한수이므로 계산 없이 N을 답으로 확정한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 큰 동전부터 그리디 탐색</strong>
-          <pre><code>for (int i = N - 1; i &gt;= 0; i--) {
-    if (wallet[i] &lt;= K) {
-        cnt += K / wallet[i];
-        K %= wallet[i];
+        <li><strong>2) 100 이상인 경우: 자릿수 분리 및 검사</strong>
+          <pre><code>else {
+    int cnt = 99; // 1~99는 이미 확보
+
+    for (int i = 100; i &lt;= N; i++) {
+        int x = i;
+        int third = x / 100;    // 백의 자리
+        x %= 100;
+        int second = x / 10;    // 십의 자리
+        x %= 10;
+        int first = x;          // 일의 자리
+
+        if ((third - second) == (second - first)) {
+            cnt++;
+        }
     }
-
-    if (K == 0) break;
+    sb.append(cnt);
 }</code></pre>
           <ul>
-            <li>배열의 끝(가장 큰 동전)부터 0번 인덱스(가장 작은 동전)까지 역순으로 순회한다.</li>
-            <li>현재 동전 <code>wallet[i]</code>로 K를 구성할 수 있다면(<code>wallet[i] &lt;= K</code>):
-              <ul>
-                <li>몫(<code>K / wallet[i]</code>)만큼 개수를 더하고,</li>
-                <li>나머지(<code>K % wallet[i]</code>)로 K를 업데이트한다.</li>
-              </ul>
-            </li>
-            <li>K가 0이 되면 더 이상 계산할 필요가 없으므로 반복을 종료한다.</li>
-          </ul>
-          
-          <pre><code>예) K=4200, 동전=[..., 1000, 5000]
-1. 5000원: 4200보다 크므로 패스
-2. 1000원: 4200 / 1000 = 4개 사용, 남은 K = 200
-... (이후 200원은 더 작은 동전으로 처리)</code></pre>
-        </li>
-      
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(cnt);</code></pre>
-          <ul>
-            <li>최종적으로 계산된 최소 동전 개수를 출력한다.</li>
+            <li><code>third</code>(백), <code>second</code>(십), <code>first</code>(일) 자리를 수학적 연산(/, %)으로 분리한다.</li>
+            <li>등차수열 조건인 <code>백 - 십 == 십 - 일</code>(공차 일정)을 만족하면 카운트를 증가시킨다.</li>
+            <li>1,000의 경우 코드는 <code>third=10, second=0, first=0</code>으로 처리되어 <code>10 != 0</code>이므로 카운트되지 않는다. (문제 범위상 올바른 동작)</li>
           </ul>
         </li>
       </ul>
@@ -150,12 +141,12 @@ for (int i = 0; i &lt; N; i++) {
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>동전의 종류가 N개일 때, 배열을 한 번 순회하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li>최대 N은 1,000이므로 루프는 최대 900회 정도 돈다. 이는 상수 시간이므로 <strong><code>O(1)</code></strong>이나 다름없다. (엄밀히는 <code>O(N)</code>)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>동전의 가치를 저장할 배열이 필요하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li>별도의 배열 없이 몇 개의 변수만 사용하므로 <strong><code>O(1)</code></strong>이다.</li>
           </ul>
         </li>
       </ul>
@@ -229,14 +220,14 @@ for (int i = 0; i &lt; N; i++) {
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1920 — 수 찾기</h2>
+      <h2 class="section">문제 10773 — 제로</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1920">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/10773">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260124_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260126_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -253,15 +244,15 @@ for (int i = 0; i &lt; N; i++) {
       </h3>
       
       <p>
-        <strong>수 찾기 (백준 1920)</strong>는<br>
-        <code>N</code>개의 정수가 주어졌을 때, 이후에 주어지는 <code>M</code>개의 정수들이
-        그 안에 존재하는지 여부를 빠르게 알아내어 1(존재) 또는 0(존재 안 함)을 출력하는 문제다.
+        <strong>제로 (백준 10773)</strong>는<br>
+        장부에 숫자를 적다가 <code>0</code>을 외치면 가장 <strong>최근에 쓴 수</strong>를 지우는 규칙을 적용했을 때,
+        최종적으로 남은 수들의 합을 구하는 문제다.
       </p>
       
       <ul>
-        <li><code>N</code>과 <code>M</code>이 최대 100,000이므로, 단순한 순차 탐색(Linear Search)으로는 <code>O(N×M)</code>이 되어 시간 초과가 발생한다.</li>
-        <li>따라서 탐색 시간을 획기적으로 줄일 수 있는 <strong>이분 탐색(Binary Search)</strong>이나 해시 등을 사용해야 한다.</li>
-        <li>이 코드는 이분 탐색을 사용하여 구현되었다.</li>
+        <li>0이 아닌 정수: 장부에 해당 수를 적는다.</li>
+        <li>0: 가장 최근에 쓴 수를 지운다. (문제 조건상 지울 수가 있음이 보장된다.)</li>
+        <li>자료구조 <strong>스택(Stack)</strong>의 LIFO(Last In First Out) 성질을 그대로 이용하는 문제다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -273,14 +264,14 @@ for (int i = 0; i &lt; N; i++) {
       </p>
       
       <ul>
-        <li><strong>정렬(Sorting)</strong>: 이분 탐색을 수행하기 위한 전제 조건은 데이터가 정렬되어 있어야 한다는 점이다. 먼저 <code>numbers</code> 배열을 오름차순으로 정렬한다.</li>
-        <li><strong>이분 탐색(Binary Search)</strong>:
+        <li><strong>배열을 이용한 스택 구현</strong>: 자바의 <code>Stack</code> 클래스를 사용할 수도 있지만, 주어진 코드처럼 <strong>배열(Array)</strong>과 <strong>인덱스(cursor/cnt)</strong>를 이용하면 더 가볍고 빠르게 구현할 수 있다.</li>
+        <li><strong>포인터 조작</strong>:
           <ul>
-            <li>찾고자 하는 값과 중간값(mid)을 비교한다.</li>
-            <li>값이 중간값보다 작으면 왼쪽 절반을, 크다면 오른쪽 절반을 탐색 범위를 좁혀가며 찾는다.</li>
-            <li>이 방식은 한 번 비교할 때마다 탐색 범위가 반으로 줄어들어 <code>O(log N)</code>의 속도를 보장한다.</li>
+            <li>숫자가 들어오면 현재 포인터 위치에 저장하고 포인터를 1 증가시킨다. (push)</li>
+            <li><code>0</code>이 들어오면 포인터를 1 감소시켜, 논리적으로 가장 최근 값을 삭제(무시)한다. (pop)</li>
           </ul>
         </li>
+        <li><strong>최종 합산</strong>: 마지막에 유효한 포인터 개수만큼만 배열을 순회하여 합을 구한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -292,49 +283,34 @@ for (int i = 0; i &lt; N; i++) {
       </p>
       
       <ul>
-        <li><strong>1) 데이터 입력 및 정렬</strong>
-          <pre><code>int[] numbers = new int[N];
-// ... 입력 루프 ...
-Arrays.sort(numbers);</code></pre>
-          <ul>
-            <li><code>N</code>개의 수를 입력받은 뒤 <code>Arrays.sort()</code>를 사용하여 오름차순 정렬한다.</li>
-            <li>정렬은 이분 탐색을 위해 반드시 필요하다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 각 쿼리에 대해 이분 탐색 수행</strong>
-          <pre><code>for (int i = 0; i &lt; M; i++) {
-    int num = Integer.parseInt(st.nextToken());
+        <li><strong>1) 배열 기반 스택 시뮬레이션</strong>
+          <pre><code>int[] array = new int[K];
+int cnt = 0;
 
-    if (binarySearch(numbers, num)) {
-        sb.append(1).append('\n');
-    } else  {
-        sb.append(0).append('\n');
+for (int i = 0; i &lt; K; i++) {
+    int num = Integer.parseInt(br.readLine());
+
+    if (num == 0) {
+        cnt--;
+    } else {
+        array[cnt++] = num;
     }
 }</code></pre>
           <ul>
-            <li>찾아야 할 수 <code>M</code>개를 하나씩 읽어 <code>binarySearch</code> 함수로 존재 여부를 확인한다.</li>
-            <li>결과에 따라 1 또는 0을 <code>StringBuilder</code>에 저장한다.</li>
+            <li><code>K</code>가 최대 10만이므로 배열 크기를 <code>K</code>로 잡으면 오버플로우 없이 모든 수를 담을 수 있다.</li>
+            <li><code>num == 0</code>이면 <code>cnt--</code>를 통해 이전 값을 덮어쓸 준비를 한다(삭제 효과).</li>
+            <li>그 외에는 <code>array[cnt]</code>에 값을 저장하고 <code>cnt</code>를 증가시킨다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 이분 탐색 구현</strong>
-          <pre><code>while (left &lt;= right) {
-    int mid = (left + right) / 2;
-
-    if (numbers[mid] == num) {
-        return true;
-    } else if (numbers[mid] &gt; num) {
-        right = mid - 1;
-    } else {
-        left = mid + 1;
-    }
-}
-return false;</code></pre>
+        <li><strong>2) 유효 범위 합산 (Stream 활용)</strong>
+          <pre><code>System.out.println(IntStream.range(0, cnt)
+        .map(i -&gt; array[i])
+        .sum()
+);</code></pre>
           <ul>
-            <li><code>left</code>와 <code>right</code> 인덱스를 이용해 탐색 범위를 조절한다.</li>
-            <li>중간값 <code>numbers[mid]</code>가 찾는 수보다 크면 왼쪽 부분(<code>right = mid - 1</code>)을, 작으면 오른쪽 부분(<code>left = mid + 1</code>)을 탐색한다.</li>
-            <li>찾으면 <code>true</code>, 반복문이 끝날 때까지 못 찾으면 <code>false</code>를 반환한다.</li>
+            <li>배열에는 지워진 값들의 잔재가 남아있을 수 있으므로, <code>0</code>부터 <code>cnt</code> 직전까지만 순회해야 한다.</li>
+            <li><code>IntStream.range(0, cnt)</code>를 사용하여 유효한 인덱스만 접근해 합을 구한다.</li>
           </ul>
         </li>
       </ul>
@@ -350,18 +326,16 @@ return false;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>배열 정렬에 <code>O(N log N)</code>이 소요된다.</li>
-            <li>M개의 수에 대해 각각 이분 탐색(<code>O(log N)</code>)을 수행하므로 탐색 부분은 <code>O(M log N)</code>이다.</li>
-            <li>전체 복잡도는 <strong><code>O((N + M) log N)</code></strong>으로, 시간 제한 내에 충분히 통과한다.</li>
+            <li>입력받은 수 K개만큼 순회하며 저장/삭제 연산을 수행하므로 <strong><code>O(K)</code></strong>이다.</li>
+            <li>마지막 합산 또한 유효한 원소 수(≤ K)만큼 수행하므로 전체적으로 <code>O(K)</code>다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>데이터 저장을 위한 배열 <code>numbers</code> 크기만큼 필요하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li>크기 K인 정수 배열을 사용하므로 <strong><code>O(K)</code></strong>이다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
