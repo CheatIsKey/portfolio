@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>프로그래머스 Level 1 Daily 문제 묶음</title>
+  <title>프로그래머스 Level 2 Daily 문제 묶음</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -23,8 +23,8 @@
     </aside>
 
     <article class="prose">
-      <h1>프로그래머스 Level 1 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-23 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <h1>프로그래머스 Level 2 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-01-27 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 예산</h2>
+      <h2 class="section">문제 1 — 완전범죄</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12982">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/389480">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0123_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_2/daily_0127_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,15 +53,15 @@
       </h3>
       
       <p>
-        <strong>예산 (프로그래머스 12982)</strong>은<br>
-        각 부서가 신청한 금액 <code>d</code>와 전체 예산 <code>budget</code>이 주어질 때,
-        최대 몇 개의 부서에 물품을 지원할 수 있는지 구하는 문제다.
+        <strong>완전범죄 (프로그래머스 389480)</strong>는<br>
+        여러 개의 물건을 훔칠 때 A가 훔치면 A의 흔적이, B가 훔치면 B의 흔적이 남는 상황에서,<br>
+        <strong>B의 누적 흔적을 <code>m</code> 미만</strong>으로 유지하면서 <strong>A의 누적 흔적을 최소화</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>물품을 지원할 때는 신청한 금액 전액을 지원해야 한다. (일부 지원 불가)</li>
-        <li>최대한 많은 부서를 지원하려면, <strong>신청 금액이 적은 부서</strong>부터 지원하는 것이 유리하다.</li>
-        <li>즉, 적은 금액 순으로 누적 합을 구했을 때 예산을 넘지 않는 최대 개수를 찾으면 된다.</li>
+        <li>각 물건마다 반드시 A 또는 B 중 한 명이 훔쳐야 한다.</li>
+        <li>최종적으로 구한 A의 최소 흔적이 <code>n</code> 미만이어야 하며, 불가능하거나 <code>n</code> 이상이면 <code>-1</code>을 반환한다.</li>
+        <li>제약 조건이 있는 최소 비용 문제이므로 <strong>DP(다이나믹 프로그래밍)</strong>가 적합하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -73,9 +73,14 @@
       </p>
       
       <ul>
-        <li><strong>정렬(Sorting)</strong>: 신청 금액이 작은 순서대로 처리하기 위해 배열을 오름차순 정렬한다.</li>
-        <li><strong>DP (혹은 누적 합)</strong>: <code>dp[i]</code>를 "i개의 부서를 지원할 때 드는 최소 비용"으로 정의한다. 정렬된 상태이므로 단순히 앞에서부터 i개를 더한 값이 최소 비용이 된다.</li>
-        <li><strong>역순 탐색</strong>: 가장 많은 부서를 지원하는 경우(배열 끝)부터 확인하여, 예산 내에 들어오는 즉시 그 개수를 반환한다.</li>
+        <li><strong>DP 상태 정의</strong>: <code>dp[i][j]</code>는 <strong>i번째 물건까지 고려했을 때, B의 누적 흔적이 j일 때 A의 최소 흔적</strong>을 의미한다.</li>
+        <li><strong>점화식 (Transition)</strong>:
+          <ul>
+            <li><strong>A가 훔치는 경우</strong>: B의 흔적 <code>j</code>는 변하지 않고, A의 흔적만 <code>thiefA</code>만큼 증가한다.</li>
+            <li><strong>B가 훔치는 경우</strong>: B의 흔적이 <code>j + thiefB</code>로 증가하고, A의 흔적은 그대로다. 단, 증가한 B의 흔적이 <code>m</code> <strong>미만</strong>일 때만 가능하다.</li>
+          </ul>
+        </li>
+        <li>초기값을 무한대(INF)로 설정하고, 0번째 단계에서 시작해 바텀업(Bottom-up)으로 테이블을 채운다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -87,36 +92,41 @@
       </p>
       
       <ul>
-        <li><strong>1) 정렬 및 DP 배열 초기화</strong>
-          <pre><code>Arrays.sort(d);
-int[] dp = new int[d.length + 1];
-Arrays.fill(dp, 1_000_000_000);
-dp[0] = 0;</code></pre>
+        <li><strong>1) DP 테이블 초기화</strong>
+          <pre><code>int[][] dp = new int[info.length + 1][m + 1];
+for (int[] ints : dp) Arrays.fill(ints, Integer.MAX_VALUE);
+dp[0][0] = 0;</code></pre>
           <ul>
-            <li>금액이 적은 부서부터 선택하기 위해 정렬한다.</li>
-            <li><code>dp</code> 배열을 큰 값으로 초기화하고, 0개 부서 지원 비용인 <code>dp[0]</code>은 0으로 설정한다.</li>
+            <li>최솟값을 구해야 하므로 <code>Integer.MAX_VALUE</code>로 초기화한다.</li>
+            <li>시작점(물건 0개, B 흔적 0)의 A 흔적은 0이다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 최소 비용 계산 (누적 합)</strong>
-          <pre><code>for (int i = 1; i &lt;= d.length; i++) {
-    dp[i] = Math.min(dp[i], dp[i - 1] + d[i - 1]);
+        <li><strong>2) A가 훔치는 경우와 B가 훔치는 경우 갱신</strong>
+          <pre><code>// A가 훔치는 경우 (B 흔적 j 유지)
+dp[i][j] = Math.min(dp[i][j], dp[i - 1][j] + thiefA);
+
+// B가 훔치는 경우 (B 흔적 j + thiefB 로 증가)
+if (j + thiefB &lt; m) {
+    dp[i][j + thiefB] = Math.min(dp[i][j + thiefB], dp[i - 1][j]);
 }</code></pre>
           <ul>
-            <li><code>dp[i-1]</code>(i-1개 지원 비용)에 현재 가장 작은 남은 요청 <code>d[i-1]</code>을 더해 <code>dp[i]</code>를 갱신한다.</li>
-            <li>사실상 정렬된 배열의 <strong>누적 합(Prefix Sum)</strong>을 구하는 과정과 동일하다.</li>
+            <li>이전 단계(<code>i-1</code>)에서 도달 가능한 상태(<code>MAX_VALUE</code> 아님)에 대해 두 가지 분기를 모두 고려한다.</li>
+            <li><strong>A 선택</strong>: 현재 상태 <code>j</code> 그대로, 값에 <code>thiefA</code>를 더해 최소를 갱신한다.</li>
+            <li><strong>B 선택</strong>: 새로운 상태 <code>j + thiefB</code>가 한계 <code>m</code>보다 작을 때만, A 값 변동 없이 갱신한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 예산 내 최대 부서 개수 찾기</strong>
-          <pre><code>for (int i = d.length; i &gt;= 0; i--) {
-    if (dp[i] &lt;= budget) {
-        return i;
-    }
-}</code></pre>
+        <li><strong>3) 결과 도출 및 조건 확인</strong>
+          <pre><code>int answer = Integer.MAX_VALUE;
+for (int j = 0; j &lt;= m; j++) {
+    answer = Math.min(answer, dp[info.length][j]);
+}
+
+return answer &lt; n ? answer : -1;</code></pre>
           <ul>
-            <li>최대 개수를 구해야 하므로, 가장 큰 개수(<code>d.length</code>)부터 역순으로 탐색한다.</li>
-            <li>누적 비용 <code>dp[i]</code>가 <code>budget</code> 이하가 되는 순간의 <code>i</code>가 정답이다.</li>
+            <li>모든 물건을 고려한 후(<code>info.length</code>), B의 흔적이 가능한 모든 범위(<code>0~m</code>) 중에서 A의 최소 흔적을 찾는다.</li>
+            <li>그 값이 한계 <code>n</code>보다 작으면 반환하고, 아니면(불가능하거나 한도 초과) <code>-1</code>을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -132,13 +142,12 @@ dp[0] = 0;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>배열 정렬에 <strong><code>O(N log N)</code></strong>이 소요된다.</li>
-            <li>DP 테이블 채우기와 탐색은 <code>O(N)</code>이므로 전체는 <strong><code>O(N log N)</code></strong>이다.</li>
+            <li>물건의 개수를 L, B의 흔적 한도를 M이라 할 때, 2중 반복문을 수행하므로 <strong><code>O(L × M)</code></strong>이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>별도의 <code>dp</code> 배열을 사용하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li>DP 테이블 크기만큼 필요하므로 <strong><code>O(L × M)</code></strong>이다.</li>
           </ul>
         </li>
       </ul>
@@ -214,14 +223,14 @@ dp[0] = 0;</code></pre>
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 소수 만들기</h2>
+      <h2 class="section">문제 2 — 최댓값과 최솟값</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12977">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/12939">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_1/daily_0123_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_2/daily_0127_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -234,15 +243,15 @@ dp[0] = 0;</code></pre>
       </h3>
       
       <p>
-        <strong>소수 만들기 (프로그래머스 12977)</strong>는<br>
-        주어진 숫자 배열 <code>nums</code>에 있는 수들 중, 서로 다른 3개를 골라 더했을 때
-        그 합이 <strong>소수(Prime Number)</strong>가 되는 경우의 수를 구하는 문제다.
+        <strong>최댓값과 최솟값 (프로그래머스 12939)</strong>은<br>
+        공백으로 구분된 숫자들로 이루어진 문자열 <code>s</code>가 주어질 때,
+        그중 <strong>최솟값과 최댓값</strong>을 찾아 <code>"(최솟값) (최댓값)"</code> 형태의 문자열로 반환하는 문제다.
       </p>
       
       <ul>
-        <li>배열에서 3개의 숫자를 선택하는 모든 조합을 고려해야 한다.</li>
-        <li>선택된 3개 숫자의 합이 1과 자기 자신으로만 나누어떨어지는지(소수인지) 판별해야 한다.</li>
-        <li>중복된 숫자는 없으며, 3개의 합이 소수가 되는 횟수를 카운트한다.</li>
+        <li>입력 문자열에는 둘 이상의 정수가 공백으로 구분되어 있다.</li>
+        <li>모든 수를 비교하여 가장 작은 수와 가장 큰 수를 찾아야 한다.</li>
+        <li>최종 반환 시 숫자 사이에 공백을 한 칸 둔 문자열 포맷을 맞춰야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -254,8 +263,13 @@ dp[0] = 0;</code></pre>
       </p>
       
       <ul>
-        <li><strong>완전 탐색 (Brute Force)</strong>: 입력 배열의 크기(N)가 최대 50으로 매우 작다. 따라서 3중 반복문을 이용해 3개의 숫자를 고르는 모든 경우($_NC_3$)를 직접 확인해도 충분하다.</li>
-        <li><strong>소수 판별</strong>: 합계(sum)에 대해 2부터 <code>√sum</code>까지 나누어 떨어지는 수가 있는지 확인하는 효율적인 판별법을 사용한다.</li>
+        <li><strong>문자열 파싱</strong>: <code>StringTokenizer</code>를 사용하여 공백을 기준으로 문자열을 숫자 토큰으로 분리한다. (<code>split</code>보다 메모리 효율이 좋은 경우가 많다.)</li>
+        <li><strong>최대/최소 갱신</strong>:
+          <ul>
+            <li><code>max</code>는 가장 작은 정수(<code>Integer.MIN_VALUE</code>)로, <code>min</code>은 가장 큰 정수(<code>Integer.MAX_VALUE</code>)로 초기화한다.</li>
+            <li>토큰을 하나씩 읽어 정수로 변환한 뒤, 현재의 <code>max</code>, <code>min</code>과 비교하여 값을 갱신한다.</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -267,33 +281,39 @@ dp[0] = 0;</code></pre>
       </p>
       
       <ul>
-        <li><strong>1) 3중 반복문을 통한 숫자 3개 선택</strong>
-          <pre><code>for (int i = 0; i &lt; nums.length - 2; i++) {
-    for (int j = i + 1; j &lt; nums.length - 1; j++) {
-        for (int k = j + 1; k &lt; nums.length; k++) {
-            int sum = nums[i] + nums[j] + nums[k];
-            if (isPrime(sum)) cnt++;
-        }
-    }
-}</code></pre>
+        <li><strong>1) 토크나이저 및 변수 초기화</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(s);
+
+int max = Integer.MIN_VALUE;
+int min = Integer.MAX_VALUE;</code></pre>
           <ul>
-            <li><code>i &lt; j &lt; k</code> 순서를 유지하며 서로 다른 3개의 인덱스를 선택한다.</li>
-            <li>선택된 세 숫자의 합 <code>sum</code>을 구하고, 소수인지 확인하여 카운트를 증가시킨다.</li>
+            <li>문자열 <code>s</code>를 공백 기준으로 자를 준비를 한다.</li>
+            <li>비교를 위해 <code>max</code>는 가능한 가장 작은 값, <code>min</code>은 가장 큰 값으로 설정해 둔다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 소수 판별 함수 (제곱근 최적화)</strong>
-          <pre><code>private boolean isPrime(int sum) {
-    for (int l = 2; l * l &lt;= sum; l++) {
-        if (sum % l == 0) {
-            return false;
-        }
+        <li><strong>2) 순회 및 대소 비교</strong>
+          <pre><code>while (st.hasMoreTokens()) {
+    int num = Integer.parseInt(st.nextToken());
+
+    if (num &gt; max) {
+        max = num;
     }
-    return true;
+
+    if (num &lt; min) {
+        min = num;
+    }
 }</code></pre>
           <ul>
-            <li>어떤 수 N이 소수가 아니라면, N의 약수는 반드시 <code>√N</code> 이하의 범위에 존재한다.</li>
-            <li>따라서 2부터 <code>√sum</code>까지만 반복하여 나누어 떨어지는지 검사하면 효율적이다.</li>
+            <li>남은 토큰이 없을 때까지 반복한다.</li>
+            <li>문자열 토큰을 <code>int</code>로 변환한 뒤, 각각 최댓값과 최솟값인지 확인하고 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 문자열 생성</strong>
+          <pre><code>return min + " " + max;</code></pre>
+          <ul>
+            <li>구해진 최솟값과 최댓값을 공백으로 이어 붙여 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -309,14 +329,12 @@ dp[0] = 0;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>N개 중 3개를 뽑는 경우의 수 $_NC_3$은 대략 <strong><code>O(N^3)</code></strong>이다. (N ≤ 50)</li>
-            <li>각 합(최대 3000)에 대해 소수 판별을 수행하며, 이는 <code>O(√M)</code> (M은 합의 최댓값)이 걸린다.</li>
-            <li>전체 복잡도는 <code>O(N^3 √M)</code>이지만 입력 크기가 작아 매우 빠르게 수행된다.</li>
+            <li>문자열에 포함된 숫자의 개수를 N이라 할 때, 모든 토큰을 한 번씩 순회하므로 <strong><code>O(N)</code></strong>이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>별도의 추가 배열 없이 변수만 사용하므로 <strong><code>O(1)</code></strong>이다.</li>
+            <li><code>StringTokenizer</code>가 문자열을 관리하고 토큰을 생성하는 데 입력 문자열 크기에 비례하는 공간을 사용하므로 <strong><code>O(N)</code></strong>이다. (문자열 길이 기준)</li>
           </ul>
         </li>
       </ul>
