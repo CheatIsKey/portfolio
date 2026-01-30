@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 34일차 TIL (2)</title>
+  <title>내일배움캠프 Spring 백엔드 35일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -23,13 +23,13 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
-    /* 개념 설명용 박스 스타일 */
-    .concept-box {
-      background-color: #fff3e0;
-      border-left: 5px solid #ff9800;
+    /* 코드 블록 스타일 */
+    pre {
+      background-color: #f8f9fa;
       padding: 1rem;
-      margin: 1rem 0;
-      border-radius: 4px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
     }
     /* 이미지 스타일 */
     .structure-img {
@@ -58,10 +58,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 34일차 TIL (2) — Spring MVC 구조와 DB 기초</h1>
-      <p class="muted">작성일 2026-01-29 · 분류: 부트캠프, TIL, Spring MVC, Database</p>
+      <h1>내일배움캠프 Spring 백엔드 35일차 TIL — 일정 관리 프로젝트 개발과 트러블 슈팅</h1>
+      <p class="muted">작성일 2026-01-30 · 분류: 부트캠프, TIL, Spring Boot, JPA, Project</p>
 
-      <h2 class="section">34일차 개요 (2/2)</h2>
+      <h2 class="section">35일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -70,200 +70,127 @@
       </h3>
 
       <ul>
-        <li><strong>Spring MVC</strong>의 핵심 디자인 패턴(Front Controller, Adapter)과 처리 흐름을 이해한다.</li>
-        <li><strong>SSR과 CSR</strong>의 차이를 비교하고 Thymeleaf 템플릿 엔진의 역할을 파악한다.</li>
-        <li>요청 데이터를 받는 다양한 <strong>Annotation</strong>(@RequestParam 등)의 사용법을 정리한다.</li>
-        <li><strong>데이터베이스(DB)</strong>의 기본 개념과 트랜잭션의 특징을 학습한다.</li>
+        <li><strong>JPA</strong>를 활용하여 일정 관리 서버의 핵심 도메인과 리포지토리를 구현한다.</li>
+        <li><strong>DTO(Data Transfer Object)</strong>를 사용하여 Controller와 Service 간의 데이터를 안전하게 주고받는다.</li>
+        <li>개발 과정에서 마주친 <strong>데이터 바인딩 문제(@RequestParam vs @RequestBody)</strong>를 해결하고 정리한다.</li>
       </ul>
 
-      <h2 class="section">Spring MVC 아키텍처</h2>
+      <h2 class="section">프로젝트 구현: 일정 관리 (진행 중)</h2>
+
+      <p>
+        기본적인 CRUD 기능을 목표로 엔티티 설계부터 컨트롤러 구현까지 진행 중이다.
+        특히 <strong>반복되는 코드(생성일/수정일)</strong>를 제거하기 위해 JPA Auditing 기능을 적극 활용했다.
+      </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          MVC 패턴이란?
-        </span>
-      </h3>
-      <div class="concept-box">
-        <strong>역할 분담의 기술</strong><br/>
-        하나의 서블릿이 모든 것을 처리하던 복잡함을 해결하기 위해 애플리케이션을 세 가지 역할로 나눈 설계 방식이다.
-      </div>
-      <ul>
-        <li><strong>Model</strong>: 데이터와 비즈니스 로직을 담당한다.</li>
-        <li><strong>View</strong>: 사용자에게 보여지는 화면(UI)을 담당한다.</li>
-        <li><strong>Controller</strong>: 사용자의 요청(Request)을 받아 Model과 View를 연결해주는 중간 다리 역할을 한다.</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          프론트 컨트롤러 패턴과 DispatcherServlet
+          1. BaseEntity로 공통 필드 관리
         </span>
       </h3>
 
       <p>
-        <strong>프론트 컨트롤러 패턴</strong>은 모든 클라이언트의 요청을 단일 진입점에서 받아 공통 처리를 수행하고, 세부 로직은 각 핸들러(Controller)에게 위임하는 방식이다.
-        Spring MVC에서는 <strong>DispatcherServlet</strong>이 이 역할을 수행한다.
+        모든 테이블에 공통으로 들어가는 <code>createdAt</code>(생성일), <code>modifiedAt</code>(수정일)을 매번 작성하는 것은 비효율적이다.
+        이를 해결하기 위해 <strong>@MappedSuperclass</strong>와 <strong>JPA Auditing</strong>을 적용했다.
       </p>
 
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_4/spring_mvc_구조.png" 
-             alt="Spring MVC DispatcherServlet 구조" class="structure-img" />
-        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] DispatcherServlet을 중심으로 한 Spring MVC 요청 처리 흐름</figcaption>
-      </figure>
+      <pre><code class="language-java">@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity {
 
-      <ul>
-        <li><strong>장점</strong>: 공통 로직(보안, 인코딩 등)을 중앙에서 관리하여 코드 중복을 제거하고 유지보수성을 높인다.</li>
-        <li><strong>ViewResolver</strong>: 컨트롤러가 반환한 논리적 뷰 이름(예: "home")을 실제 물리적 파일 경로(예: "/WEB-INF/views/home.html")로 변환해주는 역할을 한다.</li>
-      </ul>
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          어댑터 패턴 (Adapter Pattern)
-        </span>
-      </h3>
-      <ul>
-        <li><strong>개념</strong>: 서로 다른 인터페이스를 가진 클래스들을 연결해주는 패턴이다.</li>
-        <li><strong>특징</strong>: 다양한 방식의 컨트롤러를 통일된 방식으로 처리할 수 있게 해주며(다형성), 기존 코드를 수정하지 않고도 새로운 타입의 컨트롤러를 확장할 수 있다.</li>
-      </ul>
-
-      <h2 class="section">렌더링 방식과 Thymeleaf</h2>
+    @LastModifiedDate
+    private LocalDateTime modifiedAt;
+}</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          SSR vs CSR 비교
+          2. Repository의 메서드 명명 규칙
         </span>
       </h3>
+      
+      <p>
+        JPA Repository의 강력한 기능인 <strong>쿼리 메서드(Query Method)</strong>를 사용하여,
+        복잡한 JPQL 작성 없이도 메서드 이름만으로 원하는 쿼리를 실행할 수 있었다.
+      </p>
+
+      <pre><code class="language-java">public interface ScheduleRepository extends JpaRepository&lt;Schedule, Long&gt; {
+    // 이름으로 검색하고 수정일 기준 내림차순 정렬
+    List&lt;Schedule&gt; findByNameOrderByModifiedAtDesc(String name);
+
+    // 전체 조회를 하되 수정일 기준 내림차순 정렬
+    List&lt;Schedule&gt; findAllByOrderByModifiedAtDesc();
+}</code></pre>
+
+      <h2 class="section">트러블 슈팅: 데이터 바인딩의 차이</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 상황
+        </span>
+      </h3>
+      <p>
+        API를 개발하던 중, 클라이언트가 보내는 데이터를 컨트롤러에서 제대로 받지 못하는 경우가 있었다.
+        특히 <strong>GET 요청의 쿼리 파라미터</strong>와 <strong>POST 요청의 JSON 바디</strong>를 처리하는 방식이 혼동되었다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결: @RequestParam vs @RequestBody 정리
+        </span>
+      </h3>
+
+      
 
       <table>
         <thead>
           <tr>
             <th>구분</th>
-            <th>SSR (Server Side Rendering)</th>
-            <th>CSR (Client Side Rendering)</th>
+            <th>@RequestParam</th>
+            <th>@RequestBody</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>방식</strong></td>
-            <td>서버에서 HTML을 완성해서 브라우저에 전달한다.</td>
-            <td>서버는 빈 뼈대만 주고, 브라우저가 JS로 화면을 그린다.</td>
+            <td><strong>데이터 위치</strong></td>
+            <td>URL 뒤의 <strong>Query String</strong><br>(예: <code>?name=user&age=20</code>)</td>
+            <td>HTTP 요청의 <strong>Body</strong><br>(주로 JSON 형태)</td>
           </tr>
           <tr>
-            <td><strong>장점</strong></td>
-            <td>초기 로딩이 빠르고 검색 엔진 최적화(SEO)에 유리하다.</td>
-            <td>화면 전환이 앱처럼 부드럽고 빠르다.</td>
+            <td><strong>주 사용 메서드</strong></td>
+            <td><strong>GET</strong>, DELETE<br>(검색, 필터링, 단일 삭제)</td>
+            <td><strong>POST</strong>, PUT, PATCH<br>(데이터 생성, 수정)</td>
           </tr>
           <tr>
-            <td><strong>단점</strong></td>
-            <td>페이지 이동 시마다 새로고침이 발생할 수 있다.</td>
-            <td>초기 로딩 속도가 느릴 수 있다.</td>
-          </tr>
-          <tr>
-            <td><strong>대표 기술</strong></td>
-            <td><strong>Thymeleaf</strong>, JSP</td>
-            <td>React, Vue, Angular</td>
+            <td><strong>특징</strong></td>
+            <td>단일 값이나 간단한 데이터를 받을 때 사용.<br><code>required=false</code>로 선택적 입력 가능.</td>
+            <td>복잡한 객체(DTO)를 통째로 받을 때 사용.<br><strong>MessageConverter</strong>가 JSON을 객체로 변환해줌.</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Thymeleaf 기본 문법
-        </span>
-      </h3>
-      <ul>
-        <li><strong>텍스트 출력</strong> (<code>th:text</code>): 태그 안의 텍스트를 서버 데이터로 교체한다.</li>
-        <li><strong>속성 설정</strong> (<code>th:href</code>, <code>th:src</code>): 링크나 이미지 경로 등의 속성을 동적으로 설정한다.</li>
-        <li><strong>반복 처리</strong> (<code>th:each</code>): Java의 for-each문처럼 리스트 데이터를 반복해서 출력한다.</li>
-        <li><strong>조건 처리</strong> (<code>th:if</code>, <code>th:unless</code>): 조건에 따라 태그를 렌더링하거나 제외한다.</li>
-      </ul>
-
-      <h2 class="section">Spring Controller와 데이터 전달</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Controller 어노테이션
-        </span>
-      </h3>
-      <ul>
-        <li><code>@Controller</code>: 주로 View(화면)를 반환할 때 사용한다.</li>
-        <li><code>@RestController</code>: <code>@Controller</code> + <code>@ResponseBody</code>가 합쳐진 형태다. View가 아니라 <strong>데이터(JSON 등)</strong>를 HTTP 응답 본문에 직접 담아 반환할 때 사용한다.</li>
-        <li><code>@RequestMapping</code>: 특정 URL과 메서드를 매핑한다. 최근에는 <code>@GetMapping</code>, <code>@PostMapping</code> 등의 축약형을 주로 사용한다.</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          데이터 요청 처리 (Parameter)
+          실제 코드 적용 예시
         </span>
       </h3>
 
-      <table>
-        <thead>
-          <tr>
-            <th>어노테이션</th>
-            <th>용도</th>
-            <th>특징 및 예시</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>@RequestParam</code></td>
-            <td>쿼리 파라미터<br>(Query String)</td>
-            <td>
-              <code>/users?name=Steve</code> 형태.<br>
-              <code>required=false</code>로 선택적 입력 가능.<br>
-              주로 검색 조건이나 필터링에 사용한다.
-            </td>
-          </tr>
-          <tr>
-            <td><code>@ModelAttribute</code></td>
-            <td>폼 데이터<br>(Form Data)</td>
-            <td>HTML Form 태그의 데이터를 객체로 한 번에 바인딩한다.</td>
-          </tr>
-          <tr>
-            <td><code>@PathVariable</code></td>
-            <td>경로 변수<br>(Path Variable)</td>
-            <td>
-              <code>/users/123</code> 형태.<br>
-              URL 경로 자체에 값이 포함되므로 <strong>필수 값</strong>이다.<br>
-              리소스 식별(ID)에 주로 사용한다.
-            </td>
-          </tr>
-          <tr>
-            <td><code>@RequestBody</code></td>
-            <td>요청 본문<br>(Body)</td>
-            <td>JSON 데이터를 객체로 변환할 때 사용한다.<br>REST API 통신에서 가장 많이 쓰인다.</td>
-          </tr>
-        </tbody>
-      </table>
+      <pre><code class="language-java">// 1. GET 요청: 검색 조건(name)은 쿼리 파라미터로 받음
+@GetMapping("/api")
+public List&lt;ScheduleResponseDto&gt; getSchedules(@RequestParam(required = false) String name) {
+    return scheduleService.getSchedulesByName(name);
+}
 
-      <h2 class="section">데이터베이스 (Database) 기초</h2>
+// 2. POST 요청: 생성할 일정 정보는 Body(JSON)로 받음
+@PostMapping("/api")
+public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {
+    return scheduleService.addSchedule(scheduleRequestDto);
+}</code></pre>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DB의 종류
-        </span>
-      </h3>
-      <ul>
-        <li><strong>RDBMS (관계형 DB)</strong>: 데이터를 테이블 형태로 관리하며, SQL을 사용해 관계를 맺는다. 데이터의 정합성이 중요하다. (MySQL, Oracle)</li>
-        <li><strong>NoSQL (비관계형 DB)</strong>: 스키마가 고정되지 않고 Key-Value나 Document 형태로 자유롭게 저장한다. 확장성이 높다. (MongoDB, Redis)</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트랜잭션 (Transaction)
-        </span>
-      </h3>
-      <p>
-        데이터베이스의 논리적인 작업 단위이다. "모두 성공하거나, 하나라도 실패하면 모두 취소(Rollback)되어야 한다"는 <strong>ACID</strong> 원칙을 따른다.
-      </p>
-      <ul>
-        <li><strong>A (Atomicity, 원자성)</strong>: 작업은 모두 반영되거나 아예 반영되지 않아야 한다.</li>
-        <li><strong>C (Consistency, 일관성)</strong>: 작업 전후에 데이터베이스의 상태가 일관되어야 한다.</li>
-        <li><strong>I (Isolation, 격리성)</strong>: 하나의 트랜잭션은 다른 트랜잭션의 방해를 받지 않아야 한다.</li>
-        <li><strong>D (Durability, 지속성)</strong>: 성공한 트랜잭션의 결과는 영구적으로 저장되어야 한다.</li>
-      </ul>
-
-      <h2 class="section">오늘의 회고 (Part 2)</h2>
+      <h2 class="section">오늘의 회고</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -272,9 +199,9 @@
       </h3>
 
       <ul>
-        <li>Spring MVC가 내부적으로 수많은 패턴(프론트 컨트롤러, 어댑터 등)의 집합체라는 것을 구조도를 통해 이해할 수 있었다.</li>
-        <li><code>@RequestParam</code>과 <code>@PathVariable</code>은 비슷해 보이지만, '검색 조건(선택)'이냐 '자원의 식별자(필수)'냐에 따라 용도가 명확히 갈린다는 점을 배웠다.</li>
-        <li>DB 트랜잭션의 ACID 속성은 데이터 무결성을 지키기 위한 최후의 보루라는 생각이 들었다.</li>
+        <li><strong>JPA Auditing</strong>을 적용하니 <code>createdAt</code> 같은 반복 코드가 사라져 엔티티가 훨씬 깔끔해졌다. 실무에서도 필수일 것 같다.</li>
+        <li><strong>DTO Record</strong> 타입을 처음 써봤는데, 불변(Immutable) 객체라 데이터 전달용으로 아주 적합하고 코드도 간결해서 좋았다.</li>
+        <li>Controller에서 데이터를 받을 때, <strong>"이 데이터가 URL에 있나? Body에 있나?"</strong>를 먼저 생각하고 어노테이션을 골라야 한다는 기준이 생겼다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
