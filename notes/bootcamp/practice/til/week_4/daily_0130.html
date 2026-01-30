@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 34일차 TIL (2)</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+    /* 개념 설명용 박스 스타일 */
+    .concept-box {
+      background-color: #fff3e0;
+      border-left: 5px solid #ff9800;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    /* 이미지 스타일 */
+    .structure-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 1.5rem auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 34일차 TIL (2) — Spring MVC 구조와 DB 기초</h1>
+      <p class="muted">작성일 2026-01-29 · 분류: 부트캠프, TIL, Spring MVC, Database</p>
+
+      <h2 class="section">34일차 개요 (2/2)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>Spring MVC</strong>의 핵심 디자인 패턴(Front Controller, Adapter)과 처리 흐름을 이해한다.</li>
+        <li><strong>SSR과 CSR</strong>의 차이를 비교하고 Thymeleaf 템플릿 엔진의 역할을 파악한다.</li>
+        <li>요청 데이터를 받는 다양한 <strong>Annotation</strong>(@RequestParam 등)의 사용법을 정리한다.</li>
+        <li><strong>데이터베이스(DB)</strong>의 기본 개념과 트랜잭션의 특징을 학습한다.</li>
+      </ul>
+
+      <h2 class="section">Spring MVC 아키텍처</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          MVC 패턴이란?
+        </span>
+      </h3>
+      <div class="concept-box">
+        <strong>역할 분담의 기술</strong><br/>
+        하나의 서블릿이 모든 것을 처리하던 복잡함을 해결하기 위해 애플리케이션을 세 가지 역할로 나눈 설계 방식이다.
+      </div>
+      <ul>
+        <li><strong>Model</strong>: 데이터와 비즈니스 로직을 담당한다.</li>
+        <li><strong>View</strong>: 사용자에게 보여지는 화면(UI)을 담당한다.</li>
+        <li><strong>Controller</strong>: 사용자의 요청(Request)을 받아 Model과 View를 연결해주는 중간 다리 역할을 한다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프론트 컨트롤러 패턴과 DispatcherServlet
+        </span>
+      </h3>
+
+      <p>
+        <strong>프론트 컨트롤러 패턴</strong>은 모든 클라이언트의 요청을 단일 진입점에서 받아 공통 처리를 수행하고, 세부 로직은 각 핸들러(Controller)에게 위임하는 방식이다.
+        Spring MVC에서는 <strong>DispatcherServlet</strong>이 이 역할을 수행한다.
+      </p>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_4/spring_mvc_구조.png" 
+             alt="Spring MVC DispatcherServlet 구조" class="structure-img" />
+        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] DispatcherServlet을 중심으로 한 Spring MVC 요청 처리 흐름</figcaption>
+      </figure>
+
+      <ul>
+        <li><strong>장점</strong>: 공통 로직(보안, 인코딩 등)을 중앙에서 관리하여 코드 중복을 제거하고 유지보수성을 높인다.</li>
+        <li><strong>ViewResolver</strong>: 컨트롤러가 반환한 논리적 뷰 이름(예: "home")을 실제 물리적 파일 경로(예: "/WEB-INF/views/home.html")로 변환해주는 역할을 한다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          어댑터 패턴 (Adapter Pattern)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>개념</strong>: 서로 다른 인터페이스를 가진 클래스들을 연결해주는 패턴이다.</li>
+        <li><strong>특징</strong>: 다양한 방식의 컨트롤러를 통일된 방식으로 처리할 수 있게 해주며(다형성), 기존 코드를 수정하지 않고도 새로운 타입의 컨트롤러를 확장할 수 있다.</li>
+      </ul>
+
+      <h2 class="section">렌더링 방식과 Thymeleaf</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SSR vs CSR 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>SSR (Server Side Rendering)</th>
+            <th>CSR (Client Side Rendering)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>방식</strong></td>
+            <td>서버에서 HTML을 완성해서 브라우저에 전달한다.</td>
+            <td>서버는 빈 뼈대만 주고, 브라우저가 JS로 화면을 그린다.</td>
+          </tr>
+          <tr>
+            <td><strong>장점</strong></td>
+            <td>초기 로딩이 빠르고 검색 엔진 최적화(SEO)에 유리하다.</td>
+            <td>화면 전환이 앱처럼 부드럽고 빠르다.</td>
+          </tr>
+          <tr>
+            <td><strong>단점</strong></td>
+            <td>페이지 이동 시마다 새로고침이 발생할 수 있다.</td>
+            <td>초기 로딩 속도가 느릴 수 있다.</td>
+          </tr>
+          <tr>
+            <td><strong>대표 기술</strong></td>
+            <td><strong>Thymeleaf</strong>, JSP</td>
+            <td>React, Vue, Angular</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Thymeleaf 기본 문법
+        </span>
+      </h3>
+      <ul>
+        <li><strong>텍스트 출력</strong> (<code>th:text</code>): 태그 안의 텍스트를 서버 데이터로 교체한다.</li>
+        <li><strong>속성 설정</strong> (<code>th:href</code>, <code>th:src</code>): 링크나 이미지 경로 등의 속성을 동적으로 설정한다.</li>
+        <li><strong>반복 처리</strong> (<code>th:each</code>): Java의 for-each문처럼 리스트 데이터를 반복해서 출력한다.</li>
+        <li><strong>조건 처리</strong> (<code>th:if</code>, <code>th:unless</code>): 조건에 따라 태그를 렌더링하거나 제외한다.</li>
+      </ul>
+
+      <h2 class="section">Spring Controller와 데이터 전달</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Controller 어노테이션
+        </span>
+      </h3>
+      <ul>
+        <li><code>@Controller</code>: 주로 View(화면)를 반환할 때 사용한다.</li>
+        <li><code>@RestController</code>: <code>@Controller</code> + <code>@ResponseBody</code>가 합쳐진 형태다. View가 아니라 <strong>데이터(JSON 등)</strong>를 HTTP 응답 본문에 직접 담아 반환할 때 사용한다.</li>
+        <li><code>@RequestMapping</code>: 특정 URL과 메서드를 매핑한다. 최근에는 <code>@GetMapping</code>, <code>@PostMapping</code> 등의 축약형을 주로 사용한다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          데이터 요청 처리 (Parameter)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>어노테이션</th>
+            <th>용도</th>
+            <th>특징 및 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@RequestParam</code></td>
+            <td>쿼리 파라미터<br>(Query String)</td>
+            <td>
+              <code>/users?name=Steve</code> 형태.<br>
+              <code>required=false</code>로 선택적 입력 가능.<br>
+              주로 검색 조건이나 필터링에 사용한다.
+            </td>
+          </tr>
+          <tr>
+            <td><code>@ModelAttribute</code></td>
+            <td>폼 데이터<br>(Form Data)</td>
+            <td>HTML Form 태그의 데이터를 객체로 한 번에 바인딩한다.</td>
+          </tr>
+          <tr>
+            <td><code>@PathVariable</code></td>
+            <td>경로 변수<br>(Path Variable)</td>
+            <td>
+              <code>/users/123</code> 형태.<br>
+              URL 경로 자체에 값이 포함되므로 <strong>필수 값</strong>이다.<br>
+              리소스 식별(ID)에 주로 사용한다.
+            </td>
+          </tr>
+          <tr>
+            <td><code>@RequestBody</code></td>
+            <td>요청 본문<br>(Body)</td>
+            <td>JSON 데이터를 객체로 변환할 때 사용한다.<br>REST API 통신에서 가장 많이 쓰인다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">데이터베이스 (Database) 기초</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DB의 종류
+        </span>
+      </h3>
+      <ul>
+        <li><strong>RDBMS (관계형 DB)</strong>: 데이터를 테이블 형태로 관리하며, SQL을 사용해 관계를 맺는다. 데이터의 정합성이 중요하다. (MySQL, Oracle)</li>
+        <li><strong>NoSQL (비관계형 DB)</strong>: 스키마가 고정되지 않고 Key-Value나 Document 형태로 자유롭게 저장한다. 확장성이 높다. (MongoDB, Redis)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트랜잭션 (Transaction)
+        </span>
+      </h3>
+      <p>
+        데이터베이스의 논리적인 작업 단위이다. "모두 성공하거나, 하나라도 실패하면 모두 취소(Rollback)되어야 한다"는 <strong>ACID</strong> 원칙을 따른다.
+      </p>
+      <ul>
+        <li><strong>A (Atomicity, 원자성)</strong>: 작업은 모두 반영되거나 아예 반영되지 않아야 한다.</li>
+        <li><strong>C (Consistency, 일관성)</strong>: 작업 전후에 데이터베이스의 상태가 일관되어야 한다.</li>
+        <li><strong>I (Isolation, 격리성)</strong>: 하나의 트랜잭션은 다른 트랜잭션의 방해를 받지 않아야 한다.</li>
+        <li><strong>D (Durability, 지속성)</strong>: 성공한 트랜잭션의 결과는 영구적으로 저장되어야 한다.</li>
+      </ul>
+
+      <h2 class="section">오늘의 회고 (Part 2)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>Spring MVC가 내부적으로 수많은 패턴(프론트 컨트롤러, 어댑터 등)의 집합체라는 것을 구조도를 통해 이해할 수 있었다.</li>
+        <li><code>@RequestParam</code>과 <code>@PathVariable</code>은 비슷해 보이지만, '검색 조건(선택)'이냐 '자원의 식별자(필수)'냐에 따라 용도가 명확히 갈린다는 점을 배웠다.</li>
+        <li>DB 트랜잭션의 ACID 속성은 데이터 무결성을 지키기 위한 최후의 보루라는 생각이 들었다.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
