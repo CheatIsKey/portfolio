@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-01-30 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-01 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 10816 — 숫자 카드 2</h2>
+      <h2 class="section">문제 11866 — 요세푸스 문제 0</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/10816">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11866">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260130_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>숫자 카드 2 (백준 10816)</strong>는<br>
-        상근이가 가지고 있는 N개의 숫자 카드 중에서, 주어진 M개의 정수가 적힌 카드가
-        각각 <strong>몇 개씩 존재하는지</strong>를 구하는 문제다.
+        <strong>요세푸스 문제 0 (백준 11866)</strong>은<br>
+        1번부터 N번까지 원형으로 둘러앉은 사람들 중에서 <strong>매 K번째 사람을 제거</strong>하는 과정을 반복하여,<br>
+        사람들이 제거되는 순서(요세푸스 순열)를 구하는 문제다.
       </p>
       
       <ul>
-        <li>숫자 카드의 값은 -10,000,000부터 10,000,000까지 존재할 수 있다.</li>
-        <li>N과 M이 최대 500,000이므로, $O(N \times M)$ 방식의 이중 반복문으로는 시간 초과가 발생한다.</li>
-        <li>특정 숫자의 개수를 빠르게($O(1)$) 조회할 수 있는 방법이 필요하다.</li>
+        <li>원이기 때문에 마지막 사람 다음은 다시 첫 번째 사람으로 이어진다.</li>
+        <li>한 사람이 제거되면 남은 사람들끼리 원을 유지하며 과정을 반복한다.</li>
+        <li>출력 형식을 <code>&lt;3, 6, 2, ...&gt;</code> 형태로 맞춰야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,9 +75,9 @@
       </p>
       
       <ul>
-        <li><strong>카운팅 배열 (Counting Array)</strong>: 입력되는 수의 범위가 제한적일 때(-1,000만 ~ +1,000만), 배열의 인덱스를 이용해 각 숫자의 등장 횟수를 저장하는 방식이다.</li>
-        <li><strong>오프셋(Offset) 적용</strong>: 배열의 인덱스는 음수가 될 수 없으므로, 등장 가능한 가장 작은 수인 -10,000,000을 인덱스 0에 매핑하기 위해 모든 수에 <strong>+10,000,000</strong>을 더해 저장한다.</li>
-        <li>이 방식을 사용하면 해시맵(HashMap)이나 이분 탐색(Binary Search)보다 오버헤드가 적어 더 빠르게 동작한다.</li>
+        <li><strong>큐(Queue)를 이용한 시뮬레이션</strong>: 원형 구조를 가장 직관적으로 구현하기 위해 큐를 사용한다.</li>
+        <li><strong>회전(Rotate)</strong>: K번째 사람을 찾기 위해, 앞의 K-1명은 큐에서 뺀 뒤 다시 뒤로 넣는다.</li>
+        <li><strong>제거(Remove)</strong>: K번째 사람은 큐에서 완전히 빼내어 결과 문자열에 추가한다. 이 과정을 큐가 빌 때까지 반복한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -89,34 +89,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 배열 크기 설정 및 선언</strong>
-          <pre><code>final int SIZE = 10_000_000;
-int[] cards = new int[SIZE * 2 + 1];</code></pre>
+        <li><strong>1) 큐 초기화</strong>
+          <pre><code>Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
+for (int i = 1; i &lt;= N; i++) {
+    queue.add(i);
+}</code></pre>
           <ul>
-            <li>수의 범위는 -10,000,000 ~ +10,000,000이므로 총 20,000,001개의 정수를 표현해야 한다.</li>
-            <li>따라서 배열 크기를 <code>SIZE * 2 + 1</code>로 설정하여 모든 범위를 커버한다.</li>
+            <li>1부터 N까지의 번호를 순서대로 큐에 넣는다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 카드 개수 카운팅 (Input)</strong>
-          <pre><code>for (int i = 0; i &lt; N; i++) {
-    int num = Integer.parseInt(st.nextToken());
-    cards[num + SIZE] += 1;
+        <li><strong>2) K번째 사람 제거 로직</strong>
+          <pre><code>int i = 1;
+while (!queue.isEmpty()) {
+    if (i == K) {
+        // K번째 사람인 경우: 제거 및 출력
+        if (queue.size() == 1) {
+            sb.append(queue.poll()).append("&gt;");
+            break;
+        } else {
+            sb.append(queue.poll()).append(", ");
+        }
+        i = 1; // 카운트 초기화
+    } else {
+        // K번째가 아님: 뒤로 보냄 (회전)
+        queue.add(queue.poll());
+        i++;
+    }
 }</code></pre>
           <ul>
-            <li>상근이가 가진 카드 숫자를 읽어서 해당 인덱스의 값을 1 증가시킨다.</li>
-            <li>이때 음수 인덱스를 방지하기 위해 <code>num + SIZE</code> 위치에 저장한다. (예: -10,000,000 → 인덱스 0)</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 쿼리 처리 및 출력 (Output)</strong>
-          <pre><code>for (int i = 0; i &lt; M; i++) {
-    int num = Integer.parseInt(st.nextToken());
-    sb.append(cards[num + SIZE]).append(' ');
-}</code></pre>
-          <ul>
-            <li>찾아야 할 숫자 <code>num</code>이 주어지면, 전처리해 둔 <code>cards</code> 배열에서 <code>num + SIZE</code> 인덱스의 값을 바로 꺼낸다.</li>
-            <li>이 값은 해당 숫자가 등장한 횟수이므로 즉시 출력 버퍼에 담는다.</li>
+            <li><code>i</code> 변수로 현재 몇 번째 사람인지 센다.</li>
+            <li><strong>i == K</strong>: 해당 사람을 <code>poll()</code>로 완전히 제거하고, 출력 버퍼에 추가한다. 제거 후 카운트 <code>i</code>를 다시 1로 초기화한다.</li>
+            <li><strong>i != K</strong>: 해당 사람을 <code>poll()</code>로 꺼내어 바로 <code>add()</code>로 다시 넣는다. (순서 미루기)</li>
           </ul>
         </li>
       </ul>
@@ -132,13 +136,13 @@ int[] cards = new int[SIZE * 2 + 1];</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>카드 입력(N)과 쿼리 처리(M)를 각각 한 번씩 순회하므로 <strong><code>O(N + M)</code></strong>이다.</li>
-            <li>배열 접근은 <code>O(1)</code>이므로 매우 빠르다.</li>
+            <li>총 N명을 제거해야 하며, 한 명을 제거하기 위해 최대 K번의 큐 연산(Poll/Add)이 일어난다.</li>
+            <li>따라서 전체 연산 횟수는 대략 N × K회이므로 <strong><code>O(N × K)</code></strong>이다. (N, K ≤ 1,000 이므로 충분하다.)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>약 2,000만 개의 <code>int</code> 배열을 사용하므로 약 80MB 정도의 메모리를 사용한다. (문제 제한 256MB 내 충분) → <strong><code>O(Range)</code></strong>.</li>
+            <li>큐에 최대 N개의 정수를 저장하므로 <strong><code>O(N)</code></strong>이다.</li>
           </ul>
         </li>
       </ul>
@@ -211,14 +215,14 @@ int[] cards = new int[SIZE * 2 + 1];</code></pre>
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1764 — 듣보잡</h2>
+      <h2 class="section">문제 4949 — 균형잡힌 세상</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1764">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4949">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260130_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -235,15 +239,15 @@ int[] cards = new int[SIZE * 2 + 1];</code></pre>
       </h3>
       
       <p>
-        <strong>듣보잡 (백준 1764)</strong>은<br>
-        "듣도 못한 사람"의 명단과 "보도 못한 사람"의 명단이 주어질 때, 두 명단에 <strong>모두 포함된 사람(교집합)</strong>을 구하고,
-        그 수와 명단을 사전순으로 출력하는 문제다.
+        <strong>균형잡힌 세상 (백준 4949)</strong>은<br>
+        주어진 문자열에 포함된 소괄호 <code>()</code>와 대괄호 <code>[]</code>가
+        올바르게 짝을 이루고 있는지(균형 잡혀 있는지) 판단하는 문제다.
       </p>
       
       <ul>
-        <li>입력으로 주어지는 N과 M은 최대 500,000이다.</li>
-        <li>단순 이중 반복문($O(N \times M)$)으로 비교하면 시간 초과가 발생한다.</li>
-        <li>빠른 검색을 위해 <strong>해시(Hash)</strong>나 <strong>이분 탐색</strong>을 사용해야 한다.</li>
+        <li>각 문자열은 온점(<code>.</code>)으로 끝난다.</li>
+        <li>입력의 종료 조건은 점 하나(<code>.</code>)만 있는 줄이다.</li>
+        <li>여는 괄호와 닫는 괄호의 종류가 정확히 일치해야 하며, 1:1로 매칭되어야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -255,9 +259,15 @@ int[] cards = new int[SIZE * 2 + 1];</code></pre>
       </p>
       
       <ul>
-        <li><strong>자료구조 선택 (HashSet)</strong>: 문자열 검색 속도가 매우 빠른 <code>HashSet</code>을 사용한다. 첫 번째 명단을 Set에 저장해두면, <code>contains</code> 연산은 평균적으로 <strong>O(1)</strong>에 수행된다.</li>
-        <li><strong>교집합 추출</strong>: 두 번째 명단을 입력받으면서 즉시 Set에 존재하는지 확인하고, 존재하면 결과 리스트에 추가한다.</li>
-        <li><strong>정렬 및 출력</strong>: 문제 조건에 따라 결과 리스트를 <strong>사전순으로 정렬</strong>한 뒤 출력한다.</li>
+        <li><strong>스택(Stack) 활용</strong>: 괄호의 짝을 검사하는 가장 표준적인 방법이다. 가장 최근에 열린 괄호가 가장 먼저 닫혀야 하기 때문이다 (LIFO).</li>
+        <li>자바의 <code>ArrayDeque</code>를 스택처럼 사용하여(<code>push</code>, <code>poll</code>, <code>peek</code>) 구현한다.</li>
+        <li><strong>검증 로직</strong>:
+          <ul>
+            <li>여는 괄호 <code>(</code>, <code>[</code>는 스택에 넣는다.</li>
+            <li>닫는 괄호 <code>)</code>, <code>]</code>가 나오면 스택의 맨 위(top)와 짝이 맞는지 확인하고 제거한다.</li>
+            <li>중간에 짝이 안 맞거나, 처리가 끝난 후 스택에 괄호가 남아있으면 불균형 문자열이다.</li>
+          </ul>
+        </li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -269,44 +279,52 @@ int[] cards = new int[SIZE * 2 + 1];</code></pre>
       </p>
       
       <ul>
-        <li><strong>1) 듣도 못한 사람 저장 (HashSet)</strong>
-          <pre><code>Set&lt;String&gt; listen = new HashSet&lt;&gt;();
-
-for (int i = 0; i &lt; N; i++) {
-    listen.add(br.readLine());
+        <li><strong>1) 입력 처리 및 종료 조건</strong>
+          <pre><code>while (true) {
+    String line = br.readLine();
+    if (line.equals(".")) break;
+    // ...
 }</code></pre>
           <ul>
-            <li>첫 번째 그룹(듣도 못한 사람)의 이름을 모두 <code>HashSet</code>에 저장한다.</li>
-            <li>중복이 없다는 조건이 있지만, <code>Set</code>은 중복을 자연스럽게 처리하므로 안전하다.</li>
+            <li>무한 루프를 돌며 한 줄씩 입력을 받는다.</li>
+            <li>입력 줄이 정확히 점 하나(<code>.</code>)라면 프로그램을 종료한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 보도 못한 사람 확인 및 교집합 추적</strong>
-          <pre><code>List&lt;String&gt; result = new ArrayList&lt;&gt;();
-
-for (int i = 0; i &lt; M; i++) {
-    String s = br.readLine();
-
-    if (listen.contains(s)) {
-        result.add(s);
+        <li><strong>2) 괄호 검사 및 스택 연산</strong>
+          <pre><code>for (char c : line.toCharArray()) {
+    if (c == '(' || c == '[') {
+        deque.push(c);
+    } else if (c == ')') {
+        if (deque.isEmpty() || deque.peek() != '(') {
+            ok = false;
+            break;
+        }
+        deque.poll();
+    } else if (c == ']') {
+        if (deque.isEmpty() || deque.peek() != '[') {
+            ok = false;
+            break;
+        }
+        deque.poll();
     }
 }</code></pre>
           <ul>
-            <li>두 번째 그룹(보도 못한 사람)의 이름을 입력받으며, <code>listen</code> 셋에 이미 존재하는지 확인한다.</li>
-            <li>존재한다면 "듣보잡"에 해당하므로 <code>result</code> 리스트에 추가한다.</li>
+            <li>문자열을 한 글자씩 순회한다.</li>
+            <li>여는 괄호는 무조건 <code>push</code>한다.</li>
+            <li>닫는 괄호가 나왔을 때 스택이 비어있거나(짝 없음), 스택의 top과 종류가 다르다면(괄호 엇갈림) <code>ok = false</code> 처리하고 반복을 멈춘다.</li>
+            <li>짝이 맞다면 <code>poll()</code>로 스택에서 여는 괄호를 제거한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 정렬 및 출력</strong>
-          <pre><code>Collections.sort(result);
+        <li><strong>3) 최종 판별 및 출력</strong>
+          <pre><code>if (!deque.isEmpty()) ok = false;
 
-sb.append(result.size()).append('\n');
-for (String s : result) {
-    sb.append(s).append('\n');
-}</code></pre>
+if (ok) sb.append("yes").append('\n');
+else sb.append("no").append('\n');</code></pre>
           <ul>
-            <li>찾아낸 교집합 명단을 <code>Collections.sort()</code>를 이용해 사전순으로 정렬한다.</li>
-            <li>총 인원수와 명단을 순서대로 출력한다.</li>
+            <li>모든 문자를 다 돌았는데 스택에 괄호가 남아있다면, 닫히지 않은 괄호가 있는 것이므로 실패 처리한다.</li>
+            <li>최종 <code>ok</code> 플래그에 따라 "yes" 혹은 "no"를 버퍼에 기록한다.</li>
           </ul>
         </li>
       </ul>
@@ -322,15 +340,12 @@ for (String s : result) {
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>N개의 이름을 Set에 넣는 데 <code>O(N)</code>.</li>
-            <li>M개의 이름을 조회하는 데 <code>O(M)</code>.</li>
-            <li>교집합의 크기를 K라 할 때, 정렬에 <code>O(K log K)</code>가 소요된다.</li>
-            <li>전체 복잡도는 <strong><code>O(N + M + K log K)</code></strong>로, 시간 제한 내에 충분하다.</li>
+            <li>각 문자열의 길이를 N이라 할 때, 한 번 순회하며 스택 연산을 수행하므로 줄마다 <strong><code>O(N)</code></strong>이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>N개의 문자열을 저장할 <code>HashSet</code>과 결과 리스트를 위한 공간이 필요하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li>스택에 최대 N개의 괄호가 쌓일 수 있으므로 <strong><code>O(N)</code></strong>이다.</li>
           </ul>
         </li>
       </ul>
