@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 35일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 36일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -23,22 +23,13 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
-    /* 코드 블록 스타일 */
-    pre {
-      background-color: #f8f9fa;
+    /* 개념 설명용 박스 스타일 */
+    .concept-box {
+      background-color: #fff3e0;
+      border-left: 5px solid #ff9800;
       padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      border: 1px solid #e9ecef;
-    }
-    /* 이미지 스타일 */
-    .structure-img {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin: 1.5rem auto;
-      display: block;
+      margin: 1rem 0;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -58,10 +49,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 35일차 TIL — 일정 관리 프로젝트 개발과 트러블 슈팅</h1>
-      <p class="muted">작성일 2026-01-30 · 분류: 부트캠프, TIL, Spring Boot, JPA, Project</p>
+      <h1>내일배움캠프 Spring 백엔드 36일차 TIL — JPA 심화와 3 Layer Architecture</h1>
+      <p class="muted">작성일 2026-02-02 · 분류: 부트캠프, TIL, JPA, Spring Boot, Architecture</p>
 
-      <h2 class="section">35일차 개요</h2>
+      <h2 class="section">36일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -70,125 +61,148 @@
       </h3>
 
       <ul>
-        <li><strong>JPA</strong>를 활용하여 일정 관리 서버의 핵심 도메인과 리포지토리를 구현한다.</li>
-        <li><strong>DTO(Data Transfer Object)</strong>를 사용하여 Controller와 Service 간의 데이터를 안전하게 주고받는다.</li>
-        <li>개발 과정에서 마주친 <strong>데이터 바인딩 문제(@RequestParam vs @RequestBody)</strong>를 해결하고 정리한다.</li>
+        <li><strong>ORM과 JPA</strong>의 관계를 이해하고 Entity 매핑 방법을 익힌다.</li>
+        <li><strong>3 Layer Architecture</strong>의 각 계층별 역할과 통신 규칙을 명확히 한다.</li>
+        <li><strong>영속성 컨텍스트</strong>의 생명주기와 더티 체킹(Dirty Checking) 원리를 파악한다.</li>
       </ul>
 
-      <h2 class="section">프로젝트 구현: 일정 관리 (진행 중)</h2>
-
-      <p>
-        기본적인 CRUD 기능을 목표로 엔티티 설계부터 컨트롤러 구현까지 진행 중이다.
-        특히 <strong>반복되는 코드(생성일/수정일)</strong>를 제거하기 위해 JPA Auditing 기능을 적극 활용했다.
-      </p>
+      <h2 class="section">ORM과 JPA의 세계</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. BaseEntity로 공통 필드 관리
+          패러다임의 불일치
         </span>
       </h3>
-
-      <p>
-        모든 테이블에 공통으로 들어가는 <code>createdAt</code>(생성일), <code>modifiedAt</code>(수정일)을 매번 작성하는 것은 비효율적이다.
-        이를 해결하기 위해 <strong>@MappedSuperclass</strong>와 <strong>JPA Auditing</strong>을 적용했다.
-      </p>
-
-      <pre><code class="language-java">@Getter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity {
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime modifiedAt;
-}</code></pre>
+      <div class="concept-box">
+        <strong>객체 vs 테이블</strong><br/>
+        Java 객체는 상속, 리스트 등을 자유롭게 쓰지만, DB 테이블은 오직 단일 값(String, Integer)만 저장할 수 있다. 이 차이를 <strong>패러다임의 불일치</strong>라고 하며, 이를 해결해 주는 기술이 ORM이다.
+      </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Repository의 메서드 명명 규칙
+          기술 스택 용어 정리
         </span>
       </h3>
-      
-      <p>
-        JPA Repository의 강력한 기능인 <strong>쿼리 메서드(Query Method)</strong>를 사용하여,
-        복잡한 JPQL 작성 없이도 메서드 이름만으로 원하는 쿼리를 실행할 수 있었다.
-      </p>
-
-      <pre><code class="language-java">public interface ScheduleRepository extends JpaRepository&lt;Schedule, Long&gt; {
-    // 이름으로 검색하고 수정일 기준 내림차순 정렬
-    List&lt;Schedule&gt; findByNameOrderByModifiedAtDesc(String name);
-
-    // 전체 조회를 하되 수정일 기준 내림차순 정렬
-    List&lt;Schedule&gt; findAllByOrderByModifiedAtDesc();
-}</code></pre>
-
-      <h2 class="section">트러블 슈팅: 데이터 바인딩의 차이</h2>
+      <ul>
+        <li><strong>JDBC</strong>: Java 프로그램이 DB와 통신하기 위한 가장 기초적인 도구(API)이다.</li>
+        <li><strong>ORM (Object-Relational Mapping)</strong>: 객체와 DB 테이블을 자동으로 연결해 주는 기술이다. SQL을 직접 짜지 않고도 객체를 조작해 DB를 다룰 수 있다.</li>
+        <li><strong>JPA (Java Persistence API)</strong>: Java 표준 ORM 인터페이스(설계도)이다.</li>
+        <li><strong>Hibernate</strong>: JPA 인터페이스를 실제로 구현한 가장 유명한 구현체이다.</li>
+      </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
+          Entity 매핑 필수 어노테이션
         </span>
       </h3>
-      <p>
-        API를 개발하던 중, 클라이언트가 보내는 데이터를 컨트롤러에서 제대로 받지 못하는 경우가 있었다.
-        특히 <strong>GET 요청의 쿼리 파라미터</strong>와 <strong>POST 요청의 JSON 바디</strong>를 처리하는 방식이 혼동되었다.
-      </p>
+      <p>Entity 클래스를 작성할 때는 아래 어노테이션들을 기본 세트처럼 사용한다.</p>
+      <ul>
+        <li><code>@Entity</code>: JPA가 관리할 객체임을 선언한다.</li>
+        <li><code>@Table</code>: 매핑할 DB 테이블 이름을 지정한다. (예약어 충돌 방지를 위해 복수형 권장)</li>
+        <li><code>@Id</code>: PK(기본 키)를 지정한다.</li>
+        <li><code>@GeneratedValue(strategy = GenerationType.IDENTITY)</code>: PK 자동 생성 전략(MySQL의 Auto Increment)을 사용한다.</li>
+        <li><code>@NoArgsConstructor(access = AccessLevel.PROTECTED)</code>: JPA가 객체를 생성할 때 필요한 기본 생성자를 만들되, 외부 접근은 막는다.</li>
+      </ul>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해결: @RequestParam vs @RequestBody 정리
-        </span>
-      </h3>
+      <h2 class="section">3 Layer Architecture</h2>
+
+      <p>
+        소프트웨어를 <strong>Controller, Service, Repository</strong> 세 계층으로 나누어 관리하는 아키텍처 패턴이다.
+        관심사를 분리하여 유지보수성과 재사용성을 높이는 것이 핵심이다.
+      </p>
 
       
 
-      <table>
-        <thead>
-          <tr>
-            <th>구분</th>
-            <th>@RequestParam</th>
-            <th>@RequestBody</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>데이터 위치</strong></td>
-            <td>URL 뒤의 <strong>Query String</strong><br>(예: <code>?name=user&age=20</code>)</td>
-            <td>HTTP 요청의 <strong>Body</strong><br>(주로 JSON 형태)</td>
-          </tr>
-          <tr>
-            <td><strong>주 사용 메서드</strong></td>
-            <td><strong>GET</strong>, DELETE<br>(검색, 필터링, 단일 삭제)</td>
-            <td><strong>POST</strong>, PUT, PATCH<br>(데이터 생성, 수정)</td>
-          </tr>
-          <tr>
-            <td><strong>특징</strong></td>
-            <td>단일 값이나 간단한 데이터를 받을 때 사용.<br><code>required=false</code>로 선택적 입력 가능.</td>
-            <td>복잡한 객체(DTO)를 통째로 받을 때 사용.<br><strong>MessageConverter</strong>가 JSON을 객체로 변환해줌.</td>
-          </tr>
-        </tbody>
-      </table>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          1. Controller Layer (Presentation)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>역할</strong>: 사용자의 요청(HTTP)을 받고 응답을 반환하는 창구.</li>
+        <li><strong>할 일</strong>: 요청 파라미터 검증, Service 호출, DTO 변환.</li>
+        <li><strong>하지 말 것</strong>: 비즈니스 로직 수행, DB 직접 접근.</li>
+      </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          실제 코드 적용 예시
+          2. Service Layer (Business)
         </span>
       </h3>
+      <ul>
+        <li><strong>역할</strong>: 핵심 비즈니스 로직을 수행하는 허리.</li>
+        <li><strong>할 일</strong>: 트랜잭션 관리(<code>@Transactional</code>), 데이터 조합 및 가공, DTO ↔ Entity 변환.</li>
+        <li><strong>하지 말 것</strong>: HTTP(Request/Response) 객체 직접 사용, SQL 쿼리 작성.</li>
+      </ul>
 
-      <pre><code class="language-java">// 1. GET 요청: 검색 조건(name)은 쿼리 파라미터로 받음
-@GetMapping("/api")
-public List&lt;ScheduleResponseDto&gt; getSchedules(@RequestParam(required = false) String name) {
-    return scheduleService.getSchedulesByName(name);
-}
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          3. Repository Layer (Data Access)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>역할</strong>: DB와 직접 대화하는 계층.</li>
+        <li><strong>할 일</strong>: 데이터 CRUD, 쿼리 최적화.</li>
+        <li><strong>하지 말 것</strong>: 비즈니스 로직 판단, 화면(UI) 관련 작업.</li>
+      </ul>
 
-// 2. POST 요청: 생성할 일정 정보는 Body(JSON)로 받음
-@PostMapping("/api")
-public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {
-    return scheduleService.addSchedule(scheduleRequestDto);
-}</code></pre>
+      <h2 class="section">영속성 컨텍스트 (Persistence Context)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          개념과 역할
+        </span>
+      </h3>
+      <div class="concept-box">
+        <strong>엔티티를 영구 저장하는 환경</strong><br/>
+        애플리케이션과 DB 사이에서 객체를 보관하는 <strong>'가상의 임시 저장소'</strong> 역할을 한다. 1차 캐시, 변경 감지(Dirty Checking), 쓰기 지연 등의 기능을 제공하여 성능을 최적화한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          엔티티의 생명주기
+        </span>
+      </h3>
+      <ul>
+        <li><strong>비영속 (New)</strong>: 객체만 생성하고 JPA와 전혀 관계없는 상태. (DB ID 없음)</li>
+        <li><strong>영속 (Managed)</strong>: <code>em.persist()</code> 등으로 영속성 컨텍스트에 저장되어 관리되는 상태.</li>
+        <li><strong>준영속 (Detached)</strong>: 영속 상태였다가 분리되어 관리를 받지 않는 상태.</li>
+        <li><strong>삭제 (Removed)</strong>: 삭제하기로 표시된 상태.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          더티 체킹 (Dirty Checking)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>원리</strong>: 트랜잭션이 끝나는 시점에 엔티티의 <strong>최초 조회 상태(스냅샷)</strong>와 <strong>현재 상태</strong>를 비교한다.</li>
+        <li><strong>효과</strong>: 필드 값이 변경되었다면 개발자가 <code>update</code> 쿼리를 날리지 않아도, JPA가 알아서 <strong>UPDATE SQL</strong>을 생성하여 DB에 반영한다.</li>
+      </ul>
+
+      <h2 class="section">JPA 편의 기능</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JPA Auditing
+        </span>
+      </h3>
+      <p>데이터의 생성 시간과 수정 시간을 자동으로 관리해주는 기능이다.</p>
+      <ol>
+        <li>Application 클래스에 <code>@EnableAuditing</code> 추가</li>
+        <li><code>BaseEntity</code> 추상 클래스 생성 (<code>@EntityListeners</code> 추가)</li>
+        <li>각 엔티티에서 <code>BaseEntity</code> 상속</li>
+      </ol>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @Transactional 옵션
+        </span>
+      </h3>
+      <ul>
+        <li><code>readOnly = true</code>: 읽기 전용으로 설정하여 변경 감지를 끄고 성능을 높인다.</li>
+        <li><code>rollbackFor</code>: 특정 예외 발생 시 강제로 롤백하도록 지정한다. (기본적으로는 RuntimeException만 롤백됨)</li>
+      </ul>
 
       <h2 class="section">오늘의 회고</h2>
 
@@ -199,9 +213,9 @@ public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto schedu
       </h3>
 
       <ul>
-        <li><strong>JPA Auditing</strong>을 적용하니 <code>createdAt</code> 같은 반복 코드가 사라져 엔티티가 훨씬 깔끔해졌다. 실무에서도 필수일 것 같다.</li>
-        <li><strong>DTO Record</strong> 타입을 처음 써봤는데, 불변(Immutable) 객체라 데이터 전달용으로 아주 적합하고 코드도 간결해서 좋았다.</li>
-        <li>Controller에서 데이터를 받을 때, <strong>"이 데이터가 URL에 있나? Body에 있나?"</strong>를 먼저 생각하고 어노테이션을 골라야 한다는 기준이 생겼다.</li>
+        <li>3 Layer Architecture에서 <strong>'계층 건너뛰기'</strong>가 왜 금지되는지, 각자의 역할에만 충실해야 유지보수가 쉽다는 점을 확실히 이해했다.</li>
+        <li>더티 체킹 덕분에 <code>save()</code>를 호출하지 않아도 수정이 된다는 게 처음엔 마법 같았지만, 영속성 컨텍스트의 원리를 아니 납득이 되었다.</li>
+        <li>Entity에는 비즈니스 로직을 위한 Setter 사용을 지양하고, 생성자나 별도 메서드로 관리해야 안전하다는 점을 명심해야겠다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
