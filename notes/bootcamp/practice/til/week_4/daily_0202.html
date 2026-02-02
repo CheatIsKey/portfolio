@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 35일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+    /* 코드 블록 스타일 */
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+    }
+    /* 이미지 스타일 */
+    .structure-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 1.5rem auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 35일차 TIL — 일정 관리 프로젝트 개발과 트러블 슈팅</h1>
+      <p class="muted">작성일 2026-01-30 · 분류: 부트캠프, TIL, Spring Boot, JPA, Project</p>
+
+      <h2 class="section">35일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>JPA</strong>를 활용하여 일정 관리 서버의 핵심 도메인과 리포지토리를 구현한다.</li>
+        <li><strong>DTO(Data Transfer Object)</strong>를 사용하여 Controller와 Service 간의 데이터를 안전하게 주고받는다.</li>
+        <li>개발 과정에서 마주친 <strong>데이터 바인딩 문제(@RequestParam vs @RequestBody)</strong>를 해결하고 정리한다.</li>
+      </ul>
+
+      <h2 class="section">프로젝트 구현: 일정 관리 (진행 중)</h2>
+
+      <p>
+        기본적인 CRUD 기능을 목표로 엔티티 설계부터 컨트롤러 구현까지 진행 중이다.
+        특히 <strong>반복되는 코드(생성일/수정일)</strong>를 제거하기 위해 JPA Auditing 기능을 적극 활용했다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          1. BaseEntity로 공통 필드 관리
+        </span>
+      </h3>
+
+      <p>
+        모든 테이블에 공통으로 들어가는 <code>createdAt</code>(생성일), <code>modifiedAt</code>(수정일)을 매번 작성하는 것은 비효율적이다.
+        이를 해결하기 위해 <strong>@MappedSuperclass</strong>와 <strong>JPA Auditing</strong>을 적용했다.
+      </p>
+
+      <pre><code class="language-java">@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class BaseEntity {
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime modifiedAt;
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          2. Repository의 메서드 명명 규칙
+        </span>
+      </h3>
+      
+      <p>
+        JPA Repository의 강력한 기능인 <strong>쿼리 메서드(Query Method)</strong>를 사용하여,
+        복잡한 JPQL 작성 없이도 메서드 이름만으로 원하는 쿼리를 실행할 수 있었다.
+      </p>
+
+      <pre><code class="language-java">public interface ScheduleRepository extends JpaRepository&lt;Schedule, Long&gt; {
+    // 이름으로 검색하고 수정일 기준 내림차순 정렬
+    List&lt;Schedule&gt; findByNameOrderByModifiedAtDesc(String name);
+
+    // 전체 조회를 하되 수정일 기준 내림차순 정렬
+    List&lt;Schedule&gt; findAllByOrderByModifiedAtDesc();
+}</code></pre>
+
+      <h2 class="section">트러블 슈팅: 데이터 바인딩의 차이</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 상황
+        </span>
+      </h3>
+      <p>
+        API를 개발하던 중, 클라이언트가 보내는 데이터를 컨트롤러에서 제대로 받지 못하는 경우가 있었다.
+        특히 <strong>GET 요청의 쿼리 파라미터</strong>와 <strong>POST 요청의 JSON 바디</strong>를 처리하는 방식이 혼동되었다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결: @RequestParam vs @RequestBody 정리
+        </span>
+      </h3>
+
+      
+
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>@RequestParam</th>
+            <th>@RequestBody</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>데이터 위치</strong></td>
+            <td>URL 뒤의 <strong>Query String</strong><br>(예: <code>?name=user&age=20</code>)</td>
+            <td>HTTP 요청의 <strong>Body</strong><br>(주로 JSON 형태)</td>
+          </tr>
+          <tr>
+            <td><strong>주 사용 메서드</strong></td>
+            <td><strong>GET</strong>, DELETE<br>(검색, 필터링, 단일 삭제)</td>
+            <td><strong>POST</strong>, PUT, PATCH<br>(데이터 생성, 수정)</td>
+          </tr>
+          <tr>
+            <td><strong>특징</strong></td>
+            <td>단일 값이나 간단한 데이터를 받을 때 사용.<br><code>required=false</code>로 선택적 입력 가능.</td>
+            <td>복잡한 객체(DTO)를 통째로 받을 때 사용.<br><strong>MessageConverter</strong>가 JSON을 객체로 변환해줌.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          실제 코드 적용 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 1. GET 요청: 검색 조건(name)은 쿼리 파라미터로 받음
+@GetMapping("/api")
+public List&lt;ScheduleResponseDto&gt; getSchedules(@RequestParam(required = false) String name) {
+    return scheduleService.getSchedulesByName(name);
+}
+
+// 2. POST 요청: 생성할 일정 정보는 Body(JSON)로 받음
+@PostMapping("/api")
+public ScheduleResponseDto createSchedule(@RequestBody ScheduleRequestDto scheduleRequestDto) {
+    return scheduleService.addSchedule(scheduleRequestDto);
+}</code></pre>
+
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li><strong>JPA Auditing</strong>을 적용하니 <code>createdAt</code> 같은 반복 코드가 사라져 엔티티가 훨씬 깔끔해졌다. 실무에서도 필수일 것 같다.</li>
+        <li><strong>DTO Record</strong> 타입을 처음 써봤는데, 불변(Immutable) 객체라 데이터 전달용으로 아주 적합하고 코드도 간결해서 좋았다.</li>
+        <li>Controller에서 데이터를 받을 때, <strong>"이 데이터가 URL에 있나? Body에 있나?"</strong>를 먼저 생각하고 어노테이션을 골라야 한다는 기준이 생겼다.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
