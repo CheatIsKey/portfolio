@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 36일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 37일차 TIL (1)</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -31,6 +31,14 @@
       margin: 1rem 0;
       border-radius: 4px;
     }
+    /* 코드 블록 스타일 */
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+    }
   </style>
 </head>
 <body>
@@ -49,10 +57,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 36일차 TIL — JPA 심화와 3 Layer Architecture</h1>
-      <p class="muted">작성일 2026-02-02 · 분류: 부트캠프, TIL, JPA, Spring Boot, Architecture</p>
+      <h1>내일배움캠프 Spring 백엔드 37일차 TIL (1) — 일정 관리 프로젝트 트러블 슈팅 모음</h1>
+      <p class="muted">작성일 2026-02-03 · 분류: 부트캠프, TIL, Spring Boot, Troubleshooting, Project</p>
 
-      <h2 class="section">36일차 개요</h2>
+      <h2 class="section">37일차 개요 (1/2)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -61,161 +69,122 @@
       </h3>
 
       <ul>
-        <li><strong>ORM과 JPA</strong>의 관계를 이해하고 Entity 매핑 방법을 익힌다.</li>
-        <li><strong>3 Layer Architecture</strong>의 각 계층별 역할과 통신 규칙을 명확히 한다.</li>
-        <li><strong>영속성 컨텍스트</strong>의 생명주기와 더티 체킹(Dirty Checking) 원리를 파악한다.</li>
+        <li>일정 관리 프로젝트 진행 중 발생한 <strong>기술적 문제와 해결 과정</strong>을 기록한다.</li>
+        <li><strong>Swagger/Redoc</strong> 설정, <strong>Java Record</strong> 활용, <strong>Entity 설계</strong> 등에서 배운 점을 정리한다.</li>
+        <li>문서화(README)의 질을 높이기 위한 시각화 자료 활용법을 익힌다.</li>
       </ul>
 
-      <h2 class="section">ORM과 JPA의 세계</h2>
+      <h2 class="section">API 문서화 도구 (Swagger & Redoc)</h2>
+
+      <p>
+        API 명세서를 자동화하기 위해 Swagger를 도입했으나, Spring Boot 버전 차이와 배포 환경에서 여러 이슈를 마주쳤다.
+      </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          패러다임의 불일치
+          트러블 슈팅: Spring Boot 3.x 의존성 문제
+        </span>
+      </h3>
+      <ul>
+        <li><strong>상황</strong>: Spring Boot 3.x 프로젝트에 2.x용 <code>springdoc-openapi-ui</code>를 추가하자 Swagger 접속 시 404 화이트라벨 에러가 발생했다.</li>
+        <li><strong>원인</strong>: Spring Boot 3.x부터는 <code>javax</code> 패키지가 <code>jakarta</code>로 변경되는 등 내부 구조가 달라져 구버전 라이브러리와 호환되지 않았다.</li>
+        <li><strong>해결</strong>: <code>springdoc-openapi-starter-webmvc-ui</code> (v2.x 이상) 의존성으로 교체하여 해결했다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트러블 슈팅: Redoc 배포 시 흰 화면 현상
+        </span>
+      </h3>
+      <ul>
+        <li><strong>상황</strong>: GitHub Pages로 API 문서를 배포했으나, 제목만 뜨고 내용은 보이지 않는 빈 화면이 지속되었다.</li>
+        <li><strong>원인</strong>: HTML 파일이 외부의 <code>openapi.json</code> 파일을 비동기로 로드하는 과정에서 경로(Path)를 찾지 못했다.</li>
+        <li><strong>해결</strong>: JSON 데이터를 별도 파일 로딩 없이, HTML 내부 <code>&lt;script&gt;</code> 변수에 직접 할당(Embedding)하여 즉시 렌더링되도록 수정했다.</li>
+      </ul>
+
+      <h2 class="section">Java Record와 DTO 검증</h2>
+
+      <p>
+        데이터 전송 객체(DTO)로 <code>Record</code>를 도입하면서, 불변 객체의 특성과 생성자를 활용한 검증 로직을 학습했다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Compact Constructor (컴팩트 생성자)
         </span>
       </h3>
       <div class="concept-box">
-        <strong>객체 vs 테이블</strong><br/>
-        Java 객체는 상속, 리스트 등을 자유롭게 쓰지만, DB 테이블은 오직 단일 값(String, Integer)만 저장할 수 있다. 이 차이를 <strong>패러다임의 불일치</strong>라고 하며, 이를 해결해 주는 기술이 ORM이다.
+        <strong>괄호 없는 생성자</strong><br/>
+        <code>public RecordName { ... }</code> 형태로 작성하며, 매개변수 선언과 <code>this.val = val</code> 할당 코드를 생략할 수 있다. 검증 로직만 깔끔하게 작성할 수 있는 Record만의 강력한 기능이다.
       </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          기술 스택 용어 정리
+          트러블 슈팅: 검증 순서에 따른 NPE
         </span>
       </h3>
-      <ul>
-        <li><strong>JDBC</strong>: Java 프로그램이 DB와 통신하기 위한 가장 기초적인 도구(API)이다.</li>
-        <li><strong>ORM (Object-Relational Mapping)</strong>: 객체와 DB 테이블을 자동으로 연결해 주는 기술이다. SQL을 직접 짜지 않고도 객체를 조작해 DB를 다룰 수 있다.</li>
-        <li><strong>JPA (Java Persistence API)</strong>: Java 표준 ORM 인터페이스(설계도)이다.</li>
-        <li><strong>Hibernate</strong>: JPA 인터페이스를 실제로 구현한 가장 유명한 구현체이다.</li>
-      </ul>
+
+      <pre><code class="language-java">// [문제 코드]
+if (name.length() > 20 || name == null) { ... }
+// name이 null일 경우 length()를 호출하다가 NullPointerException 발생
+
+// [해결 코드]
+if (name == null || name.length() > 20) { ... }
+// null 체크를 먼저 수행하여(Short-circuit) 안전하게 검증</code></pre>
+
+      <h2 class="section">Spring의 요청 처리 메커니즘</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Entity 매핑 필수 어노테이션
+          트러블 슈팅: DELETE 요청과 @RequestBody
         </span>
       </h3>
-      <p>Entity 클래스를 작성할 때는 아래 어노테이션들을 기본 세트처럼 사용한다.</p>
-      <ul>
-        <li><code>@Entity</code>: JPA가 관리할 객체임을 선언한다.</li>
-        <li><code>@Table</code>: 매핑할 DB 테이블 이름을 지정한다. (예약어 충돌 방지를 위해 복수형 권장)</li>
-        <li><code>@Id</code>: PK(기본 키)를 지정한다.</li>
-        <li><code>@GeneratedValue(strategy = GenerationType.IDENTITY)</code>: PK 자동 생성 전략(MySQL의 Auto Increment)을 사용한다.</li>
-        <li><code>@NoArgsConstructor(access = AccessLevel.PROTECTED)</code>: JPA가 객체를 생성할 때 필요한 기본 생성자를 만들되, 외부 접근은 막는다.</li>
-      </ul>
-
-      <h2 class="section">3 Layer Architecture</h2>
-
-      <p>
-        소프트웨어를 <strong>Controller, Service, Repository</strong> 세 계층으로 나누어 관리하는 아키텍처 패턴이다.
-        관심사를 분리하여 유지보수성과 재사용성을 높이는 것이 핵심이다.
-      </p>
 
       
 
+      <ul>
+        <li><strong>상황</strong>: Postman에서 DELETE 요청 시 Body를 비우고 보냈더니 <code>HttpMessageNotReadableException</code> 에러가 발생했다.</li>
+        <li><strong>오해</strong>: "DELETE는 데이터를 지우는 거니까 Body가 없어도 DTO 검증만 안 하고 넘어가지 않을까?"라고 생각했다.</li>
+        <li><strong>실제 원인</strong>: 컨트롤러에 <code>@RequestBody</code>가 선언되어 있으면, 스프링은 내용을 읽기 위해 <strong>입력 스트림</strong>을 연다. 이때 Body가 아예 없으면 DTO를 생성하는 단계조차 가지 못하고 예외를 던진다.</li>
+        <li><strong>해결</strong>: 테스트 시 빈 JSON 객체 <code>{}</code>라도 보내야 DTO가 생성되고 내부 검증 로직이 작동함을 확인했다.</li>
+      </ul>
+
+      <h2 class="section">엔티티 설계와 문서화</h2>
+
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. Controller Layer (Presentation)
+          이중 검증 구조 (Defense in Depth)
         </span>
       </h3>
       <ul>
-        <li><strong>역할</strong>: 사용자의 요청(HTTP)을 받고 응답을 반환하는 창구.</li>
-        <li><strong>할 일</strong>: 요청 파라미터 검증, Service 호출, DTO 변환.</li>
-        <li><strong>하지 말 것</strong>: 비즈니스 로직 수행, DB 직접 접근.</li>
+        <li><strong>1차 방어 (DTO)</strong>: <code>Record</code> 생성자에서 형식(Format)과 필수값 여부를 검증한다.</li>
+        <li><strong>2차 방어 (Entity)</strong>: 엔티티 생성자에서 데이터 무결성(Integrity)을 최종 검증한다.</li>
+        <li><strong>Validator 분리</strong>: <code>checkLength</code>, <code>isNotNull</code> 같은 반복 로직을 별도 유틸 클래스로 분리해 가독성을 높였다.</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Service Layer (Business)
+          문서화 (README.md) 개선
         </span>
       </h3>
       <ul>
-        <li><strong>역할</strong>: 핵심 비즈니스 로직을 수행하는 허리.</li>
-        <li><strong>할 일</strong>: 트랜잭션 관리(<code>@Transactional</code>), 데이터 조합 및 가공, DTO ↔ Entity 변환.</li>
-        <li><strong>하지 말 것</strong>: HTTP(Request/Response) 객체 직접 사용, SQL 쿼리 작성.</li>
+        <li>기존 텍스트 나열 방식에서 벗어나 <strong>ERD</strong>와 <strong>Class Diagram</strong> 같은 시각 자료를 적극 활용했다.</li>
+        <li>API 명세는 표로 요약하고, 상세 내용은 배포된 <strong>Redoc 링크</strong>로 연결하여 가독성을 확보했다.</li>
+        <li>단순 기능 나열이 아니라, <strong>JPA Auditing</strong>이나 <strong>책임 분리</strong> 같은 핵심 기술 적용 이유를 서술하여 기술적 깊이를 더했다.</li>
       </ul>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          3. Repository Layer (Data Access)
-        </span>
-      </h3>
-      <ul>
-        <li><strong>역할</strong>: DB와 직접 대화하는 계층.</li>
-        <li><strong>할 일</strong>: 데이터 CRUD, 쿼리 최적화.</li>
-        <li><strong>하지 말 것</strong>: 비즈니스 로직 판단, 화면(UI) 관련 작업.</li>
-      </ul>
-
-      <h2 class="section">영속성 컨텍스트 (Persistence Context)</h2>
+      <h2 class="section">오늘의 회고 (Part 1)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          개념과 역할
-        </span>
-      </h3>
-      <div class="concept-box">
-        <strong>엔티티를 영구 저장하는 환경</strong><br/>
-        애플리케이션과 DB 사이에서 객체를 보관하는 <strong>'가상의 임시 저장소'</strong> 역할을 한다. 1차 캐시, 변경 감지(Dirty Checking), 쓰기 지연 등의 기능을 제공하여 성능을 최적화한다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          엔티티의 생명주기
-        </span>
-      </h3>
-      <ul>
-        <li><strong>비영속 (New)</strong>: 객체만 생성하고 JPA와 전혀 관계없는 상태. (DB ID 없음)</li>
-        <li><strong>영속 (Managed)</strong>: <code>em.persist()</code> 등으로 영속성 컨텍스트에 저장되어 관리되는 상태.</li>
-        <li><strong>준영속 (Detached)</strong>: 영속 상태였다가 분리되어 관리를 받지 않는 상태.</li>
-        <li><strong>삭제 (Removed)</strong>: 삭제하기로 표시된 상태.</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          더티 체킹 (Dirty Checking)
-        </span>
-      </h3>
-      <ul>
-        <li><strong>원리</strong>: 트랜잭션이 끝나는 시점에 엔티티의 <strong>최초 조회 상태(스냅샷)</strong>와 <strong>현재 상태</strong>를 비교한다.</li>
-        <li><strong>효과</strong>: 필드 값이 변경되었다면 개발자가 <code>update</code> 쿼리를 날리지 않아도, JPA가 알아서 <strong>UPDATE SQL</strong>을 생성하여 DB에 반영한다.</li>
-      </ul>
-
-      <h2 class="section">JPA 편의 기능</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JPA Auditing
-        </span>
-      </h3>
-      <p>데이터의 생성 시간과 수정 시간을 자동으로 관리해주는 기능이다.</p>
-      <ol>
-        <li>Application 클래스에 <code>@EnableAuditing</code> 추가</li>
-        <li><code>BaseEntity</code> 추상 클래스 생성 (<code>@EntityListeners</code> 추가)</li>
-        <li>각 엔티티에서 <code>BaseEntity</code> 상속</li>
-      </ol>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          @Transactional 옵션
-        </span>
-      </h3>
-      <ul>
-        <li><code>readOnly = true</code>: 읽기 전용으로 설정하여 변경 감지를 끄고 성능을 높인다.</li>
-        <li><code>rollbackFor</code>: 특정 예외 발생 시 강제로 롤백하도록 지정한다. (기본적으로는 RuntimeException만 롤백됨)</li>
-      </ul>
-
-      <h2 class="section">오늘의 회고</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 느낀 점
+          트러블 슈팅 총평
         </span>
       </h3>
 
       <ul>
-        <li>3 Layer Architecture에서 <strong>'계층 건너뛰기'</strong>가 왜 금지되는지, 각자의 역할에만 충실해야 유지보수가 쉽다는 점을 확실히 이해했다.</li>
-        <li>더티 체킹 덕분에 <code>save()</code>를 호출하지 않아도 수정이 된다는 게 처음엔 마법 같았지만, 영속성 컨텍스트의 원리를 아니 납득이 되었다.</li>
-        <li>Entity에는 비즈니스 로직을 위한 Setter 사용을 지양하고, 생성자나 별도 메서드로 관리해야 안전하다는 점을 명심해야겠다.</li>
+        <li>에러 로그를 만났을 때 단순히 코드를 고치는 것을 넘어, <strong>"프레임워크가 내부적으로 어떻게 동작하길래 이 에러가 났을까?"</strong>(예: DELETE Body 처리)를 고민하는 과정이 의미 있었다.</li>
+        <li>문서화는 개발의 끝이 아니라, <strong>내 코드의 설득력을 높이는 과정</strong>임을 깨달았다.</li>
+        <li>다음 글에서는 이렇게 다듬어진 프로젝트의 <strong>전체적인 구조와 구현 내용</strong>을 정리해 볼 예정이다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
