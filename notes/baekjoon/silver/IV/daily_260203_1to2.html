@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-01 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 11866 — 요세푸스 문제 0</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11866">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260201_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>요세푸스 문제 0 (백준 11866)</strong>은<br>
+        1번부터 N번까지 원형으로 둘러앉은 사람들 중에서 <strong>매 K번째 사람을 제거</strong>하는 과정을 반복하여,<br>
+        사람들이 제거되는 순서(요세푸스 순열)를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>원이기 때문에 마지막 사람 다음은 다시 첫 번째 사람으로 이어진다.</li>
+        <li>한 사람이 제거되면 남은 사람들끼리 원을 유지하며 과정을 반복한다.</li>
+        <li>출력 형식을 <code>&lt;3, 6, 2, ...&gt;</code> 형태로 맞춰야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>큐(Queue)를 이용한 시뮬레이션</strong>: 원형 구조를 가장 직관적으로 구현하기 위해 큐를 사용한다.</li>
+        <li><strong>회전(Rotate)</strong>: K번째 사람을 찾기 위해, 앞의 K-1명은 큐에서 뺀 뒤 다시 뒤로 넣는다.</li>
+        <li><strong>제거(Remove)</strong>: K번째 사람은 큐에서 완전히 빼내어 결과 문자열에 추가한다. 이 과정을 큐가 빌 때까지 반복한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 큐 초기화</strong>
+          <pre><code>Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
+for (int i = 1; i &lt;= N; i++) {
+    queue.add(i);
+}</code></pre>
+          <ul>
+            <li>1부터 N까지의 번호를 순서대로 큐에 넣는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) K번째 사람 제거 로직</strong>
+          <pre><code>int i = 1;
+while (!queue.isEmpty()) {
+    if (i == K) {
+        // K번째 사람인 경우: 제거 및 출력
+        if (queue.size() == 1) {
+            sb.append(queue.poll()).append("&gt;");
+            break;
+        } else {
+            sb.append(queue.poll()).append(", ");
+        }
+        i = 1; // 카운트 초기화
+    } else {
+        // K번째가 아님: 뒤로 보냄 (회전)
+        queue.add(queue.poll());
+        i++;
+    }
+}</code></pre>
+          <ul>
+            <li><code>i</code> 변수로 현재 몇 번째 사람인지 센다.</li>
+            <li><strong>i == K</strong>: 해당 사람을 <code>poll()</code>로 완전히 제거하고, 출력 버퍼에 추가한다. 제거 후 카운트 <code>i</code>를 다시 1로 초기화한다.</li>
+            <li><strong>i != K</strong>: 해당 사람을 <code>poll()</code>로 꺼내어 바로 <code>add()</code>로 다시 넣는다. (순서 미루기)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>총 N명을 제거해야 하며, 한 명을 제거하기 위해 최대 K번의 큐 연산(Poll/Add)이 일어난다.</li>
+            <li>따라서 전체 연산 횟수는 대략 N × K회이므로 <strong><code>O(N × K)</code></strong>이다. (N, K ≤ 1,000 이므로 충분하다.)</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>큐에 최대 N개의 정수를 저장하므로 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 4949 — 균형잡힌 세상</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/4949">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260201_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>균형잡힌 세상 (백준 4949)</strong>은<br>
+        주어진 문자열에 포함된 소괄호 <code>()</code>와 대괄호 <code>[]</code>가
+        올바르게 짝을 이루고 있는지(균형 잡혀 있는지) 판단하는 문제다.
+      </p>
+      
+      <ul>
+        <li>각 문자열은 온점(<code>.</code>)으로 끝난다.</li>
+        <li>입력의 종료 조건은 점 하나(<code>.</code>)만 있는 줄이다.</li>
+        <li>여는 괄호와 닫는 괄호의 종류가 정확히 일치해야 하며, 1:1로 매칭되어야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>스택(Stack) 활용</strong>: 괄호의 짝을 검사하는 가장 표준적인 방법이다. 가장 최근에 열린 괄호가 가장 먼저 닫혀야 하기 때문이다 (LIFO).</li>
+        <li>자바의 <code>ArrayDeque</code>를 스택처럼 사용하여(<code>push</code>, <code>poll</code>, <code>peek</code>) 구현한다.</li>
+        <li><strong>검증 로직</strong>:
+          <ul>
+            <li>여는 괄호 <code>(</code>, <code>[</code>는 스택에 넣는다.</li>
+            <li>닫는 괄호 <code>)</code>, <code>]</code>가 나오면 스택의 맨 위(top)와 짝이 맞는지 확인하고 제거한다.</li>
+            <li>중간에 짝이 안 맞거나, 처리가 끝난 후 스택에 괄호가 남아있으면 불균형 문자열이다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 처리 및 종료 조건</strong>
+          <pre><code>while (true) {
+    String line = br.readLine();
+    if (line.equals(".")) break;
+    // ...
+}</code></pre>
+          <ul>
+            <li>무한 루프를 돌며 한 줄씩 입력을 받는다.</li>
+            <li>입력 줄이 정확히 점 하나(<code>.</code>)라면 프로그램을 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 괄호 검사 및 스택 연산</strong>
+          <pre><code>for (char c : line.toCharArray()) {
+    if (c == '(' || c == '[') {
+        deque.push(c);
+    } else if (c == ')') {
+        if (deque.isEmpty() || deque.peek() != '(') {
+            ok = false;
+            break;
+        }
+        deque.poll();
+    } else if (c == ']') {
+        if (deque.isEmpty() || deque.peek() != '[') {
+            ok = false;
+            break;
+        }
+        deque.poll();
+    }
+}</code></pre>
+          <ul>
+            <li>문자열을 한 글자씩 순회한다.</li>
+            <li>여는 괄호는 무조건 <code>push</code>한다.</li>
+            <li>닫는 괄호가 나왔을 때 스택이 비어있거나(짝 없음), 스택의 top과 종류가 다르다면(괄호 엇갈림) <code>ok = false</code> 처리하고 반복을 멈춘다.</li>
+            <li>짝이 맞다면 <code>poll()</code>로 스택에서 여는 괄호를 제거한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 최종 판별 및 출력</strong>
+          <pre><code>if (!deque.isEmpty()) ok = false;
+
+if (ok) sb.append("yes").append('\n');
+else sb.append("no").append('\n');</code></pre>
+          <ul>
+            <li>모든 문자를 다 돌았는데 스택에 괄호가 남아있다면, 닫히지 않은 괄호가 있는 것이므로 실패 처리한다.</li>
+            <li>최종 <code>ok</code> 플래그에 따라 "yes" 혹은 "no"를 버퍼에 기록한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 문자열의 길이를 N이라 할 때, 한 번 순회하며 스택 연산을 수행하므로 줄마다 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>스택에 최대 N개의 괄호가 쌓일 수 있으므로 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
