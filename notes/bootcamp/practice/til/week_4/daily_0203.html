@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 37일차 TIL (1)</title>
+  <title>내일배움캠프 Spring 백엔드 37일차 TIL (2)</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -23,21 +23,28 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
-    /* 개념 설명용 박스 스타일 */
-    .concept-box {
-      background-color: #fff3e0;
-      border-left: 5px solid #ff9800;
-      padding: 1rem;
-      margin: 1rem 0;
-      border-radius: 4px;
-    }
-    /* 코드 블록 스타일 */
-    pre {
-      background-color: #f8f9fa;
-      padding: 1rem;
+    /* 이미지 스타일 */
+    .structure-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      overflow-x: auto;
-      border: 1px solid #e9ecef;
+      margin: 1rem auto;
+      display: block;
+    }
+    /* 버튼 스타일 링크 */
+    .btn-link {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #e3f2fd;
+      color: #0d47a1;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      border: 1px solid #bbdefb;
+    }
+    .btn-link:hover {
+      background-color: #bbdefb;
     }
   </style>
 </head>
@@ -57,10 +64,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 37일차 TIL (1) — 일정 관리 프로젝트 트러블 슈팅 모음</h1>
-      <p class="muted">작성일 2026-02-03 · 분류: 부트캠프, TIL, Spring Boot, Troubleshooting, Project</p>
+      <h1>내일배움캠프 Spring 백엔드 37일차 TIL (2) — 일정 관리 프로젝트 구조와 핵심 기능</h1>
+      <p class="muted">작성일 2026-02-03 · 분류: 부트캠프, TIL, Spring Boot, Project, Architecture</p>
 
-      <h2 class="section">37일차 개요 (1/2)</h2>
+      <h2 class="section">37일차 개요 (2/2)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -69,122 +76,179 @@
       </h3>
 
       <ul>
-        <li>일정 관리 프로젝트 진행 중 발생한 <strong>기술적 문제와 해결 과정</strong>을 기록한다.</li>
-        <li><strong>Swagger/Redoc</strong> 설정, <strong>Java Record</strong> 활용, <strong>Entity 설계</strong> 등에서 배운 점을 정리한다.</li>
-        <li>문서화(README)의 질을 높이기 위한 시각화 자료 활용법을 익힌다.</li>
+        <li>일정 관리 프로젝트의 전체적인 <strong>아키텍처(Class Diagram)</strong>와 <strong>데이터 모델(ERD)</strong>을 정리한다.</li>
+        <li><strong>JPA Auditing</strong>과 <strong>Dirty Checking</strong> 등 적용된 핵심 기술의 동작 원리를 재확인한다.</li>
+        <li>계층별 역할(Controller, Service, Repository)과 <strong>데이터 검증 전략</strong>을 명확히 한다.</li>
       </ul>
 
-      <h2 class="section">API 문서화 도구 (Swagger & Redoc)</h2>
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/일정 프로젝트 클래스 다이어그램.png" 
+             alt="일정 프로젝트 클래스 다이어그램" class="structure-img" />
+        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] 프로젝트 클래스 다이어그램</figcaption>
+      </figure>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/일정 프로젝트.png" 
+             alt="일정 프로젝트 ERD" class="structure-img" />
+        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] 데이터베이스 ERD</figcaption>
+      </figure>
+
+      <h2 class="section">프로젝트 소개 및 API</h2>
 
       <p>
-        API 명세서를 자동화하기 위해 Swagger를 도입했으나, Spring Boot 버전 차이와 배포 환경에서 여러 이슈를 마주쳤다.
+        Spring Boot와 JPA를 기반으로 한 일정 관리 REST API 서비스이다.
+        일정과 댓글에 대한 CRUD 기능을 제공하며, 객체 지향적 설계를 위해 DTO와 Entity를 철저히 분리했다.
       </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블 슈팅: Spring Boot 3.x 의존성 문제
+          API 명세서
         </span>
       </h3>
-      <ul>
-        <li><strong>상황</strong>: Spring Boot 3.x 프로젝트에 2.x용 <code>springdoc-openapi-ui</code>를 추가하자 Swagger 접속 시 404 화이트라벨 에러가 발생했다.</li>
-        <li><strong>원인</strong>: Spring Boot 3.x부터는 <code>javax</code> 패키지가 <code>jakarta</code>로 변경되는 등 내부 구조가 달라져 구버전 라이브러리와 호환되지 않았다.</li>
-        <li><strong>해결</strong>: <code>springdoc-openapi-starter-webmvc-ui</code> (v2.x 이상) 의존성으로 교체하여 해결했다.</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블 슈팅: Redoc 배포 시 흰 화면 현상
-        </span>
-      </h3>
-      <ul>
-        <li><strong>상황</strong>: GitHub Pages로 API 문서를 배포했으나, 제목만 뜨고 내용은 보이지 않는 빈 화면이 지속되었다.</li>
-        <li><strong>원인</strong>: HTML 파일이 외부의 <code>openapi.json</code> 파일을 비동기로 로드하는 과정에서 경로(Path)를 찾지 못했다.</li>
-        <li><strong>해결</strong>: JSON 데이터를 별도 파일 로딩 없이, HTML 내부 <code>&lt;script&gt;</code> 변수에 직접 할당(Embedding)하여 즉시 렌더링되도록 수정했다.</li>
-      </ul>
-
-      <h2 class="section">Java Record와 DTO 검증</h2>
-
-      <p>
-        데이터 전송 객체(DTO)로 <code>Record</code>를 도입하면서, 불변 객체의 특성과 생성자를 활용한 검증 로직을 학습했다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Compact Constructor (컴팩트 생성자)
-        </span>
-      </h3>
-      <div class="concept-box">
-        <strong>괄호 없는 생성자</strong><br/>
-        <code>public RecordName { ... }</code> 형태로 작성하며, 매개변수 선언과 <code>this.val = val</code> 할당 코드를 생략할 수 있다. 검증 로직만 깔끔하게 작성할 수 있는 Record만의 강력한 기능이다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블 슈팅: 검증 순서에 따른 NPE
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// [문제 코드]
-if (name.length() > 20 || name == null) { ... }
-// name이 null일 경우 length()를 호출하다가 NullPointerException 발생
-
-// [해결 코드]
-if (name == null || name.length() > 20) { ... }
-// null 체크를 먼저 수행하여(Short-circuit) 안전하게 검증</code></pre>
-
-      <h2 class="section">Spring의 요청 처리 메커니즘</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블 슈팅: DELETE 요청과 @RequestBody
-        </span>
-      </h3>
-
       
+      <p>
+        상세한 요청/응답 예시(HTTP Request/Response)는 아래 링크에서 확인할 수 있다.
+      </p>
+      
+      <p style="text-align: center; margin: 2rem 0;">
+        <a href="https://cheatiskey.github.io/schedule/" target="_blank" class="btn-link">
+          👉 상세 API 명세서 보러가기 (Redoc)
+        </a>
+      </p>
 
-      <ul>
-        <li><strong>상황</strong>: Postman에서 DELETE 요청 시 Body를 비우고 보냈더니 <code>HttpMessageNotReadableException</code> 에러가 발생했다.</li>
-        <li><strong>오해</strong>: "DELETE는 데이터를 지우는 거니까 Body가 없어도 DTO 검증만 안 하고 넘어가지 않을까?"라고 생각했다.</li>
-        <li><strong>실제 원인</strong>: 컨트롤러에 <code>@RequestBody</code>가 선언되어 있으면, 스프링은 내용을 읽기 위해 <strong>입력 스트림</strong>을 연다. 이때 Body가 아예 없으면 DTO를 생성하는 단계조차 가지 못하고 예외를 던진다.</li>
-        <li><strong>해결</strong>: 테스트 시 빈 JSON 객체 <code>{}</code>라도 보내야 DTO가 생성되고 내부 검증 로직이 작동함을 확인했다.</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URI</th>
+            <th>기능</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>POST</td>
+            <td>/api</td>
+            <td>일정 생성</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/api</td>
+            <td>전체 일정 조회 (수정일 내림차순)</td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/api/{id}</td>
+            <td>특정 일정 상세 조회 (댓글 포함)</td>
+          </tr>
+          <tr>
+            <td>PUT</td>
+            <td>/api/{id}</td>
+            <td>일정 수정 (비밀번호 검증)</td>
+          </tr>
+          <tr>
+            <td>DELETE</td>
+            <td>/api/{id}</td>
+            <td>일정 삭제 (비밀번호 검증)</td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/api/{scheduleId}</td>
+            <td>댓글 생성 (최대 10개 제한)</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <h2 class="section">엔티티 설계와 문서화</h2>
+      <h2 class="section">핵심 기술 구현</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          이중 검증 구조 (Defense in Depth)
+          1. JPA Auditing (자동 시간 관리)
         </span>
       </h3>
       <ul>
-        <li><strong>1차 방어 (DTO)</strong>: <code>Record</code> 생성자에서 형식(Format)과 필수값 여부를 검증한다.</li>
-        <li><strong>2차 방어 (Entity)</strong>: 엔티티 생성자에서 데이터 무결성(Integrity)을 최종 검증한다.</li>
-        <li><strong>Validator 분리</strong>: <code>checkLength</code>, <code>isNotNull</code> 같은 반복 로직을 별도 유틸 클래스로 분리해 가독성을 높였다.</li>
+        <li><strong>구현</strong>: <code>@MappedSuperclass</code>를 적용한 <code>BaseEntity</code>를 만들어 <code>createdAt</code>, <code>modifiedAt</code> 필드를 추상화했다.</li>
+        <li><strong>효과</strong>: 모든 엔티티가 이를 상속받게 하여, 생성 및 수정 시간을 자동으로 관리하고 코드 중복을 제거했다.</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문서화 (README.md) 개선
+          2. Dirty Checking (변경 감지)
         </span>
       </h3>
       <ul>
-        <li>기존 텍스트 나열 방식에서 벗어나 <strong>ERD</strong>와 <strong>Class Diagram</strong> 같은 시각 자료를 적극 활용했다.</li>
-        <li>API 명세는 표로 요약하고, 상세 내용은 배포된 <strong>Redoc 링크</strong>로 연결하여 가독성을 확보했다.</li>
-        <li>단순 기능 나열이 아니라, <strong>JPA Auditing</strong>이나 <strong>책임 분리</strong> 같은 핵심 기술 적용 이유를 서술하여 기술적 깊이를 더했다.</li>
+        <li><strong>원리</strong>: <code>updateSchedule</code> 메서드에는 <code>repository.save()</code> 코드가 없다.</li>
+        <li><strong>동작</strong>: 트랜잭션 안에서 엔티티의 값을 변경(<code>changeScheduleTitle</code> 등)하면, 트랜잭션이 끝나는 시점에 JPA가 변경 사항을 감지하여 자동으로 <strong>UPDATE 쿼리</strong>를 날린다.</li>
       </ul>
-
-      <h2 class="section">오늘의 회고 (Part 1)</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블 슈팅 총평
+          3. 이중 데이터 검증 (Defense in Depth)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>1차 (DTO)</strong>: Java <code>Record</code>의 생성자에서 <code>null</code> 체크나 길이 제한 등 기본적인 형식 검증을 수행하여, 잘못된 데이터가 서비스 계층으로 넘어오는 것을 막는다.</li>
+        <li><strong>2차 (Entity)</strong>: <code>Validator</code> 유틸리티 클래스를 사용하여 엔티티 생성 시점에 데이터 무결성을 최종적으로 보장한다.</li>
+      </ul>
+
+      <h2 class="section">계층별 역할과 예외 처리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          클래스 역할 분담
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>계층</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Controller</strong></td>
+            <td>클라이언트 요청을 받아 Service로 전달하고, 결과를 DTO로 반환한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Service</strong></td>
+            <td>비즈니스 로직(비밀번호 검증, 댓글 개수 제한 등)을 수행하고 트랜잭션을 관리한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Repository</strong></td>
+            <td>JPA를 통해 DB에 직접 접근하여 CRUD를 수행한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Util (Validator)</strong></td>
+            <td>검증 로직(<code>checkLength</code> 등)을 static 메서드로 분리하여 재사용성을 높였다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 예외 처리 전략
         </span>
       </h3>
 
       <ul>
-        <li>에러 로그를 만났을 때 단순히 코드를 고치는 것을 넘어, <strong>"프레임워크가 내부적으로 어떻게 동작하길래 이 에러가 났을까?"</strong>(예: DELETE Body 처리)를 고민하는 과정이 의미 있었다.</li>
-        <li>문서화는 개발의 끝이 아니라, <strong>내 코드의 설득력을 높이는 과정</strong>임을 깨달았다.</li>
-        <li>다음 글에서는 이렇게 다듬어진 프로젝트의 <strong>전체적인 구조와 구현 내용</strong>을 정리해 볼 예정이다.</li>
+        <li><strong>404 Not Found</strong>: <code>NoSuchScheduleException</code> (일정 ID 조회 실패)</li>
+        <li><strong>401 Unauthorized</strong>: <code>PasswordMismatchException</code> (수정/삭제 시 비밀번호 불일치)</li>
+        <li><strong>400 Bad Request</strong>: <code>CommentLimitExceededException</code> (댓글 10개 초과), <code>HttpMessageNotReadableException</code> (Body 누락)</li>
+      </ul>
+
+      <h2 class="section">오늘의 회고 (Part 2)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          프로젝트 정리 소감
+        </span>
+      </h3>
+
+      <ul>
+        <li>단순히 기능을 만드는 것을 넘어, <strong>"왜 이 기술(Auditing, Dirty Checking)을 썼는가?"</strong>를 설명할 수 있게 구조를 정리하니 프로젝트에 대한 이해도가 훨씬 깊어졌다.</li>
+        <li>Validator를 유틸리티로 분리하고, Record의 생성자 검증을 활용하는 등 <strong>객체지향적인 코드 설계</strong>를 위해 고민했던 흔적들을 문서로 남길 수 있어서 뿌듯하다.</li>
+        <li>API 명세서와 다이어그램 같은 <strong>시각 자료</strong>가 문서의 퀄리티를 결정짓는 중요한 요소임을 다시 한번 느꼈다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
