@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 37일차 TIL (2)</title>
+  <title>내일배움캠프 Spring 백엔드 38일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -23,28 +23,21 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
-    /* 이미지 스타일 */
-    .structure-img {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
+    /* 개념 설명용 박스 스타일 */
+    .concept-box {
+      background-color: #fff3e0;
+      border-left: 5px solid #ff9800;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    /* 코드 블록 스타일 */
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
       border-radius: 8px;
-      margin: 1rem auto;
-      display: block;
-    }
-    /* 버튼 스타일 링크 */
-    .btn-link {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background-color: #e3f2fd;
-      color: #0d47a1;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      border: 1px solid #bbdefb;
-    }
-    .btn-link:hover {
-      background-color: #bbdefb;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
     }
   </style>
 </head>
@@ -64,10 +57,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 37일차 TIL (2) — 일정 관리 프로젝트 구조와 핵심 기능</h1>
-      <p class="muted">작성일 2026-02-03 · 분류: 부트캠프, TIL, Spring Boot, Project, Architecture</p>
+      <h1>내일배움캠프 Spring 백엔드 38일차 TIL — Java의 시간 여행, java.time 패키지</h1>
+      <p class="muted">작성일 2026-02-04 · 분류: 부트캠프, TIL, Java, Date, Time</p>
 
-      <h2 class="section">37일차 개요 (2/2)</h2>
+      <h2 class="section">38일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -76,179 +69,183 @@
       </h3>
 
       <ul>
-        <li>일정 관리 프로젝트의 전체적인 <strong>아키텍처(Class Diagram)</strong>와 <strong>데이터 모델(ERD)</strong>을 정리한다.</li>
-        <li><strong>JPA Auditing</strong>과 <strong>Dirty Checking</strong> 등 적용된 핵심 기술의 동작 원리를 재확인한다.</li>
-        <li>계층별 역할(Controller, Service, Repository)과 <strong>데이터 검증 전략</strong>을 명확히 한다.</li>
+        <li>기존 <code>Date</code>, <code>Calendar</code> 클래스의 문제점을 이해하고 <strong>java.time</strong> 패키지의 등장 배경을 파악한다.</li>
+        <li>날짜와 시간을 다루는 핵심 클래스(LocalDate, LocalTime, LocalDateTime)의 관계를 <strong>조립식 레고</strong>처럼 이해한다.</li>
+        <li>시간의 차이를 계산하는 <strong>Period와 Duration</strong>의 차이를 명확히 구분한다.</li>
       </ul>
 
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/일정 프로젝트 클래스 다이어그램.png" 
-             alt="일정 프로젝트 클래스 다이어그램" class="structure-img" />
-        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] 프로젝트 클래스 다이어그램</figcaption>
-      </figure>
+      <h2 class="section">java.time 패키지의 등장</h2>
 
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/일정 프로젝트.png" 
-             alt="일정 프로젝트 ERD" class="structure-img" />
-        <figcaption style="text-align: center; color: #666; font-size: 0.9em;">[그림] 데이터베이스 ERD</figcaption>
-      </figure>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          왜 새로 만들었을까?
+        </span>
+      </h3>
+      <div class="concept-box">
+        <strong>과거의 실수: Date와 Calendar</strong><br/>
+        예전 자바의 날짜 클래스들은 <strong>불변(Immutable)</strong>하지 않아서, 누군가 날짜를 수정하면 연결된 모든 곳에서 날짜가 바뀌는 대참사가 일어났다. 또한 월(Month)을 0부터 시작(1월이 0)하는 등 직관적이지 않았다.<br/>
+        JDK 8부터는 이를 완전히 뜯어고친 <code>java.time</code> 패키지를 도입했다.
+      </div>
 
-      <h2 class="section">프로젝트 소개 및 API</h2>
+      <h2 class="section">핵심 클래스 3대장</h2>
 
       <p>
-        Spring Boot와 JPA를 기반으로 한 일정 관리 REST API 서비스이다.
-        일정과 댓글에 대한 CRUD 기능을 제공하며, 객체 지향적 설계를 위해 DTO와 Entity를 철저히 분리했다.
+        새로운 시간 패키지는 날짜와 시간을 <strong>분리</strong>해서 다룬다. 필요하면 합칠 수도 있다.
       </p>
+
+      
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          API 명세서
+          1. LocalDate (날짜)
         </span>
       </h3>
-      
+      <ul>
+        <li><strong>비유</strong>: 벽에 걸린 <strong>달력</strong>. 시간은 없고 '2026년 2월 4일'이라는 정보만 있다.</li>
+        <li><strong>용도</strong>: 생일, 기념일, 휴가 시작일 등.</li>
+      </ul>
+      <pre><code class="language-java">LocalDate date = LocalDate.of(2026, 2, 4); // 2026-02-04
+LocalDate today = LocalDate.now(); // 오늘 날짜</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          2. LocalTime (시간)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>비유</strong>: 손목 <strong>시계</strong>. 날짜는 모르고 '14시 30분'이라는 시간 정보만 있다.</li>
+        <li><strong>용도</strong>: 알람 시간, 수업 시작 시간 등.</li>
+      </ul>
+      <pre><code class="language-java">LocalTime time = LocalTime.of(14, 30); // 14:30
+LocalTime now = LocalTime.now(); // 현재 시간</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          3. LocalDateTime (날짜 + 시간)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>비유</strong>: 스마트폰의 <strong>잠금 화면</strong>. 날짜와 시간이 같이 표시된다.</li>
+        <li><strong>공식</strong>: <code>LocalDate</code> + <code>LocalTime</code> = <code>LocalDateTime</code></li>
+        <li><strong>용도</strong>: 약속 시간, 게시글 작성 일시, 로그 기록 등.</li>
+      </ul>
+      <pre><code class="language-java">LocalDateTime dt = LocalDateTime.of(date, time); 
+// 결과: 2026-02-04T14:30</code></pre>
+
+      <h2 class="section">시간대(Time Zone)와 ZonedDateTime</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          지구 반대편의 시간
+        </span>
+      </h3>
       <p>
-        상세한 요청/응답 예시(HTTP Request/Response)는 아래 링크에서 확인할 수 있다.
+        <code>LocalDateTime</code>은 "서울의 2시"인지 "뉴욕의 2시"인지 모른다. 여기에 <strong>위치 정보(ZoneId)</strong>를 더해주면 비로소 전 세계 어디서든 통용되는 시간이 된다.
       </p>
+
       
-      <p style="text-align: center; margin: 2rem 0;">
-        <a href="https://cheatiskey.github.io/schedule/" target="_blank" class="btn-link">
-          👉 상세 API 명세서 보러가기 (Redoc)
-        </a>
+
+      <ul>
+        <li><strong>공식</strong>: <code>LocalDateTime</code> + <code>ZoneId</code> = <code>ZonedDateTime</code></li>
+        <li><strong>예시</strong>: 한국 시간(KST)을 표현할 때 사용한다.</li>
+      </ul>
+
+      <pre><code class="language-java">// 서울 시간대 설정
+ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+System.out.println(seoulTime); 
+// 2026-02-04T14:30:00+09:00[Asia/Seoul] -> '+09:00'이 시차 정보</code></pre>
+
+      <h2 class="section">시간의 간격: Period vs Duration</h2>
+
+      <p>
+        "얼마나 걸렸어?"를 물어볼 때, 날짜 단위인지 시간 단위인지에 따라 사용하는 도구가 다르다.
       </p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Method</th>
-            <th>URI</th>
-            <th>기능</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>POST</td>
-            <td>/api</td>
-            <td>일정 생성</td>
-          </tr>
-          <tr>
-            <td>GET</td>
-            <td>/api</td>
-            <td>전체 일정 조회 (수정일 내림차순)</td>
-          </tr>
-          <tr>
-            <td>GET</td>
-            <td>/api/{id}</td>
-            <td>특정 일정 상세 조회 (댓글 포함)</td>
-          </tr>
-          <tr>
-            <td>PUT</td>
-            <td>/api/{id}</td>
-            <td>일정 수정 (비밀번호 검증)</td>
-          </tr>
-          <tr>
-            <td>DELETE</td>
-            <td>/api/{id}</td>
-            <td>일정 삭제 (비밀번호 검증)</td>
-          </tr>
-          <tr>
-            <td>POST</td>
-            <td>/api/{scheduleId}</td>
-            <td>댓글 생성 (최대 10개 제한)</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2 class="section">핵심 기술 구현</h2>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. JPA Auditing (자동 시간 관리)
+          1. Period (날짜 차이)
         </span>
       </h3>
       <ul>
-        <li><strong>구현</strong>: <code>@MappedSuperclass</code>를 적용한 <code>BaseEntity</code>를 만들어 <code>createdAt</code>, <code>modifiedAt</code> 필드를 추상화했다.</li>
-        <li><strong>효과</strong>: 모든 엔티티가 이를 상속받게 하여, 생성 및 수정 시간을 자동으로 관리하고 코드 중복을 제거했다.</li>
+        <li><strong>비유</strong>: <strong>달력</strong>을 넘기며 세는 것. "생일까지 몇 달, 며칠 남았지?"</li>
+        <li><strong>단위</strong>: 년(Year), 월(Month), 일(Day)</li>
+        <li><strong>공식</strong>: <code>날짜</code> - <code>날짜</code> = <code>Period</code></li>
       </ul>
+      <pre><code class="language-java">LocalDate start = LocalDate.of(2026, 1, 1);
+LocalDate end = LocalDate.of(2026, 2, 4);
+
+Period diff = Period.between(start, end);
+System.out.println(diff.getMonths() + "개월 " + diff.getDays() + "일 지남");
+// 1개월 3일 지남</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Dirty Checking (변경 감지)
+          2. Duration (시간 차이)
         </span>
       </h3>
       <ul>
-        <li><strong>원리</strong>: <code>updateSchedule</code> 메서드에는 <code>repository.save()</code> 코드가 없다.</li>
-        <li><strong>동작</strong>: 트랜잭션 안에서 엔티티의 값을 변경(<code>changeScheduleTitle</code> 등)하면, 트랜잭션이 끝나는 시점에 JPA가 변경 사항을 감지하여 자동으로 <strong>UPDATE 쿼리</strong>를 날린다.</li>
+        <li><strong>비유</strong>: <strong>스톱워치</strong>로 재는 것. "영화 상영 시간이 몇 분 몇 초지?"</li>
+        <li><strong>단위</strong>: 시(Hour), 분(Minute), 초(Second), 나노초(Nano)</li>
+        <li><strong>공식</strong>: <code>시간</code> - <code>시간</code> = <code>Duration</code></li>
       </ul>
+      <pre><code class="language-java">LocalTime start = LocalTime.of(9, 0, 0);
+LocalTime end = LocalTime.of(10, 30, 0);
+
+Duration diff = Duration.between(start, end);
+System.out.println(diff.toMinutes() + "분 걸림");
+// 90분 걸림</code></pre>
+
+      <h2 class="section">그 외 유용한 기능들</h2>
+
+      <p>실무에서 정말 자주 쓰이는 "날짜 조작"과 "형식 변환" 기능이다.</p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          3. 이중 데이터 검증 (Defense in Depth)
+          TemporalAdjusters (날짜 조정기)
         </span>
       </h3>
-      <ul>
-        <li><strong>1차 (DTO)</strong>: Java <code>Record</code>의 생성자에서 <code>null</code> 체크나 길이 제한 등 기본적인 형식 검증을 수행하여, 잘못된 데이터가 서비스 계층으로 넘어오는 것을 막는다.</li>
-        <li><strong>2차 (Entity)</strong>: <code>Validator</code> 유틸리티 클래스를 사용하여 엔티티 생성 시점에 데이터 무결성을 최종적으로 보장한다.</li>
-      </ul>
+      <div class="concept-box">
+        <strong>"다음 주 금요일이 며칠이지?"</strong><br/>
+        단순히 <code>+1일</code> 하는 게 아니라, 복잡한 날짜 계산을 대신 해주는 똑똑한 비서다.
+      </div>
+      <pre><code class="language-java">LocalDateTime now = LocalDateTime.now();
 
-      <h2 class="section">계층별 역할과 예외 처리</h2>
+// 다음 주 금요일 찾기
+LocalDateTime nextFriday = now.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
+
+// 이번 달의 마지막 날 찾기 (월말 정산 때 유용)
+LocalDateTime lastDay = now.with(TemporalAdjusters.lastDayOfMonth());</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          클래스 역할 분담
+          DateTimeFormatter (출력 형식)
         </span>
       </h3>
+      <p>
+        자바의 날짜 객체를 우리가 보기 편한 문자열(String)로 바꾸거나, 반대로 문자열을 날짜 객체로 바꿀 때 쓴다.
+      </p>
+      <pre><code class="language-java">LocalDateTime now = LocalDateTime.now();
 
-      <table>
-        <thead>
-          <tr>
-            <th>계층</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Controller</strong></td>
-            <td>클라이언트 요청을 받아 Service로 전달하고, 결과를 DTO로 반환한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Service</strong></td>
-            <td>비즈니스 로직(비밀번호 검증, 댓글 개수 제한 등)을 수행하고 트랜잭션을 관리한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Repository</strong></td>
-            <td>JPA를 통해 DB에 직접 접근하여 CRUD를 수행한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Util (Validator)</strong></td>
-            <td>검증 로직(<code>checkLength</code> 등)을 static 메서드로 분리하여 재사용성을 높였다.</td>
-          </tr>
-        </tbody>
-      </table>
+// 1. 날짜 -> 문자열 (포맷팅)
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
+String text = now.format(formatter); 
+// 결과: "2026년 02월 04일 14시 30분"
+
+// 2. 문자열 -> 날짜 (파싱)
+LocalDateTime parsedDate = LocalDateTime.parse("2026-02-04 14:30", formatter);</code></pre>
+
+      <h2 class="section">오늘의 회고</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주요 예외 처리 전략
-        </span>
-      </h3>
-
-      <ul>
-        <li><strong>404 Not Found</strong>: <code>NoSuchScheduleException</code> (일정 ID 조회 실패)</li>
-        <li><strong>401 Unauthorized</strong>: <code>PasswordMismatchException</code> (수정/삭제 시 비밀번호 불일치)</li>
-        <li><strong>400 Bad Request</strong>: <code>CommentLimitExceededException</code> (댓글 10개 초과), <code>HttpMessageNotReadableException</code> (Body 누락)</li>
-      </ul>
-
-      <h2 class="section">오늘의 회고 (Part 2)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          프로젝트 정리 소감
+          오늘 느낀 점
         </span>
       </h3>
 
       <ul>
-        <li>단순히 기능을 만드는 것을 넘어, <strong>"왜 이 기술(Auditing, Dirty Checking)을 썼는가?"</strong>를 설명할 수 있게 구조를 정리하니 프로젝트에 대한 이해도가 훨씬 깊어졌다.</li>
-        <li>Validator를 유틸리티로 분리하고, Record의 생성자 검증을 활용하는 등 <strong>객체지향적인 코드 설계</strong>를 위해 고민했던 흔적들을 문서로 남길 수 있어서 뿌듯하다.</li>
-        <li>API 명세서와 다이어그램 같은 <strong>시각 자료</strong>가 문서의 퀄리티를 결정짓는 중요한 요소임을 다시 한번 느꼈다.</li>
+        <li><code>Date</code>와 <code>Calendar</code>를 쓸 때는 월(Month) 계산이 항상 헷갈렸는데, <code>java.time</code>은 직관적이라 훨씬 편했다.</li>
+        <li><strong>Period</strong>(달력 차이)와 <strong>Duration</strong>(물리적 시간 차이)을 구분해서 써야 한다는 점을 배웠다. D-Day 계산엔 Period가 맞고, 실행 시간 측정엔 Duration이 맞다.</li>
+        <li><code>TemporalAdjusters</code>는 실무에서 정산일이나 배송 예정일을 계산할 때 정말 유용하게 쓰일 것 같다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
