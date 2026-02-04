@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-03 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 10866 — 덱</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/10866">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260203_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>덱 (백준 10866)</strong>은<br>
+        앞뒤 양쪽에서 데이터를 넣고 뺄 수 있는 <strong>덱(Deque, Double-ended Queue)</strong> 자료구조를 구현하고,
+        주어진 8가지 명령을 처리하는 문제다.
+      </p>
+      
+      <ul>
+        <li><strong>덱(Deque)</strong>: 스택과 큐의 연산을 모두 지원하는 자료구조다.</li>
+        <li>명령어에 따라 <code>push_front</code>, <code>push_back</code>, <code>pop_front</code>, <code>pop_back</code> 등을 수행한다.</li>
+        <li>비어있는 상태에서의 예외 처리(-1 출력)와 현재 크기(size), 비어있는지 여부(empty) 등을 관리해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>배열을 이용한 덱 구현</strong>: <code>LinkedList</code>를 사용할 수도 있지만, <strong>배열</strong>과 <strong>인덱스 포인터</strong>를 직접 관리하면 더 빠르고 가볍게 구현할 수 있다.</li>
+        <li><strong>중앙 시작 전략</strong>:
+          <ul>
+            <li>앞(front)과 뒤(back) 양쪽으로 데이터가 늘어날 수 있다.</li>
+            <li>따라서 배열의 <strong>중간 지점</strong>(10000)을 시작점으로 잡고, <code>front</code>는 왼쪽으로, <code>rear</code>는 오른쪽으로 확장해 나간다.</li>
+            <li>명령의 수 N이 최대 10,000이므로, 앞뒤로 10,000씩 여유를 둔 크기(약 20,000)의 배열이면 충분하다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 배열 및 포인터 초기화 (중앙 배치)</strong>
+          <pre><code>int[] numbers = new int[20001];
+
+int front = 10000;
+int rear = 10000;</code></pre>
+          <ul>
+            <li>배열 크기를 20001로 설정하여 양쪽 확장에 대비한다.</li>
+            <li><code>front</code>와 <code>rear</code>를 배열의 정중앙인 10000에서 시작하도록 초기화한다.</li>
+            <li>데이터의 범위는 <code>[front, rear)</code> 구간이 된다. (front는 포함, rear는 제외)</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 삽입 연산 (push_front / push_back)</strong>
+          <pre><code>if (s.equals("push_front")) {
+    numbers[--front] = num;
+} else if (s.equals("push_back")) {
+    numbers[rear++] = num;
+}</code></pre>
+          <ul>
+            <li><code>push_front</code>: <code>front</code>를 먼저 1 감소시킨 후 해당 위치에 값을 저장한다 (왼쪽 확장).</li>
+            <li><code>push_back</code>: 현재 <code>rear</code> 위치에 값을 저장한 후 <code>rear</code>를 1 증가시킨다 (오른쪽 확장).</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 삭제 및 조회 연산 (pop / front / back)</strong>
+          <pre><code>// pop_front
+if (front == rear) sb.append(-1);
+else {
+    sb.append(numbers[front]);
+    front++;
+}
+
+// pop_back
+if (front == rear) sb.append(-1);
+else {
+    sb.append(numbers[rear - 1]);
+    rear--;
+}</code></pre>
+          <ul>
+            <li><code>front == rear</code>는 덱이 비어있음을 의미한다.</li>
+            <li><code>pop_front</code>: 맨 앞(front)의 값을 출력하고 <code>front</code>를 1 증가시켜 범위를 줄인다.</li>
+            <li><code>pop_back</code>: 맨 뒤의 값은 <code>rear - 1</code> 위치에 있다. 이를 출력하고 <code>rear</code>를 1 감소시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>모든 명령(삽입, 삭제, 조회)은 인덱스 접근 및 산술 연산뿐이므로 <strong><code>O(1)</code></strong>이다.</li>
+            <li>전체 명령 N개를 처리하므로 총 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>고정된 크기(20,001)의 정수 배열을 사용하므로 <strong><code>O(1)</code></strong> (상수 공간) 또는 입력 N에 비례하는 크기라 볼 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1026 — 보물</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1026">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260203_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>보물 (백준 1026)</strong>은<br>
+        길이가 같은 두 정수 배열 A와 B가 주어졌을 때, A의 순서를 바꾸어
+        각 원소의 곱의 합 $S = \sum A[i] \times B[i]$가 <strong>최소가 되도록</strong> 만드는 문제다.
+      </p>
+      
+      <ul>
+        <li>곱의 합을 최소로 만들기 위해서는 <strong>큰 수는 작은 수와</strong>, <strong>작은 수는 큰 수와</strong> 곱해야 한다.</li>
+        <li>문제에서 "B에 있는 수는 재배열하면 안 된다"고 명시했지만, 이는 문제 해결 로직(최솟값 계산)에서 B의 값들을 크기순으로 매칭하는 것을 금지하는 것이 아니라, 단순히 A만 움직이라는 설정이다.</li>
+        <li>결국 값의 관점에서는 A는 오름차순, B는 내림차순으로 정렬해 짝지으면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬 (Sorting)</strong>: 배열 A를 오름차순으로 정렬한다.</li>
+        <li><strong>B 배열 처리</strong>: B 배열의 원소들도 크기 순서대로 짝을 지어야 하므로, B를 복사한 배열 C를 만들어 오름차순으로 정렬한다.</li>
+        <li><strong>그리디 매칭</strong>:
+          <ul>
+            <li>A는 앞에서부터(작은 값), C는 뒤에서부터(큰 값) 접근하여 곱한다.</li>
+            <li>이렇게 하면 (최소 × 최대) 조합이 만들어져 전체 합 $S$가 최소가 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) A 배열 정렬</strong>
+          <pre><code>Arrays.sort(A);</code></pre>
+          <ul>
+            <li>배열 A를 오름차순으로 정렬하여 작은 값이 앞에 오도록 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) B 배열 복사 및 정렬</strong>
+          <pre><code>int[] C = B.clone();
+Arrays.sort(C);</code></pre>
+          <ul>
+            <li>원본 배열 B를 보존해야 한다는 문제의 뉘앙스를 고려해 복제본 <code>C</code>를 만든다.</li>
+            <li><code>C</code> 역시 오름차순으로 정렬하여 값의 크기 순서를 파악한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 최소 합 계산 (교차 곱셈)</strong>
+          <pre><code>long answer = 0;
+
+for (int i = 0; i &lt; N; i++) {
+    answer += (long) A[i] * C[N - i - 1];
+}</code></pre>
+          <ul>
+            <li><code>A[i]</code>는 i번째로 작은 수, <code>C[N - i - 1]</code>은 i번째로 큰 수다.</li>
+            <li>서로 반대 순서의 크기를 가진 원소끼리 곱하여 <code>answer</code>에 더한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>배열 A와 C를 정렬하는 데 각각 <strong><code>O(N log N)</code></strong>이 소요된다.</li>
+            <li>반복문은 <code>O(N)</code>이므로 전체 시간 복잡도는 <strong><code>O(N log N)</code></strong>이다. (N ≤ 50이므로 매우 빠르다.)</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>A, B, C 배열을 위한 공간 <strong><code>O(N)</code></strong>이 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
