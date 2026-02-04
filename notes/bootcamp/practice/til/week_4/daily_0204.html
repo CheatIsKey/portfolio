@@ -81,11 +81,9 @@
           왜 새로 만들었을까?
         </span>
       </h3>
-      <div class="concept-box">
-        <strong>과거의 실수: Date와 Calendar</strong><br/>
-        예전 자바의 날짜 클래스들은 <strong>불변(Immutable)</strong>하지 않아서, 누군가 날짜를 수정하면 연결된 모든 곳에서 날짜가 바뀌는 대참사가 일어났다. 또한 월(Month)을 0부터 시작(1월이 0)하는 등 직관적이지 않았다.<br/>
-        JDK 8부터는 이를 완전히 뜯어고친 <code>java.time</code> 패키지를 도입했다.
-      </div>
+      <strong>과거의 실수: Date와 Calendar</strong><br/>
+      예전 자바의 날짜 클래스들은 <strong>불변(Immutable)</strong>하지 않아서, 누군가 날짜를 수정하면 연결된 모든 곳에서 날짜가 바뀌는 대참사가 일어났다. 또한 월(Month)을 0부터 시작(1월이 0)하는 등 직관적이지 않았다.<br/>
+      JDK 8부터는 이를 완전히 뜯어고친 <code>java.time</code> 패키지를 도입했다.
 
       <h2 class="section">핵심 클래스 3대장</h2>
 
@@ -204,10 +202,8 @@ System.out.println(diff.toMinutes() + "분 걸림");
           TemporalAdjusters (날짜 조정기)
         </span>
       </h3>
-      <div class="concept-box">
-        <strong>"다음 주 금요일이 며칠이지?"</strong><br/>
-        단순히 <code>+1일</code> 하는 게 아니라, 복잡한 날짜 계산을 대신 해주는 똑똑한 비서다.
-      </div>
+      <strong>"다음 주 금요일이 며칠이지?"</strong><br/>
+      단순히 <code>+1일</code> 하는 게 아니라, 복잡한 날짜 계산을 대신 해주는 똑똑한 비서다.
       <pre><code class="language-java">LocalDateTime now = LocalDateTime.now();
 
 // 다음 주 금요일 찾기
