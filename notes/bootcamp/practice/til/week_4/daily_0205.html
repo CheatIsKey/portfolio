@@ -110,7 +110,7 @@
 public record ErrorResponse(
     int statusCode,       // HTTP 상태 코드 (예: 400, 404, 500)
     String errorMessage,  // 클라이언트에게 보여줄 에러 메시지
-    String detail         // (선택) 디버깅용 상세 정보
+    String detail         // 디버깅용 상세 정보
 ) {}
 
 // 2. 전역 예외 핸들러 클래스
@@ -205,7 +205,7 @@ public class GlobalExceptionHandler {
         </tbody>
       </table>
 
-      <h2 class="section">실무 꿀팁: Null 안전한 비교</h2>
+      <h2 class="section">Null 안전한 비교</h2>
 
       <p>
         개발을 하다 보면 DTO로 들어온 데이터나 DB에서 조회한 값이 <code>null</code>인 경우가 종종 발생한다.
