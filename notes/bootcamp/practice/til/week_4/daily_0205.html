@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 38일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 39일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -22,14 +22,6 @@
     }
     .prose table thead {
       background-color: #f5f5f5;
-    }
-    /* 개념 설명용 박스 스타일 */
-    .concept-box {
-      background-color: #fff3e0;
-      border-left: 5px solid #ff9800;
-      padding: 1rem;
-      margin: 1rem 0;
-      border-radius: 4px;
     }
     /* 코드 블록 스타일 */
     pre {
@@ -57,10 +49,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 38일차 TIL — Java의 시간 여행, java.time 패키지</h1>
-      <p class="muted">작성일 2026-02-04 · 분류: 부트캠프, TIL, Java, Date, Time</p>
+      <h1>내일배움캠프 Spring 백엔드 39일차 TIL — 전역 예외 처리와 데이터 전달 방식의 모든 것</h1>
+      <p class="muted">작성일 2026-02-05 · 분류: 부트캠프, TIL, Spring Boot, API, DB</p>
 
-      <h2 class="section">38일차 개요</h2>
+      <h2 class="section">39일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -69,166 +61,193 @@
       </h3>
 
       <ul>
-        <li>기존 <code>Date</code>, <code>Calendar</code> 클래스의 문제점을 이해하고 <strong>java.time</strong> 패키지의 등장 배경을 파악한다.</li>
-        <li>날짜와 시간을 다루는 핵심 클래스(LocalDate, LocalTime, LocalDateTime)의 관계를 <strong>조립식 레고</strong>처럼 이해한다.</li>
-        <li>시간의 차이를 계산하는 <strong>Period와 Duration</strong>의 차이를 명확히 구분한다.</li>
+        <li><code>@RestControllerAdvice</code>를 활용해 예외 처리를 전역적으로 관리하는 방법을 익힌다.</li>
+        <li>API 요청 데이터를 받는 3가지 방식(Path, Param, Body)의 차이점과 사용 목적을 명확히 구분한다.</li>
+        <li>ORM 사용 시 SQL 튜닝의 필요성과 PK 생성 전략(Auto Increment vs UUID)의 장단점을 정리한다.</li>
       </ul>
 
-      <h2 class="section">java.time 패키지의 등장</h2>
+      <h2 class="section">전역 예외 처리 (Global Exception Handling)</h2>
+
+      <p>
+        각 컨트롤러마다 <code>try-catch</code>를 넣는 것은 비효율적이다.
+        스프링은 에러를 한 곳에서 잡아 처리하는 <strong>중앙 집중형 처리 방식</strong>을 제공한다.
+      </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          왜 새로 만들었을까?
+          핵심 어노테이션
         </span>
       </h3>
-      <strong>과거의 실수: Date와 Calendar</strong><br/>
-      예전 자바의 날짜 클래스들은 <strong>불변(Immutable)</strong>하지 않아서, 누군가 날짜를 수정하면 연결된 모든 곳에서 날짜가 바뀌는 대참사가 일어났다. 또한 월(Month)을 0부터 시작(1월이 0)하는 등 직관적이지 않았다.<br/>
-      JDK 8부터는 이를 완전히 뜯어고친 <code>java.time</code> 패키지를 도입했다.
+      <ul>
+        <li><strong>클래스 단위:</strong> <code>@RestControllerAdvice</code>
+          <br>모든 컨트롤러에서 발생하는 예외를 감지한다. (<code>@ControllerAdvice</code> + <code>@ResponseBody</code>)</li>
+        <li><strong>메서드 단위:</strong> <code>@ExceptionHandler(예외클래스.class)</code>
+          <br>특정 예외가 발생했을 때 실행될 메서드를 지정한다.</li>
+      </ul>
 
-      <h2 class="section">핵심 클래스 3대장</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          예외 처리 순서 (우선순위)
+        </span>
+      </h3>
+      <p>
+        <strong>"더 구체적인 자식 예외가 먼저 잡힌다."</strong><br>
+        예를 들어 <code>NullPointerException</code>이 발생하면:
+      </p>
+      <ol>
+        <li><code>@ExceptionHandler(NullPointerException.class)</code>가 있는지 먼저 확인하고 실행한다.</li>
+        <li>없다면 부모인 <code>@ExceptionHandler(RuntimeException.class)</code>를 찾는다.</li>
+        <li>최후의 보루로 <code>@ExceptionHandler(Exception.class)</code>가 처리한다.</li>
+      </ol>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          구현 코드 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 1. 에러 응답용 DTO (Record 활용)
+// record는 불변이며 getter, 생성자를 자동 생성해준다.
+public record ErrorResponse(
+    int statusCode,       // HTTP 상태 코드 (예: 400, 404, 500)
+    String errorMessage,  // 클라이언트에게 보여줄 에러 메시지
+    String detail         // (선택) 디버깅용 상세 정보
+) {}
+
+// 2. 전역 예외 핸들러 클래스
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    /**
+     * 잘못된 요청 (400 Bad Request) 처리
+     * 검증 실패, 잘못된 인자 전달 등
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleBadRequest(IllegalArgumentException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST) // 400 상태 코드 설정
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage(), // "잘못된 입력입니다" 등
+                        "입력값을 다시 확인해주세요."
+                ));
+    }
+}</code></pre>
+
+      <h2 class="section">데이터 전달 방식 3대장 완벽 정리</h2>
 
       <p>
-        새로운 시간 패키지는 날짜와 시간을 <strong>분리</strong>해서 다룬다. 필요하면 합칠 수도 있다.
+        클라이언트가 서버로 데이터를 보낼 때 사용하는 대표적인 3가지 방식의 특징과 차이점이다.
       </p>
 
       
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. LocalDate (날짜)
+          1. @PathVariable (경로 변수)
         </span>
       </h3>
       <ul>
-        <li><strong>비유</strong>: 벽에 걸린 <strong>달력</strong>. 시간은 없고 '2026년 2월 4일'이라는 정보만 있다.</li>
-        <li><strong>용도</strong>: 생일, 기념일, 휴가 시작일 등.</li>
+        <li><strong>형태</strong>: <code>/users/10</code> (URL 경로 자체에 값이 포함됨)</li>
+        <li><strong>용도</strong>: <strong>자원(Resource)의 식별</strong>. 특정 회원을 조회하거나 삭제할 때 ID 값으로 쓴다.</li>
+        <li><strong>특징</strong>:
+          <ul>
+            <li>값이 반드시 존재해야 한다. (없으면 404 Not Found)</li>
+            <li>URL이 고유하므로 <strong>캐싱(Caching)</strong>에 매우 유리하다.</li>
+            <li>링크 공유 시 상대방도 똑같은 결과를 볼 수 있다.</li>
+          </ul>
+        </li>
       </ul>
-      <pre><code class="language-java">LocalDate date = LocalDate.of(2026, 2, 4); // 2026-02-04
-LocalDate today = LocalDate.now(); // 오늘 날짜</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. LocalTime (시간)
+          2. @RequestParam (쿼리 파라미터)
         </span>
       </h3>
       <ul>
-        <li><strong>비유</strong>: 손목 <strong>시계</strong>. 날짜는 모르고 '14시 30분'이라는 시간 정보만 있다.</li>
-        <li><strong>용도</strong>: 알람 시간, 수업 시작 시간 등.</li>
+        <li><strong>형태</strong>: <code>/users?name=steve&age=20</code> (URL 뒤에 <code>?</code>로 붙음)</li>
+        <li><strong>용도</strong>: <strong>검색, 필터링, 정렬</strong>. 또는 게시글의 단일 삭제 같은 보조 옵션.</li>
+        <li><strong>특징</strong>:
+          <ul>
+            <li>값이 없어도 가능하게 설정할 수 있다. (<code>required=false</code>)</li>
+            <li><code>@PathVariable</code>과 마찬가지로 URL에 데이터가 보이므로 <strong>링크 공유가 가능</strong>하다.</li>
+          </ul>
+        </li>
       </ul>
-      <pre><code class="language-java">LocalTime time = LocalTime.of(14, 30); // 14:30
-LocalTime now = LocalTime.now(); // 현재 시간</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          3. LocalDateTime (날짜 + 시간)
+          3. @RequestBody (요청 본문)
         </span>
       </h3>
       <ul>
-        <li><strong>비유</strong>: 스마트폰의 <strong>잠금 화면</strong>. 날짜와 시간이 같이 표시된다.</li>
-        <li><strong>공식</strong>: <code>LocalDate</code> + <code>LocalTime</code> = <code>LocalDateTime</code></li>
-        <li><strong>용도</strong>: 약속 시간, 게시글 작성 일시, 로그 기록 등.</li>
+        <li><strong>형태</strong>: URL에는 안 보임. HTTP Body 안에 <strong>JSON</strong> 데이터로 숨겨져 있음.</li>
+        <li><strong>용도</strong>: 회원가입, 글쓰기 등 <strong>복잡하고 많은 데이터</strong>를 보낼 때 (주로 POST/PUT).</li>
+        <li><strong>특징</strong>:
+          <ul>
+            <li><strong>보안 및 깔끔함</strong>: URL에 정보가 노출되지 않아 PII(개인정보) 전송에 유리하고, URL 길이가 무제한이 아니므로 긴 데이터 전송에 필수적이다.</li>
+            <li><strong>공유 불가</strong>: URL에 데이터가 없으므로, 이 페이지의 링크를 복사해서 친구에게 주면 <strong>친구는 빈 화면이나 에러를 보게 된다.</strong> (내가 입력한 데이터가 친구에겐 없기 때문)</li>
+          </ul>
+        </li>
       </ul>
-      <pre><code class="language-java">LocalDateTime dt = LocalDateTime.of(date, time); 
-// 결과: 2026-02-04T14:30</code></pre>
 
-      <h2 class="section">시간대(Time Zone)와 ZonedDateTime</h2>
+      <h2 class="section">DB 전략과 튜닝</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          지구 반대편의 시간
-        </span>
-      </h3>
-      <p>
-        <code>LocalDateTime</code>은 "서울의 2시"인지 "뉴욕의 2시"인지 모른다. 여기에 <strong>위치 정보(ZoneId)</strong>를 더해주면 비로소 전 세계 어디서든 통용되는 시간이 된다.
-      </p>
-
-      
-
-      <ul>
-        <li><strong>공식</strong>: <code>LocalDateTime</code> + <code>ZoneId</code> = <code>ZonedDateTime</code></li>
-        <li><strong>예시</strong>: 한국 시간(KST)을 표현할 때 사용한다.</li>
-      </ul>
-
-      <pre><code class="language-java">// 서울 시간대 설정
-ZonedDateTime seoulTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-System.out.println(seoulTime); 
-// 2026-02-04T14:30:00+09:00[Asia/Seoul] -> '+09:00'이 시차 정보</code></pre>
-
-      <h2 class="section">시간의 간격: Period vs Duration</h2>
-
-      <p>
-        "얼마나 걸렸어?"를 물어볼 때, 날짜 단위인지 시간 단위인지에 따라 사용하는 도구가 다르다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. Period (날짜 차이)
+          ORM이 있는데 왜 SQL을 알아야 할까?
         </span>
       </h3>
       <ul>
-        <li><strong>비유</strong>: <strong>달력</strong>을 넘기며 세는 것. "생일까지 몇 달, 며칠 남았지?"</li>
-        <li><strong>단위</strong>: 년(Year), 월(Month), 일(Day)</li>
-        <li><strong>공식</strong>: <code>날짜</code> - <code>날짜</code> = <code>Period</code></li>
+        <li><strong>문제점</strong>: JPA(ORM)는 개발 편의성을 주지만, 복잡한 통계 쿼리나 조인이 많아지면 <strong>비효율적인 쿼리(N+1 문제 등)</strong>를 생성하여 성능을 떨어뜨릴 수 있다.</li>
+        <li><strong>해결책</strong>: 자동 생성된 쿼리가 느리다면, 직접 <strong>SQL(JPQL, QueryDSL)을 작성하여 튜닝</strong>해야 한다. 즉, ORM은 도구일 뿐 SQL을 몰라도 된다는 뜻이 아니다.</li>
       </ul>
-      <pre><code class="language-java">LocalDate start = LocalDate.of(2026, 1, 1);
-LocalDate end = LocalDate.of(2026, 2, 4);
-
-Period diff = Period.between(start, end);
-System.out.println(diff.getMonths() + "개월 " + diff.getDays() + "일 지남");
-// 1개월 3일 지남</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Duration (시간 차이)
+          PK 생성 전략: Auto Increment vs UUID
         </span>
       </h3>
-      <ul>
-        <li><strong>비유</strong>: <strong>스톱워치</strong>로 재는 것. "영화 상영 시간이 몇 분 몇 초지?"</li>
-        <li><strong>단위</strong>: 시(Hour), 분(Minute), 초(Second), 나노초(Nano)</li>
-        <li><strong>공식</strong>: <code>시간</code> - <code>시간</code> = <code>Duration</code></li>
-      </ul>
-      <pre><code class="language-java">LocalTime start = LocalTime.of(9, 0, 0);
-LocalTime end = LocalTime.of(10, 30, 0);
 
-Duration diff = Duration.between(start, end);
-System.out.println(diff.toMinutes() + "분 걸림");
-// 90분 걸림</code></pre>
-
-      <h2 class="section">그 외 유용한 기능들</h2>
-
-      <p>실무에서 정말 자주 쓰이는 "날짜 조작"과 "형식 변환" 기능이다.</p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          TemporalAdjusters (날짜 조정기)
-        </span>
-      </h3>
-      <strong>"다음 주 금요일이 며칠이지?"</strong><br/>
-      단순히 <code>+1일</code> 하는 게 아니라, 복잡한 날짜 계산을 대신 해주는 똑똑한 비서다.
-      <pre><code class="language-java">LocalDateTime now = LocalDateTime.now();
-
-// 다음 주 금요일 찾기
-LocalDateTime nextFriday = now.with(TemporalAdjusters.next(DayOfWeek.FRIDAY));
-
-// 이번 달의 마지막 날 찾기 (월말 정산 때 유용)
-LocalDateTime lastDay = now.with(TemporalAdjusters.lastDayOfMonth());</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DateTimeFormatter (출력 형식)
-        </span>
-      </h3>
-      <p>
-        자바의 날짜 객체를 우리가 보기 편한 문자열(String)로 바꾸거나, 반대로 문자열을 날짜 객체로 바꿀 때 쓴다.
-      </p>
-      <pre><code class="language-java">LocalDateTime now = LocalDateTime.now();
-
-// 1. 날짜 -> 문자열 (포맷팅)
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
-String text = now.format(formatter); 
-// 결과: "2026년 02월 04일 14시 30분"
-
-// 2. 문자열 -> 날짜 (파싱)
-LocalDateTime parsedDate = LocalDateTime.parse("2026-02-04 14:30", formatter);</code></pre>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>Auto Increment (Sequence)</th>
+            <th>UUID (Universally Unique Identifier)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>형태</strong></td>
+            <td>1, 2, 3... (숫자 증가)</td>
+            <td>550e8400-e29b-41d4... (랜덤 문자열)</td>
+          </tr>
+          <tr>
+            <td><strong>장점</strong></td>
+            <td>
+              - 데이터 크기가 작아 조회가 빠르다.<br>
+              - 눈으로 보고 순서를 알기 쉽다.
+            </td>
+            <td>
+              - 전 세계적으로 유일한 값이 보장된다.<br>
+              - <strong>보안성 우수</strong> (다음 ID 예측 불가).<br>
+              - DB 병합 시 충돌이 없다.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>단점</strong></td>
+            <td>
+              - <strong>보안 취약</strong> (ID 예측하여 데이터 크롤링 가능).<br>
+              - 여러 DB 서버를 합칠 때 ID가 겹칠 수 있다.
+            </td>
+            <td>
+              - 데이터 크기가 커서(16byte) 성능이 약간 떨어진다.<br>
+              - 정렬이나 인덱싱 효율이 숫자에 비해 낮다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="section">오늘의 회고</h2>
 
@@ -239,9 +258,9 @@ LocalDateTime parsedDate = LocalDateTime.parse("2026-02-04 14:30", formatter);</
       </h3>
 
       <ul>
-        <li><code>Date</code>와 <code>Calendar</code>를 쓸 때는 월(Month) 계산이 항상 헷갈렸는데, <code>java.time</code>은 직관적이라 훨씬 편했다.</li>
-        <li><strong>Period</strong>(달력 차이)와 <strong>Duration</strong>(물리적 시간 차이)을 구분해서 써야 한다는 점을 배웠다. D-Day 계산엔 Period가 맞고, 실행 시간 측정엔 Duration이 맞다.</li>
-        <li><code>TemporalAdjusters</code>는 실무에서 정산일이나 배송 예정일을 계산할 때 정말 유용하게 쓰일 것 같다.</li>
+        <li>예외 처리를 컨트롤러마다 하는 게 아니라 <code>@RestControllerAdvice</code>로 한 곳에서 관리하니 코드가 정말 깔끔해졌다.</li>
+        <li><code>@RequestBody</code>를 쓴 요청은 URL 공유가 안 된다는 점을 확실히 이해했다. (검색 결과 페이지는 그래서 <code>@RequestParam</code>을 쓰는구나!)</li>
+        <li>보안이 중요한 서비스라면 PK를 숫자로 1씩 올리는 게 위험할 수 있다는 점(예측 가능성)을 처음 알게 되었다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
