@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-05 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 14425 — 문자열 집합</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/14425">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260205_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>문자열 집합 (백준 14425)</strong>은<br>
+        N개의 문자열로 이루어진 집합 S가 주어졌을 때, 이후 입력되는 M개의 문자열 중
+        집합 S에 <strong>포함된 문자열의 개수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>단순한 이중 반복문($O(N \times M)$)으로 하나씩 비교하면 시간 초과가 발생할 가능성이 높다.</li>
+        <li>효율적인 검색을 위해 <strong>해시(HashSet)</strong>를 사용하거나, 이 코드처럼 <strong>정렬 후 이분 탐색(Binary Search)</strong>을 사용해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬 (Sorting)</strong>: 이분 탐색을 수행하기 위한 전제 조건이다. 집합 S의 문자열들을 사전순으로 정렬한다.</li>
+        <li><strong>이분 탐색 (Binary Search)</strong>:
+          <ul>
+            <li>검사할 문자열이 정렬된 배열의 중앙값보다 사전순으로 앞서면 왼쪽을, 뒤면 오른쪽을 탐색한다.</li>
+            <li>탐색 범위를 절반씩 줄여나가므로 검색 속도가 매우 빠르다. ($O(\log N)$)</li>
+          </ul>
+        </li>
+        <li><strong>문자열 비교</strong>: <code>compareTo</code> 메서드를 사용하여 두 문자열의 사전순 우위를 판단한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 집합 S 입력 및 정렬</strong>
+          <pre><code>String[] str1 = new String[N];
+
+for (int i = 0; i &lt; N; i++) {
+    str1[i] = br.readLine();
+}
+
+Arrays.sort(str1);</code></pre>
+          <ul>
+            <li>N개의 문자열을 배열에 저장한 뒤, <code>Arrays.sort()</code>를 이용해 사전순으로 정렬한다.</li>
+            <li>이 과정이 끝나면 <code>str1</code> 배열은 이분 탐색이 가능한 상태가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 검사 및 카운팅</strong>
+          <pre><code>for (int i = 0; i &lt; M; i++) {
+    String word = br.readLine();
+    boolean exists = binarySearch(str1, word, 0, N - 1);
+
+    if (exists) {
+        cnt++;
+    }
+}</code></pre>
+          <ul>
+            <li>M개의 문자열을 하나씩 입력받아 <code>binarySearch</code> 함수로 존재 여부를 확인한다.</li>
+            <li>존재하면(<code>true</code>) 카운트(<code>cnt</code>)를 증가시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 이분 탐색 구현 (재귀)</strong>
+          <pre><code>int comparison = word.compareTo(str1[mid]);
+
+if (comparison == 0) return true;
+else if (comparison &lt; 0) return binarySearch(str1, word, left, mid - 1);
+else return binarySearch(str1, word, mid + 1, right);</code></pre>
+          <ul>
+            <li><code>word.compareTo(target)</code>의 결과가:
+              <ul>
+                <li><strong>0</strong>이면: 두 문자열이 같음 (탐색 성공).</li>
+                <li><strong>음수(&lt; 0)</strong>면: <code>word</code>가 사전순으로 앞서므로 왼쪽 절반 탐색.</li>
+                <li><strong>양수(&gt; 0)</strong>면: <code>word</code>가 사전순으로 뒤이므로 오른쪽 절반 탐색.</li>
+              </ul>
+            </li>
+            <li><code>left &gt; right</code>가 될 때까지 못 찾으면 <code>false</code>를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>문자열의 최대 길이를 L이라고 할 때, 문자열 비교는 $O(L)$이 걸린다.</li>
+            <li>정렬: $O(N \log N \times L)$</li>
+            <li>탐색: M개의 문자열에 대해 이분 탐색을 수행하므로 $O(M \log N \times L)$</li>
+            <li>전체적으로 <strong>$O((N + M) \log N \times L)$</strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>N개의 문자열을 저장할 배열 공간 <strong>$O(N \times L)$</strong>이 필요하다.</li>
+            <li>재귀 호출 스택 깊이는 $O(\log N)$이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2217 — 로프</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2217">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260205_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>로프 (백준 2217)</strong>는<br>
+        N개의 로프가 있을 때, 이 로프들을 병렬로 연결하여 들어올릴 수 있는 <strong>물체의 최대 중량</strong>을 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>여러 개의 로프를 사용할 때, 물체의 무게는 각 로프에 <strong>고르게 분산(w/k)</strong>된다.</li>
+        <li>즉, 어떤 로프 그룹이 버틸 수 있는 최대 중량은 <strong>(그룹 내에서 가장 약한 로프의 한계) × (로프의 개수)</strong>가 된다.</li>
+        <li>가장 약한 로프보다 더 무거운 하중이 걸리면 끊어지기 때문이다.</li>
+        <li>모든 로프를 다 쓸 필요는 없으며, 최적의 조합(부분 집합)을 찾아야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>정렬(Sorting)</strong>: 로프의 중량을 오름차순으로 정렬한다. 이렇게 하면 특정 로프를 선택했을 때, 그보다 튼튼한 로프가 뒤에 몇 개 있는지 바로 알 수 있다.</li>
+        <li><strong>그리디(Greedy) 탐색</strong>:
+          <ul>
+            <li>특정 로프를 '가장 약한 로프'로 기준 잡았을 때, 최대 중량을 낼 수 있는 방법은 <strong>자신보다 튼튼한 모든 로프를 포함</strong>시키는 것이다.</li>
+            <li>배열을 순회하며 <code>현재 로프 중량 × (자신을 포함한 남은 로프 개수)</code>를 계산하고, 그 중 최댓값을 찾는다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 정렬</strong>
+          <pre><code>int[] ropes = new int[N];
+for (int i = 0; i &lt; N; i++) {
+    ropes[i] = Integer.parseInt(br.readLine());
+}
+
+Arrays.sort(ropes);</code></pre>
+          <ul>
+            <li>모든 로프의 한계 중량을 배열에 담고 오름차순으로 정렬한다.</li>
+            <li>예: <code>[10, 15]</code>라면, 10이 0번 인덱스, 15가 1번 인덱스에 위치한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 역순 순회 및 최대 중량 계산</strong>
+          <pre><code>int max = 0;
+
+for (int i = N - 1; i &gt;= 0; i--) {
+    int count = N - i;
+    int weight = ropes[i] * count;
+
+    max = Math.max(max, weight);
+}</code></pre>
+          <ul>
+            <li>가장 튼튼한 로프(뒤쪽)부터 약한 로프(앞쪽) 순으로 확인한다. (오름차순이므로 <code>i</code>부터 <code>N-1</code>까지는 모두 <code>ropes[i]</code>보다 크거나 같다.)</li>
+            <li><code>count = N - i</code>: 현재 로프(<code>ropes[i]</code>) 이상으로 버틸 수 있는 로프의 개수다.</li>
+            <li><code>weight = ropes[i] * count</code>: 현재 로프가 버틸 수 있는 무게 × 개수로 총 중량을 계산한다.</li>
+            <li>기존의 <code>max</code>값과 비교하여 더 큰 값으로 갱신한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>N개의 로프를 정렬하는 데 <strong><code>O(N log N)</code></strong>이 소요된다.</li>
+            <li>이후 한 번 순회하며 최댓값을 찾는 데 <code>O(N)</code>이 걸리므로, 전체 시간 복잡도는 <strong><code>O(N log N)</code></strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>N개의 정수를 저장할 배열이 필요하므로 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
