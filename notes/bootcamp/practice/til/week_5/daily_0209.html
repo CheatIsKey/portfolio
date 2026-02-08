@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 40일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* TIL 데이터 테이블 공통 스타일 */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .prose table thead {
+      background-color: #f5f5f5;
+    }
+    /* 플로우차트 이미지 스타일 */
+    .flowchart-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 1rem 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 40일차 TIL — 시스템 흐름도 설계 (Flowchart)</h1>
+      <p class="muted">작성일 2026-02-06 · 분류: 부트캠프, TIL, Flowchart, System Design</p>
+
+      <h2 class="section">40일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+
+      <ul>
+        <li>주요 시스템(도서관, 성적, 게임, 은행)의 <strong>비즈니스 로직 흐름</strong>을 시각화한다.</li>
+        <li>각 시스템의 <strong>입출력, 조건, 예외 상황</strong>을 명세서로 정리하여 구현 전 설계를 탄탄히 한다.</li>
+        <li>복잡한 분기 처리를 플로우차트로 표현하며 논리적 오류를 사전에 방지하는 습관을 기른다.</li>
+      </ul>
+
+      <h2 class="section">1. 도서관 대출 관리 시스템</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/도서관대출관리시스템.jpg" 
+             alt="도서관 대출 관리 시스템 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시스템 명세
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 메뉴 선택(1~4, 0), ISBN, 사용자 번호(userId), 연체료 지불 금액(money)</li>
+        <li><strong>출력</strong>: 대출/반납 성공 메시지, 연체료 정보</li>
+        <li><strong>상태 관리</strong>: 대출 여부(isBorrow), 연체료 누적(totalAmount), 대출 권수(borrowCnt), 최대 권수(maxBook)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 로직 및 예외 처리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>대출 불가 조건</strong>:
+          <ul>
+            <li>이미 대출 중인 도서 (isBorrow = true)</li>
+            <li>사용자의 대출 권수 초과 (borrowCnt > maxBook)</li>
+            <li>미납 연체료가 남아있는 경우 (totalAmount > 0)</li>
+          </ul>
+        </li>
+        <li><strong>반납 및 연체료</strong>:
+          <ul>
+            <li>반납 시 연체일수를 계산하여 totalAmount에 누적한다.</li>
+            <li>연체료 납부 시 money가 양수인지 검증하고 차감한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h2 class="section">2. 학생 성적 관리 시스템</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/학생성적관리.jpg" 
+             alt="학생 성적 관리 시스템 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시스템 명세
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 학생 이름(name), 과목 성적(score)</li>
+        <li><strong>출력</strong>: 이름, 총점(totalScore), 평균(avg)</li>
+        <li><strong>상태 관리</strong>: 학생별 점수 리스트</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 로직 및 예외 처리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>종료 조건</strong>: 이름에 0 입력 시 프로그램 종료.</li>
+        <li><strong>유효성 검증</strong>:
+          <ul>
+            <li>이름은 문자열이어야 함.</li>
+            <li>점수는 0 이상 100 이하의 정수여야 함.</li>
+          </ul>
+        </li>
+        <li><strong>데이터 처리</strong>: 기존 학생이면 점수 목록에 추가하고, 신규 학생이면 새로 등록하여 평균을 재계산한다.</li>
+      </ul>
+
+      <h2 class="section">3. 게임 캐릭터 레벨업 시스템</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/게임캐릭터레벨업시스템.jpg" 
+             alt="게임 캐릭터 레벨업 시스템 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시스템 명세
+        </span>
+      </h3>
+      <ul>
+        <li><strong>입력</strong>: 획득 경험치(exp)</li>
+        <li><strong>출력</strong>: 현재 레벨(level)</li>
+        <li><strong>상태 관리</strong>: 누적 경험치(totalExp), 레벨업 기준(levelCond)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 로직 및 예외 처리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>레벨업 메커니즘</strong>:
+          <ul>
+            <li><code>totalExp >= levelCond</code> 조건을 만족하면 레벨이 1 상승한다.</li>
+            <li>레벨업 시 기준 경험치(levelCond)는 다음 단계로 갱신된다.</li>
+          </ul>
+        </li>
+        <li><strong>예외 처리</strong>: 경험치는 반드시 양의 정수여야 한다. (0 입력 시 종료)</li>
+      </ul>
+
+      <h2 class="section">4. 은행 계좌 관리 시스템</h2>
+
+      <figure>
+        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/은행계좌관리시스템.jpg" 
+             alt="은행 계좌 관리 시스템 플로우차트" class="flowchart-img" />
+      </figure>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시스템 명세
+        </span>
+      </h3>
+      <ul>
+        <li><strong>기능</strong>: 입금(1), 출금(2), 이체(3), 잔액 조회(4)</li>
+        <li><strong>입력</strong>: 메뉴 번호, 내 계좌(account), 상대 계좌(targetAccount), 금액(money)</li>
+        <li><strong>출력</strong>: 작업 결과 메시지 및 현재 잔액</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 로직 및 예외 처리
+        </span>
+      </h3>
+      <ul>
+        <li><strong>공통 검증</strong>:
+          <ul>
+            <li>계좌번호 형식 유효성 및 DB 존재 여부 확인.</li>
+            <li>금액은 0 이상의 정수만 허용.</li>
+          </ul>
+        </li>
+        <li><strong>잔액 부족 방지</strong>:
+          <ul>
+            <li>출금 및 이체 시 <code>money > totalMoney</code>인 경우 거래를 거부하고 에러 메시지를 출력한다.</li>
+          </ul>
+        </li>
+        <li><strong>이체 로직</strong>: 내 계좌에서 차감하고, 상대 계좌에 더하는 트랜잭션 처리를 수행한다.</li>
+      </ul>
+
+      <h2 class="section">오늘의 회고</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 느낀 점
+        </span>
+      </h3>
+
+      <ul>
+        <li>복잡해 보이는 시스템도 <strong>입력-처리-출력</strong> 단계로 나누고 예외 상황을 미리 정의하니 구현이 훨씬 수월해 보였다.</li>
+        <li>특히 은행 시스템의 이체 로직처럼 <strong>두 개의 상태(내 계좌, 상대 계좌)</strong>를 동시에 건드려야 할 때 흐름도가 큰 도움이 되었다.</li>
+        <li>코딩 전에 이렇게 명세서와 플로우차트를 그리는 것이 <strong>버그를 줄이는 지름길</strong>임을 다시 한번 체감했다.</li>
+      </ul>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
