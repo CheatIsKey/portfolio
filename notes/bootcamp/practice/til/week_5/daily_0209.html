@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 40일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 41일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     /* TIL 데이터 테이블 공통 스타일 */
@@ -23,14 +23,13 @@
     .prose table thead {
       background-color: #f5f5f5;
     }
-    /* 플로우차트 이미지 스타일 */
-    .flowchart-img {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
+    /* 코드 블록 스타일 */
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
       border-radius: 8px;
-      margin: 1rem 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
     }
   </style>
 </head>
@@ -50,10 +49,10 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 40일차 TIL — 시스템 흐름도 설계 (Flowchart)</h1>
-      <p class="muted">작성일 2026-02-06 · 분류: 부트캠프, TIL, Flowchart, System Design</p>
+      <h1>내일배움캠프 Spring 백엔드 41일차 TIL — 인증/인가와 Spring의 웹 기술 총정리</h1>
+      <p class="muted">작성일 2026-02-09 · 분류: 부트캠프, TIL, Spring Boot, Security, Web</p>
 
-      <h2 class="section">40일차 개요</h2>
+      <h2 class="section">41일차 개요</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -62,153 +61,257 @@
       </h3>
 
       <ul>
-        <li>주요 시스템(도서관, 성적, 게임, 은행)의 <strong>비즈니스 로직 흐름</strong>을 시각화한다.</li>
-        <li>각 시스템의 <strong>입출력, 조건, 예외 상황</strong>을 명세서로 정리하여 구현 전 설계를 탄탄히 한다.</li>
-        <li>복잡한 분기 처리를 플로우차트로 표현하며 논리적 오류를 사전에 방지하는 습관을 기른다.</li>
+        <li><strong>인증(Authentication)</strong>과 <strong>인가(Authorization)</strong>의 차이를 명확히 구분한다.</li>
+        <li><strong>세션(Session)</strong>과 <strong>JWT(Json Web Token)</strong>의 동작 방식과 장단점을 비교한다.</li>
+        <li><strong>ArgumentResolver</strong>를 통해 컨트롤러 파라미터를 깔끔하게 처리하는 방법을 익힌다.</li>
+        <li><strong>Spring의 예외 처리 전략</strong>과 로깅(Logging)의 중요성을 파악한다.</li>
       </ul>
 
-      <h2 class="section">1. 도서관 대출 관리 시스템</h2>
-
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/도서관대출관리시스템.jpg" 
-             alt="도서관 대출 관리 시스템 플로우차트" class="flowchart-img" />
-      </figure>
+      <h2 class="section">인증과 인가, 그리고 세션 vs JWT</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시스템 명세
+          인증(Authentication) vs 인가(Authorization)
         </span>
       </h3>
       <ul>
-        <li><strong>입력</strong>: 메뉴 선택(1~4, 0), ISBN, 사용자 번호(userId), 연체료 지불 금액(money)</li>
-        <li><strong>출력</strong>: 대출/반납 성공 메시지, 연체료 정보</li>
-        <li><strong>상태 관리</strong>: 대출 여부(isBorrow), 연체료 누적(totalAmount), 대출 권수(borrowCnt), 최대 권수(maxBook)</li>
+        <li><strong>인증 (로그인)</strong>: 사용자가 누구인지 확인하는 절차이다. "당신은 우리 회원이 맞습니까?"</li>
+        <li><strong>인가 (권한)</strong>: 인증된 사용자가 특정 리소스에 접근할 수 있는지 확인하는 절차이다. "당신은 관리자 페이지에 들어갈 권한이 있습니까?"</li>
+        <li><strong>순서</strong>: 인증은 인가보다 <strong>항상 먼저</strong> 수행되어야 한다.</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주요 로직 및 예외 처리
+          세션 (Session) 방식
+        </span>
+      </h3>
+      <p>서버가 사용자의 로그인 상태를 <strong>서버 메모리나 DB에 직접 기억</strong>하는 방식이다.</p>
+      <ol>
+        <li>사용자가 로그인하면 서버는 고유한 <strong>Session ID</strong>를 생성하여 저장한다.</li>
+        <li>서버는 이 ID를 클라이언트에게 보내고, 브라우저는 <strong>쿠키(Cookie)</strong>에 저장한다.</li>
+        <li>이후 요청마다 쿠키에 담긴 Session ID를 보내면, 서버가 이를 확인하여 사용자를 식별한다.</li>
+      </ol>
+      <ul>
+        <li><strong>장점</strong>: 서버가 상태를 관리하므로 보안성이 높고, 강제 로그아웃 등의 제어가 쉽다.</li>
+        <li><strong>단점</strong>: 사용자가 많아지면 서버 메모리 부하가 커지고, 서버 확장이 어렵다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JWT (Json Web Token) 방식
+        </span>
+      </h3>
+      <p>서버가 상태를 저장하지 않는(Stateless) 인증 방식이다. 토큰 자체에 인증 정보가 담겨있다.</p>
+      <ol>
+        <li>로그인 성공 시, 서버는 사용자 정보를 암호화한 <strong>토큰(JWT)</strong>을 발급하여 클라이언트에게 준다. (서버는 저장 X)</li>
+        <li>클라이언트는 토큰을 로컬 스토리지나 쿠키에 저장한다.</li>
+        <li>요청 시 헤더에 토큰을 실어 보내면, 서버는 <strong>서명(Signature)</strong>을 검증하여 유효성을 확인한다.</li>
+      </ol>
+      <ul>
+        <li><strong>장점</strong>: 서버 부하가 적고 확장성이 뛰어나다. 모바일 앱 등 다양한 환경에서 쓰기 좋다.</li>
+        <li><strong>단점</strong>: 토큰이 탈취되면 만료될 때까지 막을 방법이 없다. (Access/Refresh Token 전략으로 보완)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JWT 구성 요소
         </span>
       </h3>
       <ul>
-        <li><strong>대출 불가 조건</strong>:
+        <li><strong>Header</strong>: 토큰 유형(JWT)과 알고리즘 정보.</li>
+        <li><strong>Payload</strong>: 실제 정보(Claim). 누구나 디코딩 가능하므로 <strong>비밀번호 절대 금지</strong>.</li>
+        <li><strong>Signature</strong>: 위변조 방지를 위한 서명. Header+Payload+SecretKey를 암호화한 값.</li>
+      </ul>
+
+      <h2 class="section">HTTP Cookie와 보안</h2>
+
+      <p>쿠키는 Session ID나 JWT를 담는 <strong>운송 수단(상자/봉투)</strong> 역할을 한다.</p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Set-Cookie 보안 옵션
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Secure</strong>: HTTPS 통신일 때만 쿠키를 전송한다. (탈취 방지)</li>
+        <li><strong>HttpOnly</strong>: 자바스크립트의 접근을 차단한다. (XSS 공격 방지)</li>
+        <li><strong>SameSite</strong>: 다른 도메인에서의 요청 시 쿠키 전송을 제한한다. (CSRF 공격 방지)</li>
+      </ul>
+
+      <h2 class="section">Spring의 세션 관리</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          HttpSession vs HttpServletRequest
+        </span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>HttpSession</th>
+            <th>HttpServletRequest</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>사용법</strong></td>
+            <td>파라미터로 선언하면 Spring이 알아서 주입해준다.</td>
+            <td><code>request.getSession(false)</code>로 직접 꺼내야 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>생성 제어</strong></td>
+            <td>없으면 무조건 생성한다.</td>
+            <td><code>false</code> 옵션으로 없을 때 생성을 막을 수 있다.</td>
+          </tr>
+          <tr>
+            <td><strong>용도</strong></td>
+            <td>세션 기능만 필요할 때.</td>
+            <td>세션 외에 IP, 헤더 정보 등이 필요할 때.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          로그인/로그아웃 구현 예제
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// [로그인] 세션 생성 및 저장
+@PostMapping("/login")
+public String login(@RequestBody LoginRequest dto, HttpSession session) {
+    // ... 회원 검증 로직 ...
+    
+    // 세션에 사용자 정보 저장 (JSESSIONID 쿠키 자동 발급)
+    session.setAttribute("loginUser", sessionUser);
+    return "로그인 성공";
+}
+
+// [로그아웃] 세션 무효화
+@PostMapping("/logout")
+public String logout(HttpSession session) {
+    // 세션 전체 삭제 (저장소 비우기)
+    session.invalidate();
+    return "로그아웃 성공";
+}
+
+// [정보 수정] @SessionAttribute로 세션 값 조회
+@PatchMapping("/me")
+public String update(@SessionAttribute(name = "loginUser", required = false) SessionUser user) {
+    if (user == null) {
+        throw new UnAuthorizedException(); // 로그인 안 된 경우
+    }
+    // ... 수정 로직 ...
+}</code></pre>
+
+      <h2 class="section">ArgumentResolver: 파라미터 자동 처리</h2>
+
+      <p>
+        <code>@LoginUser</code> 같은 커스텀 어노테이션을 만들어, 컨트롤러 파라미터에 사용자 정보를 자동으로 주입해주는 마법 같은 기능이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          구현 3단계
+        </span>
+      </h3>
+      <ol>
+        <li><strong>HandlerMethodArgumentResolver 구현</strong>:
           <ul>
-            <li>이미 대출 중인 도서 (isBorrow = true)</li>
-            <li>사용자의 대출 권수 초과 (borrowCnt > maxBook)</li>
-            <li>미납 연체료가 남아있는 경우 (totalAmount > 0)</li>
+            <li><code>supportsParameter()</code>: 어떤 파라미터를 처리할지 조건 검사 (예: <code>@LoginUser</code>가 붙었는지).</li>
+            <li><code>resolveArgument()</code>: 실제 주입할 값을 생성 (세션에서 User 꺼내기 등).</li>
           </ul>
         </li>
-        <li><strong>반납 및 연체료</strong>:
-          <ul>
-            <li>반납 시 연체일수를 계산하여 totalAmount에 누적한다.</li>
-            <li>연체료 납부 시 money가 양수인지 검증하고 차감한다.</li>
-          </ul>
-        </li>
-      </ul>
+        <li><strong>WebMvcConfigurer 등록</strong>: <code>addArgumentResolvers</code>에 추가해야 동작한다.</li>
+      </ol>
 
-      <h2 class="section">2. 학생 성적 관리 시스템</h2>
-
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/학생성적관리.jpg" 
-             alt="학생 성적 관리 시스템 플로우차트" class="flowchart-img" />
-      </figure>
+      <h2 class="section">Spring 예외 처리와 로깅</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시스템 명세
+          예외 처리 전략 (우선순위 순)
         </span>
       </h3>
-      <ul>
-        <li><strong>입력</strong>: 학생 이름(name), 과목 성적(score)</li>
-        <li><strong>출력</strong>: 이름, 총점(totalScore), 평균(avg)</li>
-        <li><strong>상태 관리</strong>: 학생별 점수 리스트</li>
-      </ul>
+      <ol>
+        <li><code>@ExceptionHandler</code> (컨트롤러 단위)</li>
+        <li><code>@RestControllerAdvice</code> (전역 단위, <strong>표준</strong>)</li>
+        <li>Spring 기본 예외 처리</li>
+      </ol>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주요 로직 및 예외 처리
+          커스텀 에러와 다형성 활용 예시
         </span>
       </h3>
-      <ul>
-        <li><strong>종료 조건</strong>: 이름에 0 입력 시 프로그램 종료.</li>
-        <li><strong>유효성 검증</strong>:
-          <ul>
-            <li>이름은 문자열이어야 함.</li>
-            <li>점수는 0 이상 100 이하의 정수여야 함.</li>
-          </ul>
-        </li>
-        <li><strong>데이터 처리</strong>: 기존 학생이면 점수 목록에 추가하고, 신규 학생이면 새로 등록하여 평균을 재계산한다.</li>
-      </ul>
 
-      <h2 class="section">3. 게임 캐릭터 레벨업 시스템</h2>
+      <pre><code class="language-java">// 부모 예외 (상태 코드 포함)
+@Getter
+public class ServiceException extends RuntimeException {
+    private final HttpStatus status;
+    public ServiceException(HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+}
 
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/게임캐릭터레벨업시스템.jpg" 
-             alt="게임 캐릭터 레벨업 시스템 플로우차트" class="flowchart-img" />
-      </figure>
+// 자식 예외 (구체적인 상황)
+public class MovieNotFoundException extends ServiceException {
+    public MovieNotFoundException(String message) {
+        super(HttpStatus.NOT_FOUND, message); // 404 지정
+    }
+}
+
+// 전역 핸들러에서 부모 타입으로 한 번에 처리
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity&lt;String&gt; handleServiceException(ServiceException ex) {
+        return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
+    }
+}</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시스템 명세
+          로깅 (Logging)
         </span>
       </h3>
       <ul>
-        <li><strong>입력</strong>: 획득 경험치(exp)</li>
-        <li><strong>출력</strong>: 현재 레벨(level)</li>
-        <li><strong>상태 관리</strong>: 누적 경험치(totalExp), 레벨업 기준(levelCond)</li>
+        <li><strong>System.out.println 금지 이유</strong>: 성능 저하, 로그 레벨 제어 불가, 정보 부족.</li>
+        <li><strong>로그 레벨</strong>: TRACE → DEBUG → INFO(기본) → WARN → ERROR</li>
+        <li><strong>사용법</strong>: <code>@Slf4j</code> 어노테이션 사용 → <code>log.info("메시지");</code></li>
       </ul>
+
+      <h2 class="section">그 외 핵심 개념들</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주요 로직 및 예외 처리
+          AppConfig의 역할 (DI)
         </span>
       </h3>
-      <ul>
-        <li><strong>레벨업 메커니즘</strong>:
-          <ul>
-            <li><code>totalExp >= levelCond</code> 조건을 만족하면 레벨이 1 상승한다.</li>
-            <li>레벨업 시 기준 경험치(levelCond)는 다음 단계로 갱신된다.</li>
-          </ul>
-        </li>
-        <li><strong>예외 처리</strong>: 경험치는 반드시 양의 정수여야 한다. (0 입력 시 종료)</li>
-      </ul>
+      <pre><code class="language-java">@Configuration
+public class AppConfig {
+    @Bean
+    public MemberService memberService() {
+        // 생성자 주입: Service가 Repository를 사용하도록 연결
+        return new MemberServiceImpl(memberRepository());
+    }
 
-      <h2 class="section">4. 은행 계좌 관리 시스템</h2>
-
-      <figure>
-        <img src="/assets/notes/bootcamp/practice/til/week_5/flowchart/은행계좌관리시스템.jpg" 
-             alt="은행 계좌 관리 시스템 플로우차트" class="flowchart-img" />
-      </figure>
+    @Bean
+    public MemberRepository memberRepository() {
+        // 구현체 변경 시 여기만 수정하면 됨 (Memory -> DB)
+        return new MemoryMemberRepository();
+    }
+}</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          시스템 명세
+          Bean Validation (데이터 검증)
         </span>
       </h3>
       <ul>
-        <li><strong>기능</strong>: 입금(1), 출금(2), 이체(3), 잔액 조회(4)</li>
-        <li><strong>입력</strong>: 메뉴 번호, 내 계좌(account), 상대 계좌(targetAccount), 금액(money)</li>
-        <li><strong>출력</strong>: 작업 결과 메시지 및 현재 잔액</li>
-      </ul>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          주요 로직 및 예외 처리
-        </span>
-      </h3>
-      <ul>
-        <li><strong>공통 검증</strong>:
-          <ul>
-            <li>계좌번호 형식 유효성 및 DB 존재 여부 확인.</li>
-            <li>금액은 0 이상의 정수만 허용.</li>
-          </ul>
-        </li>
-        <li><strong>잔액 부족 방지</strong>:
-          <ul>
-            <li>출금 및 이체 시 <code>money > totalMoney</code>인 경우 거래를 거부하고 에러 메시지를 출력한다.</li>
-          </ul>
-        </li>
-        <li><strong>이체 로직</strong>: 내 계좌에서 차감하고, 상대 계좌에 더하는 트랜잭션 처리를 수행한다.</li>
+        <li><code>@NotBlank</code>, <code>@Email</code>, <code>@Size</code>, <code>@Pattern(regexp=...)</code> 등을 사용하여 DTO 검증.</li>
+        <li>검증 실패 시 <code>MethodArgumentNotValidException</code> 발생 → 전역 핸들러에서 처리.</li>
       </ul>
 
       <h2 class="section">오늘의 회고</h2>
@@ -220,9 +323,9 @@
       </h3>
 
       <ul>
-        <li>복잡해 보이는 시스템도 <strong>입력-처리-출력</strong> 단계로 나누고 예외 상황을 미리 정의하니 구현이 훨씬 수월해 보였다.</li>
-        <li>특히 은행 시스템의 이체 로직처럼 <strong>두 개의 상태(내 계좌, 상대 계좌)</strong>를 동시에 건드려야 할 때 흐름도가 큰 도움이 되었다.</li>
-        <li>코딩 전에 이렇게 명세서와 플로우차트를 그리는 것이 <strong>버그를 줄이는 지름길</strong>임을 다시 한번 체감했다.</li>
+        <li>인증(로그인)과 인가(권한)의 차이, 그리고 세션과 JWT의 장단점을 명확히 구분할 수 있게 되었다.</li>
+        <li><code>ArgumentResolver</code>는 처음엔 복잡해 보였지만, 컨트롤러 코드를 획기적으로 줄여주는 강력한 도구임을 깨달았다.</li>
+        <li><code>System.out</code> 대신 <code>log</code>를 써야 하는 이유와, 커스텀 예외를 상속 구조로 만들어 관리하는 패턴은 실무에서 꼭 써먹어야겠다.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
