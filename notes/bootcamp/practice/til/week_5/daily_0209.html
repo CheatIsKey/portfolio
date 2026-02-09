@@ -31,12 +31,21 @@
       overflow-x: auto;
       border: 1px solid #e9ecef;
     }
-    /* 중요 개념 박스 */
+    /* 개념 설명 박스 */
     .concept-box {
       background-color: #e3f2fd;
       border-left: 5px solid #2196f3;
       padding: 1rem;
       margin: 1rem 0;
+      border-radius: 4px;
+    }
+    /* 다이어그램 이미지 스타일 */
+    .diagram-img {
+      display: block;
+      margin: 1.5rem auto;
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
   </style>
 </head>
@@ -56,8 +65,8 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 41일차 TIL — 인증/인가 아키텍처와 Spring 심화 기술</h1>
-      <p class="muted">작성일 2026-02-09 · 분류: 부트캠프, TIL, Spring Security, Web Architecture</p>
+      <h1>내일배움캠프 Spring 백엔드 41일차 TIL — Spring Core 원리부터 웹 인증/인가 아키텍처 총정리</h1>
+      <p class="muted">작성일 2026-02-09 · 분류: 부트캠프, TIL, Spring Core, Security, Web</p>
 
       <h2 class="section">41일차 개요</h2>
 
@@ -67,17 +76,216 @@
         </span>
       </h3>
       <ul>
-        <li><strong>세션과 JWT</strong>의 인증 흐름을 시각적으로 비교하고 장단점을 명확히 한다.</li>
-        <li><strong>ArgumentResolver</strong>의 내부 동작 원리를 이해하고 커스텀 어노테이션을 구현한다.</li>
-        <li>실무 수준의 <strong>로깅(Logging)</strong> 전략과 <strong>예외 처리</strong> 패턴을 코드 레벨로 정리한다.</li>
+        <li><strong>객체 지향 설계 원칙(SOLID, 응집도/결합도)</strong>을 재정립한다.</li>
+        <li>Spring의 핵심인 <strong>IoC/DI, Bean, 생명주기</strong>의 동작 원리를 완벽하게 이해한다.</li>
+        <li><strong>인증/인가(세션 vs JWT)</strong>의 흐름을 시각적으로 파악하고 구현 방법을 익힌다.</li>
+        <li><strong>로깅, 예외 처리, ArgumentResolver</strong> 등 실무 필수 기술을 정리한다.</li>
       </ul>
 
-      <h2 class="section">인증(Authentication) 아키텍처 비교</h2>
+      <h2 class="section">1. 객체 지향 설계 원칙</h2>
 
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          응집도와 결합도
+        </span>
+      </h3>
+      <ul>
+        <li><strong>응집도(Cohesion)</strong>:
+          <br>하나의 클래스(또는 모듈)가 하나의 목적을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
+          <br>즉, 클래스 내의 메소드와 데이터들이 얼마나 서로 관련 있는 작업을 수행하는 지를 의미한다.
+          <br>→ <strong>응집도를 높이기 위해서는 하나의 클래스는 하나의 책임만 가져야 한다.</strong>
+        </li>
+        <li><strong>결합도(Coupling)</strong>:
+          <br>하나의 클래스(또는 모듈)가 다른 클래스와 얼마나 많이 엮어있는지, 즉 얼마나 의존적인지를 나타내는 척도이다.
+          <br>→ <strong>결합도를 낮추기 위해서는 하나의 클래스가 변경되어도 다른 클래스에 미치는 영향이 거의 없도록 설계해야 한다.</strong>
+        </li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SOLID 원칙
+        </span>
+      </h3>
+      <ul>
+        <li><strong>S (SRP)</strong>: 클래스는 단 하나의 책임만 가져야 한다.</li>
+        <li><strong>O (OCP)</strong>: 확장에는 열려있고, 수정에는 닫혀있어야 한다.</li>
+        <li><strong>L (LSP)</strong>: 자식 클래스는 부모 클래스를 대체할 수 있어야 한다.</li>
+        <li><strong>I (ISP)</strong>: 클라이언트(이미 구현된 코드를 사용하는 코드)는 자신이 사용하지 않는 메서드에 의존하면 안된다. 인터페이스에도 책임을 많이 가지지 말고 분리해야 한다.</li>
+        <li><strong>D (DIP)</strong>: 고수준 모듈은 저수준 모듈에 의존하면 안된다. 둘 다 추상화에 의존해야 한다.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          의존성(Dependency)이란
+        </span>
+      </h3>
+      <p>한 클래스가 다른 클래스(혹은 객체)를 사용하는 관계를 말한다.</p>
+
+      <h2 class="section">2. Spring Core: IoC와 Bean</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          IoC와 DI의 개념
+        </span>
+      </h3>
+      <ul>
+        <li><strong>IoC (제어의 역전)</strong>: 제어의 흐름이 바뀌는 것이다. 전통적인 방식에서는 개발자가 객체를 직접 생성/관리했지만, 스프링이 객체의 생성과 관리를 대신 해주는 것이다.</li>
+        <li><strong>DI (의존성 주입)</strong>: IoC 개념을 실제로 구현하는 대표적인 방법이다. 스프링이 객체를 생성하고 관리하는 곳에서 가져와서 사용(주입)하는 것이다.</li>
+        <li><strong>IoC Container</strong>: Bean의 생성 및 생명주기 관리를 하는 컨테이너이다. (DI, Bean 설정 정보 관리, 의존 관계 설정)</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Bean과 싱글톤
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Bean</strong>: 스프링이 개발자를 대신해서 생성하는 객체. 컨테이너에 의해 생성, 관리, 소멸되며 기본적으로 <strong>싱글톤 스코프</strong>로 관리된다.</li>
+        <li><strong>싱글톤(Singleton)</strong>: 클래스의 인스턴스가 단 1개만 생성되는 것을 보장하는 디자인 패턴.
+          <ul>
+            <li>최초 한 번만 생성하므로 메모리 낭비 방지.</li>
+            <li>데이터 일관성 유지 용이.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          사용 기준 (IoC/DI vs new)
+        </span>
+      </h3>
+      <ul>
+        <li><strong>IoC/DI 사용</strong>: 재사용되거나 교체 가능한 비즈니스 로직/인프라.</li>
+        <li><strong>new 사용</strong>: 매번 새로운 상태를 가지는 데이터 객체 (DTO/엔티티).</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          어노테이션 합성
+        </span>
+      </h3>
       <p>
-        사용자가 "나 로그인 했어"라고 증명하는 방식은 크게 두 가지로 나뉜다.
-        서버가 기억하느냐(Session), 클라이언트가 증명서를 들고 다니느냐(JWT)의 차이다.
+        여러 개의 어노테이션을 조합하여 하나의 새로운 어노테이션을 만드는 것이다.
+        스프링은 어노테이션을 분석할 때, 메타 어노테이션까지 재귀적으로 탐색하여 기능을 적용해준다.
       </p>
+
+      <h2 class="section">3. Bean 등록과 의존성 주입</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Bean 등록 방법 2가지
+        </span>
+      </h3>
+      
+      <p><strong>1. Bean 자동 등록 (@Component)</strong></p>
+      <ul>
+        <li><code>@ComponentScan</code>이 설정된 패키지 하위의 모든 <code>@Component</code> 클래스를 찾아 등록한다.</li>
+        <li>합성 어노테이션: <code>@Controller</code>, <code>@Service</code>, <code>@Repository</code></li>
+      </ul>
+
+      <p><strong>2. Bean 수동 등록 (@Bean)</strong></p>
+      <ul>
+        <li><code>@Configuration</code> 클래스 내부의 <code>@Bean</code> 메서드를 사용하여 명시적으로 등록한다.</li>
+        <li>외부 라이브러리나 복잡한 초기화 로직이 필요한 경우 사용한다.</li>
+      </ul>
+
+      <div class="concept-box">
+        <strong>AppConfig 예시 (DI 호출 흐름)</strong><br>
+        역할과 구현을 명확히 분리하여, DB가 바뀌어도 설정 파일만 수정하면 된다.
+      </div>
+      <pre><code class="language-java">@Configuration
+public class AppConfig {
+    @Bean
+    public MemberService memberService() { // 역할(Interface)
+        // 구현(Implementation) - 나중에 DB로 바꿀 때 여기만 수정!
+        return new MemberServiceImpl(memberRepository());
+    }
+
+    @Bean
+    public MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DI 주입 방식 3가지 (상세)
+        </span>
+      </h3>
+
+      <p><strong>1. 필드 주입</strong></p>
+      <p>
+        <code>@Autowired</code>를 필드에 직접 선언하여 의존성을 주입하는 방식이다.<br>
+        테스트 코드 말고는 사용하지 않는다. 여러 문제가 있지만, 대표적으로 <code>final</code> 키워드 사용이 불가능하기 때문에 변수에 할당된 객체를 null 혹은 다른 객체로 바꿀 수 있어 안전하지 않다.
+      </p>
+
+      <p><strong>2. Setter 주입</strong></p>
+      <p>
+        Setter 메서드를 통해 의존성을 주입받는 방식이다.<br>
+        필드 주입과 같은 문제가 있어 안전하지 않다. 따라서 사용하지 않는다.
+      </p>
+
+      <p><strong>3. 생성자 주입 (Best)</strong></p>
+      <p>
+        생성자를 통해 의존성을 주입하는 방식이다.<br>
+        생성자 앞에 <code>@Autowired</code>를 붙일 수 있지만, 일반적으로 생략(생성자가 1개만 있으면 생략 가능)한다. 불변성을 보장하여 가장 안전하다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Bean 우선순위와 스코프
+        </span>
+      </h3>
+      <ul>
+        <li><strong>우선순위(충돌 해결)</strong>:
+          <ul>
+            <li><code>@Primary</code>: 기본(Default) 빈 지정.</li>
+            <li><code>@Qualifier</code>: 특정 이름으로 빈 지정. (Primary보다 우선순위 높음, <code>@RequiredArgsConstructor</code> 불가)</li>
+          </ul>
+        </li>
+        <li><strong>Bean 스코프</strong>:
+          <ul>
+            <li><strong>싱글톤</strong>: 시작 시 1번 생성, 계속 재사용.</li>
+            <li><strong>프로토타입</strong>: 요청마다 새로 생성. 생성 후 관리 안 함.</li>
+          </ul>
+        </li>
+        <li><strong>생명주기 콜백</strong>:
+          <ul>
+            <li><code>@PostConstruct</code>: 의존성 주입 완료 직후 초기화.</li>
+            <li><code>@PreDestroy</code>: 컨테이너 종료 직전 자원 해제.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h2 class="section">4. Validation (데이터 검증)</h2>
+
+      <ul>
+        <li><strong>프론트엔드 검증</strong>: 보안 취약하지만 유저 사용성을 위해 필요.</li>
+        <li><strong>서버 검증</strong>: API 스펙 정의 및 필수 방어선.</li>
+        <li><strong>DB 검증</strong>: Not Null 등 최종 방어선.</li>
+      </ul>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Bean Validation & 정규식
+        </span>
+      </h3>
+      <p>어노테이션으로 검증 로직을 표현한다. <code>@Valid</code>로 자동 검증한다.</p>
+      <ul>
+        <li><code>@NotBlank</code>, <code>@Email</code>, <code>@Size</code>, <code>@Min/@Max</code></li>
+        <li><code>@Pattern</code>: 정규표현식(Regex) 사용. (예: 핸드폰 번호 패턴)</li>
+      </ul>
+      <pre><code class="language-java">// 휴대폰 번호 정규식 예시
+public boolean isValidPhone(String phone) {
+    return phone.matches("^010-\\d{4}-\\d{4}$");
+}</code></pre>
+
+      <h2 class="section">5. 인증과 인가: 세션 vs JWT</h2>
+
+      <ul>
+        <li><strong>인증(Authentication)</strong>: "누구냐?" (로그인). 인가보다 먼저 수행됨.</li>
+        <li><strong>인가(Authorization)</strong>: "권한 있냐?" (접근 제어).</li>
+      </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -87,24 +295,11 @@
       
       
 
-      <div class="concept-box">
-        <strong>핵심: "서버가 명부를 쥐고 있다."</strong><br>
-        서버 메모리나 DB에 로그인한 사용자 정보를 저장하고, 클라이언트에게는 <code>JSESSIONID</code>라는 <strong>입장권 번호</strong>만 쿠키로 준다.
-      </div>
-
       <ul>
-        <li><strong>흐름</strong>: 로그인 성공 → 서버에 세션 생성(ID발급) → 쿠키에 ID 담아 응답 → 이후 요청마다 쿠키 검사.</li>
-        <li><strong>장점</strong>:
-          <ul>
-            <li>보안이 강력하다. (해킹 의심 시 서버에서 세션을 지워버리면 즉시 로그아웃됨)</li>
-            <li>쿠키에는 의미 없는 ID만 들어있어 탈취되어도 정보 유출이 없다.</li>
-          </ul>
-        </li>
-        <li><strong>단점</strong>:
-          <ul>
-            <li>사용자가 100만 명이면 서버 메모리가 터진다. (Scale-out 시 세션 동기화 문제 발생)</li>
-          </ul>
-        </li>
+        <li><strong>개념</strong>: 서버가 사용자의 로그인 상태를 기억하는 방식이다.</li>
+        <li><strong>흐름</strong>: 로그인 → 세션 ID 생성 및 서버 저장 → 클라이언트에 쿠키로 전송 → 요청 시 쿠키 확인</li>
+        <li><strong>장점</strong>: 보안 유리, 강제 로그아웃 제어 용이.</li>
+        <li><strong>단점</strong>: 사용자 증가 시 서버 메모리/DB 부하, 확장성 문제.</li>
       </ul>
 
       <h3 class="section">
@@ -115,189 +310,134 @@
 
       
 
-      <div class="concept-box">
-        <strong>핵심: "클라이언트가 증명서를 들고 다닌다."</strong><br>
-        서버는 아무것도 저장하지 않는다(Stateless). 대신 사용자의 정보와 위변조 방지 서명이 담긴 <strong>토큰(JWT)</strong>을 발급해준다.
-      </div>
-
       <ul>
-        <li><strong>흐름</strong>: 로그인 성공 → 정보를 암호화해 토큰 생성 → 클라이언트에 전달 → 이후 요청마다 헤더(Header)에 토큰 첨부.</li>
-        <li><strong>장점</strong>:
-          <ul>
-            <li>서버 부하가 없다. (서버를 100대로 늘려도 상관없음)</li>
-            <li>앱(Mobile) 환경에서 사용하기 편하다.</li>
-          </ul>
-        </li>
-        <li><strong>단점</strong>:
-          <ul>
-            <li>토큰이 탈취되면 유효기간이 끝날 때까지 막을 방법이 없다. (Access/Refresh Token 전략 필수)</li>
-            <li>세션 ID보다 데이터 크기가 커서 네트워크 비용이 조금 더 든다.</li>
-          </ul>
-        </li>
+        <li><strong>개념</strong>: 서버가 상태를 저장하지 않는(Stateless) 인증 방식이다. 토큰 자체에 인증 정보가 있다.</li>
+        <li><strong>흐름</strong>: 로그인 → 암호화된 토큰(JWT) 생성 → 클라이언트에 전송 → 요청 시 헤더에 토큰 첨부</li>
+        <li><strong>장점</strong>: 서버 부하 적음, 확장성 용이, 모바일 등 다양한 환경 적합.</li>
+        <li><strong>단점</strong>: 토큰 탈취 시 만료까지 악용 가능 (Refresh Token 전략 필요), 세션 ID보다 크기가 큼.</li>
       </ul>
-
-      <h2 class="section">Spring MVC 마법: ArgumentResolver</h2>
-
-      <p>
-        컨트롤러 메서드에 <code>@LoginUser</code> 같은 어노테이션만 붙이면, 스프링이 알아서 세션이나 토큰에서 유저 정보를 꺼내 꽂아주는 기능이다.
-      </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          동작 원리 (파이프라인)
+          세부 기술 요소
         </span>
       </h3>
+      <ul>
+        <li><strong>HTTP Cookie</strong>: 헤더에 포함되며 SessionId/JWT의 운송 수단이다.
+          <br>보안 설정: <code>Secure</code>(HTTPS만), <code>HttpOnly</code>(JS 접근 불가), <code>SameSite</code>(CSRF 방지).
+        </li>
+        <li><strong>JWT 구성</strong>: 헤더(알고리즘) . 페이로드(데이터, 비밀번호 금지) . 서명(무결성 보장)</li>
+        <li><strong>Refresh Token</strong>: Access Token(단기) 만료 시 재발급 용도. (장기 유효, 안전한 저장)</li>
+      </ul>
+
+      <h2 class="section">6. Spring MVC 심화</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ArgumentResolver
+        </span>
+      </h3>
+      <p>컨트롤러 파라미터에 값을 자동으로 바인딩해주는 도구이다. (예: <code>@LoginUser</code>)</p>
 
       
 
       <ol>
-        <li><strong>요청 수신</strong>: 클라이언트가 API를 호출한다.</li>
-        <li><strong>파라미터 검사 (supportsParameter)</strong>: 스프링이 "이 메서드 파라미터에 <code>@LoginUser</code>가 붙어있니?"라고 묻는다.</li>
-        <li><strong>데이터 생성 (resolveArgument)</strong>: "응, 붙어있어." -> 세션에서 유저 객체를 꺼내오거나 DB를 조회한다.</li>
-        <li><strong>주입</strong>: 꺼낸 객체를 컨트롤러 메서드의 인자(Argument)로 넘겨준다.</li>
+        <li><code>HandlerMethodArgumentResolver</code> 인터페이스 구현</li>
+        <li><code>supportsParameter()</code>: 실행 조건 검사 (어노테이션 등 확인)</li>
+        <li><code>resolveArgument()</code>: 실제 주입할 값 생성 (세션 조회 등)</li>
+        <li><code>WebMvcConfigurer</code>에 등록 (<code>addArgumentResolvers</code>)</li>
       </ol>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          구현 코드
+          HttpServletRequest vs HttpSession
         </span>
       </h3>
-
-      <pre><code class="language-java">// 1. 리졸버 로직 구현
-public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
-    @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-        // 파라미터에 @LoginUser 어노테이션이 있고, 타입이 User 클래스인지 확인
-        boolean hasAnnotation = parameter.hasParameterAnnotation(LoginUser.class);
-        boolean isUserType = User.class.isAssignableFrom(parameter.getParameterType());
-        return hasAnnotation && isUserType;
-    }
-
-    @Override
-    public Object resolveArgument(...) {
-        // 세션에서 사용자 정보 꺼내서 반환
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        HttpSession session = request.getSession(false);
-        return session != null ? session.getAttribute("LOGIN_USER") : null;
-    }
+      <pre><code class="language-java">// HttpSession: Spring이 알아서 꺼내줌
+public void login(HttpSession session) {
+    session.setAttribute("key", "value");
 }
 
-// 2. 설정에 등록 (필수)
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
-    @Override
-    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
-        resolvers.add(new LoginUserArgumentResolver());
-    }
+// HttpServletRequest: 직접 꺼내야 함 (세션 생성 제어 가능)
+public void login(HttpServletRequest request) {
+    HttpSession session = request.getSession(false);
+    session.setAttribute("key", "value");
 }</code></pre>
-
-      <h2 class="section">로깅 (Logging) 완벽 가이드</h2>
-
-      <p>
-        <strong>System.out.println은 실무 금지어다.</strong> 성능을 잡아먹고 관리가 안 되기 때문이다. 반드시 <code>@Slf4j</code>를 써야 한다.
-      </p>
+      <ul>
+        <li><strong>HttpSession</strong>: 세션 기능만 쓸 때. 무조건 생성.</li>
+        <li><strong>HttpServletRequest</strong>: IP, 헤더 정보 필요할 때. <code>getSession(false)</code>로 생성 방지 가능.</li>
+      </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          로그 레벨별 사용 기준
+          추가 기능 코드
         </span>
       </h3>
+      <pre><code class="language-java">// [로그아웃] 세션 무효화
+session.invalidate();
+
+// [@RequestHeader] 특정 헤더만 가져오기
+public void method(@RequestHeader("Authorization") String token) { ... }</code></pre>
+
+      <h2 class="section">7. 예외 처리와 로깅</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          로깅 (Logging)
+        </span>
+      </h3>
+      <p>
+        <strong>System.out.println 금지 이유</strong>: 성능 저하, 로그 레벨 제어 불가, 정보 부족.
+        <br>대신 <code>@Slf4j</code>를 사용해 <code>log.info()</code> 형태로 남겨야 한다.
+      </p>
 
       <table>
         <thead>
           <tr>
             <th>레벨</th>
-            <th>의미</th>
-            <th>언제 쓰는가?</th>
-            <th>운영 서버 설정</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>ERROR</strong></td>
-            <td>심각한 오류</td>
-            <td>기능 수행 불가, DB 장애, <code>catch</code> 블록 내부</td>
-            <td><strong>필수 기록</strong></td>
+            <td>TRACE</td>
+            <td>가장 상세한 흐름 정보</td>
           </tr>
           <tr>
-            <td><strong>WARN</strong></td>
-            <td>잠재적 위험</td>
-            <td>deprecated API 사용, 디스크 용량 부족 경고</td>
-            <td>기록함</td>
+            <td>DEBUG</td>
+            <td>개발 단계 디버깅 정보</td>
           </tr>
           <tr>
-            <td><strong>INFO</strong></td>
-            <td>운영 정보</td>
-            <td>"로그인 성공", "결제 완료", "서버 시작됨"</td>
-            <td><strong>기본값 (Default)</strong></td>
+            <td>INFO</td>
+            <td>중요한 비즈니스 흐름, 운영 정보 (기본값)</td>
           </tr>
           <tr>
-            <td><strong>DEBUG</strong></td>
-            <td>개발 디버깅</td>
-            <td>SQL 쿼리 로그, 변수에 담긴 값 확인</td>
-            <td><strong>출력 안 함</strong> (성능 이슈)</td>
+            <td>WARN</td>
+            <td>잠재적 위험 경고</td>
           </tr>
           <tr>
-            <td><strong>TRACE</strong></td>
-            <td>상세 추적</td>
-            <td>모든 실행 경로 추적 (라이브러리 내부 등)</td>
-            <td>출력 안 함</td>
+            <td>ERROR</td>
+            <td>기능 수행 불가능한 심각한 오류</td>
           </tr>
         </tbody>
       </table>
+      <p>설정: <code>logging.level.root=WARN</code> (application.properties)</p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          실무 적용 코드
+          전역 예외 처리 (@RestControllerAdvice)
         </span>
       </h3>
-      <pre><code class="language-java">@Slf4j // Lombok이 log 객체를 자동 생성해줌
-@RestController
-public class OrderController {
+      <p><code>@ExceptionHandler</code>를 사용하여 컨트롤러 전역의 예외를 한 곳에서 처리한다. (사실상 표준)</p>
 
-    @PostMapping("/orders")
-    public String order(@RequestBody OrderDto dto) {
-        // [INFO] 비즈니스 중요 정보
-        log.info("주문 요청 발생 - 사용자: {}", dto.getUserId());
-
-        try {
-            // [DEBUG] 개발할 때만 보고 싶은 데이터 (운영에선 안 보임)
-            log.debug("주문 데이터 상세: {}", dto);
-            orderService.process(dto);
-        } catch (Exception e) {
-            // [ERROR] 에러는 스택트레이스(e)와 함께 남겨야 원인 파악 가능
-            log.error("주문 처리 중 알 수 없는 오류", e);
-            throw e;
-        }
-        return "ok";
-    }
+      <pre><code class="language-java">// 커스텀 에러 다형성 활용
+@ExceptionHandler(ServiceException.class)
+public ResponseEntity&lt;String&gt; handleServiceException(ServiceException ex) {
+    return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
 }</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          설정 파일 (application.properties)
-        </span>
-      </h3>
-      <pre><code class="language-properties"># 전체 로그 레벨 기본값 (보통 INFO)
-logging.level.root=INFO
-
-# 특정 패키지만 상세하게 보고 싶을 때
-logging.level.com.myproject.payment=DEBUG
-
-# 스프링 프레임워크 내부 로그는 WARN 이상만 보기
-logging.level.org.springframework=WARN</code></pre>
-
-      <h2 class="section">오늘의 회고</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 느낀 점
-        </span>
-      </h3>
       <ul>
-        <li>세션과 JWT의 흐름을 그림으로 보니, <strong>"누가 상태를 저장하느냐"</strong>가 가장 큰 차이점임이 명확해졌다.</li>
-        <li>ArgumentResolver는 처음엔 복잡해 보였지만, 한 번 만들어두면 컨트롤러의 중복 코드를 획기적으로 줄여주는 <strong>생산성 도구</strong>임을 깨달았다.</li>
-        <li>로그 레벨을 구분하지 않고 막 찍으면, 정작 서버가 터졌을 때 로그 파일이 너무 커서 원인을 못 찾을 수도 있겠다는 생각이 들었다.</li>
+        <li><code>MovieNotFoundException</code> 같은 구체적인 에러도 부모인 <code>ServiceException</code> 핸들러가 처리 가능.</li>
+        <li>Bean Validation 실패 시 <code>MethodArgumentNotValidException</code> 발생 → 여기서 처리 가능.</li>
       </ul>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
