@@ -31,13 +31,19 @@
       overflow-x: auto;
       border: 1px solid #e9ecef;
     }
-    /* 개념 설명 박스 */
+    /* 중요 개념 박스 스타일 */
     .concept-box {
-      background-color: #e3f2fd;
-      border-left: 5px solid #2196f3;
+      background-color: #e3f2fd; /* 연한 파란색 배경 */
+      border-left: 5px solid #2196f3; /* 진한 파란색 테두리 */
       padding: 1rem;
-      margin: 1rem 0;
+      margin: 1.5rem 0;
       border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-size: 1.1em;
+      display: block;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -84,7 +90,7 @@
       <ul>
         <li><strong>응집도(Cohesion)</strong>:
           <br>하나의 클래스(또는 모듈)가 <strong>하나의 목적</strong>을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
-          <br>즉, 클래스 내의 메소드와 데이터들이 얼마나 서로 관련 있는 작업을 수행하는 지를 의미한다.
+          <br>클래스 내의 메소드와 데이터들이 얼마나 서로 관련 있는 작업을 수행하는 지를 의미한다.
           <br>→ <strong>응집도를 높이기 위해서는 하나의 클래스는 하나의 책임만 가져야 한다.</strong>
         </li>
         <li><strong>결합도(Coupling)</strong>:
@@ -132,7 +138,7 @@
         </span>
       </h3>
       <ul>
-        <li><strong>Bean</strong>: 스프링이 개발자를 대신해서 생성하는 객체. 컨테이너에 의해 생성, 관리, 소멸되며 애플리케이션 전역에서 재사용 가능하다. 기본적으로 싱글톤 스코프로 관리된다.</li>
+        <li><strong>Bean</strong>: 스프링이 개발자를 대신해서 생성하는 객체. 컨테이너에 의해 생성, 관리, 소멸되며 기본적으로 <strong>싱글톤 스코프</strong>로 관리된다.</li>
         <li><strong>싱글톤(Singleton)</strong>: 클래스의 인스턴스가 단 1개만 생성되는 것을 보장하는 디자인 패턴.
           <ul>
             <li>최초 한 번만 생성하므로 메모리 낭비 방지.</li>
@@ -232,7 +238,7 @@ public class AppConfig {
         <li><strong>우선순위(충돌 해결)</strong>:
           <ul>
             <li><code>@Primary</code>: 우선적으로 선택될 기본 Bean 지정.</li>
-            <li><code>@Qualifier</code>: 이름으로 특정 Bean을 직접 지정. (Primary보다 우선순위 높음, <code>@RequiredArgsConstructor</code> 불가)</li>
+            <li><code>@Qualifier</code>: 특정 이름으로 빈 지정. (Primary보다 우선순위 높음, <code>@RequiredArgsConstructor</code> 불가)</li>
           </ul>
         </li>
         <li><strong>Bean 스코프</strong>:
@@ -287,6 +293,11 @@ public boolean isValidPhone(String phone) {
       
       
 
+      <div class="concept-box">
+        <strong>비유: "놀이공원 자유이용권 (팔찌)"</strong><br>
+        놀이공원(서버)이 입장객 명단(세션 저장소)을 가지고 있고, 입장객(클라이언트)에게는 명단 번호가 적힌 팔찌(세션 ID)만 채워준다. 직원은 팔찌 번호를 보고 명단을 확인해 "아, 철수구나!" 하고 들여보내준다.
+      </div>
+
       <ul>
         <li><strong>개념</strong>: 서버가 사용자의 로그인 상태를 기억하는 방식이다.</li>
         <li><strong>흐름</strong>: 로그인 → 세션 ID 생성 및 서버 저장 → 클라이언트에 쿠키로 전송 → 요청 시 쿠키 확인</li>
@@ -301,6 +312,11 @@ public boolean isValidPhone(String phone) {
       </h3>
 
       
+
+      <div class="concept-box">
+        <strong>비유: "위조 불가능한 신분증 (주민등록증)"</strong><br>
+        동사무소(서버)는 아무것도 기록하지 않는다. 대신 도장이 찍힌 신분증(JWT)을 발급해준다. 어디를 가든 신분증만 보여주면 "진짜 도장이 찍혀있네? 통과!" 하고 인정받는다.
+      </div>
 
       <ul>
         <li><strong>개념</strong>: 서버가 상태를 저장하지 않는(Stateless) 인증 방식이다. 토큰 자체에 인증 정보가 있다.</li>
