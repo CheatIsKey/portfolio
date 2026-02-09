@@ -88,7 +88,7 @@
         </span>
       </h3>
       <ul>
-        <li><strong>응집도(Cohesion)</strong>: 하나의 클래스(또는 모듈)가 <strong>하나의 목적</strong>을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
+        <li><strong>응집도(Cohesion)</strong>: 하나의 클래스가 <strong>하나의 목적</strong>을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
           <br>즉, 클래스 내의 메소드와 데이터들이 얼마나 서로 관련 있는 작업을 수행하는 지를 의미한다.
           <br>→ <strong>Good:</strong> <code>MemberService</code>는 회원 관련 로직만 있다.
           <br>→ <strong>Bad:</strong> <code>MemberService</code> 안에 갑자기 <code>Order</code>(주문) 계산 로직이 섞여 있다.
@@ -262,26 +262,47 @@ public class OrderService {
           Bean 우선순위와 스코프
         </span>
       </h3>
+      
+      <p><strong>1. 우선순위 (충돌 해결)</strong></p>
+      <p>같은 타입의 Bean이 2개 이상일 때 에러를 방지한다.</p>
       <ul>
-        <li><strong>우선순위(충돌 해결)</strong>:
-          <ul>
-            <li><code>@Primary</code>: 우선적으로 선택될 기본 Bean 지정한다.</li>
-            <li><code>@Qualifier</code>: 이름으로 특정 Bean을 직접 지정한다. (Primary보다 우선순위 높음, <code>@RequiredArgsConstructor</code> 불가)</li>
-          </ul>
-        </li>
-        <li><strong>Bean 스코프</strong>:
-          <ul>
-            <li><strong>싱글톤</strong>: 시작 시 1번 생성, 계속 재사용한다.</li>
-            <li><strong>프로토타입</strong>: 요청마다 새로 생성한다. 생성 후 관리 안 한다.</li>
-          </ul>
-        </li>
-        <li><strong>생명주기 콜백</strong>:
-          <ul>
-            <li><code>@PostConstruct</code>: 의존성 주입 완료 직후 초기화한다.</li>
-            <li><code>@PreDestroy</code>: 컨테이너 종료 직전 자원 해제한다.</li>
-          </ul>
-        </li>
+        <li><code>@Primary</code>: 우선적으로 선택될 기본(Default) Bean을 지정한다.</li>
+        <li><code>@Qualifier</code>: 특정 이름으로 Bean을 직접 지정한다. (Primary보다 우선순위 높음)</li>
       </ul>
+      <pre><code class="language-java">// @Primary 사용 예시
+@Component
+@Primary
+public class MainPolicy implements Policy { ... }
+
+// @Qualifier 사용 예시 (생성자)
+public OrderService(@Qualifier("subPolicy") Policy policy) {
+    this.policy = policy;
+}</code></pre>
+
+      <p><strong>2. Bean 스코프</strong></p>
+      <ul>
+        <li><strong>싱글톤 (기본값)</strong>: 컨테이너 시작 시 1번만 생성되고 계속 재사용된다.</li>
+        <li><strong>프로토타입</strong>: 요청할 때마다 새로운 객체를 생성해서 반환한다. (생성 이후 관리 X)</li>
+      </ul>
+      <pre><code class="language-java">@Component
+@Scope("prototype")
+public class PrototypeBean { ... }</code></pre>
+
+      <p><strong>3. 생명주기 콜백</strong></p>
+      <p>Bean의 생성 및 소멸 시점에 특정 작업을 수행한다.</p>
+      <ul>
+        <li><code>@PostConstruct</code>: 의존성 주입 완료 직후 초기화 작업을 수행한다.</li>
+        <li><code>@PreDestroy</code>: 컨테이너 종료 직전 자원 해제(close) 등을 수행한다.</li>
+      </ul>
+      <pre><code class="language-java">@PostConstruct
+public void init() {
+    System.out.println("초기화 완료: DB 연결 등");
+}
+
+@PreDestroy
+public void close() {
+    System.out.println("종료: 자원 해제");
+}</code></pre>
 
       <h2 class="section">4. Validation (데이터 검증)</h2>
 
