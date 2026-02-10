@@ -88,17 +88,18 @@
         </span>
       </h3>
       <ul>
-        <li><strong>응집도(Cohesion)</strong>: 하나의 클래스가 <strong>하나의 목적</strong>을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
+        <li><strong>응집도(Cohesion)</strong>:
+          <br>하나의 클래스(또는 모듈)가 <strong>하나의 목적</strong>을 위해 얼마나 긴밀하게 뭉쳐있는지 나타내는 척도이다.
           <br>즉, 클래스 내의 메소드와 데이터들이 얼마나 서로 관련 있는 작업을 수행하는 지를 의미한다.
+          <br><strong>응집도를 높이기 위해서는 하나의 클래스는 하나의 책임만 가져야 한다.</strong>
           <br>→ <strong>Good:</strong> <code>MemberService</code>는 회원 관련 로직만 있다.
           <br>→ <strong>Bad:</strong> <code>MemberService</code> 안에 갑자기 <code>Order</code>(주문) 계산 로직이 섞여 있다.
-          <br><strong>응집도를 높이기 위해서는 하나의 클래스는 하나의 책임만 가져야 한다.</strong>
         </li>
-        <li><strong>결합도(Coupling)</strong>: 한 클래스가 변경될 때 <strong>다른 클래스에 얼마나 영향을 주는가?</strong>
+        <li><strong>결합도(Coupling)</strong>:
           <br>하나의 클래스(또는 모듈)가 다른 클래스와 얼마나 많이 엮어있는지, 즉 얼마나 의존적인지를 나타내는 척도이다.
+          <br><strong>결합도를 낮추기 위해서는 하나의 클래스가 변경되어도 다른 클래스에 미치는 영향이 거의 없도록 설계해야 한다.</strong>
           <br>→ <strong>Good:</strong> 인터페이스(<code>MemberRepository</code>)에 의존하여 구현체가 바뀌어도 코드를 안 고친다.
           <br>→ <strong>Bad:</strong> <code>new MySQLRepository()</code> 처럼 구체적인 클래스를 직접 쓰면 DB 바꿀 때 다 뜯어고쳐야 한다.
-          <br><strong>결합도를 낮추기 위해서는 하나의 클래스가 변경되어도 다른 클래스에 미치는 영향이 거의 없도록 설계해야 한다.</strong>
         </li>
       </ul>
 
@@ -211,7 +212,7 @@ public class AppConfig {
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DI 주입 방식 3가지
+          DI 주입 방식 3가지 (상세)
         </span>
       </h3>
 
@@ -264,19 +265,19 @@ public class OrderService {
       </h3>
       
       <p><strong>1. 우선순위 (충돌 해결)</strong></p>
-      <p>같은 타입의 Bean이 2개 이상일 때 에러를 방지한다.</p>
+      <p>똑같은 타입의 Bean이 2개 이상일 때 에러를 방지한다.</p>
       <ul>
         <li><code>@Primary</code>: 우선적으로 선택될 기본(Default) Bean을 지정한다.</li>
-        <li><code>@Qualifier</code>: 특정 이름으로 Bean을 직접 지정한다. (Primary보다 우선순위 높음)</li>
+        <li><code>@Qualifier</code>: 특정 이름으로 Bean을 직접 지정한다. (Primary보다 우선순위 높음, <code>@RequiredArgsConstructor</code> 사용 불가)</li>
       </ul>
-      <pre><code class="language-java">// @Primary 사용 예시
+      <pre><code class="language-java">// @Primary 적용 예시
 @Component
 @Primary
-public class MainPolicy implements Policy { ... }
+public class RateDiscountPolicy implements DiscountPolicy {}
 
-// @Qualifier 사용 예시 (생성자)
-public OrderService(@Qualifier("subPolicy") Policy policy) {
-    this.policy = policy;
+// @Qualifier 적용 예시
+public OrderService(@Qualifier("fixDiscountPolicy") DiscountPolicy discountPolicy) {
+    this.discountPolicy = discountPolicy;
 }</code></pre>
 
       <p><strong>2. Bean 스코프</strong></p>
@@ -286,7 +287,7 @@ public OrderService(@Qualifier("subPolicy") Policy policy) {
       </ul>
       <pre><code class="language-java">@Component
 @Scope("prototype")
-public class PrototypeBean { ... }</code></pre>
+public class PrototypeBean {}</code></pre>
 
       <p><strong>3. 생명주기 콜백</strong></p>
       <p>Bean의 생성 및 소멸 시점에 특정 작업을 수행한다.</p>
@@ -296,12 +297,12 @@ public class PrototypeBean { ... }</code></pre>
       </ul>
       <pre><code class="language-java">@PostConstruct
 public void init() {
-    System.out.println("초기화 완료: DB 연결 등");
+    System.out.println("초기화 완료");
 }
 
 @PreDestroy
 public void close() {
-    System.out.println("종료: 자원 해제");
+    System.out.println("종료 전 자원 해제");
 }</code></pre>
 
       <h2 class="section">4. Validation (데이터 검증)</h2>
@@ -317,10 +318,16 @@ public void close() {
           Bean Validation & 정규식
         </span>
       </h3>
-      <p>어노테이션으로 검증 로직을 표현한다. <code>@Valid</code>로 자동 검증한다.</p>
+      <p>
+        검증 로직을 어노테이션으로 표현하는 기술로, 어노테이션 선언만으로 편하고 직관적으로 데이터를 검증할 수 있다.
+        컨트롤러에서 <code>@Valid</code>만 붙이면 자동으로 검증한다.
+      </p>
       <ul>
-        <li><code>@NotBlank</code>, <code>@Email</code>, <code>@Size</code>, <code>@Min/@Max</code></li>
-        <li><code>@Pattern</code>: 정규표현식(Regex) 사용한다. (예: 핸드폰 번호 패턴)</li>
+        <li><code>@NotBlank</code>: 공백이 아닌 문자 1개 이상 (null, "", " " 모두 거부)</li>
+        <li><code>@Email</code>: @가 포함된 이메일 형식</li>
+        <li><code>@Size</code>: 문자열 길이나 컬렉션 크기 제한</li>
+        <li><code>@Min/@Max</code>: 숫자의 최소/최대값</li>
+        <li><code>@Pattern</code>: 정규표현식 패턴 (전화번호, 주민번호 형식 등)</li>
       </ul>
       <pre><code class="language-java">// 휴대폰 번호 정규식 예시
 public boolean isValidPhone(String phone) {
@@ -379,22 +386,53 @@ public boolean isValidPhone(String phone) {
           세부 기술 요소
         </span>
       </h3>
+      
+      <p><strong>HTTP Cookie</strong></p>
+      <p>헤더에 포함되며 SessionId/JWT의 운송 수단이다. Key-Value 형태이다.</p>
       <ul>
-        <li><strong>HTTP Cookie</strong>: 헤더에 포함되며 SessionId/JWT의 운송 수단이다.
-          <br>보안 설정: <code>Secure</code>(HTTPS만), <code>HttpOnly</code>(JS 접근 불가), <code>SameSite</code>(CSRF 방지).
+        <li><strong>Set-Cookie 보안 설정</strong>:
+          <ul>
+            <li><code>Secure</code>: 쿠키가 HTTPS 통신일 때만 서버로 전송되도록 강제한다.</li>
+            <li><code>HttpOnly</code>: 자바스크립트가 쿠키에 접근하는 것을 막는다.</li>
+            <li><code>SameSite</code>: 다른 도메인에서 요청을 보낼 때 쿠키 전송 여부를 결정한다.</li>
+          </ul>
         </li>
-        <li><strong>JWT 구성</strong>: 헤더(알고리즘) . 페이로드(데이터, 비밀번호 금지) . 서명(무결성 보장)</li>
+      </ul>
+
+      <p><strong>JWT 구성 요소</strong></p>
+      <ul>
+        <li><code>Header</code>: 토큰의 유형과 알고리즘 정보.</li>
+        <li><code>Payload</code>: 실제 정보(클레임). 비밀번호 같은 민감한 정보는 절대 금지.</li>
+        <li><code>Signature</code>: 헤더+페이로드+비밀키를 암호화한 값. 무결성 보장.</li>
       </ul>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Refresh Token 전략
+          Access Token & Refresh Token 전략
         </span>
       </h3>
       <div class="concept-box">
         <strong>Access Token이 탈취되면 끝장 아닌가?</strong><br>
-        그래서 유효기간이 짧은(예: 30분) <strong>Access Token</strong>과 유효기간이 긴(예: 2주) <strong>Refresh Token</strong>을 함께 발급한다. Access Token이 만료되면, Refresh Token을 서버에 보내 새 Access Token을 발급받는다. Refresh Token은 서버 DB 등에 저장하여 탈취 감지 시 삭제(무효화)할 수 있다.
+        그래서 유효기간이 짧은(예: 30분) Access Token과 유효기간이 긴(예: 2주) Refresh Token을 함께 발급한다.
       </div>
+
+      <ul>
+        <li><strong>Access Token</strong>:
+          <ul>
+            <li>실제 자원에 접근할 때 사용하는 토큰으로, JWT가 바로 이 방법이다.</li>
+            <li>유효기간을 짧게 설정한다.</li>
+            <li>탈취하더라도 짧은 시간만 유효하기 때문에 피해를 최소화할 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>Refresh Token</strong>:
+          <ul>
+            <li>새로운 Access Token을 발급받기 위해 사용하는 토큰이다.</li>
+            <li>Access Token보다 유효기간을 길게 설정한다.</li>
+            <li>평소에는 사용하지 않고, Access Token이 만료되었을 때만 사용된다.</li>
+            <li>보통 DB 같이 안전한 곳에 저장되어 관리한다.</li>
+          </ul>
+        </li>
+      </ul>
 
       
 
@@ -415,6 +453,11 @@ public ResponseEntity&lt;TokenResponse&gt; reissue(HttpServletRequest request) {
     
     return ResponseEntity.ok(new TokenResponse(newAccessToken));
 }</code></pre>
+
+      <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JSESSIONID
+      </span>
+      <p>스프링에서 HttpSession을 쓸 때, 쿠키의 Session ID Key의 디폴트 이름이 JSESSIONID이다.</p>
 
       <h2 class="section">6. Spring MVC 심화</h2>
 
@@ -460,10 +503,10 @@ public void login(HttpServletRequest request) {
         </span>
       </h3>
       <pre><code class="language-java">// [로그아웃] 
-        @SessionAttribute(name = "loginUser", required = false) SessionUser sessionUser
-//loginUser라는 이름으로 저장된 세션 속성을 찾아 sessionUser 파라미터에 주입해준다.
+@SessionAttribute(name = "loginUser", required = false) SessionUser sessionUser
+// loginUser라는 이름으로 저장된 세션 속성을 찾아 sessionUser 파라미터에 주입해준다.
         
-        세션 무효화
+// 세션 무효화
 session.invalidate();
 
 // [@RequestHeader] 특정 헤더만 가져오기
