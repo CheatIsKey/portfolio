@@ -6,32 +6,47 @@
   <title>내일배움캠프 Spring 백엔드 42일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    /* TIL 데이터 테이블 공통 스타일 */
+    /* 기본 폰트 및 레이아웃 설정 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    /* 테이블 스타일 (가독성 개선) */
     .prose table {
       width: 100%;
       border-collapse: collapse;
-      margin: 0.75rem 0;
+      margin: 1rem 0;
       font-size: 0.95rem;
+      border: 1px solid #ddd;
     }
     .prose table th,
     .prose table td {
-      border: 1px solid rgba(0, 0, 0, 0.2);
-      padding: 0.4rem 0.6rem;
+      border: 1px solid #ddd;
+      padding: 0.8rem;
       text-align: left;
-      vertical-align: middle;
+      vertical-align: top; /* 내용이 길어도 상단 정렬 */
     }
-    .prose table thead {
-      background-color: #f5f5f5;
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap; /* 헤더 줄바꿈 방지 */
     }
     /* 코드 블록 스타일 */
     pre {
       background-color: #f8f9fa;
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow-x: auto;
       border: 1px solid #e9ecef;
+      margin: 1rem 0;
     }
-    /* 중요 개념 박스 스타일 */
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    /* 중요 개념 박스 스타일 (줄바꿈 현상 수정 완료) */
     .concept-box {
       background-color: #e3f2fd;
       border-left: 5px solid #2196f3;
@@ -40,10 +55,25 @@
       border-radius: 4px;
       color: #0d47a1;
     }
+    /* 중요: display: inline으로 강제하여 줄밀림 방지 */
     .concept-box strong {
-      font-size: 1.1em;
+      font-weight: 700;
+      color: #002171;
+      display: inline; 
+    }
+    /* 소제목 강조용 */
+    .box-title {
       display: block;
+      font-size: 1.1em;
+      font-weight: 800;
       margin-bottom: 0.5rem;
+      color: #1565c0;
+    }
+    /* 형광펜 효과 (강조) */
+    .highlight {
+      background-color: #fff3cd;
+      padding: 0 2px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -75,7 +105,7 @@
       </h3>
       <ul>
         <li><strong>영속성 컨텍스트</strong>의 내부 동작 원리(1차 캐시, 변경 감지, 쓰기 지연)를 이해한다.</li>
-        <li><strong>트랜잭션 전파 및 격리 수준</strong>을 상황별 예시와 함께 정리한다.</li>
+        <li><strong>트랜잭션 전파 및 격리 수준</strong>을 상세 표와 예시로 정리한다.</li>
         <li><strong>연관관계 매핑</strong>(1:1, 1:N, N:1)과 <strong>조회 전략</strong>(FetchType)을 마스터한다.</li>
         <li><strong>JPQL, 프로젝션, JPA 테스트</strong> 등 실무 필수 기술을 코드 레벨로 익힌다.</li>
       </ul>
@@ -90,27 +120,26 @@
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          사용 이유와 특징
+          핵심 기능 3가지
         </span>
       </h3>
 
       <div class="concept-box">
-        <strong>1. 1차 캐시와 동일성(Identity) 보장</strong><br>
-        영속성 컨텍스트는 내부에 Map 형태의 캐시 저장소를 가지고 있다.<br>
-        엔티티가 영속성 컨텍스트의 1차 캐시에 저장된다.<br>
-        조회 시 <strong>먼저 1차 캐시를 확인</strong>한다. 캐시에 동일한 ID의 엔티티 객체가 있으면, DB를 조회하지 않고 캐시의 엔티티를 즉시 반환한다.<br>
+        <span class="box-title">1. 1차 캐시와 동일성(Identity) 보장</span>
+        영속성 컨텍스트는 내부에 Map 형태의 캐시 저장소를 가지고 있다.
+        조회 시 <strong>먼저 1차 캐시를 확인</strong>한다. 캐시에 동일한 ID의 엔티티 객체가 있으면, DB를 조회하지 않고 캐시의 엔티티를 즉시 반환한다.
         이 덕분에 같은 트랜잭션 안에서 같은 ID로 조회한 엔티티는 <strong>항상 동일한 메모리 주소의 인스턴스임이 보장된다.</strong>
       </div>
-      <pre><code class="language-java">// 1차 캐시 및 동일성 보장 예시
+      <pre><code class="language-java">// 1차 캐시 예시
 Member member1 = em.find(Member.class, 1L); // DB 조회
 Member member2 = em.find(Member.class, 1L); // 1차 캐시에서 조회 (SQL 실행 X)
 
-System.out.println(member1 == member2); // true (동일성 보장)</code></pre>
+System.out.println(member1 == member2); // true (주소값 동일)</code></pre>
 
       <div class="concept-box">
-        <strong>2. 변경 감지 (Dirty Checking)</strong><br>
-        트랜잭션이 커밋되기 직전에 영속성 컨텍스트는 1차 캐시에 있는 모든 엔티티의 <strong>최초 상태(스냅샷)</strong>와 <strong>현재 상태</strong>를 비교한다.<br>
-        만약 두 상태가 다르다면, JPA는 변경된 내용을 감지하고 자동으로 <code>UPDATE SQL</code>을 생성하여 DB에 반영한다.
+        <span class="box-title">2. 변경 감지 (Dirty Checking)</span>
+        트랜잭션이 커밋되기 직전에 영속성 컨텍스트는 1차 캐시에 있는 모든 엔티티의 <strong>최초 상태(스냅샷)</strong>와 <strong>현재 상태</strong>를 비교한다.
+        만약 두 상태가 다르다면, JPA는 변경된 내용을 감지하고 자동으로 <strong>UPDATE SQL</strong>을 생성하여 DB에 반영한다.
       </div>
       <pre><code class="language-java">// 변경 감지 예시
 Member member = em.find(Member.class, 1L);
@@ -120,25 +149,43 @@ member.setName("NewName"); // 데이터만 변경
 // 트랜잭션 커밋 시점에 자동으로 UPDATE 쿼리가 나간다.</code></pre>
 
       <div class="concept-box">
-        <strong>3. 쓰기 지연 (Transactional Write-Behind)</strong><br>
-        <code>memberRepository.save()</code>가 호출되면, 해당 엔티티는 1차 캐시에 저장되고, JPA는 이 엔티티를 DB에 반영하기 위한 <code>INSERT SQL</code>을 생성하여 모아둔다.<br>
-        UPDATE나 DELETE 쿼리도 마찬가지로 이 저장소에 쌓인다.<br>
-        트랜잭션이 커밋되는 순간, JPA는 모아뒀던 모든 SQL들을 한 번에 DB로 보낸다(Flush).<br>
-        → SQL을 하나씩 보내지 않고 모았다가 한 번에 처리하므로, 네트워크 비용을 줄이고 DB와 상호작용하는 횟수를 최소화하여 성능을 최적화할 수 있다.
+        <span class="box-title">3. 쓰기 지연 (Transactional Write-Behind)</span>
+        <code>memberRepository.save()</code>가 호출되면, 해당 엔티티는 1차 캐시에 저장되고, JPA는 이 엔티티를 DB에 반영하기 위한 <strong>INSERT SQL을 저장소에 모아둔다.</strong>
+        트랜잭션이 커밋되는 순간(Flush), 모아둔 SQL을 한 번에 DB로 보낸다. 이를 통해 네트워크 비용을 줄이고 성능을 최적화한다.
       </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Flush와 EntityManager
+          주요 용어 정리
         </span>
       </h3>
-      <ul>
-        <li><strong>Flush란</strong>: 영속성 컨텍스트의 변경 내용을 DB에 동기화하는 것이다. DB에 SQL을 보내는 것일 뿐, 트랜잭션을 확정(Commit)하는 것은 아니다. 즉, Flush를 한다고 하더라도 여전히 트랜잭션으로 관리가 되고 있는 상태이기 때문에 트랜잭션 롤백 시 Flush 데이터도 롤백된다.</li>
-        <li><strong>Persistence Unit (설계도)</strong>: JPA 설정 정보의 단위이다. DB 연결 정보, 어떤 엔티티 클래스를 관리할 것인지, JPA 구현체의 특정 설정 등을 포함하는 설정파일이다. 즉, DB와 통신하기 위한 설계도 또는 명세서와 같다.</li>
-        <li><strong>EntityManagerFactory (공장)</strong>: Persistence Unit의 설정 정보를 바탕으로 EntityManager를 생성하는 팩토리(공장)이다. 애플리케이션 전체에서 단 하나만 생성되어 공유된다. 최초 생성 시 비용이 많이 들고(설정 읽기, 커넥션 풀 생성 등), 여러 스레드가 동시에 접근해도 안전하다(Thread-Safe).</li>
-        <li><strong>EntityManager (작업자)</strong>: 내부에 영속성 컨텍스트 공간을 가지고 있다. 실제 DB 작업을 처리하는 작업자이다. 엔티티를 저장(persist), 수정, 삭제(remove), 조회(find)하는 역할을 수행한다. 생성 비용이 저렴하며, DB 트랜잭션과 생명주기를 같이 한다. <strong>여러 스레드가 동시에 접근하면 안 된다(Not Thread-Safe).</strong> 각 요청마다 개별 EntityManager를 사용해야 한다.</li>
-      </ul>
-      <p>JpaRepository는 내부적으로 EntityManager를 사용하고 있고 Spring Data JPA는 EntityManager를 더욱 편리하게 사용하도록 추상화했다.</p>
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">용어</th>
+            <th>설명 및 특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Flush</strong></td>
+            <td>영속성 컨텍스트의 변경 내용을 DB에 동기화하는 것이다. (SQL 전송).<br>트랜잭션 확정(Commit)은 아니며, 롤백 시 함께 롤백된다.</td>
+          </tr>
+          <tr>
+            <td><strong>Persistence Unit</strong><br>(설계도)</td>
+            <td>JPA 설정 정보의 단위이다. DB 연결 정보 및 관리할 엔티티 명세가 담겨있다.</td>
+          </tr>
+          <tr>
+            <td><strong>EntityManagerFactory</strong><br>(공장)</td>
+            <td>애플리케이션 전체에서 <strong>단 하나만 생성되어 공유</strong>된다.<br>생성 비용이 비싸며, 여러 스레드가 동시 접근해도 안전하다(Thread-Safe).</td>
+          </tr>
+          <tr>
+            <td><strong>EntityManager</strong><br>(작업자)</td>
+            <td>실제 DB 작업을 수행(CRUD)하는 객체이다.<br>생성 비용이 저렴하지만, <strong>스레드 간 공유가 절대 불가능하다(Not Thread-Safe).</strong><br>요청마다 생성하고 닫아야 한다.</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="section">2. 트랜잭션 (Transaction)</h2>
 
@@ -147,84 +194,131 @@ member.setName("NewName"); // 데이터만 변경
           트랜잭션 전파 (Transaction Propagation)
         </span>
       </h3>
-      <p><code>@Transactional(propagation = ...)</code> 옵션으로 여러 가지 전략을 설정할 수 있다.</p>
+      
+      <p>
+        트랜잭션 전파란, <strong>이미 진행 중인 트랜잭션이 있을 때, 새로운 트랜잭션이 어떻게 행동할지 결정하는 규칙</strong>이다.
+        <br>예를 들어, 부모 메서드(A)가 실행 중에 자식 메서드(B)를 호출했을 때, 자식 메서드(B)가 부모(A)의 트랜잭션에 합류할지, 아니면 자신만의 새로운 트랜잭션을 만들지를 정하는 것이다.
+      </p>
+      
+      <p><code>@Transactional(propagation = ...)</code> 옵션으로 설정한다.</p>
 
       
 
       <table>
         <thead>
           <tr>
-            <th>전파 옵션</th>
-            <th>동작 방식</th>
+            <th style="width: 15%;">옵션</th>
+            <th style="width: 30%;">동작 방식</th>
             <th>사용 예시 및 설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>REQUIRED</strong> (Default)</td>
-            <td>부모 트랜잭션이 있으면 그 트랜잭션에 참여한다(합쳐진다). 부모가 없으면 새로운 트랜잭션을 생성한다.</td>
+            <td><strong>REQUIRED</strong><br>(Default)</td>
+            <td>부모 트랜잭션이 있으면 합류하고,<br>없으면 새로 생성한다.</td>
             <td>서비스의 핵심 로직 대부분에 사용한다.</td>
           </tr>
           <tr>
             <td><strong>REQUIRED_NEW</strong></td>
-            <td>부모 트랜잭션의 존재 여부와 상관없이, 무조건 새로운 트랜잭션을 생성한다. (완전 별개)</td>
-            <td><strong>로그 기록</strong>: 핵심 기능의 성공 여부와 관계없이, 에러 로그나 통계 데이터 등은 반드시 DB에 남아야 하기 때문이다.</td>
+            <td>부모 여부와 상관없이<br>무조건 새로운 트랜잭션을 생성한다.<br>(부모와 완전 별개)</td>
+            <td><strong>로그 기록</strong>: 핵심 로직이 실패해 롤백되어도, 에러 로그나 통계 데이터는 반드시 DB에 남아야 할 때 사용한다.</td>
           </tr>
           <tr>
             <td><strong>NESTED</strong></td>
-            <td>부모 트랜잭션이 있으면, 그 안에 중첩된 트랜잭션(savePoint)을 만든다. 부모 없으면 REQUIRED처럼 동작한다. (부모에 종속적)</td>
-            <td><strong>부분 실패 처리</strong>: 주문 처리 중 여러 개의 쿠폰을 적용하는데, 그 중 하나가 실패하더라도 전체 주문을 취소하지 않고 해당 쿠폰 적용만 롤백하고 싶을 때 유용하다.</td>
+            <td>부모가 있으면 중첩(SavePoint) 생성,<br>없으면 새로 생성한다.</td>
+            <td><strong>부분 롤백</strong>: 주문 처리 중 쿠폰 발급이 실패해도, 주문 전체를 취소하지 않고 쿠폰만 롤백하고 싶을 때 사용한다. (부모 롤백 시 자식도 롤백됨)</td>
           </tr>
           <tr>
             <td><strong>SUPPORTS</strong></td>
-            <td>부모 트랜잭션이 있으면 참여한다. 부모가 없으면 트랜잭션 없이 그냥 실행된다.</td>
-            <td>주로 읽기 전용 메서드에 사용된다. 굳이 트랜잭션을 생성할 필요가 없을 때 적합하다.</td>
+            <td>부모가 있으면 합류하고,<br>없으면 트랜잭션 없이 실행한다.</td>
+            <td>단순 읽기 전용 메서드처럼, 굳이 트랜잭션을 만들 필요는 없지만 있으면 쓰는 경우에 적합하다.</td>
           </tr>
           <tr>
             <td><strong>NOT_SUPPORTS</strong></td>
             <td>항상 트랜잭션 없이 실행된다.</td>
-            <td>트랜잭션과 전혀 관련 없는 특정 로직을 수행할 때, 불필요하게 DB 커넥션을 점유하는 것을 방지하기 위해 사용한다.</td>
+            <td>단순 메모리 연산이나 외부 API 호출 등 DB 트랜잭션과 묶이면 안 되는(커넥션 점유 방지) 로직에 사용한다.</td>
           </tr>
           <tr>
             <td><strong>MANDATORY</strong></td>
-            <td>부모 트랜잭션이 반드시 있어야 한다. 없으면 예외(IllegalTransactionStateException)를 발생시킨다.</td>
-            <td>독립적으로 사용되어서는 안 되고, 반드시 어떤 트랜잭션의 일부로서만 동작해야 하는 메서드임을 강제하고 싶을 때 사용한다. (안전장치)</td>
+            <td>부모 트랜잭션이 반드시 있어야 한다.<br>없으면 예외 발생.</td>
+            <td>독립적으로 실행되면 안 되고, 반드시 상위 로직의 일부로만 동작해야 함을 강제할 때 사용한다. (안전장치)</td>
           </tr>
           <tr>
             <td><strong>NEVER</strong></td>
-            <td>트랜잭션이 없는 상태에서만 실행될 수 있다. 부모 트랜잭션이 있으면 예외를 발생시킨다.</td>
-            <td>트랜잭션이 걸려있으면 오히려 문제가 되는 특정 메서드를 보호하고 싶을 때 사용한다.</td>
+            <td>트랜잭션이 없어야 한다.<br>있으면 예외 발생.</td>
+            <td>트랜잭션이 적용되면 안 되는 로직을 보호할 때 사용한다.</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트랜잭션 격리 수준 (Transaction Isolation Level)
+          트랜잭션 격리 수준 (Isolation Level)
         </span>
       </h3>
-      <p>동시에 실행되는 여러 트랜잭션들이 서로 어느 정도까지 격리되어 실행될지를 결정하는 DB 설정이다.</p>
-      <ul>
-        <li><strong>READ UNCOMMITTED</strong>: 가장 낮은 격리 수준이다. 커밋 전 데이터 읽기가 가능하다. <strong>DIRTY READ</strong>(작업 미완료 데이터 조회)가 발생하며, 데이터 정합성 문제로 사용을 권장하지 않는다.</li>
-        <li><strong>READ COMMITTED</strong>: 커밋된 데이터만 읽는다. RDB에서 대부분 기본적으로 사용한다. <strong>NON-REPEATABLE READ</strong>(한 트랜잭션 내에서 같은 쿼리 두 번 실행 시 결과가 달라짐)가 발생한다. 실제 테이블 값이 아니라 Undo 영역(백업된 레코드)에서 값을 가져온다.</li>
-        <li><strong>REPEATABLE READ</strong>: 자신의 트랜잭션이 생성되기 이전의 트랜잭션에서 커밋된 데이터만 읽는다. MySQL의 default 격리 수준이다. 트랜잭션 ID를 활용한다. <strong>PHANTOM READ</strong>(한 트랜잭션 내에서 없던 레코드가 갑자기 조회됨)가 발생한다.</li>
-        <li><strong>SERIALIZABLE</strong>: 가장 엄격한 격리 수준이다. 데이터를 접근할 때 항상 Lock을 걸고 조회한다. 성능 문제(동시성 ↓)로 DB에서 거의 사용되지 않는다.</li>
-      </ul>
-      <p><em>* NON-REPEATABLE READ는 "기존 데이터의 값 변경" 문제이고, PHANTOM READ는 "데이터 행의 추가/삭제" 문제이다.</em></p>
+      <p>동시에 실행되는 여러 트랜잭션들이 서로 데이터를 어디까지 볼 수 있는지(격리성)를 결정하는 설정이다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>수준 (Level)</th>
+            <th>특징</th>
+            <th>발생 가능한 문제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>READ UNCOMMITTED</strong><br>(Lv.0)</td>
+            <td>커밋되지 않은 데이터도 읽을 수 있다.<br>데이터 정합성 문제로 사용을 권장하지 않는다.</td>
+            <td><strong>DIRTY READ</strong><br>(작업 중인 미완성 데이터를 읽음)</td>
+          </tr>
+          <tr>
+            <td><strong>READ COMMITTED</strong><br>(Lv.1)</td>
+            <td>커밋된 데이터만 읽는다. (RDB 기본값)<br>Undo 영역(백업)의 데이터를 읽는다.</td>
+            <td><strong>NON-REPEATABLE READ</strong><br>(한 트랜잭션 내에서 같은 조회를 반복했을 때 값이 달라짐)</td>
+          </tr>
+          <tr>
+            <td><strong>REPEATABLE READ</strong><br>(Lv.2)</td>
+            <td>트랜잭션 시작 시점의 데이터만 읽는다. (MySQL 기본값)<br>자신보다 이후에 생긴 트랜잭션의 변경은 무시한다.</td>
+            <td><strong>PHANTOM READ</strong><br>(한 트랜잭션 내에서 없던 데이터가 갑자기 조회됨 - Insert/Delete)</td>
+          </tr>
+          <tr>
+            <td><strong>SERIALIZABLE</strong><br>(Lv.3)</td>
+            <td>가장 엄격하다. 읽기 작업에도 Lock을 건다.<br>성능이 매우 떨어져 거의 사용하지 않는다.</td>
+            <td>없음 (동시성이 매우 낮아짐)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>* 참고:</strong> NON-REPEATABLE READ는 "기존 데이터의 값 수정" 문제이고, PHANTOM READ는 "데이터 행의 추가/삭제" 문제이다.</p>
 
       <h2 class="section">3. JPA 연관관계 매핑</h2>
 
-      <p>연관관계란, 엔티티(테이블) 간의 관계를 의미한다.</p>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Primary Key vs Foreign Key
+          기본 키(PK)와 외래 키(FK)
         </span>
       </h3>
-      <ul>
-        <li><strong>Primary Key (PK)</strong>: 테이블에 있는 각 행(Row)을 유일하게 식별할 수 있는 고유한 값이다. 유일성, NOT NULL, 불변성을 가진다.</li>
-        <li><strong>Foreign Key (FK)</strong>: 한 테이블의 컬럼이 다른 테이블의 기본 키를 참조하는 것을 말한다. 테이블 간 관계를 맺어주는 연결 고리 역할을 하며, 중복과 NULL을 허용한다.</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>설명</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Primary Key (PK)</strong></td>
+            <td>테이블의 각 행을 식별하는 고유한 값이다.</td>
+            <td>유일성, NOT NULL, 불변성 보장</td>
+          </tr>
+          <tr>
+            <td><strong>Foreign Key (FK)</strong></td>
+            <td>다른 테이블의 PK를 참조하는 값이다.<br>테이블 간 연결 고리 역할을 한다.</td>
+            <td>중복 허용, NULL 허용</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -232,16 +326,41 @@ member.setName("NewName"); // 데이터만 변경
         </span>
       </h3>
       <ul>
-        <li><strong>단방향 vs 양방향</strong>: 단방향은 한쪽에서만 참조, 양방향은 서로 참조하는 관계이다. 실제 DB에는 양방향이 없고 FK를 통한 단방향만 존재한다.</li>
-        <li><strong>연관관계 주인</strong>: 외래 키(FK)를 가진 테이블과 매핑된 엔티티가 주인이다. (<code>@ManyToOne</code>이 있는 쪽). 주인이 아닌 쪽은 <code>mappedBy</code>로 명시하며 조회만 가능하다.</li>
+        <li><strong>연관관계 주인</strong>: 외래 키(FK)를 실질적으로 관리(등록, 수정)하는 엔티티이다. (보통 <code>@ManyToOne</code> 쪽)</li>
+        <li><strong>주인이 아닌 쪽</strong>: <code>mappedBy</code> 속성을 사용해 주인을 명시하며, <strong>조회만 가능하다.</strong></li>
       </ul>
 
-      <ul>
-        <li><code>@OneToOne</code>: 1:1 매핑. 주도 테이블에 FK를 두는 것을 권장한다.</li>
-        <li><code>@ManyToOne</code>: N:1 매핑. 연관관계의 주인이다. <code>@JoinColumn</code>으로 FK를 관리한다.</li>
-        <li><code>@OneToMany</code>: 1:N 매핑. <code>@ManyToOne</code>이 반드시 매핑 관계에 있는 엔티티에 정의되어 있어야 사용할 수 있다.</li>
-        <li><code>@ManyToMany</code>: N:M 매핑. <strong>절대 사용하지 않는다.</strong> 중간 테이블이 숨겨져 생성되어(SideEffect) 유지보수가 어렵다. 연결 테이블용 엔티티를 만들어 <code>@ManyToOne</code> 2개로 풀어내야 한다.</li>
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>어노테이션</th>
+            <th>관계</th>
+            <th>설명 및 주의사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@ManyToOne</code></td>
+            <td>N : 1</td>
+            <td><strong>연관관계의 주인</strong>이다. <code>@JoinColumn</code>으로 FK를 관리한다. 가장 많이 사용한다.</td>
+          </tr>
+          <tr>
+            <td><code>@OneToMany</code></td>
+            <td>1 : N</td>
+            <td><code>@ManyToOne</code>이 있는 곳에 사용하며, <code>mappedBy</code>로 연결한다.</td>
+          </tr>
+          <tr>
+            <td><code>@OneToOne</code></td>
+            <td>1 : 1</td>
+            <td>주로 사용하는(주도적인) 테이블에 FK를 두는 것을 권장한다.</td>
+          </tr>
+          <tr>
+            <td><code>@ManyToMany</code></td>
+            <td>N : M</td>
+            <td><strong>절대 사용 금지.</strong> 중간 테이블이 숨겨져 생성되므로(SideEffect) 관리가 불가능하다. 연결 엔티티를 만들어 <code>@ManyToOne</code> 2개로 풀어야 한다.</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
@@ -249,13 +368,12 @@ member.setName("NewName"); // 데이터만 변경
         </span>
       </h3>
       <ul>
-        <li><code>name</code>: FK 컬럼명 (ex. <code>@JoinColumn(name = "team_id")</code>).</li>
-        <li><code>unique</code>: true로 설정하면 유니크 제약이 생성되어 사실상 1:1 제약(<code>@OneToOne</code>)과 같아진다 (default: false).</li>
-        <li><code>nullable</code>: FK 컬럼의 NULL 허용 여부 (default: true). <code>@ManyToOne(optional =)</code>과 짝을 맞춰야 한다.</li>
-        <li><code>foreignKey</code>: FK 제약 메타데이터.
+        <li><code>name</code>: 매핑할 FK 컬럼명을 지정한다. (예: <code>"team_id"</code>)</li>
+        <li><code>unique</code>: <code>true</code> 설정 시 유니크 제약조건이 생성되어 사실상 1:1 관계가 된다. (default: false)</li>
+        <li><code>nullable</code>: FK의 NULL 허용 여부이다. (default: true)</li>
+        <li><code>foreignKey</code>: FK 제약 조건을 상세 제어한다.
           <ul>
-            <li><code>ConstraintMode.CONSTRAINT</code>: 실제 FK 제약 생성 (default).</li>
-            <li><code>ConstraintMode.NO_CONSTRAINT</code>: 실제 FK 제약 미생성 (논리적 연관만 가짐). 최근 MSA 환경에서는 FK를 걸지 않는 경우가 늘고 있어 유용하다.</li>
+            <li><code>ConstraintMode.NO_CONSTRAINT</code>: 실제 DB에 FK 제약조건은 생성하지 않고, 객체 간 논리적 연관만 맺는다. (MSA 환경이나 레거시 DB 연결 시 유용)</li>
           </ul>
         </li>
       </ul>
@@ -268,16 +386,16 @@ member.setName("NewName"); // 데이터만 변경
         </span>
       </h3>
       <ul>
-        <li><strong>FetchType.EAGER (즉시 로딩)</strong>: 부모 엔티티를 조회하면, 연관된 자식 엔티티까지 한 번에 모두 조회한다. 반드시 항상 연관된 엔티티를 불러오기 때문에 선택권이 없다는 단점이 있어 <strong>쓰지 말아야 한다.</strong></li>
-        <li><strong>FetchType.LAZY (지연 로딩)</strong>: 부모를 조회할 때는 자식을 가져오지 않고, 실제 데이터가 필요한 시점에 비로소 DB에서 조회한다. 필요하면 가져오는 선택권이 있다.</li>
+        <li><strong>EAGER (즉시 로딩)</strong>: 부모를 조회하면 자식까지 한 번에 다 쿼리해온다. 불필요한 조인이 발생하므로 <strong>실무에서는 사용하지 않는다.</strong></li>
+        <li><strong>LAZY (지연 로딩)</strong>: 실제 자식 데이터가 필요한 시점에 쿼리를 날린다. <strong>무조건 이것을 사용한다.</strong></li>
       </ul>
 
       <div class="concept-box">
-        <strong>프록시(Proxy) 객체</strong><br>
-        LAZY를 사용하면 연관된 객체 자리에 <strong>프록시(가짜) 객체</strong>가 매핑되어 있다. (null이 아니다!)<br>
-        실제로 사용할 때 내부적으로 DB를 로드하여 마치 실제 객체처럼 행동하게 된다(Proxy Initialization).
+        <strong>프록시(Proxy) 객체란?</strong><br>
+        FetchType.LAZY를 사용하면 연관된 객체 자리에 <strong>프록시(가짜) 객체</strong>가 들어있다.<br>
+        이는 null이 아니며, 실제 데이터를 사용하는 시점(<code>.getName()</code> 등)에 DB를 조회하여 진짜 데이터로 채워진다(초기화).
       </div>
-      <pre><code class="language-java">@ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정
+      <pre><code class="language-java">@ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정 (필수)
 @JoinColumn(name = "team_id")
 private Team team;</code></pre>
 
@@ -286,26 +404,54 @@ private Team team;</code></pre>
           영속성 전이 (Cascade)
         </span>
       </h3>
-      <p>부모 엔티티의 영속성 상태 변화를 자식 엔티티에게 그대로 전파하는 기능이다. <code>@OneToMany(cascade = CascadeType.XXX)</code> 형태로 사용한다.</p>
-      <ul>
-        <li><code>ALL</code>: 모든 Cascade 옵션을 적용한다. 부모와 자식의 생명주기가 완벽하게 일치할 때 사용한다.</li>
-        <li><code>PERSIST</code>: 부모 저장 시 자식도 함께 저장된다.</li>
-        <li><code>REMOVE</code>: 부모 삭제 시 자식도 함께 삭제된다.</li>
-        <li><code>MERGE</code>: 부모 병합 시 자식도 병합된다.</li>
-        <li><code>REFRESH</code>: 부모 다시 읽을 때 자식도 갱신된다.</li>
-        <li><code>DETACH</code>: 부모 준영속 시 자식도 함께 준영속 상태로 만든다. (영속성 컨텍스트 관리 제외)</li>
-      </ul>
+      <p>
+        부모 엔티티의 상태 변화(저장, 삭제 등)를 자식 엔티티에게도 전파하는 옵션이다.<br>
+        <code>@OneToMany(cascade = CascadeType.ALL)</code> 형태로 사용한다.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>옵션</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ALL</strong></td>
+            <td>모든 변경 사항을 전파한다. (생명주기가 같을 때 사용)</td>
+          </tr>
+          <tr>
+            <td><strong>PERSIST</strong></td>
+            <td>부모 저장 시 자식도 함께 저장한다.</td>
+          </tr>
+          <tr>
+            <td><strong>REMOVE</strong></td>
+            <td>부모 삭제 시 자식도 함께 삭제한다.</td>
+          </tr>
+          <tr>
+            <td><strong>MERGE</strong></td>
+            <td>부모 병합 시 자식도 병합한다.</td>
+          </tr>
+          <tr>
+            <td><strong>REFRESH</strong></td>
+            <td>부모 다시 읽을 때 자식도 갱신한다.</td>
+          </tr>
+          <tr>
+            <td><strong>DETACH</strong></td>
+            <td>부모 준영속 시 자식도 준영속 상태로 만든다.</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           고아 제거 (Orphan Removal)
         </span>
       </h3>
-      <p>부모와 자식의 연관관계 자체가 끊어지는 것을 감지하여 자식을 삭제한다. (기본값 false)</p>
+      <p>부모와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제한다. (<code>orphanRemoval = true</code>)</p>
       <ul>
-        <li><strong>부모의 컬렉션에서 자식을 제거할 때</strong>: 트랜잭션 커밋 시점에 제거된 child에 대한 DELETE 쿼리가 실행된다.</li>
-        <li><strong>부모가 새로운 컬렉션으로 교체될 때</strong>: 기존의 모든 자식들은 참조를 잃고 고아가 되어 DELETE 된다.</li>
-        <li><strong>부모 엔티티가 삭제될 때</strong>: 자식들도 참조를 잃으므로 <code>orphanRemoval</code> 옵션에 의해 함께 삭제된다.</li>
+        <li><strong>컬렉션에서 제거 시</strong>: <code>parent.getChildren().remove(0)</code> 처럼 리스트에서 빼면 DB에서 DELETE 된다.</li>
+        <li><strong>부모 삭제 시</strong>: 부모가 지워지면 자식들은 고아가 되므로 함께 삭제된다. (Cascade.REMOVE와 유사)</li>
       </ul>
 
       <h2 class="section">5. JPQL과 프로젝션</h2>
@@ -316,8 +462,8 @@ private Team team;</code></pre>
         </span>
       </h3>
       <p>
-        SQL은 테이블 기준이지만, <strong>JPQL은 엔티티 객체 기준</strong>으로 쿼리를 작성한다.
-        특정 DB에 종속되지 않으며, Spring Data JPA가 실행 시점에 적절한 SQL로 번역해준다.
+        SQL은 테이블을 대상으로 하지만, <strong>JPQL은 엔티티 객체를 대상으로 쿼리</strong>를 작성한다.
+        특정 DB에 종속되지 않으며, 실행 시점에 적절한 SQL로 변환된다.
       </p>
       <pre><code class="language-java">// :username 파라미터 바인딩 예시
 @Query("SELECT m FROM Member m WHERE m.username = :username")
@@ -328,23 +474,24 @@ List&lt;Member&gt; findUser(@Param("username") String username);</code></pre>
           프로젝션 (Projection)
         </span>
       </h3>
-      <p>엔티티의 전체 필드가 아닌, <strong>원하는 필드만 골라서</strong> 객체로 받아오는 기술이다. 성능 최적화와 타입 안정성을 제공한다.</p>
+      <p>엔티티의 모든 필드가 아니라, <strong>필요한 필드만 골라서 조회</strong>하는 기술이다. 성능과 가독성을 높인다.</p>
       
-      <p><strong>1. 인터페이스 기반 프로젝션</strong></p>
-      <p>조회할 필드의 getter 메서드만 선언한 인터페이스를 만들면, 구현 클래스를 자동 생성해준다.</p>
+      <p><strong>1. 인터페이스 기반</strong></p>
+      <p>Getter 메서드만 선언하면 Spring Data JPA가 구현체를 만들어준다.</p>
       <pre><code class="language-java">public interface UsernameOnly {
     String getUsername();
 }</code></pre>
 
-      <p><strong>2. 클래스(DTO) 기반 프로젝션</strong></p>
-      <p>조회 결과를 DTO로 직접 받아온다. <code>new</code> 키워드와 패키지 경로, 생성자가 필요하다.</p>
-      <pre><code class="language-java">@Query("SELECT new com.example.dto.MemberDto(m.username, m.age) FROM Member m WHERE m.age > 20")
+      <p><strong>2. 클래스(DTO) 기반</strong></p>
+      <p>JPQL에서 <code>new</code> 키워드를 사용해 DTO 생성자를 호출하여 반환받는다.</p>
+      <pre><code class="language-java">@Query("SELECT new com.example.dto.MemberDto(m.username, m.age) FROM Member m")
 List&lt;MemberDto&gt; findMemberDto();</code></pre>
 
       <h2 class="section">6. JPA 테스트</h2>
 
       <p>
-        <code>@DataJpaTest</code>를 활용하여 JPA Repository 동작만 빠르고 정확하게 검증할 수 있다.
+        <code>@DataJpaTest</code>를 사용하면 JPA 관련 설정만 로드하여 Repository 계층을 빠르고 정확하게 검증할 수 있다.
+        기본적으로 <code>@Transactional</code>이 포함되어 있어 테스트 종료 후 자동 롤백된다.
       </p>
 
       <h3 class="section">
@@ -353,7 +500,7 @@ List&lt;MemberDto&gt; findMemberDto();</code></pre>
         </span>
       </h3>
       <ul>
-        <li><strong>의존성</strong>: <code>testImplementation "com.h2database:h2"</code> (테스트 시에만 사용하는 인메모리 DB)</li>
+        <li><strong>의존성</strong>: <code>testImplementation "com.h2database:h2"</code> (테스트 전용 인메모리 DB)</li>
         <li><strong>Given-When-Then 패턴</strong>:
           <ul>
             <li><strong>Given</strong>: 테스트 준비 (엔티티 생성 등)</li>
