@@ -459,7 +459,11 @@ public void login(HttpServletRequest request) {
           추가 기능 코드
         </span>
       </h3>
-      <pre><code class="language-java">// [로그아웃] 세션 무효화
+      <pre><code class="language-java">// [로그아웃] 
+        @SessionAttribute(name = "loginUser", required = false) SessionUser sessionUser
+//loginUser라는 이름으로 저장된 세션 속성을 찾아 sessionUser 파라미터에 주입해준다.
+        
+        세션 무효화
 session.invalidate();
 
 // [@RequestHeader] 특정 헤더만 가져오기
