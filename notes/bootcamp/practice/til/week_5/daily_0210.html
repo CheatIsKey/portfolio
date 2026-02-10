@@ -39,11 +39,19 @@
       margin: 1.5rem 0;
       border-radius: 4px;
       color: #0d47a1;
+      line-height: 1.6; /* 줄 간격 확보 */
     }
+    /* 수정된 부분: display: block 제거하여 줄바꿈 방지 */
     .concept-box strong {
-      font-size: 1.1em;
-      display: block;
-      margin-bottom: 0.5rem;
+      font-weight: 700; /* 굵게 */
+      color: #002171;   /* 더 진한 파란색으로 가독성 확보 */
+    }
+    /* 박스 내의 소제목 역할을 하는 첫 줄 강조용 클래스 별도 분리 (필요시 사용) */
+    .box-title {
+        display: block;
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -95,7 +103,7 @@
       </h3>
 
       <div class="concept-box">
-        <strong>1. 1차 캐시와 동일성(Identity) 보장</strong><br>
+        <span class="box-title">1. 1차 캐시와 동일성(Identity) 보장</span>
         영속성 컨텍스트는 내부에 Map 형태의 캐시 저장소를 가지고 있다.<br>
         조회 시 <strong>1차 캐시를 먼저 확인</strong>한다. 동일한 ID의 엔티티가 있으면 DB를 조회하지 않고 캐시 값을 즉시 반환한다.<br>
         이 덕분에 같은 트랜잭션 내에서 조회한 엔티티는 <strong>항상 동일한 메모리 주소</strong>를 보장한다.
@@ -107,7 +115,7 @@ Member member2 = em.find(Member.class, 1L); // 1차 캐시에서 조회 (SQL 실
 System.out.println(member1 == member2); // true (동일성 보장)</code></pre>
 
       <div class="concept-box">
-        <strong>2. 변경 감지 (Dirty Checking)</strong><br>
+        <span class="box-title">2. 변경 감지 (Dirty Checking)</span>
         트랜잭션 커밋 직전, 1차 캐시의 <strong>최초 상태(스냅샷)</strong>와 <strong>현재 상태</strong>를 비교한다.<br>
         다르면 JPA가 자동으로 <code>UPDATE SQL</code>을 생성하여 DB에 반영한다.
       </div>
@@ -119,7 +127,7 @@ member.setName("NewName"); // 데이터만 변경
 // 트랜잭션 커밋 시점에 자동으로 UPDATE 쿼리가 나간다.</code></pre>
 
       <div class="concept-box">
-        <strong>3. 쓰기 지연 (Transactional Write-Behind)</strong><br>
+        <span class="box-title">3. 쓰기 지연 (Transactional Write-Behind)</span>
         <code>save()</code> 호출 시 즉시 DB에 보내지 않고 <strong>INSERT SQL을 저장소에 모아둔다.</strong><br>
         트랜잭션이 커밋되는 순간(Flush), 모아둔 SQL을 한 번에 DB로 보낸다.<br>
         → 네트워크 비용 감소 및 DB 상호작용 최소화로 성능 최적화.
