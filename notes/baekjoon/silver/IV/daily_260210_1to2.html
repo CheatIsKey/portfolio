@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-09 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 17219 — 비밀번호 찾기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/17219">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260209_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>비밀번호 찾기 (백준 17219)</strong>는<br>
+        사이트 주소와 비밀번호가 쌍으로 주어질 때, 특정 사이트 주소를 입력하면 그에 해당하는 <strong>비밀번호를 빠르게 찾아내는</strong> 문제다.
+      </p>
+      
+      <ul>
+        <li>저장된 사이트 수 N과 찾으려는 사이트 수 M이 최대 100,000이다.</li>
+        <li>매번 배열을 순회하며 찾는 방식($O(N \times M)$)은 시간 초과가 발생하므로, <strong>해시(Hash)</strong> 자료구조를 사용하여 검색 시간을 $O(1)$로 단축해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>해시맵 (HashMap) 활용</strong>:
+          <ul>
+            <li><strong>Key</strong>: 사이트 주소 (String)</li>
+            <li><strong>Value</strong>: 비밀번호 (String)</li>
+            <li>맵에 데이터를 저장해두면 <code>get()</code> 메서드를 통해 키값으로 바로 밸류를 조회할 수 있다.</li>
+          </ul>
+        </li>
+        <li><strong>입출력 최적화</strong>: 입력 데이터가 많기 때문에 <code>BufferedReader</code>와 <code>StringTokenizer</code>, <code>StringBuilder</code>를 사용하여 I/O 속도를 높인다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 데이터 저장 (Mapping)</strong>
+          <pre><code>HashMap&lt;String, String&gt; map = new HashMap&lt;&gt;();
+
+for (int i = 0; i &lt; N; i++) {
+    st = new StringTokenizer(br.readLine());
+    String key = st.nextToken();   // 사이트 주소
+    String value = st.nextToken(); // 비밀번호
+    map.put(key, value);
+}</code></pre>
+          <ul>
+            <li>N개의 줄에 걸쳐 주어지는 사이트 주소와 비밀번호를 읽어와 <code>map.put()</code>으로 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 비밀번호 검색 및 출력</strong>
+          <pre><code>for (int i = 0; i &lt; M; i++) {
+    String url = br.readLine();
+    sb.append(map.get(url)).append('\n');
+}</code></pre>
+          <ul>
+            <li>찾고자 하는 M개의 사이트 주소를 입력받는다.</li>
+            <li><code>map.get(url)</code>을 사용하여 해당 주소(Key)에 매핑된 비밀번호(Value)를 즉시 가져온다.</li>
+            <li>결과를 <code>StringBuilder</code>에 모아 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>N개의 데이터를 저장하는 데 $O(N)$, M개의 데이터를 조회하는 데 $O(M)$이 소요된다. (해시맵의 평균 접근 시간은 $O(1)$)</li>
+            <li>전체 시간 복잡도는 <strong>$O(N + M)$</strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>N개의 사이트 주소와 비밀번호 문자열을 저장해야 하므로 <strong>$O(N)$</strong>이다. (문자열 길이에 비례하지만, 최대 길이가 20으로 작으므로 상수로 취급 가능)</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 28278 — 스택 2</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/28278">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260209_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>스택 2 (백준 28278)</strong>는<br>
+        정수를 저장하는 <strong>스택(Stack)</strong> 자료구조를 구현하고,
+        주어지는 5가지 명령(넣기, 빼기, 크기, 비어있는지 확인, 맨 위 값 확인)을 처리하는 문제다.
+      </p>
+      
+      <ul>
+        <li><strong>LIFO(Last In First Out)</strong>: 가장 나중에 들어간 데이터가 가장 먼저 나오는 구조다.</li>
+        <li>명령의 수 N이 최대 1,000,000(100만)이므로, <code>System.out.println</code>을 남발하면 시간 초과가 날 수 있다. <code>StringBuilder</code>를 사용해야 한다.</li>
+        <li>자바의 <code>Stack</code> 클래스는 동기화 처리로 인해 느리므로, 배열이나 <code>ArrayDeque</code> 등을 사용하는 것이 좋다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>배열 기반 스택 구현</strong>: 스택의 최대 크기는 명령의 수 N을 넘지 않으므로, 크기 N인 <code>int</code> 배열을 생성하여 스택으로 사용한다.</li>
+        <li><strong>포인터(Cursor) 활용</strong>:
+          <ul>
+            <li><code>cur</code> 변수를 사용하여 현재 스택의 <strong>맨 위 원소(Top)</strong>의 인덱스를 가리킨다.</li>
+            <li>초기값은 <code>-1</code>(비어있음)로 설정한다.</li>
+            <li>데이터가 추가되면 <code>cur</code>를 증가시키고, 삭제되면 감소시킨다.</li>
+          </ul>
+        </li>
+        <li><strong>빠른 입출력</strong>: <code>BufferedReader</code>로 입력을 받고, 결과는 <code>StringBuilder</code>에 모아서 한 번에 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 스택 및 포인터 초기화</strong>
+          <pre><code>int[] stack = new int[N];
+int cur = -1;</code></pre>
+          <ul>
+            <li>명령의 개수 N만큼 배열을 할당한다. (모든 명령이 push여도 수용 가능)</li>
+            <li><code>cur</code>를 -1로 두어 스택이 비어있음을 표시한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 명령 1: 데이터 삽입 (Push)</strong>
+          <pre><code>case 1:
+    int x = Integer.parseInt(st.nextToken());
+    stack[++cur] = x;
+    break;</code></pre>
+          <ul>
+            <li><code>cur</code>를 먼저 1 증가시킨 뒤(<code>++cur</code>), 해당 위치에 값 <code>x</code>를 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 명령 2: 데이터 삭제 및 출력 (Pop)</strong>
+          <pre><code>case 2:
+    if (cur == -1) {
+        sb.append(-1).append('\n');
+    } else {
+        sb.append(stack[cur--]).append('\n');
+    }
+    break;</code></pre>
+          <ul>
+            <li>스택이 비어있으면(<code>cur == -1</code>) -1을 출력한다.</li>
+            <li>그렇지 않으면 현재 <code>stack[cur]</code> 값을 출력 버퍼에 담고, <code>cur</code>를 1 감소시켜(<code>cur--</code>) 논리적으로 삭제한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 기타 명령 (Size, Empty, Top)</strong>
+          <pre><code>case 3: // size
+    sb.append(cur + 1).append('\n');
+    break;
+case 4: // empty
+    if (cur == -1) sb.append(1)...
+    else sb.append(0)...
+    break;
+case 5: // top
+    if (cur == -1) sb.append(-1)...
+    else sb.append(stack[cur])...
+    break;</code></pre>
+          <ul>
+            <li><code>size</code>: 인덱스는 0부터 시작하므로 개수는 <code>cur + 1</code>이다.</li>
+            <li><code>top</code>: 삭제하지 않고 <code>stack[cur]</code> 값만 확인한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li>각 명령(1~5)은 배열 인덱스 접근과 산술 연산만 수행하므로 <strong><code>O(1)</code></strong>이다.</li>
+            <li>총 N개의 명령을 처리하므로 전체 시간 복잡도는 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li>최대 N개의 정수를 저장할 배열을 사용하므로 <strong><code>O(N)</code></strong>이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
