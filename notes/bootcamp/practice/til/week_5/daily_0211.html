@@ -6,32 +6,47 @@
   <title>내일배움캠프 Spring 백엔드 43일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    /* TIL 데이터 테이블 공통 스타일 */
+    /* 기본 폰트 및 레이아웃 설정 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    /* 테이블 스타일 */
     .prose table {
       width: 100%;
       border-collapse: collapse;
-      margin: 0.75rem 0;
+      margin: 1rem 0;
       font-size: 0.95rem;
+      border: 1px solid #ddd;
     }
     .prose table th,
     .prose table td {
-      border: 1px solid rgba(0, 0, 0, 0.2);
-      padding: 0.4rem 0.6rem;
+      border: 1px solid #ddd;
+      padding: 0.8rem;
       text-align: left;
-      vertical-align: middle;
+      vertical-align: top;
     }
-    .prose table thead {
-      background-color: #f5f5f5;
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
     }
     /* 코드 블록 스타일 */
     pre {
       background-color: #f8f9fa;
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow-x: auto;
       border: 1px solid #e9ecef;
+      margin: 1rem 0;
     }
-    /* 중요 개념 박스 스타일 */
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    /* 중요 개념 박스 스타일 - 줄바꿈 문제 해결 */
     .concept-box {
       background-color: #e3f2fd;
       border-left: 5px solid #2196f3;
@@ -40,18 +55,21 @@
       border-radius: 4px;
       color: #0d47a1;
     }
+    /* 수정됨: display: block 제거 -> inline 유지 */
     .concept-box strong {
-      font-size: 1.1em;
-      display: block;
-      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: #002171; 
+      /* display: block; << 삭제됨 (줄밀림 원인) */
     }
-    /* 소제목 강조용 */
+    /* 박스 내 소제목은 별도 클래스로 줄바꿈 처리 */
     .box-title {
       display: block;
       font-size: 1.1em;
       font-weight: 800;
       margin-bottom: 0.5rem;
       color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
     }
   </style>
 </head>
@@ -130,13 +148,31 @@ Page&lt;Schedule&gt; findAllWithCommentCount(Pageable pageable);</code></pre>
           Pageable 핵심 개념
         </span>
       </h3>
-      <ul>
-        <li><strong>Offset/Limit</strong>: 애플리케이션 메모리에서 거르는 것이 아니라, <strong>DB 레벨에서 쿼리(Limit)를 통해 필요한 만큼만 가져오는 것</strong>이다.</li>
-        <li><strong>0-based Index</strong>: 페이지 번호는 0부터 시작한다. (클라이언트가 1페이지를 요청하면 서버는 <code>page=0</code>으로 처리해야 함)</li>
-        <li><strong>@PageableDefault</strong>: 컨트롤러 파라미터에서 기본 페이지 크기나 정렬 조건을 손쉽게 설정할 수 있다.</li>
-      </ul>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>개념</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Offset/Limit</strong></td>
+            <td>애플리케이션 메모리에서 거르는 것이 아니라, <strong>DB 레벨에서 쿼리(Limit)를 통해 필요한 만큼만</strong> 가져오는 것이다.</td>
+          </tr>
+          <tr>
+            <td><strong>0-based Index</strong></td>
+            <td>페이지 번호는 0부터 시작한다. (클라이언트가 1페이지를 요청하면 서버는 <code>page=0</code>으로 처리해야 한다.)</td>
+          </tr>
+          <tr>
+            <td><strong>@PageableDefault</strong></td>
+            <td>컨트롤러 파라미터에서 기본 페이지 크기(size)나 정렬(sort) 조건을 손쉽게 설정할 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <pre><code class="language-java">// 컨트롤러 예시
+      <pre><code class="language-java">// 컨트롤러 예시: 기본값으로 수정일 기준 내림차순, 10개씩 조회
 @GetMapping
 public ResponseEntity&lt;Page&lt;ReadScheduleResponse&gt;&gt; getSchedules(
     @PageableDefault(size = 10, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -164,10 +200,10 @@ public ResponseEntity&lt;Page&lt;ReadScheduleResponse&gt;&gt; getSchedules(
 
       <pre><code class="language-java">// Bad: 루프 돌며 조회 (N+1 발생)
 for (Schedule s : schedules) {
-    int count = commentRepository.countByScheduleId(s.getId());
+    int count = commentRepository.countByScheduleId(s.getId()); // 쿼리 계속 발생
 }
 
-// Good: JPQL로 한 번에 조회
+// Good: JPQL로 한 번에 조회 (Fetch Join 또는 DTO Projection)
 @Query("SELECT new com.example.dto.ScheduleDto(s.title, COUNT(c)) " +
        "FROM Schedule s LEFT JOIN s.comments c GROUP BY s.id")
 Page&lt;ScheduleDto&gt; findSchedulesWithCount(Pageable pageable);</code></pre>
@@ -214,7 +250,7 @@ public Page&lt;ReadScheduleResponse&gt; getSchedules(Pageable pageable) {
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          최종 추천 아키텍처
+          최종 추천 아키텍처 (Best Practice)
         </span>
       </h3>
 
