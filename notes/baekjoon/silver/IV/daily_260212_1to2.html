@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-11 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-12 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 10825 — 국영수</h2>
+      <h2 class="section">문제 1244 — 스위치 켜고 끄기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/10825">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1244">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260211_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260212_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>국영수 (백준 10825)</strong>는<br>
-        학생 N명의 이름과 국어, 영어, 수학 점수가 주어졌을 때,<br>
-        <strong>4가지 우선순위 조건</strong>에 맞춰 정렬하는 문제다.
+        <strong>스위치 켜고 끄기 (백준 1244)</strong>는<br>
+        일렬로 배치된 스위치들의 상태를 학생들의 성별과 받은 번호에 따라 조작한 후,<br>
+        <strong>최종 스위치 상태를 한 줄에 20개씩 출력</strong>하는 문제다.
       </p>
       
       <ul>
-        <li><strong>조건 1</strong>: 국어 점수가 감소하는 순서로 (내림차순).</li>
-        <li><strong>조건 2</strong>: 국어 점수가 같으면, 영어 점수가 증가하는 순서로 (오름차순).</li>
-        <li><strong>조건 3</strong>: 국어, 영어 점수가 같으면, 수학 점수가 감소하는 순서로 (내림차순).</li>
-        <li><strong>조건 4</strong>: 모든 점수가 같으면, 이름이 사전 순으로 증가하는 순서로 (오름차순).</li>
+        <li>남학생은 받은 번호의 배수에 해당하는 모든 스위치를 토글한다.</li>
+        <li>여학생은 받은 번호를 중심으로 좌우 대칭인 최대 구간의 모든 스위치를 토글한다.</li>
+        <li>스위치는 최대 100개, 학생은 최대 100명이며, 출력 시 한 줄에 20개씩 끊어서 출력해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,13 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>객체(Class) 활용</strong>: 이름과 세 과목의 점수를 하나의 단위로 묶기 위해 <code>Student</code> 클래스를 정의한다.</li>
-        <li><strong>커스텀 정렬(Comparator)</strong>: 자바의 <code>sort</code> 메서드와 람다식을 사용하여 복합 정렬 조건을 구현한다.</li>
-        <li><strong>비교 로직</strong>:
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션, 배열 조작</li>
+        <li><strong>선택 이유</strong>: 문제에서 주어진 규칙을 그대로 구현하면 되는 시뮬레이션 문제이므로, boolean 배열로 스위치 상태를 관리하며 각 학생의 조작을 순차적으로 적용한다.</li>
+        <li><strong>세부 전략</strong>:
           <ul>
-            <li><strong>오름차순</strong>: <code>Integer.compare(a, b)</code> (작은 값이 앞)</li>
-            <li><strong>내림차순</strong>: <code>Integer.compare(b, a)</code> (큰 값이 앞)</li>
-            <li><strong>문자열</strong>: <code>a.compareTo(b)</code> (사전순)</li>
+            <li>남학생: 받은 번호의 배수 인덱스를 반복문으로 찾아 토글</li>
+            <li>여학생: 중심에서 시작해 좌우로 범위를 확장하며 대칭 여부 확인 후, 유효한 최대 구간의 스위치를 토글</li>
+            <li>출력: 카운터를 사용해 20개마다 줄바꿈 처리</li>
           </ul>
         </li>
       </ul>
@@ -96,37 +95,74 @@
       </p>
       
       <ul>
-        <li><strong>1) 데이터 입력 및 객체 생성</strong>
-          <pre><code>List&lt;Student&gt; students = new ArrayList&lt;&gt;();
-for (int i = 0; i &lt; N; i++) {
-    // ... 입력 파싱 ...
-    students.add(new Student(name, score1, score2, score3));
-}</code></pre>
+        <li><strong>1) 초기 스위치 상태 입력 받기</strong>
+          <pre><code>boolean[] chk = new boolean[N];
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          chk[i] = (num == 1);
+      }</code></pre>
           <ul>
-            <li>N명의 학생 정보를 입력받아 <code>Student</code> 객체로 생성하고 리스트에 저장한다.</li>
+            <li>스위치 개수만큼 boolean 배열을 생성하고, 1이면 true(켜짐), 0이면 false(꺼짐)로 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 다중 조건 정렬 (Core Logic)</strong>
-          <pre><code>students.sort((a, b) -&gt; {
-    if (a.score1 != b.score1) return Integer.compare(b.score1, a.score1); // 국어 내림차순
-    if (a.score2 != b.score2) return Integer.compare(a.score2, b.score2); // 영어 오름차순
-    if (a.score3 != b.score3) return Integer.compare(b.score3, a.score3); // 수학 내림차순
-    return a.name.compareTo(b.name); // 이름 오름차순
-});</code></pre>
+        <li><strong>2) 남학생의 스위치 조작</strong>
+          <pre><code>if (gender == 1) {
+          for (int j = turn; j <= N; j += turn) {
+              chk[j - 1] = !chk[j - 1];
+          }
+      }</code></pre>
           <ul>
-            <li>람다식을 사용하여 정렬 기준을 정의한다.</li>
-            <li>우선순위가 높은 조건(국어 점수)부터 비교하고, 값이 다르면 즉시 정렬 순서를 결정한다.</li>
-            <li>값이 같으면 다음 우선순위 조건(영어 → 수학 → 이름)으로 넘어간다.</li>
+            <li>받은 번호(turn)의 배수에 해당하는 모든 스위치(j)를 찾아 상태를 반전시킨다.</li>
+            <li>배열 인덱스는 0부터 시작하므로 j-1 위치의 스위치를 토글한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>for (Student student : students) {
-    sb.append(student.name).append('\n');
-}</code></pre>
+        <li><strong>3) 여학생의 대칭 구간 찾기</strong>
+          <pre><code>int center = turn - 1;
+      int range = 0;
+      
+      while (center - range >= 0 && center + range < N) {
+          if (chk[center - range] == chk[center + range]) {
+              range++;
+          } else {
+              break;
+          }
+      }</code></pre>
           <ul>
-            <li>정렬된 리스트를 순회하며 학생의 이름만 출력 버퍼에 담는다.</li>
+            <li>받은 번호를 중심(center)으로 하여, 좌우로 확장하며 대칭 여부를 확인한다.</li>
+            <li>대칭이 유지되는 동안 range를 증가시켜 최대 범위를 찾는다.</li>
+            <li>배열 범위를 벗어나거나 대칭이 깨지면 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 여학생의 스위치 토글</strong>
+          <pre><code>for (int j = center - range + 1; j <= center + range - 1; j++) {
+          chk[j] = !chk[j];
+      }</code></pre>
+          <ul>
+            <li>while 루프에서 range가 1 증가한 상태로 종료되므로, 실제 대칭 구간은 center - (range-1) 부터 center + (range-1)까지다.</li>
+            <li>해당 구간의 모든 스위치를 토글한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 결과 출력 (한 줄에 20개씩)</strong>
+          <pre><code>int cnt = 1;
+      for (boolean isTurnOn : chk) {
+          if (cnt > 20) {
+              sb.append('\n');
+              cnt -= 20;
+          }
+          if (isTurnOn) {
+              sb.append(1).append(" ");
+          } else {
+              sb.append(0).append(" ");
+          }
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>카운터(cnt)를 사용해 20개를 출력할 때마다 줄바꿈을 추가한다.</li>
+            <li>각 스위치 상태를 1 또는 0으로 변환하여 공백과 함께 StringBuilder에 추가한다.</li>
           </ul>
         </li>
       </ul>
@@ -142,17 +178,16 @@ for (int i = 0; i &lt; N; i++) {
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>N명의 데이터를 정렬하는 데 <strong><code>O(N log N)</code></strong>이 소요된다. (Java의 <code>Collections.sort</code>는 TimSort 사용)</li>
-            <li>N이 최대 100,000이므로 1초 내에 충분히 수행 가능하다.</li>
+            <li><strong>O(N × S)</strong>: 학생 수(S)만큼 반복하며, 각 학생마다 최악의 경우 스위치 전체(N)를 확인하거나 토글할 수 있다.</li>
+            <li>남학생의 경우 배수 개수만큼, 여학생의 경우 최대 N개의 스위치를 확인하므로 전체적으로 O(N × S)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>N개의 Student 객체를 저장할 리스트가 필요하므로 <strong><code>O(N)</code></strong>이다.</li>
+            <li><strong>O(N)</strong>: 스위치 상태를 저장하는 boolean 배열과 출력용 StringBuilder가 필요하다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -218,14 +253,14 @@ for (int i = 0; i &lt; N; i++) {
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2960 — 에라토스테네스의 체</h2>
+      <h2 class="section">문제 1940 — 주몽</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2960">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1940">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260211_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260212_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -235,6 +270,7 @@ for (int i = 0; i &lt; N; i++) {
       
 
       
+
       <h3 class="section">
         <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           해설
@@ -242,17 +278,15 @@ for (int i = 0; i &lt; N; i++) {
       </h3>
       
       <p>
-        <strong>에라토스테네스의 체 (백준 2960)</strong>는<br>
-        소수를 구하는 알고리즘인 '에라토스테네스의 체'를 수행하는 과정에서,
-        <strong>K번째로 지워지는 수</strong>가 무엇인지 구하는 구현 문제다.
+        <strong>주몽 (백준 1940)</strong>는<br>
+        N개의 재료 중에서 두 개를 선택하여 그 고유 번호의 합이 정확히 M이 되는 조합의 개수를 찾는 문제로,<br>
+        <strong>서로 다른 두 재료의 번호 합이 목표값 M과 일치하는 쌍의 개수</strong>를 구하는 문제다.
       </p>
       
-      
-
       <ul>
-        <li>일반적인 소수 구하기와 달리, 소수 P 자체도 지우는 순서에 포함된다.</li>
-        <li>이미 지워진 수(예: 6은 2의 배수로서 지워짐)는 3의 배수를 지울 때 다시 지우지 않는다.</li>
-        <li>N과 K가 최대 1,000으로 작기 때문에 단순 시뮬레이션으로 해결 가능하다.</li>
+        <li>재료는 최대 15,000개, 목표값 M은 최대 10,000,000이다.</li>
+        <li>각 재료의 고유 번호는 100,000 이하의 자연수이다.</li>
+        <li>갑옷 하나를 만들려면 정확히 두 개의 서로 다른 재료가 필요하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -264,14 +298,15 @@ for (int i = 0; i &lt; N; i++) {
       </p>
       
       <ul>
-        <li><strong>체크 배열 (Boolean Array)</strong>: 수가 지워졌는지 여부를 저장할 <code>chk</code> 배열을 사용한다.</li>
-        <li><strong>이중 반복문</strong>:
+        <li><strong>핵심 알고리즘</strong>: 해시셋(HashSet)을 이용한 Two Sum 패턴</li>
+        <li><strong>선택 이유</strong>: 배열을 순회하면서 각 재료마다 "M - 현재 재료 번호"가 이미 등장했는지를 O(1) 시간에 확인할 수 있어, 전체 시간 복잡도를 O(N)으로 유지할 수 있다. 이중 반복문을 사용하면 O(N²)이 되어 비효율적이다.</li>
+        <li><strong>세부 전략</strong>:
           <ul>
-            <li>바깥 반복문은 아직 지워지지 않은 가장 작은 수(소수 P)를 찾는다.</li>
-            <li>안쪽 반복문은 P의 배수들을 순서대로 지워나간다.</li>
+            <li>재료를 하나씩 읽으면서, 현재 재료(key)와 짝을 이룰 수 있는 값(value = M - key)이 이미 HashSet에 존재하는지 확인한다.</li>
+            <li>존재한다면 갑옷을 만들 수 있는 쌍을 찾은 것이므로 카운트를 증가시킨다.</li>
+            <li>현재 재료를 HashSet에 추가하여, 이후에 등장할 재료들이 이 재료와 짝을 이룰 수 있는지 확인할 수 있도록 한다.</li>
           </ul>
         </li>
-        <li><strong>카운팅</strong>: 실제로 지우는 작업(<code>chk[j] = true</code>)이 일어날 때마다 카운트를 증가시키고, K번째가 되면 해당 수를 출력하고 종료한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -283,41 +318,38 @@ for (int i = 0; i &lt; N; i++) {
       </p>
       
       <ul>
-        <li><strong>1) 배열 및 변수 초기화</strong>
-          <pre><code>boolean[] chk = new boolean[N + 1];
-int cnt = 0;</code></pre>
+        <li><strong>1) 입력 받기 및 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int M = Integer.parseInt(br.readLine());
+      Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+      int cnt = 0;</code></pre>
           <ul>
-            <li>1부터 N까지의 상태를 저장하기 위해 크기가 <code>N + 1</code>인 배열을 생성한다. (기본값 false: 안 지워짐)</li>
-            <li>지운 횟수를 셀 <code>cnt</code>를 0으로 초기화한다.</li>
+            <li>재료의 개수 N과 목표값 M을 입력받고, 이미 등장한 재료를 저장할 HashSet과 갑옷 개수를 세는 변수를 준비한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 소수 찾기 및 배수 지우기</strong>
-          <pre><code>for (int i = 2; i &lt;= N; i++) {
-    if (!chk[i]) { // 아직 지워지지 않은 수(소수) 발견
-        for (int j = i; j &lt;= N; j += i) { // i의 배수들 순회</code></pre>
+        <li><strong>2) 재료를 순회하며 짝 찾기</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          int key = Integer.parseInt(st.nextToken());
+          int value = M - key;
+          
+          if (set.contains(value)) {
+              cnt++;
+          }
+          
+          set.add(key);
+      }</code></pre>
           <ul>
-            <li><code>chk[i]</code>가 false라면 <code>i</code>는 소수다.</li>
-            <li><code>j</code>는 <code>i</code>부터 시작하여 <code>i</code>씩 증가하므로, i, 2i, 3i... 즉 배수들을 가리킨다.</li>
+            <li>각 재료(key)를 읽을 때마다, 이 재료와 합쳐서 M이 되는 보완 재료(value = M - key)를 계산한다.</li>
+            <li>만약 보완 재료가 이미 set에 존재한다면, 이전에 등장한 재료와 현재 재료로 갑옷을 만들 수 있으므로 cnt를 1 증가시킨다.</li>
+            <li>현재 재료를 set에 추가하여, 이후에 읽을 재료들이 현재 재료와 짝을 이룰 수 있는지 확인할 수 있게 한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 중복 처리 방지 및 정답 출력</strong>
-          <pre><code>            if (chk[j]) continue; // 이미 지워진 수는 패스
-
-            chk[j] = true; // 지움 처리
-            cnt++;
-
-            if (cnt == K) { // K번째 지우는 수라면
-                System.out.println(j);
-                return;
-            }
-        }
-    }
-}</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
           <ul>
-            <li>이미 지워진 수(<code>chk[j] == true</code>)는 카운트하지 않고 건너뛴다. (예: 6은 2의 배수에서 이미 지워졌으므로 3의 배수에서 또 지우지 않음)</li>
-            <li>새롭게 지울 때만 <code>cnt</code>를 증가시키고, K번째가 되면 즉시 프로그램을 종료한다.</li>
+            <li>찾은 갑옷 쌍의 개수를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -333,16 +365,16 @@ int cnt = 0;</code></pre>
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li>에라토스테네스의 체 알고리즘의 시간 복잡도는 <strong>$O(N \log (\log N))$</strong>이다.</li>
-            <li>N이 1,000 이하로 매우 작기 때문에 순식간에 계산된다.</li>
+            <li><strong>O(N)</strong>: N개의 재료를 한 번씩 순회하며, 각 재료마다 HashSet의 contains와 add 연산을 수행한다. 이 두 연산은 평균적으로 O(1) 시간이 걸리므로 전체 시간 복잡도는 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li>지움 여부를 저장할 배열이 필요하므로 <strong>$O(N)$</strong>이다.</li>
+            <li><strong>O(N)</strong>: 최악의 경우 모든 재료를 HashSet에 저장해야 하므로 O(N)의 추가 공간이 필요하다.</li>
           </ul>
         </li>
       </ul>
+
 
 
 
