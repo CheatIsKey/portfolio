@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-12 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1244 — 스위치 켜고 끄기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1244">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260212_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>스위치 켜고 끄기 (백준 1244)</strong>는<br>
+        일렬로 배치된 스위치들의 상태를 학생들의 성별과 받은 번호에 따라 조작한 후,<br>
+        <strong>최종 스위치 상태를 한 줄에 20개씩 출력</strong>하는 문제다.
+      </p>
+      
+      <ul>
+        <li>남학생은 받은 번호의 배수에 해당하는 모든 스위치를 토글한다.</li>
+        <li>여학생은 받은 번호를 중심으로 좌우 대칭인 최대 구간의 모든 스위치를 토글한다.</li>
+        <li>스위치는 최대 100개, 학생은 최대 100명이며, 출력 시 한 줄에 20개씩 끊어서 출력해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션, 배열 조작</li>
+        <li><strong>선택 이유</strong>: 문제에서 주어진 규칙을 그대로 구현하면 되는 시뮬레이션 문제이므로, boolean 배열로 스위치 상태를 관리하며 각 학생의 조작을 순차적으로 적용한다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>남학생: 받은 번호의 배수 인덱스를 반복문으로 찾아 토글</li>
+            <li>여학생: 중심에서 시작해 좌우로 범위를 확장하며 대칭 여부 확인 후, 유효한 최대 구간의 스위치를 토글</li>
+            <li>출력: 카운터를 사용해 20개마다 줄바꿈 처리</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기 스위치 상태 입력 받기</strong>
+          <pre><code>boolean[] chk = new boolean[N];
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          chk[i] = (num == 1);
+      }</code></pre>
+          <ul>
+            <li>스위치 개수만큼 boolean 배열을 생성하고, 1이면 true(켜짐), 0이면 false(꺼짐)로 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 남학생의 스위치 조작</strong>
+          <pre><code>if (gender == 1) {
+          for (int j = turn; j <= N; j += turn) {
+              chk[j - 1] = !chk[j - 1];
+          }
+      }</code></pre>
+          <ul>
+            <li>받은 번호(turn)의 배수에 해당하는 모든 스위치(j)를 찾아 상태를 반전시킨다.</li>
+            <li>배열 인덱스는 0부터 시작하므로 j-1 위치의 스위치를 토글한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 여학생의 대칭 구간 찾기</strong>
+          <pre><code>int center = turn - 1;
+      int range = 0;
+      
+      while (center - range >= 0 && center + range < N) {
+          if (chk[center - range] == chk[center + range]) {
+              range++;
+          } else {
+              break;
+          }
+      }</code></pre>
+          <ul>
+            <li>받은 번호를 중심(center)으로 하여, 좌우로 확장하며 대칭 여부를 확인한다.</li>
+            <li>대칭이 유지되는 동안 range를 증가시켜 최대 범위를 찾는다.</li>
+            <li>배열 범위를 벗어나거나 대칭이 깨지면 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 여학생의 스위치 토글</strong>
+          <pre><code>for (int j = center - range + 1; j <= center + range - 1; j++) {
+          chk[j] = !chk[j];
+      }</code></pre>
+          <ul>
+            <li>while 루프에서 range가 1 증가한 상태로 종료되므로, 실제 대칭 구간은 center - (range-1) 부터 center + (range-1)까지다.</li>
+            <li>해당 구간의 모든 스위치를 토글한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 결과 출력 (한 줄에 20개씩)</strong>
+          <pre><code>int cnt = 1;
+      for (boolean isTurnOn : chk) {
+          if (cnt > 20) {
+              sb.append('\n');
+              cnt -= 20;
+          }
+          if (isTurnOn) {
+              sb.append(1).append(" ");
+          } else {
+              sb.append(0).append(" ");
+          }
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>카운터(cnt)를 사용해 20개를 출력할 때마다 줄바꿈을 추가한다.</li>
+            <li>각 스위치 상태를 1 또는 0으로 변환하여 공백과 함께 StringBuilder에 추가한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N × S)</strong>: 학생 수(S)만큼 반복하며, 각 학생마다 최악의 경우 스위치 전체(N)를 확인하거나 토글할 수 있다.</li>
+            <li>남학생의 경우 배수 개수만큼, 여학생의 경우 최대 N개의 스위치를 확인하므로 전체적으로 O(N × S)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 스위치 상태를 저장하는 boolean 배열과 출력용 StringBuilder가 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1940 — 주몽</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1940">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260212_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>주몽 (백준 1940)</strong>는<br>
+        N개의 재료 중에서 두 개를 선택하여 그 고유 번호의 합이 정확히 M이 되는 조합의 개수를 찾는 문제로,<br>
+        <strong>서로 다른 두 재료의 번호 합이 목표값 M과 일치하는 쌍의 개수</strong>를 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>재료는 최대 15,000개, 목표값 M은 최대 10,000,000이다.</li>
+        <li>각 재료의 고유 번호는 100,000 이하의 자연수이다.</li>
+        <li>갑옷 하나를 만들려면 정확히 두 개의 서로 다른 재료가 필요하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 해시셋(HashSet)을 이용한 Two Sum 패턴</li>
+        <li><strong>선택 이유</strong>: 배열을 순회하면서 각 재료마다 "M - 현재 재료 번호"가 이미 등장했는지를 O(1) 시간에 확인할 수 있어, 전체 시간 복잡도를 O(N)으로 유지할 수 있다. 이중 반복문을 사용하면 O(N²)이 되어 비효율적이다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>재료를 하나씩 읽으면서, 현재 재료(key)와 짝을 이룰 수 있는 값(value = M - key)이 이미 HashSet에 존재하는지 확인한다.</li>
+            <li>존재한다면 갑옷을 만들 수 있는 쌍을 찾은 것이므로 카운트를 증가시킨다.</li>
+            <li>현재 재료를 HashSet에 추가하여, 이후에 등장할 재료들이 이 재료와 짝을 이룰 수 있는지 확인할 수 있도록 한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 받기 및 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int M = Integer.parseInt(br.readLine());
+      Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+      int cnt = 0;</code></pre>
+          <ul>
+            <li>재료의 개수 N과 목표값 M을 입력받고, 이미 등장한 재료를 저장할 HashSet과 갑옷 개수를 세는 변수를 준비한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 재료를 순회하며 짝 찾기</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          int key = Integer.parseInt(st.nextToken());
+          int value = M - key;
+          
+          if (set.contains(value)) {
+              cnt++;
+          }
+          
+          set.add(key);
+      }</code></pre>
+          <ul>
+            <li>각 재료(key)를 읽을 때마다, 이 재료와 합쳐서 M이 되는 보완 재료(value = M - key)를 계산한다.</li>
+            <li>만약 보완 재료가 이미 set에 존재한다면, 이전에 등장한 재료와 현재 재료로 갑옷을 만들 수 있으므로 cnt를 1 증가시킨다.</li>
+            <li>현재 재료를 set에 추가하여, 이후에 읽을 재료들이 현재 재료와 짝을 이룰 수 있는지 확인할 수 있게 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>찾은 갑옷 쌍의 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 재료를 한 번씩 순회하며, 각 재료마다 HashSet의 contains와 add 연산을 수행한다. 이 두 연산은 평균적으로 O(1) 시간이 걸리므로 전체 시간 복잡도는 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 최악의 경우 모든 재료를 HashSet에 저장해야 하므로 O(N)의 추가 공간이 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
