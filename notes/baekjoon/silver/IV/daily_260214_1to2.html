@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-13 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1302 — 베스트셀러</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1302">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260213_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>베스트셀러 (백준 1302)</strong>는<br>
+        하루 동안 팔린 책들의 제목이 주어질 때, 가장 많이 팔린 책의 제목을 찾는 문제로,<br>
+        <strong>최다 판매 책이 여러 권일 경우 사전순으로 가장 앞서는 제목</strong>을 출력하는 문제다.
+      </p>
+      
+      <ul>
+        <li>팔린 책은 최대 1,000권이며, 책 제목은 최대 50글자의 소문자로만 이루어져 있다.</li>
+        <li>동일한 제목의 책이 여러 번 팔릴 수 있으며, 각각을 카운트해야 한다.</li>
+        <li>최다 판매량이 동일한 책이 여러 권일 때는 사전순으로 가장 앞에 오는 제목을 선택한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: TreeMap을 이용한 빈도수 카운팅 및 자동 정렬</li>
+        <li><strong>선택 이유</strong>: TreeMap은 키를 자동으로 사전순(오름차순)으로 정렬하므로, 책 제목을 키로 사용하면 별도의 정렬 과정 없이 사전순으로 정렬된 상태를 유지할 수 있다. 최대 판매량을 가진 책이 여러 권일 때, TreeMap을 순회하면 자동으로 사전순으로 가장 앞선 책을 먼저 만나게 된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>TreeMap에 책 제목을 키, 판매량을 값으로 저장하며 카운팅한다.</li>
+            <li>Collections.max()로 모든 판매량 중 최댓값을 찾는다.</li>
+            <li>TreeMap을 순회하며 최댓값과 일치하는 첫 번째 책 제목을 출력한다 (TreeMap은 이미 사전순 정렬되어 있음).</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) TreeMap으로 판매량 카운팅</strong>
+          <pre><code>TreeMap&lt;String, Integer&gt; map = new TreeMap&lt;&gt;();
+      
+      for (int i = 0; i &lt; N; i++) {
+          String name = br.readLine();
+          map.put(name, map.getOrDefault(name, 0) + 1);
+      }</code></pre>
+          <ul>
+            <li>TreeMap을 생성하여 책 제목을 키로, 판매 횟수를 값으로 저장한다.</li>
+            <li>TreeMap은 키를 자동으로 사전순으로 정렬하므로, 책 제목이 알파벳 순서대로 유지된다.</li>
+            <li>getOrDefault()를 사용하여 처음 등장하는 책은 1로, 이미 있는 책은 기존 값에 1을 더한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 최대 판매량 찾기</strong>
+          <pre><code>int max = Collections.max(map.values());</code></pre>
+          <ul>
+            <li>Collections.max()를 사용하여 TreeMap의 모든 값(판매량) 중 최댓값을 찾는다.</li>
+            <li>이 값이 베스트셀러의 판매량이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 사전순으로 가장 앞선 베스트셀러 찾기</strong>
+          <pre><code>for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
+          String name = entry.getKey();
+          int count = entry.getValue();
+      
+          if (count == max) {
+              sb.append(name);
+              break;
+          }
+      }</code></pre>
+          <ul>
+            <li>TreeMap을 순회하면서 판매량이 최댓값과 일치하는 첫 번째 책을 찾는다.</li>
+            <li>TreeMap은 이미 사전순으로 정렬되어 있으므로, 최댓값을 가진 첫 번째 항목이 곧 사전순으로 가장 앞선 베스트셀러다.</li>
+            <li>찾는 즉시 break로 반복문을 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(sb);</code></pre>
+          <ul>
+            <li>찾은 베스트셀러 제목을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: TreeMap에 N개의 책 제목을 삽입하는 과정에서 각 삽입은 O(log N) 시간이 걸린다. Collections.max()는 O(N)이고, TreeMap 순회도 최악의 경우 O(N)이므로, 전체 시간 복잡도는 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 최악의 경우 모든 책의 제목이 서로 다르다면, TreeMap에 N개의 엔트리가 저장되므로 O(N)의 공간이 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3986 — 좋은 단어</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3986">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260213_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>좋은 단어 (백준 3986)</strong>는<br>
+        A와 B로만 이루어진 단어에서 같은 글자끼리 선으로 연결할 때, 선들이 교차하지 않도록 모든 글자를 쌍으로 만들 수 있는 단어의 개수를 찾는 문제로,<br>
+        <strong>스택 자료구조를 이용한 괄호 매칭과 유사한 방식</strong>으로 해결하는 문제다.
+      </p>
+      
+      <ul>
+        <li>단어는 최대 100개가 주어지며, 각 단어의 길이는 최대 100,000이다.</li>
+        <li>좋은 단어가 되려면 모든 글자가 쌍을 이루어야 하므로, 단어의 길이는 반드시 짝수여야 한다.</li>
+        <li>선이 교차하지 않으려면, 인접한 같은 글자끼리 순차적으로 제거했을 때 최종적으로 모든 글자가 제거되어야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 스택(Stack)을 이용한 쌍 매칭</li>
+        <li><strong>선택 이유</strong>: 좋은 단어의 조건은 괄호 매칭 문제와 동일한 구조다. 현재 문자와 바로 이전 문자(스택의 top)가 같으면 쌍을 이루어 제거하고, 다르면 스택에 추가한다. 모든 문자 처리 후 스택이 비어있으면 모든 글자가 쌍을 이룬 것이다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>단어 길이가 홀수인 경우 바로 제외 (쌍을 이룰 수 없음)</li>
+            <li>각 문자를 순회하며 스택의 top과 비교하여 같으면 pop, 다르면 push</li>
+            <li>최종적으로 스택이 비어있으면 좋은 단어로 카운트</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기화 및 홀수 길이 검사</strong>
+          <pre><code>ArrayDeque&lt;Character&gt; deque = new ArrayDeque&lt;&gt;();
+      int cnt = 0;
+      
+      for (int i = 0; i &lt; N; i++) {
+          String word = br.readLine();
+          
+          if (word.length() % 2 != 0) continue;</code></pre>
+          <ul>
+            <li>ArrayDeque를 스택으로 사용하기 위해 생성한다 (push, pop, peek 메서드 사용).</li>
+            <li>단어 길이가 홀수인 경우, 모든 글자를 쌍으로 만들 수 없으므로 건너뛴다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 스택을 이용한 쌍 매칭</strong>
+          <pre><code>for (int j = 0; j &lt; word.length(); j++) {
+          char c1 = word.charAt(j);
+          
+          if (!deque.isEmpty() && deque.peek() == c1) {
+              deque.pop();
+          } else {
+              deque.push(c1);
+          }
+      }</code></pre>
+          <ul>
+            <li>단어의 각 문자를 순회하며 처리한다.</li>
+            <li>스택이 비어있지 않고, 스택의 top에 있는 문자가 현재 문자와 같다면, 두 문자가 쌍을 이루므로 스택에서 제거(pop)한다.</li>
+            <li>그렇지 않으면 현재 문자를 스택에 추가(push)한다.</li>
+            <li>이 과정은 괄호 매칭과 동일한 원리로, 인접한 같은 글자끼리 제거하는 효과를 낸다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 좋은 단어 판별 및 스택 초기화</strong>
+          <pre><code>if (deque.isEmpty()){
+          cnt++;
+      }
+      
+      deque.clear();</code></pre>
+          <ul>
+            <li>모든 문자를 처리한 후 스택이 비어있다면, 모든 글자가 쌍을 이루어 제거된 것이므로 좋은 단어로 카운트한다.</li>
+            <li>다음 단어를 검사하기 위해 스택을 초기화한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>좋은 단어의 총 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N × L)</strong>: N개의 단어를 처리하며, 각 단어의 길이 L만큼 순회한다. 스택의 push, pop, peek 연산은 모두 O(1)이므로, 전체 시간 복잡도는 O(N × L)이다 (L은 단어의 평균 길이).</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(L)</strong>: 최악의 경우 한 단어의 모든 문자가 스택에 저장될 수 있으므로, 단어의 최대 길이만큼의 공간이 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
