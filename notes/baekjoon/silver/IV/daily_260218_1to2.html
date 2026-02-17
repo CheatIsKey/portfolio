@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-15 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1748 — 수 이어 쓰기 1</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1748">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260215_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>수 이어 쓰기 1 (백준 1748)</strong>는<br>
+        1부터 N까지의 수를 공백 없이 이어 쓸 때 사용되는 총 자릿수를 계산하는 문제로,<br>
+        <strong>자릿수별로 구간을 나누어 수학적으로 계산</strong>하는 문제다.
+      </p>
+      
+      <ul>
+        <li>N은 최대 100,000,000이므로, 단순히 1부터 N까지 반복하며 자릿수를 세는 방법은 시간 초과가 발생한다.</li>
+        <li>1자리 수(1~9), 2자리 수(10~99), 3자리 수(100~999)처럼 구간별로 나누어 계산해야 효율적이다.</li>
+        <li>예를 들어 N=120이면, 1~9는 9자리, 10~99는 180자리, 100~120은 63자리로 총 252자리다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 수학적 계산, 구간별 자릿수 누적</li>
+        <li><strong>선택 이유</strong>: 자릿수가 같은 수들을 하나의 구간으로 묶어 한 번에 계산하면, O(log N) 시간에 답을 구할 수 있다. 각 구간의 숫자 개수와 자릿수를 곱하면 해당 구간의 총 자릿수를 얻는다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>1자리 구간(1~9), 2자리 구간(10~99), 3자리 구간(100~999)... 순서로 처리</li>
+            <li>각 구간의 경계값(temp): 9, 99, 999, 9999...</li>
+            <li>N이 현재 구간 내에 있으면 부분 계산 후 종료, 구간을 넘어가면 전체 구간 계산 후 다음 구간으로</li>
+            <li>각 구간의 자릿수 = (구간 내 숫자 개수) × (자릿수)</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 변수 초기화</strong>
+          <pre><code>int total = 0;
+      int temp = 9;
+      int prev = 0;
+      int digitSlice = 1;</code></pre>
+          <ul>
+            <li>total: 누적된 총 자릿수</li>
+            <li>temp: 현재 자릿수 구간의 마지막 숫자 (9, 99, 999...)</li>
+            <li>prev: 이전 자릿수 구간의 마지막 숫자 (0, 9, 99...)</li>
+            <li>digitSlice: 현재 처리 중인 숫자의 자릿수 (1, 2, 3...)</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) N이 현재 구간 내에 있는 경우</strong>
+          <pre><code>if (N &lt;= temp) {
+          total += (N - prev) * digitSlice;
+          break;
+      }</code></pre>
+          <ul>
+            <li>N이 현재 구간(prev+1 ~ temp) 내에 있으면, prev+1부터 N까지의 숫자 개수는 (N - prev)개다.</li>
+            <li>각 숫자가 digitSlice 자릿수이므로, (N - prev) × digitSlice만큼 총 자릿수에 추가하고 종료한다.</li>
+            <li>예: N=15, digitSlice=2, prev=9, temp=99이면 (15-9)×2 = 12자리 추가</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) N이 현재 구간을 넘어가는 경우</strong>
+          <pre><code>total += (temp - prev) * digitSlice;
+      digitSlice++;
+      
+      prev = temp;
+      temp = temp * 10 + 9;</code></pre>
+          <ul>
+            <li>N이 현재 구간을 넘어가면, 현재 구간의 모든 숫자를 계산한다.</li>
+            <li>현재 구간의 숫자 개수는 (temp - prev)개이고, 각각 digitSlice 자릿수다.</li>
+            <li>예: 1자리 구간(1~9)의 경우 (9-0)×1 = 9자리</li>
+            <li>다음 구간으로 이동: digitSlice를 1 증가시키고, prev를 temp로, temp를 다음 경계값(temp×10+9)으로 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(total);</code></pre>
+          <ul>
+            <li>1부터 N까지 이어 쓴 총 자릿수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(log N)</strong>: N의 자릿수만큼 반복문이 실행되므로, N이 최대 100,000,000일 때 최대 8번 정도만 반복한다. 따라서 시간 복잡도는 O(log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 고정된 개수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2485 — 가로수</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2485">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260215_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>가로수 (백준 2485)</strong>는<br>
+        일직선 도로에 심어진 가로수들 사이를 등간격으로 채우기 위해 추가로 심어야 하는 가로수의 최소 개수를 구하는 문제로,<br>
+        <strong>기존 가로수 간 거리들의 최대공약수(GCD)를 구하여 최소 등간격을 찾는</strong> 문제다.
+      </p>
+      
+      <ul>
+        <li>가로수는 최대 100,000그루가 주어지며, 위치는 정수로 표현된다.</li>
+        <li>모든 가로수가 등간격을 이루려면, 각 가로수 간 거리가 어떤 공통 간격의 배수여야 한다.</li>
+        <li>최소 개수를 심으려면 최대 간격을 찾아야 하며, 이는 모든 거리의 최대공약수(GCD)가 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 유클리드 호제법을 이용한 최대공약수(GCD) 계산</li>
+        <li><strong>선택 이유</strong>: 가로수들이 등간격을 이루려면 모든 가로수 간 거리가 공통 간격의 배수여야 한다. 이 공통 간격의 최댓값은 모든 거리의 최대공약수이며, 이를 사용하면 추가로 심어야 하는 가로수 개수가 최소가 된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>인접한 가로수 간의 거리를 모두 계산한다</li>
+            <li>모든 거리의 최대공약수를 구한다 (유클리드 호제법 사용)</li>
+            <li>첫 번째 가로수부터 마지막 가로수까지의 총 거리를 GCD로 나누면 필요한 전체 간격 개수를 구할 수 있다</li>
+            <li>전체 간격 개수 + 1 (가로수 개수) - 현재 가로수 개수 = 추가로 필요한 가로수 개수</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 가로수 위치 입력 및 거리 계산</strong>
+          <pre><code>int[] trees = new int[N];
+      int[] distances = new int[N - 1];
+      
+      for (int i = 0; i &lt; N; i++) {
+          trees[i] = Integer.parseInt(br.readLine());
+          if (i != 0) distances[i - 1] = trees[i] - trees[i - 1];
+      }</code></pre>
+          <ul>
+            <li>N개의 가로수 위치를 입력받으면서 동시에 인접한 가로수 간의 거리를 계산한다.</li>
+            <li>가로수 위치는 오름차순으로 주어지므로, 현재 위치에서 이전 위치를 빼면 거리를 구할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 모든 거리의 최대공약수 계산</strong>
+          <pre><code>int gcd_val = distances[0];
+      
+      for (int i = 1; i &lt; distances.length; i++) {
+          gcd_val = gcd(gcd_val, distances[i]);
+      }</code></pre>
+          <ul>
+            <li>첫 번째 거리를 초기값으로 설정하고, 순차적으로 다음 거리와의 GCD를 구한다.</li>
+            <li>GCD(a, b, c) = GCD(GCD(a, b), c)이므로, 누적해서 계산할 수 있다.</li>
+            <li>최종적으로 모든 거리의 최대공약수를 구한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 유클리드 호제법으로 GCD 구하기</strong>
+          <pre><code>private static int gcd(int num1, int num2) {
+          if (num2 == 0) return num1;
+          return gcd(num2, num1 % num2);
+      }</code></pre>
+          <ul>
+            <li>재귀적으로 GCD를 계산하는 유클리드 호제법을 구현한다.</li>
+            <li>num2가 0이 되면 num1이 최대공약수가 된다.</li>
+            <li>예: gcd(12, 8) → gcd(8, 4) → gcd(4, 0) → 4</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 추가로 필요한 가로수 개수 계산</strong>
+          <pre><code>int result = (trees[N - 1] - trees[0]) / gcd_val + 1 - N;</code></pre>
+          <ul>
+            <li>(trees[N-1] - trees[0]): 첫 번째 가로수부터 마지막 가로수까지의 총 거리</li>
+            <li>총 거리 / gcd_val: GCD 간격으로 나눈 간격의 개수</li>
+            <li>간격 개수 + 1: 필요한 전체 가로수 개수 (간격이 n개면 가로수는 n+1개)</li>
+            <li>전체 가로수 개수 - N: 기존 가로수를 제외한 추가로 필요한 개수</li>
+            <li>예: 총 거리 12, GCD=4이면 간격 3개, 가로수 4개 필요, 현재 2개 있으면 2개 추가</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 결과 출력</strong>
+          <pre><code>System.out.println(result);</code></pre>
+          <ul>
+            <li>추가로 심어야 하는 가로수의 최소 개수를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log M)</strong>: N개의 거리에 대해 GCD를 계산하며, 각 GCD 계산은 O(log M) 시간이 걸린다 (M은 거리의 최댓값). 전체적으로 O(N log M)의 시간 복잡도를 가진다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 가로수 위치와 N-1개의 거리를 저장하는 배열이 필요하므로 O(N)의 공간이 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
