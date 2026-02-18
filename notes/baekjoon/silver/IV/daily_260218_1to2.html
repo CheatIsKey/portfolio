@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-15 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-18 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1748 — 수 이어 쓰기 1</h2>
+      <h2 class="section">문제 9613 — GCD 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1748">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/9613">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260215_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260218_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,16 @@
       </h3>
       
       <p>
-        <strong>수 이어 쓰기 1 (백준 1748)</strong>는<br>
-        1부터 N까지의 수를 공백 없이 이어 쓸 때 사용되는 총 자릿수를 계산하는 문제로,<br>
-        <strong>자릿수별로 구간을 나누어 수학적으로 계산</strong>하는 문제다.
+        <strong>GCD 합 (백준 9613)</strong>는<br>
+        n개의 양의 정수가 주어질 때, 가능한 모든 쌍의 최대공약수(GCD)를 구하고 그 합을 구하는 문제로,<br>
+        <strong>조합을 이용해 모든 쌍을 생성하고 유클리드 호제법으로 GCD를 계산</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>N은 최대 100,000,000이므로, 단순히 1부터 N까지 반복하며 자릿수를 세는 방법은 시간 초과가 발생한다.</li>
-        <li>1자리 수(1~9), 2자리 수(10~99), 3자리 수(100~999)처럼 구간별로 나누어 계산해야 효율적이다.</li>
-        <li>예를 들어 N=120이면, 1~9는 9자리, 10~99는 180자리, 100~120은 63자리로 총 252자리다.</li>
+        <li>테스트 케이스는 최대 100개, 각 테스트 케이스마다 수의 개수는 최대 100개가 주어진다.</li>
+        <li>각 수는 1,000,000 이하의 양의 정수다.</li>
+        <li>n개의 수에서 2개를 선택하는 모든 조합(nC2)에 대해 GCD를 계산해야 한다.</li>
+        <li>GCD의 합이 int 범위를 초과할 수 있으므로 long 타입을 사용해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +76,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 수학적 계산, 구간별 자릿수 누적</li>
-        <li><strong>선택 이유</strong>: 자릿수가 같은 수들을 하나의 구간으로 묶어 한 번에 계산하면, O(log N) 시간에 답을 구할 수 있다. 각 구간의 숫자 개수와 자릿수를 곱하면 해당 구간의 총 자릿수를 얻는다.</li>
+        <li><strong>핵심 알고리즘</strong>: 조합(Combination), 유클리드 호제법</li>
+        <li><strong>선택 이유</strong>: n개 중에서 2개를 선택하는 모든 쌍을 만들려면 이중 반복문으로 조합을 생성하면 되고, 각 쌍의 GCD는 유클리드 호제법을 사용하여 효율적으로 계산할 수 있다. 중복과 순서를 제거하기 위해 r < c 조건으로 탐색한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>1자리 구간(1~9), 2자리 구간(10~99), 3자리 구간(100~999)... 순서로 처리</li>
-            <li>각 구간의 경계값(temp): 9, 99, 999, 9999...</li>
-            <li>N이 현재 구간 내에 있으면 부분 계산 후 종료, 구간을 넘어가면 전체 구간 계산 후 다음 구간으로</li>
-            <li>각 구간의 자릿수 = (구간 내 숫자 개수) × (자릿수)</li>
+            <li>이중 반복문으로 서로 다른 두 수의 모든 조합 생성 (중복 없이)</li>
+            <li>각 쌍에 대해 유클리드 호제법으로 GCD 계산</li>
+            <li>모든 GCD를 long 타입 변수에 누적하여 오버플로우 방지</li>
           </ul>
         </li>
       </ul>
@@ -96,49 +96,61 @@
       </p>
       
       <ul>
-        <li><strong>1) 변수 초기화</strong>
-          <pre><code>int total = 0;
-      int temp = 9;
-      int prev = 0;
-      int digitSlice = 1;</code></pre>
+        <li><strong>1) 테스트 케이스 입력 및 반복</strong>
+          <pre><code>int t = Integer.parseInt(br.readLine());
+      
+      for (int i = 0; i &lt; t; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          int n = Integer.parseInt(st.nextToken());
+          int[] numbers = new int[n];
+          long total = 0;</code></pre>
           <ul>
-            <li>total: 누적된 총 자릿수</li>
-            <li>temp: 현재 자릿수 구간의 마지막 숫자 (9, 99, 999...)</li>
-            <li>prev: 이전 자릿수 구간의 마지막 숫자 (0, 9, 99...)</li>
-            <li>digitSlice: 현재 처리 중인 숫자의 자릿수 (1, 2, 3...)</li>
+            <li>테스트 케이스의 개수 t를 입력받고, 각 테스트 케이스마다 수의 개수 n과 누적 합계 total을 초기화한다.</li>
+            <li>total을 long으로 선언하여 GCD 합이 int 범위를 초과하는 경우를 대비한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) N이 현재 구간 내에 있는 경우</strong>
-          <pre><code>if (N &lt;= temp) {
-          total += (N - prev) * digitSlice;
-          break;
+        <li><strong>2) n개의 수 입력받기</strong>
+          <pre><code>for (int j = 0; j &lt; n; j++) {
+          numbers[j] = Integer.parseInt(st.nextToken());
       }</code></pre>
           <ul>
-            <li>N이 현재 구간(prev+1 ~ temp) 내에 있으면, prev+1부터 N까지의 숫자 개수는 (N - prev)개다.</li>
-            <li>각 숫자가 digitSlice 자릿수이므로, (N - prev) × digitSlice만큼 총 자릿수에 추가하고 종료한다.</li>
-            <li>예: N=15, digitSlice=2, prev=9, temp=99이면 (15-9)×2 = 12자리 추가</li>
+            <li>n개의 양의 정수를 배열에 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) N이 현재 구간을 넘어가는 경우</strong>
-          <pre><code>total += (temp - prev) * digitSlice;
-      digitSlice++;
-      
-      prev = temp;
-      temp = temp * 10 + 9;</code></pre>
+        <li><strong>3) 모든 쌍의 GCD 계산 및 합산</strong>
+          <pre><code>for (int r = 0; r &lt; n - 1; r++) {
+          for (int c = r + 1; c &lt; n; c++) {
+              total += gcd(numbers[r], numbers[c]);
+          }
+      }</code></pre>
           <ul>
-            <li>N이 현재 구간을 넘어가면, 현재 구간의 모든 숫자를 계산한다.</li>
-            <li>현재 구간의 숫자 개수는 (temp - prev)개이고, 각각 digitSlice 자릿수다.</li>
-            <li>예: 1자리 구간(1~9)의 경우 (9-0)×1 = 9자리</li>
-            <li>다음 구간으로 이동: digitSlice를 1 증가시키고, prev를 temp로, temp를 다음 경계값(temp×10+9)으로 갱신한다.</li>
+            <li>이중 반복문으로 n개 중 2개를 선택하는 모든 조합을 생성한다.</li>
+            <li>r은 0부터 n-2까지, c는 r+1부터 n-1까지 순회하여 중복과 자기 자신과의 쌍을 제거한다.</li>
+            <li>예: n=4이면 (0,1), (0,2), (0,3), (1,2), (1,3), (2,3) 총 6개 쌍 생성</li>
+            <li>각 쌍에 대해 GCD를 계산하여 total에 누적한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(total);</code></pre>
+        <li><strong>4) 유클리드 호제법으로 GCD 계산</strong>
+          <pre><code>private static long gcd(int num1, int num2) {
+          if (num2 == 0) return num1;
+          return gcd(num2, num1 % num2);
+      }</code></pre>
           <ul>
-            <li>1부터 N까지 이어 쓴 총 자릿수를 출력한다.</li>
+            <li>재귀적으로 두 수의 최대공약수를 구한다.</li>
+            <li>num2가 0이 될 때까지 num1을 num2로, num2를 (num1 % num2)로 계속 갱신한다.</li>
+            <li>예: gcd(24, 18) → gcd(18, 6) → gcd(6, 0) → 6</li>
+          </ul>
+        </li>
+      
+        <li><strong>5) 결과 출력</strong>
+          <pre><code>sb.append(total).append("\n");
+      
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>각 테스트 케이스의 GCD 합을 StringBuilder에 추가하고, 모든 테스트 케이스 처리 후 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -154,12 +166,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(log N)</strong>: N의 자릿수만큼 반복문이 실행되므로, N이 최대 100,000,000일 때 최대 8번 정도만 반복한다. 따라서 시간 복잡도는 O(log N)이다.</li>
+            <li><strong>O(t × n² × log M)</strong>: t개의 테스트 케이스마다 n개 중 2개를 선택하는 조합의 개수는 O(n²)이고, 각 쌍의 GCD 계산은 O(log M) 시간이 걸린다 (M은 수의 최댓값). 따라서 전체 시간 복잡도는 O(t × n² × log M)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 고정된 개수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+            <li><strong>O(n)</strong>: 각 테스트 케이스마다 최대 n개의 수를 저장하는 배열이 필요하므로 O(n)의 공간이 필요하다.</li>
           </ul>
         </li>
       </ul>
@@ -226,14 +238,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2485 — 가로수</h2>
+      <h2 class="section">문제 9372 — 상근이의 여행</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2485">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/9372">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260215_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260218_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -251,15 +263,16 @@
       </h3>
       
       <p>
-        <strong>가로수 (백준 2485)</strong>는<br>
-        일직선 도로에 심어진 가로수들 사이를 등간격으로 채우기 위해 추가로 심어야 하는 가로수의 최소 개수를 구하는 문제로,<br>
-        <strong>기존 가로수 간 거리들의 최대공약수(GCD)를 구하여 최소 등간격을 찾는</strong> 문제다.
+        <strong>상근이의 여행 (백준 9372)</strong>는<br>
+        N개의 국가가 M개의 비행기 노선으로 연결되어 있을 때, 모든 국가를 여행하기 위해 최소한으로 이용해야 하는 비행기 종류의 수를 구하는 문제로,<br>
+        <strong>연결된 그래프에서 신장 트리(Spanning Tree)를 만드는 최소 간선 개수</strong>를 구하는 문제다.
       </p>
       
       <ul>
-        <li>가로수는 최대 100,000그루가 주어지며, 위치는 정수로 표현된다.</li>
-        <li>모든 가로수가 등간격을 이루려면, 각 가로수 간 거리가 어떤 공통 간격의 배수여야 한다.</li>
-        <li>최소 개수를 심으려면 최대 간격을 찾아야 하며, 이는 모든 거리의 최대공약수(GCD)가 된다.</li>
+        <li>국가는 최대 1,000개, 비행기 노선은 최대 10,000개가 주어진다.</li>
+        <li>모든 국가는 연결되어 있으며(하나의 연결 요소), 같은 국가 쌍을 여러 번 왕복 가능하다.</li>
+        <li>연결된 그래프에서 N개의 노드를 모두 방문하려면 정확히 N-1개의 간선이 필요하다.</li>
+        <li>그래프 이론에 따르면, 답은 항상 N-1이지만, BFS/DFS로 실제 트리를 구성하며 확인할 수도 있다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -271,14 +284,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 유클리드 호제법을 이용한 최대공약수(GCD) 계산</li>
-        <li><strong>선택 이유</strong>: 가로수들이 등간격을 이루려면 모든 가로수 간 거리가 공통 간격의 배수여야 한다. 이 공통 간격의 최댓값은 모든 거리의 최대공약수이며, 이를 사용하면 추가로 심어야 하는 가로수 개수가 최소가 된다.</li>
+        <li><strong>핵심 알고리즘</strong>: BFS를 이용한 신장 트리 구성</li>
+        <li><strong>선택 이유</strong>: 연결된 그래프에서 모든 노드를 방문하는 최소 간선 수는 항상 N-1개다. BFS로 그래프를 탐색하면서 처음 방문하는 노드로 이동할 때 사용한 간선을 카운트하면, 결과적으로 N-1개의 간선을 사용한 신장 트리를 구성하게 된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>인접한 가로수 간의 거리를 모두 계산한다</li>
-            <li>모든 거리의 최대공약수를 구한다 (유클리드 호제법 사용)</li>
-            <li>첫 번째 가로수부터 마지막 가로수까지의 총 거리를 GCD로 나누면 필요한 전체 간격 개수를 구할 수 있다</li>
-            <li>전체 간격 개수 + 1 (가로수 개수) - 현재 가로수 개수 = 추가로 필요한 가로수 개수</li>
+            <li>인접 리스트로 양방향 그래프 구성</li>
+            <li>1번 국가부터 BFS 시작하여 방문하지 않은 국가 탐색</li>
+            <li>새로운 국가를 방문할 때마다 카운트 증가 (사용한 비행기 종류)</li>
+            <li>모든 국가를 방문하면 총 N-1개의 간선을 사용하게 됨</li>
           </ul>
         </li>
       </ul>
@@ -292,60 +305,68 @@
       </p>
       
       <ul>
-        <li><strong>1) 가로수 위치 입력 및 거리 계산</strong>
-          <pre><code>int[] trees = new int[N];
-      int[] distances = new int[N - 1];
+        <li><strong>1) 인접 리스트 생성 및 그래프 구성</strong>
+          <pre><code>List&lt;Integer&gt;[] list = new ArrayList[N + 1];
+      for (int j = 1; j &lt;= N; j++) {
+          list[j] = new ArrayList&lt;&gt;();
+      }
       
-      for (int i = 0; i &lt; N; i++) {
-          trees[i] = Integer.parseInt(br.readLine());
-          if (i != 0) distances[i - 1] = trees[i] - trees[i - 1];
+      for (int j = 0; j &lt; M; j++) {
+          st = new StringTokenizer(br.readLine());
+          int plane1 = Integer.parseInt(st.nextToken());
+          int plane2 = Integer.parseInt(st.nextToken());
+          
+          list[plane1].add(plane2);
+          list[plane2].add(plane1);
       }</code></pre>
           <ul>
-            <li>N개의 가로수 위치를 입력받으면서 동시에 인접한 가로수 간의 거리를 계산한다.</li>
-            <li>가로수 위치는 오름차순으로 주어지므로, 현재 위치에서 이전 위치를 빼면 거리를 구할 수 있다.</li>
+            <li>각 국가마다 인접 리스트를 생성한다 (1번부터 N번까지).</li>
+            <li>M개의 비행기 노선을 입력받아 양방향 그래프로 구성한다.</li>
+            <li>비행기는 양방향으로 운항하므로, 두 국가를 서로의 인접 리스트에 추가한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 모든 거리의 최대공약수 계산</strong>
-          <pre><code>int gcd_val = distances[0];
+        <li><strong>2) BFS 초기화</strong>
+          <pre><code>Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
+      int[] visited = new int[N + 1];
+      int cnt = 0;
       
-      for (int i = 1; i &lt; distances.length; i++) {
-          gcd_val = gcd(gcd_val, distances[i]);
+      queue.add(1);
+      visited[1] = 1;</code></pre>
+          <ul>
+            <li>BFS를 위한 큐와 방문 여부를 체크할 배열을 준비한다.</li>
+            <li>사용한 비행기 종류를 카운트할 변수 cnt를 0으로 초기화한다.</li>
+            <li>1번 국가를 시작점으로 설정하고 방문 표시한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) BFS로 신장 트리 구성</strong>
+          <pre><code>while (!queue.isEmpty()) {
+          int polled = queue.poll();
+          
+          for (int next : list[polled]) {
+              if (visited[next] == 0) {
+                  visited[next] = 1;
+                  queue.add(next);
+                  cnt++;
+              }
+          }
       }</code></pre>
           <ul>
-            <li>첫 번째 거리를 초기값으로 설정하고, 순차적으로 다음 거리와의 GCD를 구한다.</li>
-            <li>GCD(a, b, c) = GCD(GCD(a, b), c)이므로, 누적해서 계산할 수 있다.</li>
-            <li>최종적으로 모든 거리의 최대공약수를 구한다.</li>
+            <li>큐에서 현재 국가를 꺼내어, 인접한 모든 국가를 확인한다.</li>
+            <li>아직 방문하지 않은 국가를 발견하면, 방문 처리하고 큐에 추가한다.</li>
+            <li>새로운 국가로 이동할 때 비행기를 사용하므로 cnt를 1 증가시킨다.</li>
+            <li>이 과정은 트리의 간선을 하나씩 추가하는 것과 같으며, 최종적으로 N-1개의 간선을 사용하게 된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 유클리드 호제법으로 GCD 구하기</strong>
-          <pre><code>private static int gcd(int num1, int num2) {
-          if (num2 == 0) return num1;
-          return gcd(num2, num1 % num2);
-      }</code></pre>
-          <ul>
-            <li>재귀적으로 GCD를 계산하는 유클리드 호제법을 구현한다.</li>
-            <li>num2가 0이 되면 num1이 최대공약수가 된다.</li>
-            <li>예: gcd(12, 8) → gcd(8, 4) → gcd(4, 0) → 4</li>
-          </ul>
-        </li>
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>sb.append(cnt).append("\n");
       
-        <li><strong>4) 추가로 필요한 가로수 개수 계산</strong>
-          <pre><code>int result = (trees[N - 1] - trees[0]) / gcd_val + 1 - N;</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>(trees[N-1] - trees[0]): 첫 번째 가로수부터 마지막 가로수까지의 총 거리</li>
-            <li>총 거리 / gcd_val: GCD 간격으로 나눈 간격의 개수</li>
-            <li>간격 개수 + 1: 필요한 전체 가로수 개수 (간격이 n개면 가로수는 n+1개)</li>
-            <li>전체 가로수 개수 - N: 기존 가로수를 제외한 추가로 필요한 개수</li>
-            <li>예: 총 거리 12, GCD=4이면 간격 3개, 가로수 4개 필요, 현재 2개 있으면 2개 추가</li>
-          </ul>
-        </li>
-      
-        <li><strong>5) 결과 출력</strong>
-          <pre><code>System.out.println(result);</code></pre>
-          <ul>
-            <li>추가로 심어야 하는 가로수의 최소 개수를 출력한다.</li>
+            <li>각 테스트 케이스마다 사용한 비행기 종류의 수를 StringBuilder에 추가한다.</li>
+            <li>모든 테스트 케이스 처리 후 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -361,12 +382,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log M)</strong>: N개의 거리에 대해 GCD를 계산하며, 각 GCD 계산은 O(log M) 시간이 걸린다 (M은 거리의 최댓값). 전체적으로 O(N log M)의 시간 복잡도를 가진다.</li>
+            <li><strong>O(T × (N + M))</strong>: T개의 테스트 케이스마다 BFS를 수행한다. BFS는 모든 노드(N)와 간선(M)을 한 번씩 방문하므로 O(N + M)이다. 따라서 전체 시간 복잡도는 O(T × (N + M))이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 가로수 위치와 N-1개의 거리를 저장하는 배열이 필요하므로 O(N)의 공간이 필요하다.</li>
+            <li><strong>O(N + M)</strong>: 인접 리스트에 N개의 노드와 M개의 간선 정보를 저장하고, 방문 배열과 큐에 최대 N개의 원소가 들어갈 수 있으므로 O(N + M)의 공간이 필요하다.</li>
           </ul>
         </li>
       </ul>
