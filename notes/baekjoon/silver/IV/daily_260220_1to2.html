@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-19 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1057 — 토너먼트</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1057">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260219_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>토너먼트 (백준 1057)</strong>는<br>
+        N명의 참가자가 1:1 토너먼트를 진행할 때, 김지민(J)과 임한수(H)가<br>
+        <strong>몇 라운드에 처음으로 만나는지</strong> 구하는 문제다.
+      </p>
+      
+      <ul>
+        <li>매 라운드에서 참가자는 순서대로 짝을 이뤄 대결한다. (1↔2, 3↔4, 5↔6, ...)</li>
+        <li>참가자 수가 홀수이면 마지막 참가자는 부전승으로 다음 라운드에 진출한다.</li>
+        <li>두 사람이 같은 라운드에 대결 상대가 되는 순간의 라운드 번호를 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (라운드 진행 직접 시뮬)</li>
+        <li><strong>선택 이유</strong>: N이 최대 100,000이지만, 라운드마다 참가자가 절반씩 줄어드므로 최대 O(log N)번만 반복하면 되기 때문에 직접 시뮬레이션이 가장 직관적이고 효율적이다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>매 라운드마다 현재 참가자 번호 i를 <code>(i - 1) / 2 + 1</code> 수식으로 다음 라운드 번호로 변환한다.</li>
+            <li>변환 후 J와 H의 다음 라운드 번호가 같다면 이번 라운드에서 만난 것이므로 해당 라운드를 출력한다.</li>
+            <li>같지 않다면 J, H를 각각 다음 라운드 번호로 갱신하고 라운드를 1 증가시킨다.</li>
+            <li>참가자 수가 홀수인 경우, 다음 라운드 참가자 수는 <code>player / 2 + 1</code>이 된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+      int J = Integer.parseInt(st.nextToken());
+      int H = Integer.parseInt(st.nextToken());
+      
+      int player = N;
+      int round = 1;</code></pre>
+          <ul>
+            <li>전체 참가자 수 N, 김지민의 번호 J, 임한수의 번호 H를 입력받는다.</li>
+            <li><code>player</code>는 현재 라운드의 참가자 수, <code>round</code>는 현재 라운드 번호를 의미하며 각각 N과 1로 초기화한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 라운드별 번호 매핑 배열 생성</strong>
+          <pre><code>battle = new int[player + 1];
+      for (int i = 1; i <= player; i++) {
+          battle[i] = (i - 1) / 2 + 1;
+      }</code></pre>
+          <ul>
+            <li>현재 라운드의 참가자 번호 i를 다음 라운드 번호로 변환하는 배열 <code>battle</code>을 생성한다.</li>
+            <li>핵심 공식 <code>(i - 1) / 2 + 1</code>은 1번→1, 2번→1, 3번→2, 4번→2, ... 처럼 두 명씩 같은 번호로 묶어준다. 즉, 같은 번호끼리 이번 라운드에서 대결하는 상대임을 의미한다.</li>
+            <li>예: 참가자가 6명이면 battle = [_, 1, 1, 2, 2, 3, 3]. 1번과 2번은 다음 라운드에서 모두 1번이 되므로 이번 라운드에서 붙는 상대다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 홀짝 여부에 따른 다음 라운드 참가자 수 갱신</strong>
+          <pre><code>if (player % 2 == 0) {
+          player /= 2;
+      } else {
+          player = player / 2 + 1;
+      }</code></pre>
+          <ul>
+            <li>참가자 수가 짝수이면 정확히 절반이 다음 라운드에 진출한다.</li>
+            <li>홀수이면 마지막 참가자가 부전승으로 진출하므로 <code>player / 2 + 1</code>명이 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 만남 여부 판단 및 번호 갱신</strong>
+          <pre><code>if (battle[J] == battle[H]) {
+          sb.append(round);
+          break;
+      } else {
+          J = battle[J];
+          H = battle[H];
+          round++;
+      }</code></pre>
+          <ul>
+            <li>이번 라운드에서 J와 H의 다음 라운드 번호가 같다면, 두 사람이 이번 라운드에서 맞붙는다는 의미이므로 현재 <code>round</code>를 출력하고 종료한다.</li>
+            <li>다르다면 각자의 다음 라운드 번호로 J와 H를 갱신하고 라운드를 증가시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 매 라운드마다 현재 참가자 수만큼 <code>battle</code> 배열을 채우는 작업을 수행하고, 라운드는 최대 log N번 진행된다. 각 라운드의 배열 생성 비용을 합산하면 N + N/2 + N/4 + ... ≈ 2N이므로 전체 O(N)으로도 볼 수 있으나, 구현 구조상 O(N log N)으로 표현하는 것이 안전하다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 각 라운드에서 최대 N+1 크기의 <code>battle</code> 배열을 사용한다. 배열은 매 라운드마다 새로 할당되지만 동시에 존재하는 최대 크기는 O(N)이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 11652 — 카드</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11652">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260219_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>카드 (백준 11652)</strong>는<br>
+        N장의 카드에 적힌 정수 중에서 <strong>가장 많이 가지고 있는 정수를 출력</strong>하는 문제다.<br>
+        <strong>가장 많이 가진 정수가 여러 개라면 그 중 가장 작은 수</strong>를 출력해야 한다.
+      </p>
+      
+      <ul>
+        <li>카드에 적힌 수는 -2<sup>62</sup> 이상 2<sup>62</sup> 이하의 정수이므로 <code>int</code>가 아닌 <code>long</code>을 사용해야 한다.</li>
+        <li>N은 최대 100,000이므로 정렬 후 선형 탐색으로 충분히 해결 가능하다.</li>
+        <li>동일한 최대 빈도의 숫자가 여러 개일 경우, 정렬된 배열을 앞에서부터 순회하므로 자연스럽게 가장 작은 수가 먼저 발견된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 선형 탐색 (빈도 카운팅)</li>
+        <li><strong>선택 이유</strong>: 배열을 정렬하면 동일한 숫자가 연속으로 모이기 때문에, 한 번의 선형 탐색만으로 각 숫자의 등장 횟수를 쉽게 셀 수 있다. 또한 정렬된 배열을 오름차순으로 순회하므로 빈도가 같을 때 더 작은 수를 자동으로 우선시할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>배열을 오름차순 정렬한 뒤, 앞에서부터 순회하며 연속된 같은 숫자의 개수를 <code>cnt</code>로 센다.</li>
+            <li>숫자가 달라지는 순간, 지금까지 센 <code>cnt</code>와 현재까지의 최대 빈도 <code>maxNumber[0]</code>를 비교한다.</li>
+            <li><code>cnt</code>가 더 클 때만 최대 빈도와 해당 숫자를 갱신한다. (<code>>=</code>가 아닌 <code>></code>를 사용해 동률이면 더 작은 수를 유지)</li>
+            <li>마지막 숫자 그룹은 반복문이 끝난 뒤 별도로 한 번 더 비교한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 정렬</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      long[] numbers = new long[N];
+      for (int i = 0; i < N; i++) {
+          numbers[i] = Long.parseLong(br.readLine());
+      }
+      Arrays.sort(numbers);</code></pre>
+          <ul>
+            <li>카드의 수가 <code>long</code> 범위이므로 <code>long[]</code> 배열에 저장한다.</li>
+            <li><code>Arrays.sort()</code>로 오름차순 정렬하면 동일한 숫자가 인접하게 모이고, 같은 빈도일 때 작은 수가 앞에 위치하게 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 초기값 설정</strong>
+          <pre><code>long[] maxNumber = new long[2];
+      long cnt = 1;
+      long prev = numbers[0];
+      maxNumber[0] = cnt;
+      maxNumber[1] = prev;</code></pre>
+          <ul>
+            <li><code>maxNumber[0]</code>은 현재까지의 최대 빈도, <code>maxNumber[1]</code>은 그 빈도를 가진 숫자를 저장한다.</li>
+            <li>첫 번째 숫자를 기준으로 초기화한다. <code>cnt = 1</code>, <code>prev = numbers[0]</code>으로 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 선형 탐색으로 빈도 비교 및 갱신</strong>
+          <pre><code>for (int i = 1; i < N; i++) {
+          if (numbers[i] == prev) {
+              cnt++;
+          } else {
+              long count = maxNumber[0];
+              if (cnt > count) {
+                  maxNumber[0] = cnt;
+                  maxNumber[1] = prev;
+              }
+              cnt = 1;
+              prev = numbers[i];
+          }
+      }</code></pre>
+          <ul>
+            <li>현재 숫자가 이전 숫자(<code>prev</code>)와 같으면 <code>cnt</code>를 1 증가시킨다.</li>
+            <li>다른 숫자가 등장하면, 지금까지 센 <code>cnt</code>가 최대 빈도보다 <strong>클 때만</strong> <code>maxNumber</code>를 갱신한다. <code>></code>를 사용하므로 동률이면 먼저 등장한(더 작은) 숫자가 그대로 유지된다.</li>
+            <li>갱신 후 <code>cnt = 1</code>, <code>prev = numbers[i]</code>로 새 숫자 그룹을 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 마지막 그룹 처리 및 출력</strong>
+          <pre><code>long count = maxNumber[0];
+      if (cnt > count) {
+          maxNumber[0] = cnt;
+          maxNumber[1] = prev;
+      }
+      System.out.println(maxNumber[1]);</code></pre>
+          <ul>
+            <li>반복문은 숫자가 바뀌는 시점에만 비교하므로, 배열의 마지막 숫자 그룹은 반복문 안에서 비교되지 않는다. 반복문 종료 후 마지막 그룹을 한 번 더 비교해 처리한다.</li>
+            <li>최종적으로 <code>maxNumber[1]</code>에 저장된 가장 많이 등장한(동률이면 가장 작은) 숫자를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 <code>Arrays.sort()</code>의 정렬 비용이다. 이후 선형 탐색은 O(N)이므로 전체는 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 입력된 N개의 숫자를 저장하는 <code>long[]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
