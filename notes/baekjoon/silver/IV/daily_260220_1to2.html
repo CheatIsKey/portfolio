@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-19 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1057 — 토너먼트</h2>
+      <h2 class="section">문제 1120 — 문자</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1057">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1120">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260219_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260220_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>토너먼트 (백준 1057)</strong>는<br>
-        N명의 참가자가 1:1 토너먼트를 진행할 때, 김지민(J)과 임한수(H)가<br>
-        <strong>몇 라운드에 처음으로 만나는지</strong> 구하는 문제다.
+        <strong>문자열 (백준 1120)</strong>는<br>
+        길이가 같은 두 문자열 A, B의 차이를 최소화하기 위해, 짧은 문자열 X의 앞뒤에 임의의 문자를 붙여<br>
+        <strong>X와 Y의 대응되는 위치에서 다른 문자의 개수(차이)를 최소화</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>매 라운드에서 참가자는 순서대로 짝을 이뤄 대결한다. (1↔2, 3↔4, 5↔6, ...)</li>
-        <li>참가자 수가 홀수이면 마지막 참가자는 부전승으로 다음 라운드에 진출한다.</li>
-        <li>두 사람이 같은 라운드에 대결 상대가 되는 순간의 라운드 번호를 출력한다.</li>
+        <li>X의 길이는 항상 Y의 길이 이하이며, X의 앞뒤에 문자를 붙여 Y와 길이를 맞춘다.</li>
+        <li>앞뒤에 붙이는 문자는 자유롭게 선택할 수 있으므로, Y의 대응 구간과 항상 같게 만들 수 있다. 즉 앞뒤에 붙인 문자는 차이에 영향을 주지 않는다.</li>
+        <li>따라서 X를 Y의 어느 위치에 정렬(슬라이딩)하느냐에 따라 X의 각 문자와 Y의 대응 문자를 비교하면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (라운드 진행 직접 시뮬)</li>
-        <li><strong>선택 이유</strong>: N이 최대 100,000이지만, 라운드마다 참가자가 절반씩 줄어드므로 최대 O(log N)번만 반복하면 되기 때문에 직접 시뮬레이션이 가장 직관적이고 효율적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: 슬라이딩 윈도우 + 브루트포스 비교</li>
+        <li><strong>선택 이유</strong>: X의 길이와 Y의 길이가 최대 50으로 매우 작다. X를 Y 위에서 슬라이딩하며 가능한 모든 정렬 위치에 대해 일일이 비교해도 최대 50 × 50 = 2,500번의 연산으로 충분히 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>매 라운드마다 현재 참가자 번호 i를 <code>(i - 1) / 2 + 1</code> 수식으로 다음 라운드 번호로 변환한다.</li>
-            <li>변환 후 J와 H의 다음 라운드 번호가 같다면 이번 라운드에서 만난 것이므로 해당 라운드를 출력한다.</li>
-            <li>같지 않다면 J, H를 각각 다음 라운드 번호로 갱신하고 라운드를 1 증가시킨다.</li>
-            <li>참가자 수가 홀수인 경우, 다음 라운드 참가자 수는 <code>player / 2 + 1</code>이 된다.</li>
+            <li>X를 Y 위에서 왼쪽부터 오른쪽으로 이동시킬 수 있는 횟수는 <code>Y.length() - X.length()</code>번이다.</li>
+            <li>각 정렬 위치 <code>i</code>에 대해, X의 각 문자와 Y의 <code>idx + i</code> 위치 문자를 비교해 다른 문자의 수 <code>cnt</code>를 센다.</li>
+            <li>모든 위치에서의 <code>cnt</code> 중 최솟값을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,55 +95,45 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 초기화</strong>
-          <pre><code>int N = Integer.parseInt(st.nextToken());
-      int J = Integer.parseInt(st.nextToken());
-      int H = Integer.parseInt(st.nextToken());
+        <li><strong>1) 입력 및 이동 가능 횟수 계산</strong>
+          <pre><code>String X = st.nextToken();
+      String Y = st.nextToken();
       
-      int player = N;
-      int round = 1;</code></pre>
+      int canMove = Y.length() - X.length();
+      int min = Integer.MAX_VALUE;</code></pre>
           <ul>
-            <li>전체 참가자 수 N, 김지민의 번호 J, 임한수의 번호 H를 입력받는다.</li>
-            <li><code>player</code>는 현재 라운드의 참가자 수, <code>round</code>는 현재 라운드 번호를 의미하며 각각 N과 1로 초기화한다.</li>
+            <li>X와 Y를 입력받는다. 문제 조건상 X의 길이 ≤ Y의 길이가 보장된다.</li>
+            <li><code>canMove</code>는 X를 Y 위에서 슬라이딩할 수 있는 최대 이동 횟수다. 예를 들어 X의 길이가 3, Y의 길이가 5이면 시작 위치는 0, 1, 2로 총 3가지다.</li>
+            <li><code>min</code>은 최솟값을 저장할 변수로, 비교 전 충분히 큰 값으로 초기화한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 라운드별 번호 매핑 배열 생성</strong>
-          <pre><code>battle = new int[player + 1];
-      for (int i = 1; i <= player; i++) {
-          battle[i] = (i - 1) / 2 + 1;
+        <li><strong>2) 슬라이딩하며 위치별 차이 계산</strong>
+          <pre><code>for (int i = 0; i <= canMove; i++) {
+          int cnt = 0;
+      
+          for (int idx = 0; idx < X.length(); idx++) {
+              if (X.charAt(idx) != Y.charAt(idx + i)) {
+                  cnt++;
+              }
+          }
+      
+          if (cnt < min) {
+              min = cnt;
+          }
       }</code></pre>
           <ul>
-            <li>현재 라운드의 참가자 번호 i를 다음 라운드 번호로 변환하는 배열 <code>battle</code>을 생성한다.</li>
-            <li>핵심 공식 <code>(i - 1) / 2 + 1</code>은 1번→1, 2번→1, 3번→2, 4번→2, ... 처럼 두 명씩 같은 번호로 묶어준다. 즉, 같은 번호끼리 이번 라운드에서 대결하는 상대임을 의미한다.</li>
-            <li>예: 참가자가 6명이면 battle = [_, 1, 1, 2, 2, 3, 3]. 1번과 2번은 다음 라운드에서 모두 1번이 되므로 이번 라운드에서 붙는 상대다.</li>
+            <li>외부 반복문의 <code>i</code>는 X의 시작 위치(오프셋)를 나타낸다. <code>i = 0</code>이면 X가 Y의 맨 왼쪽에 정렬된 상태다.</li>
+            <li>내부 반복문에서 X의 각 문자 <code>X.charAt(idx)</code>와 Y의 대응 문자 <code>Y.charAt(idx + i)</code>를 비교해 다를 때마다 <code>cnt</code>를 증가시킨다.</li>
+            <li>해당 위치에서의 <code>cnt</code>가 현재 최솟값 <code>min</code>보다 작으면 갱신한다.</li>
+            <li>예시: X = "abc", Y = "xabcd"일 때, i=0이면 "abc"와 "xab"를 비교(cnt=2), i=1이면 "abc"와 "abc"를 비교(cnt=0), i=2이면 "abc"와 "bcd"를 비교(cnt=3). 최솟값은 0.</li>
           </ul>
         </li>
       
-        <li><strong>3) 홀짝 여부에 따른 다음 라운드 참가자 수 갱신</strong>
-          <pre><code>if (player % 2 == 0) {
-          player /= 2;
-      } else {
-          player = player / 2 + 1;
-      }</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(min);</code></pre>
           <ul>
-            <li>참가자 수가 짝수이면 정확히 절반이 다음 라운드에 진출한다.</li>
-            <li>홀수이면 마지막 참가자가 부전승으로 진출하므로 <code>player / 2 + 1</code>명이 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 만남 여부 판단 및 번호 갱신</strong>
-          <pre><code>if (battle[J] == battle[H]) {
-          sb.append(round);
-          break;
-      } else {
-          J = battle[J];
-          H = battle[H];
-          round++;
-      }</code></pre>
-          <ul>
-            <li>이번 라운드에서 J와 H의 다음 라운드 번호가 같다면, 두 사람이 이번 라운드에서 맞붙는다는 의미이므로 현재 <code>round</code>를 출력하고 종료한다.</li>
-            <li>다르다면 각자의 다음 라운드 번호로 J와 H를 갱신하고 라운드를 증가시킨다.</li>
+            <li>모든 슬라이딩 위치를 탐색한 뒤, 가장 작은 차이 값 <code>min</code>을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -160,12 +149,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 매 라운드마다 현재 참가자 수만큼 <code>battle</code> 배열을 채우는 작업을 수행하고, 라운드는 최대 log N번 진행된다. 각 라운드의 배열 생성 비용을 합산하면 N + N/2 + N/4 + ... ≈ 2N이므로 전체 O(N)으로도 볼 수 있으나, 구현 구조상 O(N log N)으로 표현하는 것이 안전하다.</li>
+            <li><strong>O(|Y| × |X|)</strong>: 외부 반복문은 최대 <code>|Y| - |X|</code>번, 내부 반복문은 <code>|X|</code>번 실행된다. |X|, |Y|가 최대 50이므로 최악의 경우에도 50 × 50 = 2,500번의 연산으로 매우 효율적이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 각 라운드에서 최대 N+1 크기의 <code>battle</code> 배열을 사용한다. 배열은 매 라운드마다 새로 할당되지만 동시에 존재하는 최대 크기는 O(N)이다.</li>
+            <li><strong>O(|X| + |Y|)</strong>: 두 문자열 X, Y를 저장하는 공간 외에 추가적인 자료구조를 사용하지 않으므로 입력 문자열 크기에 비례하는 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -232,14 +221,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 11652 — 카드</h2>
+      <h2 class="section">문제 4134 — 다음 소수</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11652">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4134">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260219_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260220_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -257,15 +246,15 @@
       </h3>
       
       <p>
-        <strong>카드 (백준 11652)</strong>는<br>
-        N장의 카드에 적힌 정수 중에서 <strong>가장 많이 가지고 있는 정수를 출력</strong>하는 문제다.<br>
-        <strong>가장 많이 가진 정수가 여러 개라면 그 중 가장 작은 수</strong>를 출력해야 한다.
+        <strong>다음 소수 (백준 4134)</strong>는<br>
+        주어진 정수 n에 대해 <strong>n 이상의 소수 중 가장 작은 소수</strong>를 찾아 출력하는 문제다.<br>
+        <strong>n은 0 이상 1,000,000,000 이하의 정수</strong>이며, 테스트 케이스는 최대 1,000개다.
       </p>
       
       <ul>
-        <li>카드에 적힌 수는 -2<sup>62</sup> 이상 2<sup>62</sup> 이하의 정수이므로 <code>int</code>가 아닌 <code>long</code>을 사용해야 한다.</li>
-        <li>N은 최대 100,000이므로 정렬 후 선형 탐색으로 충분히 해결 가능하다.</li>
-        <li>동일한 최대 빈도의 숫자가 여러 개일 경우, 정렬된 배열을 앞에서부터 순회하므로 자연스럽게 가장 작은 수가 먼저 발견된다.</li>
+        <li>n이 최대 10억이므로 소수 판별 시 오버플로우를 방지하기 위해 <code>long</code> 타입을 사용해야 한다.</li>
+        <li>n이 0이나 1인 경우 2가 n 이상의 가장 작은 소수이므로 별도로 처리한다.</li>
+        <li>소수 판별은 √n까지만 나눠보는 방식을 사용한다. n이 최대 10억일 때 √n ≈ 31,623이므로 각 수에 대한 판별이 충분히 빠르다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -277,14 +266,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 정렬 + 선형 탐색 (빈도 카운팅)</li>
-        <li><strong>선택 이유</strong>: 배열을 정렬하면 동일한 숫자가 연속으로 모이기 때문에, 한 번의 선형 탐색만으로 각 숫자의 등장 횟수를 쉽게 셀 수 있다. 또한 정렬된 배열을 오름차순으로 순회하므로 빈도가 같을 때 더 작은 수를 자동으로 우선시할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 소수 판별 (Trial Division) + 선형 탐색</li>
+        <li><strong>선택 이유</strong>: n 이상의 수를 하나씩 증가시키며 소수인지 판별한다. 소수 간격이 평균적으로 크지 않고, 각 수의 소수 판별이 O(√n)으로 빠르기 때문에 1,000개의 테스트 케이스도 충분히 처리할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>배열을 오름차순 정렬한 뒤, 앞에서부터 순회하며 연속된 같은 숫자의 개수를 <code>cnt</code>로 센다.</li>
-            <li>숫자가 달라지는 순간, 지금까지 센 <code>cnt</code>와 현재까지의 최대 빈도 <code>maxNumber[0]</code>를 비교한다.</li>
-            <li><code>cnt</code>가 더 클 때만 최대 빈도와 해당 숫자를 갱신한다. (<code>>=</code>가 아닌 <code>></code>를 사용해 동률이면 더 작은 수를 유지)</li>
-            <li>마지막 숫자 그룹은 반복문이 끝난 뒤 별도로 한 번 더 비교한다.</li>
+            <li>n이 0 또는 1이면 즉시 2를 반환한다.</li>
+            <li>n부터 시작해 2 이상 √temp 이하의 수로 나누어 떨어지지 않으면 소수로 판별하고 반환한다.</li>
+            <li>소수가 아니면 <code>temp</code>를 1 증가시켜 다음 수에 대해 동일하게 반복한다.</li>
           </ul>
         </li>
       </ul>
@@ -298,62 +286,54 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 정렬</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
-      long[] numbers = new long[N];
-      for (int i = 0; i < N; i++) {
-          numbers[i] = Long.parseLong(br.readLine());
-      }
-      Arrays.sort(numbers);</code></pre>
-          <ul>
-            <li>카드의 수가 <code>long</code> 범위이므로 <code>long[]</code> 배열에 저장한다.</li>
-            <li><code>Arrays.sort()</code>로 오름차순 정렬하면 동일한 숫자가 인접하게 모이고, 같은 빈도일 때 작은 수가 앞에 위치하게 된다.</li>
-          </ul>
-        </li>
+        <li><strong>1) 테스트 케이스 반복 처리</strong>
+          <pre><code>int T = Integer.parseInt(br.readLine());
       
-        <li><strong>2) 초기값 설정</strong>
-          <pre><code>long[] maxNumber = new long[2];
-      long cnt = 1;
-      long prev = numbers[0];
-      maxNumber[0] = cnt;
-      maxNumber[1] = prev;</code></pre>
-          <ul>
-            <li><code>maxNumber[0]</code>은 현재까지의 최대 빈도, <code>maxNumber[1]</code>은 그 빈도를 가진 숫자를 저장한다.</li>
-            <li>첫 번째 숫자를 기준으로 초기화한다. <code>cnt = 1</code>, <code>prev = numbers[0]</code>으로 시작한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 선형 탐색으로 빈도 비교 및 갱신</strong>
-          <pre><code>for (int i = 1; i < N; i++) {
-          if (numbers[i] == prev) {
-              cnt++;
-          } else {
-              long count = maxNumber[0];
-              if (cnt > count) {
-                  maxNumber[0] = cnt;
-                  maxNumber[1] = prev;
-              }
-              cnt = 1;
-              prev = numbers[i];
-          }
+      for (int tc = 0; tc < T; tc++) {
+          long n = Long.parseLong(br.readLine());
+          long prime = isPrime(n);
+          sb.append(prime).append("\n");
       }</code></pre>
           <ul>
-            <li>현재 숫자가 이전 숫자(<code>prev</code>)와 같으면 <code>cnt</code>를 1 증가시킨다.</li>
-            <li>다른 숫자가 등장하면, 지금까지 센 <code>cnt</code>가 최대 빈도보다 <strong>클 때만</strong> <code>maxNumber</code>를 갱신한다. <code>></code>를 사용하므로 동률이면 먼저 등장한(더 작은) 숫자가 그대로 유지된다.</li>
-            <li>갱신 후 <code>cnt = 1</code>, <code>prev = numbers[i]</code>로 새 숫자 그룹을 시작한다.</li>
+            <li>테스트 케이스 수 T를 읽은 뒤, 각 n에 대해 <code>isPrime(n)</code>을 호출해 n 이상의 가장 작은 소수를 구한다.</li>
+            <li>n이 최대 10억이므로 <code>long</code> 타입으로 입력받는다.</li>
+            <li>결과를 <code>StringBuilder</code>에 누적해 마지막에 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 마지막 그룹 처리 및 출력</strong>
-          <pre><code>long count = maxNumber[0];
-      if (cnt > count) {
-          maxNumber[0] = cnt;
-          maxNumber[1] = prev;
-      }
-      System.out.println(maxNumber[1]);</code></pre>
+        <li><strong>2) 0, 1 예외 처리</strong>
+          <pre><code>if (num == 0 || num == 1) {
+          return 2;
+      }</code></pre>
           <ul>
-            <li>반복문은 숫자가 바뀌는 시점에만 비교하므로, 배열의 마지막 숫자 그룹은 반복문 안에서 비교되지 않는다. 반복문 종료 후 마지막 그룹을 한 번 더 비교해 처리한다.</li>
-            <li>최종적으로 <code>maxNumber[1]</code>에 저장된 가장 많이 등장한(동률이면 가장 작은) 숫자를 출력한다.</li>
+            <li>0과 1은 소수가 아니므로, 이 경우 n 이상의 가장 작은 소수인 2를 즉시 반환한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 소수 판별 및 탐색</strong>
+          <pre><code>long temp = num;
+      
+      while (true) {
+          boolean flag = true;
+      
+          for (int i = 2; (long) i * i <= temp; i++) {
+              if (temp % i == 0) {
+                  flag = false;
+                  break;
+              }
+          }
+      
+          if (flag) {
+              return temp;
+          }
+      
+          temp++;
+      }</code></pre>
+          <ul>
+            <li><code>temp</code>를 n으로 초기화한 뒤, 소수를 찾을 때까지 1씩 증가시키며 판별한다.</li>
+            <li>2부터 √temp까지의 수로 나눠보아 하나라도 나누어 떨어지면 소수가 아니므로 <code>flag = false</code>로 설정하고 즉시 내부 반복을 종료한다.</li>
+            <li><code>(long) i * i <= temp</code>와 같이 캐스팅하는 이유는 <code>i * i</code> 연산 시 <code>int</code> 오버플로우를 방지하기 위함이다. temp가 최대 10억에 근접하면 √temp ≈ 31,623이므로 <code>i * i</code>가 최대 약 10억에 달해 <code>int</code> 범위를 초과할 수 있다.</li>
+            <li><code>flag</code>가 <code>true</code>이면 소수이므로 <code>temp</code>를 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -369,12 +349,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 <code>Arrays.sort()</code>의 정렬 비용이다. 이후 선형 탐색은 O(N)이므로 전체는 O(N log N)이다.</li>
+            <li><strong>O(T × k × √n)</strong>: T는 테스트 케이스 수, k는 n 이상에서 소수까지의 거리(평균적으로 ln(n)에 비례), √n은 각 수에 대한 소수 판별 비용이다. n이 최대 10억일 때 √n ≈ 31,623이고, T ≤ 1,000이므로 충분히 빠르게 동작한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력된 N개의 숫자를 저장하는 <code>long[]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(T)</strong>: 결과를 누적하는 <code>StringBuilder</code>가 테스트 케이스 수에 비례하는 공간을 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
