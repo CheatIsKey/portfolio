@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-21 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 25192 — 인사성 밝은 곰곰이</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/25192">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260221_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>인사성 밝은 곰곰이 (백준 25192)</strong>는<br>
+        채팅방 로그에서 곰곰이가 ENTER 이후 인사를 건넨 적 있는 유저들에게<br>
+        <strong>총 몇 번 인사를 받았는지</strong> 구하는 문제다.<br>
+        <strong>ENTER 이후 같은 유저가 여러 번 채팅해도 인사는 1번으로만 카운트</strong>한다.
+      </p>
+      
+      <ul>
+        <li>ENTER는 새로운 유저가 채팅방에 입장하는 이벤트로, ENTER가 등장하면 이전까지 인사한 유저 목록을 초기화한다.</li>
+        <li>같은 ENTER 구간 내에서 동일한 유저가 여러 번 채팅을 보내도 인사는 1회로 취급한다.</li>
+        <li>로그의 첫 번째 줄은 반드시 ENTER임이 보장된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: HashSet을 활용한 중복 제거</li>
+        <li><strong>선택 이유</strong>: ENTER와 ENTER 사이 구간에서 인사한 유저를 중복 없이 세야 하므로, 삽입과 조회가 O(1)인 HashSet이 가장 적합하다. ENTER가 등장할 때마다 set을 비워 다음 구간을 새로 시작하면 된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>ENTER가 등장하면 현재 set의 크기(해당 구간에서 인사한 고유 유저 수)를 <code>totalCnt</code>에 더하고 set을 초기화한다.</li>
+            <li>일반 채팅 메시지는 유저 이름을 set에 추가한다. 이미 존재하면 HashSet이 자동으로 중복을 무시한다.</li>
+            <li>모든 로그를 처리한 뒤, 마지막 ENTER 이후 구간의 set 크기를 별도로 <code>totalCnt</code>에 더한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      HashSet<String> set = new HashSet<>();
+      int totalCnt = 0;</code></pre>
+          <ul>
+            <li>채팅 로그의 수 N을 입력받는다.</li>
+            <li><code>set</code>은 현재 ENTER 구간에서 인사한 유저를 중복 없이 저장하는 역할을 한다.</li>
+            <li><code>totalCnt</code>는 전체 인사 횟수를 누적하는 변수다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) ENTER 처리 — 구간 집계 및 초기화</strong>
+          <pre><code>if (chat.equals("ENTER")) {
+          totalCnt += set.size();
+          set.clear();
+          continue;
+      }</code></pre>
+          <ul>
+            <li>ENTER가 등장하면 지금까지 set에 모인 고유 유저 수를 <code>totalCnt</code>에 더한다.</li>
+            <li><code>set.clear()</code>로 set을 비워 다음 구간을 새로 시작할 준비를 한다.</li>
+            <li>첫 번째 줄이 반드시 ENTER이므로, 첫 ENTER에서는 빈 set의 크기인 0이 더해져 아무런 영향이 없다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 일반 채팅 처리 — 유저 등록</strong>
+          <pre><code>set.add(chat);</code></pre>
+          <ul>
+            <li>ENTER가 아닌 일반 채팅은 유저 이름을 set에 추가한다.</li>
+            <li>HashSet의 특성상 동일한 유저가 여러 번 채팅해도 중복 없이 1개만 저장된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 마지막 구간 처리 및 출력</strong>
+          <pre><code>totalCnt += set.size();
+      System.out.println(totalCnt);</code></pre>
+          <ul>
+            <li>반복문은 ENTER가 등장할 때만 집계하므로, 마지막 ENTER 이후의 구간은 반복문 안에서 처리되지 않는다. 반복문 종료 후 남아 있는 set의 크기를 한 번 더 더해준다.</li>
+            <li>최종 누적된 <code>totalCnt</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 로그를 한 번씩 순회하며, 각 로그에 대해 HashSet의 삽입·조회가 평균 O(1)이므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(U)</strong>: U는 하나의 ENTER 구간 내 고유 유저 수의 최댓값이다. set은 한 구간의 고유 유저만 저장하며 ENTER마다 초기화되므로, 전체 유저 수가 아닌 한 구간의 최대 고유 유저 수에 비례하는 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 3036 — 링</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/3036">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260221_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>링 (백준 3036)</strong>은<br>
+        첫 번째 링이 한 바퀴 돌 때, 나머지 각 링이 <strong>몇 바퀴 도는지를 기약분수</strong>로 출력하는 문제다.<br>
+        <strong>링의 둘레는 반지름에 비례</strong>하므로, 두 링의 반지름 비율로 회전 수를 구할 수 있다.
+      </p>
+      
+      <ul>
+        <li>첫 번째 링(기준 링)이 한 바퀴 돌면, 맞닿은 링은 <code>첫 번째 링의 반지름 / 해당 링의 반지름</code>만큼 회전한다.</li>
+        <li>결과는 기약분수로 출력해야 하므로, 두 반지름의 최대공약수(GCD)로 나누어 약분한다.</li>
+        <li>링의 수 N은 최대 100, 반지름은 최대 1,000이므로 유클리드 호제법으로 충분히 빠르게 처리된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 유클리드 호제법(GCD)을 이용한 기약분수 변환</li>
+        <li><strong>선택 이유</strong>: 첫 번째 링과 각 링의 반지름 비율이 곧 회전 수이므로, 이 비율을 기약분수로 나타내기 위해 두 값의 GCD를 구해 각각 나누면 된다. 유클리드 호제법은 O(log n)으로 매우 빠르다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>기준 링의 반지름 <code>mainRing</code>을 먼저 읽고, 나머지 링을 순서대로 읽는다.</li>
+            <li>각 링에 대해 <code>mainRing</code>과 해당 링의 반지름의 GCD를 구한다.</li>
+            <li>분자(<code>mainRing / gcd</code>)와 분모(<code>ring / gcd</code>)를 <code>/</code>로 이어 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 기준 링 설정</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      int mainRing = Integer.parseInt(st.nextToken());</code></pre>
+          <ul>
+            <li>링의 수 N을 읽은 뒤, 한 줄에 공백으로 주어지는 반지름들을 <code>StringTokenizer</code>로 파싱한다.</li>
+            <li>첫 번째 토큰이 기준 링의 반지름 <code>mainRing</code>이다. 이 값이 회전 비율 계산의 분자 역할을 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 각 링의 회전 수 계산 및 기약분수 변환</strong>
+          <pre><code>for (int i = 0; i < N - 1; i++) {
+          int ring = Integer.parseInt(st.nextToken());
+      
+          int value = gcd(mainRing, ring);
+      
+          sb.append((mainRing / value)).append('/').append((ring / value)).append('\n');
+      }</code></pre>
+          <ul>
+            <li>나머지 N-1개의 링을 순서대로 읽는다.</li>
+            <li><code>gcd(mainRing, ring)</code>으로 두 반지름의 최대공약수를 구한다.</li>
+            <li>분자 <code>mainRing / value</code>와 분모 <code>ring / value</code>를 각각 GCD로 나눠 기약분수로 만든 뒤, <code>/</code>로 이어 <code>StringBuilder</code>에 누적한다.</li>
+            <li>예시: mainRing = 6, ring = 4이면 GCD = 2, 결과는 <code>3/2</code>. 즉 기준 링이 한 바퀴 돌 때 해당 링은 1.5바퀴 회전한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 유클리드 호제법으로 GCD 계산</strong>
+          <pre><code>private static int gcd(int num1, int num2) {
+          if (num2 == 0) {
+              return num1;
+          }
+          return gcd(num2, num1 % num2);
+      }</code></pre>
+          <ul>
+            <li>재귀적 유클리드 호제법으로 두 수의 GCD를 구한다.</li>
+            <li>num2가 0이 되면 num1이 GCD이므로 반환한다. 그렇지 않으면 <code>gcd(num2, num1 % num2)</code>를 재귀 호출한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log R)</strong>: N은 링의 수, R은 반지름의 최댓값이다. N-1개의 링 각각에 대해 유클리드 호제법 O(log R)을 수행하므로 전체 O(N log R)이다. N ≤ 100, R ≤ 1,000이므로 매우 빠르게 동작한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 결과를 누적하는 <code>StringBuilder</code>가 링의 수에 비례하는 공간을 사용하며, 재귀 호출 스택은 O(log R)로 매우 작다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
