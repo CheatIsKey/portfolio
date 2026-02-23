@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 26069 — 붙임성 좋은 총총이</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/26069">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>붙임성 좋은 총총이 (백준 26069)</strong>는<br>
+        총총이와 춤을 춘 사람은 총총이 댄스를 배우고, 그 사람과 춤을 춘 또 다른 사람도 댄스를 배우는 방식으로<br>
+        <strong>총총이 댄스를 추게 된 사람이 최종적으로 몇 명인지</strong> 구하는 문제다.<br>
+        <strong>댄스는 총총이와 직·간접적으로 연결된 모든 사람에게 전파</strong>된다.
+      </p>
+      
+      <ul>
+        <li>총총이("ChongChong")는 처음부터 댄스를 출 수 있으며, 총총이 댄스를 아는 사람과 만나면 상대방도 댄스를 배운다.</li>
+        <li>만남은 순서대로 주어지며, 한 번 댄스를 배운 사람은 이후 다른 사람과의 만남에서 댄스를 전파할 수 있다.</li>
+        <li>최종적으로 댄스를 아는 사람의 수(총총이 포함)를 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 댄스 전파 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 댄스를 아는 사람 목록을 관리하고, 각 만남에서 둘 중 한 명이 댄스를 아는지 O(1)로 조회해야 한다. HashMap은 문자열 키에 대한 삽입·조회가 평균 O(1)이므로 최적이다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>총총이("ChongChong")를 <code>true</code>로 먼저 HashMap에 등록한다.</li>
+            <li>각 만남에서 두 사람 중 한 명이라도 HashMap에 <code>true</code>로 등록되어 있으면, 나머지 한 명도 <code>true</code>로 등록한다.</li>
+            <li><code>getOrDefault</code>를 사용해 등록되지 않은 사람은 <code>false</code>로 처리하여 NullPointerException을 방지한다.</li>
+            <li>모든 만남을 처리한 뒤 HashMap의 값 중 <code>true</code>인 항목의 수를 세어 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기화 — 총총이 등록</strong>
+          <pre><code>Map<String, Boolean> map = new HashMap<>();
+      map.put("ChongChong", true);</code></pre>
+          <ul>
+            <li>댄스를 아는 사람을 관리하는 HashMap을 생성하고, 총총이를 <code>true</code>로 등록한다.</li>
+            <li>이후 모든 전파의 시작점은 이 초기 등록에서 비롯된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 만남 처리 — 댄스 전파</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          String people1 = st.nextToken();
+          String people2 = st.nextToken();
+      
+          if (map.getOrDefault(people1, false)) {
+              map.put(people2, true);
+          } else if (map.getOrDefault(people2, false)) {
+              map.put(people1, true);
+          }
+      }</code></pre>
+          <ul>
+            <li>만남이 주어질 때마다 두 사람의 이름을 읽는다.</li>
+            <li><code>map.getOrDefault(people1, false)</code>는 people1이 댄스를 아는 경우 <code>true</code>를, 등록되지 않은 경우 기본값 <code>false</code>를 반환한다. 이를 통해 등록되지 않은 사람에 대한 예외 처리를 간결하게 해결한다.</li>
+            <li>people1이 댄스를 알면 people2를 <code>true</code>로 등록하고, people2가 댄스를 알면 people1을 <code>true</code>로 등록한다.</li>
+            <li>둘 다 댄스를 모르는 경우에는 아무런 변화가 없다.</li>
+            <li>주의: 두 조건을 <code>if-else if</code>로 처리하므로, 두 사람 모두 댄스를 아는 경우 이미 둘 다 등록된 상태이므로 어느 분기를 타든 결과가 동일하다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 댄스를 아는 사람 수 집계 및 출력</strong>
+          <pre><code>int cnt = 0;
+      
+      for (Boolean value : map.values()) {
+          if (value) {
+              cnt++;
+          }
+      }
+      
+      System.out.println(cnt);</code></pre>
+          <ul>
+            <li>HashMap의 모든 값을 순회하며 <code>true</code>인 항목의 수를 센다.</li>
+            <li>이 구현에서는 HashMap에 삽입될 때 항상 <code>true</code>로만 등록되므로, 실질적으로 <code>map.size()</code>와 동일한 결과를 낸다. 다만 명시적으로 <code>true</code> 여부를 확인해 안전성을 높였다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N번의 만남을 순서대로 처리하며, 각 만남에서 HashMap 조회·삽입이 평균 O(1)이다. 마지막 집계 단계도 등록된 사람 수에 비례하지만 최대 2N+1명이므로 O(N)이다. 전체 시간 복잡도는 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: HashMap에 저장되는 사람의 수는 최대 2N+1명(총총이 포함)이므로 입력 크기에 비례하는 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1015 — 수열 정렬</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1015">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>수열 정렬 (백준 1015)</strong>는<br>
+        수열 A를 정렬했을 때 얻어지는 수열 B에 대해, <strong>B[i] = A[P[i]]를 만족하는 순열 P를 구하는</strong> 문제다.<br>
+        <strong>P가 여러 개일 경우 사전순으로 가장 앞서는 P</strong>를 출력해야 한다.
+      </p>
+      
+      <ul>
+        <li>B는 A를 오름차순 정렬한 수열이므로, P[i]는 B의 i번째 원소가 A의 몇 번째 인덱스에서 왔는지를 나타낸다.</li>
+        <li>A에 같은 값이 여러 개 있을 경우, 사전순으로 가장 앞선 P를 만들려면 같은 값 중 원래 인덱스가 작은 것을 먼저 배치해야 한다.</li>
+        <li>N은 최대 50으로 매우 작으므로 정렬 기반 접근으로 충분히 해결된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 인덱스 보존 정렬 (Index-tagged Sort)</li>
+        <li><strong>선택 이유</strong>: 정렬 후 각 원소가 원래 어느 인덱스에 있었는지 추적해야 하므로, 원소에 원래 인덱스를 함께 저장한 뒤 정렬하는 방식이 가장 직관적이다. 값이 같을 때 인덱스 오름차순으로 정렬하면 사전순 최솟값 조건도 자동으로 만족된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>각 원소를 (원래 인덱스, 값)의 쌍으로 저장한 리스트를 만든다.</li>
+            <li>값 오름차순으로 정렬하되, 값이 같으면 원래 인덱스 오름차순으로 정렬한다.</li>
+            <li>정렬 결과에서 i번째 원소의 원래 인덱스가 P[i]의 값이 된다. 즉, 정렬 후 i번째에 위치한 원소의 원래 인덱스 위치에 i를 기록한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 인덱스-값 쌍 리스트 구성</strong>
+          <pre><code>List<int[]> list = new ArrayList<>();
+      
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          list.add(new int[]{i, num});
+      }</code></pre>
+          <ul>
+            <li>각 원소를 <code>{원래 인덱스, 값}</code> 형태의 배열로 리스트에 저장한다.</li>
+            <li>정렬 후에도 원래 인덱스 정보를 잃지 않기 위한 핵심 전처리 단계다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 값 오름차순, 동률 시 인덱스 오름차순 정렬</strong>
+          <pre><code>list.sort((a, b) -> {
+          if (a[1] == b[1]) {
+              return Integer.compare(a[0], b[0]);
+          }
+          return Integer.compare(a[1], b[1]);
+      });</code></pre>
+          <ul>
+            <li>기본 정렬 기준은 값(<code>a[1]</code>) 오름차순이다.</li>
+            <li>값이 같은 경우 원래 인덱스(<code>a[0]</code>) 오름차순으로 정렬한다. 이렇게 하면 중복 값이 있을 때 원래 앞에 있던 원소가 먼저 배치되어, 사전순으로 가장 앞서는 P가 자동으로 만들어진다.</li>
+            <li>예시: A = [3, 1, 3]이면 정렬 후 [(1,1), (0,3), (2,3)]이 된다. 값 3이 인덱스 0과 2에 있으므로 인덱스 오름차순에 따라 인덱스 0이 먼저 온다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 순열 P 배열 구성</strong>
+          <pre><code>int[] numbers = new int[N];
+      
+      for (int i = 0; i < N; i++) {
+          int idx = list.get(i)[0];
+          numbers[idx] = i;
+      }</code></pre>
+          <ul>
+            <li>정렬된 리스트의 i번째 원소의 원래 인덱스 <code>idx</code>를 꺼낸다.</li>
+            <li><code>numbers[idx] = i</code>로 기록한다. 즉, 원래 인덱스 <code>idx</code>에 있던 원소가 정렬 후 i번째 위치로 이동했음을 의미하며, 이것이 P[idx]의 값이 된다.</li>
+            <li>예시: A = [3, 1, 3]에서 정렬 후 [(1,1), (0,3), (2,3)]이므로 numbers[1]=0, numbers[0]=1, numbers[2]=2. 결과 P = [1, 0, 2].</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>for (int number : numbers) {
+          sb.append(number).append(" ");
+      }
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>완성된 순열 P를 공백으로 구분해 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 리스트 정렬 비용이다. 이후 순열 구성과 출력은 O(N)이므로 전체 O(N log N)이다. N이 최대 50으로 매우 작아 실질적으로 거의 즉시 수행된다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 인덱스-값 쌍을 저장하는 리스트와 결과를 저장하는 배열이 각각 N 크기를 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
