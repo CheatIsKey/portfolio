@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-22 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 28279 — 덱 2</h2>
+      <h2 class="section">문제 26069 — 붙임성 좋은 총총이</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/28279">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/26069">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260222_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,16 @@
       </h3>
       
       <p>
-        <strong>덱 2 (백준 28279)</strong>는<br>
-        정수를 저장하는 덱(Deque)을 직접 구현하여 8가지 명령어를 처리하는<br>
-        <strong>자료구조 시뮬레이션</strong> 문제다.
+        <strong>붙임성 좋은 총총이 (백준 26069)</strong>는<br>
+        총총이와 춤을 춘 사람은 총총이 댄스를 배우고, 그 사람과 춤을 춘 또 다른 사람도 댄스를 배우는 방식으로<br>
+        <strong>총총이 댄스를 추게 된 사람이 최종적으로 몇 명인지</strong> 구하는 문제다.<br>
+        <strong>댄스는 총총이와 직·간접적으로 연결된 모든 사람에게 전파</strong>된다.
       </p>
       
       <ul>
-        <li>명령어는 앞/뒤 삽입, 앞/뒤 삭제, 크기 조회, 비어있는지 확인, 앞/뒤 원소 조회로 총 8가지다.</li>
-        <li>덱이 비어있는 상태에서 삭제·조회를 시도하면 -1을 출력한다.</li>
-        <li>N은 최대 1,000,000이므로 <code>ArrayDeque</code>나 직접 구현한 배열 덱을 사용해야 빠르게 처리할 수 있다.</li>
+        <li>총총이("ChongChong")는 처음부터 댄스를 출 수 있으며, 총총이 댄스를 아는 사람과 만나면 상대방도 댄스를 배운다.</li>
+        <li>만남은 순서대로 주어지며, 한 번 댄스를 배운 사람은 이후 다른 사람과의 만남에서 댄스를 전파할 수 있다.</li>
+        <li>최종적으로 댄스를 아는 사람의 수(총총이 포함)를 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +76,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 배열 기반 덱 직접 구현 (Array Deque)</li>
-        <li><strong>선택 이유</strong>: Java의 <code>ArrayDeque</code>를 사용해도 되지만, 배열과 <code>front</code>/<code>rear</code> 포인터로 직접 구현하면 객체 생성 오버헤드 없이 O(1) 삽입·삭제가 가능하다. N이 최대 100만이므로 빠른 입출력과 함께 이 방식이 안정적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 댄스 전파 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 댄스를 아는 사람 목록을 관리하고, 각 만남에서 둘 중 한 명이 댄스를 아는지 O(1)로 조회해야 한다. HashMap은 문자열 키에 대한 삽입·조회가 평균 O(1)이므로 최적이다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>배열 크기를 <code>N * 2 + 1</code>로 잡고, <code>front</code>와 <code>rear</code>를 모두 중앙값 N으로 초기화해 앞뒤로 충분히 공간을 확보한다.</li>
-            <li>앞에 삽입할 때는 <code>front</code>를 먼저 감소시킨 뒤 저장하고, 뒤에 삽입할 때는 현재 <code>rear</code> 위치에 저장 후 증가시킨다.</li>
-            <li><code>front == rear</code>이면 덱이 비어있는 상태다.</li>
-            <li>덱의 크기는 <code>rear - front</code>로 O(1)에 계산한다.</li>
+            <li>총총이("ChongChong")를 <code>true</code>로 먼저 HashMap에 등록한다.</li>
+            <li>각 만남에서 두 사람 중 한 명이라도 HashMap에 <code>true</code>로 등록되어 있으면, 나머지 한 명도 <code>true</code>로 등록한다.</li>
+            <li><code>getOrDefault</code>를 사용해 등록되지 않은 사람은 <code>false</code>로 처리하여 NullPointerException을 방지한다.</li>
+            <li>모든 만남을 처리한 뒤 HashMap의 값 중 <code>true</code>인 항목의 수를 세어 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,72 +97,50 @@
       </p>
       
       <ul>
-        <li><strong>1) 배열 덱 초기화</strong>
-          <pre><code>int[] deque = new int[N * 2 + 1];
-      int front = N;
-      int rear = N;</code></pre>
+        <li><strong>1) 초기화 — 총총이 등록</strong>
+          <pre><code>Map<String, Boolean> map = new HashMap<>();
+      map.put("ChongChong", true);</code></pre>
           <ul>
-            <li>배열 크기를 <code>N * 2 + 1</code>로 설정해 앞뒤 방향 모두 최대 N번의 삽입을 수용할 수 있도록 한다.</li>
-            <li><code>front</code>와 <code>rear</code>를 배열 중앙인 N으로 초기화한다. 두 포인터가 같은 위치를 가리키므로 초기 상태는 빈 덱이다.</li>
+            <li>댄스를 아는 사람을 관리하는 HashMap을 생성하고, 총총이를 <code>true</code>로 등록한다.</li>
+            <li>이후 모든 전파의 시작점은 이 초기 등록에서 비롯된다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 앞/뒤 삽입 (명령어 1, 2)</strong>
-          <pre><code>case 1:
-          num = Integer.parseInt(st.nextToken());
-          deque[--front] = num;
-          break;
-      case 2:
-          num = Integer.parseInt(st.nextToken());
-          deque[rear++] = num;
-          break;</code></pre>
-          <ul>
-            <li>명령어 1(앞 삽입): <code>front</code>를 먼저 1 감소시킨 뒤 해당 위치에 값을 저장한다. 앞쪽 공간을 향해 포인터가 이동한다.</li>
-            <li>명령어 2(뒤 삽입): 현재 <code>rear</code> 위치에 값을 저장한 뒤 <code>rear</code>를 1 증가시킨다. 뒤쪽 공간을 향해 포인터가 이동한다.</li>
-          </ul>
-        </li>
+        <li><strong>2) 만남 처리 — 댄스 전파</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
       
-        <li><strong>3) 앞/뒤 삭제 (명령어 3, 4)</strong>
-          <pre><code>case 3:
-          if (front == rear) {
-              sb.append(-1).append("\n");
-          } else {
-              sb.append(deque[front++]).append("\n");
+          String people1 = st.nextToken();
+          String people2 = st.nextToken();
+      
+          if (map.getOrDefault(people1, false)) {
+              map.put(people2, true);
+          } else if (map.getOrDefault(people2, false)) {
+              map.put(people1, true);
           }
-          break;
-      case 4:
-          if (front == rear) {
-              sb.append(-1).append("\n");
-          } else {
-              sb.append(deque[--rear]).append("\n");
-          }
-          break;</code></pre>
+      }</code></pre>
           <ul>
-            <li>명령어 3(앞 삭제): 덱이 비어있으면 -1 출력. 그렇지 않으면 <code>deque[front]</code>를 출력하고 <code>front</code>를 1 증가시킨다.</li>
-            <li>명령어 4(뒤 삭제): 덱이 비어있으면 -1 출력. 그렇지 않으면 <code>rear</code>를 먼저 1 감소시킨 뒤 <code>deque[rear]</code>를 출력한다.</li>
+            <li>만남이 주어질 때마다 두 사람의 이름을 읽는다.</li>
+            <li><code>map.getOrDefault(people1, false)</code>는 people1이 댄스를 아는 경우 <code>true</code>를, 등록되지 않은 경우 기본값 <code>false</code>를 반환한다. 이를 통해 등록되지 않은 사람에 대한 예외 처리를 간결하게 해결한다.</li>
+            <li>people1이 댄스를 알면 people2를 <code>true</code>로 등록하고, people2가 댄스를 알면 people1을 <code>true</code>로 등록한다.</li>
+            <li>둘 다 댄스를 모르는 경우에는 아무런 변화가 없다.</li>
+            <li>주의: 두 조건을 <code>if-else if</code>로 처리하므로, 두 사람 모두 댄스를 아는 경우 이미 둘 다 등록된 상태이므로 어느 분기를 타든 결과가 동일하다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 크기·비어있는지·앞/뒤 조회 (명령어 5, 6, 7, 8)</strong>
-          <pre><code>case 5:
-          sb.append(rear - front).append("\n");
-          break;
-      case 6:
-          if (front == rear) { sb.append(1).append("\n"); }
-          else { sb.append(0).append("\n"); }
-          break;
-      case 7:
-          if (front == rear) { sb.append(-1).append("\n"); }
-          else { sb.append(deque[front]).append("\n"); }
-          break;
-      case 8:
-          if (front == rear) { sb.append(-1).append("\n"); }
-          else { sb.append(deque[rear - 1]).append("\n"); }</code></pre>
+        <li><strong>3) 댄스를 아는 사람 수 집계 및 출력</strong>
+          <pre><code>int cnt = 0;
+      
+      for (Boolean value : map.values()) {
+          if (value) {
+              cnt++;
+          }
+      }
+      
+      System.out.println(cnt);</code></pre>
           <ul>
-            <li>명령어 5(크기): <code>rear - front</code>가 현재 덱에 저장된 원소 수다.</li>
-            <li>명령어 6(비어있는지): <code>front == rear</code>이면 1(비어있음), 아니면 0을 출력한다.</li>
-            <li>명령어 7(앞 원소 조회): <code>front</code>가 가리키는 위치의 값을 출력한다. 포인터를 이동시키지 않으므로 삭제 없이 조회만 한다.</li>
-            <li>명령어 8(뒤 원소 조회): <code>rear - 1</code> 위치의 값을 출력한다. 마찬가지로 포인터를 이동시키지 않는다.</li>
+            <li>HashMap의 모든 값을 순회하며 <code>true</code>인 항목의 수를 센다.</li>
+            <li>이 구현에서는 HashMap에 삽입될 때 항상 <code>true</code>로만 등록되므로, 실질적으로 <code>map.size()</code>와 동일한 결과를 낸다. 다만 명시적으로 <code>true</code> 여부를 확인해 안전성을 높였다.</li>
           </ul>
         </li>
       </ul>
@@ -177,16 +156,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 명령어를 순서대로 처리하며, 각 명령어는 배열 인덱스 접근과 포인터 이동만으로 모두 O(1)에 처리된다. 전체 시간 복잡도는 O(N)이다.</li>
+            <li><strong>O(N)</strong>: N번의 만남을 순서대로 처리하며, 각 만남에서 HashMap 조회·삽입이 평균 O(1)이다. 마지막 집계 단계도 등록된 사람 수에 비례하지만 최대 2N+1명이므로 O(N)이다. 전체 시간 복잡도는 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 덱을 저장하는 배열의 크기가 <code>N * 2 + 1</code>이므로 입력 크기에 비례하는 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: HashMap에 저장되는 사람의 수는 최대 2N+1명(총총이 포함)이므로 입력 크기에 비례하는 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -249,14 +227,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2578 — 빙고</h2>
+      <h2 class="section">문제 1015 — 수열 정렬</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2578">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1015">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260222_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -274,15 +252,15 @@
       </h3>
       
       <p>
-        <strong>빙고 (백준 2578)</strong>는<br>
-        5×5 빙고판에서 사회자가 번호를 하나씩 부를 때, <strong>빙고가 3줄 이상 완성되는 순간 몇 번째 숫자가 불렸는지</strong> 출력하는 문제다.<br>
-        <strong>가로·세로·대각선 총 12방향</strong>을 매번 검사해 빙고 개수를 센다.
+        <strong>수열 정렬 (백준 1015)</strong>는<br>
+        수열 A를 정렬했을 때 얻어지는 수열 B에 대해, <strong>B[i] = A[P[i]]를 만족하는 순열 P를 구하는</strong> 문제다.<br>
+        <strong>P가 여러 개일 경우 사전순으로 가장 앞서는 P</strong>를 출력해야 한다.
       </p>
       
       <ul>
-        <li>빙고판은 5×5 크기이며, 1부터 25까지의 수가 한 번씩 등장한다.</li>
-        <li>빙고는 가로 5줄, 세로 5줄, 대각선 2줄로 총 12가지 방향이 존재한다.</li>
-        <li>번호가 불릴 때마다 해당 위치를 체크하고, 빙고가 3개 이상이 되는 즉시 현재까지 불린 번호의 순서를 출력한다.</li>
+        <li>B는 A를 오름차순 정렬한 수열이므로, P[i]는 B의 i번째 원소가 A의 몇 번째 인덱스에서 왔는지를 나타낸다.</li>
+        <li>A에 같은 값이 여러 개 있을 경우, 사전순으로 가장 앞선 P를 만들려면 같은 값 중 원래 인덱스가 작은 것을 먼저 배치해야 한다.</li>
+        <li>N은 최대 50으로 매우 작으므로 정렬 기반 접근으로 충분히 해결된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -294,13 +272,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 번호-좌표 매핑 + 빙고 카운팅 시뮬레이션</li>
-        <li><strong>선택 이유</strong>: 사회자가 번호를 부를 때마다 빙고판에서 해당 번호의 위치를 빠르게 찾아야 한다. HashMap에 번호를 키, 좌표를 값으로 저장하면 O(1)에 위치를 조회할 수 있다. 빙고판이 5×5로 고정되어 있으므로 매 호출마다 12방향 전체를 검사해도 O(1)에 수렴한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 인덱스 보존 정렬 (Index-tagged Sort)</li>
+        <li><strong>선택 이유</strong>: 정렬 후 각 원소가 원래 어느 인덱스에 있었는지 추적해야 하므로, 원소에 원래 인덱스를 함께 저장한 뒤 정렬하는 방식이 가장 직관적이다. 값이 같을 때 인덱스 오름차순으로 정렬하면 사전순 최솟값 조건도 자동으로 만족된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>빙고판을 읽으며 각 숫자의 (행, 열) 좌표를 HashMap에 저장한다.</li>
-            <li>사회자가 부르는 번호를 순서대로 읽으며, HashMap으로 좌표를 찾아 <code>visited</code> 배열을 체크한다.</li>
-            <li>체크 후 <code>countBingo()</code>를 호출해 현재 완성된 빙고 수를 계산하고, 3 이상이면 즉시 답을 출력하고 종료한다.</li>
+            <li>각 원소를 (원래 인덱스, 값)의 쌍으로 저장한 리스트를 만든다.</li>
+            <li>값 오름차순으로 정렬하되, 값이 같으면 원래 인덱스 오름차순으로 정렬한다.</li>
+            <li>정렬 결과에서 i번째 원소의 원래 인덱스가 P[i]의 값이 된다. 즉, 정렬 후 i번째에 위치한 원소의 원래 인덱스 위치에 i를 기록한다.</li>
           </ul>
         </li>
       </ul>
@@ -314,81 +292,54 @@
       </p>
       
       <ul>
-        <li><strong>1) 빙고판 읽기 및 HashMap 구성</strong>
-          <pre><code>Map<Integer, int[]> map = new HashMap<>();
+        <li><strong>1) 인덱스-값 쌍 리스트 구성</strong>
+          <pre><code>List<int[]> list = new ArrayList<>();
       
-      for (int r = 0; r < 5; r++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
-          for (int c = 0; c < 5; c++) {
-              int num = Integer.parseInt(st.nextToken());
-              map.put(num, new int[]{r, c});
-          }
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          list.add(new int[]{i, num});
       }</code></pre>
           <ul>
-            <li>5×5 빙고판을 읽으며 각 숫자를 키로, 해당 숫자가 위치한 (행, 열) 배열을 값으로 HashMap에 저장한다.</li>
-            <li>이후 사회자가 번호를 부를 때 <code>map.get(num)</code>으로 O(1)에 좌표를 찾을 수 있다.</li>
+            <li>각 원소를 <code>{원래 인덱스, 값}</code> 형태의 배열로 리스트에 저장한다.</li>
+            <li>정렬 후에도 원래 인덱스 정보를 잃지 않기 위한 핵심 전처리 단계다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 번호 호출 및 체크</strong>
-          <pre><code>for (int r = 0; r < 5; r++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
-          for (int c = 0; c < 5; c++) {
-              int num = Integer.parseInt(st.nextToken());
-              int[] ok = map.get(num);
-              answer++;
-      
-              visited[ok[0]][ok[1]] = true;
-              if (countBingo() >= 3) {
-                  System.out.println(answer);
-                  return;
-              }
+        <li><strong>2) 값 오름차순, 동률 시 인덱스 오름차순 정렬</strong>
+          <pre><code>list.sort((a, b) -> {
+          if (a[1] == b[1]) {
+              return Integer.compare(a[0], b[0]);
           }
-      }</code></pre>
+          return Integer.compare(a[1], b[1]);
+      });</code></pre>
           <ul>
-            <li>사회자가 부르는 번호를 순서대로 읽으며 <code>answer</code>(호출 순서)를 1씩 증가시킨다.</li>
-            <li>HashMap으로 해당 번호의 좌표를 찾아 <code>visited</code> 배열의 해당 위치를 <code>true</code>로 표시한다.</li>
-            <li>표시 후 즉시 <code>countBingo()</code>를 호출해 빙고 수를 확인하고, 3 이상이면 현재 <code>answer</code>를 출력하고 종료한다.</li>
+            <li>기본 정렬 기준은 값(<code>a[1]</code>) 오름차순이다.</li>
+            <li>값이 같은 경우 원래 인덱스(<code>a[0]</code>) 오름차순으로 정렬한다. 이렇게 하면 중복 값이 있을 때 원래 앞에 있던 원소가 먼저 배치되어, 사전순으로 가장 앞서는 P가 자동으로 만들어진다.</li>
+            <li>예시: A = [3, 1, 3]이면 정렬 후 [(1,1), (0,3), (2,3)]이 된다. 값 3이 인덱스 0과 2에 있으므로 인덱스 오름차순에 따라 인덱스 0이 먼저 온다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 빙고 수 계산 — 가로·세로</strong>
-          <pre><code>for (int r = 0; r < 5; r++) {
-          int temp = 0;
-          for (int c = 0; c < 5; c++) {
-              if (visited[r][c]) temp++;
-          }
-          if (temp == 5) count++;
-      }
+        <li><strong>3) 순열 P 배열 구성</strong>
+          <pre><code>int[] numbers = new int[N];
       
-      for (int r = 0; r < 5; r++) {
-          int temp = 0;
-          for (int c = 0; c < 5; c++) {
-              if (visited[c][r]) temp++;
-          }
-          if (temp == 5) count++;
+      for (int i = 0; i < N; i++) {
+          int idx = list.get(i)[0];
+          numbers[idx] = i;
       }</code></pre>
           <ul>
-            <li>첫 번째 이중 반복문은 가로 방향 5줄을 검사한다. 한 행의 5칸이 모두 <code>true</code>이면 빙고 1개로 카운트한다.</li>
-            <li>두 번째 이중 반복문은 세로 방향 5줄을 검사한다. 행과 열 인덱스를 바꿔 <code>visited[c][r]</code>로 접근해 열 단위로 검사한다.</li>
+            <li>정렬된 리스트의 i번째 원소의 원래 인덱스 <code>idx</code>를 꺼낸다.</li>
+            <li><code>numbers[idx] = i</code>로 기록한다. 즉, 원래 인덱스 <code>idx</code>에 있던 원소가 정렬 후 i번째 위치로 이동했음을 의미하며, 이것이 P[idx]의 값이 된다.</li>
+            <li>예시: A = [3, 1, 3]에서 정렬 후 [(1,1), (0,3), (2,3)]이므로 numbers[1]=0, numbers[0]=1, numbers[2]=2. 결과 P = [1, 0, 2].</li>
           </ul>
         </li>
       
-        <li><strong>4) 빙고 수 계산 — 대각선</strong>
-          <pre><code>int temp = 0;
-      for (int idx = 0; idx < 5; idx++) {
-          if (visited[idx][idx]) temp++;
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>for (int number : numbers) {
+          sb.append(number).append(" ");
       }
-      if (temp == 5) count++;
-      
-      temp = 0;
-      for (int idx = 0; idx < 5; idx++) {
-          if (visited[idx][4 - idx]) temp++;
-      }
-      if (temp == 5) count++;</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>첫 번째 반복문은 좌상→우하 방향 대각선을 검사한다. <code>visited[idx][idx]</code>로 (0,0), (1,1), (2,2), (3,3), (4,4)를 순서대로 확인한다.</li>
-            <li>두 번째 반복문은 우상→좌하 방향 대각선을 검사한다. <code>visited[idx][4-idx]</code>로 (0,4), (1,3), (2,2), (3,1), (4,0)을 순서대로 확인한다.</li>
+            <li>완성된 순열 P를 공백으로 구분해 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -404,12 +355,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 빙고판이 5×5로 고정되어 있으므로 모든 연산(번호 호출, 좌표 조회, 빙고 카운팅)이 상수 시간 내에 완료된다. 번호는 최대 25개 호출되며, 매 호출마다 빙고 카운팅 비용은 5×5 = 25칸 고정이므로 전체 O(25 × 25) = O(1)로 볼 수 있다.</li>
+            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 리스트 정렬 비용이다. 이후 순열 구성과 출력은 O(N)이므로 전체 O(N log N)이다. N이 최대 50으로 매우 작아 실질적으로 거의 즉시 수행된다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: <code>visited</code> 배열(5×5)과 HashMap(최대 25개 항목)이 고정 크기를 사용하므로 상수 공간이다.</li>
+            <li><strong>O(N)</strong>: 인덱스-값 쌍을 저장하는 리스트와 결과를 저장하는 배열이 각각 N 크기를 사용한다.</li>
           </ul>
         </li>
       </ul>
