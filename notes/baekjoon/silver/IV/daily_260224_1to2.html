@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 26069 — 붙임성 좋은 총총이</h2>
+      <h2 class="section">문제 2847 — 게임을 만든 동준이</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/26069">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2847">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260224_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,16 @@
       </h3>
       
       <p>
-        <strong>붙임성 좋은 총총이 (백준 26069)</strong>는<br>
-        총총이와 춤을 춘 사람은 총총이 댄스를 배우고, 그 사람과 춤을 춘 또 다른 사람도 댄스를 배우는 방식으로<br>
-        <strong>총총이 댄스를 추게 된 사람이 최종적으로 몇 명인지</strong> 구하는 문제다.<br>
-        <strong>댄스는 총총이와 직·간접적으로 연결된 모든 사람에게 전파</strong>된다.
+        <strong>게임을 만든 동준이 (백준 2847)</strong>는<br>
+        N개의 레벨 점수가 주어질 때, 각 레벨의 점수가 <strong>이전 레벨보다 반드시 커지도록</strong> 만들기 위해<br>
+        <strong>점수를 감소시켜야 하는 총 횟수의 최솟값</strong>을 구하는 문제다.<br>
+        단, 점수는 1 이상이어야 하며 점수를 늘리는 것은 불가능하고 <strong>줄이는 것만 가능</strong>하다.
       </p>
       
       <ul>
-        <li>총총이("ChongChong")는 처음부터 댄스를 출 수 있으며, 총총이 댄스를 아는 사람과 만나면 상대방도 댄스를 배운다.</li>
-        <li>만남은 순서대로 주어지며, 한 번 댄스를 배운 사람은 이후 다른 사람과의 만남에서 댄스를 전파할 수 있다.</li>
-        <li>최종적으로 댄스를 아는 사람의 수(총총이 포함)를 출력한다.</li>
+        <li>레벨은 1번부터 N번까지 있으며, 레벨 번호가 높을수록 점수가 더 커야 한다.</li>
+        <li>점수를 늘릴 수 없으므로, 조건을 위반하는 경우 앞 레벨의 점수를 줄여야 한다.</li>
+        <li>감소 횟수를 최소화하려면 뒤에서부터 역순으로 탐색하며, 조건 위반 시 앞 레벨 점수를 최소한으로 줄이는 것이 최적이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,14 +76,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 댄스 전파 시뮬레이션</li>
-        <li><strong>선택 이유</strong>: 댄스를 아는 사람 목록을 관리하고, 각 만남에서 둘 중 한 명이 댄스를 아는지 O(1)로 조회해야 한다. HashMap은 문자열 키에 대한 삽입·조회가 평균 O(1)이므로 최적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (뒤에서부터 역순 탐색)</li>
+        <li><strong>선택 이유</strong>: 점수를 늘릴 수 없으므로, 조건을 위반하는 앞 레벨의 점수를 최소한으로 줄여야 한다. 뒤에서부터 탐색하면 이미 확정된 뒤 레벨 점수를 기준으로 앞 레벨을 조정할 수 있어, 연쇄적인 영향을 자연스럽게 처리할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>총총이("ChongChong")를 <code>true</code>로 먼저 HashMap에 등록한다.</li>
-            <li>각 만남에서 두 사람 중 한 명이라도 HashMap에 <code>true</code>로 등록되어 있으면, 나머지 한 명도 <code>true</code>로 등록한다.</li>
-            <li><code>getOrDefault</code>를 사용해 등록되지 않은 사람은 <code>false</code>로 처리하여 NullPointerException을 방지한다.</li>
-            <li>모든 만남을 처리한 뒤 HashMap의 값 중 <code>true</code>인 항목의 수를 세어 출력한다.</li>
+            <li>배열의 뒤에서 두 번째 인덱스(N-2)부터 0까지 역순으로 순회한다.</li>
+            <li><code>levels[i-1] >= levels[i]</code>이면 조건 위반이므로, <code>levels[i-1]</code>을 <code>levels[i] - 1</code>로 줄인다. 이때 줄인 양만큼 <code>total</code>에 누적한다.</li>
+            <li>줄인 값을 실제로 <code>levels[i-1]</code>에 반영해, 다음 이터레이션에서 연쇄 조건 위반을 올바르게 처리한다.</li>
           </ul>
         </li>
       </ul>
@@ -97,50 +96,41 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기화 — 총총이 등록</strong>
-          <pre><code>Map<String, Boolean> map = new HashMap<>();
-      map.put("ChongChong", true);</code></pre>
+        <li><strong>1) 입력 및 배열 구성</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int[] levels = new int[N];
+      
+      for (int i = 0; i < N; i++) {
+          levels[i] = Integer.parseInt(br.readLine());
+      }</code></pre>
           <ul>
-            <li>댄스를 아는 사람을 관리하는 HashMap을 생성하고, 총총이를 <code>true</code>로 등록한다.</li>
-            <li>이후 모든 전파의 시작점은 이 초기 등록에서 비롯된다.</li>
+            <li>레벨 수 N을 읽은 뒤, 각 레벨의 점수를 순서대로 <code>levels</code> 배열에 저장한다.</li>
+            <li>입력 순서가 레벨 순서이므로 <code>levels[0]</code>이 1레벨, <code>levels[N-1]</code>이 N레벨의 점수다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 만남 처리 — 댄스 전파</strong>
-          <pre><code>for (int i = 0; i < N; i++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
-      
-          String people1 = st.nextToken();
-          String people2 = st.nextToken();
-      
-          if (map.getOrDefault(people1, false)) {
-              map.put(people2, true);
-          } else if (map.getOrDefault(people2, false)) {
-              map.put(people1, true);
+        <li><strong>2) 뒤에서부터 역순으로 조건 위반 교정</strong>
+          <pre><code>int total = 0;
+      for (int i = N - 1; i > 0; i--) {
+          if (levels[i - 1] >= levels[i]) {
+              int decrease = levels[i - 1] - (levels[i] - 1);
+              total += decrease;
+              levels[i - 1] = levels[i] - 1;
           }
       }</code></pre>
           <ul>
-            <li>만남이 주어질 때마다 두 사람의 이름을 읽는다.</li>
-            <li><code>map.getOrDefault(people1, false)</code>는 people1이 댄스를 아는 경우 <code>true</code>를, 등록되지 않은 경우 기본값 <code>false</code>를 반환한다. 이를 통해 등록되지 않은 사람에 대한 예외 처리를 간결하게 해결한다.</li>
-            <li>people1이 댄스를 알면 people2를 <code>true</code>로 등록하고, people2가 댄스를 알면 people1을 <code>true</code>로 등록한다.</li>
-            <li>둘 다 댄스를 모르는 경우에는 아무런 변화가 없다.</li>
-            <li>주의: 두 조건을 <code>if-else if</code>로 처리하므로, 두 사람 모두 댄스를 아는 경우 이미 둘 다 등록된 상태이므로 어느 분기를 타든 결과가 동일하다.</li>
+            <li><code>i</code>를 N-1부터 1까지 역순으로 순회하며, 인접한 두 레벨 <code>levels[i-1]</code>과 <code>levels[i]</code>를 비교한다.</li>
+            <li><code>levels[i-1] >= levels[i]</code>이면 앞 레벨 점수가 뒤 레벨 점수 이상이므로 조건을 위반한 것이다.</li>
+            <li>이 경우 <code>levels[i-1]</code>을 <code>levels[i] - 1</code>로 줄인다. 줄인 양 <code>decrease = levels[i-1] - (levels[i] - 1)</code>를 <code>total</code>에 더한다.</li>
+            <li>줄인 값을 실제로 <code>levels[i-1]</code>에 반영해, 그 다음 이터레이션(i-1번째)에서 <code>levels[i-2]</code>와 비교할 때 갱신된 값을 기준으로 삼도록 한다.</li>
+            <li>예시: levels = [5, 5, 5]이면 i=2에서 levels[1]을 4로 줄이고(total=1), i=1에서 levels[0]을 3으로 줄인다(total=3). 최종 total = 3.</li>
           </ul>
         </li>
       
-        <li><strong>3) 댄스를 아는 사람 수 집계 및 출력</strong>
-          <pre><code>int cnt = 0;
-      
-      for (Boolean value : map.values()) {
-          if (value) {
-              cnt++;
-          }
-      }
-      
-      System.out.println(cnt);</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(total);</code></pre>
           <ul>
-            <li>HashMap의 모든 값을 순회하며 <code>true</code>인 항목의 수를 센다.</li>
-            <li>이 구현에서는 HashMap에 삽입될 때 항상 <code>true</code>로만 등록되므로, 실질적으로 <code>map.size()</code>와 동일한 결과를 낸다. 다만 명시적으로 <code>true</code> 여부를 확인해 안전성을 높였다.</li>
+            <li>누적된 총 감소 횟수 <code>total</code>을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -156,12 +146,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N번의 만남을 순서대로 처리하며, 각 만남에서 HashMap 조회·삽입이 평균 O(1)이다. 마지막 집계 단계도 등록된 사람 수에 비례하지만 최대 2N+1명이므로 O(N)이다. 전체 시간 복잡도는 O(N)이다.</li>
+            <li><strong>O(N)</strong>: 배열을 한 번 역순으로 순회하며 각 인덱스에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: HashMap에 저장되는 사람의 수는 최대 2N+1명(총총이 포함)이므로 입력 크기에 비례하는 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 레벨 점수를 저장하는 <code>levels</code> 배열이 N 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -227,14 +217,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1015 — 수열 정렬</h2>
+      <h2 class="section">문제 2776 — 암기왕</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1015">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2776">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260223_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260224_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -252,15 +242,15 @@
       </h3>
       
       <p>
-        <strong>수열 정렬 (백준 1015)</strong>는<br>
-        수열 A를 정렬했을 때 얻어지는 수열 B에 대해, <strong>B[i] = A[P[i]]를 만족하는 순열 P를 구하는</strong> 문제다.<br>
-        <strong>P가 여러 개일 경우 사전순으로 가장 앞서는 P</strong>를 출력해야 한다.
+        <strong>암기왕 (백준 2776)</strong>는<br>
+        수첩1에 적힌 수들을 기억하고, 수첩2에 적힌 각 수가 <strong>수첩1에 존재하면 1, 존재하지 않으면 0을 출력</strong>하는 문제다.<br>
+        <strong>N과 M이 최대 1,000,000</strong>이므로 선형 탐색 대신 이진 탐색을 사용해야 한다.
       </p>
       
       <ul>
-        <li>B는 A를 오름차순 정렬한 수열이므로, P[i]는 B의 i번째 원소가 A의 몇 번째 인덱스에서 왔는지를 나타낸다.</li>
-        <li>A에 같은 값이 여러 개 있을 경우, 사전순으로 가장 앞선 P를 만들려면 같은 값 중 원래 인덱스가 작은 것을 먼저 배치해야 한다.</li>
-        <li>N은 최대 50으로 매우 작으므로 정렬 기반 접근으로 충분히 해결된다.</li>
+        <li>테스트 케이스 T가 주어지며, 각 케이스마다 수첩1의 N개의 수와 수첩2의 M개의 수를 처리한다.</li>
+        <li>수첩1의 수는 중복이 있을 수 있지만, 존재 여부만 확인하면 되므로 중복 제거 없이 정렬 후 이진 탐색으로 충분하다.</li>
+        <li>N, M이 최대 100만이므로 O(N log N) 정렬 + O(M log N) 탐색으로 처리해야 시간 초과를 피할 수 있다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -272,13 +262,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 인덱스 보존 정렬 (Index-tagged Sort)</li>
-        <li><strong>선택 이유</strong>: 정렬 후 각 원소가 원래 어느 인덱스에 있었는지 추적해야 하므로, 원소에 원래 인덱스를 함께 저장한 뒤 정렬하는 방식이 가장 직관적이다. 값이 같을 때 인덱스 오름차순으로 정렬하면 사전순 최솟값 조건도 자동으로 만족된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 이진 탐색 (Binary Search)</li>
+        <li><strong>선택 이유</strong>: 수첩1을 정렬해두면 수첩2의 각 수에 대해 O(log N)에 존재 여부를 확인할 수 있다. N, M이 최대 100만이므로 선형 탐색 O(N × M)은 시간 초과가 발생하지만, 이진 탐색은 O(M log N)으로 충분히 빠르다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>각 원소를 (원래 인덱스, 값)의 쌍으로 저장한 리스트를 만든다.</li>
-            <li>값 오름차순으로 정렬하되, 값이 같으면 원래 인덱스 오름차순으로 정렬한다.</li>
-            <li>정렬 결과에서 i번째 원소의 원래 인덱스가 P[i]의 값이 된다. 즉, 정렬 후 i번째에 위치한 원소의 원래 인덱스 위치에 i를 기록한다.</li>
+            <li>수첩1의 수를 배열에 저장하고 오름차순 정렬한다.</li>
+            <li>수첩2의 각 수에 대해 직접 구현한 이진 탐색을 수행해 존재하면 1, 없으면 0을 반환한다.</li>
+            <li>중간값 계산 시 <code>start + (end - start) / 2</code>를 사용해 정수 오버플로우를 방지한다.</li>
           </ul>
         </li>
       </ul>
@@ -292,54 +282,57 @@
       </p>
       
       <ul>
-        <li><strong>1) 인덱스-값 쌍 리스트 구성</strong>
-          <pre><code>List<int[]> list = new ArrayList<>();
+        <li><strong>1) 수첩1 입력 및 정렬</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int[] numbers = new int[N];
       
+      StringTokenizer st = new StringTokenizer(br.readLine());
       for (int i = 0; i < N; i++) {
-          int num = Integer.parseInt(st.nextToken());
-          list.add(new int[]{i, num});
-      }</code></pre>
-          <ul>
-            <li>각 원소를 <code>{원래 인덱스, 값}</code> 형태의 배열로 리스트에 저장한다.</li>
-            <li>정렬 후에도 원래 인덱스 정보를 잃지 않기 위한 핵심 전처리 단계다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 값 오름차순, 동률 시 인덱스 오름차순 정렬</strong>
-          <pre><code>list.sort((a, b) -> {
-          if (a[1] == b[1]) {
-              return Integer.compare(a[0], b[0]);
-          }
-          return Integer.compare(a[1], b[1]);
-      });</code></pre>
-          <ul>
-            <li>기본 정렬 기준은 값(<code>a[1]</code>) 오름차순이다.</li>
-            <li>값이 같은 경우 원래 인덱스(<code>a[0]</code>) 오름차순으로 정렬한다. 이렇게 하면 중복 값이 있을 때 원래 앞에 있던 원소가 먼저 배치되어, 사전순으로 가장 앞서는 P가 자동으로 만들어진다.</li>
-            <li>예시: A = [3, 1, 3]이면 정렬 후 [(1,1), (0,3), (2,3)]이 된다. 값 3이 인덱스 0과 2에 있으므로 인덱스 오름차순에 따라 인덱스 0이 먼저 온다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 순열 P 배열 구성</strong>
-          <pre><code>int[] numbers = new int[N];
-      
-      for (int i = 0; i < N; i++) {
-          int idx = list.get(i)[0];
-          numbers[idx] = i;
-      }</code></pre>
-          <ul>
-            <li>정렬된 리스트의 i번째 원소의 원래 인덱스 <code>idx</code>를 꺼낸다.</li>
-            <li><code>numbers[idx] = i</code>로 기록한다. 즉, 원래 인덱스 <code>idx</code>에 있던 원소가 정렬 후 i번째 위치로 이동했음을 의미하며, 이것이 P[idx]의 값이 된다.</li>
-            <li>예시: A = [3, 1, 3]에서 정렬 후 [(1,1), (0,3), (2,3)]이므로 numbers[1]=0, numbers[0]=1, numbers[2]=2. 결과 P = [1, 0, 2].</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>for (int number : numbers) {
-          sb.append(number).append(" ");
+          numbers[i] = Integer.parseInt(st.nextToken());
       }
-      System.out.println(sb);</code></pre>
+      
+      Arrays.sort(numbers);</code></pre>
           <ul>
-            <li>완성된 순열 P를 공백으로 구분해 출력한다.</li>
+            <li>수첩1의 N개의 수를 배열에 저장한 뒤 <code>Arrays.sort()</code>로 오름차순 정렬한다.</li>
+            <li>정렬된 배열이어야 이진 탐색을 적용할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 수첩2의 각 수에 대해 이진 탐색 수행</strong>
+          <pre><code>int M = Integer.parseInt(br.readLine());
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < M; i++) {
+          int number = Integer.parseInt(st.nextToken());
+          sb.append(binarySearch(numbers, number, 0, N - 1)).append('\n');
+      }</code></pre>
+          <ul>
+            <li>수첩2의 M개의 수를 순서대로 읽으며, 각 수에 대해 <code>binarySearch()</code>를 호출한다.</li>
+            <li>반환값(0 또는 1)을 <code>StringBuilder</code>에 누적해 마지막에 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 이진 탐색 구현</strong>
+          <pre><code>private static int binarySearch(int[] numbers, int target, int start, int end) {
+          while (start <= end) {
+              int mid = start + (end - start) / 2;
+      
+              if (numbers[mid] == target) {
+                  return 1;
+              } else if (numbers[mid] < target) {
+                  start = mid + 1;
+              } else {
+                  end = mid - 1;
+              }
+          }
+      
+          return 0;
+      }</code></pre>
+          <ul>
+            <li><code>start <= end</code>인 동안 반복하며, 중간 인덱스 <code>mid = start + (end - start) / 2</code>를 계산한다. <code>(start + end) / 2</code> 대신 이 방식을 사용하면 두 값의 합이 <code>int</code> 범위를 초과하는 오버플로우를 방지할 수 있다.</li>
+            <li><code>numbers[mid] == target</code>이면 존재하므로 즉시 1을 반환한다.</li>
+            <li><code>numbers[mid] < target</code>이면 탐색 범위를 오른쪽(<code>start = mid + 1</code>)으로 좁히고, 크면 왼쪽(<code>end = mid - 1</code>)으로 좁힌다.</li>
+            <li>반복이 종료될 때까지 찾지 못하면 0을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -355,12 +348,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 리스트 정렬 비용이다. 이후 순열 구성과 출력은 O(N)이므로 전체 O(N log N)이다. N이 최대 50으로 매우 작아 실질적으로 거의 즉시 수행된다.</li>
+            <li><strong>O(N log N + M log N)</strong>: 수첩1 정렬에 O(N log N), 수첩2의 M개의 수에 대한 이진 탐색에 O(M log N)이 소요된다. N, M이 최대 100만이므로 약 2,000만 번의 연산으로 충분히 처리된다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 인덱스-값 쌍을 저장하는 리스트와 결과를 저장하는 배열이 각각 N 크기를 사용한다.</li>
+            <li><strong>O(N)</strong>: 수첩1의 N개의 수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
