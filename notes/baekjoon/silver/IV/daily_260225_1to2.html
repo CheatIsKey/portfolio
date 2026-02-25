@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-02-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-02-25 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 2847 — 게임을 만든 동준이</h2>
+      <h2 class="section">문제 1205 — 등수 구하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2847">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1205">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260224_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260225_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,16 @@
       </h3>
       
       <p>
-        <strong>게임을 만든 동준이 (백준 2847)</strong>는<br>
-        N개의 레벨 점수가 주어질 때, 각 레벨의 점수가 <strong>이전 레벨보다 반드시 커지도록</strong> 만들기 위해<br>
-        <strong>점수를 감소시켜야 하는 총 횟수의 최솟값</strong>을 구하는 문제다.<br>
-        단, 점수는 1 이상이어야 하며 점수를 늘리는 것은 불가능하고 <strong>줄이는 것만 가능</strong>하다.
+        <strong>등수 구하기 (백준 1205)</strong>는<br>
+        현재 상위 P개의 점수가 저장된 순위표에 새로운 점수를 추가할 때,<br>
+        <strong>새 점수의 등수를 구하는</strong> 문제다.<br>
+        <strong>순위표에 진입하지 못하는 경우에는 -1을 출력</strong>해야 한다.
       </p>
       
       <ul>
-        <li>레벨은 1번부터 N번까지 있으며, 레벨 번호가 높을수록 점수가 더 커야 한다.</li>
-        <li>점수를 늘릴 수 없으므로, 조건을 위반하는 경우 앞 레벨의 점수를 줄여야 한다.</li>
-        <li>감소 횟수를 최소화하려면 뒤에서부터 역순으로 탐색하며, 조건 위반 시 앞 레벨 점수를 최소한으로 줄이는 것이 최적이다.</li>
+        <li>순위표는 내림차순으로 정렬되어 있으며, 현재 N개의 점수가 저장되어 있다. (N ≤ P)</li>
+        <li>순위표가 꽉 찬 상태(N == P)에서 새 점수가 마지막 점수 이하이면 순위표에 진입하지 못하므로 -1을 출력한다.</li>
+        <li>등수는 새 점수보다 높은(큰) 점수의 수 + 1로 계산한다. 동점자가 있으면 같은 등수를 부여한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,13 +76,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (뒤에서부터 역순 탐색)</li>
-        <li><strong>선택 이유</strong>: 점수를 늘릴 수 없으므로, 조건을 위반하는 앞 레벨의 점수를 최소한으로 줄여야 한다. 뒤에서부터 탐색하면 이미 확정된 뒤 레벨 점수를 기준으로 앞 레벨을 조정할 수 있어, 연쇄적인 영향을 자연스럽게 처리할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 선형 탐색 + 예외 처리</li>
+        <li><strong>선택 이유</strong>: 순위표가 이미 내림차순으로 정렬되어 있으므로, 앞에서부터 순회하며 새 점수보다 큰 점수의 수를 세면 O(N)에 등수를 구할 수 있다. P가 최대 50,000이므로 선형 탐색으로 충분하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>배열의 뒤에서 두 번째 인덱스(N-2)부터 0까지 역순으로 순회한다.</li>
-            <li><code>levels[i-1] >= levels[i]</code>이면 조건 위반이므로, <code>levels[i-1]</code>을 <code>levels[i] - 1</code>로 줄인다. 이때 줄인 양만큼 <code>total</code>에 누적한다.</li>
-            <li>줄인 값을 실제로 <code>levels[i-1]</code>에 반영해, 다음 이터레이션에서 연쇄 조건 위반을 올바르게 처리한다.</li>
+            <li>N이 0이면 순위표가 비어있으므로 새 점수의 등수는 무조건 1이다.</li>
+            <li>N == P이고 새 점수가 마지막 점수 이하이면 순위표에 진입 불가이므로 -1을 출력한다.</li>
+            <li>그 외의 경우, 정렬된 배열을 앞에서부터 순회하며 새 점수보다 큰 점수의 수를 세고, 1을 더해 등수를 구한다.</li>
+            <li>배열이 내림차순이므로 새 점수 이상인 점수를 만나는 순간 반복을 종료한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,41 +97,48 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 배열 구성</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
-      int[] levels = new int[N];
+        <li><strong>1) 입력 및 N == 0 예외 처리</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+      int newScore = Integer.parseInt(st.nextToken());
+      int P = Integer.parseInt(st.nextToken());
       
+      if (N == 0) {
+          System.out.println(1);
+          return;
+      }</code></pre>
+          <ul>
+            <li>현재 순위표에 저장된 점수의 수 N, 새 점수 newScore, 순위표 최대 크기 P를 입력받는다.</li>
+            <li>N이 0이면 순위표가 비어있으므로 새 점수는 무조건 1등이다. 즉시 1을 출력하고 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 순위표 진입 불가 판별</strong>
+          <pre><code>if (N == P && newScore <= scores[N - 1]) {
+          System.out.println(-1);
+          return;
+      }</code></pre>
+          <ul>
+            <li>순위표가 꽉 찬 상태(N == P)에서 새 점수가 마지막 점수(<code>scores[N-1]</code>) 이하이면 순위표에 진입할 수 없다.</li>
+            <li>동점인 경우(<code>newScore == scores[N-1]</code>)도 -1 처리함에 주의한다. 순위표가 꽉 찬 상태에서 동점이면 기존 점수를 밀어내고 들어오지 못하기 때문이다.</li>
+            <li>N < P이면 순위표에 빈 자리가 있으므로 이 조건에 해당하지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 등수 계산</strong>
+          <pre><code>int rank = 1;
       for (int i = 0; i < N; i++) {
-          levels[i] = Integer.parseInt(br.readLine());
-      }</code></pre>
-          <ul>
-            <li>레벨 수 N을 읽은 뒤, 각 레벨의 점수를 순서대로 <code>levels</code> 배열에 저장한다.</li>
-            <li>입력 순서가 레벨 순서이므로 <code>levels[0]</code>이 1레벨, <code>levels[N-1]</code>이 N레벨의 점수다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 뒤에서부터 역순으로 조건 위반 교정</strong>
-          <pre><code>int total = 0;
-      for (int i = N - 1; i > 0; i--) {
-          if (levels[i - 1] >= levels[i]) {
-              int decrease = levels[i - 1] - (levels[i] - 1);
-              total += decrease;
-              levels[i - 1] = levels[i] - 1;
+          if (scores[i] > newScore) {
+              rank++;
+          } else {
+              break;
           }
-      }</code></pre>
-          <ul>
-            <li><code>i</code>를 N-1부터 1까지 역순으로 순회하며, 인접한 두 레벨 <code>levels[i-1]</code>과 <code>levels[i]</code>를 비교한다.</li>
-            <li><code>levels[i-1] >= levels[i]</code>이면 앞 레벨 점수가 뒤 레벨 점수 이상이므로 조건을 위반한 것이다.</li>
-            <li>이 경우 <code>levels[i-1]</code>을 <code>levels[i] - 1</code>로 줄인다. 줄인 양 <code>decrease = levels[i-1] - (levels[i] - 1)</code>를 <code>total</code>에 더한다.</li>
-            <li>줄인 값을 실제로 <code>levels[i-1]</code>에 반영해, 그 다음 이터레이션(i-1번째)에서 <code>levels[i-2]</code>와 비교할 때 갱신된 값을 기준으로 삼도록 한다.</li>
-            <li>예시: levels = [5, 5, 5]이면 i=2에서 levels[1]을 4로 줄이고(total=1), i=1에서 levels[0]을 3으로 줄인다(total=3). 최종 total = 3.</li>
-          </ul>
-        </li>
+      }
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(total);</code></pre>
+      System.out.println(rank);</code></pre>
           <ul>
-            <li>누적된 총 감소 횟수 <code>total</code>을 출력한다.</li>
+            <li><code>rank</code>를 1로 초기화한 뒤, 내림차순 정렬된 배열을 앞에서부터 순회하며 새 점수보다 큰 점수를 만날 때마다 <code>rank</code>를 1 증가시킨다.</li>
+            <li>새 점수 이상인 점수를 만나는 순간 반복을 종료한다. 동점자는 같은 등수를 부여하므로 <code>scores[i] == newScore</code>이면 rank를 증가시키지 않고 즉시 break한다.</li>
+            <li>예시: scores = [100, 90, 80], newScore = 85이면 100 > 85(rank=2), 90 > 85(rank=3), 80 ≤ 85(break). 결과 등수는 3.</li>
           </ul>
         </li>
       </ul>
@@ -146,12 +154,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 배열을 한 번 역순으로 순회하며 각 인덱스에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
+            <li><strong>O(N)</strong>: 순위표 배열을 최대 한 번 순회하며 등수를 계산한다. 각 단계의 비교 연산은 O(1)이므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 레벨 점수를 저장하는 <code>levels</code> 배열이 N 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 현재 순위표의 N개 점수를 저장하는 <code>scores</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -217,14 +225,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2776 — 암기왕</h2>
+      <h2 class="section">문제 2491 — 수열</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2776">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2491">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260224_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260225_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
