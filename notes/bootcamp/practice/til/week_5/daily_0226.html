@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 50일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 50일차 TIL — 동시성·병렬성, Proxy 심화, @Transactional 실무 전략</h1>
+      <p class="muted">작성일 2026-02-25 · 분류: 부트캠프, TIL, Spring Boot, JPA, Proxy, Transactional</p>
+
+      <h2 class="section">50일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>동시성(Concurrency)</strong>과 <strong>병렬성(Parallelism)</strong>의 차이를 명확히 구분한다.</li>
+        <li><strong>@Transactional과 private 메서드</strong>가 함께 쓸 수 없는 이유를 Proxy 생성 원리로 설명한다.</li>
+        <li><strong>final 클래스와 JPA 지연 로딩</strong>이 충돌하는 이유를 CGLib Proxy의 상속 방식으로 이해한다.</li>
+        <li><strong>JDK Proxy vs CGLib Proxy</strong>의 차이를 비교한다.</li>
+        <li><strong>PersistentBag / HibernateProxy</strong>의 역할을 이해한다.</li>
+        <li><strong>외부 API 지연과 @Transactional</strong>이 만날 때 발생하는 Connection Pool 고갈 문제와 해결 전략을 정리한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. 동시성과 병렬성</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          동시성 (Concurrency) vs 병렬성 (Parallelism)
+        </span>
+      </h3>
+
+      <div class="concept-box">
+        <span class="box-title">동시성 (Concurrency)</span>
+        오른손 하나(싱글 스레드)로 두 가지 이상의 작업을 동시에 처리하는 것이다.
+        실제로 동시에 실행되는 것이 아니라, 매우 빠르게 번갈아 가며 실행되어 <strong>동시에 처리되는 것처럼 보이는</strong> 방식이다.
+      </div>
+
+      <div class="concept-box">
+        <span class="box-title">병렬성 (Parallelism)</span>
+        왼손은 키보드를 입력하고 오른손은 마우스를 누르는 것처럼, <strong>서로 다른 작업자(멀티 스레드)가 각자의 작업을 동시에 수행</strong>하는 것이다.
+        물리적으로 여러 코어가 각각 독립된 작업을 진정한 의미에서 동시에 실행하는 방식이다.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>동시성 (Concurrency)</th>
+            <th>병렬성 (Parallelism)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>스레드 수</strong></td>
+            <td>싱글 스레드</td>
+            <td>멀티 스레드</td>
+          </tr>
+          <tr>
+            <td><strong>실행 방식</strong></td>
+            <td>빠른 교차 실행으로 동시처럼 보임</td>
+            <td>물리적으로 진짜 동시 실행</td>
+          </tr>
+          <tr>
+            <td><strong>비유</strong></td>
+            <td>오른손 하나로 두 가지 일을 번갈아 처리</td>
+            <td>양손이 각자 다른 일을 동시에 처리</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Proxy 심화: @Transactional과 final의 함정</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @Transactional이 붙은 메서드를 private으로 선언하면 오류가 나는 이유
+        </span>
+      </h3>
+
+      <p>
+        Spring은 <code>@Transactional</code>을 처리하기 위해 실제 클래스를 감싸는 <strong>Proxy(대리) 객체</strong>를 만든다.
+        클라이언트 코드가 서비스 메서드를 호출하면, 실제로는 이 프록시 객체가 먼저 호출을 가로채서 트랜잭션을 시작한 뒤 실제 메서드를 위임 호출하는 방식으로 동작한다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ private 메서드에 @Transactional을 붙이면 안 되는 이유</span>
+        Spring이 <code>@Transactional</code>을 처리하기 위해 만드는 프록시 객체는 <strong>외부에서 메서드를 호출해야 트랜잭션 처리가 가능</strong>하다.
+        그런데 <code>private</code> 메서드는 외부에서 접근 자체가 불가능하다.
+        프록시가 해당 메서드에 접근할 수 없으므로 트랜잭션이 적용되지 않고, 경우에 따라 오류가 발생한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          엔티티 클래스를 final로 선언하면 JPA 지연 로딩이 작동하지 않는 이유
+        </span>
+      </h3>
+
+      <p>
+        JPA의 <strong>지연 로딩(Lazy Loading)</strong>은 연관된 엔티티를 즉시 조회하지 않고, 실제로 해당 필드에 접근하는 시점에 DB를 조회하는 최적화 기법이다.
+        이를 구현하기 위해 JPA는 실제 엔티티 대신 <strong>프록시(가짜) 객체</strong>를 먼저 넣어두고, 나중에 실제 데이터로 채운다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ final 클래스에 지연 로딩이 작동하지 않는 이유</span>
+        JPA가 프록시를 만들 때 사용하는 <strong>CGLib(코드 생성 라이브러리)</strong>는 실제 엔티티 클래스를 <strong>상속</strong>받아서 프록시를 생성한다.
+        그런데 <code>final class</code>는 Java 언어 규칙상 <strong>상속이 불가능</strong>하다.
+        따라서 CGLib이 프록시를 만들 수 없고, 결과적으로 지연 로딩이 작동하지 않는다.
+        이것이 JPA 엔티티에 <code>final</code> 키워드를 붙이면 안 되는 근본적인 이유이다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JDK Proxy vs CGLib Proxy 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%;">구분</th>
+            <th>JDK Proxy</th>
+            <th>CGLib Proxy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>프록시 생성 방식</strong></td>
+            <td>인터페이스 기반으로 프록시를 생성한다.</td>
+            <td>상속 기반으로 프록시를 생성한다.</td>
+          </tr>
+          <tr>
+            <td><strong>조건</strong></td>
+            <td>대상 클래스가 반드시 인터페이스를 구현해야 한다.</td>
+            <td>인터페이스 없이도 사용 가능하다. 단, final 클래스는 불가능하다.</td>
+          </tr>
+          <tr>
+            <td><strong>Spring에서의 사용</strong></td>
+            <td>인터페이스가 있는 빈에 적용</td>
+            <td>인터페이스가 없는 빈 또는 JPA 엔티티에 적용</td>
+          </tr>
+          <tr>
+            <td><strong>사용 예</strong></td>
+            <td><code>@Transactional</code> (인터페이스 기반 서비스)</td>
+            <td>JPA 지연 로딩 프록시, Spring 컴포넌트 프록시</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JPA가 내부적으로 사용하는 프록시 구현체
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구현체</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PersistentBag</strong></td>
+            <td>Java의 기본 컬렉션(<code>ArrayList</code> 등)을 하이버네이트 전용 컬렉션으로 교체하여 지연 로딩을 지원한다. <code>@OneToMany</code> 등의 컬렉션 필드가 실제로는 이 객체로 감싸진다.</td>
+          </tr>
+          <tr>
+            <td><strong>HibernateProxy</strong></td>
+            <td>엔티티 클래스를 상속받아 가짜 객체를 생성한다. 실제 데이터가 필요한 시점까지 DB 조회를 미루는 지연 로딩의 핵심 구현체이다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">내부적으로 Proxy에 의해 구현된 객체가 래핑된다</span>
+        <code>@OneToMany</code>로 선언한 <code>List&lt;Comment&gt;</code> 필드를 꺼내보면 실제 타입은 <code>ArrayList</code>가 아닌 <code>PersistentBag</code>이다.
+        마찬가지로 지연 로딩으로 설정된 <code>@ManyToOne</code> 엔티티는 실제 타입이 <code>HibernateProxy</code>를 상속한 가짜 객체다.
+        실제 필드에 접근하는 순간 이 프록시가 DB를 조회하여 진짜 데이터로 초기화된다.
+        이처럼 JPA는 개발자 코드를 건드리지 않고 <strong>내부적으로 프록시 객체로 래핑하는 방식</strong>으로 지연 로딩을 투명하게 구현한다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. @Transactional 실무 전략 — 외부 API 지연과 Connection Pool 고갈</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @Transactional은 save가 있다고 무조건 붙이는 게 정답이 아니다
+        </span>
+      </h3>
+
+      <p>
+        <code>@Transactional</code>이 붙은 메서드는 실행 시작부터 끝날 때까지 <strong>DB Connection을 계속 점유</strong>한다.
+        대부분의 간단한 저장 로직에서는 문제가 없지만, 메서드 내부에 <strong>외부 API 호출</strong>이 포함되어 있다면 이야기가 달라진다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 외부 API 지연이 Connection Pool을 고갈시키는 원인</span>
+        외부 API 응답이 지연되면, 해당 메서드가 끝나지 않으므로 <strong>DB Connection이 계속 점유된 채로 대기</strong>한다.
+        동시 요청이 많아지면 Connection Pool의 모든 Connection이 이 대기 상태로 묶이고,
+        새로운 요청은 Connection을 할당받지 못해 대기하거나 타임아웃 오류가 발생한다.
+        결국 서비스 전체가 장애 상태에 빠진다.
+      </div>
+
+      <pre><code class="language-java">// ❌ 문제 있는 코드: 외부 API 호출이 포함된 메서드에 @Transactional 적용
+@Transactional
+public void createPost(PostCreateRequest request) {
+    // DB Connection 점유 시작
+    Post post = postRepository.save(new Post(request.title()));
+
+    // 외부 API 호출 → 응답 지연 시 Connection을 계속 붙잡고 있음
+    String externalData = externalApiClient.fetchData(post.getId());
+
+    post.updateWithExternalData(externalData);
+    postRepository.save(post);
+    // DB Connection 반납
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 전략: @Transactional 제거 + 저장 로직 분리
+        </span>
+      </h3>
+
+      <p>
+        해결 방법은 외부 API 호출을 포함한 메서드에서 <code>@Transactional</code>을 제거하고,
+        각 DB 저장 작업을 <strong>개별적으로 수행한 뒤 즉시 Connection을 반납</strong>하도록 분리하는 것이다.
+        외부 API 응답을 받은 이후의 저장 로직은 별도의 서비스 클래스에 <code>@Transactional</code>을 붙인 메서드로 분리하여 호출한다.
+      </p>
+
+      <pre><code class="language-java">// ✅ 해결 코드: 외부 API 호출과 DB 저장 로직을 분리
+
+// 저장 전담 서비스 (별도 클래스로 분리, @Transactional 적용)
+@Service
+public class PostSaveService {
+
+    private final PostRepository postRepository;
+
+    @Transactional
+    public Post saveInitial(String title) {
+        // DB 저장 후 즉시 Connection 반납
+        return postRepository.save(new Post(title));
+    }
+
+    @Transactional
+    public void updateWithExternalData(Long postId, String externalData) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.updateWithExternalData(externalData);
+        // DB 저장 후 즉시 Connection 반납
+    }
+}
+
+// 외부 API 호출을 포함한 서비스 (@Transactional 제거)
+@Service
+@RequiredArgsConstructor
+public class PostService {
+
+    private final PostSaveService postSaveService;
+    private final ExternalApiClient externalApiClient;
+
+    // @Transactional 없음 → DB Connection을 점유하지 않음
+    public void createPost(PostCreateRequest request) {
+
+        // 1. 저장 후 즉시 Connection 반납
+        Post post = postSaveService.saveInitial(request.title());
+
+        // 2. 외부 API 호출 (지연되어도 DB Connection에 영향 없음)
+        String externalData = externalApiClient.fetchData(post.getId());
+
+        // 3. 응답 받은 후 저장, 다시 즉시 Connection 반납
+        postSaveService.updateWithExternalData(post.getId(), externalData);
+    }
+}</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">핵심 원칙: @Transactional의 범위는 최소화해야 한다</span>
+        <code>@Transactional</code>이 붙은 메서드가 실행되는 동안 DB Connection은 계속 점유된다.
+        외부 API 호출, 파일 I/O, 네트워크 통신처럼 <strong>시간이 오래 걸릴 수 있는 작업을 트랜잭션 범위 안에 포함시키면 안 된다.</strong>
+        트랜잭션은 순수하게 DB 작업만 담당하도록 범위를 최소화하고,
+        시간이 걸리는 외부 작업은 트랜잭션 바깥에서 처리한 뒤 결과를 받아서 저장하는 구조로 설계해야 한다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        오늘은 Spring과 JPA 내부에서 프록시가 어떻게 동작하는지, 그리고 그 동작 방식이 코드 작성에 어떤 제약을 만드는지를 깊이 이해했다.
+        <code>@Transactional</code>과 <code>private</code> 메서드가 충돌하는 이유, <code>final</code> 클래스와 JPA 지연 로딩이 충돌하는 이유 모두 결국 <strong>프록시가 상속 또는 접근이 필요하다</strong>는 동일한 원리에서 비롯된다는 것을 연결지어 이해한 것이 오늘의 핵심 성과다.
+      </p>
+
+      <p>
+        <code>PersistentBag</code>과 <code>HibernateProxy</code>는 JPA가 개발자 코드를 건드리지 않고 내부적으로 프록시 객체를 래핑하는 방식으로 지연 로딩을 구현하는 구체적인 수단임을 이해했다.
+        JDK Proxy와 CGLib Proxy의 차이도 "인터페이스 기반이냐, 상속 기반이냐"라는 한 가지 기준으로 명확히 정리되었다.
+      </p>
+
+      <p>
+        <code>@Transactional</code>의 실무 전략에서는 외부 API 지연이 DB Connection Pool을 고갈시키는 장애 시나리오를 이해하고,
+        저장 로직을 별도 서비스로 분리하여 <strong>트랜잭션 범위를 최소화</strong>하는 해결 방법을 코드로 정리했다.
+        <code>save</code>가 있다고 무조건 <code>@Transactional</code>을 붙이는 것이 정답이 아니며, <strong>트랜잭션 범위 안에 오래 걸리는 작업을 포함시키지 않는 것</strong>이 실무에서 반드시 지켜야 할 원칙임을 명심하겠다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

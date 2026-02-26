@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-02-25 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1205 — 등수 구하기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1205">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260225_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>등수 구하기 (백준 1205)</strong>는<br>
+        현재 상위 P개의 점수가 저장된 순위표에 새로운 점수를 추가할 때,<br>
+        <strong>새 점수의 등수를 구하는</strong> 문제다.<br>
+        <strong>순위표에 진입하지 못하는 경우에는 -1을 출력</strong>해야 한다.
+      </p>
+      
+      <ul>
+        <li>순위표는 내림차순으로 정렬되어 있으며, 현재 N개의 점수가 저장되어 있다. (N ≤ P)</li>
+        <li>순위표가 꽉 찬 상태(N == P)에서 새 점수가 마지막 점수 이하이면 순위표에 진입하지 못하므로 -1을 출력한다.</li>
+        <li>등수는 새 점수보다 높은(큰) 점수의 수 + 1로 계산한다. 동점자가 있으면 같은 등수를 부여한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 선형 탐색 + 예외 처리</li>
+        <li><strong>선택 이유</strong>: 순위표가 이미 내림차순으로 정렬되어 있으므로, 앞에서부터 순회하며 새 점수보다 큰 점수의 수를 세면 O(N)에 등수를 구할 수 있다. P가 최대 50,000이므로 선형 탐색으로 충분하다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>N이 0이면 순위표가 비어있으므로 새 점수의 등수는 무조건 1이다.</li>
+            <li>N == P이고 새 점수가 마지막 점수 이하이면 순위표에 진입 불가이므로 -1을 출력한다.</li>
+            <li>그 외의 경우, 정렬된 배열을 앞에서부터 순회하며 새 점수보다 큰 점수의 수를 세고, 1을 더해 등수를 구한다.</li>
+            <li>배열이 내림차순이므로 새 점수 이상인 점수를 만나는 순간 반복을 종료한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 N == 0 예외 처리</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+      int newScore = Integer.parseInt(st.nextToken());
+      int P = Integer.parseInt(st.nextToken());
+      
+      if (N == 0) {
+          System.out.println(1);
+          return;
+      }</code></pre>
+          <ul>
+            <li>현재 순위표에 저장된 점수의 수 N, 새 점수 newScore, 순위표 최대 크기 P를 입력받는다.</li>
+            <li>N이 0이면 순위표가 비어있으므로 새 점수는 무조건 1등이다. 즉시 1을 출력하고 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 순위표 진입 불가 판별</strong>
+          <pre><code>if (N == P && newScore <= scores[N - 1]) {
+          System.out.println(-1);
+          return;
+      }</code></pre>
+          <ul>
+            <li>순위표가 꽉 찬 상태(N == P)에서 새 점수가 마지막 점수(<code>scores[N-1]</code>) 이하이면 순위표에 진입할 수 없다.</li>
+            <li>동점인 경우(<code>newScore == scores[N-1]</code>)도 -1 처리함에 주의한다. 순위표가 꽉 찬 상태에서 동점이면 기존 점수를 밀어내고 들어오지 못하기 때문이다.</li>
+            <li>N < P이면 순위표에 빈 자리가 있으므로 이 조건에 해당하지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 등수 계산</strong>
+          <pre><code>int rank = 1;
+      for (int i = 0; i < N; i++) {
+          if (scores[i] > newScore) {
+              rank++;
+          } else {
+              break;
+          }
+      }
+      
+      System.out.println(rank);</code></pre>
+          <ul>
+            <li><code>rank</code>를 1로 초기화한 뒤, 내림차순 정렬된 배열을 앞에서부터 순회하며 새 점수보다 큰 점수를 만날 때마다 <code>rank</code>를 1 증가시킨다.</li>
+            <li>새 점수 이상인 점수를 만나는 순간 반복을 종료한다. 동점자는 같은 등수를 부여하므로 <code>scores[i] == newScore</code>이면 rank를 증가시키지 않고 즉시 break한다.</li>
+            <li>예시: scores = [100, 90, 80], newScore = 85이면 100 > 85(rank=2), 90 > 85(rank=3), 80 ≤ 85(break). 결과 등수는 3.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 순위표 배열을 최대 한 번 순회하며 등수를 계산한다. 각 단계의 비교 연산은 O(1)이므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 현재 순위표의 N개 점수를 저장하는 <code>scores</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2491 — 수열</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2491">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260225_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>암기왕 (백준 2776)</strong>는<br>
+        수첩1에 적힌 수들을 기억하고, 수첩2에 적힌 각 수가 <strong>수첩1에 존재하면 1, 존재하지 않으면 0을 출력</strong>하는 문제다.<br>
+        <strong>N과 M이 최대 1,000,000</strong>이므로 선형 탐색 대신 이진 탐색을 사용해야 한다.
+      </p>
+      
+      <ul>
+        <li>테스트 케이스 T가 주어지며, 각 케이스마다 수첩1의 N개의 수와 수첩2의 M개의 수를 처리한다.</li>
+        <li>수첩1의 수는 중복이 있을 수 있지만, 존재 여부만 확인하면 되므로 중복 제거 없이 정렬 후 이진 탐색으로 충분하다.</li>
+        <li>N, M이 최대 100만이므로 O(N log N) 정렬 + O(M log N) 탐색으로 처리해야 시간 초과를 피할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 이진 탐색 (Binary Search)</li>
+        <li><strong>선택 이유</strong>: 수첩1을 정렬해두면 수첩2의 각 수에 대해 O(log N)에 존재 여부를 확인할 수 있다. N, M이 최대 100만이므로 선형 탐색 O(N × M)은 시간 초과가 발생하지만, 이진 탐색은 O(M log N)으로 충분히 빠르다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>수첩1의 수를 배열에 저장하고 오름차순 정렬한다.</li>
+            <li>수첩2의 각 수에 대해 직접 구현한 이진 탐색을 수행해 존재하면 1, 없으면 0을 반환한다.</li>
+            <li>중간값 계산 시 <code>start + (end - start) / 2</code>를 사용해 정수 오버플로우를 방지한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 수첩1 입력 및 정렬</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int[] numbers = new int[N];
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          numbers[i] = Integer.parseInt(st.nextToken());
+      }
+      
+      Arrays.sort(numbers);</code></pre>
+          <ul>
+            <li>수첩1의 N개의 수를 배열에 저장한 뒤 <code>Arrays.sort()</code>로 오름차순 정렬한다.</li>
+            <li>정렬된 배열이어야 이진 탐색을 적용할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 수첩2의 각 수에 대해 이진 탐색 수행</strong>
+          <pre><code>int M = Integer.parseInt(br.readLine());
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < M; i++) {
+          int number = Integer.parseInt(st.nextToken());
+          sb.append(binarySearch(numbers, number, 0, N - 1)).append('\n');
+      }</code></pre>
+          <ul>
+            <li>수첩2의 M개의 수를 순서대로 읽으며, 각 수에 대해 <code>binarySearch()</code>를 호출한다.</li>
+            <li>반환값(0 또는 1)을 <code>StringBuilder</code>에 누적해 마지막에 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 이진 탐색 구현</strong>
+          <pre><code>private static int binarySearch(int[] numbers, int target, int start, int end) {
+          while (start <= end) {
+              int mid = start + (end - start) / 2;
+      
+              if (numbers[mid] == target) {
+                  return 1;
+              } else if (numbers[mid] < target) {
+                  start = mid + 1;
+              } else {
+                  end = mid - 1;
+              }
+          }
+      
+          return 0;
+      }</code></pre>
+          <ul>
+            <li><code>start <= end</code>인 동안 반복하며, 중간 인덱스 <code>mid = start + (end - start) / 2</code>를 계산한다. <code>(start + end) / 2</code> 대신 이 방식을 사용하면 두 값의 합이 <code>int</code> 범위를 초과하는 오버플로우를 방지할 수 있다.</li>
+            <li><code>numbers[mid] == target</code>이면 존재하므로 즉시 1을 반환한다.</li>
+            <li><code>numbers[mid] < target</code>이면 탐색 범위를 오른쪽(<code>start = mid + 1</code>)으로 좁히고, 크면 왼쪽(<code>end = mid - 1</code>)으로 좁힌다.</li>
+            <li>반복이 종료될 때까지 찾지 못하면 0을 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N + M log N)</strong>: 수첩1 정렬에 O(N log N), 수첩2의 M개의 수에 대한 이진 탐색에 O(M log N)이 소요된다. N, M이 최대 100만이므로 약 2,000만 번의 연산으로 충분히 처리된다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 수첩1의 N개의 수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
