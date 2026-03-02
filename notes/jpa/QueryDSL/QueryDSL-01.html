@@ -3,8 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JPQL과 쿼리 API — spring-jpa.dev</title>
+  <title>QueryDSL 기본 사용법</title>
   <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box .box-title {
+      color: #856404;
+      border-bottom-color: #ffc107;
+    }
+    .success-box .box-title {
+      color: #155724;
+      border-bottom-color: #28a745;
+    }
+  </style>
 </head>
 <body>
   <header class="site-header container">
@@ -17,197 +112,718 @@
 
   <main class="container article">
     <aside class="toc" aria-label="Table of contents">
-      <div class="toc-title">목차</div>
+      <div class="toc-title">섹션 목록</div>
       <ul id="toc-list"></ul>
     </aside>
 
     <article class="prose">
-      <h1>JPQL과 쿼리 API</h1>
-      <p class="muted">작성일 2025-08-06 · 분류: Spring Boot, JPA</p>
+      <h1>QueryDSL 기본 사용법</h1>
+      <p class="muted">작성일 2026-03-02 · 분류: 정리 노트, Spring Boot, JPA, QueryDSL</p>
 
-      <p class="muted">
-        ※ 로딩 전략 · N+1 · EntityGraph · 배치 페치 · 페치 조인 튜닝은 <b>JPA-03-loading</b>에 있음.
-        본 문서는 <b>JPQL/쿼리 문법과 API</b>에 집중.
-      </p>
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. QueryDSL이란 & JPQL과의 비교</h2>
 
-      <h2 class="section">쿼리 API(엔티티 매니저)</h2>
       <p>
-        <code>EntityManager.createQuery</code>로 JPQL 실행. <code>TypedQuery&lt;T&gt;</code>를 우선 사용하고,
-        파라미터는 <b>이름 기반</b>을 권장한다.
+        QueryDSL은 Java 코드로 타입 세이프(Type-safe)하게 JPA 쿼리를 작성할 수 있도록 도와주는 프레임워크이다.
+        문자열 기반의 JPQL과 달리 <strong>컴파일 시점에 문법 오류를 감지</strong>할 수 있다는 점이 가장 큰 장점이다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-01-query-api.png" alt="createQuery, TypedQuery, 파라미터 사용 예">
-        <figcaption>쿼리 API 기본 (SNAPSHOT-01-query-api.png)</figcaption>
-      </figure>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">비교 항목</th>
+            <th>JPQL</th>
+            <th>QueryDSL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>쿼리 작성 방식</strong></td>
+            <td>문자열(String)로 작성한다.</td>
+            <td>Java 메서드 체이닝으로 작성한다.</td>
+          </tr>
+          <tr>
+            <td><strong>오류 감지 시점</strong></td>
+            <td><strong>런타임(Runtime)</strong>에 오류가 발생한다. (서버 기동 후에야 알 수 있다.)</td>
+            <td><strong>컴파일(Compile) 시점</strong>에 오류가 발생한다. (코딩 중에 바로 알 수 있다.)</td>
+          </tr>
+          <tr>
+            <td><strong>파라미터 바인딩</strong></td>
+            <td><code>:param</code> 형태로 직접 지정해야 한다.</td>
+            <td><strong>PreparedStatement로 자동 처리</strong>된다. SQL Injection을 방지하고 DB 쿼리 캐싱 성능에서도 유리하다.</td>
+          </tr>
+          <tr>
+            <td><strong>동적 쿼리</strong></td>
+            <td>문자열 조합으로 만들어야 해서 복잡하고 실수가 잦다.</td>
+            <td><code>BooleanBuilder</code>나 <code>where()</code> 다중 파라미터로 깔끔하게 처리한다.</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <h2 class="section">프로젝션(SELECT)</h2>
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 의존성 설정 (build.gradle)</h2>
+
       <p>
-        프로젝션은 <b>엔티티</b>, <b>임베디드</b>, <b>스칼라</b>, <b>DTO(new …)</b>를 지원.
-        스칼라 혼합은 Object[] 반환이므로 DTO로 직접 투영하면 깔끔하다.
+        QueryDSL을 사용하기 위해서는 <code>build.gradle</code>에 다음 의존성을 추가해야 한다.
+        Jakarta 네임스페이스 기반(Spring Boot 3.x)을 기준으로 한다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-02-projections.png" alt="엔티티·임베디드·스칼라·DTO 프로젝션">
-        <figcaption>프로젝션 패턴 (SNAPSHOT-02-projections.png)</figcaption>
-      </figure>
+      <pre><code class="language-groovy">// build.gradle
 
-      <h2 class="section">페이징</h2>
+dependencies {
+    // QueryDSL JPA 라이브러리
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+
+    // Q타입 자동 생성을 위한 어노테이션 프로세서
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Q타입 생성 방법</span>
+        의존성을 추가한 후에는 QueryDSL이 사용하는 <strong>검증용 Q 타입 클래스</strong>를 직접 생성해야 한다.
+        Q타입은 각 엔티티에 대응하는 메타 클래스로, QueryDSL이 타입 세이프하게 쿼리를 빌드하는 데 사용된다.<br><br>
+        아래 중 하나의 방법으로 생성할 수 있다.<br>
+        방법 1. IntelliJ Gradle 패널 → Tasks → other → <strong>compileJava 실행</strong><br>
+        방법 2. 터미널에서 <strong><code>./gradlew clean compileJava</code></strong> 실행<br><br>
+        <strong>초기화 방법:</strong> Gradle → Tasks → build → <strong>clean</strong> 을 실행하면 생성된 Q타입이 제거된다.
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Q타입은 Git에 포함하지 않는다</span>
+        Q타입은 <strong>컴파일 시점에 자동 생성</strong>되는 파일이다. 소스 코드가 아니므로 <code>.gitignore</code>에 추가하여 버전 관리(Git)에 포함시키지 않아야 한다.
+        팀원이 각자 컴파일하면 자동으로 생성된다.
+        <pre style="background-color: transparent; border: none; padding: 0; margin: 0.5rem 0 0;"><code class="language-gitignore"># .gitignore
+/build/generated/</code></pre>
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. JPAQueryFactory 설정 및 Q클래스 인스턴스</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JPAQueryFactory Bean 등록
+        </span>
+      </h3>
       <p>
-        <code>setFirstResult</code>, <code>setMaxResults</code>로 구현. (페치 조인 제약은 JPA-03 참고)
+        QueryDSL을 사용하려면 <code>JPAQueryFactory</code>를 스프링 Bean으로 등록해야 한다.
+        <code>EntityManager</code>를 주입받아 생성하며, 실제 쿼리 실행은 이 객체가 담당한다.
       </p>
+      <pre><code class="language-java">@Configuration
+public class QueryDslConfig {
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-03-paging.png" alt="JPA 페이징 API 사용 예">
-        <figcaption>페이징 (SNAPSHOT-03-paging.png)</figcaption>
-      </figure>
+    @PersistenceContext
+    private EntityManager em;
 
-      <h2 class="section">조인</h2>
+    @Bean
+    public JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(em);
+    }
+}</code></pre>
+
+      <pre><code class="language-java">// Repository에서 사용 예시
+@Repository
+public class MemberQueryRepository {
+
+    private final JPAQueryFactory queryFactory;
+
+    // 생성자 주입
+    public MemberQueryRepository(JPAQueryFactory queryFactory) {
+        this.queryFactory = queryFactory;
+    }
+
+    public List&lt;Member&gt; findAll() {
+        return queryFactory
+            .selectFrom(member)   // QMember.member (static import)
+            .fetch();
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Q클래스 인스턴스 사용법 2가지
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 방법 1: 별칭(alias) 직접 지정
+QMember qMember = new QMember("m");
+
+// 방법 2: 기본 인스턴스 사용 (권장)
+QMember qMember = QMember.member;</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">언제 어떤 방법을 쓸까?</span>
+        <strong>별칭 직접 지정</strong>은 같은 테이블을 두 번 이상 조인해야 하는 <strong>셀프 조인(Self Join)</strong> 상황에서만 사용한다.
+        이 경우 두 Q타입이 같은 별칭을 가지면 쿼리가 충돌하므로, 서로 다른 별칭을 부여해야 한다.<br><br>
+        그 외 모든 일반적인 경우에는 <strong>기본 인스턴스를 Static import</strong>해서 코드를 더 간결하게 유지한다.
+        <pre style="background-color: transparent; border: none; padding: 0; margin: 0.5rem 0 0;"><code class="language-java">// Static import 사용 시 (권장)
+import static com.example.entity.QMember.member;
+
+queryFactory.selectFrom(member).fetch(); // 깔끔하다</code></pre>
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 기본 검색 조건 (where 절)</h2>
+
       <p>
-        명시적 조인을 사용하자. 묵시적 조인은 의도치 않은 내부 조인을 유발할 수 있다.
-        (로딩 전략 자체는 JPA-03 참고)
+        QueryDSL은 Q타입 필드의 메서드를 이용하여 WHERE 절의 조건을 표현한다.
+        아래는 실무에서 자주 쓰이는 조건 메서드 전체 목록이다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-04-joins.png" alt="내부·외부·세타 조인 예">
-        <figcaption>조인 기본 (SNAPSHOT-04-joins.png)</figcaption>
-      </figure>
+      <pre><code class="language-java">// ===== 동등 / 비교 =====
+member.username.eq("member1")       // username = 'member1'
+member.username.ne("member1")       // username != 'member1'
+member.username.eq("member1").not() // username != 'member1' (not()으로도 표현 가능)
 
-      <h2 class="section">서브쿼리</h2>
+// ===== NULL 체크 =====
+member.username.isNotNull()         // username IS NOT NULL
+
+// ===== 범위 =====
+member.age.in(10, 20)               // age IN (10, 20)
+member.age.notIn(10, 20)            // age NOT IN (10, 20)
+member.age.between(10, 30)          // age BETWEEN 10 AND 30
+member.age.goe(30)                  // age >= 30  (Greater Or Equal)
+member.age.gt(30)                   // age > 30   (Greater Than)
+member.age.loe(30)                  // age &lt;= 30  (Less Or Equal)
+member.age.lt(30)                   // age &lt; 30   (Less Than)
+
+// ===== 문자열 검색 =====
+member.username.like("member%")     // LIKE 'member%'
+member.username.contains("member")  // LIKE '%member%'
+member.username.startsWith("member")// LIKE 'member%'</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">where() 에 조건을 여러 개 넣으면?</span>
+        <code>where()</code>에 조건을 쉼표로 여러 개 넣으면 <strong>AND 조건으로 자동 결합</strong>된다.
+        조건 중 <code>null</code>이 들어오면 해당 조건은 무시된다. 이 특성을 이용하면 <strong>동적 쿼리</strong>를 매우 깔끔하게 작성할 수 있다.
+        <pre style="background-color: transparent; border: none; padding: 0; margin: 0.5rem 0 0;"><code class="language-java">// null이면 해당 조건은 자동으로 무시된다
+queryFactory
+    .selectFrom(member)
+    .where(
+        usernameEq(username),  // null이면 이 조건은 빠짐
+        ageGoe(ageMin)         // null이면 이 조건은 빠짐
+    )
+    .fetch();
+
+private BooleanExpression usernameEq(String username) {
+    return username != null ? member.username.eq(username) : null;
+}</code></pre>
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 결과 조회 메서드</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">메서드</th>
+            <th>설명</th>
+            <th>주의사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>fetch()</code></td>
+            <td>리스트로 반환한다. 결과가 없으면 빈 리스트(<code>[]</code>)를 반환한다.</td>
+            <td>가장 많이 사용한다.</td>
+          </tr>
+          <tr>
+            <td><code>fetchOne()</code></td>
+            <td>단 건을 반환한다. 결과가 없으면 <code>null</code>을 반환한다.</td>
+            <td>결과가 2건 이상이면 <code>NonUniqueResultException</code>이 발생한다.</td>
+          </tr>
+          <tr>
+            <td><code>fetchFirst()</code></td>
+            <td><code>limit(1).fetchOne()</code>과 동일하다. 첫 번째 결과 1건만 반환한다.</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>fetchResults()</code></td>
+            <td>페이징 정보(total count)를 포함한 <code>QueryResults</code> 객체를 반환한다.</td>
+            <td>⚠️ <strong>QueryDSL 5.0 이후 Deprecated.</strong> 복잡한 쿼리에서 count 쿼리가 비효율적으로 실행될 수 있다. 아래 설명 참조.</td>
+          </tr>
+          <tr>
+            <td><code>fetchCount()</code></td>
+            <td>count 쿼리를 별도로 실행하여 전체 건수를 <code>long</code>으로 반환한다.</td>
+            <td>⚠️ <strong>QueryDSL 5.0 이후 Deprecated.</strong> <code>fetch().size()</code> 또는 별도 count 쿼리 작성을 권장한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-java">// 가장 기본적인 조회 패턴
+
+// 1. 리스트 조회
+List&lt;Member&gt; members = queryFactory
+    .selectFrom(member)
+    .fetch();
+
+// 2. 단 건 조회 (2건 이상이면 예외 발생)
+Member findMember = queryFactory
+    .selectFrom(member)
+    .where(member.username.eq("member1"))
+    .fetchOne();
+
+// 3. 첫 번째 1건만 조회
+Member firstMember = queryFactory
+    .selectFrom(member)
+    .fetchFirst();</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ fetchResults() / fetchCount() Deprecated 주의</span>
+        <code>fetchResults()</code>는 내부적으로 count 쿼리를 자동으로 생성하는데, <strong>조인이 포함된 복잡한 쿼리에서는 원본 쿼리의 모든 조인을 그대로 수행</strong>하기 때문에 성능이 떨어진다.
+        성능이 중요한 페이징 상황에서는 <strong>데이터 조회 쿼리와 count 쿼리를 별도로 2번 작성</strong>하는 것이 올바른 방법이다.
+        <pre style="background-color: transparent; border: none; padding: 0; margin: 0.5rem 0 0;"><code class="language-java">// 권장 패턴: 데이터 쿼리와 count 쿼리 분리
+List&lt;Member&gt; content = queryFactory
+    .selectFrom(member)
+    .offset(pageable.getOffset())
+    .limit(pageable.getPageSize())
+    .fetch();
+
+long total = queryFactory
+    .select(member.count())
+    .from(member)
+    .fetchOne();
+
+return new PageImpl&lt;&gt;(content, pageable, total);</code></pre>
+      </div>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. 정렬 (orderBy)</h2>
+
+      <pre><code class="language-java">// 정렬 예시
+// 조건: 1. 나이 내림차순(desc), 2. 이름 오름차순(asc), 3. 이름이 null이면 마지막 출력
+List&lt;Member&gt; result = queryFactory
+    .selectFrom(member)
+    .orderBy(
+        member.age.desc(),
+        member.username.asc().nullsLast()
+    )
+    .fetch();</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">메서드</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>desc()</code></td>
+            <td>내림차순 정렬이다. (큰 값 → 작은 값)</td>
+          </tr>
+          <tr>
+            <td><code>asc()</code></td>
+            <td>오름차순 정렬이다. (작은 값 → 큰 값)</td>
+          </tr>
+          <tr>
+            <td><code>nullsLast()</code></td>
+            <td>NULL 값을 가진 데이터를 가장 마지막에 출력한다.</td>
+          </tr>
+          <tr>
+            <td><code>nullsFirst()</code></td>
+            <td>NULL 값을 가진 데이터를 가장 먼저 출력한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 7 ===================== -->
+      <h2 class="section">7. 페이징 (Paging)</h2>
+
+      <pre><code class="language-java">// 기본 페이징 - 1번째(0 index)부터 건너뛰고, 최대 2건 조회
+List&lt;Member&gt; result = queryFactory
+    .selectFrom(member)
+    .orderBy(member.username.desc())
+    .offset(1)   // 0부터 시작 (zero index). 1이면 첫 번째 결과를 건너뛴다.
+    .limit(2)    // 최대 2건 조회
+    .fetch();
+
+assertThat(result.size()).isEqualTo(2);</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">offset과 limit의 의미</span>
+        <strong>offset(n)</strong>: 결과 목록의 앞에서 n개를 건너뛴 뒤부터 가져온다. 0이면 처음부터 가져온다.<br>
+        <strong>limit(m)</strong>: 최대 m개만 가져온다.<br><br>
+        예) 전체가 10건일 때 <code>offset(2).limit(3)</code>이면 3번째 ~ 5번째 결과를 가져온다.
+      </div>
+
+      <!-- ===================== SECTION 8 ===================== -->
+      <h2 class="section">8. 집합 (Aggregation)</h2>
+
       <p>
-        JPQL은 <b>WHERE/HAVING</b> 절에서 서브쿼리를 지원. <b>FROM 절 서브쿼리는 불가</b>하므로
-        필요 시 조인/뷰/네이티브를 고려한다.
+        <code>select()</code>에 집계 함수를 사용하면 반환 타입이 단일 엔티티가 아니므로 <strong><code>Tuple</code> 타입</strong>으로 받아야 한다.
+        실무에서는 Tuple보다 DTO 프로젝션을 사용하는 경우가 많다.
       </p>
-      
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-05-subqueries.png" alt="WHERE/HAVING 서브쿼리 예">
-        <figcaption>서브쿼리 (SNAPSHOT-05-subqueries.png)</figcaption>
-      </figure>
 
-      <h2 class="section">경로 표현식</h2>
+      <pre><code class="language-java">// 팀별 평균 나이 조회 예시
+List&lt;Tuple&gt; result = queryFactory
+    .select(team.name, member.age.avg())
+    .from(member)
+    .join(member.team, team)
+    .groupBy(team.name)
+    // .having(team.name.eq("teamA"))  // HAVING 절 추가 예시
+    .fetch();
+
+Tuple teamA = result.get(0);
+String teamName = teamA.get(team.name);        // "teamA"
+Double avgAge  = teamA.get(member.age.avg());  // 15.0</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">집계 함수</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>.count()</code></td>
+            <td>전체 건수를 반환한다.</td>
+          </tr>
+          <tr>
+            <td><code>.sum()</code></td>
+            <td>합계를 반환한다.</td>
+          </tr>
+          <tr>
+            <td><code>.avg()</code></td>
+            <td>평균을 반환한다.</td>
+          </tr>
+          <tr>
+            <td><code>.max()</code></td>
+            <td>최댓값을 반환한다.</td>
+          </tr>
+          <tr>
+            <td><code>.min()</code></td>
+            <td>최솟값을 반환한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-java">// HAVING 절 예시: 가격이 1000 초과인 그룹만 필터링
+queryFactory
+    .select(item.price, item.count())
+    .from(item)
+    .groupBy(item.price)
+    .having(item.price.gt(1000))
+    .fetch();</code></pre>
+
+      <!-- ===================== SECTION 9 ===================== -->
+      <h2 class="section">9. 조인 (Join)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          기본 조인 (Inner / Left / Right)
+        </span>
+      </h3>
       <p>
-        상태 필드(<code>m.name</code>)는 탐색 끝. 단일 값 연관(<code>m.team</code>)은 <b>묵시적 내부 조인</b>이 발생,
-        컬렉션(<code>t.members</code>)은 탐색 불가이므로 <b>조인 + 별칭</b>이 필요. 크기는 <code>size()</code>.
+        조인의 기본 문법은 첫 번째 파라미터에 <strong>조인 대상</strong>, 두 번째 파라미터에 <strong>별칭으로 사용할 Q타입</strong>을 지정한다.
       </p>
+      <pre><code class="language-java">// teamA 소속인 모든 회원 조회 (Inner Join)
+List&lt;Member&gt; result = queryFactory
+    .selectFrom(member)
+    .join(member.team, team)          // INNER JOIN member.team
+    .where(team.name.eq("teamA"))
+    .fetch();
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-06-path-expr.png" alt="경로 표현식 규칙과 size()">
-        <figcaption>경로 표현식 (SNAPSHOT-06-path-expr.png)</figcaption>
-      </figure>
+// Left Join 예시
+List&lt;Tuple&gt; leftResult = queryFactory
+    .select(member, team)
+    .from(member)
+    .leftJoin(member.team, team)      // LEFT JOIN member.team
+    .fetch();</code></pre>
 
-      <h2 class="section">조건식(CASE 등)과 타입/기타 식</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          세타 조인 (Theta Join) — 연관관계 없는 조인
+        </span>
+      </h3>
       <p>
-        단순/검색 CASE를 모두 지원. 상속 구조에서는 <code>TYPE()</code>과 JPA 2.1+의 <code>TREAT</code>로 다운캐스팅 가능.
+        FK 연관관계가 없는 필드를 기준으로 조인한다. <code>from()</code>에 조인할 엔티티를 나열하는 방식으로 작성한다.
+        단, 이 방법은 <strong>외부 조인(Outer Join)이 불가능</strong>하다는 단점이 있다. 외부 조인이 필요하면 <code>on</code> 절을 사용해야 한다.
       </p>
+      <pre><code class="language-java">// 이름(username)과 팀 이름(team.name)이 같은 회원 조회 (세타 조인)
+List&lt;Member&gt; result = queryFactory
+    .select(member)
+    .from(member, team)               // 카테시안 곱 후 where로 필터
+    .where(member.username.eq(team.name))
+    .fetch();</code></pre>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-07-case-type.png" alt="CASE, TYPE, TREAT 사용 예">
-        <figcaption>CASE와 타입/캐스팅 (SNAPSHOT-07-case-type.png)</figcaption>
-      </figure>
-
-      <h2 class="section">JPQL 함수</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ON 절을 이용한 조인
+        </span>
+      </h3>
       <p>
-        표준(문자/숫자/날짜, <code>size()</code>, <code>index()</code>) + 공급자 함수는
-        <code>function('name', …)</code>으로 호출한다.
+        <code>on()</code>은 조인 시 추가 필터 조건을 걸거나, 연관관계 없는 엔티티를 외부 조인할 때 사용한다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-08-functions.png" alt="표준/공급자 함수 호출 예">
-        <figcaption>JPQL 함수 (SNAPSHOT-08-functions.png)</figcaption>
-      </figure>
+      <pre><code class="language-java">// 예시 1: 조인 대상 필터링 (teamA인 팀만 조인, 회원은 모두 조회)
+// SQL: SELECT m.*, t.* FROM member m LEFT JOIN team t ON m.team_id = t.id AND t.name = 'teamA'
+List&lt;Tuple&gt; result = queryFactory
+    .select(member, team)
+    .from(member)
+    .leftJoin(member.team, team).on(team.name.eq("teamA"))
+    .fetch();
 
-      <h2 class="section">페치 조인 1 — 기본</h2>
+// 예시 2: 연관관계 없는 엔티티 외부 조인
+// SQL: SELECT m.*, t.* FROM member m LEFT JOIN team t ON m.username = t.name
+List&lt;Tuple&gt; result2 = queryFactory
+    .select(member, team)
+    .from(member)
+    .leftJoin(team).on(member.username.eq(team.name))  // 주의: team Q타입만 넣는다
+    .fetch();</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">일반 조인 vs ON 조인 문법 차이</span>
+        연관관계가 있는 일반 조인에서는 <code>.leftJoin(member.team, team)</code>처럼 연관관계 경로와 Q타입을 함께 넣는다.<br>
+        연관관계 없는 엔티티를 ON으로 조인할 때는 <code>.leftJoin(team).on(...)</code>처럼 <strong>Q타입만 단독으로</strong> 넣는다. 이 차이를 혼동하면 안 된다.
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">내부 조인(Inner Join)에서 ON 절 사용 시 주의</span>
+        ON 절을 활용한 조인 대상 필터링 시, <strong>내부 조인(INNER JOIN)이라면 ON 절 대신 where 절을 사용하는 것이 더 직관적</strong>이다.
+        ON 절의 효과가 where 절과 동일하기 때문이다. ON 절은 외부 조인이 꼭 필요한 경우에만 활용하도록 한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          페치 조인 (Fetch Join)
+        </span>
+      </h3>
       <p>
-        연관을 한 번에 로딩하는 조인. <b>자세한 튜닝/제약은 JPA-03 참고</b>—여기선 문법만 다룸.
+        페치 조인은 SQL 기능이 아닌 JPA 전용 최적화 기능이다.
+        지연 로딩(LAZY)으로 설정된 연관 엔티티를 <strong>SQL 한 번에 함께 조회</strong>하여 N+1 문제를 해결한다.
+        <code>join()</code> 뒤에 <code>.fetchJoin()</code>만 추가하면 된다.
       </p>
+      <pre><code class="language-java">// member를 조회할 때 연관된 team도 한 번에 가져온다 (N+1 방지)
+Member findMember = queryFactory
+    .selectFrom(member)
+    .join(member.team, team).fetchJoin()
+    .where(member.username.eq("member1"))
+    .fetchOne();</code></pre>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-09-fetchjoin-basic.png" alt="기본 페치 조인 문법">
-        <figcaption>페치 조인 기본 (SNAPSHOT-09-fetchjoin-basic.png)</figcaption>
-      </figure>
+      <!-- ===================== SECTION 10 ===================== -->
+      <h2 class="section">10. 서브쿼리 (SubQuery)</h2>
 
-      <h2 class="section">페치 조인 2 — 한계</h2>
       <p>
-        컬렉션 페치 조인은 <b>페이징 불가</b>, 다중 컬렉션 페치 조인은 <b>사실상 금지</b>.
-        중복/카디널리티 폭증으로 데이터 왜곡이 발생할 수 있어 화면 요구에 맞춰 DTO/쿼리 분리 권장.
+        서브쿼리는 <code>JPAExpressions</code>를 사용하여 작성한다.
+        이때 서브쿼리의 Q타입 별칭은 <strong>외부 쿼리의 Q타입과 달라야</strong> 하므로, 새로운 Q타입 인스턴스를 선언해야 한다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-10-fetchjoin-limits.png" alt="컬렉션 페치 조인 한계">
-        <figcaption>페치 조인 한계 (SNAPSHOT-10-fetchjoin-limits.png)</figcaption>
-      </figure>
+      <pre><code class="language-java">import com.querydsl.jpa.JPAExpressions;
 
-      <h2 class="section">다형성 쿼리</h2>
+// 나이가 가장 많은 회원을 조회하는 서브쿼리 예시
+QMember memberSub = new QMember("memberSub"); // 별칭이 겹치지 않도록 새로 선언
+
+List&lt;Member&gt; result = queryFactory
+    .selectFrom(member)
+    .where(member.age.eq(
+        JPAExpressions
+            .select(memberSub.age.max())
+            .from(memberSub)
+    ))
+    .fetch();
+
+// IN 절 서브쿼리 예시: 평균 나이 이상인 회원 조회
+List&lt;Member&gt; result2 = queryFactory
+    .selectFrom(member)
+    .where(member.age.goe(
+        JPAExpressions
+            .select(memberSub.age.avg())
+            .from(memberSub)
+    ))
+    .fetch();</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ FROM 절 서브쿼리(인라인 뷰)는 지원하지 않는다</span>
+        JPA/JPQL의 한계로 <strong>FROM 절의 서브쿼리(인라인 뷰)</strong>는 지원하지 않는다. QueryDSL도 동일하게 지원하지 않는다.
+        (SELECT 절과 WHERE 절의 서브쿼리는 지원한다.)<br><br>
+        <strong>FROM 절 서브쿼리 해결 방법 3가지</strong><br>
+        1. <strong>서브쿼리를 JOIN으로 변경</strong>한다. (가능한 상황도 있고, 불가능한 상황도 있다.)<br>
+        2. <strong>쿼리를 2번 분리해서 실행</strong>한다. (애플리케이션 레이어에서 합친다.)<br>
+        3. <strong>nativeQuery</strong>를 사용한다. (최후의 수단)
+      </div>
+
+      <!-- ===================== SECTION 11 ===================== -->
+      <h2 class="section">11. Case 문</h2>
+
       <p>
-        상속 매핑에서 <code>TYPE()</code>으로 구체 타입 필터, <code>TREAT()</code>로 다운캐스팅 가능.
+        SELECT, WHERE, ORDER BY 절에서 사용 가능하다. 단순 조건은 <code>.when().then()</code>으로, 복잡한 조건은 <code>CaseBuilder</code>를 사용한다.
       </p>
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-11-polymorphism.png" alt="TYPE/TREAT를 사용한 다형성 쿼리">
-        <figcaption>다형성 쿼리 (SNAPSHOT-11-polymorphism.png)</figcaption>
-      </figure>
+      <pre><code class="language-java">// 단순 Case 예시
+List&lt;String&gt; result = queryFactory
+    .select(member.age
+        .when(10).then("열살")
+        .when(20).then("스무살")
+        .otherwise("기타"))
+    .from(member)
+    .fetch();
 
-      <h2 class="section">엔티티 직접 사용 (식별자 비교 자동 변환)</h2>
+// 범위 조건이 필요한 복잡한 Case — CaseBuilder 사용
+List&lt;String&gt; result2 = queryFactory
+    .select(new CaseBuilder()
+        .when(member.age.between(0, 20)).then("0~20살")
+        .when(member.age.between(21, 30)).then("21~30살")
+        .otherwise("기타"))
+    .from(member)
+    .fetch();</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Case 결과를 ORDER BY에 활용하기
+        </span>
+      </h3>
       <p>
-        JPQL에서 엔티티를 직접 비교하면 <b>식별자 비교</b>로 자동 변환된다. 연관 필드 비교도 동일.
+        Case 문의 결과를 변수에 담아 <code>orderBy()</code>에 직접 활용할 수 있다.
+        복잡한 정렬 우선순위를 표현할 때 강력하다.
       </p>
+      <pre><code class="language-java">// 정렬 우선순위:
+// 1순위: 0~20살 (rankPath = 2이지만 desc 정렬이므로 나중에 나옴)
+// 2순위: 21~30살
+// 3순위: 그 외 (rankPath = 3이 desc 정렬에서 가장 먼저 나옴)
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-12-entity-direct.png" alt="엔티티 직접 비교는 식별자 비교로 해석">
-        <figcaption>엔티티 직접 사용 (SNAPSHOT-12-entity-direct.png)</figcaption>
-      </figure>
+NumberExpression&lt;Integer&gt; rankPath = new CaseBuilder()
+    .when(member.age.between(0, 20)).then(2)
+    .when(member.age.between(21, 30)).then(1)
+    .otherwise(3);
 
-      <h2 class="section">Named 쿼리</h2>
+List&lt;Tuple&gt; result = queryFactory
+    .select(member.username, member.age, rankPath)
+    .from(member)
+    .orderBy(rankPath.desc())
+    .fetch();</code></pre>
+
+      <!-- ===================== SECTION 12 ===================== -->
+      <h2 class="section">12. 상수 · 문자 더하기</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          상수 추가 — Expressions.constant()
+        </span>
+      </h3>
       <p>
-        정적 쿼리를 엔티티에 선언해 재사용·검증을 강화. 시작 시 파싱되어 오타를 조기 발견 가능.
+        쿼리 결과에 DB에 없는 고정 상수 값을 함께 반환하고 싶을 때 사용한다.
+        SQL에는 상수가 나가지 않고, QueryDSL이 결과 조합 시 추가해준다.
       </p>
+      <pre><code class="language-java">// select 에 고정 문자 "A"를 함께 반환
+// 실제 SQL: SELECT member.username FROM member (상수 "A"는 SQL에 포함되지 않는다)
+Tuple result = queryFactory
+    .select(member.username, Expressions.constant("A"))
+    .from(member)
+    .fetchFirst();
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-13-namedquery.png" alt="NamedQuery 선언과 사용">
-        <figcaption>Named 쿼리 (SNAPSHOT-13-namedquery.png)</figcaption>
-      </figure>
+// 결과: [member1, A]</code></pre>
 
-      <h2 class="section">벌크 연산</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문자 더하기 — concat() · stringValue()
+        </span>
+      </h3>
       <p>
-        <b>update/delete</b> 벌크는 1차 캐시를 우회해 DB에 바로 반영된다.
-        실행 후 <b>em.clear()</b>로 상태 동기화를 권장. (로딩 규칙은 JPA-03 참고)
+        문자열 타입 필드끼리는 <code>concat()</code>으로 이을 수 있다.
+        <strong>문자열이 아닌 타입(예: Integer인 age)은 반드시 <code>stringValue()</code>로 변환</strong>한 후 연결해야 한다.
+        <code>ENUM</code> 타입을 문자열로 변환할 때도 <code>stringValue()</code>를 자주 사용한다.
       </p>
+      <pre><code class="language-java">// username + "_" + age 형태로 합쳐서 반환하는 예시
+// age는 Integer 타입이므로 .stringValue()로 반드시 변환해야 한다
+String result = queryFactory
+    .select(member.username.concat("_").concat(member.age.stringValue()))
+    .from(member)
+    .where(member.username.eq("member1"))
+    .fetchOne();
 
-      <figure class="figure">
-        <img src="/assets/notes/jpa/jpql/SNAPSHOT-14-bulk.png" alt="벌크 연산 후 영속성 컨텍스트 초기화">
-        <figcaption>벌크 연산 주의 (SNAPSHOT-14-bulk.png)</figcaption>
-      </figure>
+// 결과: "member1_10"</code></pre>
 
-      <h2 class="section">체크리스트</h2>
-      <ul>
-        <li>쿼리 API는 <b>TypedQuery</b> + <b>이름 파라미터</b> 우선.</li>
-        <li>프로젝션은 DTO(new …)로 직접 투영하면 깔끔.</li>
-        <li>페이징은 <code>setFirstResult/setMaxResults</code> (페치 조인 제약은 JPA-03).</li>
-        <li>경로 표현식: 단일 연관=묵시적 내부 조인, 컬렉션=명시적 조인.</li>
-        <li>서브쿼리는 WHERE/HAVING만, FROM 서브쿼리는 불가.</li>
-        <li>CASE/TYPE/TREAT로 조건·다형성 처리.</li>
-        <li>엔티티 직접 비교 → 식별자 비교로 자동 해석.</li>
-        <li>벌크 연산 후 <code>em.clear()</code> 필수.</li>
-      </ul>
+      <!-- ===================== SECTION 13 ===================== -->
+      <h2 class="section">13. 전체 문법 요약 치트시트</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>기능</th>
+            <th>주요 메서드 / 사용법</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>전체 조회</strong></td>
+            <td><code>queryFactory.selectFrom(member).fetch()</code></td>
+          </tr>
+          <tr>
+            <td><strong>단 건 조회</strong></td>
+            <td><code>.fetchOne()</code> — 2건 이상이면 예외 발생</td>
+          </tr>
+          <tr>
+            <td><strong>첫 번째 1건</strong></td>
+            <td><code>.fetchFirst()</code></td>
+          </tr>
+          <tr>
+            <td><strong>WHERE 조건</strong></td>
+            <td><code>.where(member.age.goe(20), member.username.eq("A"))</code> — 쉼표는 AND</td>
+          </tr>
+          <tr>
+            <td><strong>정렬</strong></td>
+            <td><code>.orderBy(member.age.desc(), member.username.asc().nullsLast())</code></td>
+          </tr>
+          <tr>
+            <td><strong>페이징</strong></td>
+            <td><code>.offset(0).limit(10).fetch()</code></td>
+          </tr>
+          <tr>
+            <td><strong>집합</strong></td>
+            <td><code>.groupBy(team.name).having(team.name.eq("teamA"))</code></td>
+          </tr>
+          <tr>
+            <td><strong>조인</strong></td>
+            <td><code>.join(member.team, team)</code> / <code>.leftJoin(member.team, team)</code></td>
+          </tr>
+          <tr>
+            <td><strong>페치 조인</strong></td>
+            <td><code>.join(member.team, team).fetchJoin()</code></td>
+          </tr>
+          <tr>
+            <td><strong>서브쿼리</strong></td>
+            <td><code>JPAExpressions.select(...).from(...)</code> — WHERE/SELECT 절만 지원</td>
+          </tr>
+          <tr>
+            <td><strong>Case 문</strong></td>
+            <td><code>new CaseBuilder().when(...).then(...).otherwise(...)</code></td>
+          </tr>
+          <tr>
+            <td><strong>상수</strong></td>
+            <td><code>Expressions.constant("A")</code></td>
+          </tr>
+          <tr>
+            <td><strong>문자 연결</strong></td>
+            <td><code>member.username.concat("_").concat(member.age.stringValue())</code></td>
+          </tr>
+        </tbody>
+      </table>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
   <script>
   (function(){
     const article = document.querySelector('article.prose');
-    if(!article) return;
-    const headers = [...article.querySelectorAll('h2.section, h3.section')];
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
     const slugify = s => s.toLowerCase()
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
       .trim().replace(/\s+/g, '-').slice(0,64);
-    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
     const toc = document.getElementById('toc-list');
     toc.innerHTML = '';
     headers.forEach(h => {
       const li = document.createElement('li');
-      if(h.tagName === 'H3') li.classList.add('level-3');
       const a = document.createElement('a');
       a.href = `#${h.id}`;
       a.textContent = h.textContent.trim();
