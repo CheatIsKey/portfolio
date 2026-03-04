@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 53일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 53일차 TIL — Filter · Spring Security · Interceptor · AOP</h1>
+      <p class="muted">작성일 2026-03-03 · 분류: 부트캠프, TIL, Spring Boot, Filter, Spring Security, Interceptor, AOP</p>
+
+      <h2 class="section">53일차 개요</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Filter 구조</strong>와 종류, <code>OncePerRequestFilter</code> 구현 방법을 이해한다.</li>
+        <li><strong>Spring Security</strong>의 역할과 세션/JWT 기반 인증 흐름을 파악한다.</li>
+        <li><strong>SecurityContextHolder</strong>와 핵심 컴포넌트를 정리한다.</li>
+        <li><strong>인가 방법</strong>(URL 기반, 메서드 기반)과 <code>@AuthenticationPrincipal</code> 사용법을 익힌다.</li>
+        <li><strong>공통 관심사</strong>를 처리하는 Filter / Interceptor / AOP를 비교하고 각각의 사용 사례를 정리한다.</li>
+        <li><strong>AOP 용어와 어노테이션</strong>, 실제 코드 예시를 학습한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. Filter</h2>
+
+      <p>
+        필터는 <strong>본격적인 스프링 로직이 실행되기 전에 모든 요청을 한 번 걸러준다.</strong>
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Filter 구조
+        </span>
+      </h3>
+
+      <p>
+        Spring에서는 Filter를 직접 구현할 필요 없이, 많이 사용되는 목적에 따라 이미 구현이 되어 있고
+        하나를 선택해서 사용하면 된다. <strong>OncePerRequestFilter를 가장 많이 사용한다.</strong>
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">Filter 종류</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>OncePerRequestFilter</strong></td>
+            <td>요청 당 한 번만 실행되도록 보장한다. 인증/인가, 로깅, 트랜잭션 관리 같은 곳에서 자주 사용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>CharacterEncodingFilter</strong></td>
+            <td>모든 요청/응답에 지정한 인코딩(UTF-8 등)을 적용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>HiddenHttpMethodFilter</strong></td>
+            <td>HTML form은 GET/POST만 지원한다. <code>_method</code> 파라미터로 PUT, DELETE 등을 매핑 가능하게 해준다.</td>
+          </tr>
+          <tr>
+            <td><strong>FormContentFilter</strong></td>
+            <td><code>application/x-www-form-urlencoded</code> 데이터를 PUT, PATCH, DELETE 요청에서도 읽게 해준다.</td>
+          </tr>
+          <tr>
+            <td><strong>RequestContextFilter</strong></td>
+            <td>현재 요청을 <code>RequestContextHolder</code>에 바인딩한다. <code>@RequestScope</code> Bean 사용 시 필요하다.</td>
+          </tr>
+          <tr>
+            <td><strong>이외 다수</strong></td>
+            <td>이외에도 많은 필터가 존재한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Filter 구현
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Component
+public class SpringFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // 요청이 들어올 때 실행되는 부분
+        System.out.println("입력 테스트");
+
+        filterChain.doFilter(request, response);   // FilterChain에 filter를 추가
+
+        // 요청이 나갈 때 실행되는 부분
+        System.out.println("출력 테스트");
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">FilterChain</span>
+        Filter 묶음이 있고, 필요하면 FilterChain에 Filter를 하나씩 추가하는 것이다.<br><br>
+        <strong>Filter 순서는 <code>@Order</code> 어노테이션을 통해 지정할 수 있다.</strong>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          필터 사용 이유
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10%; text-align:center;">번호</th>
+            <th style="width:25%;">사용 목적</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:center;"><strong>1</strong></td>
+            <td><strong>로깅 (요청/응답 로깅)</strong></td>
+            <td>모든 컨트롤러 호출 전후에서 공통적으로 적용 가능하다. 장애 발생 시 어느 API에서 문제가 발생했는지 빠르게 추적할 수 있다. 성능 분석(요청 처리 시간 측정)에 활용 가능하다.</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>2</strong></td>
+            <td><strong>공통 인증/권한 체크</strong></td>
+            <td>컨트롤러까지 들어오기 전에 인증 실패 요청을 걸러낼 수 있다. 인증/인가 로직을 중앙 집중화하여 코드 중복을 제거한다. 미인증 요청이 내부 로직까지 전달되지 않으므로 보안상 안전하다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Spring Security</h2>
+
+      <p>
+        스프링 기반 애플리케이션의 <strong>인증과 인가를 담당하는 보안 프레임워크</strong>다.
+      </p>
+
+      <p>
+        Spring Security는 단순히 JWT만을 위한 프레임워크가 아니다.
+        폼 로그인, 세션 기반 인증, Basic Auth, LDAP, OAuth2, SAML 등 <strong>다양한 인증 방식을 지원한다.</strong>
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">특징</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Filter 기반 보안 처리</strong></td>
+            <td>Spring Security 의존성을 추가한 이후에는 Filter 구조가 바뀐다. 기존 FilterChain에 SecurityFilterChain이 추가되고 Spring Security의 거의 모든 동작은 여기서 마무리된다.</td>
+          </tr>
+          <tr>
+            <td><strong>구조 제공</strong></td>
+            <td>인증/인가 로직을 개발자가 직접 구현하지 않아도 되는 구조를 제공한다.</td>
+          </tr>
+          <tr>
+            <td><strong>확장 가능</strong></td>
+            <td>다양한 인증 방식을 플러그인 형태로 확장 가능하다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        Spring Security는 <strong>세션 방식이 기본</strong>이지만, JWT 기반 인증을 사용하면
+        로그인 이후 모든 요청을 커스텀 필터에서 처리하게 된다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Spring Security의 흐름 (세션 기반)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10%; text-align:center;">단계</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:center;"><strong>1</strong></td>
+            <td>로그인 폼에서 username/password 입력</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>2</strong></td>
+            <td><code>UsernamePasswordAuthenticationFilter</code>가 요청을 가로챔</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>3</strong></td>
+            <td><code>AuthenticationManager</code>에게 위임 인증</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>4</strong></td>
+            <td>내부적으로 <code>UserDetailsService</code>에서 사용자 조회</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>5</strong></td>
+            <td>비밀번호 일치 → 인증 성공 → SecurityContext에 저장</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>6</strong></td>
+            <td>인증 실패 → 로그인 페이지로 리다이렉트</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Spring Security의 흐름 (JWT 기반)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10%; text-align:center;">단계</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:center;"><strong>1</strong></td>
+            <td>사용자가 <code>/login</code>에 username/password 입력</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>2</strong></td>
+            <td>서버는 인증 성공 시 JWT 토큰 생성 → 클라이언트에 반환</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>3</strong></td>
+            <td>이후 모든 요청에 <code>Authorization: Bearer {JWT}</code> 헤더 포함</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>4</strong></td>
+            <td>커스텀 필터(<code>JwtFilter</code>)가 토큰 유효성 검사</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>5</strong></td>
+            <td>유효한 경우 → Authentication 생성 → SecurityContext에 저장</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><strong>6</strong></td>
+            <td>이후 인가 절차로 넘어감</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          커스텀 JwtFilter 등록 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)       // csrf 보호 비활성화
+        .httpBasic(AbstractHttpConfigurer::disable)  // BasicAuthenticationFilter 비활성화
+        .formLogin(AbstractHttpConfigurer::disable)  // UsernamePasswordAuthenticationFilter, DefaultLoginPageGeneratingFilter 비활성화
+        .addFilterBefore(jwtFilter, SecurityContextHolderAwareRequestFilter.class)
+        .authorizeHttpRequests(auth -&gt; auth
+            .requestMatchers("/api/login").permitAll()
+            .anyRequest().authenticated()
+        )
+        .build();
+}</code></pre>
+
+      <ul>
+        <li>HTTP Basic 인증 방식은 <code>Authorization</code> 헤더에 사용자 이름과 비밀번호를 <strong>평문으로 포함</strong>하는 방식이라, 보안의 문제로 사용하지 않는다.</li>
+        <li><strong>addFilterBefore</strong>: 필터의 순서를 지정해주는 역할이다. <code>.addFilterBefore(jwtFilter, SecurityContextHolderAwareRequestFilter.class)</code>는 <code>jwtFilter</code> 뒤에 <code>SecurityContextHolderAwareRequestFilter</code>를 위치시키는 것이다.</li>
+        <li><strong>authorizeHttpRequests</strong>: 어디에 어떻게 권한 검사를 할 것인지(인가 검사)에 대한 구체적인 내용을 작성한다.</li>
+      </ul>
+
+      <pre><code class="language-java">.authorizeHttpRequests(auth -&gt; auth
+    .requestMatchers("/api/login").permitAll()
+    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+    .requestMatchers("/api/user/**").hasRole("USER")
+)</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SecurityContextHolder
+        </span>
+      </h3>
+
+      <p>
+        현재 스레드에서 인증된 사용자(<code>Authentication</code> 객체)를 저장/조회하는 <strong>Spring Security의 핵심 저장소</strong>다.
+        즉, "지금 로그인한 사용자가 누구인지"를 저장하는 곳이다.
+      </p>
+
+      <pre><code class="language-java">// 인증 정보 조회: 커스텀 필터나 컨트롤러, 서비스 어디서든 접근 가능
+Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+// 인증 정보 수동 저장: JWT 사용 시 직접 저장이 필요하다.
+SecurityContextHolder.getContext().setAuthentication(authentication);</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 컴포넌트 정리 (JWT 인증 흐름 기준)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">컴포넌트</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>JwtFilter</strong></td>
+            <td>JWT 토큰 존재/유효성 검사 → 사용자 인증 처리</td>
+          </tr>
+          <tr>
+            <td><strong>JwtUtil</strong></td>
+            <td>토큰 발급, 파싱, 검증 유틸 클래스</td>
+          </tr>
+          <tr>
+            <td><strong>SecurityContextHolder</strong></td>
+            <td>인증 결과 저장소 (스레드 단위)</td>
+          </tr>
+          <tr>
+            <td><strong>Authentication</strong></td>
+            <td>인증 객체 (권한 포함)</td>
+          </tr>
+          <tr>
+            <td><strong>UsernamePasswordAuthenticationToken</strong></td>
+            <td>Spring Security에서 JWT 토큰 방식을 사용하기 위한 객체</td>
+          </tr>
+          <tr>
+            <td><strong>User</strong></td>
+            <td>Spring Security에서 인증된 사용자를 표현하는 객체</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Spring Security 기본 인가 흐름
+        </span>
+      </h3>
+
+      <div class="concept-box">
+        <span class="box-title">기본 인가 흐름</span>
+        SecurityContext에 저장된 Authentication을 조회 →
+        <strong>FilterSecurityInterceptor</strong> →
+        <strong>AccessDecisionManager</strong> →
+        권한 정보와 비교(접근 허용 / 거부)
+      </div>
+
+      <div class="concept-box">
+        <span class="box-title">JWT 적용 코드 인가 흐름</span>
+        <strong>JwtFilter</strong>: 인증된 사용자 정보를 SecurityContextHolder에 Authentication으로 저장한다.<br>
+        <strong>.authorizeHttpRequests(...)</strong>: 인가 정책을 정의한다. 내부적으로 FilterSecurityInterceptor, AccessDecisionManager가 자동 구성된다.<br>
+        <strong>.authenticated()</strong>: 인가 조건(AccessDecisionManager), 인증 여부를 판단한다.<br><br>
+        즉, JwtFilter에서 인증을 끝내고 SecurityContext에 저장해두었기 때문에,
+        <strong>이후 모든 인가 과정은 Spring Security가 자동으로 처리</strong>하게 된다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          인가 방법
+        </span>
+      </h3>
+
+      <p><strong>1. URL 기반 설정</strong> — 관리가 편하다.</p>
+
+      <pre><code class="language-java">http.authorizeHttpRequests()
+    .requestMatchers("/admin/**").hasRole("ADMIN")
+    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+    .anyRequest().permitAll();</code></pre>
+
+      <p><strong>2. 메서드 기반 어노테이션</strong> — 컨트롤러/서비스 레이어 권한 제어가 가능하다.</p>
+
+      <p>SecurityConfig 클래스에 <code>@EnableMethodSecurity(securedEnabled = true)</code> 설정이 필요하다.</p>
+
+      <pre><code class="language-java">@PreAuthorize("hasRole('ADMIN')")
+public void deleteUser(Long id) { ... }</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @AuthenticationPrincipal
+        </span>
+      </h3>
+
+      <p>
+        이 어노테이션을 사용하면 <code>JwtFilter</code>에서 생성하면서 들어간 정보들을 꺼낼 수 있다.
+        <code>User</code>는 내가 구현한 User 클래스가 아닌, <strong>Spring Security가 제공하는 User를 사용해야 한다.</strong>
+      </p>
+
+      <pre><code class="language-java">@GetMapping("/me")
+public ResponseEntity&lt;?&gt; getMyInfo(@AuthenticationPrincipal User user) {
+    String username = user.getUsername();
+    // JwtFilter에서 저장한 인증 정보를 꺼내 사용한다.
+}</code></pre>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. 공통 관심사 — Filter / Interceptor / AOP 비교</h2>
+
+      <p>
+        인증, 인가, 로깅, 트랜잭션, 예외 처리 등 <strong>여러 레이어에 반복적으로 등장하는 처리</strong>를 말한다.
+        핵심 로직과 분리하여 유지보수성을 높이기 위해 필요하다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%;">항목</th>
+            <th>Filter</th>
+            <th>Interceptor</th>
+            <th>AOP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>처리 위치</strong></td>
+            <td>DispatcherServlet 이전</td>
+            <td>컨트롤러 실행 전후</td>
+            <td>Spring Bean 메서드 전후 (Service 계층 메서드 실행 전후)</td>
+          </tr>
+          <tr>
+            <td><strong>대상</strong></td>
+            <td>서블릿 요청</td>
+            <td>핸들러(Controller)</td>
+            <td>모든 Bean 메서드</td>
+          </tr>
+          <tr>
+            <td><strong>사용 목적</strong></td>
+            <td>인증, 로깅, CORS 등</td>
+            <td>세션 체크, 권한 검사</td>
+            <td>로깅, 트랜잭션, 예외 처리 등</td>
+          </tr>
+          <tr>
+            <td><strong>선언 방법</strong></td>
+            <td>Filter 구현체</td>
+            <td>HandlerInterceptor 구현체</td>
+            <td>@Aspect 클래스</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">실행 순서</span>
+        <strong>Filter → Interceptor → Controller → AOP → Method</strong> 순으로 진행된다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          각 공통 관심사의 대표 사용 사례
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">구분</th>
+            <th style="width:30%;">대표 사용 사례</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Filter</strong></td>
+            <td>Authorization 헤더에 담긴 JWT 토큰 유효성 검사</td>
+            <td>모든 요청의 가장 앞단에서 작동한다. Spring DispatcherServlet 이전에 실행되어야 한다. 인증 실패 시 컨트롤러까지 가지 않도록 빠르게 차단할 수 있다.</td>
+          </tr>
+          <tr>
+            <td><strong>Interceptor</strong></td>
+            <td>로그인이 필요한 페이지 요청 시 세션 또는 인증 여부 검증</td>
+            <td>컨트롤러 진입 직전/후에 동작하여 처리 가능하다. 사용자별 세션, 권한 확인 로직 작성에 용이하다. 요청 URL 기반으로 유연하게 경로별 적용 가능하다.</td>
+          </tr>
+          <tr>
+            <td><strong>AOP</strong></td>
+            <td>Service 계층에서 비즈니스 로직 실행 시간 측정</td>
+            <td>특정 메서드 호출 전후에만 부가 기능을 넣고 싶을 때 유리하다. 핵심 로직은 건드리지 않고 공통 처리만 분리 가능하다. 다양한 메서드에 어노테이션으로 간편하게 확장할 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Spring Security 사용 시 Interceptor 사용 빈도 변화</span>
+        Spring Security를 사용하고 있다면 기본 인증/인가 처리를 <strong>Spring Security Filter Chain이 담당</strong>하고 있어서
+        Interceptor 사용 빈도가 많이 줄어든다.
+        하지만 아래와 같은 일부 경우에는 여전히 Interceptor가 유용하게 사용된다.
+        <ul>
+          <li>작성자 본인 확인</li>
+          <li>비즈니스 조건</li>
+        </ul>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          HandlerInterceptor 메서드
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">메서드</th>
+            <th>실행 시점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>preHandle</strong></td>
+            <td>컨트롤러 실행 전에 동작한다. <code>false</code> 반환 시 흐름을 중단할 수 있다.</td>
+          </tr>
+          <tr>
+            <td><strong>postHandle</strong></td>
+            <td>컨트롤러 실행 후, 뷰 렌더링 전에 동작한다.</td>
+          </tr>
+          <tr>
+            <td><strong>afterCompletion</strong></td>
+            <td>응답 완료 후에 동작한다. 예외 처리도 포함한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. AOP</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AOP 핵심 용어
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">용어</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Aspect</strong></td>
+            <td>공통 관심사를 담는 모듈이다. (예: 로깅, 트랜잭션, 권한 체크)</td>
+          </tr>
+          <tr>
+            <td><strong>JoinPoint</strong></td>
+            <td>메서드 실행 지점이다.</td>
+          </tr>
+          <tr>
+            <td><strong>Advice</strong></td>
+            <td>실행 시점에 따라 작동하는 AOP 로직이다. (<code>@Before</code>, <code>@After</code>, <code>@Around</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>PointCut</strong></td>
+            <td>어떤 JoinPoint에 Advice를 적용할지 정의한다. (표현식 기반)</td>
+          </tr>
+          <tr>
+            <td><strong>Weaving</strong></td>
+            <td>Advice를 적용하는 과정이다. (스프링이 알아서 해준다.)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">AOP 팁 — 어떤 것을 / 언제 / 어떻게</span>
+        <strong>어떤 것을:</strong> PointCut을 통해서 대상을 지정해준다.<br>
+        <strong>언제:</strong> Advice를 통해서 실행되는 시점을 지정해준다.<br>
+        <strong>어떻게:</strong> Aspect에 정의한 메서드를 통해서 어떻게 할 것인지 지정해준다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AOP 어노테이션
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">어노테이션</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code><strong>@Aspect</strong></code></td>
+            <td>Aspect 클래스임을 선언한다.</td>
+          </tr>
+          <tr>
+            <td><code><strong>@Around</strong></code></td>
+            <td>메서드 실행 전후를 제어한다.</td>
+          </tr>
+          <tr>
+            <td><code><strong>@Before</strong></code></td>
+            <td>메서드 실행 전에 수행한다.</td>
+          </tr>
+          <tr>
+            <td><code><strong>@AfterReturning</strong></code></td>
+            <td>정상 반환 후 수행한다.</td>
+          </tr>
+          <tr>
+            <td><code><strong>@AfterThrowing</strong></code></td>
+            <td>예외 발생 시 수행한다.</td>
+          </tr>
+          <tr>
+            <td><code><strong>@After</strong></code></td>
+            <td>정상/예외 관계없이 실행 후 수행한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AOP 활용 예시
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">활용 분야</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>로깅</strong></td>
+            <td>모든 서비스 실행 시 로그 기록</td>
+          </tr>
+          <tr>
+            <td><strong>트랜잭션</strong></td>
+            <td>메서드 단위 트랜잭션 처리</td>
+          </tr>
+          <tr>
+            <td><strong>권한 검사</strong></td>
+            <td>관리자 권한 체크</td>
+          </tr>
+          <tr>
+            <td><strong>예외 처리</strong></td>
+            <td>공통 에러 메시지 처리</td>
+          </tr>
+          <tr>
+            <td><strong>실행 시간 측정</strong></td>
+            <td>성능 모니터링</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AOP 코드 예시
+        </span>
+      </h3>
+
+      <p><strong>@Around — 메서드 실행 전후 시간을 비교 분석하는 기능</strong></p>
+
+      <pre><code class="language-java">@Aspect
+@Component
+@Slf4j
+public class TimeCheckAop {
+
+    // 어떤 것을: &lt;특정 Service&gt; 하위의 메서드
+    // 언제: 메서드 실행 전후
+    // 어떻게: executionTime 메서드 내용을 실행한다.
+
+    @Around("execution(* &lt;특정 서비스 패키지 경로&gt;.*(..))")
+    public Object executionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        // 메서드 실행 전
+        long start = System.currentTimeMillis();
+
+        Object proceed = joinPoint.proceed();  // 실제 메서드 실행 → 필터의 doFilter와 유사
+
+        // 메서드 실행 후
+        long end = System.currentTimeMillis();
+
+        log.info("[AOP] {} 실행됨 in {} ms", joinPoint.getSignature(), end - start);
+
+        return proceed;
+    }
+}</code></pre>
+
+      <p><strong>@Before — 메서드 실행 전에만 수행</strong></p>
+
+      <pre><code class="language-java">@Before("execution(* &lt;특정 서비스 패키지 경로&gt;.*(..))")
+public void executionTime() throws Throwable {
+
+    // 메서드 실행 전
+    log.info("메서드 실행 전에만 수행");
+}</code></pre>
+
+      <p><strong>@AfterReturning — 메서드 실행 후에만 수행</strong></p>
+
+      <pre><code class="language-java">@AfterReturning("execution(* &lt;특정 서비스 패키지 경로&gt;.*(..))")
+public void executionTime() throws Throwable {
+
+    // 메서드 실행 후
+    log.info("메서드 실행 후에만 수행");
+}</code></pre>
+
+      <p><strong>@AfterThrowing — 메서드 실행 후 예외가 터질 때만 수행</strong></p>
+
+      <pre><code class="language-java">@AfterThrowing("execution(* &lt;특정 서비스 패키지 경로&gt;.*(..))")
+public void executionTime() throws Throwable {
+
+    // 메서드 실행 후 예외가 터질 때만 수행
+    log.info("메서드 실행 후 예외가 터져야 수행");
+}</code></pre>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        오늘은 Spring의 요청 처리 흐름 전반을 관통하는 공통 관심사 처리 기술인 Filter, Spring Security, Interceptor, AOP를 정리했다.
+        Filter는 DispatcherServlet에 도달하기도 전에 모든 요청을 가로채는 가장 앞단의 보안 게이트 역할을 하며,
+        <code>OncePerRequestFilter</code>를 상속하여 요청 당 한 번만 실행되도록 보장하는 방식이 실무의 표준임을 이해했다.
+      </p>
+
+      <p>
+        Spring Security는 단순한 JWT 전용 프레임워크가 아니라 다양한 인증 방식을 지원하는 보안 프레임워크임을 명확히 했다.
+        세션 방식과 JWT 방식의 흐름을 단계별로 비교하면서 JWT 방식에서는
+        <strong>JwtFilter가 인증을 마치고 SecurityContext에 저장해두면 이후 인가는 Spring Security가 자동으로 처리</strong>한다는 흐름을 파악했다.
+        인가 방법으로는 URL 기반 설정과 메서드 기반 어노테이션(<code>@PreAuthorize</code>) 두 가지를 모두 정리했다.
+      </p>
+
+      <p>
+        Filter → Interceptor → Controller → AOP → Method의 실행 순서를 이해하고,
+        각각의 처리 위치와 대표 사용 사례를 구분하는 것이 오늘의 핵심 성과다.
+        AOP에서는 Aspect, JoinPoint, Advice, PointCut, Weaving의 개념과
+        <code>@Around</code>, <code>@Before</code>, <code>@AfterReturning</code>, <code>@AfterThrowing</code>, <code>@After</code> 어노테이션을
+        실제 코드 예시로 확인했다.
+        공통 관심사는 "어떤 것을, 언제, 어떻게" 처리할지를 PointCut과 Advice로 분리해 선언하는 방식이 핵심임을 기억하겠다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

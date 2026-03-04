@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-03 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 5568 — 카드 놓기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5568">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260303_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>카드 놓기 (백준 5568)</strong>는<br>
+        n장의 카드 중 k장을 골라 일렬로 나열할 때, <strong>만들 수 있는 서로 다른 수의 개수</strong>를 구하는 문제다.<br>
+        <strong>카드를 이어 붙인 결과가 같더라도 서로 다른 카드 조합이면 같은 수로 취급</strong>한다.
+      </p>
+      
+      <ul>
+        <li>카드의 순서가 다르면 다른 수이므로, 순열(Permutation)을 구해야 한다.</li>
+        <li>카드에 적힌 수가 예를 들어 1과 12처럼 이어 붙이면 동일한 결과("112")를 만들 수 있으므로, 단순 수치 계산이 아닌 문자열 이어붙이기로 처리해야 한다.</li>
+        <li>중복된 결과는 HashSet으로 자동 제거하고, 최종적으로 HashSet의 크기가 답이 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: DFS 기반 순열 생성 + HashSet 중복 제거</li>
+        <li><strong>선택 이유</strong>: n장 중 k장을 순서 있게 선택하는 모든 경우의 수를 탐색해야 하므로 DFS 백트래킹이 적합하다. n이 최대 10, k가 최대 4이므로 최대 10 × 9 × 8 × 7 = 5,040가지 경우밖에 없어 완전 탐색으로 충분하다. 이어붙인 문자열이 같은 경우를 자동으로 걸러내기 위해 HashSet을 사용한다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li><code>visited</code> 배열로 이미 선택된 카드를 표시하고, 선택하지 않은 카드만 순서대로 추가한다.</li>
+            <li>현재까지 선택한 카드 수(<code>depth</code>)가 k에 도달하면 이어붙인 문자열을 HashSet에 저장한다.</li>
+            <li>재귀 호출 전후로 <code>visited[i]</code>를 <code>true</code>·<code>false</code>로 토글해 백트래킹을 구현한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>n = Integer.parseInt(br.readLine());
+      k = Integer.parseInt(br.readLine());
+      
+      visited = new boolean[n];
+      card = new int[n];
+      
+      for (int i = 0; i < n; i++) {
+          card[i] = Integer.parseInt(br.readLine());
+      }</code></pre>
+          <ul>
+            <li>카드의 총 수 n과 선택할 카드의 수 k를 입력받는다.</li>
+            <li>각 카드의 수를 <code>card</code> 배열에 저장하고, 방문 여부를 추적할 <code>visited</code> 배열을 <code>false</code>로 초기화한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) DFS로 순열 생성</strong>
+          <pre><code>private static void dfs(int depth, String number) {
+          if (depth == k) {
+              set.add(number);
+              return;
+          }
+      
+          for (int i = 0; i < n; i++) {
+              if (!visited[i]) {
+                  visited[i] = true;
+                  dfs(depth + 1, number + card[i]);
+                  visited[i] = false;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>depth</code>가 k에 도달하면 현재까지 이어붙인 문자열 <code>number</code>를 HashSet에 추가하고 재귀를 종료한다.</li>
+            <li>방문하지 않은 카드에 대해 <code>visited[i] = true</code>로 표시한 뒤, <code>number + card[i]</code>로 현재 카드를 문자열에 이어붙여 재귀 호출한다.</li>
+            <li>재귀 호출이 끝나면 <code>visited[i] = false</code>로 복원(백트래킹)해 다른 카드 조합을 탐색할 수 있도록 한다.</li>
+            <li>문자열 이어붙이기를 사용하는 이유: 카드 1과 12를 이어붙이면 "112"가 되고, 카드 11과 2를 이어붙여도 "112"가 된다. 정수 덧셈이 아닌 문자열 연결로 처리해야 이 중복을 HashSet에서 올바르게 감지할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(set.size());</code></pre>
+          <ul>
+            <li>HashSet에 저장된 서로 다른 문자열의 수가 곧 만들 수 있는 서로 다른 수의 개수이므로, <code>set.size()</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(n! / (n-k)!)</strong>: n장 중 k장을 순서 있게 선택하는 순열의 수만큼 DFS가 실행된다. n ≤ 10, k ≤ 4이므로 최대 5,040번의 탐색으로 매우 빠르게 동작한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(n! / (n-k)!)</strong>: HashSet에 저장되는 문자열의 수가 최대 순열의 수에 비례한다. 재귀 호출 스택은 최대 k 깊이이므로 O(k) = O(1)에 수렴한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1388 — 바닥 장식</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1388">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260303_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>바닥 장식 (백준 1388)</strong>는<br>
+        N × M 크기의 바닥에 가로('-') 또는 세로('|') 나무판자가 깔려 있을 때,<br>
+        <strong>사용된 나무판자의 총 개수</strong>를 구하는 문제다.<br>
+        <strong>같은 방향으로 연속된 칸은 하나의 나무판자</strong>로 이어진 것이다.
+      </p>
+      
+      <ul>
+        <li>'-'는 가로 방향 판자이며, 같은 행에서 연속으로 이어진 '-'는 하나의 판자다.</li>
+        <li>'|'는 세로 방향 판자이며, 같은 열에서 연속으로 이어진 '|'는 하나의 판자다.</li>
+        <li>판자의 끝을 감지하는 시점에 카운트를 증가시키면 O(N × M)에 해결할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 판자의 끝 위치 카운팅 (선형 탐색)</li>
+        <li><strong>선택 이유</strong>: 연속된 칸을 하나의 판자로 묶어야 하므로, 판자가 끝나는 시점(연속이 끊기거나 경계에 도달하는 순간)에만 카운트를 1 증가시키면 된다. 전체 배열을 한 번 순회하는 O(N × M)으로 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>현재 칸이 '-'이면 가로 판자다. 오른쪽 칸이 없거나(마지막 열) 오른쪽이 '|'이면 가로 판자가 끝나는 지점이므로 카운트를 증가시킨다.</li>
+            <li>현재 칸이 '|'이면 세로 판자다. 아래쪽 칸이 없거나(마지막 행) 아래쪽이 '-'이면 세로 판자가 끝나는 지점이므로 카운트를 증가시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 바닥 입력 및 2차원 배열 저장</strong>
+          <pre><code>char[][] floor = new char[N][M];
+      
+      for (int r = 0; r < N; r++) {
+          floor[r] = br.readLine().toCharArray();
+      }</code></pre>
+          <ul>
+            <li>각 행을 문자열로 읽어 <code>toCharArray()</code>로 변환해 2차원 <code>char</code> 배열에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 가로 판자('-') 끝 감지</strong>
+          <pre><code>if (floor[r][c] == '-') {
+          if (c == M - 1 || floor[r][c + 1] == '|') {
+              cnt++;
+          }
+      }</code></pre>
+          <ul>
+            <li>현재 칸이 '-'일 때, 오른쪽 다음 칸을 확인한다.</li>
+            <li><code>c == M - 1</code>이면 현재 칸이 마지막 열이므로 더 이상 이어질 수 없어 판자가 끝난다.</li>
+            <li><code>floor[r][c + 1] == '|'</code>이면 오른쪽이 다른 방향의 판자이므로 현재 가로 판자가 여기서 끝난다.</li>
+            <li>두 조건 모두 가로 판자의 마지막 칸임을 의미하므로 <code>cnt</code>를 1 증가시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 세로 판자('|') 끝 감지</strong>
+          <pre><code>} else {
+          if (r == N - 1 || floor[r + 1][c] == '-') {
+              cnt++;
+          }
+      }</code></pre>
+          <ul>
+            <li>현재 칸이 '|'일 때, 아래쪽 다음 칸을 확인한다.</li>
+            <li><code>r == N - 1</code>이면 현재 칸이 마지막 행이므로 판자가 끝난다.</li>
+            <li><code>floor[r + 1][c] == '-'</code>이면 아래쪽이 다른 방향의 판자이므로 현재 세로 판자가 여기서 끝난다.</li>
+            <li>예시: 바닥이 <code>["--", "||"]</code>이면 가로 판자 1개('-' 2칸), 세로 판자 2개('|' 각 1칸) → cnt = 3.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>감지된 판자의 총 개수 <code>cnt</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N × M)</strong>: 전체 배열을 한 번 순회하며 각 칸에서 O(1) 연산만 수행하므로 전체 O(N × M)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N × M)</strong>: 바닥 정보를 저장하는 2차원 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
