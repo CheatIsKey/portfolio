@@ -183,7 +183,7 @@ public class CustomInterceptor implements HandlerInterceptor {
         String method = request.getMethod();      // 요청 HTTP 메서드 (GET, POST, DELETE 등)
         String path   = request.getRequestURI();  // 요청 경로 (/admin/comments/1 등)
 
-        // ✏️ 수정 포인트: 로깅/검증을 적용할 경로 조건 — 해당하지 않으면 바로 통과
+        // 수정 포인트: 로깅/검증을 적용할 경로 조건 — 해당하지 않으면 바로 통과
         boolean excludeRequest =
                 (method.equals("DELETE") && path.matches("/admin/comments/\\d+")) ||
                 (method.equals("PATCH")  && path.matches("/admin/users/\\d+"));
@@ -192,7 +192,7 @@ public class CustomInterceptor implements HandlerInterceptor {
             return true;  // 대상 경로가 아니면 다음 단계로 통과
         }
 
-        // ✏️ 수정 포인트: JWT 필터 등 앞단에서 setAttribute()로 넣어둔 값을 꺼낸다.
+        // 수정 포인트: JWT 필터 등 앞단에서 setAttribute()로 넣어둔 값을 꺼낸다.
         Long     userId = (Long)   request.getAttribute("userId");
         UserRole role   = UserRole.of((String) request.getAttribute("userRole"));
 
@@ -247,24 +247,24 @@ public class CustomInterceptor implements HandlerInterceptor {
 
       <pre><code class="language-java">@Configuration
 @RequiredArgsConstructor
-@EnableJpaAuditing  // ✏️ JPA Auditing 미사용 시 제거
+@EnableJpaAuditing  // JPA Auditing 미사용 시 제거
 public class PersistenceConfig implements WebMvcConfigurer {
 
-    // ✏️ 프로젝트에 ArgumentResolver가 없으면 아래 두 줄 제거
+    // 프로젝트에 ArgumentResolver가 없으면 아래 두 줄 제거
     private final AuthUserArgumentResolver authUserArgumentResolver;
     private final CustomInterceptor customInterceptor;
 
     @Override
     public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
-        resolvers.add(authUserArgumentResolver);  // ✏️ 불필요 시 메서드 전체 제거
+        resolvers.add(authUserArgumentResolver);  // 불필요 시 메서드 전체 제거
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(customInterceptor)
-                .addPathPatterns("/admin/comments/*")  // ✏️ 인터셉터 적용 경로
-                .addPathPatterns("/admin/users/*");    // ✏️ 인터셉터 적용 경로 추가
-                // .excludePathPatterns("/admin/health") // ✏️ 제외할 경로가 있으면 추가
+                .addPathPatterns("/admin/comments/*")  // 인터셉터 적용 경로
+                .addPathPatterns("/admin/users/*");    // 인터셉터 적용 경로 추가
+                // .excludePathPatterns("/admin/health") // 제외할 경로가 있으면 추가
     }
 }</code></pre>
 
