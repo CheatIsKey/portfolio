@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 54일차 TIL</title>
+  <title>템플릿 — Interceptor (커스텀 인터셉터)</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -78,18 +78,34 @@
       color: #533f03;
       display: inline;
     }
-    .success-box {
-      background-color: #d4edda;
-      border-left: 5px solid #28a745;
+    .result-box {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
       padding: 1rem;
-      margin: 1.5rem 0;
-      border-radius: 4px;
-      color: #155724;
+      border-radius: 6px;
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+      margin: 1rem 0;
+      border: 1px solid #444;
     }
-    .success-box strong {
+    .result-box .label {
+      display: block;
+      font-size: 0.78em;
+      color: #888;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+    }
+    .tag-badge {
+      display: inline-block;
+      background-color: #fff3cd;
+      color: #856404;
+      font-size: 0.78em;
       font-weight: 700;
-      color: #0a3622;
-      display: inline;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #ffc107;
+      margin-left: 6px;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -98,7 +114,8 @@
     <a class="brand" href="/">spring-jpa.dev</a>
     <nav class="nav">
       <a href="/projects/">Projects</a>
-      <a class="active" href="/notes/">Notes</a>
+      <a href="/notes/">Notes</a>
+      <a class="active" href="/templates/">Templates</a>
     </nav>
   </header>
 
@@ -109,529 +126,179 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 54일차 TIL — 테스트 코드: JUnit · Mock · Mockito · 통합 테스트</h1>
-      <p class="muted">작성일 2026-03-04 · 분류: 부트캠프, TIL, Spring Boot, JUnit, Mockito, 테스트</p>
+      <h1>템플릿 — Interceptor (커스텀 인터셉터)</h1>
+      <p class="muted">분류: 템플릿, Spring Boot, Interceptor, 로깅, 인가</p>
 
-      <h2 class="section">54일차 개요</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 목표
-        </span>
-      </h3>
-      <ul>
-        <li><strong>테스트 코드의 이점</strong>과 핵심 원칙을 이해한다.</li>
-        <li><strong>JUnit</strong> 어노테이션과 실행 순서, 단언문(Assertions)을 정리한다.</li>
-        <li><strong>단위 테스트와 Mock 객체</strong>의 필요성을 이해하고 Mockito 사용법을 익힌다.</li>
-        <li><strong>ReflectionTestUtils</strong>로 실제 코드를 건드리지 않고 필드 값을 세팅하는 방법을 학습한다.</li>
-        <li><strong>Fixture 클래스</strong> 패턴과 <strong>통합 테스트</strong> 구조를 파악한다.</li>
-      </ul>
+      <div class="concept-box">
+        <span class="box-title">이 템플릿의 구성</span>
+        커스텀 어노테이션(<code>@AdminLogging</code>) + 인터셉터(<code>CustomInterceptor</code>) + WebMvc 등록(<code>PersistenceConfig</code>) 3개 파일로 구성된다.<br>
+        특정 경로에 대해 <strong>관리자 권한 검증 + 접근 로그 기록</strong>을 수행하는 구조다.
+      </div>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. 테스트 코드</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          테스트 코드의 이점
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:10%; text-align:center;">번호</th>
-            <th>이점</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><strong>버그 조기 발견</strong></td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td><strong>리팩토링 자신감 확보</strong></td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td><strong>협업 효율 극대화</strong></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="concept-box">
-        <span class="box-title">테스트 코드 핵심 원칙</span>
-        테스트 코드는 시간을 절약하고 신뢰를 높인다.<br>
-        테스트는 QA 팀의 일이 아니라, <strong>개발자의 자기 방어막</strong>이다.<br>
-        테스트 코드는 <strong>독립적으로 실행</strong>되어야 한다.
-      </div>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. JUnit</h2>
+      <h2 class="section">1. 커스텀 어노테이션</h2>
 
       <p>
-        Java 진영의 대표적인 <strong>단위 테스트 프레임워크</strong>다.
-        테스트 코드를 작성하고 자동으로 실행/검증할 수 있도록 돕는 도구다.
+        인터셉터를 메서드 단위로 선택적으로 적용하고 싶을 때 사용한다.
+        이 템플릿에서는 <code>@AdminLogging</code>을 마커(marker) 용도로 활용한다.
+        단순히 인터셉터 경로 패턴(<code>addPathPatterns</code>)만으로 제어한다면 이 어노테이션 없이도 동작한다.
       </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JUnit 어노테이션
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:30%;">어노테이션</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code><strong>@Test</strong></code></td>
-            <td>테스트 메서드 표시</td>
-          </tr>
-          <tr>
-            <td><code><strong>@BeforeEach</strong></code></td>
-            <td>각 테스트 실행 전 초기화</td>
-          </tr>
-          <tr>
-            <td><code><strong>@AfterEach</strong></code></td>
-            <td>각 테스트 실행 후 초기화</td>
-          </tr>
-          <tr>
-            <td><code><strong>@BeforeAll</strong></code></td>
-            <td>전체 테스트 시작 전 1회 실행 (<code>static</code> 필요)</td>
-          </tr>
-          <tr>
-            <td><code><strong>@AfterAll</strong></code></td>
-            <td>전체 테스트 끝난 후 1회 실행 (<code>static</code> 필요)</td>
-          </tr>
-          <tr>
-            <td><code><strong>@DisplayName</strong></code></td>
-            <td>테스트 이름 커스텀 (출력 시 보기 좋게)</td>
-          </tr>
-          <tr>
-            <td><code><strong>@Disabled</strong></code></td>
-            <td>특정 테스트 임시 비활성화</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="concept-box">
-        <span class="box-title">실행 순서</span>
-        <strong>@BeforeEach → @Test → @AfterEach</strong>
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          단언문 (Assertions)
-        </span>
-      </h3>
-
-      <p>테스트에서 기대하는 결과와 실제 결과를 비교하는 코드다.</p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:45%;">메서드</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>assertEquals(expected, actual)</code></td>
-            <td>값이 같은지 확인한다.</td>
-          </tr>
-          <tr>
-            <td><code>assertTrue(condition)</code></td>
-            <td>조건이 참인지 확인한다.</td>
-          </tr>
-          <tr>
-            <td><code>assertFalse(condition)</code></td>
-            <td>조건이 거짓인지 확인한다.</td>
-          </tr>
-          <tr>
-            <td><code>assertThrows(Exception.class, () -&gt; 실행코드)</code></td>
-            <td>특정 예외 발생을 검증한다.</td>
-          </tr>
-          <tr>
-            <td><code>assertAll()</code></td>
-            <td>여러 검증을 묶어서 실행한다.</td>
-          </tr>
-          <tr>
-            <td><code>assertNotNull(object)</code></td>
-            <td>객체가 null이 아닌지 확인한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. 단위 테스트와 Mock 객체</h2>
-
-      <div class="concept-box">
-        <span class="box-title">단위 테스트란</span>
-        <strong>단위(Unit)</strong>: 프로그램의 가장 작은 실행 단위 (메서드, 클래스)<br>
-        <strong>단위 테스트(Unit Test)</strong>: 이 한 단위가 의도대로 동작하는지를 독립적으로 검증하는 것<br><br>
-        단위 테스트의 핵심은 <strong>독립성</strong>이다.
-        단위 테스트는 빠르고 정확해야 한다.
-        하지만 DB, 외부 API, 파일 시스템 등에 의존하면 테스트 속도가 느려지고
-        실패 원인도 외부 요인과 섞여서 불명확해진다.<br>
-        → 이 문제를 해결하기 위해 <strong>Mock 객체</strong>가 등장했다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Mock 객체
-        </span>
-      </h3>
-
-      <p>
-        실제 객체처럼 동작하지만, <strong>테스트를 위해 가짜로 만든 객체</strong>다.
-        단위 테스트에서는 외부 의존성을 제거하기 위해 Mock 객체를 사용한다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">이점</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>속도 향상</strong></td>
-            <td>DB, 네트워크 없이 빠르게 테스트 가능하다.</td>
-          </tr>
-          <tr>
-            <td><strong>독립성 확보</strong></td>
-            <td>특정 클래스만 검증한다. (외부 영향 없음)</td>
-          </tr>
-          <tr>
-            <td><strong>예측 가능성</strong></td>
-            <td>Mock의 동작을 직접 지정할 수 있다.</td>
-          </tr>
-          <tr>
-            <td><strong>안정성 향상</strong></td>
-            <td>외부 장애나 환경 문제로 인한 테스트 실패를 방지한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Mockito 주요 어노테이션
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:45%;">어노테이션 / 메서드</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code><strong>@Mock</strong></code></td>
-            <td>가짜 객체를 생성한다.</td>
-          </tr>
-          <tr>
-            <td><code><strong>@InjectMocks</strong></code></td>
-            <td>Mock을 주입받는 테스트 대상 클래스다.</td>
-          </tr>
-          <tr>
-            <td><code><strong>@ExtendWith(MockitoExtension.class)</strong></code></td>
-            <td>Mockito 환경 통합이다. 테스트 클래스에 달아준다.</td>
-          </tr>
-          <tr>
-            <td><code>when(...).thenReturn(...)</code></td>
-            <td>Mock 동작을 정의한다.</td>
-          </tr>
-          <tr>
-            <td><code>verify(..., times(n))</code></td>
-            <td>메서드 호출 횟수를 검증한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Mockito 사용 패턴
-        </span>
-      </h3>
-
-      <p><strong>when().thenReturn() — 반환 값 고정</strong></p>
-      <pre><code class="language-java">when(postRepository.save(any(Post.class))).thenReturn(&lt;반환 값&gt;);</code></pre>
-
-      <p>
-        Mock 객체를 통해 특정 메서드를 실행해야 할 때, 묻지도 따지지도 않고 반환 값을 그대로 돌려주라는 것이다.
-        여기서 <code>any(~.class)</code>는 특정 class 타입이 들어오면 무조건 반환 값을 그대로 돌려주라는 것이다.
-      </p>
-
-      <p><strong>Optional.empty() — 실패 케이스 테스트</strong></p>
-      <pre><code class="language-java">when(postRepository.findById(any(Post.class))).thenReturn(Optional.empty());</code></pre>
-
-      <p>
-        실패 케이스로 예외가 제대로 던져지는지 테스트하려면, <code>Optional.empty()</code>로 빈 값을 이용하면 된다.
-      </p>
-
-      <p><strong>assertThatThrownBy() — 예외 검증</strong></p>
-      <pre><code class="language-java">assertThatThrownBy(() -> postService.getPostById(1))
-    .isInstanceOf(예외 클래스)
-    .hasMessageContaining(예외 메시지);</code></pre>
-
-      <p>
-        예외가 터졌을 때 확인하기 위해 사용한다.
-        특정 예외 클래스로 어떤 메시지를 던졌는지까지 테스트가 가능하다.
-      </p>
-
-      <p><strong>verify() — 메서드 호출 횟수 검증</strong></p>
-      <pre><code class="language-java">verify(postRepository, times(횟수)).메서드(any(Post.class));</code></pre>
-
-      <p>특정 클래스의 메서드가 몇 번 실행됐는지 검증할 수 있다.</p>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. ReflectionTestUtils</h2>
-
-      <p>
-        실제 코드는 건들지 않으면서, <strong>객체의 값을 임의적으로 세팅해주는 테스트 유틸</strong>이다.
-      </p>
-
-      <pre><code class="language-java">// 필드 값 주입 (@Value 주입 대체에 유용)
-ReflectionTestUtils.setField(jwtUtil, "secretKey", SECRET_KEY);
-
-// 필드 값 조회 (메인 코드에서 사용하던 객체를 꺼내 쓸 수 있다.)
-JwtParser parser = (JwtParser) ReflectionTestUtils.getField(jwtUtil, "parser");</code></pre>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ NPE 주의</span>
-        <code>ReflectionTestUtils.getField()</code>로 조회한 객체는 NPE 위험이 있다.
-        다음 라인에 <code>assert parser != null;</code>을 추가해서 NPE 케이스를 피해야 한다.
+        <span class="box-title">⚠️ 수정 필요</span>
+        어노테이션 이름(<code>AdminLogging</code>)을 프로젝트 목적에 맞게 변경한다.
+        메서드 레벨이 아니라 클래스 레벨에도 적용하려면 <code>@Target</code>에 <code>ElementType.TYPE</code>을 추가한다.
       </div>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ReflectionTestUtils 활용 예시 — JwtUtilTest
-        </span>
-      </h3>
+      <pre><code class="language-java">@Target(ElementType.METHOD)          // 메서드에만 적용 가능
+@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지 (인터셉터가 런타임에 읽음)
+public @interface AdminLogging {
+    // 필요 시 속성 추가 가능 — 예: String value() default "";
+}</code></pre>
 
-      <pre><code class="language-java">class JwtUtilTest {
-    private JwtUtil jwtUtil;
-    private static final String SECRET_KEY = "mysecretkeymysecretkeymysecretkeymysecretkey";
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 커스텀 인터셉터</h2>
 
-    @BeforeEach
-    void setUp() {
-        jwtUtil = new JwtUtil();
+      <p>
+        <code>HandlerInterceptor</code>를 구현하고 <code>preHandle()</code>에서 요청을 가로챈다.
+        <code>preHandle()</code>이 <code>false</code>를 반환하면 이후 컨트롤러 로직이 실행되지 않는다.
+      </p>
 
-        // 테스트용 secret key (Base64 인코딩된 256bit 키)
-        String testSecretKey = "c2VjdXJldGVzdGtleW15c2VjdXJldGVzdGtleW15c2VjdXJldGVzdGtleQ==";
+      <div class="warning-box">
+        <span class="box-title">⚠️ 수정 필요</span>
+        <code>excludeRequest</code> 조건의 HTTP 메서드와 경로 패턴을 프로젝트 요구사항에 맞게 교체한다.<br>
+        <code>request.getAttribute("userId")</code>와 <code>request.getAttribute("userRole")</code>은
+        JWT 필터 등 앞단에서 <code>request.setAttribute()</code>로 값을 넣어두어야 정상 동작한다.<br>
+        <code>UserRole.of()</code>는 프로젝트의 실제 역할 변환 메서드로 대체한다.
+      </div>
 
-        // Reflection을 이용해 @Value 주입 대체
-        ReflectionTestUtils.setField(jwtUtil, "secretKeyString", testSecretKey);
+      <pre><code class="language-java">@Slf4j
+@Component
+public class CustomInterceptor implements HandlerInterceptor {
 
-        // @PostConstruct 수동 호출
-        jwtUtil.init();
-    }
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
 
-    @Test
-    @DisplayName("JWT 토큰 생성 시 username과 role 정보가 정상적으로 포함된다")
-    void generateToken_정상생성_Claims확인() {
-        // Given
-        String username = "ravi";
-        UserRoleEnum role = UserRoleEnum.ADMIN;
+        String method = request.getMethod();      // 요청 HTTP 메서드 (GET, POST, DELETE 등)
+        String path   = request.getRequestURI();  // 요청 경로 (/admin/comments/1 등)
 
-        // When
-        String tokenWithPrefix = jwtUtil.generateToken(username, role);
-        String pureToken = tokenWithPrefix.substring(JwtUtil.BEARER_PREFIX.length());
+        // ✏️ 수정 포인트: 로깅/검증을 적용할 경로 조건 — 해당하지 않으면 바로 통과
+        boolean excludeRequest =
+                (method.equals("DELETE") && path.matches("/admin/comments/\\d+")) ||
+                (method.equals("PATCH")  && path.matches("/admin/users/\\d+"));
 
-        // Then
-        assertThat(tokenWithPrefix).startsWith("Bearer ");
-        Claims claims = jwtUtil.getParser()
-                .parseSignedClaims(pureToken)
-                .getPayload();
+        if (!excludeRequest) {
+            return true;  // 대상 경로가 아니면 다음 단계로 통과
+        }
 
-        assertThat(claims.get("username", String.class)).isEqualTo(username);
-        assertThat(claims.get("auth", String.class)).isEqualTo(role.name());
-        assertThat(claims.getExpiration()).isAfter(new java.util.Date());
+        // ✏️ 수정 포인트: JWT 필터 등 앞단에서 setAttribute()로 넣어둔 값을 꺼낸다.
+        Long     userId = (Long)   request.getAttribute("userId");
+        UserRole role   = UserRole.of((String) request.getAttribute("userRole"));
+
+        // 관리자 권한 검증 — 권한이 없으면 403 응답 후 요청 중단
+        if (role == null || !UserRole.ADMIN.equals(role)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "접근 권한이 없습니다.");
+            return false;
+        }
+
+        // 관리자 접근 로그 기록
+        log.info("[관리자 기능 접근] userId = {}, requestTime = {}, url = {}",
+                userId, LocalDateTime.now(), path);
+
+        return true;  // 검증 통과 → 컨트롤러 실행 허용
     }
 }</code></pre>
 
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. Fixture 클래스</h2>
+      <p><strong>실행 결과 (권한 있는 관리자가 DELETE /admin/comments/1 요청 시)</strong></p>
+      <div class="result-box">
+        <span class="label">// console</span>
+        [관리자 기능 접근] userId = 1, requestTime = 2026-03-05T10:42:40.690139500, url = /admin/comments/1
+      </div>
+
+      <p><strong>실행 결과 (권한 없는 일반 사용자가 요청 시)</strong></p>
+      <div class="result-box">
+        <span class="label">// HTTP Response</span>
+        HTTP 403 Forbidden<br>
+        { "error": "접근 권한이 없습니다." }
+      </div>
+
+      <p><strong>실행 결과 (excludeRequest 조건에 해당하지 않는 경로 — 예: GET /admin/comments/1)</strong></p>
+      <div class="result-box">
+        <span class="label">// console — 아무것도 출력되지 않고 바로 통과</span>
+        (로그 없음 — 컨트롤러 정상 실행)
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. WebMvc 등록 설정</h2>
 
       <p>
-        테스트 코드에서 사용할 가짜 객체는 <strong>별도의 Fixture 클래스를 도입하는 게 좋다.</strong>
-        여러 테스트 클래스에서 반복적으로 사용하는 객체 생성 코드를 한 곳으로 모아 관리할 수 있다.
+        인터셉터는 만들기만 해서는 동작하지 않는다.
+        <code>WebMvcConfigurer</code>를 구현한 설정 클래스에서 <code>addInterceptors()</code>로 등록해야 한다.
+        <code>addPathPatterns()</code>로 인터셉터가 적용될 경로를, <code>excludePathPatterns()</code>로 제외할 경로를 지정한다.
       </p>
 
-      <pre><code class="language-java">public class UserFixture {
-    public static final String DEFAULT_USERNAME = "user";
-    public static final String DEFAULT_PASSWORD = "1234";
+      <div class="warning-box">
+        <span class="box-title">⚠️ 수정 필요</span>
+        <code>addPathPatterns()</code>의 경로를 프로젝트 실제 경로로 교체한다.<br>
+        <code>AuthUserArgumentResolver</code>나 <code>@EnableJpaAuditing</code>이 없는 프로젝트라면 해당 줄을 제거한다.<br>
+        설정 클래스가 이미 있다면 <code>addInterceptors()</code> 메서드만 별도로 오버라이드해서 추가한다.
+      </div>
 
-    public static User createUser() {
-        return new User(DEFAULT_USERNAME, DEFAULT_PASSWORD);
+      <pre><code class="language-java">@Configuration
+@RequiredArgsConstructor
+@EnableJpaAuditing  // ✏️ JPA Auditing 미사용 시 제거
+public class PersistenceConfig implements WebMvcConfigurer {
+
+    // ✏️ 프로젝트에 ArgumentResolver가 없으면 아래 두 줄 제거
+    private final AuthUserArgumentResolver authUserArgumentResolver;
+    private final CustomInterceptor customInterceptor;
+
+    @Override
+    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
+        resolvers.add(authUserArgumentResolver);  // ✏️ 불필요 시 메서드 전체 제거
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(customInterceptor)
+                .addPathPatterns("/admin/comments/*")  // ✏️ 인터셉터 적용 경로
+                .addPathPatterns("/admin/users/*");    // ✏️ 인터셉터 적용 경로 추가
+                // .excludePathPatterns("/admin/health") // ✏️ 제외할 경로가 있으면 추가
     }
 }</code></pre>
 
-      <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. 통합 테스트</h2>
-
-      <p>
-        애플리케이션의 여러 구성 요소를 실제로 묶어 실행해 <strong>시스템 전체의 동작 흐름을 검증하는 테스트</strong>다.
-        <code>@SpringBootTest</code> 어노테이션을 테스트 클래스에 붙여주고 여러 계층을 묶어서 테스트한다.
-        Mock을 사용하지 않고 실제 DB를 사용하면서 전체 흐름을 검증한다.
-      </p>
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 파일 구성 요약</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:35%;">어노테이션</th>
-            <th>설명</th>
+            <th style="width:35%;">파일</th>
+            <th style="width:30%;">역할</th>
+            <th>수정 포인트</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code><strong>@SpringBootTest</strong></code></td>
-            <td>스프링 애플리케이션 전체 컨텍스트를 로드한다.</td>
+            <td><code>AdminLogging.java</code></td>
+            <td>마커 어노테이션</td>
+            <td>어노테이션 이름, <code>@Target</code> 범위</td>
           </tr>
           <tr>
-            <td><code><strong>@Transactional</strong></code></td>
-            <td>테스트 후 DB 변경사항을 자동 롤백한다.</td>
+            <td><code>CustomInterceptor.java</code></td>
+            <td>권한 검증 + 로그 기록</td>
+            <td>경로 조건, getAttribute 키 이름, 역할 비교 로직</td>
           </tr>
           <tr>
-            <td><code><strong>@AutoConfigureMockMvc</strong></code></td>
-            <td>MockMvc를 자동 설정한다. Postman 역할 / Controller 테스트용이다.</td>
+            <td><code>PersistenceConfig.java</code></td>
+            <td>인터셉터 등록</td>
+            <td><code>addPathPatterns</code> 경로, 불필요한 Bean 제거</td>
           </tr>
         </tbody>
       </table>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          통합 테스트 코드 예시
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@SpringBootTest
-@Transactional
-@AutoConfigureMockMvc
-class PostControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;  // Postman의 메서드, URL, HEADER, BODY 등 설정을 대신해준다.
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    private String token;
-
-    @BeforeEach
-    void setup() {
-        // filter를 먼저 통과해야 한다.
-        // jwt 토큰을 생성하기 위해 user를 생성하고 저장
-        User user = UserFixture.createUser();
-        userRepository.save(user);
-
-        token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-    }
-
-    @Test
-    @DisplayName("POST /api/post - 게시글 생성 요청 성공")
-    void createPost_통합테스트_success() {
-        String requestBody = """
-                {
-                    "content" : "통합테스트"
-                }
-                """;
-
-        mockMvc.perform(post("/api/post")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", token)
-                .content(requestBody))
-            .andExpect(status().isOk())    // 응답코드가 200인지 검증
-            .andExpect(jsonPath("$.content").value("통합테스트"))
-            .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME));
-    }
-}</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">MockMvc란</span>
-        <code>MockMvc</code>는 실제 서버를 띄우지 않고도 HTTP 요청을 시뮬레이션할 수 있는 도구다.
-        Postman처럼 메서드, URL, Header, Body 등을 설정해 컨트롤러를 테스트할 수 있다.
-        <code>@AutoConfigureMockMvc</code>를 선언하면 <code>@Autowired</code>로 바로 주입해서 사용할 수 있다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          단위 테스트 vs 통합 테스트 비교
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">항목</th>
-            <th>단위 테스트</th>
-            <th>통합 테스트</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>범위</strong></td>
-            <td>메서드, 클래스 단위</td>
-            <td>여러 계층(Controller~DB) 전체 흐름</td>
-          </tr>
-          <tr>
-            <td><strong>의존성</strong></td>
-            <td>Mock으로 대체</td>
-            <td>실제 Bean, 실제 DB 사용</td>
-          </tr>
-          <tr>
-            <td><strong>속도</strong></td>
-            <td>빠름</td>
-            <td>느림 (전체 컨텍스트 로드)</td>
-          </tr>
-          <tr>
-            <td><strong>핵심 어노테이션</strong></td>
-            <td><code>@ExtendWith(MockitoExtension.class)</code></td>
-            <td><code>@SpringBootTest</code></td>
-          </tr>
-          <tr>
-            <td><strong>DB 롤백</strong></td>
-            <td>해당 없음</td>
-            <td><code>@Transactional</code>로 자동 롤백</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2 class="section">마무리</h2>
-
-      <p>
-        오늘은 테스트 코드의 이점과 핵심 원칙에서 시작해 JUnit, Mockito, ReflectionTestUtils, Fixture 패턴, 통합 테스트까지 테스트 코드 전반을 정리했다.
-        테스트는 QA 팀의 일이 아니라 개발자의 자기 방어막이라는 인식이 중요하며,
-        그 시작은 <strong>독립적으로 실행되는 단위 테스트</strong>를 작성하는 습관에서 온다.
-      </p>
-
-      <p>
-        단위 테스트에서 DB, 외부 API에 의존하면 속도도 느려지고 실패 원인도 불명확해진다.
-        이 문제를 해결하는 것이 Mockito의 <code>@Mock</code>과 <code>when().thenReturn()</code> 패턴이다.
-        <code>assertThatThrownBy()</code>로 예외 케이스까지 검증하고, <code>verify()</code>로 메서드 호출 횟수까지 확인하는 방식을 통해
-        테스트의 신뢰도를 높일 수 있다.
-        <code>ReflectionTestUtils</code>는 <code>@Value</code>로 주입되는 필드처럼 테스트 환경에서 직접 세팅하기 어려운 값을 실제 코드를 건드리지 않고 주입할 수 있어 유용하다.
-      </p>
-
-      <p>
-        통합 테스트는 단위 테스트가 검증하지 못하는 계층 간 연동과 전체 흐름을 검증한다.
-        <code>@SpringBootTest</code>로 전체 컨텍스트를 로드하고, <code>MockMvc</code>로 실제 HTTP 요청처럼 컨트롤러를 테스트하며,
-        <code>@Transactional</code>로 테스트가 끝나면 DB를 자동 롤백하는 구조를 갖춘다.
-        Fixture 클래스로 테스트용 객체 생성 코드를 한 곳에서 관리하면 여러 테스트 클래스에서 재사용할 수 있어 유지보수성이 높아진다.
-      </p>
-
-      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+      <p class="muted"><a href="/templates/">← Templates로 돌아가기</a></p>
     </article>
   </main>
 
