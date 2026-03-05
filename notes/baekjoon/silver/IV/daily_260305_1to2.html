@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-04 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-05 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1059 — 좋은 구간</h2>
+      <h2 class="section">문제 10994 — 별 찍기 - 19</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1059">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/10994">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260304_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260305_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>좋은 구간 (백준 1059)</strong>는<br>
-        집합 S와 정수 n이 주어질 때, <strong>n을 포함하면서 양 끝점이 S에 속하지 않는 구간 [i, j]의 개수</strong>를 구하는 문제다.<br>
-        <strong>i < j이어야 하며, i와 j 모두 S의 원소가 아니어야</strong> 한다.
+        <strong>별 찍기 - 19 (백준 10994)</strong>는<br>
+        N이 주어질 때 <strong>정사각형 테두리가 안쪽으로 2칸씩 줄어들며 중첩된 N겹의 별 패턴</strong>을 출력하는 문제다.<br>
+        <strong>전체 크기는 4 × (N - 1) + 1</strong>이며, 가장 바깥 테두리에서 시작해 안쪽으로 2칸씩 좁혀가며 별을 찍는다.
       </p>
       
       <ul>
-        <li>n 자체가 S에 속하면 n을 포함하는 좋은 구간이 존재하지 않으므로 0을 출력한다.</li>
-        <li>n이 S에 속하지 않으면, n 바로 왼쪽 S의 원소(start)와 바로 오른쪽 S의 원소(end)를 찾는다.</li>
-        <li>유효한 i의 범위는 <code>(start, n]</code>, 유효한 j의 범위는 <code>[n, end)</code>이며, i = j = n인 경우(길이 0의 구간)를 제외한 모든 쌍이 정답이다.</li>
+        <li>N = 1이면 크기 1 × 1의 별 하나만 출력된다.</li>
+        <li>N = 2이면 크기 5 × 5의 테두리와 그 안쪽 1 × 1 별이 출력되는 형태로, 각 겹은 이전 겹보다 상하좌우로 2칸씩 안쪽에 위치한다.</li>
+        <li>재귀 호출마다 시작 좌표를 (row + 2, col + 2)로 이동하고 크기를 4 줄여 안쪽 정사각형을 그린다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 정렬 + 범위 탐색 + 경우의 수 계산</li>
-        <li><strong>선택 이유</strong>: n을 기준으로 S에서 바로 인접한 왼쪽·오른쪽 값만 찾으면, 유효한 i와 j의 범위가 결정된다. 이후 이중 반복문으로 유효한 쌍의 수를 세면 O((n - start) × (end - n))에 해결된다. S의 크기가 최대 50으로 작으므로 선형 탐색으로 충분하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 재귀를 이용한 중첩 정사각형 테두리 그리기</li>
+        <li><strong>선택 이유</strong>: 각 겹의 정사각형 테두리는 이전 겹보다 2칸 안쪽에서 시작하고 크기가 4 줄어드는 동일한 구조를 반복하므로, 재귀 호출이 자연스럽다. 2차원 배열에 미리 공백을 채운 뒤 별을 덮어씌우는 방식으로 구현한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>S를 오름차순 정렬한 뒤, n보다 작은 S의 원소 중 가장 큰 값을 <code>start</code>, n보다 큰 S의 원소 중 가장 작은 값을 <code>end</code>로 설정한다.</li>
-            <li>n이 S의 최솟값보다 작으면 <code>start = 0</code>으로 초기화한다.</li>
-            <li>유효한 i: <code>start + 1</code> 이상 <code>n</code> 이하, 유효한 j: <code>n</code> 이상 <code>end - 1</code> 이하. 단 i = j인 경우(= n)는 구간이 아니므로 제외한다.</li>
+            <li>전체 배열을 공백으로 초기화한 뒤, <code>star(field, 0, 0, length)</code>를 호출해 가장 바깥 테두리부터 그린다.</li>
+            <li>현재 시작 좌표 (row, col)과 크기 length를 받아 네 변의 테두리에 별을 찍는다.</li>
+            <li>length > 1이면 <code>star(field, row + 2, col + 2, length - 4)</code>를 재귀 호출해 안쪽 테두리를 그린다.</li>
+            <li>length ≤ 0이면 더 이상 그릴 테두리가 없으므로 재귀를 종료한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,64 +96,55 @@
       </p>
       
       <ul>
-        <li><strong>1) 집합 입력 및 정렬</strong>
-          <pre><code>int[] set = new int[L];
-      for (int i = 0; i < L; i++) {
-          set[i] = Integer.parseInt(st.nextToken());
+        <li><strong>1) 배열 크기 계산 및 공백 초기화</strong>
+          <pre><code>int length = 4 * (N - 1) + 1;
+      
+      char[][] field = new char[length][length];
+      
+      for (int i = 0; i < length; i++) {
+          Arrays.fill(field[i], ' ');
+      }</code></pre>
+          <ul>
+            <li>전체 정사각형의 한 변의 길이는 <code>4 × (N - 1) + 1</code>이다. N = 1이면 1, N = 2이면 5, N = 3이면 9로 4씩 증가한다.</li>
+            <li>모든 칸을 공백으로 초기화한 뒤, 재귀 함수에서 별이 찍힐 위치만 덮어씌운다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 정사각형 테두리 그리기</strong>
+          <pre><code>int right = col + length - 1;
+      int down = row + length - 1;
+      
+      for (int i = 0; i < length; i++) {
+          field[row][col + i] = '*';
+          field[down][col + i] = '*';
+          field[row + i][col] = '*';
+          field[row + i][right] = '*';
+      }</code></pre>
+          <ul>
+            <li><code>right</code>는 현재 정사각형의 오른쪽 끝 열, <code>down</code>은 아래쪽 끝 행이다.</li>
+            <li>하나의 반복문으로 위쪽 변, 아래쪽 변, 왼쪽 변, 오른쪽 변 네 변을 동시에 그린다.</li>
+            <li>네 꼭짓점은 네 변이 겹치는 위치이므로 자연스럽게 중복 처리되어 별이 찍힌다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 재귀 호출로 안쪽 테두리 그리기</strong>
+          <pre><code>if (length > 1) {
+          star(field, row + 2, col + 2, length - 4);
+      }</code></pre>
+          <ul>
+            <li>현재 테두리 안쪽 2칸으로 이동한 위치 (row + 2, col + 2)에서 크기 length - 4의 정사각형을 재귀적으로 그린다.</li>
+            <li>length가 1이면 단일 별 하나이므로 재귀를 호출하지 않는다. length가 0 이하이면 함수 진입 시 즉시 반환한다.</li>
+            <li>예시: N = 3이면 length = 9 → 5 → 1 순서로 재귀 호출되며 3겹의 정사각형이 그려진다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>for (char[] row : field) {
+          sb.append(row).append('\n');
       }
-      Arrays.sort(set);</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>L개의 집합 원소를 배열에 저장하고 오름차순 정렬한다. 이후 n을 기준으로 인접한 원소를 순서대로 찾기 위함이다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) n이 S에 속하는 경우 즉시 종료</strong>
-          <pre><code>for (int i = 0; i < set.length; i++) {
-          if (set[i] == n) {
-              System.out.println(0);
-              return;
-          }
-          ...
-      }</code></pre>
-          <ul>
-            <li>n이 S의 원소이면 구간의 끝점이 될 수 없으므로 좋은 구간이 존재하지 않는다. 0을 출력하고 즉시 종료한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) start와 end 탐색</strong>
-          <pre><code>if (n < set[0]) {
-          start = 0;
-          end = set[0];
-      } else {
-          for (int i = 0; i < set.length; i++) {
-              if (set[i] < n) {
-                  start = set[i];
-                  continue;
-              }
-              if (n < set[i]) {
-                  end = set[i];
-                  break;
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li>n이 S의 최솟값보다 작으면 왼쪽 경계가 없으므로 <code>start = 0</code>으로 설정하고, <code>end = set[0]</code>으로 설정한다.</li>
-            <li>그 외의 경우 S를 순회하며 n보다 작은 원소 중 마지막으로 만난 값을 <code>start</code>에, n보다 큰 첫 번째 원소를 <code>end</code>에 저장한다.</li>
-            <li>예시: S = [3, 7, 10], n = 5이면 start = 3, end = 7. 유효 i: 4~5, 유효 j: 5~6.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 유효한 구간 쌍 카운팅</strong>
-          <pre><code>for (int i = start + 1; i <= n; i++) {
-          for (int j = n; j < end; j++) {
-              if (i == j) continue;
-              cnt++;
-          }
-      }</code></pre>
-          <ul>
-            <li>i는 <code>start + 1</code>부터 <code>n</code>까지, j는 <code>n</code>부터 <code>end - 1</code>까지 순회한다. 이 범위가 S의 원소를 포함하지 않으면서 n을 구간 내에 포함하는 끝점의 유효 범위다.</li>
-            <li><code>i == j</code>인 경우는 i = j = n으로, 길이가 0인 구간(점)이므로 건너뛴다.</li>
-            <li>이 이중 반복문은 수식으로 표현하면 <code>(n - start) × (end - n) - 1</code>과 동일하다.</li>
+            <li>완성된 2차원 배열의 각 행을 <code>StringBuilder</code>에 누적해 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -168,16 +160,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(L log L + (n - start) × (end - n))</strong>: 정렬에 O(L log L), start·end 탐색에 O(L), 카운팅 이중 반복문에 O((n - start) × (end - n))이 소요된다. n과 S 원소의 값이 최대 10,000이므로 카운팅 비용도 충분히 작다.</li>
+            <li><strong>O(N²)</strong>: 전체 배열의 크기가 <code>(4N - 3)²</code>이며, 초기화와 출력 모두 배열 크기에 비례한다. 재귀 호출은 N번이며 각 호출에서 현재 length만큼 별을 찍으므로 총 별 찍기 비용의 합도 O(N²)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(L)</strong>: 집합 원소를 저장하는 배열이 L 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N²)</strong>: 결과를 저장하는 2차원 배열의 크기가 <code>(4N - 3) × (4N - 3)</code>이므로 O(N²)의 공간을 사용한다. 재귀 호출 스택은 최대 N 깊이로 O(N)이다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -237,14 +228,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1758 — 알바생 강호</h2>
+      <h2 class="section">문제 11508 — 2+1 세일</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1758">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11508">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260304_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260305_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -262,16 +253,16 @@
       </h3>
       
       <p>
-        <strong>알바생 강호 (백준 1758)</strong>는<br>
-        N명의 손님이 각자 줄 의향이 있는 팁 금액을 가지고 있을 때, 강호가 받을 수 있는<br>
-        <strong>팁의 합을 최대화하는</strong> 문제다.<br>
-        <strong>k번째로 응대한 손님은 자신의 팁에서 (k - 1)을 뺀 금액을 지불</strong>하며, 0 이하가 되면 팁을 주지 않는다.
+        <strong>2+1 세일 (백준 11508)</strong>는<br>
+        N개의 물건을 살 때 <strong>가격이 높은 순서대로 3개씩 묶어 그 중 가장 싼 것을 무료로 받는</strong> 2+1 세일을 적용해<br>
+        <strong>최소 비용을 구하는</strong> 문제다.<br>
+        <strong>3의 배수 묶음마다 가장 저렴한 1개가 무료</strong>가 되므로, 어떤 순서로 묶느냐가 핵심이다.
       </p>
       
       <ul>
-        <li>손님을 응대하는 순서에 따라 팁이 달라지므로, 순서를 어떻게 정하느냐가 핵심이다.</li>
-        <li>팁이 많은 손님을 먼저 응대할수록 차감되는 금액이 작아지므로, 팁 내림차순으로 응대하는 것이 최적이다.</li>
-        <li>팁이 0 이하가 되는 손님은 실제로 팁을 주지 않으므로 누적에서 제외한다.</li>
+        <li>3개씩 묶을 때 무료로 받는 것은 그 묶음에서 가장 싼 물건이다.</li>
+        <li>총 비용을 최소화하려면 무료로 받는 물건의 가격 합이 최대가 되어야 한다.</li>
+        <li>가격 내림차순으로 정렬한 뒤 3번째 물건(인덱스 2, 5, 8, ...)을 무료로 받으면 가장 비싼 물건들을 최대한 무료로 받을 수 있어 최적이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -283,13 +274,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (내림차순 정렬)</li>
-        <li><strong>선택 이유</strong>: k번째 손님의 실제 팁은 <code>people[k] - (k - 1)</code>이다. 총 팁을 최대화하려면 팁이 큰 손님일수록 순번(k)이 작아야 차감이 줄어든다. 따라서 팁 내림차순으로 정렬해 앞 순번부터 배치하는 그리디 전략이 최적임을 보장한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (내림차순 정렬 후 3번째마다 제외)</li>
+        <li><strong>선택 이유</strong>: 무료로 받는 물건의 가격 합을 최대화해야 총 비용이 최소가 된다. 내림차순 정렬 후 3번째 물건(묶음 내 가장 싼 것)을 순서대로 무료로 받으면, 가능한 한 비싼 물건을 무료로 받을 수 있어 최적임이 보장된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
             <li>배열을 오름차순 정렬한 뒤 뒤에서부터 순회해 내림차순 효과를 낸다.</li>
-            <li>각 손님의 실제 팁 <code>people[i] - (sequence - 1)</code>을 계산하고, 0 이하이면 팁을 받지 못하므로 건너뛴다.</li>
-            <li>0보다 큰 팁만 <code>total_tip</code>에 누적한다.</li>
+            <li><code>cnt</code>를 0부터 세어 2가 되면(3번째 물건) 해당 물건을 무료로 받으므로 <code>total</code>에 더하지 않고 <code>cnt</code>를 0으로 리셋한다.</li>
+            <li>그 외의 경우 <code>total</code>에 가격을 누적하고 <code>cnt</code>를 1 증가시킨다.</li>
           </ul>
         </li>
       </ul>
@@ -303,41 +294,54 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 정렬</strong>
-          <pre><code>int[] people = new int[N];
-      for (int i = 0; i < N; i++) {
-          people[i] = Integer.parseInt(br.readLine());
-      }
-      Arrays.sort(people);</code></pre>
-          <ul>
-            <li>N명의 팁 의향 금액을 배열에 저장하고 오름차순 정렬한다.</li>
-            <li>이후 배열을 뒤에서부터 순회하면 내림차순으로 처리하는 것과 동일한 효과를 낸다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 내림차순 순회 및 실제 팁 계산</strong>
-          <pre><code>long total_tip = 0;
-      int sequence = 1;
-      
-      for (int i = N - 1; i >= 0; i--) {
-          int tip = people[i] - (sequence++ - 1);
-          if (tip <= 0) {
-              continue;
+        <li><strong>1) N이 3 미만인 경우 예외 처리</strong>
+          <pre><code>if (prices.length < 3) {
+          for (int price : prices) {
+              total += price;
           }
-          total_tip += tip;
+          System.out.println(total);
+          return;
       }</code></pre>
           <ul>
-            <li>배열을 뒤에서부터 순회해 팁이 큰 손님부터 순번 1, 2, 3, ...을 부여한다.</li>
-            <li><code>sequence</code>는 현재 응대 순번을 나타내며, <code>sequence++ - 1</code>은 후위 증가 연산자를 이용해 현재 순번에서의 차감값 <code>(k - 1)</code>을 계산하고 다음 반복을 위해 <code>sequence</code>를 1 증가시킨다.</li>
-            <li>실제 팁 <code>tip = people[i] - (sequence - 1)</code>이 0 이하이면 팁을 받지 못하므로 건너뛴다. 정렬된 배열을 내림차순으로 순회하므로, 한 번 tip이 0 이하가 되면 이후 모든 손님도 0 이하가 된다.</li>
-            <li>예시: people = [5, 8, 10]을 내림차순으로 처리하면 10-0=10, 8-1=7, 5-2=3. total_tip = 20.</li>
+            <li>물건이 3개 미만이면 2+1 세일을 적용할 수 없으므로 모든 물건의 가격을 그대로 합산해 출력하고 종료한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(total_tip);</code></pre>
+        <li><strong>2) 입력 및 정렬</strong>
+          <pre><code>int[] prices = new int[N];
+      for (int i = 0; i < N; i++) {
+          prices[i] = Integer.parseInt(br.readLine());
+      }
+      Arrays.sort(prices);</code></pre>
           <ul>
-            <li>누적된 최대 팁 합 <code>total_tip</code>을 출력한다. 팁의 최대 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
+            <li>N개의 물건 가격을 배열에 저장하고 오름차순 정렬한다.</li>
+            <li>이후 배열을 뒤에서부터 순회해 가격이 높은 순서대로 처리한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 내림차순 순회하며 3번째 물건 무료 적용</strong>
+          <pre><code>int cnt = 0;
+      
+      for (int idx = N - 1; idx >= 0; idx--) {
+          if (cnt == 2) {
+              cnt = 0;
+              continue;
+          }
+          total += prices[idx];
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>배열 뒤에서부터 순회하므로 가격이 높은 물건부터 처리된다.</li>
+            <li><code>cnt</code>가 2에 도달하면 현재 물건이 묶음 내 3번째(가장 싼 것)이므로 <code>total</code>에 더하지 않고 <code>cnt</code>를 0으로 리셋한다.</li>
+            <li>그 외에는 <code>total</code>에 가격을 누적하고 <code>cnt</code>를 1 증가시킨다.</li>
+            <li>예시: prices = [1, 2, 3, 4, 5, 6]을 내림차순으로 처리하면 6(cnt=1), 5(cnt=2), 4(무료, cnt=0), 3(cnt=1), 2(cnt=2), 1(무료, cnt=0). total = 6 + 5 + 3 + 2 = 16.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(total);</code></pre>
+          <ul>
+            <li>누적된 최소 비용 <code>total</code>을 출력한다. 가격 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
           </ul>
         </li>
       </ul>
@@ -358,7 +362,7 @@
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N명의 팁 금액을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: N개의 가격을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
