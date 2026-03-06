@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-05 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 10994 — 별 찍기 - 19</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/10994">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260305_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>별 찍기 - 19 (백준 10994)</strong>는<br>
+        N이 주어질 때 <strong>정사각형 테두리가 안쪽으로 2칸씩 줄어들며 중첩된 N겹의 별 패턴</strong>을 출력하는 문제다.<br>
+        <strong>전체 크기는 4 × (N - 1) + 1</strong>이며, 가장 바깥 테두리에서 시작해 안쪽으로 2칸씩 좁혀가며 별을 찍는다.
+      </p>
+      
+      <ul>
+        <li>N = 1이면 크기 1 × 1의 별 하나만 출력된다.</li>
+        <li>N = 2이면 크기 5 × 5의 테두리와 그 안쪽 1 × 1 별이 출력되는 형태로, 각 겹은 이전 겹보다 상하좌우로 2칸씩 안쪽에 위치한다.</li>
+        <li>재귀 호출마다 시작 좌표를 (row + 2, col + 2)로 이동하고 크기를 4 줄여 안쪽 정사각형을 그린다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 재귀를 이용한 중첩 정사각형 테두리 그리기</li>
+        <li><strong>선택 이유</strong>: 각 겹의 정사각형 테두리는 이전 겹보다 2칸 안쪽에서 시작하고 크기가 4 줄어드는 동일한 구조를 반복하므로, 재귀 호출이 자연스럽다. 2차원 배열에 미리 공백을 채운 뒤 별을 덮어씌우는 방식으로 구현한다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>전체 배열을 공백으로 초기화한 뒤, <code>star(field, 0, 0, length)</code>를 호출해 가장 바깥 테두리부터 그린다.</li>
+            <li>현재 시작 좌표 (row, col)과 크기 length를 받아 네 변의 테두리에 별을 찍는다.</li>
+            <li>length > 1이면 <code>star(field, row + 2, col + 2, length - 4)</code>를 재귀 호출해 안쪽 테두리를 그린다.</li>
+            <li>length ≤ 0이면 더 이상 그릴 테두리가 없으므로 재귀를 종료한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 배열 크기 계산 및 공백 초기화</strong>
+          <pre><code>int length = 4 * (N - 1) + 1;
+      
+      char[][] field = new char[length][length];
+      
+      for (int i = 0; i < length; i++) {
+          Arrays.fill(field[i], ' ');
+      }</code></pre>
+          <ul>
+            <li>전체 정사각형의 한 변의 길이는 <code>4 × (N - 1) + 1</code>이다. N = 1이면 1, N = 2이면 5, N = 3이면 9로 4씩 증가한다.</li>
+            <li>모든 칸을 공백으로 초기화한 뒤, 재귀 함수에서 별이 찍힐 위치만 덮어씌운다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 정사각형 테두리 그리기</strong>
+          <pre><code>int right = col + length - 1;
+      int down = row + length - 1;
+      
+      for (int i = 0; i < length; i++) {
+          field[row][col + i] = '*';
+          field[down][col + i] = '*';
+          field[row + i][col] = '*';
+          field[row + i][right] = '*';
+      }</code></pre>
+          <ul>
+            <li><code>right</code>는 현재 정사각형의 오른쪽 끝 열, <code>down</code>은 아래쪽 끝 행이다.</li>
+            <li>하나의 반복문으로 위쪽 변, 아래쪽 변, 왼쪽 변, 오른쪽 변 네 변을 동시에 그린다.</li>
+            <li>네 꼭짓점은 네 변이 겹치는 위치이므로 자연스럽게 중복 처리되어 별이 찍힌다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 재귀 호출로 안쪽 테두리 그리기</strong>
+          <pre><code>if (length > 1) {
+          star(field, row + 2, col + 2, length - 4);
+      }</code></pre>
+          <ul>
+            <li>현재 테두리 안쪽 2칸으로 이동한 위치 (row + 2, col + 2)에서 크기 length - 4의 정사각형을 재귀적으로 그린다.</li>
+            <li>length가 1이면 단일 별 하나이므로 재귀를 호출하지 않는다. length가 0 이하이면 함수 진입 시 즉시 반환한다.</li>
+            <li>예시: N = 3이면 length = 9 → 5 → 1 순서로 재귀 호출되며 3겹의 정사각형이 그려진다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>for (char[] row : field) {
+          sb.append(row).append('\n');
+      }
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>완성된 2차원 배열의 각 행을 <code>StringBuilder</code>에 누적해 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N²)</strong>: 전체 배열의 크기가 <code>(4N - 3)²</code>이며, 초기화와 출력 모두 배열 크기에 비례한다. 재귀 호출은 N번이며 각 호출에서 현재 length만큼 별을 찍으므로 총 별 찍기 비용의 합도 O(N²)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N²)</strong>: 결과를 저장하는 2차원 배열의 크기가 <code>(4N - 3) × (4N - 3)</code>이므로 O(N²)의 공간을 사용한다. 재귀 호출 스택은 최대 N 깊이로 O(N)이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 11508 — 2+1 세일</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11508">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260305_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>2+1 세일 (백준 11508)</strong>는<br>
+        N개의 물건을 살 때 <strong>가격이 높은 순서대로 3개씩 묶어 그 중 가장 싼 것을 무료로 받는</strong> 2+1 세일을 적용해<br>
+        <strong>최소 비용을 구하는</strong> 문제다.<br>
+        <strong>3의 배수 묶음마다 가장 저렴한 1개가 무료</strong>가 되므로, 어떤 순서로 묶느냐가 핵심이다.
+      </p>
+      
+      <ul>
+        <li>3개씩 묶을 때 무료로 받는 것은 그 묶음에서 가장 싼 물건이다.</li>
+        <li>총 비용을 최소화하려면 무료로 받는 물건의 가격 합이 최대가 되어야 한다.</li>
+        <li>가격 내림차순으로 정렬한 뒤 3번째 물건(인덱스 2, 5, 8, ...)을 무료로 받으면 가장 비싼 물건들을 최대한 무료로 받을 수 있어 최적이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (내림차순 정렬 후 3번째마다 제외)</li>
+        <li><strong>선택 이유</strong>: 무료로 받는 물건의 가격 합을 최대화해야 총 비용이 최소가 된다. 내림차순 정렬 후 3번째 물건(묶음 내 가장 싼 것)을 순서대로 무료로 받으면, 가능한 한 비싼 물건을 무료로 받을 수 있어 최적임이 보장된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>배열을 오름차순 정렬한 뒤 뒤에서부터 순회해 내림차순 효과를 낸다.</li>
+            <li><code>cnt</code>를 0부터 세어 2가 되면(3번째 물건) 해당 물건을 무료로 받으므로 <code>total</code>에 더하지 않고 <code>cnt</code>를 0으로 리셋한다.</li>
+            <li>그 외의 경우 <code>total</code>에 가격을 누적하고 <code>cnt</code>를 1 증가시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) N이 3 미만인 경우 예외 처리</strong>
+          <pre><code>if (prices.length < 3) {
+          for (int price : prices) {
+              total += price;
+          }
+          System.out.println(total);
+          return;
+      }</code></pre>
+          <ul>
+            <li>물건이 3개 미만이면 2+1 세일을 적용할 수 없으므로 모든 물건의 가격을 그대로 합산해 출력하고 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 입력 및 정렬</strong>
+          <pre><code>int[] prices = new int[N];
+      for (int i = 0; i < N; i++) {
+          prices[i] = Integer.parseInt(br.readLine());
+      }
+      Arrays.sort(prices);</code></pre>
+          <ul>
+            <li>N개의 물건 가격을 배열에 저장하고 오름차순 정렬한다.</li>
+            <li>이후 배열을 뒤에서부터 순회해 가격이 높은 순서대로 처리한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 내림차순 순회하며 3번째 물건 무료 적용</strong>
+          <pre><code>int cnt = 0;
+      
+      for (int idx = N - 1; idx >= 0; idx--) {
+          if (cnt == 2) {
+              cnt = 0;
+              continue;
+          }
+          total += prices[idx];
+          cnt++;
+      }</code></pre>
+          <ul>
+            <li>배열 뒤에서부터 순회하므로 가격이 높은 물건부터 처리된다.</li>
+            <li><code>cnt</code>가 2에 도달하면 현재 물건이 묶음 내 3번째(가장 싼 것)이므로 <code>total</code>에 더하지 않고 <code>cnt</code>를 0으로 리셋한다.</li>
+            <li>그 외에는 <code>total</code>에 가격을 누적하고 <code>cnt</code>를 1 증가시킨다.</li>
+            <li>예시: prices = [1, 2, 3, 4, 5, 6]을 내림차순으로 처리하면 6(cnt=1), 5(cnt=2), 4(무료, cnt=0), 3(cnt=1), 2(cnt=2), 1(무료, cnt=0). total = 6 + 5 + 3 + 2 = 16.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(total);</code></pre>
+          <ul>
+            <li>누적된 최소 비용 <code>total</code>을 출력한다. 가격 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 <code>Arrays.sort()</code>의 정렬 비용이다. 이후 선형 순회는 O(N)이므로 전체 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 가격을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
