@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 56일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 57일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -91,12 +91,6 @@
       color: #0a3622;
       display: inline;
     }
-    .coverage-img {
-      width: 100%;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      margin: 1rem 0;
-    }
   </style>
 </head>
 <body>
@@ -115,544 +109,477 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 56일차 TIL — Spring Expert 과제 리팩토링 & 트러블슈팅</h1>
-      <p class="muted">작성일 2026-03-06 · 분류: 부트캠프, TIL, Spring Boot, 리팩토링, JPA, AOP, Interceptor, IoC/DI</p>
+      <h1>내일배움캠프 Spring 백엔드 57일차 TIL — 클라우드 기초와 AWS 핵심 서비스(IAM · VPC · EC2)</h1>
+      <p class="muted">작성일 2026-03-09 · 분류: 부트캠프, TIL, AWS, Cloud, IAM, VPC, EC2, 네트워크</p>
 
-      <h2 class="section">56일차 개요</h2>
-
+      <h2 class="section">57일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>ArgumentResolver, Service 로직, API 클라이언트</strong>의 구조적 문제를 파악하고 개선한다.</li>
-        <li><strong>N+1 문제</strong>를 @EntityGraph로 해결한다.</li>
-        <li><strong>유효성 검증 로직</strong>을 적절한 계층(DTO)으로 분리한다.</li>
-        <li><strong>Interceptor + AOP</strong>를 조합한 관리자 API 로깅 시스템을 구축한다.</li>
-        <li><strong>IoC/DI 원칙</strong>을 준수하도록 RestTemplate을 Bean으로 등록한다.</li>
-        <li>테스트 커버리지를 확인하고 미비한 부분을 개선한다.</li>
+        <li><strong>클라이언트-서버-네트워크</strong> 구조와 온프레미스 vs 클라우드 차이를 이해한다.</li>
+        <li><strong>IaaS / PaaS / SaaS</strong>의 책임 범위 차이를 정리한다.</li>
+        <li><strong>AWS 기본 구조</strong>(Account, Region, AZ, 데이터 센터)를 파악한다.</li>
+        <li><strong>IAM</strong>(User, Role, Policy)과 보안 원칙을 이해한다.</li>
+        <li><strong>VPC, 서브넷, 라우팅 테이블, IGW, NAT Gateway, VPC Endpoint</strong>의 관계를 정리한다.</li>
+        <li><strong>EC2</strong>의 IP 유형(Private, Public, Elastic IP)과 각 특징을 이해한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. AuthUserArgumentResolver 동작 활성화</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
-      <p>
-        <code>AuthUserArgumentResolver</code>가 구현되어 있었지만 Spring MVC에 등록되지 않아 <code>@Auth</code> 어노테이션이 전혀 동작하지 않는 상황이었다.
-        <code>@Component</code>로 등록된 ArgumentResolver는 <strong>자동으로 Spring MVC에 연결되지 않는다.</strong>
-        반드시 <code>WebMvcConfigurer.addArgumentResolvers()</code>를 통해 명시적으로 등록해야 한다.
-      </p>
-
-      <div class="warning-box">
-        <span class="box-title">핵심 원인</span>
-        Spring MVC는 ArgumentResolver를 자동 탐지하지 않는다. <strong>직접 등록하지 않으면 존재하지 않는 것과 같다.</strong>
-      </div>
-
-      <pre><code class="language-java">@Configuration
-@RequiredArgsConstructor
-@EnableJpaAuditing
-public class PersistenceConfig implements WebMvcConfigurer {
-
-    private final AuthUserArgumentResolver authUserArgumentResolver;
-
-    @Override
-    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
-        resolvers.add(authUserArgumentResolver);  // 명시적 등록 필수
-    }
-}</code></pre>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. AuthService — 불필요한 암호화 연산 제거 (Early Return)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
-      <p>
-        회원가입 시 이메일 중복 체크 <strong>이전에</strong> 비밀번호 암호화가 실행되어,
-        중복 이메일로 인해 요청이 실패하는 경우에도 불필요한 암호화 연산(BCrypt)이 수행되고 있었다.
-        BCrypt는 비용이 큰 연산이므로 실패가 확정된 요청에서는 실행되어서는 안 된다.
-      </p>
+      <h2 class="section">1. 클라이언트 · 네트워크 · 서버</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:30%;">구분</th>
-            <th>개선 전</th>
-            <th>개선 후</th>
+            <th style="width:20%;">구성 요소</th>
+            <th style="width:25%;">역할</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>중복 이메일 실패 시</strong></td>
-            <td>DB 조회 + <strong>암호화 연산</strong> 모두 수행</td>
-            <td>DB 조회만 수행 후 즉시 예외</td>
+            <td><strong>클라이언트</strong></td>
+            <td>요청하는 주체</td>
+            <td>사용자의 명령을 받아 서버에 요청(Request)을 보내는 기기 또는 소프트웨어다.</td>
+          </tr>
+          <tr>
+            <td><strong>네트워크</strong></td>
+            <td>데이터의 통로</td>
+            <td>클라이언트와 서버가 데이터를 주고받을 수 있도록 연결하는 망이다. <strong>HTTP 프로토콜</strong>이라는 대화 규칙을 사용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>서버</strong></td>
+            <td>제공하는 주체</td>
+            <td>24시간 대기하며 요청이 오면 처리 후 네트워크를 통해 응답(Response)을 반환한다.</td>
           </tr>
         </tbody>
       </table>
 
-      <pre><code class="language-java">// 개선 전: 암호화 후 중복 체크
-String encodedPassword = passwordEncoder.encode(signupRequest.getPassword()); // 비용 큰 연산 먼저
-if (userRepository.existsByEmail(signupRequest.getEmail())) {
-    throw new InvalidRequestException("이미 존재하는 이메일입니다.");
-}
+      <div class="concept-box">
+        <span class="box-title">IP 주소</span>
+        클라이언트는 서버의 위치를 알아야 하고, 서버 또한 클라이언트의 위치를 알아야 한다.
+        서로 요청과 응답을 주고받기 위한 이 <strong>고유 주소를 IP</strong>라고 한다.
+      </div>
 
-// 개선 후: 중복 체크 후 암호화 (Early Return 적용)
-if (userRepository.existsByEmail(signupRequest.getEmail())) {
-    throw new InvalidRequestException("이미 존재하는 이메일입니다.");  // 실패 시 즉시 종료
-}
-String encodedPassword = passwordEncoder.encode(signupRequest.getPassword()); // 검증 통과 후 수행</code></pre>
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 온프레미스 vs 클라우드</h2>
 
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. WeatherClient — 응답 검증 순서 개선</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
-      <p>
-        HTTP 응답 body를 먼저 꺼낸 뒤 상태 코드를 검증하는 논리적으로 뒤바뀐 순서였다.
-        통신 자체가 실패한 상황에서도 body를 먼저 읽으려 하기 때문에 NPE 또는 의미 없는 에러가 발생할 수 있다.
-      </p>
-
-      <pre><code class="language-java">// 개선 전: body를 먼저 꺼낸 후 상태 코드 확인 (논리적 역순)
-WeatherDto[] weatherArray = responseEntity.getBody();
-if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-    throw new ServerException("날씨 데이터를 가져오는데 실패했습니다.");
-}
-
-// 개선 후: 상태 코드 확인 → body null 체크 순서로 변경
-if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-    throw new ServerException("날씨 데이터를 가져오는데 실패했습니다. 상태 코드: "
-            + responseEntity.getStatusCode());  // 상태 코드 포함해 원인 명확화
-}
-WeatherDto[] weatherArray = responseEntity.getBody();
-if (weatherArray == null || weatherArray.length == 0) {
-    throw new ServerException("날씨 데이터가 없습니다.");  // 데이터 부재는 별도 처리
-}</code></pre>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>온프레미스 (On-Premises)</th>
+            <th>클라우드</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>서버 소유</strong></td>
+            <td>회사가 직접 구매</td>
+            <td>AWS, GCP, Azure 등 업체에서 임대</td>
+          </tr>
+          <tr>
+            <td><strong>설치/관리</strong></td>
+            <td>직접 수행</td>
+            <td>클릭 몇 번으로 할당/반납</td>
+          </tr>
+          <tr>
+            <td><strong>네트워크</strong></td>
+            <td>직접 구축 및 관리</td>
+            <td>관리 일부를 업체에 위임</td>
+          </tr>
+          <tr>
+            <td><strong>유연성</strong></td>
+            <td>낮음</td>
+            <td>높음</td>
+          </tr>
+        </tbody>
+      </table>
 
       <div class="success-box">
-        <span class="box-title">개선 효과</span>
-        HTTP 통신 실패와 데이터 부재를 <strong>별도의 예외로 구분</strong>하여 에러 원인 파악이 명확해졌다.
-        상태 코드를 에러 메시지에 포함시켜 디버깅 시간도 단축된다.
+        <span class="box-title">클라우드의 장점 5가지</span>
+        초기 투자 비용 없음 · 인건비 절약 · 빠른 시작 · 확장 용이 · 실패 비용 낮음
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. 클라우드 서비스 모델 (IaaS / PaaS / SaaS)</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">모델</th>
+            <th style="width:30%;">제공 범위</th>
+            <th style="width:25%;">내가 관리하는 것</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IaaS</strong><br><small>Infrastructure as a Service</small></td>
+            <td>서버, 네트워크, 스토리지 등 인프라만 빌림</td>
+            <td>OS, 런타임, 앱, 데이터 등 거의 모두</td>
+            <td>AWS EC2</td>
+          </tr>
+          <tr>
+            <td><strong>PaaS</strong><br><small>Platform as a Service</small></td>
+            <td>런타임, 미들웨어까지 포함한 플랫폼 제공</td>
+            <td>애플리케이션 코드 작성 및 배포</td>
+            <td>AWS Elastic Beanstalk</td>
+          </tr>
+          <tr>
+            <td><strong>SaaS</strong><br><small>Software as a Service</small></td>
+            <td>완성된 소프트웨어 전체 제공</td>
+            <td>툴 사용만</td>
+            <td>Gmail, Notion</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">공동 책임 모델 (Shared Responsibility)</span>
+        <strong>고객 책임 (Security In the Cloud)</strong> — 클라우드 "안에서" 내가 만든 것의 보안<br>
+        데이터 암호화, IAM 사용자/권한 관리, 보안그룹 설정, OS 패치, 애플리케이션 보안<br><br>
+        <strong>AWS 책임 (Security Of the Cloud)</strong> — 클라우드 "자체" 인프라의 보안<br>
+        물리적 데이터 센터 보안, 네트워크 인프라, 관리형 서비스 기본 보안<br><br>
+        IaaS에 가까울수록 고객의 보안 책임이 크고, SaaS에 가까울수록 줄어든다.
       </div>
 
       <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. UserService — 비밀번호 검증을 DTO로 이동 (책임 분리)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
-      <p>
-        비밀번호 형식 검증 로직이 Service 계층에 있어 <strong>책임 분리 원칙을 위배</strong>하고 있었다.
-        형식 검증은 입력 데이터의 유효성을 확인하는 것으로, Service가 아닌 <strong>DTO 레벨에서 처리</strong>하는 것이 올바르다.
-      </p>
-
-      <pre><code class="language-java">// 개선 전: Service에서 직접 검증 (책임 분리 위배)
-if (userChangePasswordRequest.getNewPassword().length() &lt; 8 ||
-        !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
-        !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
-    throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
-}</code></pre>
-
-      <pre><code class="language-java">// 개선 후: DTO에 Jakarta Validation 어노테이션으로 선언적 검증
-@NotBlank
-@Size(min = 8, message = "새 비밀번호는 8자 이상이어야 합니다.")
-@Pattern(regexp = "^(?=.*\\d)(?=.*[A-Z]).+$",
-        message = "새 비밀번호는 숫자와 대문자를 포함해야 합니다.")
-private String newPassword;</code></pre>
+      <h2 class="section">4. AWS 기본 구조</h2>
 
       <table>
         <thead>
           <tr>
-            <th>구분</th>
-            <th>개선 전</th>
-            <th>개선 후</th>
+            <th style="width:25%;">개념</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>검증 시점</strong></td>
-            <td>Service 계층</td>
-            <td>Controller 진입 전 (DTO)</td>
+            <td><strong>데이터 센터</strong></td>
+            <td>컴퓨팅 시스템 및 관련 HW 장비를 저장하는 물리적 시설이다. 모든 회사의 디지털 데이터가 여기에 저장된다.</td>
           </tr>
           <tr>
-            <td><strong>책임 분리</strong></td>
-            <td>Service가 형식 검증 담당</td>
-            <td>DTO가 자기 자신을 검증</td>
+            <td><strong>Account</strong></td>
+            <td>AWS 서비스를 사용하기 위한 기본 단위다. 결제, 보안, 리소스 관리의 경계가 된다.</td>
           </tr>
           <tr>
-            <td><strong>재사용성</strong></td>
-            <td>Service에 종속</td>
-            <td>어디서든 DTO만으로 검증 가능</td>
+            <td><strong>Region</strong></td>
+            <td>지리적 영역(서울, 미국 동부 등)이다. 각 Region은 독립적으로 운영된다.</td>
           </tr>
           <tr>
-            <td><strong>에러 응답</strong></td>
-            <td>수동 예외 처리</td>
-            <td><code>@Valid</code>로 자동 처리</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. TodoRepository — N+1 문제 해결 (@EntityGraph)</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
-      <p>
-        Todo 목록을 조회할 때 각 Todo에 연관된 User를 개별 쿼리로 가져오는 N+1 문제가 발생하고 있었다.
-        Todo가 100개라면 DB 쿼리가 101번 실행된다.
-      </p>
-
-      <pre><code class="language-java">// 개선 전: JPQL Fetch Join
-@Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user ORDER BY t.modifiedAt DESC")
-Page&lt;Todo&gt; findAllByOrderByModifiedAtDesc(Pageable pageable);
-
-// 개선 후: @EntityGraph (동일한 성능, 더 간결한 코드)
-@EntityGraph(attributePaths = {"user"})
-Page&lt;Todo&gt; findAllByOrderByModifiedAtDesc(Pageable pageable);</code></pre>
-
-      <table>
-        <thead>
-          <tr>
-            <th>구분</th>
-            <th>N+1 발생 시 (개선 전)</th>
-            <th>@EntityGraph 적용 후</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>쿼리 수</strong></td>
-            <td>1 + N번</td>
-            <td>1번 (LEFT JOIN)</td>
-          </tr>
-          <tr>
-            <td><strong>Todo 100개 기준</strong></td>
-            <td>101번 쿼리</td>
-            <td>1번 쿼리</td>
+            <td><strong>Availability Zone (AZ)</strong></td>
+            <td>Region 안에 있는 개별 물리적 데이터 센터다. 하나의 Region 안에 여러 AZ가 존재한다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">@EntityGraph vs JPQL Fetch Join</span>
-        둘 다 성능은 동일하게 LEFT OUTER JOIN을 실행한다.
-        <strong>@EntityGraph</strong>는 JPQL 없이 어노테이션 한 줄로 선언할 수 있어 코드가 더 간결하고, 의도가 명확하다.
-        반면 <strong>JPQL Fetch Join</strong>은 복잡한 조건이 필요하거나 여러 연관 관계를 커스텀하게 제어해야 할 때 적합하다.
+        <span class="box-title">여러 AZ를 제공하는 이유 — 고가용성 (High Availability)</span>
+        하나의 데이터 센터에 장애가 발생해도 다른 AZ에서 서비스를 유지하기 위함이다.<br>
+        <strong>가용성이 높다</strong>는 것은 24시간 접속 가능하고 장애가 거의 없는 상태를 의미한다.
+        <strong>가용성이 낮다</strong>는 것은 자주 서버가 다운되거나 접속 불가 시간이 많은 상태다.
+      </div>
+
+      <div class="success-box">
+        <span class="box-title">AWS 주요 서비스 한 줄 요약</span>
+        무엇이든 올릴 수 있는 서버가 필요하면 → <strong>EC2</strong><br>
+        데이터베이스가 필요하면 → <strong>RDS</strong><br>
+        이미지/파일을 저장해야 하면 → <strong>S3</strong>
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. IAM (Identity and Access Management)</h2>
+
+      <p>
+        AWS에서 <strong>누가 어떤 리소스에 무엇을 할 수 있는지</strong>를 정하고 통제하는 접근 제어 시스템이다.
+        사람뿐만 아니라 서버에도 권한을 부여할 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">개념</th>
+            <th style="width:30%;">대상</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>User</strong></td>
+            <td>사람이 AWS에 접근할 때</td>
+            <td>개발자가 콘솔에 로그인하거나 CLI로 AWS를 관리할 때 사용한다. <strong>영구적인 자격증명(Credential)</strong>을 가진다.</td>
+          </tr>
+          <tr>
+            <td><strong>Role</strong></td>
+            <td>서버/서비스에 권한 부여</td>
+            <td>EC2가 S3에 파일을 업로드하거나 GitHub Actions가 배포할 때 사용한다. <strong>임시로 빌려 쓰는 권한 세트</strong>다.</td>
+          </tr>
+          <tr>
+            <td><strong>Policy</strong></td>
+            <td>권한 정의</td>
+            <td>어떤 작업을 허용/거부할지 정의한다. User나 Role에 연결하는 형태로 사용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>ARN</strong></td>
+            <td>리소스 식별</td>
+            <td>AWS 리소스의 고유 주소다. 형식: <code>arn:aws:{서비스}:...</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자격증명 (Credential)
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>종류</th>
+            <th>용도</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>비밀번호</strong></td>
+            <td>AWS 콘솔 로그인용</td>
+            <td rowspan="2">한 번 생성하면 삭제 전까지 유효(만료 없음). 1인 1계정 원칙 권장.</td>
+          </tr>
+          <tr>
+            <td><strong>Access Key</strong><br><small>(Access Key ID + Secret Access Key)</small></td>
+            <td>API/CLI 접근용</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 보안 원칙</span>
+        <strong>최소 권한 원칙:</strong> 작업에 꼭 필요한 권한만 부여하고, 그 외 모든 권한은 거부한다.<br>
+        <strong>루트 사용자 보호:</strong> 계정 생성 시 만들어지는 루트 사용자는 모든 권한을 가지므로 일상적인 작업에 사용하면 안 된다.<br>
+        <strong>Access Key 주의:</strong> 영구적으로 유효하므로 유출되면 큰 사고로 이어진다. 서버/자동화에서는 User 대신 <strong>Role 사용을 권장</strong>한다.
       </div>
 
       <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. Interceptor + AOP 관리자 API 로깅 시스템</h2>
+      <h2 class="section">6. 보안 그룹 (Security Group)</h2>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          요구사항
-        </span>
-      </h3>
       <p>
-        관리자 전용 API에 접근할 때마다 요청 정보를 로깅하고, 권한 없는 사용자의 접근을 차단해야 한다.
-        <strong>Interceptor</strong>로 권한 검증과 접근 차단을 처리하고,
-        <strong>AOP</strong>로 요청/응답 본문을 JSON으로 상세 로깅하는 방식으로 역할을 분담했다.
+        AWS 리소스에 대한 네트워크 트래픽을 제어하는 <strong>가상 방화벽</strong>이다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th>구분</th>
-            <th>Interceptor</th>
-            <th>AOP</th>
+            <th style="width:25%;">규칙</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>목적</strong></td>
-            <td>권한 검증 및 접근 차단</td>
-            <td>요청/응답 상세 로그 기록</td>
+            <td><strong>Whitelist 방식</strong></td>
+            <td>차단 규칙이 없고 허용 규칙만 존재한다. 규칙에 없는 모든 트래픽은 자동 차단된다.</td>
           </tr>
           <tr>
-            <td><strong>처리 시점</strong></td>
-            <td>Controller 진입 전</td>
-            <td>메서드 실행 전후</td>
+            <td><strong>Stateful (상태 저장)</strong></td>
+            <td>인바운드(들어올 때) 허락된 트래픽은 아웃바운드(나갈 때) 검사하지 않는다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 7 ===================== -->
+      <h2 class="section">7. VPC와 네트워크 구성</h2>
+
+      <p>
+        <strong>VPC(Virtual Private Cloud)</strong>는 AWS 클라우드 내에 만드는 <strong>사설 네트워크</strong>다.
+        다른 AWS 계정의 네트워크와 논리적으로 완벽히 격리되어 있다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          VPC 구성 요소
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구성 요소</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IP 주소 범위</strong></td>
+            <td>VPC 생성 시 총 사용 가능한 IP 수를 정한다. 표준값 <code>10.0.0.0/16</code>으로 약 65,000개의 IP를 사용할 수 있다.</td>
           </tr>
           <tr>
-            <td><strong>로깅 내용</strong></td>
-            <td>userId, 요청 시각, URL</td>
-            <td>요청 본문(JSON), 응답 본문(JSON), 수행시간</td>
+            <td><strong>Subnet (서브넷)</strong></td>
+            <td>VPC 네트워크를 관리하기 편하게 <strong>작게 쪼갠 구역</strong>이다. 하나의 서브넷은 반드시 하나의 AZ에만 속한다.</td>
           </tr>
           <tr>
-            <td><strong>실행 순서</strong></td>
-            <td>먼저 실행</td>
-            <td>권한 통과 후 실행</td>
+            <td><strong>Route Table</strong></td>
+            <td>네트워크 트래픽이 어디로 가야 하는지 방향을 알려주는 표지판이다. 모든 서브넷은 반드시 하나의 라우팅 테이블과 연결되어야 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Internet Gateway (IGW)</strong></td>
+            <td>VPC와 외부 인터넷을 연결하는 <strong>유일한 관문</strong>이다. 하나의 VPC에 하나의 IGW만 연결 가능하다. IGW가 없으면 인터넷 접속 불가.</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Interceptor — 권한 검증
+          Public Subnet vs Private Subnet
         </span>
       </h3>
 
-      <pre><code class="language-java">@Slf4j
-@Component
-public class CustomInterceptor implements HandlerInterceptor {
+      <p>라우팅 테이블에 IGW로 향하는 경로가 있는지 없는지로 결정된다.</p>
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-                             Object handler) throws Exception {
-        String method = request.getMethod();
-        String path = request.getRequestURI();
-
-        // Admin API 여부 확인
-        boolean isAdminApi = (method.equals("DELETE") && path.matches("/admin/comments/\\d+")) ||
-                             (method.equals("PATCH")  && path.matches("/admin/users/\\d+"));
-        if (!isAdminApi) return true;
-
-        // 권한 검증
-        String userRole = (String) request.getAttribute("userRole");
-        if (userRole == null) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "접근 권한이 없습니다.");
-            return false;
-        }
-        UserRole role = UserRole.of(userRole);
-        if (!UserRole.ADMIN.equals(role)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "접근 권한이 없습니다.");
-            return false;
-        }
-
-        Long userId = (Long) request.getAttribute("userId");
-        log.info("[관리자 기능 접근] userId = {}, requestTime = {}, url = {}",
-                userId, LocalDateTime.now(), path);
-        return true;
-    }
-}</code></pre>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구분</th>
+            <th>조건</th>
+            <th>라우팅 테이블 규칙</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Public Subnet</strong></td>
+            <td>라우팅 테이블에 IGW 경로가 <strong>있음</strong></td>
+            <td><code>172.31.0.0/16 → local</code> (VPC 내부)<br><code>0.0.0.0/0 → igw-xxxxxxx</code> (인터넷 연결)</td>
+          </tr>
+          <tr>
+            <td><strong>Private Subnet</strong></td>
+            <td>라우팅 테이블에 IGW 경로가 <strong>없음</strong></td>
+            <td><code>172.31.0.0/16 → local</code> (VPC 내부 통신만 가능)</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          커스텀 어노테이션 + AOP — JSON 상세 로깅
+          NAT Gateway
         </span>
       </h3>
 
-      <pre><code class="language-java">// 커스텀 어노테이션
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface AdminLogging {}
-
-// AOP Aspect
-@Aspect
-@Component
-@Slf4j
-public class Logger {
-
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    @Around("@annotation(org.example.expert.config.AdminLogging)")
-    public Object executionLogger(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        String[] parameterNames = signature.getParameterNames();
-        Object[] args = joinPoint.getArgs();
-
-        Map&lt;String, Object&gt; paramsMap = new LinkedHashMap&lt;&gt;();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            paramsMap.put(parameterNames[i], args[i]);
-        }
-
-        HttpServletRequest request = ((ServletRequestAttributes)
-                RequestContextHolder.getRequestAttributes()).getRequest();
-        Long   userId = (Long)   request.getAttribute("userId");
-        String url    = request.getRequestURI();
-
-        log.info("[API 요청] userId = {}, url = {}, {}.{} | 요청: [{}]",
-                userId, url, className, methodName, mapper.writeValueAsString(paramsMap));
-
-        long start = System.currentTimeMillis();
-        Object proceed = joinPoint.proceed();
-        long end = System.currentTimeMillis();
-
-        log.info("[API 응답] userId = {}, {}.{} | 응답: {} (수행시간: {}ms)",
-                userId, className, methodName,
-                mapper.writeValueAsString(proceed), (end - start));
-
-        return proceed;
-    }
-}</code></pre>
-
-      <pre><code class="language-java">// Controller에 어노테이션 적용
-@AdminLogging
-@DeleteMapping("/admin/comments/{commentId}")
-public void deleteComment(@PathVariable long commentId) {
-    commentAdminService.deleteComment(commentId);
-}
-
-@AdminLogging
-@PatchMapping("/admin/users/{userId}")
-public void changeUserRole(@PathVariable long userId,
-                           @RequestBody UserRoleChangeRequest request) {
-    userAdminService.changeUserRole(userId, request);
-}</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">로그 출력 예시</span>
-        <strong>Interceptor 로그 (권한 검증):</strong><br>
-        <code>[관리자 기능 접근] userId = 1, requestTime = 2026-03-06T10:30:00, url = /admin/comments/123</code><br><br>
-        <strong>AOP 로그 (JSON 상세):</strong><br>
-        <code>[API 요청] userId = 1, url = /admin/comments/123, CommentAdminController.deleteComment | 요청: [{"commentId":123}]</code><br>
-        <code>[API 응답] userId = 1, CommentAdminController.deleteComment | 응답: null (수행시간: 45ms)</code>
-      </div>
-
-      <!-- ===================== SECTION 7 ===================== -->
-      <h2 class="section">7. ManagerService — Todo User null 체크 추가</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
-        </span>
-      </h3>
       <p>
-        테스트 코드에서 <code>todo.getUser()</code>가 <code>null</code>인 경우를 검증하는 시나리오가 있었지만,
-        실제 서비스 코드에는 null 체크가 없어 NullPointerException이 발생할 수 있는 구조였다.
-        테스트가 검증하려는 시나리오와 실제 코드가 일치하지 않는 상태였다.
+        Private Subnet에 있는 EC2는 IGW와 연결되지 않아 외부 인터넷에 접근할 수 없다.
+        OS 업데이트나 외부 패키지 설치가 필요할 때 <strong>NAT Gateway</strong>를 통해 Private Subnet의 EC2가 인터넷에 <strong>요청은 가능하지만, 외부에서 Private Subnet으로의 요청은 여전히 불가능</strong>하다.
       </p>
 
-      <pre><code class="language-java">@Transactional
-public ManagerSaveResponse saveManager(AuthUser authUser, long todoId,
-                                       ManagerSaveRequest managerSaveRequest) {
-    User user = User.fromAuthUser(authUser);
-    Todo todo = todoRepository.findById(todoId)
-            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">종류</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Zonal NAT Gateway</strong></td>
+            <td>AZ(데이터 센터)마다 별도로 설정해야 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Regional NAT Gateway</strong></td>
+            <td>Region 전체를 커버한다. 하나만 만들면 AWS가 AZ별로 자동 확장해주므로 별도 설정 없이 사용 가능하다.</td>
+          </tr>
+        </tbody>
+      </table>
 
-    // null 체크 추가 — 테스트 시나리오와 실제 코드를 일치시킨다.
-    if (todo.getUser() == null) {
-        throw new InvalidRequestException("todo에 등록된 user가 null일 수 없습니다.");
-    }
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          VPC Endpoint
+        </span>
+      </h3>
 
-    if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
-        throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
-    }
-    // ... 이하 로직
-}</code></pre>
-
-      <div class="success-box">
-        <span class="box-title">방어적 프로그래밍</span>
-        NPE를 사전에 방지하고 <strong>명확한 에러 메시지</strong>를 제공하는 것이 핵심이다.
-        테스트 코드가 검증하는 시나리오는 반드시 실제 코드에도 반영되어야 한다.
-        테스트가 통과한다고 해서 실제 코드가 안전한 것은 아니다.
+      <div class="concept-box">
+        <span class="box-title">VPC Endpoint가 없을 때 vs 있을 때</span>
+        <strong>없을 때:</strong> VPC 내부 서버가 S3에 접근하려면 인터넷(NAT Gateway)으로 나갔다가 다시 AWS S3로 돌아와야 한다. 비용이 발생하고 속도가 느리며 보안에 취약하다.<br><br>
+        <strong>있을 때:</strong> VPC 내부에서 S3로 바로 연결되는 전용 터널을 뚫는다. AWS <strong>내부 네트워크</strong>를 통해 직접 연결되므로 보안이 강력하고 속도가 빠르며 <strong>데이터 전송 비용이 무료</strong>다.
       </div>
 
       <!-- ===================== SECTION 8 ===================== -->
-      <h2 class="section">8. RestTemplate Bean 등록 (IoC/DI 원칙 준수)</h2>
+      <h2 class="section">8. EC2 (Elastic Compute Cloud)</h2>
+
+      <p>
+        AWS에서 제공하는 클라우드 컴퓨팅 서비스다.
+        내 컴퓨터에서 작성한 코드를 아마존 데이터 센터의 원격 컴퓨터로 옮겨 실행할 수 있다.
+      </p>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 상황
+          AMI (Amazon Machine Image)
         </span>
       </h3>
+
       <p>
-        <code>WeatherClient</code>가 생성자 내부에서 <code>RestTemplateBuilder</code>로 직접 <code>RestTemplate</code> 인스턴스를 생성하고 있었다.
-        이는 <strong>제어 역전(IoC) 원칙을 위배</strong>하며, 객체 생성의 책임이 Spring이 아닌 WeatherClient에 있는 구조다.
+        EC2를 시작할 때 사용하는 <strong>설치 이미지</strong>다. 운영체제, 기본 패키지/도구, 초기 설정 정보가 포함되어 있다.
       </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          EC2 IP 주소 유형
+        </span>
+      </h3>
 
       <table>
         <thead>
           <tr>
-            <th>구분</th>
-            <th>기존 방식 (내부 생성)</th>
-            <th>개선 방식 (Bean 등록)</th>
+            <th style="width:20%;">유형</th>
+            <th style="width:25%;">용도</th>
+            <th>특징</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>제어권</strong></td>
-            <td>WeatherClient가 직접 생성/관리</td>
-            <td>스프링 컨테이너가 생성 및 관리 (IoC)</td>
+            <td><strong>Private IP</strong></td>
+            <td>VPC 내부 통신</td>
+            <td>인스턴스 생성 시 자동 할당된다. 중지/시작해도 유지된다. 인터넷에서 접근 불가.</td>
           </tr>
           <tr>
-            <td><strong>확장성</strong></td>
-            <td>API 클라이언트마다 빌더 코드 반복</td>
-            <td>RestTemplate 하나를 여러 클라이언트에서 공유 가능</td>
+            <td><strong>Public IP</strong></td>
+            <td>인터넷 통신</td>
+            <td>인스턴스 시작 시 자동 할당된다. <strong>중지 → 시작 시 변경된다.</strong> Private Subnet에서는 의미 없음.</td>
           </tr>
           <tr>
-            <td><strong>유지보수</strong></td>
-            <td>모든 클라이언트 코드를 수정</td>
-            <td>ClientConfig 한 곳만 수정하면 전체 적용</td>
+            <td><strong>Elastic IP (EIP)</strong></td>
+            <td>고정 Public IP</td>
+            <td>IP가 변경되지 않는 고정 Public IP다. 하지만 IGW가 특정 EIP를 가진 EC2로만 트래픽을 전달하므로 <strong>트래픽 분산이 불가능</strong>해 점차 사용이 줄고 있다.</td>
           </tr>
         </tbody>
       </table>
 
-      <pre><code class="language-java">// ClientConfig — RestTemplate을 Bean으로 등록
-@Configuration
-public class ClientConfig {
-
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
-    }
-}
-
-// WeatherClient — 생성자 주입으로 변경
-@Component
-@RequiredArgsConstructor
-public class WeatherClient {
-
-    private final RestTemplate restTemplate;  // Bean 주입
-
-    public String getTodayWeather() {
-        ResponseEntity&lt;WeatherDto[]&gt; responseEntity =
-                restTemplate.getForEntity(buildWeatherApiUri(), WeatherDto[].class);
-        // ...
-    }
-}</code></pre>
-
-      <!-- ===================== SECTION 9 ===================== -->
-      <h2 class="section">9. 테스트 커버리지</h2>
-
-      <p>
-        과제 전반에 걸쳐 단위 테스트와 통합 테스트를 작성하고 커버리지를 측정했다.
-        아래는 최종 테스트 커버리지 결과다.
-      </p>
-
-      <img
-        src="/assets/notes/bootcamp/practice/til/week_6/test_Coverage.png"
-        alt="테스트 커버리지 결과"
-        class="coverage-img"
-      />
+      <div class="warning-box">
+        <span class="box-title">Elastic IP의 한계 — Load Balancer가 필요한 이유</span>
+        EIP를 사용하면 IGW가 해당 EC2로만 트래픽을 전달한다.
+        TPS(Traffic Per Second)가 EC2 한 대의 한계를 초과하면 다른 EC2로 분산하지 못하고 서버가 다운될 수 있다.
+        이 문제를 해결하기 위해 <strong>Load Balancer(부하 균형)</strong>가 트래픽을 여러 EC2로 분산한다.
+      </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        오늘 과제에서 공통적으로 느낀 점은 <strong>각 계층의 책임을 명확히 분리하는 것</strong>이 Spring 개발의 핵심이라는 것이다.
-        형식 검증은 DTO가, 비즈니스 규칙은 Service가, 접근 제어는 Interceptor/AOP가 담당하도록 경계를 명확히 그을 때
-        코드의 유지보수성과 확장성이 크게 향상된다.
-        특히 Early Return(암호화 연산 제거, 상태 코드 우선 확인)은 실패 케이스에서 불필요한 연산을 차단하는 간단하지만 중요한 기법이다.
+        오늘은 클라우드의 기본 개념부터 AWS의 핵심 구성 요소까지 전체적인 그림을 그렸다.
+        가장 중요하게 느낀 것은 <strong>각 계층이 왜 존재하는지</strong>를 이해하는 것이다.
+        AZ가 여러 개인 이유는 고가용성, 서브넷을 나누는 이유도 가용성과 보안, VPC Endpoint를 쓰는 이유는 인터넷을 우회하지 않아 보안과 비용 모두 잡을 수 있기 때문이다.
+        모든 설계 결정에는 명확한 이유가 있다.
       </p>
 
       <p>
-        N+1 문제는 <code>@EntityGraph</code> 한 줄로 해결했다. JPQL Fetch Join과 성능이 동일하면서도 코드가 훨씬 간결해지는 경험을 했다.
-        다만 복잡한 조건이 필요한 경우에는 여전히 JPQL이 적합하다는 점을 기억해야 한다.
-        Interceptor와 AOP의 역할 분담도 명확히 정리됐다. Interceptor는 요청이 컨트롤러에 도달하기 전 권한을 차단하고,
-        AOP는 통과한 요청에 대해 메서드 레벨로 로그를 남긴다.
+        IAM에서 가장 중요한 원칙은 <strong>최소 권한</strong>이다.
+        Access Key는 영구적으로 유효하므로 유출 시 치명적이고, 서버/자동화에는 User 대신 Role을 부여해야 한다.
+        보안 그룹은 Whitelist 방식과 Stateful 특성 덕분에 들어오는 요청만 제어하면 나가는 응답은 자동으로 허용된다는 점도 기억해야 한다.
       </p>
 
       <p>
-        RestTemplate을 Bean으로 등록한 것은 단순해 보이지만 IoC 원칙을 실질적으로 적용한 사례다.
-        객체 생성 책임을 Spring에 위임하면 설정 변경이 한 곳에서 이루어지고, 의존성 주입을 통해 테스트 시 Mock으로 교체하기도 쉬워진다.
-        과제 전반에서 개선한 8가지 항목 모두 "왜 이렇게 해야 하는가"에 대한 이유가 명확했고,
-        그것이 Spring의 설계 철학과 정확히 일치한다는 것을 확인하는 시간이었다.
+        EC2의 Public IP는 중지/시작 시 변경되고, Elastic IP는 고정이지만 트래픽 분산이 불가능하다.
+        실제 서비스 환경에서는 EIP 대신 Load Balancer를 앞에 두고 여러 EC2로 트래픽을 분산하는 구조를 사용한다.
+        Private Subnet의 EC2가 인터넷에 요청을 보내야 할 때는 NAT Gateway를 경유하지만 외부에서 직접 접근은 차단된다는 점에서 보안과 기능 사이의 균형을 잡은 설계임을 알 수 있다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
