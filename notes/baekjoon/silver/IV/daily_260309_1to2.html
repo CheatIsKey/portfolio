@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-06 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-09 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 19939 — 박 터뜨리기</h2>
+      <h2 class="section">문제 2870 — 수학숙제</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/19939">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2870">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260306_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260309_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>박 터뜨리기 (백준 19939)</strong>는<br>
-        N개의 사탕을 K개의 그룹에 나눠 담을 때, <strong>각 그룹의 사탕 수가 모두 다르고 양의 정수</strong>이면서<br>
-        <strong>가장 많은 그룹과 가장 적은 그룹의 사탕 수 차이를 최소화</strong>하는 문제다.<br>
-        불가능한 경우 -1을 출력한다.
+        <strong>수학숙제 (백준 2870)</strong>는<br>
+        N개의 문자열에서 <strong>숫자로만 이루어진 연속된 부분을 모두 추출해 오름차순으로 출력</strong>하는 문제다.<br>
+        <strong>숫자 앞에 0이 붙은 경우도 그대로 하나의 수</strong>로 취급하며, 수의 크기가 매우 클 수 있다.
       </p>
       
       <ul>
-        <li>K개의 그룹에 서로 다른 양의 정수를 배분할 때 필요한 최솟값은 1 + 2 + 3 + ... + K = K × (K + 1) / 2이다.</li>
-        <li>N이 이 최솟값보다 작으면 K개의 서로 다른 양의 정수로 N을 만들 수 없으므로 -1을 출력한다.</li>
-        <li>나머지 R = N - K × (K + 1) / 2를 K개 그룹에 균등하게 추가 배분할 수 있으면 최솟값과 최댓값의 차이는 K - 1이고, 균등하게 나눠지지 않으면 K가 된다.</li>
+        <li>문자열에서 숫자가 아닌 문자를 기준으로 분리하면 숫자로만 이루어진 부분 문자열을 추출할 수 있다.</li>
+        <li>추출된 수는 선행 0을 포함한 채로 비교해야 하며, 값 자체로 정렬해야 하므로 문자열 정렬이 아닌 수치 정렬이 필요하다.</li>
+        <li>수의 자릿수가 매우 커질 수 있으므로 <code>int</code>나 <code>long</code>이 아닌 <code>BigInteger</code>를 사용해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 수학적 그리디</li>
-        <li><strong>선택 이유</strong>: 차이를 최소화하려면 기본 배분(1, 2, ..., K) 후 남은 사탕 R을 모든 그룹에 동일하게 추가하는 것이 최적이다. R을 각 그룹에 동일하게 더하면 그룹 간 차이는 기본 배분의 차이인 K - 1 그대로 유지된다. R % K ≠ 0이면 일부 그룹에 1씩 더 추가해야 하므로 차이가 K로 1 늘어난다.</li>
+        <li><strong>핵심 알고리즘</strong>: 정규식 기반 문자열 분리 + BigInteger 정렬</li>
+        <li><strong>선택 이유</strong>: 숫자가 아닌 모든 문자를 구분자로 사용해 문자열을 분리하면 숫자 부분 문자열을 한 번에 추출할 수 있다. 수의 크기가 <code>long</code> 범위를 초과할 수 있으므로 <code>BigInteger</code>로 변환해 저장하면 크기 비교와 선행 0 처리가 자동으로 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>N < K × (K + 1) / 2이면 즉시 -1을 출력한다.</li>
-            <li>R = N - K × (K + 1) / 2를 계산한다.</li>
-            <li>R % K == 0이면 모든 그룹에 R/K씩 균등 추가가 가능하므로 답은 K - 1이다.</li>
-            <li>R % K ≠ 0이면 일부 그룹에 1씩 더 추가해야 하므로 답은 K이다.</li>
+            <li>각 줄을 정규식 <code>[^0-9]</code>로 분리해 숫자 부분만 추출한다.</li>
+            <li>빈 문자열은 건너뛰고, 나머지는 <code>new BigInteger(num)</code>으로 변환해 리스트에 추가한다. BigInteger 생성자가 선행 0을 자동으로 제거하므로 별도 처리가 필요 없다.</li>
+            <li><code>Collections.sort()</code>로 수치 오름차순 정렬 후 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -97,37 +95,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 불가능 조건 검사</strong>
-          <pre><code>if (N < (K * (K + 1) / 2)) {
-          System.out.println(-1);
-          return;
+        <li><strong>1) 정규식으로 숫자 부분 추출</strong>
+          <pre><code>String s = br.readLine();
+      String[] nums = s.split("[^0-9]");</code></pre>
+          <ul>
+            <li><code>[^0-9]</code>는 숫자가 아닌 모든 문자를 의미하는 정규식이다. 이를 구분자로 사용해 문자열을 분리하면 숫자로만 이루어진 부분 문자열 배열을 얻는다.</li>
+            <li>예시: "abc12de34fg"를 분리하면 ["abc", "12", "de", "34", "fg"] → 숫자가 아닌 부분은 빈 문자열 또는 문자열이 되고, "12"와 "34"만 유효한 숫자 부분이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 유효한 숫자 부분만 BigInteger로 변환해 리스트에 추가</strong>
+          <pre><code>for (String num : nums) {
+          if (!num.isEmpty()) {
+              list.add(new BigInteger(num));
+          }
       }</code></pre>
           <ul>
-            <li>K개의 서로 다른 양의 정수를 만들기 위한 최소 합은 1 + 2 + ... + K = K × (K + 1) / 2이다.</li>
-            <li>N이 이 값보다 작으면 조건을 만족하는 배분이 불가능하므로 -1을 출력하고 종료한다.</li>
+            <li>분리 결과에서 빈 문자열은 건너뛴다. 연속된 구분자나 문자열 앞뒤의 비숫자 문자로 인해 빈 문자열이 생성될 수 있기 때문이다.</li>
+            <li><code>new BigInteger(num)</code>으로 변환하면 "007"과 같은 선행 0이 포함된 수도 올바르게 7로 처리되며, 자릿수 제한 없이 큰 수를 다룰 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 나머지 R 계산</strong>
-          <pre><code>int R = N - ((K * (K + 1) / 2));</code></pre>
-          <ul>
-            <li>기본 배분(1, 2, ..., K) 후 남은 사탕의 수 R을 계산한다.</li>
-            <li>R은 K개 그룹에 추가로 배분해야 하는 사탕의 수이며, 0 이상임이 보장된다.</li>
-          </ul>
-        </li>
+        <li><strong>3) 정렬 및 출력</strong>
+          <pre><code>Collections.sort(list);
       
-        <li><strong>3) R의 균등 분배 여부에 따른 답 결정</strong>
-          <pre><code>if (R % K == 0) {
-          System.out.println(K - 1);
-          return;
+      for (BigInteger num : list) {
+          sb.append(num).append('\n');
       }
       
-      System.out.println(K);</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>R % K == 0이면 R을 K개 그룹에 R/K씩 균등하게 추가할 수 있다. 기본 배분이 (1, 2, ..., K)이므로 R/K씩 더하면 (1 + R/K, 2 + R/K, ..., K + R/K)가 된다. 모든 그룹의 차이가 동일하게 유지되어 최솟값과 최댓값의 차이는 K - 1이다.</li>
-            <li>R % K ≠ 0이면 R을 균등하게 나눌 수 없어 일부 그룹에 1개씩 더 배분해야 한다. 이로 인해 그룹 간 차이가 1 늘어나 K가 된다.</li>
-            <li>예시: N = 11, K = 3이면 기본 합 = 6, R = 5. R % K = 5 % 3 = 2 ≠ 0이므로 답은 3.</li>
-            <li>예시: N = 12, K = 3이면 기본 합 = 6, R = 6. R % K = 6 % 3 = 0이므로 답은 2.</li>
+            <li><code>BigInteger</code>는 <code>Comparable</code>을 구현하므로 <code>Collections.sort()</code>가 수치 오름차순으로 정렬한다. 단순 문자열 정렬과 달리 "9"와 "10"을 올바르게 9 < 10으로 처리한다.</li>
+            <li>정렬된 결과를 <code>StringBuilder</code>에 누적해 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       </ul>
@@ -143,16 +142,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 입력을 읽은 뒤 상수 번의 산술 연산과 조건 분기만 수행하므로 입력 크기와 무관하게 O(1)에 동작한다.</li>
+            <li><strong>O(M log M × D)</strong>: M은 추출된 숫자 부분 문자열의 총 개수, D는 숫자의 최대 자릿수다. <code>Collections.sort()</code>는 O(M log M)번의 <code>BigInteger</code> 비교를 수행하며, 각 비교는 자릿수 D에 비례한다. 문자열 분리와 변환은 전체 입력 길이에 비례하는 O(L)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: N, K, R을 저장하는 상수 개의 변수만 사용하므로 O(1)의 공간만 필요하다.</li>
+            <li><strong>O(M × D)</strong>: 추출된 M개의 <code>BigInteger</code>를 저장하는 리스트가 주요 메모리 사용처이며, 각 <code>BigInteger</code>는 자릿수 D에 비례하는 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -211,14 +209,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 9507 — Generations of Tribbles</h2>
+      <h2 class="section">문제 17266 — 어두운 굴다리</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/9507">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/17266">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260306_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260309_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
