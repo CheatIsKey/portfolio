@@ -415,6 +415,9 @@ java -version</code></pre>
       <pre><code class="language-bash"># 키페어 권한 설정 (최초 1회)
 chmod 400 &lt;키페어경로&gt;
 
+# EC2 서버 연결
+ssh -i <키페어경로> <사용자>@<EC2-IPv4주소>
+
 # 로컬 → EC2 파일 전송
 scp -i &lt;키페어경로&gt; &lt;로컬파일&gt; &lt;사용자&gt;@&lt;EC2-IP&gt;:~/app.jar
 
