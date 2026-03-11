@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 58일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 58일차 TIL — Actuator · Profile · Parameter Store · EC2 배포</h1>
+      <p class="muted">작성일 2026-03-10 · 분류: 부트캠프, TIL, Spring Boot, Actuator, AWS, EC2, 배포</p>
+
+      <h2 class="section">58일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li>운영 3요소(Health · Log · Config)의 개념을 이해한다.</li>
+        <li><strong>Spring Boot Actuator</strong>의 엔드포인트와 노출 범위 설정을 익힌다.</li>
+        <li><strong>Profile별 설정 분리</strong>로 하나의 JAR로 모든 환경을 대응하는 방법을 이해한다.</li>
+        <li><strong>AWS Parameter Store</strong>에 설정값을 저장하고 연동하는 방법을 학습한다.</li>
+        <li>JAR 빌드 후 EC2에 배포하고 <strong>nohup으로 백그라운드 실행</strong>하는 전체 흐름을 익힌다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. 운영 3요소</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">요소</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Health</strong></td>
+            <td>서버 상태를 확인한다. DB, Redis 등 의존 서비스의 정상 여부를 포함한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Log</strong></td>
+            <td>문제 발생 시 원인을 추적한다. 언제, 어디서, 무슨 에러가 났는지 기록한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Config</strong></td>
+            <td>환경별 설정을 관리한다. 로컬·개발·운영 환경마다 다른 설정을 안전하게 분리한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Spring Boot Actuator</h2>
+
+      <p>
+        앱의 상태, 메트릭, 환경 정보를 <strong>HTTP 엔드포인트로 제공</strong>하는 Spring Boot 내장 모니터링 도구다.
+        의존성을 추가하면 <code>/actuator/health</code>, <code>/actuator/info</code> 같은 엔드포인트가 자동으로 생성된다.
+      </p>
+
+      <pre><code class="language-groovy">implementation 'org.springframework.boot:spring-boot-starter-actuator'</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          주요 엔드포인트
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>엔드포인트</th>
+            <th>용도</th>
+            <th style="width:15%; text-align:center;">민감도</th>
+            <th style="width:15%; text-align:center;">기본 노출</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/actuator/health</code></td>
+            <td>앱 상태 확인 (DB, Redis 등 자동 감지)</td>
+            <td style="text-align:center;">🟢 낮음</td>
+            <td style="text-align:center;">✅</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/info</code></td>
+            <td>앱 정보 (버전, Git 커밋 정보)</td>
+            <td style="text-align:center;">🟢 낮음</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/metrics</code></td>
+            <td>성능 지표 (CPU, 메모리, 요청 수)</td>
+            <td style="text-align:center;">🟡 중간</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/env</code></td>
+            <td>환경변수, 설정값</td>
+            <td style="text-align:center;">🔴 높음</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/configprops</code></td>
+            <td>모든 설정값</td>
+            <td style="text-align:center;">🔴 높음</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/heapdump</code></td>
+            <td>JVM 메모리 덤프</td>
+            <td style="text-align:center;">🔴 높음</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+          <tr>
+            <td><code>/actuator/threaddump</code></td>
+            <td>스레드 정보</td>
+            <td style="text-align:center;">🟡 중간</td>
+            <td style="text-align:center;">❌</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          노출 범위 및 info 설정
+        </span>
+      </h3>
+
+      <pre><code class="language-properties"># 노출할 엔드포인트 지정
+management.endpoints.web.exposure.include=health,info
+management.info.env.enabled=true
+
+# /actuator/info 호출 시 나오는 정보
+info.app.name=health-app
+info.app.version=1.0.0</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          상세 응답 설정
+        </span>
+      </h3>
+
+      <pre><code class="language-properties"># always: DB 상태 등 상세 정보 포함 / never: 상세 정보 숨김
+management.endpoint.health.show-details=always</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 상세 응답 주의</span>
+        <code>show-details=always</code>로 설정하면 DB 연결 정보 등 <strong>민감한 내부 정보가 노출</strong>될 수 있다.
+        운영 환경에서는 가급적 <code>never</code>로 유지하거나, 내부 네트워크에서만 접근 가능하도록 제한해야 한다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. Profile별 설정 분리</h2>
+
+      <p>
+        코드는 동일하고 설정만 다르게 하면 <strong>환경별 배포가 가능</strong>해진다.
+        하나의 JAR 파일로 로컬, 개발, 운영 환경 모두를 대응할 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">파일</th>
+            <th>용도</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>application.properties</code></td>
+            <td>모든 환경에서 공통으로 적용되는 설정</td>
+          </tr>
+          <tr>
+            <td><code>application-local.properties</code></td>
+            <td>로컬 개발 환경 전용 설정</td>
+          </tr>
+          <tr>
+            <td><code>application-prod.properties</code></td>
+            <td>운영 환경 전용 설정</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">우선순위 규칙</span>
+        동일한 키가 여러 파일에 존재하면 <strong><code>application-{profile}.properties</code>의 설정이 우선 적용</strong>된다.
+        공통 설정을 <code>application.properties</code>에 두고, 환경별로 덮어써야 할 값만 각 프로파일 파일에 작성하는 것이 관리하기 좋다.
+      </div>
+
+      <div class="success-box">
+        <span class="box-title">Profile 분리의 장점</span>
+        코드 수정 없이 환경 변경 가능 · 비밀번호를 환경변수로 안전하게 관리 · 하나의 JAR로 모든 환경 대응
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. AWS Parameter Store</h2>
+
+      <p>
+        설정값을 <strong>안전하게 저장하고 관리</strong>하는 AWS 서비스다.
+        DB 비밀번호처럼 코드에 하드코딩하면 안 되는 값을 외부에서 주입할 때 사용한다.
+        버전 관리, IAM 권한 제어를 지원하며 EC2를 재부팅해도 설정값이 유지된다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          파라미터 생성 항목
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">항목</th>
+            <th style="width:45%;">값</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Name</strong></td>
+            <td><code>/{앱 이름}/{profile}/{환경변수}</code></td>
+            <td>계층 구조로 이름을 지정한다. 예: <code>/myapp/prod/db.password</code></td>
+          </tr>
+          <tr>
+            <td><strong>Type</strong></td>
+            <td>String / StringList / SecureString</td>
+            <td>값의 타입을 선택한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Value</strong></td>
+            <td>실제 설정값</td>
+            <td>저장할 값을 입력한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">타입</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>String</strong></td>
+            <td>일반 문자열</td>
+          </tr>
+          <tr>
+            <td><strong>StringList</strong></td>
+            <td>콤마(,)로 구분된 문자열 리스트</td>
+          </tr>
+          <tr>
+            <td><strong>SecureString</strong></td>
+            <td>KMS로 암호화된 문자열. 비밀번호, 시크릿 키 등 민감한 값에 사용한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. JAR 빌드 및 EC2 배포</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JAR 빌드
+        </span>
+      </h3>
+
+      <pre><code class="language-bash"># 프로젝트 디렉토리에서 실행
+./gradlew clean bootJar
+
+# 빌드 결과 확인
+ls -la build/libs/</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          EC2 사전 세팅
+        </span>
+      </h3>
+
+      <p>보안 그룹에서 <strong>8080 포트를 인바운드 규칙으로 추가</strong>해야 외부에서 앱에 접근할 수 있다.</p>
+
+      <pre><code class="language-bash"># EC2에 SSH 접속 후 Java 17 설치
+sudo dnf install java-17-amazon-corretto -y
+
+# 설치 확인
+java -version</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">명령어 옵션 설명</span>
+        <strong>sudo</strong>: 관리자 권한으로 실행한다.<br>
+        <strong>dnf</strong>: 패키지 관리자다. 소프트웨어 설치/삭제 도구.<br>
+        <strong>-y</strong>: 설치 확인 질문에 자동으로 "yes"로 응답한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          IAM Role 설정
+        </span>
+      </h3>
+
+      <p>
+        EC2가 Parameter Store에 접근하려면 <strong>IAM Role에 <code>AmazonSSMReadOnlyAccess</code> 권한을 추가</strong>해야 한다.
+        직접 Access Key를 EC2에 저장하는 방식은 보안에 취약하므로, Role을 부여하는 방식을 사용한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          파일 전송 (scp)
+        </span>
+      </h3>
+
+      <pre><code class="language-bash"># 키페어 권한 설정 (최초 1회)
+chmod 400 &lt;키페어경로&gt;
+
+# EC2 서버 연결
+ssh -i &lt;키페어경로&gt; &lt;사용자&gt;@&lt;EC2-IP주소&gt;
+
+# 로컬 → EC2 파일 전송
+scp -i &lt;키페어경로&gt; &lt;로컬파일&gt; &lt;사용자&gt;@&lt;EC2-IP&gt;:~/app.jar
+
+# EC2 → 로컬 파일 가져오기 (예: 로그 파일)
+scp -i ~/.ssh/my-key.pem ec2-user@{EC2-IP}:~/app.log ./</code></pre>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. 포그라운드 vs 백그라운드 실행 (nohup)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          포그라운드 실행의 문제
+        </span>
+      </h3>
+
+      <pre><code class="language-bash"># 포그라운드 실행 — 터미널을 닫으면 앱도 함께 종료된다
+java -jar ~/app.jar --spring.profiles.active=prod</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 포그라운드 실행의 한계</span>
+        터미널(SSH 세션)을 닫는 순간 스프링 애플리케이션 실행이 <strong>즉시 중단</strong>된다.
+        실제 운영 환경에서는 반드시 백그라운드 실행 방식을 사용해야 한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          nohup (No Hang Up) — 백그라운드 실행
+        </span>
+      </h3>
+
+      <p>
+        <code>nohup</code>은 SSH가 끊어져도 앱이 계속 실행되도록 해준다.
+        로그는 지정한 파일(<code>app.log</code>)에 기록된다.
+      </p>
+
+      <pre><code class="language-bash"># 백그라운드 실행 — SSH가 끊겨도 앱이 계속 동작한다
+nohup java -jar ~/app.jar --spring.profiles.active=prod > ~/app.log 2>&1 &
+
+# 실행 확인 — java 프로세스가 보이면 정상 실행 중
+ps aux | grep java
+
+# 로그 실시간 확인 — Ctrl+C로 종료
+tail -f ~/app.log
+
+# 앱 종료
+pkill -9 -f "java -jar"</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">옵션</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>&gt; ~/app.log</code></td>
+            <td>표준 출력(stdout)을 app.log 파일로 저장한다.</td>
+          </tr>
+          <tr>
+            <td><code>2&gt;&1</code></td>
+            <td>표준 에러(stderr)도 app.log에 함께 저장한다.</td>
+          </tr>
+          <tr>
+            <td><code>&amp;</code></td>
+            <td>백그라운드에서 실행한다.</td>
+          </tr>
+          <tr>
+            <td><code>pkill -9 -f</code></td>
+            <td>프로세스 이름으로 강제 종료한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Parameter Store 연동 확인
+        </span>
+      </h3>
+
+      <pre><code class="language-bash"># 앱이 Parameter Store 값을 정상적으로 읽어왔는지 확인
+curl http://{EC2-IP}:8080/actuator/info</code></pre>
+
+      <p>
+        정상적으로 연동되었다면 <code>info.app.name</code>, <code>info.app.version</code> 등 Parameter Store에 저장한 값이 응답으로 돌아온다.
+      </p>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        오늘은 로컬에서 작성한 스프링 앱을 실제 EC2에 배포하는 전체 흐름을 처음부터 끝까지 직접 경험했다.
+        핵심은 <strong>코드와 설정을 분리</strong>하는 것이다. 하나의 JAR 파일이 Profile에 따라 전혀 다른 설정으로 동작하고,
+        민감한 설정값은 Parameter Store에 저장해 코드에 절대 하드코딩하지 않는다.
+        EC2가 Parameter Store에 접근하는 권한도 Access Key가 아닌 IAM Role로 부여해 보안 원칙을 지켰다.
+      </p>
+
+      <p>
+        Actuator는 운영 환경에서 앱 상태를 모니터링하는 강력한 도구지만, 민감도가 높은 엔드포인트를 무분별하게 노출하면 오히려 보안 취약점이 된다.
+        <code>health</code>와 <code>info</code>만 기본 노출하고, 나머지는 필요할 때만 열거나 내부 네트워크에서만 접근하도록 제한하는 것이 올바른 방향이다.
+        <code>show-details=always</code>도 운영 환경에서는 지양해야 한다.
+      </p>
+
+      <p>
+        포그라운드 실행은 터미널이 닫히는 순간 앱도 종료된다는 치명적인 한계가 있다.
+        <code>nohup</code>으로 백그라운드 실행하고 로그를 파일로 남기는 것이 기본이다.
+        <code>ps aux | grep java</code>로 프로세스 확인, <code>tail -f ~/app.log</code>로 실시간 로그 확인, <code>pkill -9</code>로 종료하는 세트를 기억해두면 EC2 운영 중 대부분의 상황에 대응할 수 있다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
