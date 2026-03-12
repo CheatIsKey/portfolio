@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-11 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 16173 — 점프왕 쩰리 (Small)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/16173">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260311_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>점프왕 쩰리 (Small) (백준 16173)</strong>는<br>
+        N × N 격자의 (0, 0)에서 출발해 각 칸에 적힌 수만큼 오른쪽 또는 아래로 이동할 때,<br>
+        <strong>목표 칸(-1)에 도달할 수 있는지 여부</strong>를 출력하는 문제다.<br>
+        도달 가능하면 <strong>"HaruHaru"</strong>, 불가능하면 <strong>"Hing"</strong>을 출력한다.
+      </p>
+      
+      <ul>
+        <li>각 칸의 값이 이동 칸 수를 의미하며, 오른쪽과 아래 방향으로만 이동할 수 있다.</li>
+        <li>값이 0인 칸에서는 이동할 수 없으므로 막힌 칸이 된다.</li>
+        <li>목표 칸은 -1로 표시되며, 이 칸에 도달하는 순간 즉시 "HaruHaru"를 출력하고 종료한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: BFS (너비 우선 탐색)</li>
+        <li><strong>선택 이유</strong>: 도달 가능 여부만 판단하면 되므로 BFS가 적합하다. 방문 배열로 중복 방문을 방지하고, 목표 칸에 도달하면 즉시 종료한다. N이 최대 3으로 매우 작아 DFS로도 해결 가능하지만, BFS가 구조적으로 명확하다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>(0, 0)을 큐에 넣고 시작한다.</li>
+            <li>현재 칸의 값 <code>moveCnt</code>만큼 오른쪽(<code>c + moveCnt</code>)과 아래쪽(<code>r + moveCnt</code>)으로 이동한 칸을 큐에 추가한다.</li>
+            <li>큐에서 꺼낸 칸이 -1이면 "HaruHaru"를 출력하고 종료한다.</li>
+            <li>큐가 빌 때까지 도달하지 못하면 "Hing"을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 BFS 초기화</strong>
+          <pre><code>Deque<int[]> queue = new ArrayDeque<>();
+      boolean[][] visited = new boolean[N][N];
+      
+      queue.add(new int[]{0, 0});
+      visited[0][0] = true;</code></pre>
+          <ul>
+            <li>BFS에 사용할 큐와 방문 배열을 초기화한다.</li>
+            <li>시작 위치 (0, 0)을 큐에 넣고 방문 표시를 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 목표 칸 도달 확인</strong>
+          <pre><code>int[] polled = queue.poll();
+      int r = polled[0];
+      int c = polled[1];
+      
+      if (area[r][c] == -1) {
+          System.out.println("HaruHaru");
+          return;
+      }</code></pre>
+          <ul>
+            <li>큐에서 꺼낸 칸의 값이 -1이면 목표 칸에 도달한 것이므로 즉시 "HaruHaru"를 출력하고 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 다음 이동 칸 탐색 및 큐 추가</strong>
+          <pre><code>int moveCnt = area[r][c];
+      if (moveCnt == 0) continue;
+      
+      if (r + moveCnt < N && !visited[r + moveCnt][c]) {
+          visited[r + moveCnt][c] = true;
+          queue.add(new int[]{r + moveCnt, c});
+      }
+      
+      if (c + moveCnt < N && !visited[r][c + moveCnt]) {
+          visited[r][c + moveCnt] = true;
+          queue.add(new int[]{r, c + moveCnt});
+      }</code></pre>
+          <ul>
+            <li>현재 칸의 값 <code>moveCnt</code>가 0이면 이동할 수 없으므로 건너뛴다.</li>
+            <li>아래쪽 <code>(r + moveCnt, c)</code>와 오른쪽 <code>(r, c + moveCnt)</code> 방향으로의 이동을 시도한다.</li>
+            <li>격자 범위를 벗어나지 않고 아직 방문하지 않은 칸만 큐에 추가하고 방문 표시한다.</li>
+            <li>방문 배열로 동일한 칸을 중복으로 처리하는 것을 방지한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 도달 불가 처리</strong>
+          <pre><code>System.out.println("Hing");</code></pre>
+          <ul>
+            <li>큐가 빌 때까지 목표 칸에 도달하지 못하면 "Hing"을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N²)</strong>: 격자의 각 칸은 방문 배열에 의해 최대 한 번씩만 큐에 추가되므로, 전체 탐색 비용은 격자 크기에 비례하는 O(N²)이다. N이 최대 3이므로 사실상 O(1)에 수렴한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N²)</strong>: 격자를 저장하는 2차원 배열과 방문 여부를 저장하는 <code>visited</code> 배열이 각각 N × N 크기를 사용하며, 큐도 최대 N² 크기로 증가할 수 있다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2422 — 한윤정이 이탈리아에 가서 아이스크림을 사먹는데</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2422">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260311_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>한윤정이 이탈리아에 가서 아이스크림을 사먹는데 (백준 2422)</strong>는<br>
+        N가지 아이스크림 중 3가지를 고를 때, <strong>궁합이 맞지 않는 조합을 포함하지 않는 경우의 수</strong>를 구하는 문제다.<br>
+        <strong>M개의 궁합이 맞지 않는 쌍</strong>이 주어지며, 선택한 3가지 아이스크림 중 어느 두 쌍도 금지 조합에 포함되면 안 된다.
+      </p>
+      
+      <ul>
+        <li>N은 최대 200, M은 최대 10,000이므로 3중 반복문으로 모든 조합을 탐색해도 최대 200³ / 6 ≈ 1,333,333번으로 충분히 빠르다.</li>
+        <li>아이스크림은 순서 없이 3가지를 고르는 조합이므로 i < j < k 순서로만 탐색해 중복을 방지한다.</li>
+        <li>금지 쌍을 2차원 배열로 관리하면 두 아이스크림이 궁합이 맞지 않는지를 O(1)에 확인할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 브루트포스 조합 탐색 + 2차원 배열 금지 쌍 관리</li>
+        <li><strong>선택 이유</strong>: N이 최대 200으로 작아 3중 반복문으로 모든 조합을 탐색해도 시간 내에 처리된다. 금지 쌍을 <code>boolean[N+1][N+1]</code> 배열에 저장하면 두 아이스크림 사이의 금지 여부를 O(1)에 조회할 수 있어 효율적이다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>금지 쌍 (ice, cream)을 입력받아 <code>iceCream[ice][cream]</code>과 <code>iceCream[cream][ice]</code> 모두 <code>true</code>로 설정한다.</li>
+            <li>i < j < k 조건으로 3중 반복문을 순회해 모든 3가지 조합을 탐색한다.</li>
+            <li>(i, j), (i, k), (j, k) 세 쌍 중 하나라도 금지 쌍이면 해당 조합을 건너뛰고, 모두 허용이면 카운트를 증가시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 금지 쌍 입력 및 배열 구성</strong>
+          <pre><code>boolean[][] iceCream = new boolean[N + 1][N + 1];
+      
+      for (int i = 0; i < M; i++) {
+          int ice = Integer.parseInt(st.nextToken());
+          int cream = Integer.parseInt(st.nextToken());
+      
+          iceCream[ice][cream] = true;
+          iceCream[cream][ice] = true;
+      }</code></pre>
+          <ul>
+            <li>금지 쌍을 대칭 행렬 형태로 저장한다. <code>iceCream[a][b] = true</code>이면 a와 b는 함께 선택할 수 없다.</li>
+            <li>양방향으로 저장하므로 이후 탐색에서 순서에 관계없이 O(1)로 조회할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 3중 반복문으로 모든 조합 탐색</strong>
+          <pre><code>for (int i = 1; i <= N; i++) {
+          for (int j = i + 1; j <= N; j++) {
+              if (iceCream[i][j]) continue;
+      
+              for (int k = j + 1; k <= N; k++) {
+                  if (!iceCream[i][k] && !iceCream[j][k]) {
+                      cnt++;
+                  }
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>i < j < k 조건으로 순회해 중복 없이 모든 3가지 조합을 탐색한다.</li>
+            <li><code>iceCream[i][j]</code>가 true이면 (i, j) 쌍이 이미 금지이므로, k를 탐색할 필요 없이 즉시 다음 j로 건너뛴다. 이 조기 종료(pruning)로 불필요한 내부 반복을 줄인다.</li>
+            <li>내부 반복문에서 (i, k)와 (j, k) 쌍이 모두 허용인 경우에만 카운트를 증가시킨다.</li>
+            <li>예시: i=1, j=2, k=3일 때 iceCream[1][3]과 iceCream[2][3]이 모두 false이면 {1, 2, 3} 조합이 유효하다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(cnt);</code></pre>
+          <ul>
+            <li>금지 쌍을 포함하지 않는 유효한 3가지 조합의 총 수 <code>cnt</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N³)</strong>: 3중 반복문으로 모든 조합을 탐색하므로 최악의 경우 O(N³ / 6)이다. N이 최대 200이므로 최악의 경우에도 약 133만 번의 연산으로 충분히 빠르다. (i, j) 쌍이 금지인 경우 내부 반복을 건너뛰므로 실제 수행 횟수는 더 적다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N²)</strong>: 금지 쌍을 저장하는 <code>boolean[N+1][N+1]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

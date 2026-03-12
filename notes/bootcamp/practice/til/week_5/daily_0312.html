@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 59일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 59일차 TIL — S3 · RDS를 이용한 상태 분리와 파일 업로드 구현</h1>
+      <p class="muted">작성일 2026-03-11 · 분류: 부트캠프, TIL, Spring Boot, AWS, S3, RDS, Presigned URL</p>
+
+      <h2 class="section">59일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>S3와 RDS</strong>를 활용한 상태 분리 전략을 이해한다.</li>
+        <li><strong>S3의 구조</strong>(버킷, 오브젝트, 키)와 보안 정책을 파악한다.</li>
+        <li><strong>BOM</strong>으로 Spring Cloud AWS 의존성을 통합 관리하는 방법을 익힌다.</li>
+        <li><code>S3Template</code>을 활용해 파일 업로드/다운로드 API를 구현한다.</li>
+        <li><strong>Presigned URL</strong>의 개념과 동작 방식을 이해한다.</li>
+        <li><strong>RDS</strong>가 대신 처리해주는 운영 기능을 파악한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. S3와 RDS를 이용한 상태 분리</h2>
+
+      <p>
+        EC2만으로 모든 것을 처리하면 파일은 EC2 로컬에 저장되고 DB도 EC2 내부에서 실행된다.
+        EC2가 재시작되거나 교체되면 데이터가 유실되고, 트래픽 분산을 위해 EC2를 여러 대로 늘리면
+        파일과 DB가 각 서버에 흩어져 <strong>데이터 일관성을 보장할 수 없다.</strong>
+        이를 해결하기 위해 파일은 S3, DB는 RDS로 분리한다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">서비스</th>
+            <th style="width:25%;">역할</th>
+            <th>해결하는 문제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>S3</strong> (Simple Storage Service)</td>
+            <td>외부 파일 저장소</td>
+            <td>EC2 교체/재시작 시 파일 유실 방지, 무제한 확장</td>
+          </tr>
+          <tr>
+            <td><strong>RDS</strong> (Relational Database Service)</td>
+            <td>외부 DB 서비스</td>
+            <td>DB 관리 부담 제거 (백업, 패치, 장애 조치 자동화)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. S3 구조</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">개념</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>버킷 (Bucket)</strong></td>
+            <td>파일을 담는 저장소 컨테이너다. <strong>전 세계에서 고유(unique)한 이름</strong>을 가져야 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>오브젝트 (Object)</strong></td>
+            <td>버킷 안에 저장된 파일 자체다.</td>
+          </tr>
+          <tr>
+            <td><strong>키 (Key)</strong></td>
+            <td>오브젝트의 고유 경로/이름이다. <code>uploads/profile/user1.jpg</code> 전체가 하나의 키다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">S3에는 실제 폴더가 없다</span>
+        <code>uploads/profile/user1.jpg</code>처럼 디렉토리 구조처럼 보이지만, 이것은 <strong>하나의 키 문자열 전체</strong>다.
+        S3는 플랫(flat)한 key-value 저장소이며, AWS 콘솔이 <code>/</code>를 기준으로 폴더처럼 시각화해줄 뿐이다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          버킷 이름 규칙 및 보안
+        </span>
+      </h3>
+
+      <p>버킷 이름은 <code>&lt;프로젝트&gt;-&lt;환경&gt;-&lt;용도&gt;</code> 패턴을 권장한다. 예: <code>myapp-prod-uploads</code></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">보안 정책</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>퍼블릭 액세스 차단</strong></td>
+            <td>기본적으로 모든 퍼블릭 접근을 차단한다. 의도하지 않은 공개를 방지한다.</td>
+          </tr>
+          <tr>
+            <td><strong>최소 권한 원칙</strong></td>
+            <td>IAM Policy로 필요한 권한만 부여한다. (예: 업로드는 가능하지만 삭제는 불가)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. BOM (Bill Of Materials)</h2>
+
+      <p>
+        관련 라이브러리들의 버전을 <strong>한 곳에서 통합 관리하는 버전 목록표</strong>다.
+        BOM을 사용하면 각 라이브러리의 버전을 일일이 지정하지 않아도 호환되는 버전이 자동으로 결정된다.
+        버전 충돌 문제를 사전에 방지할 수 있다.
+      </p>
+
+      <pre><code class="language-groovy">// BOM으로 Spring Cloud AWS 라이브러리 버전 통합 관리
+implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:4.0.0-RC1')
+
+// 버전 명시 없이 추가 — BOM이 호환 버전을 자동 결정
+implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
+implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. S3Template을 활용한 파일 업로드 구현</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Presigned URL
+        </span>
+      </h3>
+
+      <p>
+        프라이빗 버킷의 파일은 일반 URL로 직접 접근할 수 없다.
+        <strong>Presigned URL</strong>은 임시로 접근을 허용하는 서명된 URL이다.
+        유효 시간을 설정할 수 있으며, 유효 시간 내에는 URL을 가진 누구나 해당 파일에 접근 가능하다.
+        클라이언트가 파일을 직접 다운로드할 수 있도록 이 URL을 발급해주는 방식으로 구현한다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">Presigned URL 동작 방식</span>
+        1. 클라이언트가 서버에 다운로드 URL 요청<br>
+        2. 서버가 S3에 서명된 임시 URL 생성 요청<br>
+        3. 서버가 클라이언트에 Presigned URL 반환<br>
+        4. 클라이언트가 Presigned URL로 S3에 <strong>직접</strong> 파일 접근 (서버를 거치지 않음)<br><br>
+        서버가 파일을 중계하지 않으므로 <strong>서버 대역폭 부담이 없다.</strong>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          응답 DTO
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 파일 업로드 응답 — 저장된 키를 반환
+@Getter
+public class FileUploadResponse {
+    private final String key;
+
+    public FileUploadResponse(String key) {
+        this.key = key;
+    }
+}
+
+// 다운로드 URL 응답 — Presigned URL을 반환
+@Getter
+public class FileDownloadUrlResponse {
+    private final String url;
+
+    public FileDownloadUrlResponse(String url) {
+        this.url = url;
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          S3Service
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class S3Service {
+
+    // Presigned URL 유효 시간: 10분
+    private static final Duration PRESIGNED_URL_EXPIRATION = Duration.ofMinutes(10);
+
+    private final S3Template s3Template; // Spring Cloud AWS가 Bean으로 등록해준다
+
+    @Value("${spring.cloud.aws.s3.bucket}")
+    private String bucket;
+
+    public String upload(MultipartFile file) {
+        try {
+            // UUID로 파일명 중복 방지
+            String key = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            s3Template.upload(bucket, key, file.getInputStream());
+            return key;
+        } catch (IOException e) {
+            // 적절한 커스텀 예외로 교체하고 GlobalExceptionHandler로 핸들링 필요
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
+
+    public URL getDownloadUrl(String key) {
+        // 서명된 임시 URL 생성 — 10분간 유효
+        return s3Template.createSignedGetURL(bucket, key, PRESIGNED_URL_EXPIRATION);
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          FileController
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@RestController
+@RequiredArgsConstructor
+public class FileController {
+
+    private final S3Service s3Service;
+
+    // 파일 업로드 — multipart/form-data로 받아 S3에 저장 후 키 반환
+    @PostMapping("/files/upload")
+    public ResponseEntity&lt;FileUploadResponse&gt; upload(@RequestParam("file") MultipartFile file) {
+        String key = s3Service.upload(file);
+        return ResponseEntity.ok(new FileUploadResponse(key));
+    }
+
+    // 다운로드 URL 발급 — 키를 받아 Presigned URL 반환
+    @GetMapping("/files/download-url")
+    public ResponseEntity&lt;FileDownloadUrlResponse&gt; getDownloadUrl(@RequestParam String key) {
+        URL url = s3Service.getDownloadUrl(key);
+        return ResponseEntity.ok(new FileDownloadUrlResponse(url.toString()));
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          로컬 환경 설정
+        </span>
+      </h3>
+
+      <pre><code class="language-properties"># application-local.properties — 로컬 개발용 AWS 자격증명
+spring.cloud.aws.credentials.access-key=AKIA...
+spring.cloud.aws.credentials.secret-key=+JIr...</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Access Key 보안 주의</span>
+        <code>application-local.properties</code>의 Access Key는 절대 Git에 커밋하면 안 된다.
+        <strong><code>.gitignore</code>에 반드시 추가</strong>해야 한다.
+        운영 환경에서는 Access Key 대신 <strong>EC2 IAM Role</strong>을 사용하는 것이 올바른 방법이다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. RDS (Relational Database Service)</h2>
+
+      <p>
+        AWS가 관리해주는 관계형 DB 서비스다.
+        직접 EC2에 MySQL을 설치해 운영하면 백업, 패치, 장애 복구를 모두 직접 처리해야 하지만,
+        RDS를 사용하면 <strong>AWS가 다음 기능을 자동으로 처리</strong>한다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">기능</th>
+            <th>AWS가 대신 해주는 것</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>백업</strong></td>
+            <td>자동으로 데이터를 주기적으로 백업한다.</td>
+          </tr>
+          <tr>
+            <td><strong>패치</strong></td>
+            <td>유지 관리 기간에 DB 엔진 패치를 자동 적용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>장애 조치</strong></td>
+            <td>Multi-AZ 구성 시, 한 AZ의 DB가 장애가 나면 다른 AZ의 복제본으로 자동 전환한다.</td>
+          </tr>
+          <tr>
+            <td><strong>확장</strong></td>
+            <td>콘솔에서 클릭 몇 번으로 스펙을 변경하거나 자동 확장할 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        오늘의 핵심은 <strong>EC2에서 상태(State)를 분리</strong>하는 것이다.
+        파일을 EC2 로컬에 저장하면 서버가 교체될 때마다 데이터가 사라진다.
+        S3는 EC2와 독립된 외부 저장소이므로 EC2를 몇 대로 늘리든, 재시작하든 데이터가 안전하게 유지된다.
+        S3의 키가 실제 폴더가 아닌 단순한 문자열 경로라는 점, 버킷 이름이 전 세계에서 고유해야 한다는 점도 중요한 특성이다.
+      </p>
+
+      <p>
+        Presigned URL은 프라이빗 버킷의 파일을 외부에 안전하게 노출하는 핵심 메커니즘이다.
+        서버가 파일을 직접 전달하지 않고 <strong>임시 서명 URL을 발급해 클라이언트가 S3에 직접 접근</strong>하도록 하기 때문에,
+        서버의 대역폭 부담이 없고 유효 시간이 지나면 URL이 자동으로 만료된다.
+        <code>S3Template.createSignedGetURL()</code> 한 줄로 구현할 수 있어 실용적이다.
+      </p>
+
+      <p>
+        BOM은 여러 라이브러리의 버전을 한 곳에서 통합 관리해 호환성 문제를 방지한다.
+        <code>implementation platform(...)</code>으로 BOM을 선언하면 하위 라이브러리는 버전을 명시하지 않아도 된다.
+        RDS는 DB 자체의 운영 부담(백업, 패치, 장애 복구, 확장)을 AWS에 위임해 개발팀이 비즈니스 로직에만 집중할 수 있게 해준다.
+        운영 환경의 EC2에서는 Access Key 대신 IAM Role로 S3와 RDS에 접근 권한을 부여하는 것이 보안 원칙에 맞는 방법이다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
