@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-11 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-12 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 16173 — 점프왕 쩰리 (Small)</h2>
+      <h2 class="section">문제 15624 — 피보나치 수 7</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/16173">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/15624">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260311_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260312_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>점프왕 쩰리 (Small) (백준 16173)</strong>는<br>
-        N × N 격자의 (0, 0)에서 출발해 각 칸에 적힌 수만큼 오른쪽 또는 아래로 이동할 때,<br>
-        <strong>목표 칸(-1)에 도달할 수 있는지 여부</strong>를 출력하는 문제다.<br>
-        도달 가능하면 <strong>"HaruHaru"</strong>, 불가능하면 <strong>"Hing"</strong>을 출력한다.
+        <strong>피보나치 수 7 (백준 15624)</strong>는<br>
+        N번째 피보나치 수를 <strong>1,000,000,007로 나눈 나머지</strong>를 출력하는 문제다.<br>
+        <strong>N이 최대 1,000,000</strong>으로 매우 크기 때문에 모듈러 연산을 적용한 바텀업 DP로 해결해야 한다.
       </p>
       
       <ul>
-        <li>각 칸의 값이 이동 칸 수를 의미하며, 오른쪽과 아래 방향으로만 이동할 수 있다.</li>
-        <li>값이 0인 칸에서는 이동할 수 없으므로 막힌 칸이 된다.</li>
-        <li>목표 칸은 -1로 표시되며, 이 칸에 도달하는 순간 즉시 "HaruHaru"를 출력하고 종료한다.</li>
+        <li>피보나치 수는 F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2)로 정의된다.</li>
+        <li>N이 최대 100만이므로 값이 매우 커져 <code>long</code> 범위를 초과할 수 있다. 매 단계에서 1,000,000,007로 나머지를 취해야 한다.</li>
+        <li>N = 0과 N = 1은 별도로 처리한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: BFS (너비 우선 탐색)</li>
-        <li><strong>선택 이유</strong>: 도달 가능 여부만 판단하면 되므로 BFS가 적합하다. 방문 배열로 중복 방문을 방지하고, 목표 칸에 도달하면 즉시 종료한다. N이 최대 3으로 매우 작아 DFS로도 해결 가능하지만, BFS가 구조적으로 명확하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (바텀업 DP) + 모듈러 연산</li>
+        <li><strong>선택 이유</strong>: F(n)은 F(n-1)과 F(n-2)에만 의존하므로 작은 값부터 순서대로 계산하는 바텀업 DP가 적합하다. 재귀로 구현하면 N이 최대 100만일 때 스택 오버플로우가 발생할 수 있으므로 반복문 기반 DP를 사용한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>(0, 0)을 큐에 넣고 시작한다.</li>
-            <li>현재 칸의 값 <code>moveCnt</code>만큼 오른쪽(<code>c + moveCnt</code>)과 아래쪽(<code>r + moveCnt</code>)으로 이동한 칸을 큐에 추가한다.</li>
-            <li>큐에서 꺼낸 칸이 -1이면 "HaruHaru"를 출력하고 종료한다.</li>
-            <li>큐가 빌 때까지 도달하지 못하면 "Hing"을 출력한다.</li>
+            <li>F(0) = 0, F(1) = 1로 초기값을 설정한다.</li>
+            <li>i = 2부터 N까지 <code>fibo[i] = (fibo[i-1] + fibo[i-2]) % 1,000,000,007</code>을 순서대로 계산한다.</li>
+            <li>매 단계에서 모듈러 연산을 적용해 값이 <code>long</code> 범위를 초과하지 않도록 한다.</li>
           </ul>
         </li>
       </ul>
@@ -97,57 +95,46 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 BFS 초기화</strong>
-          <pre><code>Deque<int[]> queue = new ArrayDeque<>();
-      boolean[][] visited = new boolean[N][N];
+        <li><strong>1) 예외 처리 — N = 0, N = 1</strong>
+          <pre><code>if (N == 0) {
+          System.out.println(0);
+          return;
+      }
       
-      queue.add(new int[]{0, 0});
-      visited[0][0] = true;</code></pre>
-          <ul>
-            <li>BFS에 사용할 큐와 방문 배열을 초기화한다.</li>
-            <li>시작 위치 (0, 0)을 큐에 넣고 방문 표시를 한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 목표 칸 도달 확인</strong>
-          <pre><code>int[] polled = queue.poll();
-      int r = polled[0];
-      int c = polled[1];
-      
-      if (area[r][c] == -1) {
-          System.out.println("HaruHaru");
+      if (N == 1) {
+          System.out.println(1);
           return;
       }</code></pre>
           <ul>
-            <li>큐에서 꺼낸 칸의 값이 -1이면 목표 칸에 도달한 것이므로 즉시 "HaruHaru"를 출력하고 종료한다.</li>
+            <li>N = 0이면 F(0) = 0을, N = 1이면 F(1) = 1을 즉시 출력하고 종료한다.</li>
+            <li>이 두 경우를 먼저 처리하면 이후 배열 인덱스 접근 시 범위 오류를 방지할 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 다음 이동 칸 탐색 및 큐 추가</strong>
-          <pre><code>int moveCnt = area[r][c];
-      if (moveCnt == 0) continue;
+        <li><strong>2) 초기값 설정</strong>
+          <pre><code>long[] fibo = new long[N + 1];
+      fibo[0] = 0;
+      fibo[1] = 1;</code></pre>
+          <ul>
+            <li>크기 N + 1의 <code>long</code> 배열을 선언해 인덱스 0~N을 모두 사용한다.</li>
+            <li>피보나치 수는 지수적으로 증가하지만, 매 단계 모듈러 연산으로 값을 1,000,000,007 미만으로 유지하므로 <code>long</code>으로 충분하다.</li>
+          </ul>
+        </li>
       
-      if (r + moveCnt < N && !visited[r + moveCnt][c]) {
-          visited[r + moveCnt][c] = true;
-          queue.add(new int[]{r + moveCnt, c});
-      }
-      
-      if (c + moveCnt < N && !visited[r][c + moveCnt]) {
-          visited[r][c + moveCnt] = true;
-          queue.add(new int[]{r, c + moveCnt});
+        <li><strong>3) 바텀업 DP로 피보나치 수 계산</strong>
+          <pre><code>for (int i = 2; i <= N; i++) {
+          fibo[i] = (fibo[i - 1] + fibo[i - 2]) % 1000000007;
       }</code></pre>
           <ul>
-            <li>현재 칸의 값 <code>moveCnt</code>가 0이면 이동할 수 없으므로 건너뛴다.</li>
-            <li>아래쪽 <code>(r + moveCnt, c)</code>와 오른쪽 <code>(r, c + moveCnt)</code> 방향으로의 이동을 시도한다.</li>
-            <li>격자 범위를 벗어나지 않고 아직 방문하지 않은 칸만 큐에 추가하고 방문 표시한다.</li>
-            <li>방문 배열로 동일한 칸을 중복으로 처리하는 것을 방지한다.</li>
+            <li>i = 2부터 N까지 순서대로 점화식을 적용한다.</li>
+            <li>매 단계에서 <code>% 1,000,000,007</code>을 적용해 값이 모듈러 범위 내로 유지된다. <code>fibo[i-1] + fibo[i-2]</code>의 최대값은 약 2 × 10⁹으로 <code>long</code> 범위 이내이므로 덧셈 후 나머지를 취하는 방식이 안전하다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 도달 불가 처리</strong>
-          <pre><code>System.out.println("Hing");</code></pre>
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(fibo[N]);</code></pre>
           <ul>
-            <li>큐가 빌 때까지 목표 칸에 도달하지 못하면 "Hing"을 출력한다.</li>
+            <li>계산이 완료된 <code>fibo[N]</code>을 출력한다. 이 값은 이미 1,000,000,007로 나눈 나머지가 적용된 상태다.</li>
           </ul>
         </li>
       </ul>
@@ -163,12 +150,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N²)</strong>: 격자의 각 칸은 방문 배열에 의해 최대 한 번씩만 큐에 추가되므로, 전체 탐색 비용은 격자 크기에 비례하는 O(N²)이다. N이 최대 3이므로 사실상 O(1)에 수렴한다.</li>
+            <li><strong>O(N)</strong>: 배열을 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다. N이 최대 100만이지만 단순 덧셈과 나머지 연산만으로 처리되어 충분히 빠르다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N²)</strong>: 격자를 저장하는 2차원 배열과 방문 여부를 저장하는 <code>visited</code> 배열이 각각 N × N 크기를 사용하며, 큐도 최대 N² 크기로 증가할 수 있다.</li>
+            <li><strong>O(N)</strong>: F(0)~F(N)을 저장하는 <code>fibo</code> 배열이 N + 1 크기를 사용한다. <code>fibo[i]</code>는 <code>fibo[i-1]</code>과 <code>fibo[i-2]</code>만 참조하므로 변수 두 개로 최적화해 O(1)로 줄일 수 있지만, 가독성을 위해 배열로 구현했다.</li>
           </ul>
         </li>
       </ul>
@@ -228,14 +215,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2422 — 한윤정이 이탈리아에 가서 아이스크림을 사먹는데</h2>
+      <h2 class="section">문제 2417 — 정수 제곱근</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2422">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2417">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260311_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260312_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
