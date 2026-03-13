@@ -240,15 +240,15 @@
       </h3>
       
       <p>
-        <strong>한윤정이 이탈리아에 가서 아이스크림을 사먹는데 (백준 2422)</strong>는<br>
-        N가지 아이스크림 중 3가지를 고를 때, <strong>궁합이 맞지 않는 조합을 포함하지 않는 경우의 수</strong>를 구하는 문제다.<br>
-        <strong>M개의 궁합이 맞지 않는 쌍</strong>이 주어지며, 선택한 3가지 아이스크림 중 어느 두 쌍도 금지 조합에 포함되면 안 된다.
+        <strong>정수 제곱근 (백준 2417)</strong>은<br>
+        정수 N이 주어질 때 <strong>p² ≥ N을 만족하는 가장 작은 양의 정수 p</strong>를 구하는 문제다.<br>
+        <strong>N이 최대 2⁶³ - 1</strong>로 <code>long</code> 범위를 초과할 수 있으므로 <code>BigInteger</code>를 사용해야 한다.
       </p>
       
       <ul>
-        <li>N은 최대 200, M은 최대 10,000이므로 3중 반복문으로 모든 조합을 탐색해도 최대 200³ / 6 ≈ 1,333,333번으로 충분히 빠르다.</li>
-        <li>아이스크림은 순서 없이 3가지를 고르는 조합이므로 i < j < k 순서로만 탐색해 중복을 방지한다.</li>
-        <li>금지 쌍을 2차원 배열로 관리하면 두 아이스크림이 궁합이 맞지 않는지를 O(1)에 확인할 수 있다.</li>
+        <li>p² ≥ N을 만족하는 최솟값을 구하는 것이므로, p에 대한 단조성이 성립해 이진 탐색을 적용할 수 있다.</li>
+        <li>N의 최댓값이 2⁶³ - 1이면 p의 최댓값은 √(2⁶³) ≈ 3,037,000,499이므로, 탐색 범위의 상한을 3,037,000,500으로 설정한다.</li>
+        <li>mid² 계산 시 <code>long</code> 오버플로우가 발생할 수 있으므로 <code>BigInteger</code>로 변환해 곱셈을 수행한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -260,13 +260,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 브루트포스 조합 탐색 + 2차원 배열 금지 쌍 관리</li>
-        <li><strong>선택 이유</strong>: N이 최대 200으로 작아 3중 반복문으로 모든 조합을 탐색해도 시간 내에 처리된다. 금지 쌍을 <code>boolean[N+1][N+1]</code> 배열에 저장하면 두 아이스크림 사이의 금지 여부를 O(1)에 조회할 수 있어 효율적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: 이진 탐색 (Binary Search on Answer)</li>
+        <li><strong>선택 이유</strong>: p가 커질수록 p² ≥ N을 만족할 가능성이 높아지는 단조성이 성립하므로, 조건을 만족하는 최솟값을 이진 탐색으로 O(log(√N))에 찾을 수 있다. 직접 제곱근을 계산하면 부동소수점 오차가 발생할 수 있으므로 이진 탐색이 더 안전하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>금지 쌍 (ice, cream)을 입력받아 <code>iceCream[ice][cream]</code>과 <code>iceCream[cream][ice]</code> 모두 <code>true</code>로 설정한다.</li>
-            <li>i < j < k 조건으로 3중 반복문을 순회해 모든 3가지 조합을 탐색한다.</li>
-            <li>(i, j), (i, k), (j, k) 세 쌍 중 하나라도 금지 쌍이면 해당 조합을 건너뛰고, 모두 허용이면 카운트를 증가시킨다.</li>
+            <li>탐색 범위를 0부터 3,037,000,500으로 설정한다.</li>
+            <li>중간값 mid를 <code>BigInteger</code>로 변환해 mid² ≥ N이면 조건을 만족하므로 <code>result = mid</code>로 갱신하고 더 작은 값을 탐색한다.</li>
+            <li>mid² < N이면 p가 더 커야 하므로 탐색 범위를 오른쪽으로 좁힌다.</li>
           </ul>
         </li>
       </ul>
@@ -280,46 +280,43 @@
       </p>
       
       <ul>
-        <li><strong>1) 금지 쌍 입력 및 배열 구성</strong>
-          <pre><code>boolean[][] iceCream = new boolean[N + 1][N + 1];
+        <li><strong>1) 입력 및 탐색 범위 초기화</strong>
+          <pre><code>BigInteger N = new BigInteger(br.readLine());
       
-      for (int i = 0; i < M; i++) {
-          int ice = Integer.parseInt(st.nextToken());
-          int cream = Integer.parseInt(st.nextToken());
-      
-          iceCream[ice][cream] = true;
-          iceCream[cream][ice] = true;
-      }</code></pre>
+      long start = 0;
+      long end = 3037000500L;
+      long result = 0;</code></pre>
           <ul>
-            <li>금지 쌍을 대칭 행렬 형태로 저장한다. <code>iceCream[a][b] = true</code>이면 a와 b는 함께 선택할 수 없다.</li>
-            <li>양방향으로 저장하므로 이후 탐색에서 순서에 관계없이 O(1)로 조회할 수 있다.</li>
+            <li>N이 최대 2⁶³ - 1이므로 <code>long</code> 범위를 초과할 수 있어 <code>BigInteger</code>로 입력받는다.</li>
+            <li>탐색 범위의 상한을 3,037,000,500으로 설정한다. 이 값의 제곱이 약 9.22 × 10¹⁸으로 <code>long</code>의 최댓값(2⁶³ - 1 ≈ 9.22 × 10¹⁸)을 커버할 수 있다.</li>
+            <li><code>result</code>는 조건을 만족하는 가장 작은 p를 저장할 변수다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 3중 반복문으로 모든 조합 탐색</strong>
-          <pre><code>for (int i = 1; i <= N; i++) {
-          for (int j = i + 1; j <= N; j++) {
-              if (iceCream[i][j]) continue;
+        <li><strong>2) 이진 탐색으로 최솟값 탐색</strong>
+          <pre><code>while (start <= end) {
+          long mid = start + (end - start) / 2;
+          BigInteger midBI = BigInteger.valueOf(mid);
       
-              for (int k = j + 1; k <= N; k++) {
-                  if (!iceCream[i][k] && !iceCream[j][k]) {
-                      cnt++;
-                  }
-              }
+          if (midBI.multiply(midBI).compareTo(N) >= 0) {
+              result = mid;
+              end = mid - 1;
+          } else {
+              start = mid + 1;
           }
       }</code></pre>
           <ul>
-            <li>i < j < k 조건으로 순회해 중복 없이 모든 3가지 조합을 탐색한다.</li>
-            <li><code>iceCream[i][j]</code>가 true이면 (i, j) 쌍이 이미 금지이므로, k를 탐색할 필요 없이 즉시 다음 j로 건너뛴다. 이 조기 종료(pruning)로 불필요한 내부 반복을 줄인다.</li>
-            <li>내부 반복문에서 (i, k)와 (j, k) 쌍이 모두 허용인 경우에만 카운트를 증가시킨다.</li>
-            <li>예시: i=1, j=2, k=3일 때 iceCream[1][3]과 iceCream[2][3]이 모두 false이면 {1, 2, 3} 조합이 유효하다.</li>
+            <li><code>mid</code>를 <code>BigInteger</code>로 변환한 뒤 <code>midBI.multiply(midBI)</code>로 mid²를 계산한다. <code>long</code>으로 직접 곱하면 최대 약 9.2 × 10¹⁸을 초과해 오버플로우가 발생할 수 있으므로 반드시 <code>BigInteger</code>로 처리해야 한다.</li>
+            <li><code>compareTo(N) >= 0</code>이면 mid² ≥ N이므로 조건을 만족한다. <code>result = mid</code>로 갱신하고 더 작은 값을 찾기 위해 <code>end = mid - 1</code>로 범위를 좁힌다.</li>
+            <li>mid² < N이면 p가 더 커야 하므로 <code>start = mid + 1</code>로 범위를 오른쪽으로 좁힌다.</li>
+            <li>예시: N = 10이면 p = 4 (4² = 16 ≥ 10). N = 9이면 p = 3 (3² = 9 ≥ 9).</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(cnt);</code></pre>
+          <pre><code>System.out.println(result);</code></pre>
           <ul>
-            <li>금지 쌍을 포함하지 않는 유효한 3가지 조합의 총 수 <code>cnt</code>를 출력한다.</li>
+            <li>탐색이 완료된 뒤 p² ≥ N을 만족하는 가장 작은 정수 <code>result</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -335,12 +332,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N³)</strong>: 3중 반복문으로 모든 조합을 탐색하므로 최악의 경우 O(N³ / 6)이다. N이 최대 200이므로 최악의 경우에도 약 133만 번의 연산으로 충분히 빠르다. (i, j) 쌍이 금지인 경우 내부 반복을 건너뛰므로 실제 수행 횟수는 더 적다.</li>
+            <li><strong>O(log(√N))</strong>: 탐색 범위가 0부터 약 3 × 10⁹이므로 이진 탐색은 최대 log₂(3 × 10⁹) ≈ 32번 반복된다. 각 반복에서 <code>BigInteger</code> 곱셈과 비교가 수행되지만 상수 시간에 가깝다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N²)</strong>: 금지 쌍을 저장하는 <code>boolean[N+1][N+1]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: <code>BigInteger</code> 변수 몇 개와 상수 개의 <code>long</code> 변수만 사용하므로 입력 크기와 무관한 상수 공간이다.</li>
           </ul>
         </li>
       </ul>
