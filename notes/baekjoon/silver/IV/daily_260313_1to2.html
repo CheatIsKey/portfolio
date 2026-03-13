@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 15624 — 피보나치 수 7</h2>
+      <h2 class="section">문제 14469 — 소가 길을 건너간 이유 3</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/15624">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/14469">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260312_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260313_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>피보나치 수 7 (백준 15624)</strong>는<br>
-        N번째 피보나치 수를 <strong>1,000,000,007로 나눈 나머지</strong>를 출력하는 문제다.<br>
-        <strong>N이 최대 1,000,000</strong>으로 매우 크기 때문에 모듈러 연산을 적용한 바텀업 DP로 해결해야 한다.
+        <strong>소가 길을 건너간 이유 3 (백준 14469)</strong>는<br>
+        N마리의 소가 각각 도착 시간과 검문 소요 시간을 가질 때, <strong>모든 소의 검문이 완료되는 최소 시간</strong>을 구하는 문제다.<br>
+        <strong>검문소는 한 번에 한 마리만 처리</strong>할 수 있으며, 소들은 도착 순서대로 검문을 받는다.
       </p>
       
       <ul>
-        <li>피보나치 수는 F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2)로 정의된다.</li>
-        <li>N이 최대 100만이므로 값이 매우 커져 <code>long</code> 범위를 초과할 수 있다. 매 단계에서 1,000,000,007로 나머지를 취해야 한다.</li>
-        <li>N = 0과 N = 1은 별도로 처리한다.</li>
+        <li>검문소는 한 번에 한 마리만 처리하므로, 이전 소의 검문이 끝나야 다음 소의 검문을 시작할 수 있다.</li>
+        <li>소가 도착하기 전에 검문소가 비어있으면 소가 도착하는 시점부터 검문이 시작된다.</li>
+        <li>소들을 도착 시간 오름차순으로 정렬하면, 현재 시간을 기준으로 각 소의 시작 시점을 순서대로 계산할 수 있다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (바텀업 DP) + 모듈러 연산</li>
-        <li><strong>선택 이유</strong>: F(n)은 F(n-1)과 F(n-2)에만 의존하므로 작은 값부터 순서대로 계산하는 바텀업 DP가 적합하다. 재귀로 구현하면 N이 최대 100만일 때 스택 오버플로우가 발생할 수 있으므로 반복문 기반 DP를 사용한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (도착 시간 오름차순 정렬 + 시뮬레이션)</li>
+        <li><strong>선택 이유</strong>: 검문소는 선착순으로 처리되므로, 도착 시간 순으로 정렬한 뒤 현재 검문 완료 시간(<code>currentTime</code>)을 기준으로 각 소의 검문 시작 시점을 결정하면 O(N)에 시뮬레이션할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>F(0) = 0, F(1) = 1로 초기값을 설정한다.</li>
-            <li>i = 2부터 N까지 <code>fibo[i] = (fibo[i-1] + fibo[i-2]) % 1,000,000,007</code>을 순서대로 계산한다.</li>
-            <li>매 단계에서 모듈러 연산을 적용해 값이 <code>long</code> 범위를 초과하지 않도록 한다.</li>
+            <li>소들을 도착 시간 오름차순으로 정렬한다.</li>
+            <li>각 소에 대해 현재 검문 완료 시간 <code>currentTime</code>과 소의 도착 시간을 비교한다.</li>
+            <li>소가 도착했을 때 검문소가 비어있으면(<code>cow.arrive > currentTime</code>) 소의 도착 시간부터 검문을 시작한다.</li>
+            <li>검문소가 아직 사용 중이면 이전 검문이 끝나는 즉시 다음 소의 검문을 시작한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,46 +96,52 @@
       </p>
       
       <ul>
-        <li><strong>1) 예외 처리 — N = 0, N = 1</strong>
-          <pre><code>if (N == 0) {
-          System.out.println(0);
-          return;
-      }
+        <li><strong>1) 입력 및 Cow 객체 리스트 구성</strong>
+          <pre><code>List<Cow> list = new ArrayList<>();
       
-      if (N == 1) {
-          System.out.println(1);
-          return;
+      for (int i = 0; i < N; i++) {
+          int arrive = Integer.parseInt(st.nextToken());
+          int validate = Integer.parseInt(st.nextToken());
+          list.add(new Cow(arrive, validate));
       }</code></pre>
           <ul>
-            <li>N = 0이면 F(0) = 0을, N = 1이면 F(1) = 1을 즉시 출력하고 종료한다.</li>
-            <li>이 두 경우를 먼저 처리하면 이후 배열 인덱스 접근 시 범위 오류를 방지할 수 있다.</li>
+            <li>각 소의 도착 시간(<code>arrive</code>)과 검문 소요 시간(<code>validate</code>)을 <code>Cow</code> 객체로 묶어 리스트에 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 초기값 설정</strong>
-          <pre><code>long[] fibo = new long[N + 1];
-      fibo[0] = 0;
-      fibo[1] = 1;</code></pre>
+        <li><strong>2) 도착 시간 오름차순 정렬</strong>
+          <pre><code>list.sort((a, b) -> {
+          return Integer.compare(a.arrive, b.arrive);
+      });</code></pre>
           <ul>
-            <li>크기 N + 1의 <code>long</code> 배열을 선언해 인덱스 0~N을 모두 사용한다.</li>
-            <li>피보나치 수는 지수적으로 증가하지만, 매 단계 모듈러 연산으로 값을 1,000,000,007 미만으로 유지하므로 <code>long</code>으로 충분하다.</li>
+            <li>검문소는 먼저 도착한 소를 먼저 처리하므로, 도착 시간 오름차순으로 정렬한다.</li>
+            <li>정렬 후에는 앞에서부터 순서대로 처리하면 된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 바텀업 DP로 피보나치 수 계산</strong>
-          <pre><code>for (int i = 2; i <= N; i++) {
-          fibo[i] = (fibo[i - 1] + fibo[i - 2]) % 1000000007;
+        <li><strong>3) 시뮬레이션 — 검문 완료 시간 계산</strong>
+          <pre><code>int currentTime = 0;
+      
+      for (Cow cow : list) {
+          if (cow.arrive > currentTime) {
+              currentTime = cow.arrive;
+              currentTime += cow.validate;
+          } else {
+              currentTime += cow.validate;
+          }
       }</code></pre>
           <ul>
-            <li>i = 2부터 N까지 순서대로 점화식을 적용한다.</li>
-            <li>매 단계에서 <code>% 1,000,000,007</code>을 적용해 값이 모듈러 범위 내로 유지된다. <code>fibo[i-1] + fibo[i-2]</code>의 최대값은 약 2 × 10⁹으로 <code>long</code> 범위 이내이므로 덧셈 후 나머지를 취하는 방식이 안전하다.</li>
+            <li><code>currentTime</code>은 검문소가 다음 소를 받을 수 있는 가장 빠른 시각(현재까지의 검문 완료 시각)을 나타낸다.</li>
+            <li><code>cow.arrive > currentTime</code>이면 소가 도착했을 때 검문소가 비어있는 경우다. 검문소가 소의 도착을 기다려야 하므로 <code>currentTime</code>을 <code>cow.arrive</code>로 갱신한 뒤 <code>cow.validate</code>를 더한다.</li>
+            <li><code>cow.arrive <= currentTime</code>이면 소가 도착했을 때 검문소가 아직 사용 중인 경우다. 이전 검문이 끝나는 즉시 다음 검문이 시작되므로 <code>currentTime</code>에 <code>cow.validate</code>만 더한다.</li>
+            <li>예시: 소들이 [(1, 5), (2, 3), (10, 2)] 순으로 도착하면 currentTime: 0 → 6 → 9 → 12. 최종 답은 12.</li>
           </ul>
         </li>
       
         <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(fibo[N]);</code></pre>
+          <pre><code>System.out.println(currentTime);</code></pre>
           <ul>
-            <li>계산이 완료된 <code>fibo[N]</code>을 출력한다. 이 값은 이미 1,000,000,007로 나눈 나머지가 적용된 상태다.</li>
+            <li>모든 소의 검문이 완료되는 시각 <code>currentTime</code>을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -150,12 +157,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 배열을 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다. N이 최대 100만이지만 단순 덧셈과 나머지 연산만으로 처리되어 충분히 빠르다.</li>
+            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 도착 시간 기준 정렬 비용이다. 이후 선형 시뮬레이션은 O(N)이므로 전체 O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: F(0)~F(N)을 저장하는 <code>fibo</code> 배열이 N + 1 크기를 사용한다. <code>fibo[i]</code>는 <code>fibo[i-1]</code>과 <code>fibo[i-2]</code>만 참조하므로 변수 두 개로 최적화해 O(1)로 줄일 수 있지만, 가독성을 위해 배열로 구현했다.</li>
+            <li><strong>O(N)</strong>: N마리의 소를 저장하는 <code>Cow</code> 객체 리스트가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -215,14 +222,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2417 — 정수 제곱근</h2>
+      <h2 class="section">문제 1755 — 숫자놀이</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2417">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1755">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260312_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260313_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -240,15 +247,15 @@
       </h3>
       
       <p>
-        <strong>한윤정이 이탈리아에 가서 아이스크림을 사먹는데 (백준 2422)</strong>는<br>
-        N가지 아이스크림 중 3가지를 고를 때, <strong>궁합이 맞지 않는 조합을 포함하지 않는 경우의 수</strong>를 구하는 문제다.<br>
-        <strong>M개의 궁합이 맞지 않는 쌍</strong>이 주어지며, 선택한 3가지 아이스크림 중 어느 두 쌍도 금지 조합에 포함되면 안 된다.
+        <strong>숫자놀이 (백준 1755)</strong>는<br>
+        M 이상 N 이하의 정수를 각 자릿수를 영어로 읽은 문자열 기준으로 <strong>사전순 정렬한 뒤 10개씩 줄 바꿔 출력</strong>하는 문제다.<br>
+        <strong>각 자리 숫자를 영어 단어로 변환한 문자열을 기준으로 정렬</strong>하며, 출력은 원래 정수로 한다.
       </p>
       
       <ul>
-        <li>N은 최대 200, M은 최대 10,000이므로 3중 반복문으로 모든 조합을 탐색해도 최대 200³ / 6 ≈ 1,333,333번으로 충분히 빠르다.</li>
-        <li>아이스크림은 순서 없이 3가지를 고르는 조합이므로 i < j < k 순서로만 탐색해 중복을 방지한다.</li>
-        <li>금지 쌍을 2차원 배열로 관리하면 두 아이스크림이 궁합이 맞지 않는지를 O(1)에 확인할 수 있다.</li>
+        <li>예를 들어 1은 "one", 11은 "one one", 21은 "two one"으로 변환해 사전순 비교한다.</li>
+        <li>M과 N은 1 이상 99 이하이므로 최대 99개의 수를 처리한다.</li>
+        <li>10개 출력마다 줄 바꿈이 필요하며, 각 숫자는 공백으로 구분한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -260,13 +267,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 브루트포스 조합 탐색 + 2차원 배열 금지 쌍 관리</li>
-        <li><strong>선택 이유</strong>: N이 최대 200으로 작아 3중 반복문으로 모든 조합을 탐색해도 시간 내에 처리된다. 금지 쌍을 <code>boolean[N+1][N+1]</code> 배열에 저장하면 두 아이스크림 사이의 금지 여부를 O(1)에 조회할 수 있어 효율적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: 커스텀 정렬 (사전순 문자열 비교)</li>
+        <li><strong>선택 이유</strong>: 각 수를 영어 문자열로 변환한 뒤, 해당 문자열을 기준으로 정렬하면 된다. 원래 정수와 변환된 문자열을 함께 저장하는 <code>Node</code> 클래스를 만들어 <code>Comparable</code>을 구현하면 <code>Collections.sort()</code>로 깔끔하게 처리할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>금지 쌍 (ice, cream)을 입력받아 <code>iceCream[ice][cream]</code>과 <code>iceCream[cream][ice]</code> 모두 <code>true</code>로 설정한다.</li>
-            <li>i < j < k 조건으로 3중 반복문을 순회해 모든 3가지 조합을 탐색한다.</li>
-            <li>(i, j), (i, k), (j, k) 세 쌍 중 하나라도 금지 쌍이면 해당 조합을 건너뛰고, 모두 허용이면 카운트를 증가시킨다.</li>
+            <li>M부터 N까지 각 수의 자릿수를 순서대로 영어 단어로 변환해 공백으로 이어붙인 문자열을 만든다.</li>
+            <li>변환된 문자열과 원래 정수를 <code>Node</code> 객체로 묶어 리스트에 저장한다.</li>
+            <li><code>Node</code>의 <code>compareTo</code>가 영어 문자열 기준 사전순 비교를 수행하도록 구현한다.</li>
+            <li>정렬 후 원래 정수를 10개씩 줄 바꿔 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -280,46 +288,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 금지 쌍 입력 및 배열 구성</strong>
-          <pre><code>boolean[][] iceCream = new boolean[N + 1][N + 1];
+        <li><strong>1) 영어 단어 변환 및 Node 리스트 구성</strong>
+          <pre><code>String[] english = {"zero", "one", "two", "three", "four",
+                          "five", "six", "seven", "eight", "nine"};
       
-      for (int i = 0; i < M; i++) {
-          int ice = Integer.parseInt(st.nextToken());
-          int cream = Integer.parseInt(st.nextToken());
+      for (int i = M; i <= N; i++) {
+          String s = String.valueOf(i);
+          sb.setLength(0);
       
-          iceCream[ice][cream] = true;
-          iceCream[cream][ice] = true;
-      }</code></pre>
-          <ul>
-            <li>금지 쌍을 대칭 행렬 형태로 저장한다. <code>iceCream[a][b] = true</code>이면 a와 b는 함께 선택할 수 없다.</li>
-            <li>양방향으로 저장하므로 이후 탐색에서 순서에 관계없이 O(1)로 조회할 수 있다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 3중 반복문으로 모든 조합 탐색</strong>
-          <pre><code>for (int i = 1; i <= N; i++) {
-          for (int j = i + 1; j <= N; j++) {
-              if (iceCream[i][j]) continue;
-      
-              for (int k = j + 1; k <= N; k++) {
-                  if (!iceCream[i][k] && !iceCream[j][k]) {
-                      cnt++;
-                  }
-              }
+          for (int j = 0; j < s.length(); j++) {
+              sb.append(english[s.charAt(j) - '0']).append(" ");
           }
+      
+          list.add(new Node(sb.toString().trim(), i));
       }</code></pre>
           <ul>
-            <li>i < j < k 조건으로 순회해 중복 없이 모든 3가지 조합을 탐색한다.</li>
-            <li><code>iceCream[i][j]</code>가 true이면 (i, j) 쌍이 이미 금지이므로, k를 탐색할 필요 없이 즉시 다음 j로 건너뛴다. 이 조기 종료(pruning)로 불필요한 내부 반복을 줄인다.</li>
-            <li>내부 반복문에서 (i, k)와 (j, k) 쌍이 모두 허용인 경우에만 카운트를 증가시킨다.</li>
-            <li>예시: i=1, j=2, k=3일 때 iceCream[1][3]과 iceCream[2][3]이 모두 false이면 {1, 2, 3} 조합이 유효하다.</li>
+            <li>0~9에 대응하는 영어 단어 배열 <code>english</code>를 준비한다.</li>
+            <li>각 수 i를 문자열로 변환한 뒤, 자릿수 문자 <code>s.charAt(j) - '0'</code>을 인덱스로 사용해 영어 단어를 꺼내 공백으로 이어붙인다.</li>
+            <li><code>sb.toString().trim()</code>으로 끝의 불필요한 공백을 제거하고, 원래 정수 i와 함께 <code>Node</code> 객체로 리스트에 추가한다.</li>
+            <li>예시: i = 23이면 "two three", i = 9이면 "nine", i = 10이면 "one zero".</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(cnt);</code></pre>
+        <li><strong>2) 사전순 정렬 — Comparable 구현</strong>
+          <pre><code>@Override
+      public int compareTo(Node o) {
+          return this.eng.compareTo(o.eng);
+      }</code></pre>
           <ul>
-            <li>금지 쌍을 포함하지 않는 유효한 3가지 조합의 총 수 <code>cnt</code>를 출력한다.</li>
+            <li><code>Node</code> 클래스가 <code>Comparable</code>을 구현해 영어 문자열 기준 사전순 비교를 수행한다.</li>
+            <li>Java의 <code>String.compareTo()</code>는 유니코드 기준 사전순 비교를 수행하므로, 알파벳 순서에 따른 정렬이 자동으로 이루어진다.</li>
+            <li><code>Collections.sort(list)</code> 호출만으로 사전순 정렬이 완료된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 10개씩 줄 바꿔 출력</strong>
+          <pre><code>for (int i = 0; i < list.size(); i++) {
+          System.out.print(list.get(i).num + " ");
+          if ((i + 1) % 10 == 0) System.out.println();
+      }</code></pre>
+          <ul>
+            <li>정렬된 리스트를 순회하며 원래 정수 <code>num</code>을 공백으로 구분해 출력한다.</li>
+            <li><code>(i + 1) % 10 == 0</code>일 때 줄 바꿈을 출력해 10개 단위로 행을 나눈다.</li>
+            <li>마지막 행의 수가 10개 미만이면 줄 바꿈 없이 자연스럽게 종료된다.</li>
           </ul>
         </li>
       </ul>
@@ -335,16 +346,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N³)</strong>: 3중 반복문으로 모든 조합을 탐색하므로 최악의 경우 O(N³ / 6)이다. N이 최대 200이므로 최악의 경우에도 약 133만 번의 연산으로 충분히 빠르다. (i, j) 쌍이 금지인 경우 내부 반복을 건너뛰므로 실제 수행 횟수는 더 적다.</li>
+            <li><strong>O(K log K)</strong>: K = N - M + 1은 처리할 수의 개수로 최대 99다. 문자열 변환은 O(K), 정렬은 O(K log K)이며, K가 최대 99이므로 사실상 O(1)에 수렴한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N²)</strong>: 금지 쌍을 저장하는 <code>boolean[N+1][N+1]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(K)</strong>: K개의 <code>Node</code> 객체를 저장하는 리스트가 주요 메모리 사용처이며, 각 객체는 영어 문자열과 정수를 저장한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
