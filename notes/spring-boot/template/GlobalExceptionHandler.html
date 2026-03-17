@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>템플릿 — AOP 로깅 (전체 컨트롤러 마스킹 / 어노테이션 기반 / JSON 직렬화)</title>
+  <title>코드 템플릿 — 전역 예외 처리기 (GlobalExceptionHandler)</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -78,28 +78,41 @@
       color: #533f03;
       display: inline;
     }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
     .result-box {
       background-color: #1e1e1e;
       color: #d4d4d4;
       padding: 1rem;
       border-radius: 6px;
-      font-family: Consolas, Monaco, "Andale Mono", monospace;
-      font-size: 0.9em;
       margin: 1rem 0;
-      border: 1px solid #444;
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.88em;
+      line-height: 1.6;
+      overflow-x: auto;
     }
     .result-box .label {
-      display: block;
-      font-size: 0.78em;
-      color: #888;
-      margin-bottom: 0.4rem;
-      letter-spacing: 0.04em;
+      color: #9cdcfe;
+      font-weight: bold;
     }
-    .case-divider {
-      border: none;
-      border-top: 2px dashed #dee2e6;
-      margin: 2.5rem 0;
-    }
+    .result-box .ok { color: #4ec9b0; }
+    .result-box .err { color: #f48771; }
+    .result-box .key { color: #9cdcfe; }
+    .result-box .val { color: #ce9178; }
+    .result-box .num { color: #b5cea8; }
+    .result-box .bool-false { color: #f48771; }
+    .result-box .bool-true { color: #4ec9b0; }
   </style>
 </head>
 <body>
@@ -107,8 +120,7 @@
     <a class="brand" href="/">spring-jpa.dev</a>
     <nav class="nav">
       <a href="/projects/">Projects</a>
-      <a href="/notes/">Notes</a>
-      <a class="active" href="/templates/">Templates</a>
+      <a class="active" href="/notes/">Notes</a>
     </nav>
   </header>
 
@@ -119,363 +131,428 @@
     </aside>
 
     <article class="prose">
-      <h1>템플릿 — AOP 로깅 (전체 컨트롤러 마스킹 / 어노테이션 기반 / JSON 직렬화)</h1>
-      <p class="muted">분류: 템플릿, Spring Boot, AOP, 로깅, 마스킹, JSON</p>
+      <h1>코드 템플릿 — 전역 예외 처리기 (GlobalExceptionHandler)</h1>
+      <p class="muted">분류: 템플릿, Spring Boot, 예외 처리, @RestControllerAdvice, ApiResponse</p>
+
+      <!-- ===================== 개요 ===================== -->
+      <h2 class="section">개요</h2>
+
+      <p>
+        모든 컨트롤러에서 발생하는 예외를 <strong>한 곳에서 일관성 있게 처리</strong>하는 전역 예외 처리기 템플릿이다.
+        커스텀 예외, Jakarta Validation 검증 실패, 그 외 예상치 못한 예외를 각각 구분하여 처리하며,
+        에러 코드 체계와 통일된 응답 포맷(<code>ApiResponse</code>)을 함께 제공한다.
+      </p>
 
       <div class="concept-box">
-        <span class="box-title">이 템플릿의 구성</span>
-        세 가지 AOP 로깅 케이스를 독립적으로 제공한다. 케이스마다 Pointcut 방식과 파라미터 출력 형태가 다르며, 서로 혼용하지 않는다.<br><br>
-        <strong>케이스 1</strong> — 패키지 경로 기반 Pointcut + 민감 파라미터 마스킹 유틸(<code>LogMaskingUtils</code>) 포함<br>
-        <strong>케이스 2</strong> — 커스텀 어노테이션 기반 Pointcut + userId/url 포함 관리자 로그 (문자열 출력)<br>
-        <strong>케이스 3</strong> — 커스텀 어노테이션 기반 Pointcut + 요청/응답 데이터를 <strong>JSON으로 직렬화</strong>해서 출력
+        <span class="box-title">전역 예외 처리기가 필요한 이유</span>
+        예외 처리를 각 컨트롤러에서 개별적으로 하면 응답 포맷이 제각각이 되고 중복 코드가 발생한다.
+        <strong>@RestControllerAdvice</strong>로 한 곳에 모아두면 응답 형식의 일관성이 보장되고,
+        에러 코드를 추가하거나 로깅 방식을 변경할 때 <strong>단 한 파일만 수정</strong>하면 된다.
       </div>
 
-      <!-- ===================== CASE 1 ===================== -->
-      <h2 class="section">케이스 1. 전체 컨트롤러 로깅 + 민감 정보 마스킹</h2>
-
-      <p>
-        특정 패키지 하위의 모든 컨트롤러 메서드 호출을 자동으로 기록한다.
-        <code>password</code>, <code>token</code> 등 민감한 파라미터 이름이 포함된 경우
-        값을 <code>****</code>로 치환해 로그에 노출되지 않도록 처리한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          LogMaskingUtils
-        </span>
-      </h3>
-
-      <p>
-        파라미터 이름이 민감 키워드를 포함하는지 검사하고, 해당되면 값을 <code>****</code>로 대체한다.
-        민감 키워드 목록(<code>SENSITIVE_KEYS</code>)은 프로젝트 요구사항에 따라 자유롭게 추가한다.
-      </p>
-
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>SENSITIVE_KEYS</code>에 프로젝트에서 마스킹이 필요한 파라미터 이름을 추가한다.<br>
-        현재는 파라미터 <strong>이름</strong> 기준으로 검사한다. DTO 내부 필드까지 마스킹하려면 리플렉션 또는 직렬화 후 치환 방식으로 확장해야 한다.
-      </div>
-
-      <pre><code class="language-java">public class LogMaskingUtils {
-
-    // 수정 포인트: 마스킹할 민감 파라미터 이름 목록 — 소문자 포함 여부로 검사
-    private static final Set&lt;String&gt; SENSITIVE_KEYS = Set.of(
-            "password", "passwd", "pw",
-            "token", "accessToken", "refreshToken",
-            "secret", "secretKey",
-            "creditCard", "cardNumber", "cvv"
-    );
-
-    /**
-     * 파라미터 이름 배열과 값 배열을 받아 [이름=값] 형태의 문자열로 변환한다.
-     * 민감 키워드를 포함하는 이름은 값을 ****로 마스킹한다.
-     */
-    public static String buildMaskedParamsString(String[] parameterNames, Object[] args) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            if (i &gt; 0) sb.append(", ");
-            String name  = parameterNames[i];
-            Object value = args[i];
-            // 민감 키워드 포함 여부 검사 (대소문자 무시)
-            if (isSensitive(name)) {
-                sb.append(name).append("=****");
-            } else {
-                sb.append(name).append("=").append(value);
-            }
-        }
-        return sb.toString();
-    }
-
-    // 파라미터 이름에 민감 키워드가 포함되어 있는지 확인
-    private static boolean isSensitive(String name) {
-        String lower = name.toLowerCase();
-        return SENSITIVE_KEYS.stream()
-                .anyMatch(key -> lower.contains(key.toLowerCase()));
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ApiLoggingAspect
-        </span>
-      </h3>
-
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>execution()</code> 안의 패키지 경로를 프로젝트 실제 컨트롤러 패키지로 교체한다.<br>
-        로그 메시지 포맷(<code>[API 요청]</code>, <code>[API 응답]</code>)을 프로젝트 로그 컨벤션에 맞게 변경한다.
-      </div>
-
-      <pre><code class="language-java">@Slf4j
-@Aspect     // AOP 모듈 선언
-@Component  // 스프링 빈으로 등록
-public class ApiLoggingAspect {
-
-    // 수정 포인트: 적용할 컨트롤러 패키지 경로
-    @Around("execution(* com.example.instagramclone.controller.rest.*.*(..))")
-    public Object logApi(ProceedingJoinPoint joinPoint) throws Throwable {
-
-        // 호출된 클래스명과 메서드명 추출
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        // 파라미터 이름 배열과 값 배열 추출
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
-
-        // 민감 파라미터를 마스킹한 파라미터 문자열 생성
-        String paramsString = LogMaskingUtils.buildMaskedParamsString(parameterNames, args);
-
-        log.info("[API 요청] {} / {} | 파라미터: [{}]", className, methodName, paramsString);
-
-        long startTime = System.currentTimeMillis();
-
-        Object result = joinPoint.proceed();  // 원래 컨트롤러 메서드 실행
-
-        long executionTime = System.currentTimeMillis() - startTime;
-
-        log.info("[API 응답] {} / {} (수행시간: {}ms)", className, methodName, executionTime);
-
-        return result;
-    }
-}</code></pre>
-
-      <p><strong>실행 결과 — 민감 파라미터 포함 요청 (login: username + password)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] UserController / login | 파라미터: [username=ravi, password=****]<br>
-        [API 응답] UserController / login (수행시간: 5ms)
-      </div>
-
-      <p><strong>실행 결과 — 민감 파라미터 없는 일반 요청 (게시글 조회)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] PostController / getPost | 파라미터: [postId=42]<br>
-        [API 응답] PostController / getPost (수행시간: 3ms)
-      </div>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== CASE 2 ===================== -->
-      <h2 class="section">케이스 2. 어노테이션 기반 관리자 로깅 (문자열 출력)</h2>
-
-      <p>
-        <code>@AdminLogging</code> 어노테이션이 붙은 메서드에만 선택적으로 AOP를 적용한다.
-        요청한 관리자의 <code>userId</code>와 접근 URL을 함께 기록한다.
-        파라미터는 <code>[이름=값]</code> 형태의 문자열로 출력한다.
-        앞단(JWT 필터 등)에서 <code>request.setAttribute("userId", ...)</code>로 값을 넣어두어야 정상 동작한다.
-      </p>
-
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>@annotation()</code> 안의 패키지 경로를 실제 <code>@AdminLogging</code> 어노테이션의 전체 경로로 교체한다.<br>
-        <code>request.getAttribute("userId")</code> 키 이름은 JWT 필터에서 <code>setAttribute()</code>로 넣은 키와 반드시 일치해야 한다.<br>
-        <code>RequestContextHolder.getRequestAttributes()</code>가 <code>null</code>을 반환하는 비-HTTP 환경(스케줄러 등)에서는 NPE가 발생한다. 해당 케이스가 있다면 null 체크를 추가한다.
-      </div>
-
-      <pre><code class="language-java">@Aspect
-@Component
-@Slf4j
-public class Logger {
-
-    // 수정 포인트: @AdminLogging 어노테이션의 실제 전체 패키지 경로
-    @Around("@annotation(org.example.expert.config.AdminLogging)")
-    public Object executionLogger(ProceedingJoinPoint joinPoint) throws Throwable {
-
-        // 호출된 클래스명과 메서드명 추출
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        // 파라미터 이름 배열과 값 배열 추출
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
-
-        String paramsString = buildParamsString(parameterNames, args);
-
-        // 수정 포인트: JWT 필터에서 setAttribute()로 넣은 키 이름과 일치해야 한다.
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        Long   userId = (Long)   request.getAttribute("userId");
-        String url    = request.getRequestURI();
-
-        log.info("[API 요청] userId = {}, url = {}, {}.{} | 파라미터: [{}]",
-                userId, url, className, methodName, paramsString);
-
-        long start = System.currentTimeMillis();
-
-        Object proceed = joinPoint.proceed();  // 원래 메서드 실행
-
-        long end = System.currentTimeMillis();
-
-        log.info("[API 응답] userId = {}, {}.{} (수행시간: {}ms)",
-                userId, className, methodName, (end - start));
-
-        return proceed;
-    }
-
-    // 파라미터를 [이름=값] 형태로 이어 붙이는 유틸 메서드 (마스킹 없음)
-    private String buildParamsString(String[] parameterNames, Object[] args) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            if (i &gt; 0) sb.append(", ");
-            sb.append(parameterNames[i]).append("=").append(args[i]);
-        }
-        return sb.toString();
-    }
-}</code></pre>
-
-      <p><strong>실행 결과 — @AdminLogging 붙은 메서드 호출 시 (댓글 삭제)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/comments/1, CommentAdminController.deleteComment | 파라미터: [commentId=1]<br>
-        [API 응답] userId = 1, CommentAdminController.deleteComment (수행시간: 2ms)
-      </div>
-
-      <p><strong>실행 결과 — @AdminLogging이 없는 메서드 호출 시</strong></p>
-      <div class="result-box">
-        <span class="label">// console — AOP 미적용, 아무것도 출력되지 않음</span>
-        (로그 없음 — 컨트롤러 정상 실행)
-      </div>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== CASE 3 ===================== -->
-      <h2 class="section">케이스 3. 어노테이션 기반 관리자 로깅 (JSON 직렬화 출력)</h2>
-
-      <p>
-        케이스 2와 동일하게 <code>@AdminLogging</code> 어노테이션 기반으로 동작하지만,
-        파라미터를 문자열로 이어 붙이는 대신 <code>ObjectMapper</code>로 <strong>JSON 직렬화</strong>해서 출력한다.
-        응답 객체(<code>proceed</code>)도 JSON으로 직렬화하여 응답 로그에 포함시킨다.
-        파라미터 구조가 복잡한 DTO일 때 케이스 2보다 훨씬 가독성 좋은 로그를 남길 수 있다.
-      </p>
-
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>@annotation()</code> 안의 패키지 경로를 실제 <code>@AdminLogging</code> 어노테이션의 전체 경로로 교체한다.<br>
-        <code>ObjectMapper</code>를 필드로 직접 생성(<code>new ObjectMapper()</code>)하지 않고, 스프링 컨텍스트에 등록된 <code>@Autowired ObjectMapper</code>를 주입받는 방식을 권장한다. 프로젝트의 Jackson 설정(날짜 포맷, 직렬화 옵션 등)이 자동으로 반영되기 때문이다.<br>
-        응답이 <code>void</code>인 메서드는 <code>proceed</code>가 <code>null</code>을 반환하므로 응답 로그에 <code>null</code>이 찍힌다. 정상 동작이다.
-      </div>
-
-      <pre><code class="language-java">@Aspect
-@Component
-@Slf4j
-public class Logger {
-
-    // 수정 포인트: new ObjectMapper() 대신 @Autowired로 주입받는 방식을 권장한다.
-    // 프로젝트의 Jackson 설정(날짜 포맷 등)을 그대로 반영할 수 있다.
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    // 수정 포인트: @AdminLogging 어노테이션의 실제 전체 패키지 경로
-    @Around("@annotation(org.example.expert.config.AdminLogging)")
-    public Object executionLogger(ProceedingJoinPoint joinPoint) throws Throwable {
-
-        // 호출된 클래스명과 메서드명 추출
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        // 파라미터 이름 배열과 값 배열 추출
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
-
-        // 파라미터를 LinkedHashMap에 담아 순서를 유지한 채 JSON 직렬화
-        Map&lt;String, Object&gt; paramsMap = new LinkedHashMap&lt;&gt;();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            paramsMap.put(parameterNames[i], args[i]);
-        }
-
-        // 수정 포인트: JWT 필터에서 setAttribute()로 넣은 키 이름과 일치해야 한다.
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        Long   userId = (Long)   request.getAttribute("userId");
-        String url    = request.getRequestURI();
-
-        // 파라미터 Map을 JSON 문자열로 직렬화
-        String paramsJson = mapper.writeValueAsString(paramsMap);
-
-        log.info("[API 요청] userId = {}, url = {}, {}.{} | 요청: [{}]",
-                userId, url, className, methodName, paramsJson);
-
-        long start = System.currentTimeMillis();
-
-        Object proceed = joinPoint.proceed();  // 원래 메서드 실행
-
-        // 응답 객체를 JSON 직렬화 (void 메서드는 proceed = null → "null" 출력)
-        String responseJson = mapper.writeValueAsString(proceed);
-
-        long end = System.currentTimeMillis();
-
-        log.info("[API 응답] userId = {}, {}.{} | 응답: {} (수행시간: {}ms)",
-                userId, className, methodName, responseJson, (end - start));
-
-        return proceed;
-    }
-}</code></pre>
-
-      <p><strong>실행 결과 — 역할 변경 요청 (DTO 파라미터 포함)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/users/1, UserAdminController.changeUserRole | 요청: [{"userId":1,"userRoleChangeRequest":{"role":"USER"}}]<br>
-        [API 응답] userId = 1, UserAdminController.changeUserRole | 응답: null (수행시간: 3ms)
-      </div>
-
-      <p><strong>실행 결과 — 응답 객체가 있는 경우 (예: 사용자 정보 조회)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/users/1, UserAdminController.getUser | 요청: [{"userId":1}]<br>
-        [API 응답] userId = 1, UserAdminController.getUser | 응답: {"id":1,"username":"ravi","role":"ADMIN"} (수행시간: 4ms)
-      </div>
-
-      <!-- ===================== SUMMARY ===================== -->
-      <h2 class="section">파일 구성 요약</h2>
+      <!-- ===================== 파일 구성 ===================== -->
+      <h2 class="section">파일 구성</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:10%;">케이스</th>
+            <th style="width:35%;">파일명</th>
+            <th style="width:20%;">종류</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GlobalExceptionHandler.java</code></td>
+            <td>@RestControllerAdvice</td>
+            <td>모든 예외를 수신하여 처리하고 통일된 응답을 반환한다.</td>
+          </tr>
+          <tr>
+            <td><code>ErrorCode.java</code></td>
+            <td>enum</td>
+            <td>HTTP 상태 코드, 에러 코드 문자열, 에러 메시지를 묶어 관리한다.</td>
+          </tr>
+          <tr>
+            <td><code>CustomException.java</code></td>
+            <td>RuntimeException 상속</td>
+            <td>ErrorCode를 담아 던지는 커스텀 예외 클래스다.</td>
+          </tr>
+          <tr>
+            <td><code>ApiResponse.java</code></td>
+            <td>record</td>
+            <td>성공/실패 공통 응답 포맷이다. 모든 API 응답은 이 형식을 따른다.</td>
+          </tr>
+          <tr>
+            <td><code>ErrorResponse.java</code></td>
+            <td>record (@Builder)</td>
+            <td>에러 메시지와 필드 검증 오류 목록을 담는 응답 바디다.</td>
+          </tr>
+          <tr>
+            <td><code>FieldError.java</code></td>
+            <td>record</td>
+            <td>@Valid 검증 실패 시 각 필드의 오류 정보를 담는다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== ErrorCode ===================== -->
+      <h2 class="section">1. ErrorCode.java</h2>
+
+      <p>
+        HTTP 상태 코드, 에러 코드 문자열, 메시지를 하나의 enum 상수로 묶어 관리한다.
+        에러 코드 체계는 <strong>카테고리 문자 + 3자리 숫자</strong> 형식을 사용한다.
+      </p>
+
+      <pre><code class="language-java">@Getter
+public enum ErrorCode {
+
+    // 수정 포인트: 도메인에 맞게 카테고리와 코드를 추가한다.
+    //   공통 에러 코드 (A###)
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST,  "A001", "입력값이 올바르지 않습니다."),
+
+    //   사용자 관련 에러 코드 (U###)
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND,         "U001", "해당 유저는 존재하지 않습니다."),
+
+    //   파일 관련 에러 코드 (F###)
+    FILE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST,     "F001", "파일 업로드를 실패했습니다."),
+
+    //   프로필 관련 에러 코드 (P###)
+    PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND,      "P001", "프로필을 찾을 수 없습니다.");
+
+    private final HttpStatus status;
+    private final String code;
+    private final String message;
+
+    ErrorCode(HttpStatus status, String code, String message) {
+        this.status = status;
+        this.code   = code;
+        this.message = message;
+    }
+}</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">카테고리</th>
+            <th style="width:20%;">접두사</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>공통</td>
+            <td><code>A###</code></td>
+            <td>입력값 오류, 인증 실패 등</td>
+          </tr>
+          <tr>
+            <td>사용자</td>
+            <td><code>U###</code></td>
+            <td>유저 미존재, 비밀번호 불일치 등</td>
+          </tr>
+          <tr>
+            <td>파일</td>
+            <td><code>F###</code></td>
+            <td>업로드 실패, 확장자 불가 등</td>
+          </tr>
+          <tr>
+            <td>프로필</td>
+            <td><code>P###</code></td>
+            <td>프로필 미존재 등</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== CustomException ===================== -->
+      <h2 class="section">2. CustomException.java</h2>
+
+      <p>
+        <code>ErrorCode</code>를 담아 던지는 커스텀 예외 클래스다.
+        비즈니스 규칙 위반 시 이 예외를 던지면 <code>GlobalExceptionHandler</code>가 받아 처리한다.
+      </p>
+
+      <pre><code class="language-java">@Getter
+public class CustomException extends RuntimeException {
+
+    private final ErrorCode errorCode;
+
+    public CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+}
+
+// 사용 예시 (Service 계층)
+public User findUser(Long userId) {
+    return userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+}</code></pre>
+
+      <!-- ===================== FieldError ===================== -->
+      <h2 class="section">3. FieldError.java</h2>
+
+      <p>
+        <code>@Valid</code> 검증 실패 시 스프링이 생성하는 <code>FieldError</code> 객체를
+        응답 바디에 담을 수 있는 형태로 변환하는 record다.
+        어떤 필드에서, 어떤 값이, 왜 거부됐는지를 클라이언트에 전달한다.
+      </p>
+
+      <pre><code class="language-java">public record FieldError(
+        String field,          // 검증 실패한 필드명
+        String rejectedValue,  // 거부된 입력값
+        String message         // 검증 실패 메시지 (@NotBlank의 message 속성 등)
+) {
+    // Spring의 FieldError → 응답용 FieldError 변환
+    public static FieldError from(org.springframework.validation.FieldError error) {
+        return new FieldError(
+                error.getField(),
+                error.getRejectedValue() != null ? error.getRejectedValue().toString() : null,
+                error.getDefaultMessage()
+        );
+    }
+}</code></pre>
+
+      <!-- ===================== ErrorResponse ===================== -->
+      <h2 class="section">4. ErrorResponse.java</h2>
+
+      <p>
+        에러 메시지와 필드 검증 오류 목록을 담는 응답 바디다.
+        단순 에러 메시지만 있는 경우와, <code>@Valid</code> 검증 실패로 여러 필드 오류가 있는 경우를
+        각각 <code>from()</code>과 <code>of()</code>로 구분해 생성한다.
+      </p>
+
+      <pre><code class="language-java">@Builder
+public record ErrorResponse(
+        String message,
+        List&lt;FieldError&gt; fieldErrors  // @Valid 검증 실패 시에만 채워진다. 그 외에는 null
+) {
+    // 단순 에러 메시지만 있을 때
+    public static ErrorResponse from(String message) {
+        return ErrorResponse.builder()
+                .message(message)
+                .build();
+    }
+
+    // 필드 검증 오류 목록이 있을 때
+    public static ErrorResponse of(String message, List&lt;FieldError&gt; fieldErrors) {
+        return ErrorResponse.builder()
+                .message(message)
+                .fieldErrors(fieldErrors)
+                .build();
+    }
+}</code></pre>
+
+      <!-- ===================== ApiResponse ===================== -->
+      <h2 class="section">5. ApiResponse.java</h2>
+
+      <p>
+        성공·실패 모든 API 응답이 따르는 <strong>공통 응답 포맷</strong>이다.
+        성공 시에는 <code>success()</code>, 실패 시에는 <code>fail()</code>로 생성한다.
+      </p>
+
+      <pre><code class="language-java">public record ApiResponse&lt;T&gt;(
+        boolean success,
+        String code,           // 성공: HTTP 상태코드 문자열 / 실패: ErrorCode.code
+        T data,                // 성공: 응답 데이터 / 실패: ErrorResponse
+        LocalDateTime timestamp
+) {
+    // 응답 데이터가 있는 성공
+    public static &lt;T&gt; ApiResponse&lt;T&gt; success(HttpStatus status, T data) {
+        return new ApiResponse&lt;&gt;(true, String.valueOf(status.value()), data, LocalDateTime.now());
+    }
+
+    // 응답 데이터가 없는 성공 (예: 삭제, 수정)
+    public static &lt;T&gt; ApiResponse&lt;T&gt; success(HttpStatus status) {
+        return new ApiResponse&lt;&gt;(true, String.valueOf(status.value()), null, LocalDateTime.now());
+    }
+
+    // 단순 에러 응답
+    public static ApiResponse&lt;ErrorResponse&gt; fail(ErrorCode errorCode) {
+        return new ApiResponse&lt;&gt;(false, errorCode.getCode(),
+                ErrorResponse.from(errorCode.getMessage()), LocalDateTime.now());
+    }
+
+    // 필드 검증 오류 포함 에러 응답
+    public static ApiResponse&lt;ErrorResponse&gt; fail(ErrorCode errorCode, List&lt;FieldError&gt; fieldErrors) {
+        return new ApiResponse&lt;&gt;(false, errorCode.getCode(),
+                ErrorResponse.of(errorCode.getMessage(), fieldErrors), LocalDateTime.now());
+    }
+}</code></pre>
+
+      <!-- ===================== GlobalExceptionHandler ===================== -->
+      <h2 class="section">6. GlobalExceptionHandler.java</h2>
+
+      <p>
+        모든 예외를 수신하여 처리하는 핵심 클래스다.
+        <code>@ExceptionHandler</code>에 예외 타입을 지정하면 해당 예외 발생 시 자동으로 해당 메서드가 호출된다.
+      </p>
+
+      <pre><code class="language-java">@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    // 커스텀 예외 처리 — 비즈니스 로직에서 throw new CustomException(ErrorCode.XXX) 로 던진 경우
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity&lt;ApiResponse&lt;ErrorResponse&gt;&gt; handleException(CustomException exception) {
+        log.error("[API - ERROR] 발생 원인: ", exception);
+        ErrorCode errorCode = exception.getErrorCode();
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ApiResponse.fail(errorCode));
+    }
+
+    // @Valid 검증 실패 처리 — DTO에 @Valid 적용 시 검증 실패하면 자동 발생
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ApiResponse&lt;ErrorResponse&gt;&gt; handleMethodArgumentNotValid(
+            MethodArgumentNotValidException exception) {
+        log.error("[API - ERROR] 발생 원인: ", exception);
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        List&lt;FieldError&gt; fieldErrors = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::from)
+                .toList();
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ApiResponse.fail(errorCode, fieldErrors));
+    }
+
+    // 수정 포인트: 추가로 처리할 예외가 있으면 @ExceptionHandler 메서드를 아래에 추가한다.
+    // 예시 — 예상치 못한 모든 예외를 최후 방어선으로 처리
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity&lt;ApiResponse&lt;ErrorResponse&gt;&gt; handleAll(Exception exception) {
+    //     log.error("[API - ERROR] 예상치 못한 오류: ", exception);
+    //     ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR; // 수정 포인트: ErrorCode에 추가 필요
+    //     return ResponseEntity.status(errorCode.getStatus())
+    //             .body(ApiResponse.fail(errorCode));
+    // }
+}</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ @ExceptionHandler 우선순위</span>
+        예외 클래스 계층 구조에서 <strong>더 구체적인 예외 타입을 먼저 선언</strong>해야 한다.
+        예를 들어 <code>Exception.class</code> 핸들러를 가장 위에 두면, 모든 예외가 거기서 처리되어
+        <code>CustomException</code>이나 <code>MethodArgumentNotValidException</code> 핸들러가 무시된다.
+        구체적인 타입 → 추상적인 타입 순서로 선언한다.
+      </div>
+
+      <!-- ===================== 응답 결과 예시 ===================== -->
+      <h2 class="section">7. 실행 결과 예시</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Case 1 — CustomException 발생 (404 Not Found)
+        </span>
+      </h3>
+
+      <p>서비스에서 <code>throw new CustomException(ErrorCode.NOT_FOUND_USER)</code>를 던진 경우</p>
+
+      <div class="result-box">
+        <span class="label">HTTP 404 Not Found</span><br><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"success"</span>: <span class="bool-false">false</span>,<br>
+        &nbsp;&nbsp;<span class="key">"code"</span>: <span class="val">"U001"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"message"</span>: <span class="val">"해당 유저는 존재하지 않습니다."</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"fieldErrors"</span>: <span class="bool-false">null</span><br>
+        &nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;<span class="key">"timestamp"</span>: <span class="val">"2026-03-17T10:30:00.123"</span><br>
+        }
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Case 2 — @Valid 검증 실패 (400 Bad Request)
+        </span>
+      </h3>
+
+      <p>DTO에 <code>@Valid</code>를 적용하고 여러 필드가 검증에 실패한 경우</p>
+
+      <div class="result-box">
+        <span class="label">HTTP 400 Bad Request</span><br><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"success"</span>: <span class="bool-false">false</span>,<br>
+        &nbsp;&nbsp;<span class="key">"code"</span>: <span class="val">"A001"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"message"</span>: <span class="val">"입력값이 올바르지 않습니다."</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"fieldErrors"</span>: [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"field"</span>: <span class="val">"email"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"rejectedValue"</span>: <span class="val">"notanemail"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"message"</span>: <span class="val">"올바른 이메일 형식이어야 합니다."</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"field"</span>: <span class="val">"password"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"rejectedValue"</span>: <span class="val">"abc"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"message"</span>: <span class="val">"새 비밀번호는 8자 이상이어야 합니다."</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;]<br>
+        &nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;<span class="key">"timestamp"</span>: <span class="val">"2026-03-17T10:30:01.456"</span><br>
+        }
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Case 3 — 성공 응답 (201 Created)
+        </span>
+      </h3>
+
+      <p>컨트롤러에서 <code>ApiResponse.success(HttpStatus.CREATED, savedMember)</code>를 반환한 경우</p>
+
+      <div class="result-box">
+        <span class="label">HTTP 201 Created</span><br><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"success"</span>: <span class="bool-true">true</span>,<br>
+        &nbsp;&nbsp;<span class="key">"code"</span>: <span class="val">"201"</span>,<br>
+        &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">1</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="val">"스파르타"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"age"</span>: <span class="num">25</span><br>
+        &nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;<span class="key">"timestamp"</span>: <span class="val">"2026-03-17T10:30:02.789"</span><br>
+        }
+      </div>
+
+      <!-- ===================== 주요 수정 포인트 ===================== -->
+      <h2 class="section">8. 주요 수정 포인트 요약</h2>
+
+      <table>
+        <thead>
+          <tr>
             <th style="width:30%;">파일</th>
-            <th style="width:25%;">역할</th>
             <th>수정 포인트</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>LogMaskingUtils.java</code></td>
-            <td>민감 파라미터 마스킹 유틸</td>
-            <td><code>SENSITIVE_KEYS</code> 목록 추가/제거</td>
+            <td><code>ErrorCode.java</code></td>
+            <td>도메인별 에러 코드를 추가한다. 카테고리 접두사 규칙(<code>A###</code>, <code>U###</code> 등)을 유지한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>ApiLoggingAspect.java</code></td>
-            <td>패키지 경로 기반 전체 컨트롤러 로깅</td>
-            <td><code>execution()</code> 패키지 경로 교체</td>
+            <td><code>GlobalExceptionHandler.java</code></td>
+            <td>추가로 처리할 예외 타입이 있으면 <code>@ExceptionHandler</code> 메서드를 아래에 추가한다. <code>Exception.class</code> 최후 방어선 핸들러는 주석 해제 후 <code>INTERNAL_SERVER_ERROR</code> ErrorCode를 추가해 활성화한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td><code>Logger.java</code> (문자열)</td>
-            <td>어노테이션 기반 관리자 로깅 (문자열)</td>
-            <td><code>@annotation()</code> 경로, <code>getAttribute</code> 키 이름</td>
+            <td><code>ApiResponse.java</code></td>
+            <td>응답 포맷을 변경해야 한다면 record 필드를 수정한다. <code>success()</code>/<code>fail()</code> 정적 팩토리 메서드도 함께 수정한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td><code>Logger.java</code> (JSON)</td>
-            <td>어노테이션 기반 관리자 로깅 (JSON)</td>
-            <td><code>@annotation()</code> 경로, <code>ObjectMapper</code> 주입 방식</td>
+            <td><code>ErrorResponse.java</code></td>
+            <td>에러 응답에 추가 정보(예: stackTrace, requestId)가 필요하면 필드를 추가하고 빌더 메서드를 수정한다.</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="concept-box">
-        <span class="box-title">케이스별 핵심 차이</span>
-        <strong>Pointcut 방식:</strong> 케이스 1은 패키지 경로 기반(<code>execution()</code>)으로 해당 패키지의 모든 메서드에 자동 적용된다. 케이스 2, 3은 어노테이션 기반(<code>@annotation()</code>)으로 <code>@AdminLogging</code>이 붙은 메서드에만 선택적으로 적용된다.<br><br>
-        <strong>파라미터 출력 방식:</strong> 케이스 1, 2는 <code>[이름=값]</code> 문자열로 출력한다. 케이스 3은 <code>ObjectMapper</code>로 JSON 직렬화하여 출력한다. DTO 내부 구조가 복잡할수록 케이스 3이 가독성이 높다.<br><br>
-        <strong>응답 로그:</strong> 케이스 1, 2는 응답 객체를 로그에 포함하지 않는다. 케이스 3은 응답 객체도 JSON으로 직렬화해서 기록한다. 응답이 <code>void</code>이면 <code>null</code>이 출력되는데, 이는 정상 동작이다.
+      <div class="success-box">
+        <span class="box-title">컨트롤러에서의 사용 패턴</span>
+        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@PostMapping("/members")
+public ResponseEntity&lt;ApiResponse&lt;MemberResponse&gt;&gt; createMember(
+        @Valid @RequestBody MemberCreateRequest request) {  // 수정 포인트: 검증 대상 DTO에 @Valid 적용
+    MemberResponse response = memberService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(HttpStatus.CREATED, response));
+}</code></pre>
       </div>
 
-      <p class="muted"><a href="/templates/">← Templates로 돌아가기</a></p>
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
     </article>
   </main>
 
