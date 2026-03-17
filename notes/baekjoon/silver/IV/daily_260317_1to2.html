@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-16 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 14495 — 피보나치 비스무리한 수열</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/14495">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260316_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>피보나치 비스무리한 수열 (백준 14495)</strong>는<br>
+        점화식 <strong>f(n) = f(n-1) + f(n-3), f(1) = f(2) = f(3) = 1</strong>을 따르는 수열에서<br>
+        <strong>n번째 항의 값을 구하는</strong> 문제다.<br>
+        피보나치 수열과 유사하지만 <strong>두 칸이 아닌 세 칸 앞의 항을 더하는</strong> 점이 다르다.
+      </p>
+      
+      <ul>
+        <li>n이 3 이하이면 초기값 1을 바로 반환한다.</li>
+        <li>n이 최대 100,000으로 크고 값이 빠르게 증가하므로 <code>long</code> 타입을 사용한다.</li>
+        <li>각 항이 이전에 계산된 값에만 의존하므로 바텀업 DP가 적합하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (바텀업 DP)</li>
+        <li><strong>선택 이유</strong>: f(n)은 f(n-1)과 f(n-3)에만 의존하므로 작은 값부터 순서대로 계산해 배열에 저장하면 중복 계산 없이 O(N)에 해결된다. 재귀로 구현하면 n이 최대 100,000일 때 스택 오버플로우가 발생할 수 있으므로 반복문 기반 DP를 사용한다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>n이 3 이하이면 즉시 1을 출력하고 종료한다.</li>
+            <li>dp[1] = dp[2] = dp[3] = 1로 초기값을 설정한다.</li>
+            <li>i = 4부터 n까지 <code>dp[i] = dp[i-1] + dp[i-3]</code>을 순서대로 계산한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) n ≤ 3 예외 처리</strong>
+          <pre><code>if (n <= 3) {
+          System.out.println(1);
+          return;
+      }</code></pre>
+          <ul>
+            <li>n이 1, 2, 3이면 초기값 정의에 의해 f(n) = 1이므로 즉시 출력하고 종료한다.</li>
+            <li>이 처리를 먼저 하지 않으면 이후 배열 접근 시 인덱스 오류가 발생할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 초기값 설정</strong>
+          <pre><code>long[] dp = new long[n + 1];
+      
+      dp[1] = 1;
+      dp[2] = 1;
+      dp[3] = 1;</code></pre>
+          <ul>
+            <li>크기 n + 1의 <code>long</code> 배열을 선언해 인덱스 1~n을 사용한다.</li>
+            <li>수열이 빠르게 증가하므로 <code>long</code> 타입으로 선언한다.</li>
+            <li>문제에서 정의된 초기값 f(1) = f(2) = f(3) = 1을 설정한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 바텀업 DP로 수열 계산</strong>
+          <pre><code>for (int i = 4; i <= n; i++) {
+          dp[i] = dp[i - 1] + dp[i - 3];
+      }</code></pre>
+          <ul>
+            <li>i = 4부터 n까지 순서대로 점화식 <code>dp[i] = dp[i-1] + dp[i-3]</code>을 적용한다.</li>
+            <li>배열을 앞에서부터 채우므로 <code>dp[i-1]</code>과 <code>dp[i-3]</code>은 항상 이미 계산된 상태임이 보장된다.</li>
+            <li>예시: dp[4] = dp[3] + dp[1] = 2, dp[5] = dp[4] + dp[2] = 3, dp[6] = dp[5] + dp[3] = 4, dp[7] = dp[6] + dp[4] = 6.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(dp[n]);</code></pre>
+          <ul>
+            <li>계산이 완료된 <code>dp[n]</code>을 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 배열을 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다. n이 최대 100,000이므로 충분히 빠르게 동작한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: f(1)~f(n)을 저장하는 dp 배열이 N + 1 크기를 사용한다. <code>dp[i]</code>는 <code>dp[i-1]</code>과 <code>dp[i-3]</code>만 참조하므로 변수 세 개로 최적화해 O(1)로 줄일 수 있지만, 가독성을 위해 배열로 구현했다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1235 — 학생 번호</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1235">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260316_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>학생 번호 (백준 1235)</strong>는<br>
+        N명의 학생 번호가 주어질 때, <strong>모든 학생을 구별할 수 있는 번호 뒷부분의 최소 자릿수</strong>를 구하는 문제다.<br>
+        <strong>번호의 뒷자리부터 1자리씩 늘려가며</strong> 모든 학생의 부분 문자열이 서로 다른 순간의 자릿수를 출력한다.
+      </p>
+      
+      <ul>
+        <li>모든 학생 번호의 길이는 동일하다.</li>
+        <li>뒷자리 k자리만으로 N명을 모두 구별하려면, k자리 부분 문자열이 N개 모두 달라야 한다.</li>
+        <li>HashSet에 뒷자리 부분 문자열을 추가한 뒤 크기가 N과 같으면 중복이 없다는 의미이므로 그 k가 답이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 브루트포스 + HashSet 중복 검사</li>
+        <li><strong>선택 이유</strong>: 뒷자리를 1자리씩 늘려가며 각 자릿수에 대해 N개의 부분 문자열을 HashSet에 추가하면 중복 여부를 O(1)에 확인할 수 있다. 학생 번호의 최대 길이가 20이므로 최대 20번의 반복으로 충분하다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>뒷자리 길이 i를 1부터 번호 길이까지 순서대로 증가시킨다.</li>
+            <li>각 i에 대해 모든 학생 번호의 뒷 i자리 부분 문자열을 HashSet에 추가한다.</li>
+            <li>HashSet의 크기가 N과 같으면 모든 부분 문자열이 서로 다른 것이므로 즉시 i를 출력하고 종료한다.</li>
+            <li>크기가 N보다 작으면 중복이 있는 것이므로 HashSet을 초기화하고 i를 1 증가시켜 다시 시도한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 학생 번호 입력</strong>
+          <pre><code>String[] numbers = new String[N];
+      
+      for (int i = 0; i < N; i++) {
+          numbers[i] = br.readLine();
+      }</code></pre>
+          <ul>
+            <li>N개의 학생 번호를 문자열 배열에 저장한다. 모든 번호의 길이는 동일하므로 <code>numbers[0].length()</code>로 전체 자릿수를 참조한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 뒷자리 길이를 1씩 늘려가며 중복 검사</strong>
+          <pre><code>for (int i = 1; i <= numbers[0].length(); i++) {
+          for (int j = 0; j < N; j++) {
+              set.add(numbers[j].substring(numbers[0].length() - i));
+          }
+      
+          if (set.size() == N) {
+              System.out.println(i);
+              return;
+          }
+      
+          set.clear();
+      }</code></pre>
+          <ul>
+            <li>외부 반복문의 i는 현재 확인 중인 뒷자리 자릿수다.</li>
+            <li><code>numbers[j].substring(numbers[0].length() - i)</code>는 j번째 학생 번호의 뒷 i자리 부분 문자열을 추출한다. 예를 들어 번호가 "12345"이고 i = 2이면 "45"를 추출한다.</li>
+            <li>N개의 부분 문자열을 모두 HashSet에 추가한 뒤 크기를 확인한다. HashSet은 중복을 허용하지 않으므로, 크기가 N이면 모든 부분 문자열이 서로 다른 것이다.</li>
+            <li>크기가 N보다 작으면 중복이 존재하므로 <code>set.clear()</code>로 초기화하고 다음 자릿수를 시도한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(L × N)</strong>: L은 학생 번호의 자릿수(최대 20), N은 학생 수(최대 1,000)다. 외부 반복문이 최대 L번, 내부 반복문이 N번 실행되며 각 반복에서 HashSet 삽입이 O(1)이므로 전체 O(L × N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 각 자릿수 검사마다 HashSet에 최대 N개의 부분 문자열을 저장하며, 검사 후 초기화된다. 학생 번호를 저장하는 배열도 O(N × L)의 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
