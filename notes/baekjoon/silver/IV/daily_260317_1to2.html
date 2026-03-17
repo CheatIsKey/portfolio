@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-16 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-17 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 14495 — 피보나치 비스무리한 수열</h2>
+      <h2 class="section">문제 20125 — 쿠키의 신체 측정</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/14495">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/20125">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260316_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260317_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>피보나치 비스무리한 수열 (백준 14495)</strong>는<br>
-        점화식 <strong>f(n) = f(n-1) + f(n-3), f(1) = f(2) = f(3) = 1</strong>을 따르는 수열에서<br>
-        <strong>n번째 항의 값을 구하는</strong> 문제다.<br>
-        피보나치 수열과 유사하지만 <strong>두 칸이 아닌 세 칸 앞의 항을 더하는</strong> 점이 다르다.
+        <strong>쿠키의 신체 측정 (백준 20125)</strong>는<br>
+        N × N 격자에 그려진 쿠키 캐릭터에서 <strong>심장의 위치와 왼팔·오른팔·허리·왼다리·오른다리의 길이</strong>를 구하는 문제다.<br>
+        <strong>심장은 가장 위쪽에 있는 별표('*')의 바로 아래 칸</strong>에 위치하며, 나머지 신체 부위는 심장을 기준으로 측정한다.
       </p>
       
       <ul>
-        <li>n이 3 이하이면 초기값 1을 바로 반환한다.</li>
-        <li>n이 최대 100,000으로 크고 값이 빠르게 증가하므로 <code>long</code> 타입을 사용한다.</li>
-        <li>각 항이 이전에 계산된 값에만 의존하므로 바텀업 DP가 적합하다.</li>
+        <li>심장의 위치를 먼저 찾은 뒤, 심장 행의 좌우로 팔, 심장 열의 아래로 허리, 허리 끝에서 좌우 대각선으로 다리를 측정한다.</li>
+        <li>각 신체 부위는 연속된 '*'의 개수로 길이를 나타내며, '*'가 아닌 칸을 만나면 측정을 종료한다.</li>
+        <li>다리는 허리 바로 아래 칸부터 시작하며, 왼다리는 <code>col - 1</code> 열, 오른다리는 <code>col + 1</code> 열에서 측정한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,13 +75,15 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (바텀업 DP)</li>
-        <li><strong>선택 이유</strong>: f(n)은 f(n-1)과 f(n-3)에만 의존하므로 작은 값부터 순서대로 계산해 배열에 저장하면 중복 계산 없이 O(N)에 해결된다. 재귀로 구현하면 n이 최대 100,000일 때 스택 오버플로우가 발생할 수 있으므로 반복문 기반 DP를 사용한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (선형 탐색)</li>
+        <li><strong>선택 이유</strong>: 신체 부위 구조가 규칙적으로 정의되어 있으므로, 심장 위치를 기준으로 각 방향을 선형 탐색하면 모든 길이를 O(N)에 측정할 수 있다. N이 최대 1,000이므로 완전 탐색으로 충분하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>n이 3 이하이면 즉시 1을 출력하고 종료한다.</li>
-            <li>dp[1] = dp[2] = dp[3] = 1로 초기값을 설정한다.</li>
-            <li>i = 4부터 n까지 <code>dp[i] = dp[i-1] + dp[i-3]</code>을 순서대로 계산한다.</li>
+            <li>격자를 위에서부터 순회해 첫 번째 '*'를 찾고, 그 바로 아래 칸을 심장 위치로 설정한다.</li>
+            <li>심장 행(row)에서 col 기준 왼쪽으로 연속된 '*' 수를 세어 왼팔 길이를 구한다.</li>
+            <li>심장 행(row)에서 col 기준 오른쪽으로 연속된 '*' 수를 세어 오른팔 길이를 구한다.</li>
+            <li>심장 열(col)에서 row 아래로 연속된 '*' 수를 세어 허리 길이를 구한다.</li>
+            <li>허리가 끝난 다음 행(<code>row + waist + 1</code>)부터 col - 1 열 아래로 왼다리, col + 1 열 아래로 오른다리 길이를 측정한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,45 +97,68 @@
       </p>
       
       <ul>
-        <li><strong>1) n ≤ 3 예외 처리</strong>
-          <pre><code>if (n <= 3) {
-          System.out.println(1);
-          return;
+        <li><strong>1) 심장 위치 탐색</strong>
+          <pre><code>for (int r = 0; r < N; r++) {
+          for (int c = 0; c < N; c++) {
+              if (board[r][c] == '*') {
+                  heartPos = new int[]{r + 1, c};
+                  flag = true;
+                  break;
+              }
+          }
+          if (flag) break;
       }</code></pre>
           <ul>
-            <li>n이 1, 2, 3이면 초기값 정의에 의해 f(n) = 1이므로 즉시 출력하고 종료한다.</li>
-            <li>이 처리를 먼저 하지 않으면 이후 배열 접근 시 인덱스 오류가 발생할 수 있다.</li>
+            <li>격자를 위에서부터 순회해 첫 번째 '*'를 찾는다. 이 '*'는 머리이므로, 심장은 그 바로 아래 행인 <code>r + 1</code>에 위치한다.</li>
+            <li>찾은 즉시 <code>flag</code>를 true로 설정해 이중 반복문을 모두 탈출한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 초기값 설정</strong>
-          <pre><code>long[] dp = new long[n + 1];
+        <li><strong>2) 팔 길이 측정</strong>
+          <pre><code>for (int i = col - 1; i >= 0; i--) {
+          if (board[row][i] == '*') { leftArm++; continue; }
+          break;
+      }
       
-      dp[1] = 1;
-      dp[2] = 1;
-      dp[3] = 1;</code></pre>
-          <ul>
-            <li>크기 n + 1의 <code>long</code> 배열을 선언해 인덱스 1~n을 사용한다.</li>
-            <li>수열이 빠르게 증가하므로 <code>long</code> 타입으로 선언한다.</li>
-            <li>문제에서 정의된 초기값 f(1) = f(2) = f(3) = 1을 설정한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 바텀업 DP로 수열 계산</strong>
-          <pre><code>for (int i = 4; i <= n; i++) {
-          dp[i] = dp[i - 1] + dp[i - 3];
+      for (int i = col + 1; i < N; i++) {
+          if (board[row][i] == '*') { rightArm++; continue; }
+          break;
       }</code></pre>
           <ul>
-            <li>i = 4부터 n까지 순서대로 점화식 <code>dp[i] = dp[i-1] + dp[i-3]</code>을 적용한다.</li>
-            <li>배열을 앞에서부터 채우므로 <code>dp[i-1]</code>과 <code>dp[i-3]</code>은 항상 이미 계산된 상태임이 보장된다.</li>
-            <li>예시: dp[4] = dp[3] + dp[1] = 2, dp[5] = dp[4] + dp[2] = 3, dp[6] = dp[5] + dp[3] = 4, dp[7] = dp[6] + dp[4] = 6.</li>
+            <li>심장 행(<code>row</code>)에서 col 왼쪽으로 연속된 '*' 수를 세어 왼팔 길이를 구한다.</li>
+            <li>col 오른쪽으로 연속된 '*' 수를 세어 오른팔 길이를 구한다.</li>
+            <li>'*'가 아닌 칸을 만나는 즉시 break해 측정을 종료한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(dp[n]);</code></pre>
+        <li><strong>3) 허리 길이 측정</strong>
+          <pre><code>for (int i = row + 1; i < N; i++) {
+          if (board[i][col] == '*') { waist++; continue; }
+          break;
+      }</code></pre>
           <ul>
-            <li>계산이 완료된 <code>dp[n]</code>을 출력한다.</li>
+            <li>심장 열(<code>col</code>)에서 row 아래로 연속된 '*' 수를 세어 허리 길이를 구한다.</li>
+            <li>허리가 끝나는 행 인덱스는 <code>row + waist</code>이며, 다리 측정의 시작점 계산에 사용된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 다리 길이 측정 및 출력</strong>
+          <pre><code>for (int i = row + waist + 1; i < N; i++) {
+          if (board[i][col - 1] == '*') { leftLeg++; continue; }
+          break;
+      }
+      
+      for (int i = row + waist + 1; i < N; i++) {
+          if (board[i][col + 1] == '*') { rightLeg++; continue; }
+          break;
+      }
+      
+      System.out.println((row + 1) + " " + (col + 1));
+      System.out.println(leftArm + " " + rightArm + " " + waist + " " + leftLeg + " " + rightLeg);</code></pre>
+          <ul>
+            <li>허리가 끝난 다음 행(<code>row + waist + 1</code>)부터 왼다리(<code>col - 1</code> 열)와 오른다리(<code>col + 1</code> 열)의 연속된 '*' 수를 각각 측정한다.</li>
+            <li>심장 위치는 0-based 인덱스이므로 출력 시 각각 1을 더해 1-based로 변환한다.</li>
+            <li>순서대로 왼팔·오른팔·허리·왼다리·오른다리 길이를 공백으로 구분해 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -150,16 +174,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 배열을 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다. n이 최대 100,000이므로 충분히 빠르게 동작한다.</li>
+            <li><strong>O(N²)</strong>: 심장 위치 탐색에 최악의 경우 O(N²), 각 신체 부위 측정은 최대 O(N)이므로 전체 시간 복잡도는 O(N²)이다. N이 최대 1,000이므로 최악의 경우 100만 번의 연산으로 충분하다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: f(1)~f(n)을 저장하는 dp 배열이 N + 1 크기를 사용한다. <code>dp[i]</code>는 <code>dp[i-1]</code>과 <code>dp[i-3]</code>만 참조하므로 변수 세 개로 최적화해 O(1)로 줄일 수 있지만, 가독성을 위해 배열로 구현했다.</li>
+            <li><strong>O(N²)</strong>: 격자를 저장하는 2차원 배열이 N × N 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -214,14 +237,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1235 — 학생 번호</h2>
+      <h2 class="section">문제 1064 — 평행사변형</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1235">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1064">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260316_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260317_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
