@@ -294,42 +294,42 @@
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">1단계</span><span class="billing-badge">시간당 과금</span></td>
+            <td style="text-align:center;"><strong>1</strong></td>
             <td><strong>ASG · ALB</strong></td>
             <td>ASG 삭제 시 EC2가 자동 종료된다. EC2가 <code>terminated</code> 상태인지 확인 후 ALB를 삭제한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">2단계</span><span class="billing-badge">시간당 과금</span></td>
+            <td style="text-align:center;"><strong>2</strong></td>
             <td><strong>NAT Gateway</strong></td>
             <td>삭제 완료까지 수 분 소요된다. 상태가 <code>Deleted</code>로 바뀔 때까지 기다려야 한다. 연결된 Elastic IP는 자동 해제된다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">3단계</span><span class="billing-badge">시간당 과금</span></td>
+            <td style="text-align:center;"><strong>3</strong></td>
             <td><strong>RDS</strong></td>
             <td>"Create final snapshot" 체크 해제 → "I acknowledge" 체크 후 삭제한다. 삭제 완료까지 수 분 소요된다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">4단계</span></td>
+            <td style="text-align:center;"><strong>4</strong></td>
             <td><strong>Target Group · Launch Template · Security Group (3개)</strong></td>
             <td>ALB SG, EC2 SG, RDS 자동 생성 SG를 각각 삭제한다. Security Group은 사용 중인 리소스가 없어야 삭제 가능하다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">5단계</span></td>
+            <td style="text-align:center;"><strong>5</strong></td>
             <td><strong>Route 53 레코드 · ACM 인증서 · Hosted Zone · 도메인 자동갱신 비활성화</strong></td>
             <td>레코드를 모두 삭제한 후 Hosted Zone을 삭제한다. 도메인 자동갱신도 반드시 비활성화한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">6단계</span></td>
+            <td style="text-align:center;"><strong>6</strong></td>
             <td><strong>S3 버킷 · ECR 리포지토리</strong></td>
             <td>S3는 버킷 안 파일을 먼저 비운(Empty) 후 삭제한다. 파일이 남아있으면 버킷 삭제가 불가능하다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">7단계</span></td>
+            <td style="text-align:center;"><strong>7</strong></td>
             <td><strong>IAM Role · User · Policy · OIDC Provider · Parameter Store</strong></td>
             <td>OIDC Provider는 IAM → Identity providers → <code>token.actions.githubusercontent.com</code>에서 삭제한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><span class="step-badge">8단계</span></td>
+            <td style="text-align:center;"><strong>8</strong></td>
             <td><strong>VPC</strong></td>
             <td>VPC 삭제 시 서브넷, 라우트 테이블, 인터넷 게이트웨이가 함께 삭제된다. NAT Gateway가 남아있으면 실패한다.</td>
           </tr>
