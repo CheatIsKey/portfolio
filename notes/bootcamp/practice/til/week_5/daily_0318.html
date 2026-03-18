@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 63일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 63일차 TIL — CI/CD · ALB · ASG · CloudWatch · Route 53 · ACM</h1>
+      <p class="muted">작성일 2026-03-17 · 분류: 부트캠프, TIL, AWS, CI/CD, ALB, Auto Scaling, Route 53, ACM</p>
+
+      <h2 class="section">63일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>CI/CD</strong>의 개념과 전체 자동화 흐름을 이해한다.</li>
+        <li><strong>ALB</strong>의 구성 요소(Listener, Target Group)와 헬스체크 동작 방식을 파악한다.</li>
+        <li><strong>ASG</strong>의 핵심 역할(자동 복구, Instance Refresh)과 Launch Template·User Data를 이해한다.</li>
+        <li><strong>CloudWatch</strong>의 Metric, Log Group, Dashboard 개념을 정리한다.</li>
+        <li><strong>Route 53</strong>의 DNS 레코드 타입(A, CNAME, Alias) 차이를 파악한다.</li>
+        <li><strong>ACM</strong>으로 SSL 인증서를 무료로 발급·관리하는 방식을 이해한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. CI/CD (Continuous Integration / Continuous Deployment)</h2>
+
+      <p>
+        <strong>지속적 통합(CI)</strong>과 <strong>지속적 배포(CD)</strong>를 합쳐 CI/CD라고 부른다.
+        CI 과정에서 개발된 코드를 자동으로 빌드·테스트하여 앱의 무결성을 검증하고,
+        검증이 통과되면 CD 과정을 통해 완성된 앱을 실제 환경에 자동으로 배포한다.
+        개발부터 최종 배포까지 모든 단계를 자동화하여 효율성과 안정성을 극대화한다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">EC2 IAM Role에 필요한 정책</span>
+        CI/CD 파이프라인에서 EC2가 정상적으로 동작하려면 IAM Role에 아래 두 정책이 필요하다.<br><br>
+        <strong>AmazonSSMManagedInstanceCore</strong> — Session Manager로 EC2에 SSH 없이 접속할 수 있다.<br>
+        <strong>AmazonEC2ContainerRegistryReadOnly</strong> — ECR에서 Docker 이미지를 pull할 수 있다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. ALB (Application Load Balancer)</h2>
+
+      <p>
+        트래픽을 여러 서버에 균형 있게 분배하는 <strong>로드 밸런서</strong>다.
+        클라이언트는 EC2 IP 대신 ALB 주소를 알고 있기 때문에 ALB는 실제 백엔드 서버를 대리하는 <strong>프록시 서버</strong> 역할을 한다.
+        EC2 IP를 직접 노출하지 않으므로 HTTPS 처리, 헬스체크, 서버 확장이 모두 ALB 뒤에서 안전하게 처리된다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">ALB의 구성 요소</span>
+        <strong>Listener</strong> — 외부 트래픽이 들어오는 입구 역할을 한다. 어떤 포트(80, 443)로 들어온 요청을 어떤 Target Group으로 보낼지 규칙을 정의한다.<br><br>
+        <strong>Target Group</strong> — 실제 요청을 받는 서버(EC2) 묶음이다. ALB가 Target Group 안의 서버들에 주기적으로 헬스체크를 수행하고, 정상 서버에게만 트래픽을 전달한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ALB 헬스체크 설정 옵션
+        </span>
+      </h3>
+
+      <p>
+        ALB가 서버의 건강 상태를 주기적으로 확인하는 기능이다.
+        비정상 서버로의 트래픽을 자동으로 차단하고 정상 서버로만 요청을 보내기 위해 필수적이다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">설정 옵션</th>
+            <th>설명</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>검사 경로 (Path)</strong></td>
+            <td>헬스체크를 수행할 HTTP 엔드포인트 경로</td>
+            <td><code>/actuator/health</code></td>
+          </tr>
+          <tr>
+            <td><strong>검사 주기 (Interval)</strong></td>
+            <td>얼마나 자주 헬스체크를 실행할지</td>
+            <td>30초마다</td>
+          </tr>
+          <tr>
+            <td><strong>임계값 (Threshold)</strong></td>
+            <td>몇 번 연속 성공/실패해야 상태를 정상/비정상으로 전환할지</td>
+            <td>3번 연속 성공 → Healthy</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. ASG (Auto Scaling Group)</h2>
+
+      <p>
+        <strong>Launch Template</strong>을 기반으로 EC2를 자동으로 생성·삭제·관리하는 서비스다.
+        설정된 Desired 수치를 항상 유지하며, 부하가 증가하면 Max 범위 안에서 인스턴스를 추가하고
+        트래픽이 줄어들면 Min 수준까지 인스턴스를 제거한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          핵심 설정 값
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">설정</th>
+            <th style="width:15%; text-align:center;">예시 값</th>
+            <th>의미</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Desired</strong></td>
+            <td style="text-align:center;">1</td>
+            <td>지금 유지하고 싶은 EC2 수. ASG는 항상 이 수에 맞추려 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Min</strong></td>
+            <td style="text-align:center;">1</td>
+            <td>트래픽이 아무리 줄어도 이 수 아래로 줄이지 않는다.</td>
+          </tr>
+          <tr>
+            <td><strong>Max</strong></td>
+            <td style="text-align:center;">2</td>
+            <td>트래픽이 아무리 늘어도 이 수 이상은 생성하지 않는다. 비용 폭탄 방지.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ASG의 핵심 역할 2가지
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">역할</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>자동 복구</strong></td>
+            <td>EC2가 장애로 종료되면 이를 감지하고 자동으로 새 EC2를 생성하여 Desired 수를 유지한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Instance Refresh</strong><br>(무중단 배포)</td>
+            <td>새 버전 배포 시 기존 EC2를 한 번에 교체하지 않고 <strong>순차적으로 교체</strong>한다. 새 EC2를 먼저 생성 → ALB 헬스체크 통과 확인 → 트래픽 전환 → 기존 EC2 종료 순서로 진행하므로 서비스 끊김이 없다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Launch Template
+        </span>
+      </h3>
+
+      <p>
+        ASG가 새 EC2를 만들 때 사용하는 <strong>설계도</strong>다.
+        어떤 OS(Amazon Linux 2023), 사양(t4g.small), 보안 그룹, IAM Role, 그리고 EC2 시작 시 실행할 스크립트(User Data)를 정의한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          User Data
+        </span>
+      </h3>
+
+      <p>
+        EC2 인스턴스가 <strong>처음 시작될 때 자동으로 실행되는 스크립트</strong>다.
+        새 EC2가 올라올 때마다 Docker 설치 → ECR 로그인 → 컨테이너 실행이 자동으로 진행된다.
+      </p>
+
+      <pre><code class="language-bash">#!/bin/bash
+set -e
+
+# 수정 포인트: 본인 AWS 계정 ID와 ECR 이미지 태그로 변경
+AWS_REGION="ap-northeast-2"
+AWS_ACCOUNT_ID="{본인AWS계정ID}"
+ECR_REPOSITORY="my-app"
+IMAGE_TAG="{ECR의이미지태그}"
+
+ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}"
+
+# Docker 설치
+dnf update -y
+dnf install -y docker
+systemctl enable docker
+systemctl start docker
+
+# ECR 로그인 — IAM Role이 연결된 EC2는 별도 자격증명 없이 인증된다
+aws ecr get-login-password --region ${AWS_REGION} | \
+  docker login --username AWS --password-stdin \
+  ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+# 이미지 pull 후 컨테이너 실행
+docker pull ${ECR_URI}:${IMAGE_TAG}
+docker run -d -p 8080:8080 \
+  --restart unless-stopped \
+  --name my-app \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  ${ECR_URI}:${IMAGE_TAG}</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">--restart unless-stopped 옵션</span>
+        Docker 컨테이너에 <code>--restart unless-stopped</code>를 붙이면 EC2가 재부팅되거나 Docker 데몬이 재시작될 때 <strong>컨테이너가 자동으로 함께 재시작</strong>된다.
+        수동으로 <code>docker stop</code>으로 중지한 경우에는 재시작되지 않는다.
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. AWS CloudWatch</h2>
+
+      <p>
+        AWS 리소스의 상태를 수집하고 모니터링하는 서비스다.
+        EC2 CPU 사용률, 요청 수, 에러 로그 등을 한 곳에서 확인하고 시각화할 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">개념</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Metric</strong></td>
+            <td>시간에 따라 변하는 숫자 데이터다. CPU 사용률, 요청 수, 응답 시간 등이 Metric으로 수집된다.</td>
+          </tr>
+          <tr>
+            <td><strong>Log Group</strong></td>
+            <td>로그를 저장하는 단위다. EC2, Lambda 등 각 서비스의 로그가 Log Group 안에 쌓인다.</td>
+          </tr>
+          <tr>
+            <td><strong>Dashboard</strong></td>
+            <td>여러 Metric을 한 화면에서 시각화하는 모니터링 대시보드다. 직접 구성하여 원하는 지표만 모아볼 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. Route 53 — AWS DNS 서비스</h2>
+
+      <p>
+        AWS가 제공하는 DNS 서비스다.
+        도메인을 ALB, CloudFront 같은 AWS 리소스에 연결할 때 사용한다.
+        DNS 레코드는 "이 도메인으로 요청이 오면 어디로 보내라"는 규칙이며, 연결 대상에 따라 레코드 타입이 달라진다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DNS 레코드 타입
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">레코드 타입</th>
+            <th style="width:30%;">동작 방식</th>
+            <th style="width:25%;">제약</th>
+            <th>사용 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A 레코드</strong></td>
+            <td>도메인 → IP 주소 직접 연결</td>
+            <td>고정 IP만 가능</td>
+            <td>도메인 → 고정 IP</td>
+          </tr>
+          <tr>
+            <td><strong>CNAME 레코드</strong></td>
+            <td>도메인 → 다른 도메인 연결</td>
+            <td>루트 도메인(<code>spring-jpa.dev</code>)에 사용 불가. 서브 도메인(<code>api.spring-jpa.dev</code>)만 가능</td>
+            <td>서브 도메인 → 외부 서비스</td>
+          </tr>
+          <tr>
+            <td><strong>Alias 레코드</strong><br>(AWS 전용)</td>
+            <td>A 레코드처럼 동작하지만 AWS 리소스를 가리킨다. IP 변경 시 자동 반영</td>
+            <td>없음. 루트 도메인에도 사용 가능</td>
+            <td>도메인 → ALB, CloudFront</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%;">상황</th>
+            <th>권장 레코드 타입</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>도메인 → ALB</td>
+            <td><strong>Alias</strong></td>
+          </tr>
+          <tr>
+            <td>도메인 → CloudFront</td>
+            <td><strong>Alias</strong></td>
+          </tr>
+          <tr>
+            <td>서브 도메인 → 외부 서비스</td>
+            <td><strong>CNAME</strong></td>
+          </tr>
+          <tr>
+            <td>도메인 → 고정 IP</td>
+            <td><strong>A</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">CNAME vs Alias 핵심 차이</span>
+        <strong>CNAME</strong>은 루트 도메인(<code>spring-jpa.dev</code>)에 사용할 수 없다. DNS 표준 규칙이다.<br>
+        <strong>Alias</strong>는 AWS 전용 확장으로 루트 도메인에도 사용 가능하고, ALB처럼 IP가 자주 바뀌는 AWS 리소스를 가리킬 때 IP 변경을 자동으로 반영한다.
+        AWS 리소스에 도메인을 연결할 때는 <strong>항상 Alias를 사용</strong>하는 것이 올바르다.
+      </div>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. ACM (AWS Certificate Manager)</h2>
+
+      <p>
+        SSL/TLS 인증서를 <strong>무료로 발급하고 관리</strong>하는 AWS 서비스다.
+        ALB·CloudFront와 함께 사용하면 비용이 없고, 인증서 만료 전에 자동으로 갱신되므로 별도 관리가 필요 없다.
+        ALB의 HTTPS 리스너에 클릭 몇 번으로 적용할 수 있다.
+      </p>
+
+      <div class="success-box">
+        <span class="box-title">ACM 장점 요약</span>
+        <strong>무료</strong>: ALB, CloudFront에서 사용 시 인증서 비용 없음<br>
+        <strong>자동 갱신</strong>: 만료 전 AWS가 자동으로 갱신하므로 인증서 만료로 인한 장애 없음<br>
+        <strong>간편 적용</strong>: ALB HTTPS 리스너에 콘솔에서 클릭 몇 번으로 적용 완료
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Free Credit 확인 위치</span>
+        유료 플랜으로 전환하면 AWS 콘솔 메인에 Free Credit이 표시되지 않고 <strong>'비용 및 사용량'</strong>이 표시된다.
+        Free Credit이 사라진 것이 아니므로 <strong>AWS Budgets에서 남은 크레딧을 확인</strong>해야 한다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        오늘은 AWS 고가용성 아키텍처를 구성하는 핵심 서비스들을 한 번에 정리했다.
+        CI/CD는 코드 push부터 배포까지 전 과정을 자동화하여 휴먼 에러를 줄이고 배포 속도를 높인다.
+        ALB는 단순한 트래픽 분산기를 넘어 HTTPS 종단점, 헬스체크 기반 자동 차단, Listener 규칙 기반 라우팅까지 담당한다.
+        모든 요청은 EC2 IP가 아닌 ALB 주소로만 들어오므로 백엔드 서버의 IP가 바뀌어도 클라이언트에 영향이 없다.
+      </p>
+
+      <p>
+        ASG는 두 가지 문제를 동시에 해결한다. 예측 불가능한 트래픽 변화에는 자동 스케일 아웃/인으로, 서버 장애에는 자동 복구로 대응한다.
+        Instance Refresh는 무중단 배포의 핵심으로, 새 인스턴스가 ALB 헬스체크를 통과한 것이 확인된 후에만 트래픽을 전환하기 때문에 배포 중에도 서비스가 끊기지 않는다.
+        User Data 스크립트 덕분에 새 EC2가 생성될 때마다 수동 설정 없이 자동으로 Docker 설치부터 컨테이너 실행까지 완료된다.
+      </p>
+
+      <p>
+        Route 53에서 ALB에 도메인을 연결할 때는 반드시 CNAME이 아닌 <strong>Alias 레코드</strong>를 사용해야 한다.
+        ALB는 IP가 자동으로 변경되는데 Alias는 이를 자동 추적하고, 루트 도메인에도 적용 가능하기 때문이다.
+        ACM은 무료이고 자동 갱신되므로 Let's Encrypt처럼 직접 관리할 필요가 없다.
+        이 모든 서비스가 맞물려 동작할 때 비로소 운영 수준의 고가용성 아키텍처가 완성된다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
