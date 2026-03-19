@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-18 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-19 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1358 — 하키</h2>
+      <h2 class="section">문제 15970 — 화살표 그리기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1358">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/15970">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260318_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>하키 (백준 1358)</strong>는<br>
-        하키 경기장이 <strong>직사각형 영역과 양쪽 끝에 붙은 두 반원으로 구성</strong>될 때,<br>
-        P명의 선수 중 <strong>경기장 안에 있는 선수의 수</strong>를 구하는 문제다.<br>
-        <strong>경계선 위에 있는 선수도 경기장 안에 있는 것으로 간주</strong>한다.
+        <strong>화살표 그리기 (백준 15970)</strong>는<br>
+        N개의 점이 각각 색깔과 위치를 가질 때, <strong>각 점에서 같은 색깔의 가장 가까운 점으로 향하는 화살표의 길이 합</strong>을 구하는 문제다.<br>
+        <strong>각 점은 반드시 같은 색의 다른 점 중 가장 가까운 점을 향해 화살표를 그려야</strong> 한다.
       </p>
       
       <ul>
-        <li>경기장은 좌측 상단 좌표 (X, Y), 너비 W, 높이 H인 직사각형과, 왼쪽과 오른쪽 끝에 붙은 반원으로 구성된다.</li>
-        <li>반원의 반지름은 H / 2이며, 왼쪽 반원의 중심은 (X, Y + H/2), 오른쪽 반원의 중심은 (X + W, Y + H/2)이다.</li>
-        <li>각 선수의 좌표가 직사각형 내부 또는 두 반원 중 하나의 내부에 있으면 경기장 안에 있는 것이다.</li>
+        <li>같은 색의 점들을 위치 기준으로 오름차순 정렬하면, 각 점에서 가장 가까운 같은 색 점은 바로 왼쪽 또는 바로 오른쪽 이웃이다.</li>
+        <li>맨 왼쪽 점은 오른쪽 이웃만, 맨 오른쪽 점은 왼쪽 이웃만 선택할 수 있다.</li>
+        <li>중간 점은 왼쪽과 오른쪽 이웃 중 더 가까운 쪽을 선택한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 기하 (직사각형 내부 판별 + 원 내부 판별)</li>
-        <li><strong>선택 이유</strong>: 경기장이 직사각형과 두 반원의 합집합으로 구성되므로, 각 선수에 대해 세 영역 중 하나라도 포함되면 카운트하면 된다. 각 판별이 O(1)이므로 P명에 대해 O(P)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 색깔별 그룹화 + 정렬 + 그리디</li>
+        <li><strong>선택 이유</strong>: 같은 색의 점들을 위치 기준으로 정렬하면, 각 점의 가장 가까운 같은 색 점은 반드시 정렬된 배열에서 인접한 원소다. 이를 이용하면 O(N log N) 정렬 후 O(N) 선형 탐색으로 전체 합을 구할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>직사각형 내부 판별: X ≤ x ≤ X+W이고 Y ≤ y ≤ Y+H이면 내부다.</li>
-            <li>왼쪽 반원 판별: 중심 (X, Y + radius)에서 선수까지의 거리가 radius 이하이면 내부다.</li>
-            <li>오른쪽 반원 판별: 중심 (X+W, Y + radius)에서 선수까지의 거리가 radius 이하이면 내부다.</li>
-            <li>부동소수점 오차를 피하기 위해 거리 비교 시 제곱 형태로 비교한다.</li>
+            <li>색깔을 인덱스로 하는 리스트 배열에 각 점의 위치를 저장한다.</li>
+            <li>각 색깔 그룹을 오름차순 정렬한다.</li>
+            <li>각 그룹에서 맨 왼쪽 점은 오른쪽 이웃과의 거리, 맨 오른쪽 점은 왼쪽 이웃과의 거리, 중간 점은 두 이웃 중 더 가까운 거리를 누적한다.</li>
           </ul>
         </li>
       </ul>
@@ -97,54 +95,63 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 반지름 계산</strong>
-          <pre><code>int W = Integer.parseInt(st.nextToken());
-      int H = Integer.parseInt(st.nextToken());
-      int X = Integer.parseInt(st.nextToken());
-      int Y = Integer.parseInt(st.nextToken());
-      int P = Integer.parseInt(st.nextToken());
-      
-      int radius = H / 2;</code></pre>
-          <ul>
-            <li>경기장의 너비 W, 높이 H, 좌측 상단 좌표 (X, Y), 선수 수 P를 입력받는다.</li>
-            <li>반원의 반지름은 직사각형 높이의 절반인 <code>H / 2</code>이다.</li>
-            <li>두 반원의 중심 y좌표는 <code>Y + radius</code>이며, 왼쪽 반원의 중심 x는 X, 오른쪽은 X + W이다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 직사각형 내부 판별</strong>
-          <pre><code>if ((X <= x && x <= X + W) && (Y <= y && y <= Y + H)) {
-          answer++;
-          continue;
-      }</code></pre>
-          <ul>
-            <li>선수의 x좌표가 X 이상 X+W 이하이고 y좌표가 Y 이상 Y+H 이하이면 직사각형 내부에 있다.</li>
-            <li>경계선 위도 포함이므로 부등호에 등호가 포함된다.</li>
-            <li>조건을 만족하면 즉시 카운트를 증가시키고 다음 선수로 넘어간다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 왼쪽·오른쪽 반원 내부 판별</strong>
-          <pre><code>if (Math.pow(X - x, 2) + Math.pow(Y + radius - y, 2) <= Math.pow(radius, 2)) {
-          answer++;
-          continue;
+        <li><strong>1) 색깔별 위치 그룹화</strong>
+          <pre><code>List<Integer>[] colors = new ArrayList[N + 1];
+      for (int i = 0; i <= N; i++) {
+          colors[i] = new ArrayList<>();
       }
       
-      if (Math.pow(X + W - x, 2) + Math.pow(Y + radius - y, 2) <= Math.pow(radius, 2)) {
-          answer++;
+      for (int i = 0; i < N; i++) {
+          int x = Integer.parseInt(st.nextToken());
+          int y = Integer.parseInt(st.nextToken());
+          colors[y].add(x);
       }</code></pre>
           <ul>
-            <li>왼쪽 반원의 중심 (X, Y + radius)에서 선수 (x, y)까지의 거리의 제곱이 radius² 이하이면 내부다.</li>
-            <li>오른쪽 반원의 중심 (X + W, Y + radius)에 대해 동일하게 판별한다.</li>
-            <li>제곱 형태로 비교하면 <code>sqrt()</code>를 사용하지 않아 부동소수점 오차를 줄일 수 있다.</li>
-            <li>직사각형 내부에서 이미 카운트된 선수는 <code>continue</code>로 건너뛰므로 중복 카운트가 발생하지 않는다.</li>
+            <li>색깔 번호를 인덱스로 하는 리스트 배열 <code>colors</code>를 생성한다.</li>
+            <li>각 점의 위치 x를 해당 색깔 y의 리스트에 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 각 색깔 그룹 정렬</strong>
+          <pre><code>for (int i = 0; i <= N; i++) {
+          if (colors[i].size() < 2) continue;
+          colors[i].sort(Comparator.comparing(Integer::intValue));
+      }</code></pre>
+          <ul>
+            <li>같은 색의 점이 2개 미만이면 화살표를 그릴 수 없으므로 건너뛴다.</li>
+            <li>2개 이상인 그룹만 오름차순 정렬한다. 정렬 후 인접한 원소가 각 점의 가장 가까운 같은 색 점 후보가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 각 점에서 가장 가까운 같은 색 점까지의 거리 누적</strong>
+          <pre><code>for (List<Integer> color : colors) {
+          if (color.size() < 2) continue;
+      
+          for (int i = 0; i < color.size(); i++) {
+              if (i == 0) {
+                  answer += color.get(i + 1) - color.get(i);
+              } else if (i == color.size() - 1) {
+                  answer += Math.abs(color.get(i - 1) - color.get(i));
+              } else {
+                  answer += Math.min(
+                      Math.abs(color.get(i - 1) - color.get(i)),
+                      color.get(i + 1) - color.get(i)
+                  );
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>맨 왼쪽 점(i == 0): 오른쪽 이웃만 존재하므로 <code>color.get(i+1) - color.get(i)</code>를 더한다.</li>
+            <li>맨 오른쪽 점(i == color.size() - 1): 왼쪽 이웃만 존재하므로 <code>color.get(i) - color.get(i-1)</code>을 더한다.</li>
+            <li>중간 점: 왼쪽 이웃과의 거리와 오른쪽 이웃과의 거리 중 더 작은 값을 더한다. 정렬된 배열이므로 오른쪽 이웃과의 거리는 항상 양수이지만, 일관성을 위해 <code>Math.abs()</code>를 사용했다.</li>
+            <li>예시: 같은 색의 점 위치가 [1, 5, 8]이면 1→(5-1=4), 5→min(4, 3)=3, 8→(8-5=3). 합계 = 10.</li>
           </ul>
         </li>
       
         <li><strong>4) 결과 출력</strong>
           <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>경기장 안에 있는 선수의 총 수 <code>answer</code>를 출력한다.</li>
+            <li>모든 점에서 그린 화살표 길이의 합 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -160,12 +167,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(P)</strong>: P명의 선수 각각에 대해 세 가지 판별을 수행하며, 각 판별은 O(1)이다. 전체 시간 복잡도는 O(P)이다.</li>
+            <li><strong>O(N log N)</strong>: 각 색깔 그룹을 정렬하는 비용의 합이 전체 점의 수 N에 대한 정렬 비용 O(N log N)과 같다. 이후 각 점을 한 번씩 순회하는 비용은 O(N)이므로 전체 O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 선수 좌표를 배열에 저장하지 않고 입력받는 즉시 판별하므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
+            <li><strong>O(N)</strong>: 색깔별 리스트 배열에 N개의 점 위치를 저장하므로 전체 O(N)의 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -222,14 +229,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1246 — 온라인 판매</h2>
+      <h2 class="section">문제 15828 — Router</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1246">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/15828">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260318_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -247,16 +254,16 @@
       </h3>
       
       <p>
-        <strong>온라인 판매 (백준 1246)</strong>는<br>
-        N개의 물건을 M명의 고객에게 판매할 때, <strong>총 수익을 최대화하는 판매 가격과 그 수익</strong>을 구하는 문제다.<br>
-        <strong>모든 고객에게 동일한 가격으로 판매</strong>하며, 가격 이상을 지불할 의사가 있는 고객에게만 판매된다.
-      </thinking>
+        <strong>Router (백준 15828)</strong>는<br>
+        버퍼 크기가 N인 라우터를 시뮬레이션할 때, <strong>패킷 수신·처리 명령을 순서대로 처리한 후 버퍼에 남아있는 패킷을 출력</strong>하는 문제다.<br>
+        <strong>양수는 패킷 수신, 0은 패킷 처리(앞에서 제거), -1은 시뮬레이션 종료</strong>를 의미한다.
       </p>
       
       <ul>
-        <li>판매 가격을 price로 설정하면, price 이상을 지불할 의사가 있는 고객 수만큼 판매된다.</li>
-        <li>실제 판매 수량은 재고 N과 구매 가능 고객 수 중 작은 값이다.</li>
-        <li>가능한 판매 가격은 고객들의 지불 의사 금액 중 하나로 설정하는 것이 최적이므로, 고객 배열을 정렬 후 각 값을 가격으로 시도하면 된다.</li>
+        <li>버퍼는 FIFO(선입선출) 구조이므로 큐를 사용한다.</li>
+        <li>버퍼가 가득 찬 상태에서 새 패킷이 들어오면 해당 패킷은 버려진다.</li>
+        <li>버퍼가 비어있는 상태에서 처리 명령(0)이 들어오면 아무 일도 일어나지 않는다.</li>
+        <li>시뮬레이션 종료 후 버퍼가 비어있으면 "empty"를 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -268,14 +275,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 정렬 + 그리디 (가격 후보 순회)</li>
-        <li><strong>선택 이유</strong>: 최적 판매 가격은 반드시 어떤 고객의 지불 의사 금액과 같다. 고객 배열을 오름차순 정렬하면, i번째 고객의 금액을 가격으로 설정할 때 구매 가능한 고객 수는 정확히 M - i명이다. 모든 후보 가격을 O(M)에 순회해 최대 수익을 찾을 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 큐(Queue) 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 라우터 버퍼는 먼저 들어온 패킷이 먼저 처리되는 FIFO 구조이므로 <code>ArrayDeque</code>가 가장 적합하다. 삽입(<code>addLast</code>)과 삭제(<code>pollFirst</code>)가 모두 O(1)에 처리된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>고객 배열을 오름차순 정렬한다.</li>
-            <li>i번째 고객의 금액을 판매 가격으로 설정하면, i번째 이상의 고객 M - i명이 구매 가능하다.</li>
-            <li>실제 판매 수량은 재고 N과 구매 가능 고객 수 <code>M - i</code> 중 작은 값이다.</li>
-            <li>수익 = 실제 판매 수량 × 가격을 계산해 현재 최대 수익보다 크면 갱신한다.</li>
+            <li>입력이 양수이면 버퍼 크기가 N 미만일 때만 큐의 뒤에 추가한다. 가득 찬 경우 패킷을 버린다.</li>
+            <li>입력이 0이면 큐가 비어있지 않을 때 큐의 앞에서 패킷을 제거한다.</li>
+            <li>입력이 -1이면 반복을 종료하고 큐의 현재 상태를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -289,44 +295,51 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 정렬</strong>
-          <pre><code>int[] customers = new int[M];
-      for (int i = 0; i < M; i++) {
-          customers[i] = Integer.parseInt(br.readLine());
-      }
-      Arrays.sort(customers);</code></pre>
+        <li><strong>1) 버퍼 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      Deque<Integer> queue = new ArrayDeque<>(N);</code></pre>
           <ul>
-            <li>M명의 고객 지불 의사 금액을 배열에 저장하고 오름차순 정렬한다.</li>
-            <li>정렬 후 인덱스 i에서의 고객 수는 i번째 가격 이상을 낼 의향이 있는 고객 수인 <code>M - i</code>와 바로 대응된다.</li>
+            <li>버퍼 크기 N을 읽고, 최대 N개의 패킷을 저장할 수 있는 <code>ArrayDeque</code>를 생성한다.</li>
+            <li>초기 용량을 N으로 지정해 불필요한 재할당을 방지한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 가격 후보별 수익 계산 및 최댓값 갱신</strong>
-          <pre><code>for (int i = 0; i < M; i++) {
-          int price = customers[i];
-          int count = M - i;
+        <li><strong>2) 패킷 수신 및 처리 시뮬레이션</strong>
+          <pre><code>while (true) {
+          int input = Integer.parseInt(br.readLine());
+          if (input == -1) break;
       
-          int available = Math.min(N, count);
-          int totalProfit = available * price;
-      
-          if (totalProfit > profit) {
-              profit = totalProfit;
-              money = price;
+          if (input == 0) {
+              if (!queue.isEmpty()) {
+                  queue.pollFirst();
+              }
+          } else {
+              if (queue.size() < N) {
+                  queue.addLast(input);
+              }
           }
       }</code></pre>
           <ul>
-            <li>i번째 고객의 금액을 판매 가격 <code>price</code>로 설정한다.</li>
-            <li>배열이 오름차순이므로 인덱스 i 이상의 고객 <code>M - i</code>명이 이 가격에 구매할 의향이 있다.</li>
-            <li>실제 판매 수량 <code>available = Math.min(N, count)</code>은 재고와 구매 가능 고객 수 중 작은 값이다.</li>
-            <li>총 수익 <code>totalProfit = available × price</code>가 현재 최대 수익보다 <strong>클 때만</strong> 갱신한다. <code>></code>를 사용하므로 동률인 경우 더 낮은 가격(먼저 등장한 값)이 유지된다. 동일한 수익이면 더 낮은 가격을 출력해야 하기 때문이다.</li>
-            <li>예시: customers = [1, 3, 5], N = 2이면 price=1일 때 2×1=2, price=3일 때 2×3=6, price=5일 때 1×5=5. 최대 수익은 6, 가격은 3.</li>
+            <li>입력이 -1이면 즉시 반복을 종료한다.</li>
+            <li>입력이 0이면 패킷 처리 명령이다. 큐가 비어있지 않을 때만 <code>pollFirst()</code>로 가장 먼저 들어온 패킷을 제거한다. 비어있으면 아무 동작도 하지 않는다.</li>
+            <li>양수이면 새 패킷이 들어온 것이다. <code>queue.size() < N</code>이면 버퍼에 여유가 있으므로 <code>addLast()</code>로 큐의 뒤에 추가한다. 버퍼가 가득 찬 경우(<code>queue.size() == N</code>)에는 패킷을 버린다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(money + " " + profit);</code></pre>
+          <pre><code>if (queue.isEmpty()) {
+          System.out.println("empty");
+          return;
+      }
+      
+      for (int num : queue) {
+          sb.append(num).append(" ");
+      }
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>최대 수익을 내는 판매 가격 <code>money</code>와 그 수익 <code>profit</code>을 공백으로 구분해 출력한다.</li>
+            <li>시뮬레이션 종료 후 큐가 비어있으면 "empty"를 출력한다.</li>
+            <li>큐에 패킷이 남아있으면 앞에서부터 순서대로 공백으로 구분해 출력한다.</li>
+            <li>결과를 <code>StringBuilder</code>에 누적해 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       </ul>
@@ -342,16 +355,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(M log M)</strong>: 전체 시간을 지배하는 것은 <code>Arrays.sort()</code>의 정렬 비용이다. 이후 선형 순회는 O(M)이므로 전체 O(M log M)이다.</li>
+            <li><strong>O(Q)</strong>: Q는 입력 명령의 수다. 각 명령에 대해 <code>addLast()</code>와 <code>pollFirst()</code>가 모두 O(1)이므로 전체 O(Q)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(M)</strong>: 고객 지불 의사 금액을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 버퍼에 저장되는 패킷의 수가 최대 N이므로 큐가 O(N)의 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
