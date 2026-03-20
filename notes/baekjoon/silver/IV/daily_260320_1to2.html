@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-19 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 15970 — 화살표 그리기</h2>
+      <h2 class="section">문제 1331 — 나이트 투어</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/15970">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1331">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260320_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,16 @@
       </h3>
       
       <p>
-        <strong>화살표 그리기 (백준 15970)</strong>는<br>
-        N개의 점이 각각 색깔과 위치를 가질 때, <strong>각 점에서 같은 색깔의 가장 가까운 점으로 향하는 화살표의 길이 합</strong>을 구하는 문제다.<br>
-        <strong>각 점은 반드시 같은 색의 다른 점 중 가장 가까운 점을 향해 화살표를 그려야</strong> 한다.
+        <strong>나이트 투어 (백준 1331)</strong>는<br>
+        6 × 6 체스판에서 나이트가 36칸을 모두 정확히 한 번씩 방문하고<br>
+        <strong>마지막 위치에서 시작 위치로 나이트 이동이 가능한지 검증</strong>하는 문제다.<br>
+        <strong>모든 조건을 만족하면 "Valid", 하나라도 위반하면 "Invalid"를 출력</strong>한다.
       </p>
       
       <ul>
-        <li>같은 색의 점들을 위치 기준으로 오름차순 정렬하면, 각 점에서 가장 가까운 같은 색 점은 바로 왼쪽 또는 바로 오른쪽 이웃이다.</li>
-        <li>맨 왼쪽 점은 오른쪽 이웃만, 맨 오른쪽 점은 왼쪽 이웃만 선택할 수 있다.</li>
-        <li>중간 점은 왼쪽과 오른쪽 이웃 중 더 가까운 쪽을 선택한다.</li>
+        <li>나이트의 이동은 (±1, ±2) 또는 (±2, ±1)의 8가지 방향이다.</li>
+        <li>연속된 두 위치 사이의 행 차이와 열 차이가 나이트 이동 규칙을 만족해야 한다.</li>
+        <li>이미 방문한 칸을 다시 방문하면 Invalid이며, 마지막 칸에서 시작 칸으로 나이트 이동이 불가능해도 Invalid다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +76,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 색깔별 그룹화 + 정렬 + 그리디</li>
-        <li><strong>선택 이유</strong>: 같은 색의 점들을 위치 기준으로 정렬하면, 각 점의 가장 가까운 같은 색 점은 반드시 정렬된 배열에서 인접한 원소다. 이를 이용하면 O(N log N) 정렬 후 O(N) 선형 탐색으로 전체 합을 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (이동 규칙 검증 + 방문 체크)</li>
+        <li><strong>선택 이유</strong>: 36개의 위치를 순서대로 읽으며 연속된 두 위치 간의 나이트 이동 유효성과 중복 방문 여부를 검사하면 된다. 입력이 고정 크기(36개)이므로 O(1)에 수렴하는 간단한 시뮬레이션으로 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>색깔을 인덱스로 하는 리스트 배열에 각 점의 위치를 저장한다.</li>
-            <li>각 색깔 그룹을 오름차순 정렬한다.</li>
-            <li>각 그룹에서 맨 왼쪽 점은 오른쪽 이웃과의 거리, 맨 오른쪽 점은 왼쪽 이웃과의 거리, 중간 점은 두 이웃 중 더 가까운 거리를 누적한다.</li>
+            <li>첫 번째 위치를 시작점으로 방문 표시한다.</li>
+            <li>나머지 35개의 위치를 순서대로 읽으며 이전 위치에서 현재 위치로의 이동이 나이트 규칙을 만족하는지, 이미 방문한 칸인지 검사한다.</li>
+            <li>모든 이동이 유효하면 마지막 위치에서 시작 위치로 나이트 이동이 가능한지 검사한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,63 +96,59 @@
       </p>
       
       <ul>
-        <li><strong>1) 색깔별 위치 그룹화</strong>
-          <pre><code>List<Integer>[] colors = new ArrayList[N + 1];
-      for (int i = 0; i <= N; i++) {
-          colors[i] = new ArrayList<>();
+        <li><strong>1) 시작 위치 입력 및 초기화</strong>
+          <pre><code>int startPosCol = line.charAt(0) - 'A';
+      int startPosRow = line.charAt(1) - '0' - 1;
+      
+      board[startPosRow][startPosCol] = true;</code></pre>
+          <ul>
+            <li>첫 번째 위치를 읽어 열은 <code>'A'</code>를 빼서 0~5 인덱스로, 행은 <code>'0'</code>을 빼고 1을 빼서 0~5 인덱스로 변환한다.</li>
+            <li>시작 위치를 방문 표시하고, 이후 마지막 위치에서의 복귀 검사에 사용하기 위해 저장해둔다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 연속된 위치 간 나이트 이동 검증</strong>
+          <pre><code>for (int i = 0; i < 35; i++) {
+          currPosCol = c - 'A';
+          currPosRow = r - '0' - 1;
+      
+          if ((Math.abs(prevPosRow - currPosRow) == 2 && Math.abs(prevPosCol - currPosCol) == 1
+                  || Math.abs(prevPosRow - currPosRow) == 1 && Math.abs(prevPosCol - currPosCol) == 2)
+                  && !board[currPosRow][currPosCol]) {
+      
+              board[currPosRow][currPosCol] = true;
+              prevPosCol = currPosCol;
+              prevPosRow = currPosRow;
+              continue;
+          }
+      
+          System.out.println("Invalid");
+          return;
+      }</code></pre>
+          <ul>
+            <li>나머지 35개의 위치를 순서대로 읽으며 이전 위치(<code>prev</code>)와 현재 위치(<code>curr</code>)의 행·열 차이가 나이트 이동 규칙을 만족하는지 확인한다.</li>
+            <li>행 차이가 2이고 열 차이가 1, 또는 행 차이가 1이고 열 차이가 2인 경우만 유효한 나이트 이동이다.</li>
+            <li><code>!board[currPosRow][currPosCol]</code>로 이미 방문한 칸인지 동시에 검사한다. 두 조건 중 하나라도 위반이면 즉시 "Invalid"를 출력하고 종료한다.</li>
+            <li>유효한 이동이면 방문 표시를 하고 <code>prev</code>를 현재 위치로 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 마지막 위치에서 시작 위치로의 복귀 검사</strong>
+          <pre><code>for (int k = 0; k < ROW.length; k++) {
+          int row = prevPosRow + ROW[k];
+          int col = prevPosCol + COL[k];
+      
+          if (row < 0 || row >= 6 || col < 0 || col >= 6) continue;
+          if (startPosRow == row && startPosCol == col) {
+              System.out.println("Valid");
+              return;
+          }
       }
       
-      for (int i = 0; i < N; i++) {
-          int x = Integer.parseInt(st.nextToken());
-          int y = Integer.parseInt(st.nextToken());
-          colors[y].add(x);
-      }</code></pre>
+      System.out.println("Invalid");</code></pre>
           <ul>
-            <li>색깔 번호를 인덱스로 하는 리스트 배열 <code>colors</code>를 생성한다.</li>
-            <li>각 점의 위치 x를 해당 색깔 y의 리스트에 추가한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 각 색깔 그룹 정렬</strong>
-          <pre><code>for (int i = 0; i <= N; i++) {
-          if (colors[i].size() < 2) continue;
-          colors[i].sort(Comparator.comparing(Integer::intValue));
-      }</code></pre>
-          <ul>
-            <li>같은 색의 점이 2개 미만이면 화살표를 그릴 수 없으므로 건너뛴다.</li>
-            <li>2개 이상인 그룹만 오름차순 정렬한다. 정렬 후 인접한 원소가 각 점의 가장 가까운 같은 색 점 후보가 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 각 점에서 가장 가까운 같은 색 점까지의 거리 누적</strong>
-          <pre><code>for (List<Integer> color : colors) {
-          if (color.size() < 2) continue;
-      
-          for (int i = 0; i < color.size(); i++) {
-              if (i == 0) {
-                  answer += color.get(i + 1) - color.get(i);
-              } else if (i == color.size() - 1) {
-                  answer += Math.abs(color.get(i - 1) - color.get(i));
-              } else {
-                  answer += Math.min(
-                      Math.abs(color.get(i - 1) - color.get(i)),
-                      color.get(i + 1) - color.get(i)
-                  );
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li>맨 왼쪽 점(i == 0): 오른쪽 이웃만 존재하므로 <code>color.get(i+1) - color.get(i)</code>를 더한다.</li>
-            <li>맨 오른쪽 점(i == color.size() - 1): 왼쪽 이웃만 존재하므로 <code>color.get(i) - color.get(i-1)</code>을 더한다.</li>
-            <li>중간 점: 왼쪽 이웃과의 거리와 오른쪽 이웃과의 거리 중 더 작은 값을 더한다. 정렬된 배열이므로 오른쪽 이웃과의 거리는 항상 양수이지만, 일관성을 위해 <code>Math.abs()</code>를 사용했다.</li>
-            <li>예시: 같은 색의 점 위치가 [1, 5, 8]이면 1→(5-1=4), 5→min(4, 3)=3, 8→(8-5=3). 합계 = 10.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(answer);</code></pre>
-          <ul>
-            <li>모든 점에서 그린 화살표 길이의 합 <code>answer</code>를 출력한다.</li>
+            <li>마지막 위치에서 나이트가 이동할 수 있는 8방향을 모두 시도해, 그 중 시작 위치와 일치하는 경우가 있으면 "Valid"를 출력하고 종료한다.</li>
+            <li>8방향 모두 시작 위치로 이동할 수 없으면 "Invalid"를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -167,16 +164,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 각 색깔 그룹을 정렬하는 비용의 합이 전체 점의 수 N에 대한 정렬 비용 O(N log N)과 같다. 이후 각 점을 한 번씩 순회하는 비용은 O(N)이므로 전체 O(N log N)이다.</li>
+            <li><strong>O(1)</strong>: 체스판 크기(6 × 6 = 36칸)가 고정되어 있으므로 모든 연산이 상수 횟수만큼 수행된다. 35번의 이동 검증과 최대 8번의 복귀 검사 모두 상수 시간이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 색깔별 리스트 배열에 N개의 점 위치를 저장하므로 전체 O(N)의 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 방문 여부를 저장하는 <code>boolean[6][6]</code> 배열이 고정 크기를 사용하므로 입력 크기와 무관한 상수 공간이다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -229,14 +225,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 15828 — Router</h2>
+      <h2 class="section">문제 13900 — 순서쌍의 곱의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/15828">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/13900">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260320_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -254,16 +250,15 @@
       </h3>
       
       <p>
-        <strong>Router (백준 15828)</strong>는<br>
-        버퍼 크기가 N인 라우터를 시뮬레이션할 때, <strong>패킷 수신·처리 명령을 순서대로 처리한 후 버퍼에 남아있는 패킷을 출력</strong>하는 문제다.<br>
-        <strong>양수는 패킷 수신, 0은 패킷 처리(앞에서 제거), -1은 시뮬레이션 종료</strong>를 의미한다.
+        <strong>순서쌍의 곱의 합 (백준 13900)</strong>는<br>
+        N개의 수가 주어질 때, <strong>i < j를 만족하는 모든 순서쌍 (i, j)에 대해 A[i] × A[j]의 합</strong>을 구하는 문제다.<br>
+        <strong>N이 최대 100,000</strong>이므로 브루트포스 O(N²) 대신 수학적 관계를 이용한 O(N) 풀이가 필요하다.
       </p>
       
       <ul>
-        <li>버퍼는 FIFO(선입선출) 구조이므로 큐를 사용한다.</li>
-        <li>버퍼가 가득 찬 상태에서 새 패킷이 들어오면 해당 패킷은 버려진다.</li>
-        <li>버퍼가 비어있는 상태에서 처리 명령(0)이 들어오면 아무 일도 일어나지 않는다.</li>
-        <li>시뮬레이션 종료 후 버퍼가 비어있으면 "empty"를 출력한다.</li>
+        <li>모든 순서쌍을 직접 구하면 최대 약 50억 번의 연산이 필요해 시간 초과가 발생한다.</li>
+        <li>i번째 원소 A[i]에 대해, A[i]보다 뒤에 있는 모든 원소의 합을 곱하면 A[i]가 관여하는 모든 쌍의 곱의 합을 O(1)에 구할 수 있다.</li>
+        <li>수의 크기가 최대 100,000이고 N이 최대 100,000이므로 곱의 합이 <code>long</code> 범위를 초과하지 않는지 확인해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -275,13 +270,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 큐(Queue) 시뮬레이션</li>
-        <li><strong>선택 이유</strong>: 라우터 버퍼는 먼저 들어온 패킷이 먼저 처리되는 FIFO 구조이므로 <code>ArrayDeque</code>가 가장 적합하다. 삽입(<code>addLast</code>)과 삭제(<code>pollFirst</code>)가 모두 O(1)에 처리된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 수학적 최적화 (누적 합 활용)</li>
+        <li><strong>선택 이유</strong>: A[i] × (A[i+1] + A[i+2] + ... + A[N-1])을 모든 i에 대해 계산하면 모든 순서쌍의 곱의 합과 동일하다. 전체 합에서 A[i]를 제거해 나가며 남은 합을 곱하면 O(N)에 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>입력이 양수이면 버퍼 크기가 N 미만일 때만 큐의 뒤에 추가한다. 가득 찬 경우 패킷을 버린다.</li>
-            <li>입력이 0이면 큐가 비어있지 않을 때 큐의 앞에서 패킷을 제거한다.</li>
-            <li>입력이 -1이면 반복을 종료하고 큐의 현재 상태를 출력한다.</li>
+            <li>먼저 모든 원소의 합 <code>totalSum</code>을 구한다.</li>
+            <li>앞에서부터 순회하며 현재 원소 A[i]를 <code>totalSum</code>에서 빼면, <code>totalSum</code>은 A[i+1] ~ A[N-1]의 합이 된다.</li>
+            <li>이 값에 A[i]를 곱해 <code>answer</code>에 누적한다. 이것이 A[i]가 왼쪽에 오는 모든 쌍의 곱의 합이다.</li>
           </ul>
         </li>
       </ul>
@@ -295,51 +290,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 버퍼 초기화</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
-      Deque<Integer> queue = new ArrayDeque<>(N);</code></pre>
+        <li><strong>1) 입력 및 전체 합 계산</strong>
+          <pre><code>long totalSum = 0;
+      int[] numbers = new int[N];
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          numbers[i] = num;
+          totalSum += num;
+      }</code></pre>
           <ul>
-            <li>버퍼 크기 N을 읽고, 최대 N개의 패킷을 저장할 수 있는 <code>ArrayDeque</code>를 생성한다.</li>
-            <li>초기 용량을 N으로 지정해 불필요한 재할당을 방지한다.</li>
+            <li>N개의 수를 배열에 저장하면서 전체 합 <code>totalSum</code>을 동시에 계산한다.</li>
+            <li><code>totalSum</code>은 이후 각 원소를 제거해 나가며 오른쪽 부분 합을 유지하는 데 사용된다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 패킷 수신 및 처리 시뮬레이션</strong>
-          <pre><code>while (true) {
-          int input = Integer.parseInt(br.readLine());
-          if (input == -1) break;
-      
-          if (input == 0) {
-              if (!queue.isEmpty()) {
-                  queue.pollFirst();
-              }
-          } else {
-              if (queue.size() < N) {
-                  queue.addLast(input);
-              }
-          }
+        <li><strong>2) 순서쌍 곱의 합 계산</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          totalSum -= numbers[i];
+          answer += totalSum * numbers[i];
       }</code></pre>
           <ul>
-            <li>입력이 -1이면 즉시 반복을 종료한다.</li>
-            <li>입력이 0이면 패킷 처리 명령이다. 큐가 비어있지 않을 때만 <code>pollFirst()</code>로 가장 먼저 들어온 패킷을 제거한다. 비어있으면 아무 동작도 하지 않는다.</li>
-            <li>양수이면 새 패킷이 들어온 것이다. <code>queue.size() < N</code>이면 버퍼에 여유가 있으므로 <code>addLast()</code>로 큐의 뒤에 추가한다. 버퍼가 가득 찬 경우(<code>queue.size() == N</code>)에는 패킷을 버린다.</li>
+            <li>i번째 원소를 <code>totalSum</code>에서 먼저 빼면, <code>totalSum</code>은 A[i+1] + A[i+2] + ... + A[N-1]이 된다.</li>
+            <li><code>totalSum × numbers[i]</code>는 A[i]가 왼쪽 원소가 되는 모든 쌍 (A[i], A[j]) (j > i)의 곱의 합과 동일하다.</li>
+            <li>예시: numbers = [1, 2, 3]이면 i=0에서 totalSum=5, answer += 1×5=5. i=1에서 totalSum=3, answer += 2×3=6. i=2에서 totalSum=0, answer += 3×0=0. 최종 answer = 11. (1×2 + 1×3 + 2×3 = 2 + 3 + 6 = 11과 일치)</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>if (queue.isEmpty()) {
-          System.out.println("empty");
-          return;
-      }
-      
-      for (int num : queue) {
-          sb.append(num).append(" ");
-      }
-      System.out.println(sb);</code></pre>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>시뮬레이션 종료 후 큐가 비어있으면 "empty"를 출력한다.</li>
-            <li>큐에 패킷이 남아있으면 앞에서부터 순서대로 공백으로 구분해 출력한다.</li>
-            <li>결과를 <code>StringBuilder</code>에 누적해 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
+            <li>누적된 모든 순서쌍의 곱의 합 <code>answer</code>를 출력한다. 값이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
           </ul>
         </li>
       </ul>
@@ -355,16 +337,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(Q)</strong>: Q는 입력 명령의 수다. 각 명령에 대해 <code>addLast()</code>와 <code>pollFirst()</code>가 모두 O(1)이므로 전체 O(Q)이다.</li>
+            <li><strong>O(N)</strong>: 입력을 읽으며 전체 합을 계산하는 O(N)과, 순서쌍 곱의 합을 계산하는 O(N)으로 전체 O(N)이다. 브루트포스 O(N²) 대비 획기적으로 개선된 시간 복잡도다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 버퍼에 저장되는 패킷의 수가 최대 N이므로 큐가 O(N)의 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: N개의 원소를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
