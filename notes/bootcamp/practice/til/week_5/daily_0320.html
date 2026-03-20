@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 64일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 66일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -91,28 +91,6 @@
       color: #0a3622;
       display: inline;
     }
-    .step-badge {
-      display: inline-block;
-      background-color: #1565c0;
-      color: #fff;
-      font-weight: 800;
-      font-size: 0.85em;
-      padding: 2px 10px;
-      border-radius: 12px;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-    .billing-badge {
-      display: inline-block;
-      background-color: #c62828;
-      color: #fff;
-      font-size: 0.78em;
-      font-weight: 700;
-      padding: 1px 7px;
-      border-radius: 8px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
   </style>
 </head>
 <body>
@@ -131,235 +109,369 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 64일차 TIL — CD 파이프라인 · CDN · CloudFront · AWS 리소스 삭제 순서</h1>
-      <p class="muted">작성일 2026-03-18 · 분류: 부트캠프, TIL, AWS, CD, CloudFront, CDN, 인프라 정리</p>
+      <h1>내일배움캠프 Spring 백엔드 66일차 TIL — MDC · 동적 마스킹 · JWT 방어 전략 · JWS vs JWE</h1>
+      <p class="muted">작성일 2026-03-20 · 분류: 부트캠프, TIL, Spring Boot, MDC, AOP, JWT, Redis, 보안</p>
 
-      <h2 class="section">64일차 개요</h2>
+      <h2 class="section">66일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>CD(Continuous Deployment)</strong>의 개념과 전체 파이프라인 흐름을 이해한다.</li>
-        <li>ECR → Launch Template → Instance Refresh → ALB 헬스체크로 이어지는 <strong>무중단 배포 과정</strong>을 정리한다.</li>
-        <li><strong>CDN</strong>의 개념과 CloudFront가 S3보다 빠른 이유를 이해한다.</li>
-        <li>AWS 리소스 삭제 시 <strong>과금 순서와 의존 관계</strong>를 파악하고 안전하게 정리하는 방법을 익힌다.</li>
+        <li><strong>MDC(Mapped Diagnostic Context)</strong>의 동작 원리와 스레드 풀 환경에서 주의해야 할 점을 이해한다.</li>
+        <li>AOP 로깅에 MDC를 결합해 요청별 추적 ID를 자동으로 로그에 붙이는 방법을 익힌다.</li>
+        <li><strong>@Masking 동적 마스킹</strong>으로 타입별(이름, 이메일, 비밀번호) 마스킹 전략을 구현한다.</li>
+        <li>Java 13 <strong>switch 표현식과 yield</strong>의 의미를 정확히 이해한다.</li>
+        <li><strong>JWT 단점 방어 3단계</strong>(수명 단축, Redis 블랙리스트, RTR)를 정리한다.</li>
+        <li><strong>JWS와 JWE</strong>의 차이와 실무에서 JWS를 사용하는 이유를 파악한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. CD (Continuous Deployment)</h2>
+      <h2 class="section">1. MDC (Mapped Diagnostic Context)</h2>
 
       <p>
-        <strong>지속적 배포(CD)</strong>는 통합된 코드를 지속적으로 릴리스하여 운영 환경에 자동으로 배포하는 것이다.
-        CI에서 빌드·테스트가 통과되면 CD가 이어받아 새 버전을 실제 서버에 자동으로 반영한다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">CD 파이프라인 전체 흐름</span>
-        ECR에 새 Docker Image가 push되면, Launch Template을 업데이트하고 Instance Refresh로 배포한 뒤
-        ALB 헬스체크로 정상 동작을 검증하는 흐름으로 진행된다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          CD 파이프라인 4단계
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:8%; text-align:center;">단계</th>
-            <th style="width:30%;">작업</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><strong>Launch Template 새 버전 생성</strong></td>
-            <td>User Data의 <code>IMAGE_TAG</code>를 새 커밋 SHA로 업데이트한다. 기존 버전은 그대로 유지된다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td><strong>Instance Refresh 시작</strong></td>
-            <td>ASG에 새 Launch Template 버전으로 EC2 교체를 요청한다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td><strong>자동 Rolling Update</strong></td>
-            <td>새 EC2 생성 → ALB 헬스체크 통과 → 트래픽 전환 → 기존 EC2 종료 순서로 순차 교체된다. 서비스 중단이 없다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>4</strong></td>
-            <td><strong>완료 확인</strong></td>
-            <td>Instance Refresh가 끝날 때까지 상태를 반복 조회한다. 배포 완료가 확인되면 파이프라인이 종료된다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="concept-box">
-        <span class="box-title">커밋 SHA를 IMAGE_TAG로 사용하는 이유</span>
-        커밋마다 고유한 SHA 값을 이미지 태그로 사용하면 <strong>어떤 코드가 현재 운영 중인지 즉시 추적</strong>할 수 있다.
-        장애 발생 시 특정 커밋 시점의 이미지로 롤백하는 것도 가능해진다.
-        <code>latest</code>만 사용하면 어떤 버전이 배포됐는지 알 수 없어 운영 환경 추적이 불가능하다.
-      </div>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. CDN과 CloudFront</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          CDN (Content Delivery Network)
-        </span>
-      </h3>
-
-      <p>
-        전 세계에 분산된 서버에 콘텐츠를 미리 복사해두고, <strong>사용자와 가장 가까운 서버에서 응답</strong>하는 기술이다.
-        이미지처럼 누가 요청해도 내용이 동일한 정적 파일은 원본 서버까지 요청이 갈 필요가 없다.
-        사용자 근처의 캐시 서버가 대신 응답하므로 응답 속도가 크게 빨라지고 원본 서버의 부하도 줄어든다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AWS CloudFront
-        </span>
-      </h3>
-
-      <p>
-        AWS가 제공하는 CDN 서비스다. 전 세계 750개 이상 지역에 캐시 서버(엣지 로케이션)를 두고 있다.
-        S3에 파일이 저장되어 있더라도 CloudFront를 앞에 두면 동일 지역에서도 <strong>S3 직접 접근보다 훨씬 빠르고 비용 효율적</strong>이다.
+        수많은 요청이 동시에 들어오는 서버 환경에서, 특정 사용자의 요청이 어떤 로그들을 남겼는지 한눈에 추적하기 위해 사용한다.
+        각 스레드마다 별도의 저장 공간을 만들어 <code>traceId</code>, <code>userId</code> 같은 정보를 저장해두면,
+        그 스레드가 실행되는 동안 찍히는 <strong>모든 로그에 해당 정보가 자동으로 따라붙는다.</strong>
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:25%;">구분</th>
-            <th>S3 직접 접근</th>
-            <th>CloudFront 경유</th>
+            <th style="width:20%;">단계</th>
+            <th>동작</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>응답 속도</strong></td>
-            <td>원본 서버(특정 리전)까지 왕복</td>
-            <td>가장 가까운 엣지 로케이션에서 응답</td>
+            <td><strong>1. 정보 저장</strong></td>
+            <td>요청이 들어올 때 <code>MDC.put("traceId", "TX1234")</code>로 저장한다.</td>
           </tr>
           <tr>
-            <td><strong>비용</strong></td>
-            <td>S3 데이터 전송 비용 발생</td>
-            <td>CloudFront 데이터 전송 단가가 더 저렴</td>
+            <td><strong>2. 로그 출력</strong></td>
+            <td>logback 설정만 해두면 이후 모든 로그에 <code>[TX1234]</code>가 자동으로 붙는다.</td>
           </tr>
           <tr>
-            <td><strong>캐싱</strong></td>
-            <td>없음 — 매번 원본에서 가져옴</td>
-            <td>엣지에 캐시 — 동일 콘텐츠는 재사용</td>
-          </tr>
-          <tr>
-            <td><strong>HTTPS</strong></td>
-            <td>별도 설정 필요</td>
-            <td>ACM 인증서 연동으로 간단 적용</td>
+            <td><strong>3. 정보 삭제</strong></td>
+            <td>요청이 끝나면 반드시 <code>MDC.clear()</code> 또는 <code>MDC.remove("traceId")</code>로 비워야 한다.</td>
           </tr>
         </tbody>
       </table>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. AWS 리소스 삭제 순서</h2>
-
-      <p>
-        AWS 리소스는 <strong>의존 관계</strong>가 있어 순서를 지키지 않으면 삭제가 실패한다.
-        과금이 발생하는 리소스를 먼저 삭제하고, 다른 리소스에 의존하지 않는 리소스를 나중에 삭제한다.
-      </p>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 삭제 전 반드시 확인</span>
-        NAT Gateway가 남아있으면 VPC 삭제가 실패한다. 2단계에서 NAT Gateway 상태가 <code>Deleted</code>로 바뀐 것을 확인한 후 진행해야 한다.
-        RDS 삭제 시 "Create final snapshot" 체크를 해제해야 스냅샷 비용이 추가로 발생하지 않는다.
+        <span class="box-title">⚠️ 스레드 풀 환경에서 MDC.remove()가 필수인 이유</span>
+        톰캣(Tomcat)은 성능을 위해 스레드를 매번 새로 만들지 않고 <strong>스레드 풀(Thread Pool)</strong>에서 꺼내 재사용한다.
+        요청이 끝난 후 <code>MDC.remove()</code>를 호출하지 않으면, 같은 스레드를 재사용하는 <strong>다른 사용자의 요청에 이전 사용자의 traceId가 그대로 찍힌다.</strong>
+        반드시 <code>finally</code> 블록에서 제거해야 예외가 발생해도 항상 정리가 보장된다.
       </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          단계별 삭제 순서
+          AOP + MDC 통합 로깅
         </span>
       </h3>
+
+      <p>
+        AOP의 <code>@Around</code>에 MDC를 결합하면 컨트롤러 코드를 건드리지 않고도
+        모든 요청에 고유한 추적 ID를 자동으로 붙일 수 있다.
+        <code>MultipartFile</code>, <code>HttpServletRequest</code>처럼 로깅에 부적합한 객체는
+        <code>isLoggable()</code>로 필터링해서 제외한다.
+      </p>
+
+      <pre><code class="language-java">@Around("execution(* com.example.instagramclone.controller.rest.*.*(..))")
+public Object logApi(ProceedingJoinPoint joinPoint) throws Throwable {
+
+    // UUID 앞 8자리를 traceId로 사용 — 요청마다 고유한 값
+    String traceId = UUID.randomUUID().toString().substring(0, 8);
+    MDC.put("traceId", traceId);
+
+    try {
+        String className  = joinPoint.getTarget().getClass().getSimpleName();
+        String methodName = joinPoint.getSignature().getName();
+
+        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
+        String[]        parameterNames = signature.getParameterNames();
+        Object[]        args           = joinPoint.getArgs();
+
+        // MultipartFile, HttpServletRequest 등 로깅 부적합 객체 필터링
+        List&lt;String&gt; filteredParamNames = new ArrayList&lt;&gt;();
+        List&lt;Object&gt; filteredArgs       = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; args.length; i++) {
+            if (!isLoggable(args[i])) continue;
+            filteredParamNames.add(parameterNames != null ? parameterNames[i] : "arg" + i);
+            filteredArgs.add(args[i]);
+        }
+
+        String paramsString = LogMaskingUtils.buildMaskedParamsString(
+                filteredParamNames.toArray(new String[0]),
+                filteredArgs.toArray()
+        );
+
+        log.info("[API 요청] {} / {} | 파라미터: [{}]", className, methodName, paramsString);
+
+        long startTime = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long executionTime = System.currentTimeMillis() - startTime;
+
+        log.info("[API 응답] {} / {} (수행시간: {}ms)", className, methodName, executionTime);
+        return result;
+
+    } finally {
+        // 스레드 풀 재사용 시 이전 요청 데이터 오염 방지 — finally 블록 필수
+        MDC.remove("traceId");
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 동적 마스킹 — @Masking(type = MaskingType.XXX)</h2>
+
+      <p>
+        이전에 구현한 <code>@Masking</code>은 모든 필드를 <code>******</code>로 치환하는 단순한 방식이었다.
+        동적 마스킹은 <code>@Masking</code> 어노테이션에 <strong>타입(type) 속성을 추가</strong>하여
+        이름, 이메일, 비밀번호 각각에 맞는 마스킹 전략을 다르게 적용한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          MaskingType enum + @Masking 어노테이션
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 마스킹 전략 종류
+public enum MaskingType {
+    NAME,     // 홍길동 → 홍*동
+    EMAIL,    // hong@example.com → hon***@example.com
+    PASSWORD  // 무조건 ******
+}
+
+// 수정 포인트: 새 마스킹 전략이 필요하면 MaskingType에 추가하고 maskValueByType()에 case를 추가한다.
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Masking {
+    MaskingType type() default MaskingType.PASSWORD; // 기본값은 PASSWORD
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          타입별 마스킹 로직
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// applyMaskingToObject() 내부 — 기존 field.isAnnotationPresent(Masking.class) 조건 대체
+Masking masking = field.getAnnotation(Masking.class); // 어노테이션 객체를 직접 가져온다
+
+if (masking != null && value != null) {
+    // type 속성을 읽어 동적으로 마스킹 전략 적용
+    String maskedValue = maskValueByType(value.toString(), masking.type());
+    fieldStrings.add(field.getName() + "='" + maskedValue + "'");
+} else {
+    fieldStrings.add(field.getName() + "=" + value);
+}
+
+// 타입별 마스킹 비즈니스 로직
+private static String maskValueByType(String value, MaskingType type) {
+    return switch (type) {
+        case PASSWORD -> "******";
+        case EMAIL -> {
+            int atIndex = value.indexOf('@');
+            // 이메일 형식이 아니거나 @ 앞자리가 너무 짧으면 통째로 마스킹
+            if (atIndex &lt;= 3) yield "***" + value.substring(atIndex);
+            // 앞 3글자 + *** + @도메인
+            yield value.substring(0, 3) + "***" + value.substring(atIndex);
+        }
+        case NAME -> {
+            if (value.length() &lt;= 1) yield "*";
+            if (value.length() == 2)  yield value.charAt(0) + "*";
+            // 홍길동 → 홍*동 / 남궁민수 → 남**수
+            yield value.charAt(0) + "*".repeat(value.length() - 2) + value.charAt(value.length() - 1);
+        }
+    };
+}</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">타입</th>
+            <th style="width:30%;">원본 예시</th>
+            <th>마스킹 결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PASSWORD</strong></td>
+            <td><code>myP@ssw0rd</code></td>
+            <td><code>******</code></td>
+          </tr>
+          <tr>
+            <td><strong>EMAIL</strong></td>
+            <td><code>hong@example.com</code></td>
+            <td><code>hon***@example.com</code></td>
+          </tr>
+          <tr>
+            <td><strong>NAME</strong> (3글자)</td>
+            <td><code>홍길동</code></td>
+            <td><code>홍*동</code></td>
+          </tr>
+          <tr>
+            <td><strong>NAME</strong> (4글자)</td>
+            <td><code>남궁민수</code></td>
+            <td><code>남**수</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          DTO에 적용 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Builder
+public record SignUpRequest(
+        @NotBlank(message = "사용자 이름은 필수입니다.")
+        @Pattern(regexp = "^[a-z0-9._]{4,20}$", message = "...")
+        @Masking(type = MaskingType.NAME)   // 로그에서 이름 형식으로 마스킹
+        String username,
+
+        @NotBlank(message = "비밀번호는 필수입니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$", message = "...")
+        @Masking                            // type 생략 시 기본값 PASSWORD → ******
+        String password,
+
+        @NotBlank(message = "이메일 또는 전화번호는 필수입니다.")
+        @Masking(type = MaskingType.EMAIL)  // 로그에서 이메일 형식으로 마스킹
+        String emailOrPhone,
+
+        @NotBlank(message = "이름은 필수입니다.")
+        @Masking(type = MaskingType.NAME)
+        String name
+) {
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          switch 표현식과 yield (Java 13+)
+        </span>
+      </h3>
+
+      <div class="concept-box">
+        <span class="box-title">yield vs return의 차이</span>
+        <strong>return</strong>을 만나면 메서드 전체가 즉시 종료된다.<br>
+        <strong>yield</strong>를 만나면 switch 블록의 결과값만 반환하고, 메서드는 계속 실행된다.<br><br>
+        즉, switch 표현식 전체를 하나의 값으로 평가할 때 중괄호 블록 안에서 값을 돌려보내는 키워드가 <code>yield</code>다.
+      </div>
+
+      <pre><code class="language-java">// 한 줄이면 yield 생략 가능 (화살표 오른쪽 값이 자동 반환)
+String result = switch (mode) {
+    case "FAST"   -> "빠름";
+    case "DETAIL" -> {
+        System.out.println("상세 모드 가동");
+        yield "상세"; // 중괄호 안에서는 yield 필수
+    }
+    default -> "기본";
+};</code></pre>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. JWT 단점 방어 전략 3단계</h2>
+
+      <p>
+        JWT는 한 번 발급되면 서버에서 무효화하기 어렵다는 근본적인 한계가 있다.
+        탈취된 토큰도 만료되기 전까지는 유효하기 때문에, 아래 세 단계를 조합해 방어한다.
+      </p>
 
       <table>
         <thead>
           <tr>
             <th style="width:12%; text-align:center;">단계</th>
-            <th style="width:25%;">삭제 대상</th>
-            <th>경로 및 주의사항</th>
+            <th style="width:30%;">방어 방법</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><strong>ASG · ALB</strong></td>
-            <td>ASG 삭제 시 EC2가 자동 종료된다. EC2가 <code>terminated</code> 상태인지 확인 후 ALB를 삭제한다.</td>
+            <td style="text-align:center;"><strong>1단계</strong></td>
+            <td><strong>Access Token 수명 단축</strong></td>
+            <td>Access Token의 유효기간을 짧게(5~15분) 설정한다. 탈취되더라도 피해 지속 시간을 최소화한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td><strong>NAT Gateway</strong></td>
-            <td>삭제 완료까지 수 분 소요된다. 상태가 <code>Deleted</code>로 바뀔 때까지 기다려야 한다. 연결된 Elastic IP는 자동 해제된다.</td>
+            <td style="text-align:center;"><strong>2단계</strong></td>
+            <td><strong>Redis 블랙리스트</strong></td>
+            <td>로그아웃 시 해당 Access Token을 Redis에 블랙리스트로 등록한다. Spring Security 필터가 서명 검증과 함께 Redis 블랙리스트 여부도 확인한다. TTL을 토큰의 남은 유효기간으로 설정해 Redis 메모리를 자동으로 정리한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td><strong>RDS</strong></td>
-            <td>"Create final snapshot" 체크 해제 → "I acknowledge" 체크 후 삭제한다. 삭제 완료까지 수 분 소요된다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>4</strong></td>
-            <td><strong>Target Group · Launch Template · Security Group (3개)</strong></td>
-            <td>ALB SG, EC2 SG, RDS 자동 생성 SG를 각각 삭제한다. Security Group은 사용 중인 리소스가 없어야 삭제 가능하다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>5</strong></td>
-            <td><strong>Route 53 레코드 · ACM 인증서 · Hosted Zone · 도메인 자동갱신 비활성화</strong></td>
-            <td>레코드를 모두 삭제한 후 Hosted Zone을 삭제한다. 도메인 자동갱신도 반드시 비활성화한다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>6</strong></td>
-            <td><strong>S3 버킷 · ECR 리포지토리</strong></td>
-            <td>S3는 버킷 안 파일을 먼저 비운(Empty) 후 삭제한다. 파일이 남아있으면 버킷 삭제가 불가능하다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>7</strong></td>
-            <td><strong>IAM Role · User · Policy · OIDC Provider · Parameter Store</strong></td>
-            <td>OIDC Provider는 IAM → Identity providers → <code>token.actions.githubusercontent.com</code>에서 삭제한다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>8</strong></td>
-            <td><strong>VPC</strong></td>
-            <td>VPC 삭제 시 서브넷, 라우트 테이블, 인터넷 게이트웨이가 함께 삭제된다. NAT Gateway가 남아있으면 실패한다.</td>
+            <td style="text-align:center;"><strong>3단계</strong></td>
+            <td><strong>RTR (Refresh Token Rotation)</strong></td>
+            <td>Access Token 재발급 요청 시 Refresh Token도 <strong>무조건 새것으로 교체</strong>하고 기존 토큰은 폐기한다. Refresh Token이 탈취됐더라도 한 번 사용되는 순간 무효화되어 재사용이 불가능하다.</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="success-box">
-        <span class="box-title">삭제 원칙 — 과금 리소스 우선</span>
-        <strong>시간당 과금이 발생하는 리소스(ASG·ALB·NAT Gateway·RDS)를 가장 먼저 삭제</strong>해야 불필요한 비용이 발생하지 않는다.
-        의존 관계(NAT Gateway → VPC, 파일 → S3 버킷)를 지키지 않으면 삭제가 실패하므로 반드시 순서를 따른다.
+      <div class="concept-box">
+        <span class="box-title">Redis 블랙리스트가 효율적인 이유</span>
+        Redis는 메모리 기반 인메모리 DB이므로 블랙리스트 조회가 매우 빠르다.
+        토큰의 <strong>남은 유효기간을 TTL로 설정</strong>하면, 토큰이 원래 만료될 시점에 Redis에서도 자동으로 삭제된다.
+        만료된 토큰은 애초에 더 이상 쓸 수 없으므로 블랙리스트에 남겨둘 이유가 없다. 메모리 낭비 없이 정확하게 관리된다.
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. JWT 규격 — JWS vs JWE</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%;">규격</th>
+            <th style="width:30%;">방식</th>
+            <th style="width:25%;">보장하는 것</th>
+            <th>내용 노출 여부</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>JWS</strong><br>(JSON Web Signature)</td>
+            <td>서명(Signature)으로 무결성 검증</td>
+            <td>변조되지 않았음(무결성)</td>
+            <td>페이로드 내용이 Base64로 인코딩만 됨 — <strong>누구나 디코딩해서 읽을 수 있음</strong></td>
+          </tr>
+          <tr>
+            <td><strong>JWE</strong><br>(JSON Web Encryption)</td>
+            <td>강력한 암호화 알고리즘으로 페이로드 암호화</td>
+            <td>무결성 + 기밀성</td>
+            <td>비밀키가 없으면 내용을 절대 열어볼 수 없음</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">실무에서 JWS를 사용하는 이유</span>
+        JWE는 요청마다 무거운 암호화·복호화 연산을 수행해야 한다.
+        수많은 사용자가 짧은 시간에 수십 개의 API 요청을 보내는 환경에서 매번 JWE를 복호화하면 <strong>심각한 성능 저하</strong>가 발생한다.<br><br>
+        대부분의 JWT에는 <code>userId</code>, 권한, 만료 시각처럼 공개돼도 크게 문제없는 정보만 담는다.
+        이 경우 기밀성보다 <strong>변조 불가능함(무결성)</strong>이 더 중요하므로,
+        성능이 뛰어난 JWS 방식을 사용하는 것이다.
+        JWT 페이로드에 비밀번호, 개인정보 같은 민감 데이터를 담지 않는 것이 전제 조건이다.
       </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        CD 파이프라인의 핵심은 <strong>사람이 개입하지 않아도 새 코드가 안전하게 운영 서버에 반영</strong>된다는 것이다.
-        커밋 SHA를 이미지 태그로 사용하고, Launch Template을 버전 관리하며, Instance Refresh로 무중단 롤링 업데이트를 진행하는 구조는 배포 이력을 추적하면서도 서비스 중단 없이 새 버전을 배포하는 가장 안정적인 방식이다.
-        ALB 헬스체크가 새 인스턴스의 정상 여부를 검증한 후에만 트래픽이 전환되므로 배포 중 장애 가능성이 크게 줄어든다.
+        MDC는 멀티스레드 환경에서 로그 추적을 가능하게 하는 핵심 도구다.
+        각 요청에 고유한 <code>traceId</code>를 부여하면 수백 개의 동시 요청 속에서도 특정 요청의 로그 흐름을 한눈에 따라갈 수 있다.
+        단, 스레드 풀 환경에서 <code>finally</code> 블록의 <code>MDC.remove()</code>를 빠뜨리는 것은 데이터 오염으로 이어지므로 절대 놓치면 안 된다.
       </p>
 
       <p>
-        CloudFront는 단순히 빠른 CDN이 아니라 S3의 퍼블릭 접근을 막으면서 CloudFront를 통해서만 파일을 제공하는 구조로 보안도 함께 강화할 수 있다.
-        정적 파일(이미지, JS, CSS)을 CloudFront로 제공하면 원본 서버 부하를 줄이고 전 세계 사용자에게 빠른 응답을 줄 수 있다.
-        S3 + CloudFront 조합은 Presigned URL 방식과 함께 파일 제공의 표준 패턴으로 자리잡고 있다.
+        동적 마스킹은 <code>@Masking</code>에 <code>type</code> 속성 하나를 추가한 것처럼 보이지만,
+        필드에 선언하는 것만으로 마스킹 전략이 자동으로 적용되어 코드 가독성과 보안이 동시에 향상된다.
+        <code>MaskingType</code>에 새 전략을 추가하고 <code>maskValueByType()</code>에 <code>case</code>만 추가하면
+        기존 코드를 건드리지 않고 확장할 수 있다는 점에서 개방-폐쇄 원칙과도 잘 맞는 설계다.
       </p>
 
       <p>
-        AWS 리소스 삭제 순서는 단순히 절차의 문제가 아니라 <strong>불필요한 비용 방지와 의존 관계 오류 예방</strong>을 위한 것이다.
-        시간당 과금이 발생하는 ASG·ALB·NAT Gateway·RDS를 먼저 삭제하고, 의존 관계를 역순으로 해제하며 마지막에 VPC를 삭제하는 흐름을 기억해두면 실습 후 클린업 과정에서 실수를 방지할 수 있다.
-        도메인 자동갱신 비활성화처럼 놓치기 쉬운 항목도 반드시 체크해야 의도치 않은 과금이 생기지 않는다.
+        JWT 보안은 단일 방어로는 부족하다.
+        수명 단축으로 피해 범위를 제한하고, Redis 블랙리스트로 즉각적인 무효화를 지원하며, RTR로 Refresh Token 탈취 공격까지 차단하는 다층 방어가 필요하다.
+        JWS와 JWE의 차이도 단순한 이론이 아니라 성능과 보안의 트레이드오프를 이해하는 것이다.
+        JWT 페이로드에 민감 데이터를 담지 않는다는 원칙을 지키는 한, 성능이 뛰어난 JWS로 충분하다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
