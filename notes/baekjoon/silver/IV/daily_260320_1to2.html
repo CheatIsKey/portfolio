@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-19 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 15970 — 화살표 그리기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/15970">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>화살표 그리기 (백준 15970)</strong>는<br>
+        N개의 점이 각각 색깔과 위치를 가질 때, <strong>각 점에서 같은 색깔의 가장 가까운 점으로 향하는 화살표의 길이 합</strong>을 구하는 문제다.<br>
+        <strong>각 점은 반드시 같은 색의 다른 점 중 가장 가까운 점을 향해 화살표를 그려야</strong> 한다.
+      </p>
+      
+      <ul>
+        <li>같은 색의 점들을 위치 기준으로 오름차순 정렬하면, 각 점에서 가장 가까운 같은 색 점은 바로 왼쪽 또는 바로 오른쪽 이웃이다.</li>
+        <li>맨 왼쪽 점은 오른쪽 이웃만, 맨 오른쪽 점은 왼쪽 이웃만 선택할 수 있다.</li>
+        <li>중간 점은 왼쪽과 오른쪽 이웃 중 더 가까운 쪽을 선택한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 색깔별 그룹화 + 정렬 + 그리디</li>
+        <li><strong>선택 이유</strong>: 같은 색의 점들을 위치 기준으로 정렬하면, 각 점의 가장 가까운 같은 색 점은 반드시 정렬된 배열에서 인접한 원소다. 이를 이용하면 O(N log N) 정렬 후 O(N) 선형 탐색으로 전체 합을 구할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>색깔을 인덱스로 하는 리스트 배열에 각 점의 위치를 저장한다.</li>
+            <li>각 색깔 그룹을 오름차순 정렬한다.</li>
+            <li>각 그룹에서 맨 왼쪽 점은 오른쪽 이웃과의 거리, 맨 오른쪽 점은 왼쪽 이웃과의 거리, 중간 점은 두 이웃 중 더 가까운 거리를 누적한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 색깔별 위치 그룹화</strong>
+          <pre><code>List<Integer>[] colors = new ArrayList[N + 1];
+      for (int i = 0; i <= N; i++) {
+          colors[i] = new ArrayList<>();
+      }
+      
+      for (int i = 0; i < N; i++) {
+          int x = Integer.parseInt(st.nextToken());
+          int y = Integer.parseInt(st.nextToken());
+          colors[y].add(x);
+      }</code></pre>
+          <ul>
+            <li>색깔 번호를 인덱스로 하는 리스트 배열 <code>colors</code>를 생성한다.</li>
+            <li>각 점의 위치 x를 해당 색깔 y의 리스트에 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 각 색깔 그룹 정렬</strong>
+          <pre><code>for (int i = 0; i <= N; i++) {
+          if (colors[i].size() < 2) continue;
+          colors[i].sort(Comparator.comparing(Integer::intValue));
+      }</code></pre>
+          <ul>
+            <li>같은 색의 점이 2개 미만이면 화살표를 그릴 수 없으므로 건너뛴다.</li>
+            <li>2개 이상인 그룹만 오름차순 정렬한다. 정렬 후 인접한 원소가 각 점의 가장 가까운 같은 색 점 후보가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 각 점에서 가장 가까운 같은 색 점까지의 거리 누적</strong>
+          <pre><code>for (List<Integer> color : colors) {
+          if (color.size() < 2) continue;
+      
+          for (int i = 0; i < color.size(); i++) {
+              if (i == 0) {
+                  answer += color.get(i + 1) - color.get(i);
+              } else if (i == color.size() - 1) {
+                  answer += Math.abs(color.get(i - 1) - color.get(i));
+              } else {
+                  answer += Math.min(
+                      Math.abs(color.get(i - 1) - color.get(i)),
+                      color.get(i + 1) - color.get(i)
+                  );
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>맨 왼쪽 점(i == 0): 오른쪽 이웃만 존재하므로 <code>color.get(i+1) - color.get(i)</code>를 더한다.</li>
+            <li>맨 오른쪽 점(i == color.size() - 1): 왼쪽 이웃만 존재하므로 <code>color.get(i) - color.get(i-1)</code>을 더한다.</li>
+            <li>중간 점: 왼쪽 이웃과의 거리와 오른쪽 이웃과의 거리 중 더 작은 값을 더한다. 정렬된 배열이므로 오른쪽 이웃과의 거리는 항상 양수이지만, 일관성을 위해 <code>Math.abs()</code>를 사용했다.</li>
+            <li>예시: 같은 색의 점 위치가 [1, 5, 8]이면 1→(5-1=4), 5→min(4, 3)=3, 8→(8-5=3). 합계 = 10.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>모든 점에서 그린 화살표 길이의 합 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 각 색깔 그룹을 정렬하는 비용의 합이 전체 점의 수 N에 대한 정렬 비용 O(N log N)과 같다. 이후 각 점을 한 번씩 순회하는 비용은 O(N)이므로 전체 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 색깔별 리스트 배열에 N개의 점 위치를 저장하므로 전체 O(N)의 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 15828 — Router</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/15828">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260319_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>Router (백준 15828)</strong>는<br>
+        버퍼 크기가 N인 라우터를 시뮬레이션할 때, <strong>패킷 수신·처리 명령을 순서대로 처리한 후 버퍼에 남아있는 패킷을 출력</strong>하는 문제다.<br>
+        <strong>양수는 패킷 수신, 0은 패킷 처리(앞에서 제거), -1은 시뮬레이션 종료</strong>를 의미한다.
+      </p>
+      
+      <ul>
+        <li>버퍼는 FIFO(선입선출) 구조이므로 큐를 사용한다.</li>
+        <li>버퍼가 가득 찬 상태에서 새 패킷이 들어오면 해당 패킷은 버려진다.</li>
+        <li>버퍼가 비어있는 상태에서 처리 명령(0)이 들어오면 아무 일도 일어나지 않는다.</li>
+        <li>시뮬레이션 종료 후 버퍼가 비어있으면 "empty"를 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 큐(Queue) 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 라우터 버퍼는 먼저 들어온 패킷이 먼저 처리되는 FIFO 구조이므로 <code>ArrayDeque</code>가 가장 적합하다. 삽입(<code>addLast</code>)과 삭제(<code>pollFirst</code>)가 모두 O(1)에 처리된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>입력이 양수이면 버퍼 크기가 N 미만일 때만 큐의 뒤에 추가한다. 가득 찬 경우 패킷을 버린다.</li>
+            <li>입력이 0이면 큐가 비어있지 않을 때 큐의 앞에서 패킷을 제거한다.</li>
+            <li>입력이 -1이면 반복을 종료하고 큐의 현재 상태를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 버퍼 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      Deque<Integer> queue = new ArrayDeque<>(N);</code></pre>
+          <ul>
+            <li>버퍼 크기 N을 읽고, 최대 N개의 패킷을 저장할 수 있는 <code>ArrayDeque</code>를 생성한다.</li>
+            <li>초기 용량을 N으로 지정해 불필요한 재할당을 방지한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 패킷 수신 및 처리 시뮬레이션</strong>
+          <pre><code>while (true) {
+          int input = Integer.parseInt(br.readLine());
+          if (input == -1) break;
+      
+          if (input == 0) {
+              if (!queue.isEmpty()) {
+                  queue.pollFirst();
+              }
+          } else {
+              if (queue.size() < N) {
+                  queue.addLast(input);
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>입력이 -1이면 즉시 반복을 종료한다.</li>
+            <li>입력이 0이면 패킷 처리 명령이다. 큐가 비어있지 않을 때만 <code>pollFirst()</code>로 가장 먼저 들어온 패킷을 제거한다. 비어있으면 아무 동작도 하지 않는다.</li>
+            <li>양수이면 새 패킷이 들어온 것이다. <code>queue.size() < N</code>이면 버퍼에 여유가 있으므로 <code>addLast()</code>로 큐의 뒤에 추가한다. 버퍼가 가득 찬 경우(<code>queue.size() == N</code>)에는 패킷을 버린다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>if (queue.isEmpty()) {
+          System.out.println("empty");
+          return;
+      }
+      
+      for (int num : queue) {
+          sb.append(num).append(" ");
+      }
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>시뮬레이션 종료 후 큐가 비어있으면 "empty"를 출력한다.</li>
+            <li>큐에 패킷이 남아있으면 앞에서부터 순서대로 공백으로 구분해 출력한다.</li>
+            <li>결과를 <code>StringBuilder</code>에 누적해 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(Q)</strong>: Q는 입력 명령의 수다. 각 명령에 대해 <code>addLast()</code>와 <code>pollFirst()</code>가 모두 O(1)이므로 전체 O(Q)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 버퍼에 저장되는 패킷의 수가 최대 N이므로 큐가 O(N)의 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
