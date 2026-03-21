@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>템플릿 — Interceptor (커스텀 인터셉터)</title>
+  <title>템플릿 — Interceptor · ArgumentResolver</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -95,17 +95,10 @@
       margin-bottom: 0.4rem;
       letter-spacing: 0.04em;
     }
-    .tag-badge {
-      display: inline-block;
-      background-color: #fff3cd;
-      color: #856404;
-      font-size: 0.78em;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid #ffc107;
-      margin-left: 6px;
-      vertical-align: middle;
+    .case-divider {
+      border: none;
+      border-top: 2px dashed #dee2e6;
+      margin: 2.5rem 0;
     }
   </style>
 </head>
@@ -126,49 +119,91 @@
     </aside>
 
     <article class="prose">
-      <h1>템플릿 — Interceptor (커스텀 인터셉터)</h1>
-      <p class="muted">분류: 템플릿, Spring Boot, Interceptor, 로깅, 인가</p>
+      <h1>템플릿 — Interceptor · ArgumentResolver</h1>
+      <p class="muted">분류: 템플릿, Spring Boot, Interceptor, ArgumentResolver, 로깅, 인가, 세션</p>
 
       <div class="concept-box">
         <span class="box-title">이 템플릿의 구성</span>
-        커스텀 어노테이션(<code>@AdminLogging</code>) + 인터셉터(<code>CustomInterceptor</code>) + WebMvc 등록(<code>PersistenceConfig</code>) 3개 파일로 구성된다.<br>
-        특정 경로에 대해 <strong>관리자 권한 검증 + 접근 로그 기록</strong>을 수행하는 구조다.
+        두 가지 독립적인 케이스를 제공한다.<br><br>
+        <strong>케이스 1</strong> — 커스텀 어노테이션(<code>@AdminLogging</code>) + <code>HandlerInterceptor</code>를 이용한 <strong>관리자 권한 검증 + 접근 로그 기록</strong><br>
+        <strong>케이스 2</strong> — 커스텀 어노테이션(<code>@LoginUser</code>) + <code>HandlerMethodArgumentResolver</code>를 이용한 <strong>세션 기반 인증 객체 자동 주입</strong>
       </div>
 
-      <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. 커스텀 어노테이션</h2>
+      <!-- ===================== CASE 1 ===================== -->
+      <h2 class="section">케이스 1. 관리자 권한 검증 + 접근 로그 (Interceptor)</h2>
 
       <p>
-        인터셉터를 메서드 단위로 선택적으로 적용하고 싶을 때 사용한다.
-        이 템플릿에서는 <code>@AdminLogging</code>을 마커(marker) 용도로 활용한다.
-        단순히 인터셉터 경로 패턴(<code>addPathPatterns</code>)만으로 제어한다면 이 어노테이션 없이도 동작한다.
+        특정 경로에 대해 요청이 컨트롤러에 도달하기 전에 관리자 권한을 검증하고,
+        통과한 요청에 한해 접근 로그를 기록한다.
+        <code>preHandle()</code>이 <code>false</code>를 반환하면 이후 컨트롤러 로직이 실행되지 않는다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          파일 구성
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%;">파일</th>
+            <th style="width:25%;">역할</th>
+            <th>수정 포인트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AdminLogging.java</code></td>
+            <td>마커 어노테이션</td>
+            <td>어노테이션 이름, <code>@Target</code> 범위</td>
+          </tr>
+          <tr>
+            <td><code>CustomInterceptor.java</code></td>
+            <td>권한 검증 + 접근 로그</td>
+            <td>경로 조건, getAttribute 키 이름, 역할 비교 로직</td>
+          </tr>
+          <tr>
+            <td><code>WebConfig.java</code></td>
+            <td>인터셉터 등록</td>
+            <td><code>addPathPatterns</code> 경로</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AdminLogging.java
+        </span>
+      </h3>
+
+      <p>
+        인터셉터를 메서드 단위로 식별하고 싶을 때 붙이는 마커 어노테이션이다.
+        단순히 <code>addPathPatterns</code>로 경로만 제어한다면 이 어노테이션 없이도 동작한다.
       </p>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 수정 필요</span>
-        어노테이션 이름(<code>AdminLogging</code>)을 프로젝트 목적에 맞게 변경한다.
-        메서드 레벨이 아니라 클래스 레벨에도 적용하려면 <code>@Target</code>에 <code>ElementType.TYPE</code>을 추가한다.
+        <span class="box-title">수정 포인트</span>
+        어노테이션 이름(<code>AdminLogging</code>)을 프로젝트 목적에 맞게 변경한다.<br>
+        클래스 레벨에도 적용하려면 <code>@Target</code>에 <code>ElementType.TYPE</code>을 추가한다.
       </div>
 
       <pre><code class="language-java">@Target(ElementType.METHOD)          // 메서드에만 적용 가능
-@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지 (인터셉터가 런타임에 읽음)
+@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지
 public @interface AdminLogging {
     // 필요 시 속성 추가 가능 — 예: String value() default "";
 }</code></pre>
 
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 커스텀 인터셉터</h2>
-
-      <p>
-        <code>HandlerInterceptor</code>를 구현하고 <code>preHandle()</code>에서 요청을 가로챈다.
-        <code>preHandle()</code>이 <code>false</code>를 반환하면 이후 컨트롤러 로직이 실행되지 않는다.
-      </p>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          CustomInterceptor.java
+        </span>
+      </h3>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 수정 필요</span>
-        <code>excludeRequest</code> 조건의 HTTP 메서드와 경로 패턴을 프로젝트 요구사항에 맞게 교체한다.<br>
-        <code>request.getAttribute("userId")</code>와 <code>request.getAttribute("userRole")</code>은
-        JWT 필터 등 앞단에서 <code>request.setAttribute()</code>로 값을 넣어두어야 정상 동작한다.<br>
+        <span class="box-title">수정 포인트</span>
+        <code>isTargetRequest</code> 조건의 HTTP 메서드와 경로 패턴을 프로젝트 요구사항에 맞게 교체한다.<br>
+        <code>request.getAttribute("userId")</code>와 <code>request.getAttribute("userRole")</code>은 JWT 필터 등 앞단에서 <code>setAttribute()</code>로 값을 넣어두어야 정상 동작한다.<br>
         <code>UserRole.of()</code>는 프로젝트의 실제 역할 변환 메서드로 대체한다.
       </div>
 
@@ -184,12 +219,12 @@ public class CustomInterceptor implements HandlerInterceptor {
         String path   = request.getRequestURI();  // 요청 경로 (/admin/comments/1 등)
 
         // 수정 포인트: 로깅/검증을 적용할 경로 조건 — 해당하지 않으면 바로 통과
-        boolean excludeRequest =
+        boolean isTargetRequest =
                 (method.equals("DELETE") && path.matches("/admin/comments/\\d+")) ||
                 (method.equals("PATCH")  && path.matches("/admin/users/\\d+"));
 
-        if (!excludeRequest) {
-            return true;  // 대상 경로가 아니면 다음 단계로 통과
+        if (!isTargetRequest) {
+            return true; // 대상 경로가 아니면 다음 단계로 통과
         }
 
         // 수정 포인트: JWT 필터 등 앞단에서 setAttribute()로 넣어둔 값을 꺼낸다.
@@ -206,97 +241,270 @@ public class CustomInterceptor implements HandlerInterceptor {
         log.info("[관리자 기능 접근] userId = {}, requestTime = {}, url = {}",
                 userId, LocalDateTime.now(), path);
 
-        return true;  // 검증 통과 → 컨트롤러 실행 허용
+        return true; // 검증 통과 → 컨트롤러 실행 허용
     }
 }</code></pre>
 
-      <p><strong>실행 결과 (권한 있는 관리자가 DELETE /admin/comments/1 요청 시)</strong></p>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          WebConfig.java (케이스 1)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Configuration
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
+
+    private final CustomInterceptor customInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(customInterceptor)
+                .addPathPatterns("/admin/comments/*")  // 수정 포인트: 적용할 경로
+                .addPathPatterns("/admin/users/*");
+                // .excludePathPatterns("/admin/health")  // 제외할 경로가 있으면 추가
+    }
+}</code></pre>
+
+      <p><strong>실행 결과 — 관리자가 DELETE /admin/comments/1 요청 시</strong></p>
       <div class="result-box">
         <span class="label">// console</span>
-        [관리자 기능 접근] userId = 1, requestTime = 2026-03-05T10:42:40.690139500, url = /admin/comments/1
+        [관리자 기능 접근] userId = 1, requestTime = 2026-03-17T10:42:40.690, url = /admin/comments/1
       </div>
 
-      <p><strong>실행 결과 (권한 없는 일반 사용자가 요청 시)</strong></p>
+      <p><strong>실행 결과 — 권한 없는 일반 사용자가 요청 시</strong></p>
       <div class="result-box">
         <span class="label">// HTTP Response</span>
         HTTP 403 Forbidden<br>
         { "error": "접근 권한이 없습니다." }
       </div>
 
-      <p><strong>실행 결과 (excludeRequest 조건에 해당하지 않는 경로 — 예: GET /admin/comments/1)</strong></p>
+      <p><strong>실행 결과 — 대상 경로가 아닌 경우 (예: GET /admin/comments/1)</strong></p>
       <div class="result-box">
         <span class="label">// console — 아무것도 출력되지 않고 바로 통과</span>
         (로그 없음 — 컨트롤러 정상 실행)
       </div>
 
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. WebMvc 등록 설정</h2>
+      <hr class="case-divider" />
+
+      <!-- ===================== CASE 2 ===================== -->
+      <h2 class="section">케이스 2. 세션 기반 인증 객체 자동 주입 (ArgumentResolver)</h2>
 
       <p>
-        인터셉터는 만들기만 해서는 동작하지 않는다.
-        <code>WebMvcConfigurer</code>를 구현한 설정 클래스에서 <code>addInterceptors()</code>로 등록해야 한다.
-        <code>addPathPatterns()</code>로 인터셉터가 적용될 경로를, <code>excludePathPatterns()</code>로 제외할 경로를 지정한다.
+        컨트롤러 메서드 파라미터에 <code>@LoginUser</code>를 붙이면
+        <code>HandlerMethodArgumentResolver</code>가 세션에서 인증 정보를 꺼내 자동으로 주입한다.
+        컨트롤러마다 반복하던 세션 null 체크 코드가 사라지고, 메서드 시그니처만 봐도 인증 여부가 명확히 드러난다.
       </p>
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ 수정 필요</span>
-        <code>addPathPatterns()</code>의 경로를 프로젝트 실제 경로로 교체한다.<br>
-        <code>AuthUserArgumentResolver</code>나 <code>@EnableJpaAuditing</code>이 없는 프로젝트라면 해당 줄을 제거한다.<br>
-        설정 클래스가 이미 있다면 <code>addInterceptors()</code> 메서드만 별도로 오버라이드해서 추가한다.
+      <div class="concept-box">
+        <span class="box-title">ArgumentResolver가 해결하는 문제</span>
+        <strong>Before:</strong> 모든 컨트롤러 메서드마다 <code>HttpSession session = request.getSession(false); if (session == null) throw ...;</code> 코드가 반복된다.<br><br>
+        <strong>After:</strong> <code>@LoginUser CurrentUser user</code> 파라미터 하나로 세션 조회 + null 체크 + 객체 변환이 한 번에 처리된다. 컨트롤러는 비즈니스 로직에만 집중할 수 있다.
       </div>
 
-      <pre><code class="language-java">@Configuration
-@RequiredArgsConstructor
-@EnableJpaAuditing  // JPA Auditing 미사용 시 제거
-public class PersistenceConfig implements WebMvcConfigurer {
-
-    // 프로젝트에 ArgumentResolver가 없으면 아래 두 줄 제거
-    private final AuthUserArgumentResolver authUserArgumentResolver;
-    private final CustomInterceptor customInterceptor;
-
-    @Override
-    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
-        resolvers.add(authUserArgumentResolver);  // 불필요 시 메서드 전체 제거
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(customInterceptor)
-                .addPathPatterns("/admin/comments/*")  // 인터셉터 적용 경로
-                .addPathPatterns("/admin/users/*");    // 인터셉터 적용 경로 추가
-                // .excludePathPatterns("/admin/health") // 제외할 경로가 있으면 추가
-    }
-}</code></pre>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. 파일 구성 요약</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          파일 구성
+        </span>
+      </h3>
 
       <table>
         <thead>
           <tr>
             <th style="width:35%;">파일</th>
-            <th style="width:30%;">역할</th>
+            <th style="width:25%;">역할</th>
             <th>수정 포인트</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>AdminLogging.java</code></td>
-            <td>마커 어노테이션</td>
-            <td>어노테이션 이름, <code>@Target</code> 범위</td>
+            <td><code>LoginUser.java</code></td>
+            <td>파라미터 마커 어노테이션</td>
+            <td>어노테이션 이름</td>
           </tr>
           <tr>
-            <td><code>CustomInterceptor.java</code></td>
-            <td>권한 검증 + 로그 기록</td>
-            <td>경로 조건, getAttribute 키 이름, 역할 비교 로직</td>
+            <td><code>LoginUserArgumentResolver.java</code></td>
+            <td>세션 조회 + 인증 객체 반환</td>
+            <td>세션 키, 반환 타입(<code>CurrentUser</code>), 예외 코드</td>
           </tr>
           <tr>
-            <td><code>PersistenceConfig.java</code></td>
-            <td>인터셉터 등록</td>
-            <td><code>addPathPatterns</code> 경로, 불필요한 Bean 제거</td>
+            <td><code>WebConfig.java</code></td>
+            <td>ArgumentResolver 등록</td>
+            <td>등록 대상 Resolver</td>
           </tr>
         </tbody>
       </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @LoginUser 어노테이션
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Target(ElementType.PARAMETER)       // 메서드 파라미터에만 적용 가능
+@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지
+public @interface LoginUser {
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          LoginUserArgumentResolver.java
+        </span>
+      </h3>
+
+      <div class="warning-box">
+        <span class="box-title">수정 포인트</span>
+        <code>supportsParameter()</code>에서 검사하는 타입(<code>CurrentUser</code>)을 프로젝트의 실제 인증 DTO 클래스로 교체한다.<br>
+        <code>session.getAttribute("loginUser")</code>의 세션 키를 로그인 처리 시 <code>session.setAttribute()</code>에 사용한 키와 반드시 일치시킨다.<br>
+        Admin과 Customer처럼 역할별로 세션 키가 다르다면 <code>resolveArgument()</code>에서 분기 처리를 추가한다.<br>
+        예외 클래스(<code>CustomException</code>, <code>ErrorCode.UNAUTHORIZED</code>)를 프로젝트 예외 체계로 교체한다.
+      </div>
+
+      <pre><code class="language-java">@Component
+public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
+
+    /**
+     * 이 Resolver가 처리할 파라미터 조건 — @LoginUser 어노테이션이 붙어 있고,
+     * 파라미터 타입이 CurrentUser(또는 그 하위 타입)일 때만 동작한다.
+     */
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        boolean hasLoginUserAnnotation = parameter.hasParameterAnnotation(LoginUser.class);
+        // 수정 포인트: CurrentUser를 프로젝트 실제 인증 DTO 타입으로 교체한다.
+        boolean hasCurrentUserType = CurrentUser.class.isAssignableFrom(parameter.getParameterType());
+        return hasLoginUserAnnotation &amp;&amp; hasCurrentUserType;
+    }
+
+    /**
+     * supportsParameter()가 true를 반환한 파라미터에 실제 주입할 객체를 만들어 반환한다.
+     * 세션 조회 + null 체크 + 객체 변환 로직이 여기에 집중된다.
+     */
+    @Override
+    public Object resolveArgument(MethodParameter parameter,
+                                  ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest,
+                                  WebDataBinderFactory binderFactory) throws Exception {
+
+        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        HttpSession session = request.getSession(false); // false: 없으면 새로 만들지 않음
+
+        if (session == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 수정 포인트: 로그인 처리 시 session.setAttribute()에 사용한 키 이름과 일치시킨다.
+        Object loginUser = session.getAttribute("loginUser");
+        if (loginUser == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 수정 포인트: 세션 객체를 CurrentUser 형태로 변환해서 반환한다.
+        // 세션에 이미 CurrentUser 객체를 저장했다면 캐스팅만 해서 바로 반환 가능하다.
+        // 예) return new CurrentUser(((Admin) loginUser).getId(), Role.ADMIN);
+        return loginUser;
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          WebConfig.java (케이스 2)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Configuration
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
+
+    private final LoginUserArgumentResolver loginUserArgumentResolver;
+
+    @Override
+    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
+        resolvers.add(loginUserArgumentResolver);
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          컨트롤러 적용 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// Before: 컨트롤러마다 세션 null 체크 반복
+@PostMapping
+public ResponseEntity&lt;ApiResponse&lt;OrderCreateResponse&gt;&gt; createOrder(
+        HttpServletRequest request,
+        @Valid @RequestBody OrderCreateRequest orderRequest) {
+
+    HttpSession session = request.getSession(false);
+    if (session == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+    CurrentUser user = (CurrentUser) session.getAttribute("loginUser");
+    if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED);
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(HttpStatus.CREATED, orderService.add(user, orderRequest)));
+}
+
+// After: @LoginUser 하나로 세션 조회 + null 체크 + 변환이 자동 처리됨
+@PostMapping
+public ResponseEntity&lt;ApiResponse&lt;OrderCreateResponse&gt;&gt; createOrder(
+        @LoginUser CurrentUser user,                  // ArgumentResolver가 세션에서 자동 주입
+        @Valid @RequestBody OrderCreateRequest request) {
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(HttpStatus.CREATED, orderService.add(user, request)));
+}</code></pre>
+
+      <p><strong>실행 결과 — 정상 로그인 상태에서 요청 시</strong></p>
+      <div class="result-box">
+        <span class="label">// console — ArgumentResolver가 세션에서 CurrentUser를 꺼내 자동 주입</span>
+        → LoginUserArgumentResolver: session에서 loginUser 꺼냄 → CurrentUser{id=1, role=CUSTOMER} 주입<br>
+        → 컨트롤러 실행 → HTTP 201 Created
+      </div>
+
+      <p><strong>실행 결과 — 비로그인 상태에서 요청 시</strong></p>
+      <div class="result-box">
+        <span class="label">// console — resolveArgument()에서 예외 발생</span>
+        → LoginUserArgumentResolver: session == null<br>
+        → CustomException(ErrorCode.UNAUTHORIZED) 발생<br>
+        → GlobalExceptionHandler → HTTP 401 Unauthorized
+      </div>
+
+      <hr class="case-divider" />
+
+      <!-- ===================== 통합 사용 ===================== -->
+      <h2 class="section">두 케이스를 함께 사용하는 경우</h2>
+
+      <p>
+        인터셉터(케이스 1)와 ArgumentResolver(케이스 2)는 독립적으로 동작하므로 함께 사용할 수 있다.
+        하나의 <code>WebConfig</code>에 모두 등록하면 된다.
+      </p>
+
+      <pre><code class="language-java">@Configuration
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
+
+    private final CustomInterceptor customInterceptor;
+    private final LoginUserArgumentResolver loginUserArgumentResolver;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(customInterceptor)
+                .addPathPatterns("/admin/comments/*")
+                .addPathPatterns("/admin/users/*");
+    }
+
+    @Override
+    public void addArgumentResolvers(List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
+        resolvers.add(loginUserArgumentResolver);
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Interceptor vs ArgumentResolver — 역할 구분과 실행 순서</span>
+        <strong>Interceptor (케이스 1):</strong> 요청이 컨트롤러에 도달하기 <strong>전</strong> 단계에서 동작한다. 권한 검증, 접근 차단, 접근 로그처럼 요청 전체에 걸친 횡단 관심사를 처리한다.<br><br>
+        <strong>ArgumentResolver (케이스 2):</strong> 컨트롤러 메서드를 <strong>실행하는 시점</strong>에 파라미터를 준비한다. 세션이나 JWT에서 꺼낸 인증 객체를 메서드 파라미터로 자동 주입한다.<br><br>
+        실행 순서: <strong>Interceptor → ArgumentResolver → Controller</strong>
+      </div>
 
       <p class="muted"><a href="/templates/">← Templates로 돌아가기</a></p>
     </article>
