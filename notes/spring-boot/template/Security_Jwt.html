@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>템플릿 — AOP 로깅 (전체 컨트롤러 @Masking 리플렉션 / 어노테이션 기반 / JSON 직렬화)</title>
+  <title>템플릿 — Spring Security + JWT</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -78,22 +78,18 @@
       color: #533f03;
       display: inline;
     }
-    .result-box {
-      background-color: #1e1e1e;
-      color: #d4d4d4;
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
       padding: 1rem;
-      border-radius: 6px;
-      font-family: Consolas, Monaco, "Andale Mono", monospace;
-      font-size: 0.9em;
-      margin: 1rem 0;
-      border: 1px solid #444;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
     }
-    .result-box .label {
-      display: block;
-      font-size: 0.78em;
-      color: #888;
-      margin-bottom: 0.4rem;
-      letter-spacing: 0.04em;
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
     }
     .case-divider {
       border: none;
@@ -119,426 +115,1003 @@
     </aside>
 
     <article class="prose">
-      <h1>템플릿 — AOP 로깅 (전체 컨트롤러 @Masking 리플렉션 / 어노테이션 기반 / JSON 직렬화)</h1>
-      <p class="muted">분류: 템플릿, Spring Boot, AOP, 로깅, 마스킹, 리플렉션, JSON</p>
+      <h1>템플릿 — Spring Security + JWT</h1>
+      <p class="muted">분류: 템플릿, Spring Boot, Spring Security, JWT, RTR, RefreshToken, ArgumentResolver</p>
 
       <div class="concept-box">
         <span class="box-title">이 템플릿의 구성</span>
-        세 가지 AOP 로깅 케이스를 독립적으로 제공한다. 케이스마다 Pointcut 방식과 파라미터 출력 형태가 다르며, 서로 혼용하지 않는다.<br><br>
-        <strong>케이스 1</strong> — 패키지 경로 기반 Pointcut + <code>@Masking</code> 어노테이션 + 리플렉션 마스킹 유틸 포함<br>
-        <strong>케이스 2</strong> — 커스텀 어노테이션 기반 Pointcut + userId/url 포함 관리자 로그 (문자열 출력)<br>
-        <strong>케이스 3</strong> — 커스텀 어노테이션 기반 Pointcut + 요청/응답 데이터를 <strong>JSON으로 직렬화</strong>해서 출력
+        공통 설정 파일과 세 가지 케이스를 제공한다. 케이스는 JWT 필터와 SecurityConfig의 구현 수준에 따라 단계적으로 발전한다.<br><br>
+        <strong>공통</strong> — build.gradle, AuthConstants, AuthTokens, CookieUtils, JwtTokenProvider (완성본)<br>
+        <strong>케이스 1</strong> — 기본 JWT 인증 (Principal: Long memberId) + 기본 SecurityConfig<br>
+        <strong>케이스 2</strong> — DTO Principal 방식 (Principal: LoginUserInfoDto) + @LoginUser ArgumentResolver<br>
+        <strong>케이스 3</strong> — 케이스 2 + JWT 예외 세분화 (EntryPoint로 만료/위조 구분 응답)<br>
+        <strong>RefreshToken 관리</strong> — RTR 기반 재발급 (AuthService + AuthController + RefreshToken 엔티티)
       </div>
 
-      <!-- ===================== CASE 1 ===================== -->
-      <h2 class="section">케이스 1. 전체 컨트롤러 로깅 + @Masking 리플렉션 마스킹</h2>
-
-      <p>
-        특정 패키지 하위의 모든 컨트롤러 메서드 호출을 자동으로 기록한다.
-        DTO 클래스의 필드에 <code>@Masking</code> 어노테이션을 붙이면
-        리플렉션으로 해당 필드 값을 <code>******</code>로 치환하여 로그에 노출되지 않도록 처리한다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">파라미터 이름 기반 마스킹 vs @Masking 어노테이션 기반 마스킹</span>
-        <strong>파라미터 이름 기반:</strong> <code>SENSITIVE_KEYS</code> 목록에 파라미터 이름이 포함되면 값을 가린다. DTO 내부 필드까지는 검사하지 못하고, 이름이 바뀌면 마스킹이 누락될 수 있다.<br><br>
-        <strong>@Masking 어노테이션 기반 (이 케이스):</strong> DTO의 특정 필드에 직접 <code>@Masking</code>을 붙인다. 리플렉션으로 DTO 내부를 탐색하여 해당 필드만 정밀하게 가린다. 이름 규칙에 의존하지 않으므로 오탐이 없고, 마스킹 대상이 코드에 명시적으로 선언된다.
-      </div>
+      <!-- ===================== 공통 설정 ===================== -->
+      <h2 class="section">공통 설정 및 유틸</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          @Masking 어노테이션
+          build.gradle
         </span>
       </h3>
 
-      <p>
-        마스킹이 필요한 DTO 필드에 붙이는 마커 어노테이션이다.
-        이 어노테이션 자체는 로직을 가지지 않으며, <code>LogMaskingUtils</code>가 리플렉션으로 이 어노테이션의 존재 여부를 감지해서 처리한다.
-        <code>@Retention(RetentionPolicy.RUNTIME)</code>이 반드시 필요하다. 없으면 런타임에 어노테이션 정보가 사라져 리플렉션으로 읽을 수 없다.
-      </p>
+      <pre><code class="language-groovy">// JWT
+implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+runtimeOnly    'io.jsonwebtoken:jjwt-impl:0.12.6'
+runtimeOnly    'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-      <pre><code class="language-java">@Target(ElementType.FIELD)           // 필드(변수)에만 붙일 수 있도록 제한
-@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지 — 리플렉션으로 읽으려면 필수
-public @interface Masking {
-}</code></pre>
+// Spring Security
+implementation 'org.springframework.boot:spring-boot-starter-security'
+testImplementation 'org.springframework.security:spring-security-test'</code></pre>
 
-      <p><strong>사용 예시 — DTO 필드에 적용</strong></p>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          application.properties
+        </span>
+      </h3>
 
-      <pre><code class="language-java">// 수정 포인트: 마스킹이 필요한 필드에 @Masking을 붙인다.
-public class LoginRequest {
-    private String username;
+      <pre><code class="language-properties"># 수정 포인트: 인텔리제이 Run Configuration > Environment Variables에 JWT_SECRET_KEY를 등록한다.
+# Base64 인코딩된 256bit(32바이트) 이상의 문자열이어야 한다.
+jwt.secret-key=${JWT_SECRET_KEY}
 
-    @Masking  // 로그에서 이 필드 값이 ******로 치환된다
-    private String password;
+# 수정 포인트: 각 환경에 맞게 조정 (ms 단위)
+jwt.access-token-validity-time=1800000    # 30분
+jwt.refresh-token-validity-time=604800000 # 7일</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AuthConstants.java
+        </span>
+      </h3>
+
+      <pre><code class="language-java">public class AuthConstants {
+    public static final String AUTHORIZATION_HEADER = "Authorization";  // 요청 헤더 키 이름
+    public static final String BEARER_PREFIX        = "Bearer ";        // 토큰 앞에 붙는 접두사 (공백 포함)
+    public static final String REFRESH_TOKEN        = "refresh_token";  // 쿠키 이름
+    public static final String COOKIE_PATH_ROOT     = "/";              // 쿠키 유효 경로
 }</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          LogMaskingUtils
+          AuthTokens.java
         </span>
       </h3>
 
-      <p>
-        파라미터 배열을 순회하며 DTO 객체는 리플렉션으로 내부 필드를 탐색한다.
-        <code>@Masking</code>이 붙은 필드는 값을 <code>******</code>로 치환하고, 나머지는 그대로 출력한다.
-        자바 기본형 래퍼 클래스와 <code>String</code>은 DTO가 아니므로 리플렉션 없이 값을 그대로 사용한다.
-      </p>
+      <pre><code class="language-java">// Access Token과 Refresh Token을 묶어 반환하는 응답 DTO
+public record AuthTokens(
+        String accessToken,
+        String refreshToken
+) {}</code></pre>
 
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>@Masking</code> 어노테이션의 임포트 경로를 프로젝트 실제 패키지 경로로 맞춘다.<br>
-        <code>isWrapperType()</code>은 기본형 래퍼 클래스를 판별한다. <code>LocalDate</code>, <code>BigDecimal</code>처럼 DTO가 아닌 값 객체가 파라미터로 오는 경우에도 리플렉션 탐색을 건너뛰도록 이 메서드에 추가한다.<br>
-        부모 클래스의 필드까지 마스킹해야 한다면 <code>clazz.getDeclaredFields()</code> 대신 클래스 계층을 순회하는 방식으로 확장한다.
-      </div>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          CookieUtils.java
+        </span>
+      </h3>
 
-      <pre><code class="language-java">public class LogMaskingUtils {
+      <pre><code class="language-java">@Component
+public class CookieUtils {
 
     /**
-     * 파라미터 배열을 순회하면서 객체 내부의 @Masking 필드를 찾아 가려주는 문자열을 반환한다.
+     * HttpOnly 쿠키 생성
+     * @param name   쿠키 이름
+     * @param value  쿠키 값
+     * @param maxAge 쿠키 수명 (초 단위)
      */
-    public static String buildMaskedParamsString(String[] parameterNames, Object[] args) {
-        if (args == null || args.length == 0) {
-            return "없음";
-        }
-        List&lt;String&gt; paramList = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; args.length; i++) {
-            String paramName = parameterNames != null ? parameterNames[i] : "arg" + i;
-            Object arg = args[i];
-
-            if (arg == null) {
-                paramList.add(paramName + "=null");
-                continue;
-            }
-
-            // DTO 객체인 경우: 리플렉션으로 내부 필드를 탐색하여 @Masking 필드만 가린다.
-            // 기본형 래퍼·String은 DTO가 아니므로 그대로 출력한다.
-            if (!isWrapperType(arg.getClass()) &amp;&amp; arg.getClass() != String.class) {
-                String maskedObjectString = applyMaskingToObject(arg);
-                paramList.add(paramName + "=" + maskedObjectString);
-            } else {
-                paramList.add(paramName + "=" + arg);
-            }
-        }
-        return StringUtils.collectionToCommaDelimitedString(paramList);
+    public Cookie createCookie(String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(AuthConstants.COOKIE_PATH_ROOT);
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);   // JS에서 쿠키 접근 차단 → XSS 방어
+        // cookie.setSecure(true);  // 수정 포인트: HTTPS 배포 시 활성화 (HTTP 개발 환경에서는 주석 유지)
+        return cookie;
     }
 
     /**
-     * DTO 객체의 필드들을 리플렉션으로 읽어 @Masking이 붙은 필드는 "******"로 치환한다.
+     * 쿠키 삭제 — maxAge를 0으로 설정하면 브라우저가 즉시 파기
      */
-    private static String applyMaskingToObject(Object obj) {
-        Class&lt;?&gt; clazz = obj.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        List&lt;String&gt; fieldStrings = new ArrayList&lt;&gt;();
-
-        for (Field field : fields) {
-            field.setAccessible(true); // private 필드에도 접근할 수 있도록 허용
-            try {
-                Object value = field.get(obj);
-                // @Masking이 붙어있고 값이 null이 아니면 마스킹
-                if (field.isAnnotationPresent(Masking.class) &amp;&amp; value != null) {
-                    fieldStrings.add(field.getName() + "='******'");
-                } else {
-                    fieldStrings.add(field.getName() + "=" + value);
-                }
-            } catch (IllegalAccessException e) {
-                fieldStrings.add(field.getName() + "=ERROR");
-            }
-        }
-        return clazz.getSimpleName() + "{"
-                + StringUtils.collectionToCommaDelimitedString(fieldStrings) + "}";
-    }
-
-    /**
-     * 자바 기본형 래퍼 클래스인지 확인한다.
-     * 수정 포인트: LocalDate, BigDecimal 등 값 객체를 추가로 처리해야 하면 이 메서드에 추가한다.
-     */
-    private static boolean isWrapperType(Class&lt;?&gt; clazz) {
-        return clazz == Boolean.class   || clazz == Character.class ||
-               clazz == Byte.class      || clazz == Short.class     ||
-               clazz == Integer.class   || clazz == Long.class      ||
-               clazz == Float.class     || clazz == Double.class;
+    public Cookie deleteCookie(String name) {
+        return createCookie(name, null, 0);
     }
 }</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ApiLoggingAspect
+          JwtTokenProvider.java — 완성본 (모든 케이스 공통)
         </span>
       </h3>
-
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>execution()</code> 안의 패키지 경로를 프로젝트 실제 컨트롤러 패키지로 교체한다.<br>
-        로그 메시지 포맷(<code>[API 요청]</code>, <code>[API 응답]</code>)을 프로젝트 로그 컨벤션에 맞게 변경한다.
-      </div>
 
       <pre><code class="language-java">@Slf4j
-@Aspect
 @Component
-public class ApiLoggingAspect {
+public class JwtTokenProvider {
 
-    // 수정 포인트: 적용할 컨트롤러 패키지 경로
-    @Around("execution(* com.example.instagramclone.controller.rest.*.*(..))")
-    public Object logApi(ProceedingJoinPoint joinPoint) throws Throwable {
+    private static final String ISSUER = "MyAppAuthServer"; // 수정 포인트: 프로젝트 이름으로 변경
 
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
+    @Value("${jwt.secret-key}")
+    private String secretKeyString;
 
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
+    @Value("${jwt.access-token-validity-time}")
+    private long accessTokenValidityInMilliseconds;
 
-        // @Masking 어노테이션 기반 리플렉션 마스킹 적용
-        String paramsString = LogMaskingUtils.buildMaskedParamsString(parameterNames, args);
+    @Value("${jwt.refresh-token-validity-time}")
+    private long refreshTokenValidityInMilliseconds;
 
-        log.info("[API 요청] {} / {} | 파라미터: [{}]", className, methodName, paramsString);
+    private SecretKey key;
 
-        long startTime = System.currentTimeMillis();
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKeyString);
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException("JWT secret-key는 최소 32바이트(256bit) 이상이어야 합니다.");
+        }
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        log.info("HS256 대칭키가 성공적으로 초기화되었습니다.");
+    }
 
-        Object result = joinPoint.proceed(); // 원래 컨트롤러 메서드 실행
+    /** Access Token 발급 */
+    public String createAccessToken(Long memberId, String role) {
+        return buildToken(memberId, role, accessTokenValidityInMilliseconds);
+    }
 
-        long executionTime = System.currentTimeMillis() - startTime;
+    /** Refresh Token 발급 (권한 정보 없이 PK만 담음) */
+    public String createRefreshToken(Long memberId) {
+        return buildToken(memberId, null, refreshTokenValidityInMilliseconds);
+    }
 
-        log.info("[API 응답] {} / {} (수행시간: {}ms)", className, methodName, executionTime);
+    /** 실제 JWT 생성 내부 메서드 */
+    private String buildToken(Long memberId, String role, long validityTimeInMs) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(memberId));
+        if (role != null) {
+            claims.put("role", role);
+        }
 
-        return result;
+        Date now      = new Date();
+        Date validity = new Date(now.getTime() + validityTimeInMs);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuer(ISSUER)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .setId(UUID.randomUUID().toString())
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /** 토큰에서 회원 PK 추출 */
+    public Long getMemberId(String token) {
+        String subject = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(ISSUER)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return Long.parseLong(subject);
+    }
+
+    /** 토큰에서 역할(role) 추출 — Refresh Token은 role이 없어 null 반환 가능 */
+    public String getRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(ISSUER)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
+    /** Refresh Token 유효기간을 초(second) 단위로 반환 — 쿠키 maxAge 설정용 */
+    public int getRefreshTokenValidityInSeconds() {
+        return (int) (refreshTokenValidityInMilliseconds / 1000);
+    }
+
+    /** 토큰 유효성 검증 — 케이스 1, 2에서 사용 (예외를 내부에서 처리) */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(ISSUER)
+                .build()
+                .parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException | SignatureException e) {
+            log.warn("잘못된 JWT 서명입니다 (위조 의심): {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT 토큰입니다: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            log.warn("지원되지 않는 JWT 토큰입니다: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT 토큰이 잘못되었습니다: {}", e.getMessage());
+        }
+        return false;
     }
 }</code></pre>
 
-      <p><strong>실행 결과 — @Masking 붙은 password 필드 포함 요청 (로그인)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] UserController / login | 파라미터: [loginRequest=LoginRequest{username=ravi, password='******'}]<br>
-        [API 응답] UserController / login (수행시간: 5ms)
-      </div>
+      <hr class="case-divider" />
 
-      <p><strong>실행 결과 — @Masking 필드 없는 일반 요청 (게시글 조회)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] PostController / getPost | 파라미터: [postId=42]<br>
-        [API 응답] PostController / getPost (수행시간: 3ms)
+      <!-- ===================== CASE 1 ===================== -->
+      <h2 class="section">케이스 1. 기본 JWT 인증 — Principal: Long memberId</h2>
+
+      <p>
+        SecurityContext의 Principal 자리에 <strong>Long 타입의 memberId</strong>를 직접 저장하는 가장 단순한 방식이다.
+        컨트롤러에서 <code>@AuthenticationPrincipal Long memberId</code>로 꺼내 쓴다.
+        에러 응답은 Spring Security 기본 동작에 맡긴다(401/403 단순 응답).
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JwtAuthenticationFilter.java — 케이스 1
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Slf4j
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // 1. Authorization 헤더에서 "Bearer {token}" 형태로 토큰을 꺼낸다
+        String token = resolveToken(request);
+
+        // 2. 토큰이 존재하고 유효하면 SecurityContext에 인증 정보를 심는다
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            Long   memberId = jwtTokenProvider.getMemberId(token);
+            String role     = jwtTokenProvider.getRole(token);
+
+            // Principal 자리에 Long(memberId)을 직접 저장
+            // 컨트롤러에서: @AuthenticationPrincipal Long memberId
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    memberId,
+                    null,
+                    Collections.singletonList(
+                            new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
+        }
+
+        // 3. 토큰이 없거나 유효하지 않아도 일단 다음 필터로 넘긴다
+        //    이후 인가(Authorization) 필터가 미인증 요청을 401로 튕겨낸다
+        filterChain.doFilter(request, response);
+    }
+
+    /** "Bearer {token}" 에서 순수 토큰 문자열만 추출 */
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
+        }
+        return null;
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SecurityConfig.java — 케이스 1 (EntryPoint 없는 기본 버전)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())        // JWT 사용 환경에서 CSRF 불필요
+            .formLogin(form -> form.disable())   // 기본 폼 로그인 비활성화
+            .httpBasic(basic -> basic.disable()) // HTTP Basic 인증 비활성화
+
+            // JWT = Stateless → 세션을 생성하지 않도록 설정
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            .authorizeHttpRequests(auth -> auth
+                // 수정 포인트: 개발 편의 허용 경로 (운영 배포 전 검토 필요)
+                .requestMatchers(
+                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
+                        "/h2-console/**"
+                ).permitAll()
+
+                // 수정 포인트: 인증 없이 접근 가능한 API 경로 추가
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/login",
+                        "/api/auth/signup",
+                        "/api/auth/reissue"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
+
+                // 위에서 허용한 경로 외 모든 요청은 인증 필수
+                .anyRequest().authenticated()
+            )
+
+            // 우리가 만든 JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
+            // 폼 로그인 처리 전에 JWT 인증을 먼저 완료시키기 위함
+            .addFilterBefore(
+                    new JwtAuthenticationFilter(jwtTokenProvider),
+                    UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">컨트롤러에서의 사용 (케이스 1)</span>
+        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@GetMapping("/my-profile")
+public ResponseEntity&lt;ProfileResponse&gt; getMyProfile(
+        @AuthenticationPrincipal Long memberId) {  // SecurityContext에서 Long 타입 자동 추출
+    return ResponseEntity.ok(memberService.getProfile(memberId));
+}</code></pre>
       </div>
 
       <hr class="case-divider" />
 
       <!-- ===================== CASE 2 ===================== -->
-      <h2 class="section">케이스 2. 어노테이션 기반 관리자 로깅 (문자열 출력)</h2>
+      <h2 class="section">케이스 2. DTO Principal 방식 — Principal: LoginUserInfoDto + @LoginUser ArgumentResolver</h2>
 
       <p>
-        <code>@AdminLogging</code> 어노테이션이 붙은 메서드에만 선택적으로 AOP를 적용한다.
-        요청한 관리자의 <code>userId</code>와 접근 URL을 함께 기록한다.
-        파라미터는 <code>[이름=값]</code> 형태의 문자열로 출력한다.
-        앞단(JWT 필터 등)에서 <code>request.setAttribute("userId", ...)</code>로 값을 넣어두어야 정상 동작한다.
+        SecurityContext의 Principal 자리에 <code>Long</code> 대신 <strong>LoginUserInfoDto 객체를 저장</strong>하는 방식이다.
+        이후 추가 정보(닉네임, 역할 등)가 필요할 때 DTO 필드를 확장하기만 하면 되므로 유지보수가 용이하다.
+        <code>@LoginUser</code> 어노테이션과 <code>LoginUserArgumentResolver</code>로 컨트롤러 파라미터에 자동 주입한다.
       </p>
 
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>@annotation()</code> 안의 패키지 경로를 실제 <code>@AdminLogging</code> 어노테이션의 전체 경로로 교체한다.<br>
-        <code>request.getAttribute("userId")</code> 키 이름은 JWT 필터에서 <code>setAttribute()</code>로 넣은 키와 반드시 일치해야 한다.<br>
-        <code>RequestContextHolder.getRequestAttributes()</code>가 <code>null</code>을 반환하는 비-HTTP 환경(스케줄러 등)에서는 NPE가 발생한다. 해당 케이스가 있다면 null 체크를 추가한다.
-      </div>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          LoginUserInfoDto.java
+        </span>
+      </h3>
 
-      <pre><code class="language-java">@Aspect
-@Component
-@Slf4j
-public class Logger {
+      <pre><code class="language-java">// 수정 포인트: 추후 필드 확장 가능 (nickname, role 등)
+// SecurityContext의 Principal 자리에 저장되는 인증 DTO
+@Builder
+public record LoginUserInfoDto(
+        Long id
+) {
+}</code></pre>
 
-    // 수정 포인트: @AdminLogging 어노테이션의 실제 전체 패키지 경로
-    @Around("@annotation(org.example.expert.config.AdminLogging)")
-    public Object executionLogger(ProceedingJoinPoint joinPoint) throws Throwable {
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          @LoginUser 어노테이션
+        </span>
+      </h3>
 
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
+      <pre><code class="language-java">@Target(ElementType.PARAMETER)       // 메서드 파라미터에만 적용 가능
+@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지
+public @interface LoginUser {
+}</code></pre>
 
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          LoginUserArgumentResolver.java — SecurityContext 기반 (케이스 2)
+        </span>
+      </h3>
 
-        String paramsString = buildParamsString(parameterNames, args);
+      <pre><code class="language-java">@Component
+public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-        // 수정 포인트: JWT 필터에서 setAttribute()로 넣은 키 이름과 일치해야 한다.
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        Long   userId = (Long)   request.getAttribute("userId");
-        String url    = request.getRequestURI();
-
-        log.info("[API 요청] userId = {}, url = {}, {}.{} | 파라미터: [{}]",
-                userId, url, className, methodName, paramsString);
-
-        long start = System.currentTimeMillis();
-
-        Object proceed = joinPoint.proceed(); // 원래 메서드 실행
-
-        long end = System.currentTimeMillis();
-
-        log.info("[API 응답] userId = {}, {}.{} (수행시간: {}ms)",
-                userId, className, methodName, (end - start));
-
-        return proceed;
+    @Override
+    public boolean supportsParameter(@NonNull MethodParameter parameter) {
+        boolean hasAnnotation   = parameter.hasParameterAnnotation(LoginUser.class);
+        // 수정 포인트: LoginUserInfoDto를 프로젝트 실제 인증 DTO 타입으로 교체
+        boolean hasLoginUserType = LoginUserInfoDto.class.isAssignableFrom(parameter.getParameterType());
+        return hasAnnotation && hasLoginUserType;
     }
 
-    // 파라미터를 [이름=값] 형태로 이어 붙이는 유틸 메서드 (마스킹 없음)
-    private String buildParamsString(String[] parameterNames, Object[] args) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            if (i &gt; 0) sb.append(", ");
-            sb.append(parameterNames[i]).append("=").append(args[i]);
+    @Override
+    public Object resolveArgument(@NonNull MethodParameter parameter,
+                                  @Nullable ModelAndViewContainer mavContainer,
+                                  @NonNull NativeWebRequest webRequest,
+                                  @Nullable WebDataBinderFactory binderFactory) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 인증 정보가 없거나 비로그인(anonymous) 상태이면 즉시 예외 발생
+        if (authentication == null
+                || authentication.getPrincipal().equals("anonymousUser")
+                || !(authentication.getPrincipal() instanceof LoginUserInfoDto)) {
+            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
         }
-        return sb.toString();
+
+        // JwtAuthenticationFilter에서 Principal에 저장한 LoginUserInfoDto 객체를 그대로 반환
+        return authentication.getPrincipal();
     }
 }</code></pre>
 
-      <p><strong>실행 결과 — @AdminLogging 붙은 메서드 호출 시 (댓글 삭제)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/comments/1, CommentAdminController.deleteComment | 파라미터: [commentId=1]<br>
-        [API 응답] userId = 1, CommentAdminController.deleteComment (수행시간: 2ms)
-      </div>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JwtAuthenticationFilter.java — 케이스 2 (DTO Principal 저장)
+        </span>
+      </h3>
 
-      <p><strong>실행 결과 — @AdminLogging이 없는 메서드 호출 시</strong></p>
-      <div class="result-box">
-        <span class="label">// console — AOP 미적용, 아무것도 출력되지 않음</span>
-        (로그 없음 — 컨트롤러 정상 실행)
+      <pre><code class="language-java">@Slf4j
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String token = resolveToken(request);
+
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            Long   memberId = jwtTokenProvider.getMemberId(token);
+            String role     = jwtTokenProvider.getRole(token);
+
+            // 케이스 1과의 차이: Principal 자리에 Long이 아닌 LoginUserInfoDto를 저장
+            // ArgumentResolver에서 authentication.getPrincipal()로 꺼낼 수 있도록 DTO로 감쌈
+            LoginUserInfoDto loginUser = LoginUserInfoDto.builder()
+                    .id(memberId)
+                    .build();
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    loginUser,  // Principal = LoginUserInfoDto
+                    null,
+                    Collections.singletonList(
+                            new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
+        }
+        return null;
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SecurityConfig.java — 케이스 2 (케이스 1과 동일한 설정)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// SecurityConfig는 케이스 1과 동일하다.
+// 변경은 JwtAuthenticationFilter 내부(Principal 타입)와
+// LoginUserArgumentResolver 등록(WebMvcConfig)에서만 발생한다.
+// 아래 WebMvcConfig에 ArgumentResolver를 추가로 등록한다.
+
+@Configuration
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
+                        "/h2-console/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/login",
+                        "/api/auth/signup",
+                        "/api/auth/reissue"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                    new JwtAuthenticationFilter(jwtTokenProvider),  // 케이스 2 버전 필터
+                    UsernamePasswordAuthenticationFilter.class
+            );
+        return http.build();
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          WebMvcConfig.java
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Configuration
+@RequiredArgsConstructor
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    private final LoginUserArgumentResolver loginUserArgumentResolver;
+    // 수정 포인트: 다른 ArgumentResolver가 있으면 여기에 함께 추가
+
+    @Override
+    public void addArgumentResolvers(@NonNull List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
+        resolvers.add(loginUserArgumentResolver);
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">컨트롤러에서의 사용 (케이스 2)</span>
+        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@GetMapping("/my-profile")
+public ResponseEntity&lt;ProfileResponse&gt; getMyProfile(
+        @LoginUser LoginUserInfoDto loginUser) {  // ArgumentResolver가 SecurityContext에서 자동 주입
+    return ResponseEntity.ok(memberService.getProfile(loginUser.id()));
+}</code></pre>
       </div>
 
       <hr class="case-divider" />
 
       <!-- ===================== CASE 3 ===================== -->
-      <h2 class="section">케이스 3. 어노테이션 기반 관리자 로깅 (JSON 직렬화 출력)</h2>
+      <h2 class="section">케이스 3. JWT 예외 세분화 — 만료/위조 에러 구분 응답 (EntryPoint 추가)</h2>
 
       <p>
-        케이스 2와 동일하게 <code>@AdminLogging</code> 어노테이션 기반으로 동작하지만,
-        파라미터를 문자열로 이어 붙이는 대신 <code>ObjectMapper</code>로 <strong>JSON 직렬화</strong>해서 출력한다.
-        응답 객체(<code>proceed</code>)도 JSON으로 직렬화하여 응답 로그에 포함시킨다.
-        파라미터 구조가 복잡한 DTO일 때 케이스 2보다 훨씬 가독성 좋은 로그를 남길 수 있다.
+        케이스 2를 기반으로 JWT 관련 예외를 <strong>종류별로 구분하여 다른 에러 응답</strong>을 내려주는 방식이다.
+        필터에서 예외를 <code>request.setAttribute()</code>에 보관하고,
+        <code>JwtAuthenticationEntryPoint</code>가 꺼내서 만료/위조/미제출로 분기하여 응답한다.
+        <code>@RestControllerAdvice</code>는 필터 단계의 예외를 잡지 못하므로 EntryPoint에서 직접 JSON 응답을 생성한다.
       </p>
 
-      <div class="warning-box">
-        <span class="box-title">수정 포인트</span>
-        <code>@annotation()</code> 안의 패키지 경로를 실제 <code>@AdminLogging</code> 어노테이션의 전체 경로로 교체한다.<br>
-        <code>ObjectMapper</code>를 필드로 직접 생성(<code>new ObjectMapper()</code>)하지 않고, 스프링 컨텍스트에 등록된 <code>@Autowired ObjectMapper</code>를 주입받는 방식을 권장한다. 프로젝트의 Jackson 설정(날짜 포맷, 직렬화 옵션 등)이 자동으로 반영되기 때문이다.<br>
-        응답이 <code>void</code>인 메서드는 <code>proceed</code>가 <code>null</code>을 반환하므로 응답 로그에 <code>null</code>이 찍힌다. 정상 동작이다.
-      </div>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JwtAuthenticationFilter.java — 케이스 3 (try-catch + request.setAttribute)
+        </span>
+      </h3>
 
-      <pre><code class="language-java">@Aspect
-@Component
-@Slf4j
-public class Logger {
+      <pre><code class="language-java">@Slf4j
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    // 수정 포인트: new ObjectMapper() 대신 @Autowired로 주입받는 방식을 권장한다.
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JwtTokenProvider jwtTokenProvider;
 
-    // 수정 포인트: @AdminLogging 어노테이션의 실제 전체 패키지 경로
-    @Around("@annotation(org.example.expert.config.AdminLogging)")
-    public Object executionLogger(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
+        String token = resolveToken(request);
 
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
+        try {
+            if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+                Long   memberId = jwtTokenProvider.getMemberId(token);
+                String role     = jwtTokenProvider.getRole(token);
 
-        // 파라미터를 LinkedHashMap에 담아 순서를 유지한 채 JSON 직렬화
-        Map&lt;String, Object&gt; paramsMap = new LinkedHashMap&lt;&gt;();
-        for (int i = 0; i &lt; parameterNames.length; i++) {
-            paramsMap.put(parameterNames[i], args[i]);
+                LoginUserInfoDto loginUser = LoginUserInfoDto.builder()
+                        .id(memberId)
+                        .build();
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        loginUser,
+                        null,
+                        Collections.singletonList(
+                                new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
+                        )
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
+            }
+        } catch (ExpiredJwtException e) {
+            // 핵심: 예외를 바로 던지지 않고 request에 보관 → EntryPoint가 꺼내서 처리
+            log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
+            request.setAttribute("exception", e);
+        } catch (SecurityException | MalformedJwtException | SignatureException | UnsupportedJwtException e) {
+            log.warn("잘못된 JWT 서명입니다: {}", e.getMessage());
+            request.setAttribute("exception", e);
+        } catch (Exception e) {
+            log.error("JWT 검증 중 알 수 없는 예외가 발생했습니다: {}", e.getMessage());
+            request.setAttribute("exception", e);
         }
 
-        // 수정 포인트: JWT 필터에서 setAttribute()로 넣은 키 이름과 일치해야 한다.
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        Long   userId = (Long)   request.getAttribute("userId");
-        String url    = request.getRequestURI();
+        // 예외가 발생했어도 일단 다음 필터로 넘긴다 — EntryPoint가 최종 처리
+        filterChain.doFilter(request, response);
+    }
 
-        String paramsJson = mapper.writeValueAsString(paramsMap);
-
-        log.info("[API 요청] userId = {}, url = {}, {}.{} | 요청: [{}]",
-                userId, url, className, methodName, paramsJson);
-
-        long start = System.currentTimeMillis();
-
-        Object proceed = joinPoint.proceed(); // 원래 메서드 실행
-
-        // 응답 객체를 JSON 직렬화 (void 메서드는 proceed = null → "null" 출력)
-        String responseJson = mapper.writeValueAsString(proceed);
-
-        long end = System.currentTimeMillis();
-
-        log.info("[API 응답] userId = {}, {}.{} | 응답: {} (수행시간: {}ms)",
-                userId, className, methodName, responseJson, (end - start));
-
-        return proceed;
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
+        }
+        return null;
     }
 }</code></pre>
 
-      <p><strong>실행 결과 — 역할 변경 요청 (DTO 파라미터 포함)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/users/1, UserAdminController.changeUserRole | 요청: [{"userId":1,"userRoleChangeRequest":{"role":"USER"}}]<br>
-        [API 응답] userId = 1, UserAdminController.changeUserRole | 응답: null (수행시간: 3ms)
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JwtAuthenticationEntryPoint.java
+        </span>
+      </h3>
+
+      <div class="warning-box">
+        <span class="box-title">수정 포인트</span>
+        <code>MemberErrorCode</code>와 <code>ApiResponse</code>를 프로젝트 실제 예외/응답 클래스로 교체한다.<br>
+        <code>setResponse()</code> 내부의 JSON 빌드 방식도 프로젝트의 에러 응답 포맷에 맞게 수정한다.
       </div>
 
-      <p><strong>실행 결과 — 응답 객체가 있는 경우 (사용자 정보 조회)</strong></p>
-      <div class="result-box">
-        <span class="label">// console</span>
-        [API 요청] userId = 1, url = /admin/users/1, UserAdminController.getUser | 요청: [{"userId":1}]<br>
-        [API 응답] userId = 1, UserAdminController.getUser | 응답: {"id":1,"username":"ravi","role":"ADMIN"} (수행시간: 4ms)
-      </div>
+      <pre><code class="language-java">@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-      <!-- ===================== SUMMARY ===================== -->
-      <h2 class="section">파일 구성 요약</h2>
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
+
+        // 1. JwtAuthenticationFilter에서 request에 보관해둔 예외 객체를 꺼낸다
+        Object exception = request.getAttribute("exception");
+
+        // 2. 예외 종류에 따라 에러 코드를 분기
+        if (exception instanceof ExpiredJwtException) {
+            // 토큰이 만료된 경우 → 프론트엔드에서 Refresh Token으로 재발급 요청을 보내야 함
+            setErrorResponse(request, response, MemberErrorCode.EXPIRED_TOKEN);
+            return;
+        }
+
+        if (exception != null) {
+            // 토큰이 위조/손상된 경우 → 재로그인 필요
+            setErrorResponse(request, response, MemberErrorCode.INVALID_TOKEN);
+            return;
+        }
+
+        // 3. 예외가 없는 경우 = 토큰 자체를 보내지 않은 미인증 요청
+        setErrorResponse(request, response, MemberErrorCode.UNAUTHORIZED_ACCESS);
+    }
+
+    /**
+     * @RestControllerAdvice는 필터 단계 예외를 처리하지 못하므로
+     * ObjectMapper로 직접 JSON 응답을 만들어 write한다.
+     */
+    private void setErrorResponse(HttpServletRequest request, HttpServletResponse response,
+                                   MemberErrorCode errorCode) throws IOException {
+        log.warn("[인증 에러] 코드: {}, 메시지: {}, 경로: {}",
+                errorCode.getCode(), errorCode.getMessage(), request.getRequestURI());
+
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(errorCode.getStatus().value());
+
+        // 수정 포인트: 프로젝트의 에러 응답 포맷에 맞게 수정
+        ApiResponse&lt;Void&gt; apiResponse = ApiResponse.fail(
+                ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now())
+                        .status(errorCode.getStatus().value())
+                        .error(errorCode.getStatus().name())
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .path(request.getRequestURI())
+                        .build()
+        );
+
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          SecurityConfig.java — 케이스 3 (EntryPoint 등록)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // 케이스 3에서 추가
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
+                        "/h2-console/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST,
+                        "/api/auth/login",
+                        "/api/auth/signup",
+                        "/api/auth/reissue"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
+                .anyRequest().authenticated()
+            )
+
+            // 케이스 3에서 추가: 인증 예외 발생 시 우리가 만든 EntryPoint가 처리
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            )
+
+            .addFilterBefore(
+                    new JwtAuthenticationFilter(jwtTokenProvider),  // 케이스 3 버전 필터 (try-catch 포함)
+                    UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
+}</code></pre>
+
+      <hr class="case-divider" />
+
+      <!-- ===================== REFRESH TOKEN ===================== -->
+      <h2 class="section">RefreshToken 관리 — RTR 기반 재발급</h2>
+
+      <p>
+        Refresh Token을 DB(JPA)에 저장하고 재발급 시 RTR(Refresh Token Rotation)을 적용하는 패턴이다.
+        Redis를 사용한다면 <code>RefreshToken</code> 엔티티와 Repository를 <code>@RedisHash</code>로 대체한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          RefreshToken.java — 엔티티
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Entity
+@Table(name = "refresh_tokens")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class RefreshToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private Long memberId; // 1명 = 1개의 Refresh Token (다중 기기 로그인은 별도 설계 필요)
+
+    @Column(nullable = false, length = 512)
+    private String token;
+
+    @Builder
+    public RefreshToken(Long memberId, String token) {
+        this.memberId = memberId;
+        this.token    = token;
+    }
+
+    /** 기존 토큰을 새 토큰으로 교체 — 더티 체킹으로 UPDATE 발생 */
+    public void updateToken(String newToken) {
+        this.token = newToken;
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          RefreshTokenRepository.java
+        </span>
+      </h3>
+
+      <pre><code class="language-java">public interface RefreshTokenRepository extends JpaRepository&lt;RefreshToken, Long&gt; {
+
+    Optional&lt;RefreshToken&gt; findByToken(String token);      // 재발급 시 토큰 대조용
+
+    Optional&lt;RefreshToken&gt; findByMemberId(Long memberId); // 로그인 시 기존 토큰 조회용
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AuthService.java — 완성본 (로그인 + RTR 재발급)
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final MemberRepository       memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtTokenProvider       jwtTokenProvider;
+    private final PasswordEncoder        passwordEncoder;
+
+    /**
+     * 로그인 처리 — Access + Refresh Token 발급 후 Refresh Token을 DB에 저장
+     * 수정 포인트: LoginRequest, LoginResponse, Member 클래스는 프로젝트 실제 타입으로 교체
+     */
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        // 1. 아이디(이메일/닉네임 등)로 회원 조회
+        Member member = memberRepository.findByEmail(request.email())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        // 2. 비밀번호 검증
+        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+            throw new MemberException(MemberErrorCode.INVALID_PASSWORD);
+        }
+
+        // 3. Access + Refresh Token 발급
+        AuthTokens tokens = generateTokens(member);
+
+        // 4. Refresh Token DB 저장 — 기존 토큰이 있으면 업데이트(더티 체킹), 없으면 신규 저장
+        refreshTokenRepository.findByMemberId(member.getId())
+                .ifPresentOrElse(
+                        rt -> rt.updateToken(tokens.refreshToken()),
+                        () -> refreshTokenRepository.save(
+                                RefreshToken.builder()
+                                        .memberId(member.getId())
+                                        .token(tokens.refreshToken())
+                                        .build()
+                        )
+                );
+
+        return LoginResponse.of(tokens, member);
+    }
+
+    /**
+     * Access Token 재발급 (RTR 적용)
+     * 1. Refresh Token 유효성 검증
+     * 2. DB에 실제로 저장된 토큰인지 대조
+     * 3. Access + Refresh Token 모두 새로 발급
+     * 4. 기존 Refresh Token 즉시 폐기(RTR)
+     */
+    @Transactional
+    public AuthTokens reissue(String refreshToken) {
+        // 1. 서명 및 만료 검증
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        // 2. DB 대조 — 탈취된 예전 토큰이면 여기서 걸러짐
+        RefreshToken tokenEntity = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS));
+
+        // 3. 회원 정보 조회 후 새 토큰 발급
+        Member member = memberRepository.findById(tokenEntity.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        AuthTokens newTokens = generateTokens(member);
+
+        // 4. RTR: 한 번 사용한 Refresh Token은 새것으로 교체(더티 체킹으로 UPDATE)
+        tokenEntity.updateToken(newTokens.refreshToken());
+
+        return newTokens;
+    }
+
+    /** Access Token + Refresh Token 동시 발급 내부 헬퍼 */
+    private AuthTokens generateTokens(Member member) {
+        String accessToken  = jwtTokenProvider.createAccessToken(member.getId(), member.getRole().name());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
+        return new AuthTokens(accessToken, refreshToken);
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AuthController.java — 완성본
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService      authService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieUtils      cookieUtils;
+
+    /**
+     * 로그인
+     * Access Token은 응답 Body에, Refresh Token은 HttpOnly 쿠키에 담아 반환한다.
+     * 쿠키는 JS로 접근 불가(HttpOnly) → XSS 공격으로 Refresh Token 탈취 불가
+     */
+    @PostMapping("/login")
+    public ResponseEntity&lt;ApiResponse&lt;LoginResponse&gt;&gt; login(
+            @RequestBody @Valid LoginRequest loginRequest,
+            HttpServletResponse response) {
+
+        LoginResponse loginResponse = authService.login(loginRequest);
+
+        // Refresh Token을 HttpOnly 쿠키에 저장
+        Cookie cookie = cookieUtils.createCookie(
+                AuthConstants.REFRESH_TOKEN,
+                loginResponse.tokens().refreshToken(),
+                jwtTokenProvider.getRefreshTokenValidityInSeconds()
+        );
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(ApiResponse.success(loginResponse));
+    }
+
+    /**
+     * Access Token 재발급
+     * 브라우저가 자동으로 쿠키를 함께 전송 → @CookieValue로 꺼낸다.
+     * 새 Refresh Token(RTR)으로 쿠키도 덮어쓴다.
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity&lt;ApiResponse&lt;AuthTokens&gt;&gt; reissue(
+            @CookieValue(value = AuthConstants.REFRESH_TOKEN, required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        if (refreshToken == null) {
+            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        AuthTokens tokens = authService.reissue(refreshToken);
+
+        // RTR: 새로 발급된 Refresh Token으로 쿠키 덮어쓰기
+        Cookie cookie = cookieUtils.createCookie(
+                AuthConstants.REFRESH_TOKEN,
+                tokens.refreshToken(),
+                jwtTokenProvider.getRefreshTokenValidityInSeconds()
+        );
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(ApiResponse.success(tokens));
+    }
+
+    /**
+     * 로그아웃 — 쿠키 파기 (Redis 블랙리스트 적용 시 Access Token도 서버에 등록 필요)
+     */
+    @PostMapping("/logout")
+    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; logout(HttpServletResponse response) {
+        // Refresh Token 쿠키를 즉시 만료시켜 브라우저에서 파기
+        response.addCookie(cookieUtils.deleteCookie(AuthConstants.REFRESH_TOKEN));
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+}</code></pre>
+
+      <!-- ===================== 케이스 비교 ===================== -->
+      <h2 class="section">케이스 비교 요약</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:10%;">케이스</th>
-            <th style="width:32%;">파일</th>
-            <th style="width:25%;">역할</th>
-            <th>수정 포인트</th>
+            <th style="width:12%;">구분</th>
+            <th>Principal 타입</th>
+            <th>필터 예외 처리</th>
+            <th>에러 응답</th>
+            <th>추가 파일</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>Masking.java</code></td>
-            <td>마스킹 대상 필드를 지정하는 마커 어노테이션</td>
-            <td>패키지 경로만 확인. 로직 없음.</td>
+            <td><strong>케이스 1</strong></td>
+            <td><code>Long</code> (memberId)</td>
+            <td><code>validateToken()</code> 내부에서 처리</td>
+            <td>Spring Security 기본 (단순 401)</td>
+            <td>없음</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>LogMaskingUtils.java</code></td>
-            <td>리플렉션으로 @Masking 필드를 탐색·치환하는 유틸</td>
-            <td><code>isWrapperType()</code>에 값 객체 추가 시 수정</td>
+            <td><strong>케이스 2</strong></td>
+            <td><code>LoginUserInfoDto</code></td>
+            <td>케이스 1과 동일</td>
+            <td>케이스 1과 동일</td>
+            <td>LoginUserInfoDto, @LoginUser, LoginUserArgumentResolver, WebMvcConfig</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>ApiLoggingAspect.java</code></td>
-            <td>패키지 경로 기반 전체 컨트롤러 로깅</td>
-            <td><code>execution()</code> 패키지 경로 교체</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td><code>Logger.java</code> (문자열)</td>
-            <td>어노테이션 기반 관리자 로깅 (문자열)</td>
-            <td><code>@annotation()</code> 경로, <code>getAttribute</code> 키 이름</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td><code>Logger.java</code> (JSON)</td>
-            <td>어노테이션 기반 관리자 로깅 (JSON)</td>
-            <td><code>@annotation()</code> 경로, <code>ObjectMapper</code> 주입 방식</td>
+            <td><strong>케이스 3</strong></td>
+            <td><code>LoginUserInfoDto</code></td>
+            <td>try-catch + <code>request.setAttribute("exception", e)</code></td>
+            <td>만료/위조/미제출 구분하여 상세 JSON 응답</td>
+            <td>케이스 2 + JwtAuthenticationEntryPoint</td>
           </tr>
         </tbody>
       </table>
-
-      <div class="concept-box">
-        <span class="box-title">케이스별 핵심 차이</span>
-        <strong>Pointcut 방식:</strong> 케이스 1은 패키지 경로 기반(<code>execution()</code>)으로 해당 패키지의 모든 메서드에 자동 적용된다. 케이스 2, 3은 어노테이션 기반(<code>@annotation()</code>)으로 <code>@AdminLogging</code>이 붙은 메서드에만 선택적으로 적용된다.<br><br>
-        <strong>마스킹 방식 (케이스 1):</strong> DTO 필드에 <code>@Masking</code>을 붙이면 리플렉션으로 탐색하여 해당 필드 값만 정밀하게 치환한다. 파라미터 이름 기반 방식과 달리 오탐이 없고, 마스킹 대상이 코드에 명시적으로 선언된다.<br><br>
-        <strong>파라미터 출력 방식:</strong> 케이스 1, 2는 <code>[이름=값]</code> 문자열로 출력한다. 케이스 3은 <code>ObjectMapper</code>로 JSON 직렬화하여 출력한다. DTO 내부 구조가 복잡할수록 케이스 3이 가독성이 높다.<br><br>
-        <strong>응답 로그:</strong> 케이스 1, 2는 응답 객체를 로그에 포함하지 않는다. 케이스 3은 응답 객체도 JSON으로 직렬화해서 기록한다. 응답이 <code>void</code>이면 <code>null</code>이 출력되며, 이는 정상 동작이다.
-      </div>
 
       <p class="muted"><a href="/templates/">← Templates로 돌아가기</a></p>
     </article>
