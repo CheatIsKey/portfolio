@@ -223,6 +223,15 @@ public class CookieUtils {
         </span>
       </h3>
 
+      <div class="warning-box">
+        <span class="box-title">⚠️ jjwt 0.12.x API 변경 사항</span>
+        jjwt <strong>0.12.x</strong>에서 빌더 메서드명이 전면 변경되었다. 이전 버전(0.11.x) 코드를 그대로 붙이면 컴파일 오류가 발생한다.<br><br>
+        <strong>토큰 생성:</strong> <code>Jwts.claims().setSubject()</code> → <code>Jwts.builder().subject()</code><br>
+        <strong>토큰 파싱:</strong> <code>Jwts.parserBuilder()</code> → <code>Jwts.parser()</code><br>
+        <strong>파싱 결과:</strong> <code>.parseClaimsJws(token).getBody()</code> → <code>.parseSignedClaims(token).getPayload()</code><br>
+        <strong>서명 알고리즘:</strong> <code>.signWith(key, SignatureAlgorithm.HS256)</code> → <code>.signWith(key)</code> (알고리즘 자동 추론)
+      </div>
+
       <pre><code class="language-java">@Slf4j
 @Component
 public class JwtTokenProvider {
@@ -260,46 +269,60 @@ public class JwtTokenProvider {
         return buildToken(memberId, null, refreshTokenValidityInMilliseconds);
     }
 
-    /** 실제 JWT 생성 내부 메서드 */
+    /**
+     * 실제 JWT 생성 내부 메서드 — jjwt 0.12.x API
+     *
+     * 0.11.x → 0.12.x 변경 요약:
+     *   setClaims()    → claims() 빌더 체이닝으로 대체
+     *   setSubject()   → subject()
+     *   setIssuer()    → issuer()
+     *   setIssuedAt()  → issuedAt()
+     *   setExpiration()→ expiration()
+     *   setId()        → id()
+     *   signWith(key, SignatureAlgorithm.HS256) → signWith(key) (알고리즘 자동 추론)
+     */
     private String buildToken(Long memberId, String role, long validityTimeInMs) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(memberId));
-        if (role != null) {
-            claims.put("role", role);
-        }
-
         Date now      = new Date();
         Date validity = new Date(now.getTime() + validityTimeInMs);
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuer(ISSUER)
-                .setIssuedAt(now)
-                .setExpiration(validity)
-                .setId(UUID.randomUUID().toString())
-                .signWith(key, SignatureAlgorithm.HS256)
+        // 0.12.x: Jwts.builder()에서 직접 클레임 메서드를 체이닝
+        var builder = Jwts.builder()
+                .subject(String.valueOf(memberId)) // PK를 Subject로 지정
+                .issuer(ISSUER)
+                .issuedAt(now)
+                .expiration(validity)
+                .id(UUID.randomUUID().toString());
+
+        if (role != null) {
+            builder.claim("role", role); // Custom Claim 추가
+        }
+
+        return builder
+                .signWith(key) // 0.12.x: SecretKey 타입에서 알고리즘(HS256) 자동 추론
                 .compact();
     }
 
-    /** 토큰에서 회원 PK 추출 */
+    /** 토큰에서 회원 PK(Subject) 추출 */
     public Long getMemberId(String token) {
-        String subject = Jwts.parserBuilder()
-                .setSigningKey(key)
+        // 0.12.x: parserBuilder() → parser() / parseClaimsJws() → parseSignedClaims() / getBody() → getPayload()
+        String subject = Jwts.parser()
+                .verifyWith(key)
                 .requireIssuer(ISSUER)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
         return Long.parseLong(subject);
     }
 
     /** 토큰에서 역할(role) 추출 — Refresh Token은 role이 없어 null 반환 가능 */
     public String getRole(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts.parser()
+                .verifyWith(key)
                 .requireIssuer(ISSUER)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .get("role", String.class);
     }
 
@@ -308,14 +331,17 @@ public class JwtTokenProvider {
         return (int) (refreshTokenValidityInMilliseconds / 1000);
     }
 
-    /** 토큰 유효성 검증 — 케이스 1, 2에서 사용 (예외를 내부에서 처리) */
+    /**
+     * 토큰 유효성 검증 — 케이스 1, 2에서 사용 (예외를 내부에서 처리하고 boolean 반환)
+     * 케이스 3에서는 이 메서드 대신 필터에서 try-catch로 직접 예외를 잡는다.
+     */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
+            Jwts.parser()
+                .verifyWith(key)
                 .requireIssuer(ISSUER)
                 .build()
-                .parseClaimsJws(token);
+                .parseSignedClaims(token);
             return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
             log.warn("잘못된 JWT 서명입니다 (위조 의심): {}", e.getMessage());
