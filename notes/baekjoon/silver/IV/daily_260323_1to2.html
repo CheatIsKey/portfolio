@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1331 — 나이트 투어</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1331">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260320_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>나이트 투어 (백준 1331)</strong>는<br>
+        6 × 6 체스판에서 나이트가 36칸을 모두 정확히 한 번씩 방문하고<br>
+        <strong>마지막 위치에서 시작 위치로 나이트 이동이 가능한지 검증</strong>하는 문제다.<br>
+        <strong>모든 조건을 만족하면 "Valid", 하나라도 위반하면 "Invalid"를 출력</strong>한다.
+      </p>
+      
+      <ul>
+        <li>나이트의 이동은 (±1, ±2) 또는 (±2, ±1)의 8가지 방향이다.</li>
+        <li>연속된 두 위치 사이의 행 차이와 열 차이가 나이트 이동 규칙을 만족해야 한다.</li>
+        <li>이미 방문한 칸을 다시 방문하면 Invalid이며, 마지막 칸에서 시작 칸으로 나이트 이동이 불가능해도 Invalid다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (이동 규칙 검증 + 방문 체크)</li>
+        <li><strong>선택 이유</strong>: 36개의 위치를 순서대로 읽으며 연속된 두 위치 간의 나이트 이동 유효성과 중복 방문 여부를 검사하면 된다. 입력이 고정 크기(36개)이므로 O(1)에 수렴하는 간단한 시뮬레이션으로 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>첫 번째 위치를 시작점으로 방문 표시한다.</li>
+            <li>나머지 35개의 위치를 순서대로 읽으며 이전 위치에서 현재 위치로의 이동이 나이트 규칙을 만족하는지, 이미 방문한 칸인지 검사한다.</li>
+            <li>모든 이동이 유효하면 마지막 위치에서 시작 위치로 나이트 이동이 가능한지 검사한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 시작 위치 입력 및 초기화</strong>
+          <pre><code>int startPosCol = line.charAt(0) - 'A';
+      int startPosRow = line.charAt(1) - '0' - 1;
+      
+      board[startPosRow][startPosCol] = true;</code></pre>
+          <ul>
+            <li>첫 번째 위치를 읽어 열은 <code>'A'</code>를 빼서 0~5 인덱스로, 행은 <code>'0'</code>을 빼고 1을 빼서 0~5 인덱스로 변환한다.</li>
+            <li>시작 위치를 방문 표시하고, 이후 마지막 위치에서의 복귀 검사에 사용하기 위해 저장해둔다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 연속된 위치 간 나이트 이동 검증</strong>
+          <pre><code>for (int i = 0; i < 35; i++) {
+          currPosCol = c - 'A';
+          currPosRow = r - '0' - 1;
+      
+          if ((Math.abs(prevPosRow - currPosRow) == 2 && Math.abs(prevPosCol - currPosCol) == 1
+                  || Math.abs(prevPosRow - currPosRow) == 1 && Math.abs(prevPosCol - currPosCol) == 2)
+                  && !board[currPosRow][currPosCol]) {
+      
+              board[currPosRow][currPosCol] = true;
+              prevPosCol = currPosCol;
+              prevPosRow = currPosRow;
+              continue;
+          }
+      
+          System.out.println("Invalid");
+          return;
+      }</code></pre>
+          <ul>
+            <li>나머지 35개의 위치를 순서대로 읽으며 이전 위치(<code>prev</code>)와 현재 위치(<code>curr</code>)의 행·열 차이가 나이트 이동 규칙을 만족하는지 확인한다.</li>
+            <li>행 차이가 2이고 열 차이가 1, 또는 행 차이가 1이고 열 차이가 2인 경우만 유효한 나이트 이동이다.</li>
+            <li><code>!board[currPosRow][currPosCol]</code>로 이미 방문한 칸인지 동시에 검사한다. 두 조건 중 하나라도 위반이면 즉시 "Invalid"를 출력하고 종료한다.</li>
+            <li>유효한 이동이면 방문 표시를 하고 <code>prev</code>를 현재 위치로 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 마지막 위치에서 시작 위치로의 복귀 검사</strong>
+          <pre><code>for (int k = 0; k < ROW.length; k++) {
+          int row = prevPosRow + ROW[k];
+          int col = prevPosCol + COL[k];
+      
+          if (row < 0 || row >= 6 || col < 0 || col >= 6) continue;
+          if (startPosRow == row && startPosCol == col) {
+              System.out.println("Valid");
+              return;
+          }
+      }
+      
+      System.out.println("Invalid");</code></pre>
+          <ul>
+            <li>마지막 위치에서 나이트가 이동할 수 있는 8방향을 모두 시도해, 그 중 시작 위치와 일치하는 경우가 있으면 "Valid"를 출력하고 종료한다.</li>
+            <li>8방향 모두 시작 위치로 이동할 수 없으면 "Invalid"를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 체스판 크기(6 × 6 = 36칸)가 고정되어 있으므로 모든 연산이 상수 횟수만큼 수행된다. 35번의 이동 검증과 최대 8번의 복귀 검사 모두 상수 시간이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 방문 여부를 저장하는 <code>boolean[6][6]</code> 배열이 고정 크기를 사용하므로 입력 크기와 무관한 상수 공간이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 13900 — 순서쌍의 곱의 합</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/13900">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260320_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>순서쌍의 곱의 합 (백준 13900)</strong>는<br>
+        N개의 수가 주어질 때, <strong>i < j를 만족하는 모든 순서쌍 (i, j)에 대해 A[i] × A[j]의 합</strong>을 구하는 문제다.<br>
+        <strong>N이 최대 100,000</strong>이므로 브루트포스 O(N²) 대신 수학적 관계를 이용한 O(N) 풀이가 필요하다.
+      </p>
+      
+      <ul>
+        <li>모든 순서쌍을 직접 구하면 최대 약 50억 번의 연산이 필요해 시간 초과가 발생한다.</li>
+        <li>i번째 원소 A[i]에 대해, A[i]보다 뒤에 있는 모든 원소의 합을 곱하면 A[i]가 관여하는 모든 쌍의 곱의 합을 O(1)에 구할 수 있다.</li>
+        <li>수의 크기가 최대 100,000이고 N이 최대 100,000이므로 곱의 합이 <code>long</code> 범위를 초과하지 않는지 확인해야 한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 수학적 최적화 (누적 합 활용)</li>
+        <li><strong>선택 이유</strong>: A[i] × (A[i+1] + A[i+2] + ... + A[N-1])을 모든 i에 대해 계산하면 모든 순서쌍의 곱의 합과 동일하다. 전체 합에서 A[i]를 제거해 나가며 남은 합을 곱하면 O(N)에 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>먼저 모든 원소의 합 <code>totalSum</code>을 구한다.</li>
+            <li>앞에서부터 순회하며 현재 원소 A[i]를 <code>totalSum</code>에서 빼면, <code>totalSum</code>은 A[i+1] ~ A[N-1]의 합이 된다.</li>
+            <li>이 값에 A[i]를 곱해 <code>answer</code>에 누적한다. 이것이 A[i]가 왼쪽에 오는 모든 쌍의 곱의 합이다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 전체 합 계산</strong>
+          <pre><code>long totalSum = 0;
+      int[] numbers = new int[N];
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          numbers[i] = num;
+          totalSum += num;
+      }</code></pre>
+          <ul>
+            <li>N개의 수를 배열에 저장하면서 전체 합 <code>totalSum</code>을 동시에 계산한다.</li>
+            <li><code>totalSum</code>은 이후 각 원소를 제거해 나가며 오른쪽 부분 합을 유지하는 데 사용된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 순서쌍 곱의 합 계산</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          totalSum -= numbers[i];
+          answer += totalSum * numbers[i];
+      }</code></pre>
+          <ul>
+            <li>i번째 원소를 <code>totalSum</code>에서 먼저 빼면, <code>totalSum</code>은 A[i+1] + A[i+2] + ... + A[N-1]이 된다.</li>
+            <li><code>totalSum × numbers[i]</code>는 A[i]가 왼쪽 원소가 되는 모든 쌍 (A[i], A[j]) (j > i)의 곱의 합과 동일하다.</li>
+            <li>예시: numbers = [1, 2, 3]이면 i=0에서 totalSum=5, answer += 1×5=5. i=1에서 totalSum=3, answer += 2×3=6. i=2에서 totalSum=0, answer += 3×0=0. 최종 answer = 11. (1×2 + 1×3 + 2×3 = 2 + 3 + 6 = 11과 일치)</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>누적된 모든 순서쌍의 곱의 합 <code>answer</code>를 출력한다. 값이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 입력을 읽으며 전체 합을 계산하는 O(N)과, 순서쌍 곱의 합을 계산하는 O(N)으로 전체 O(N)이다. 브루트포스 O(N²) 대비 획기적으로 개선된 시간 복잡도다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 원소를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
