@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 66일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 68일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,369 +109,271 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 66일차 TIL — MDC · 동적 마스킹 · JWT 방어 전략 · JWS vs JWE</h1>
-      <p class="muted">작성일 2026-03-20 · 분류: 부트캠프, TIL, Spring Boot, MDC, AOP, JWT, Redis, 보안</p>
+      <h1>내일배움캠프 Spring 백엔드 68일차 TIL — 포인트 도메인 2일차: 등급 재계산 · 스케줄러 · FIFO 차감 전략</h1>
+      <p class="muted">작성일 2026-03-24 · 분류: 부트캠프, TIL, 팀 프로젝트, JPA, Scheduler, FIFO, 도메인 설계, 트러블슈팅</p>
 
-      <h2 class="section">66일차 개요</h2>
+      <h2 class="section">68일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 목표
+          오늘 작업 범위
         </span>
       </h3>
       <ul>
-        <li><strong>MDC(Mapped Diagnostic Context)</strong>의 동작 원리와 스레드 풀 환경에서 주의해야 할 점을 이해한다.</li>
-        <li>AOP 로깅에 MDC를 결합해 요청별 추적 ID를 자동으로 로그에 붙이는 방법을 익힌다.</li>
-        <li><strong>@Masking 동적 마스킹</strong>으로 타입별(이름, 이메일, 비밀번호) 마스킹 전략을 구현한다.</li>
-        <li>Java 13 <strong>switch 표현식과 yield</strong>의 의미를 정확히 이해한다.</li>
-        <li><strong>JWT 단점 방어 3단계</strong>(수명 단축, Redis 블랙리스트, RTR)를 정리한다.</li>
-        <li><strong>JWS와 JWE</strong>의 차이와 실무에서 JWS를 사용하는 이유를 파악한다.</li>
+        <li>어제에 이어 결제 시스템 팀 프로젝트의 <strong>포인트 도메인</strong>을 계속 작업했다.</li>
+        <li><strong>멤버십 등급 재계산</strong> 위치 논의 및 최종 설계 확정</li>
+        <li><strong>PointRepository</strong> 쿼리 메서드 설계 개선</li>
+        <li><strong>스케줄러 2종</strong> 구현 (구매확정 자동화, 포인트 만료 소멸)</li>
+        <li><strong>FIFO 포인트 차감 전략</strong> 도입 (원장 보존형 PointUsageDetail 엔티티)</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. MDC (Mapped Diagnostic Context)</h2>
+      <h2 class="section">1. 멤버십 등급 재계산 위치 논의</h2>
 
       <p>
-        수많은 요청이 동시에 들어오는 서버 환경에서, 특정 사용자의 요청이 어떤 로그들을 남겼는지 한눈에 추적하기 위해 사용한다.
-        각 스레드마다 별도의 저장 공간을 만들어 <code>traceId</code>, <code>userId</code> 같은 정보를 저장해두면,
-        그 스레드가 실행되는 동안 찍히는 <strong>모든 로그에 해당 정보가 자동으로 따라붙는다.</strong>
+        포인트 환불 취소 시 누적 결제금액이 줄어들면 멤버십 등급도 재계산해야 한다.
+        이 로직을 어디에 두어야 하는지 세 가지 후보를 거쳐 최종 설계를 확정했다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">단계</th>
-            <th>동작</th>
+            <th style="width:25%;">후보</th>
+            <th style="width:40%;">문제점</th>
+            <th>결과</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>1. 정보 저장</strong></td>
-            <td>요청이 들어올 때 <code>MDC.put("traceId", "TX1234")</code>로 저장한다.</td>
+            <td><strong>PointService 내부에 직접 구현</strong></td>
+            <td>포인트 도메인이 멤버십 도메인을 직접 제어하는 책임 혼재 발생</td>
+            <td>폐기</td>
           </tr>
           <tr>
-            <td><strong>2. 로그 출력</strong></td>
-            <td>logback 설정만 해두면 이후 모든 로그에 <code>[TX1234]</code>가 자동으로 붙는다.</td>
+            <td><strong>User 엔티티 내부로 이동</strong></td>
+            <td>엔티티가 Repository를 의존하는 안티패턴 — 엔티티는 상태와 순수한 계산만 가져야 한다</td>
+            <td>폐기</td>
           </tr>
           <tr>
-            <td><strong>3. 정보 삭제</strong></td>
-            <td>요청이 끝나면 반드시 <code>MDC.clear()</code> 또는 <code>MDC.remove("traceId")</code>로 비워야 한다.</td>
+            <td><strong>User 엔티티에 정책 목록을 파라미터로 전달</strong></td>
+            <td>없음</td>
+            <td><strong>채택</strong></td>
           </tr>
         </tbody>
       </table>
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ 스레드 풀 환경에서 MDC.remove()가 필수인 이유</span>
-        톰캣(Tomcat)은 성능을 위해 스레드를 매번 새로 만들지 않고 <strong>스레드 풀(Thread Pool)</strong>에서 꺼내 재사용한다.
-        요청이 끝난 후 <code>MDC.remove()</code>를 호출하지 않으면, 같은 스레드를 재사용하는 <strong>다른 사용자의 요청에 이전 사용자의 traceId가 그대로 찍힌다.</strong>
-        반드시 <code>finally</code> 블록에서 제거해야 예외가 발생해도 항상 정리가 보장된다.
+      <div class="concept-box">
+        <span class="box-title">최종 구조 — 엔티티가 정책을 파라미터로 받아 직접 계산</span>
+        <code>User.recalculateMembershipGrade(List&lt;MembershipGrade&gt; policies)</code> 형태로 설계했다.<br><br>
+        <strong>PointService의 역할:</strong> <code>MembershipGrade</code> 정책 목록을 Repository에서 조회한 뒤 <code>User</code>에게 전달하는 것까지만 담당한다.<br>
+        <strong>User 엔티티의 역할:</strong> 전달받은 정책 목록과 자신의 누적 결제금액을 비교해 직접 등급을 계산한다.<br><br>
+        엔티티가 Repository를 의존하지 않으면서도 계산 로직을 엔티티 안에 캡슐화할 수 있다.
+        PointService는 멤버십 정책의 세부 내용을 알 필요 없이 목록을 넘겨주는 역할만 하므로 <strong>책임이 명확하게 분리</strong>된다.
       </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AOP + MDC 통합 로깅
-        </span>
-      </h3>
-
-      <p>
-        AOP의 <code>@Around</code>에 MDC를 결합하면 컨트롤러 코드를 건드리지 않고도
-        모든 요청에 고유한 추적 ID를 자동으로 붙일 수 있다.
-        <code>MultipartFile</code>, <code>HttpServletRequest</code>처럼 로깅에 부적합한 객체는
-        <code>isLoggable()</code>로 필터링해서 제외한다.
-      </p>
-
-      <pre><code class="language-java">@Around("execution(* com.example.instagramclone.controller.rest.*.*(..))")
-public Object logApi(ProceedingJoinPoint joinPoint) throws Throwable {
-
-    // UUID 앞 8자리를 traceId로 사용 — 요청마다 고유한 값
-    String traceId = UUID.randomUUID().toString().substring(0, 8);
-    MDC.put("traceId", traceId);
-
-    try {
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
-
-        // MultipartFile, HttpServletRequest 등 로깅 부적합 객체 필터링
-        List&lt;String&gt; filteredParamNames = new ArrayList&lt;&gt;();
-        List&lt;Object&gt; filteredArgs       = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; args.length; i++) {
-            if (!isLoggable(args[i])) continue;
-            filteredParamNames.add(parameterNames != null ? parameterNames[i] : "arg" + i);
-            filteredArgs.add(args[i]);
-        }
-
-        String paramsString = LogMaskingUtils.buildMaskedParamsString(
-                filteredParamNames.toArray(new String[0]),
-                filteredArgs.toArray()
-        );
-
-        log.info("[API 요청] {} / {} | 파라미터: [{}]", className, methodName, paramsString);
-
-        long startTime = System.currentTimeMillis();
-        Object result = joinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - startTime;
-
-        log.info("[API 응답] {} / {} (수행시간: {}ms)", className, methodName, executionTime);
-        return result;
-
-    } finally {
-        // 스레드 풀 재사용 시 이전 요청 데이터 오염 방지 — finally 블록 필수
-        MDC.remove("traceId");
-    }
-}</code></pre>
 
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 동적 마스킹 — @Masking(type = MaskingType.XXX)</h2>
-
-      <p>
-        이전에 구현한 <code>@Masking</code>은 모든 필드를 <code>******</code>로 치환하는 단순한 방식이었다.
-        동적 마스킹은 <code>@Masking</code> 어노테이션에 <strong>타입(type) 속성을 추가</strong>하여
-        이름, 이메일, 비밀번호 각각에 맞는 마스킹 전략을 다르게 적용한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          MaskingType enum + @Masking 어노테이션
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// 마스킹 전략 종류
-public enum MaskingType {
-    NAME,     // 홍길동 → 홍*동
-    EMAIL,    // hong@example.com → hon***@example.com
-    PASSWORD  // 무조건 ******
-}
-
-// 수정 포인트: 새 마스킹 전략이 필요하면 MaskingType에 추가하고 maskValueByType()에 case를 추가한다.
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Masking {
-    MaskingType type() default MaskingType.PASSWORD; // 기본값은 PASSWORD
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          타입별 마스킹 로직
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// applyMaskingToObject() 내부 — 기존 field.isAnnotationPresent(Masking.class) 조건 대체
-Masking masking = field.getAnnotation(Masking.class); // 어노테이션 객체를 직접 가져온다
-
-if (masking != null && value != null) {
-    // type 속성을 읽어 동적으로 마스킹 전략 적용
-    String maskedValue = maskValueByType(value.toString(), masking.type());
-    fieldStrings.add(field.getName() + "='" + maskedValue + "'");
-} else {
-    fieldStrings.add(field.getName() + "=" + value);
-}
-
-// 타입별 마스킹 비즈니스 로직
-private static String maskValueByType(String value, MaskingType type) {
-    return switch (type) {
-        case PASSWORD -> "******";
-        case EMAIL -> {
-            int atIndex = value.indexOf('@');
-            // 이메일 형식이 아니거나 @ 앞자리가 너무 짧으면 통째로 마스킹
-            if (atIndex &lt;= 3) yield "***" + value.substring(atIndex);
-            // 앞 3글자 + *** + @도메인
-            yield value.substring(0, 3) + "***" + value.substring(atIndex);
-        }
-        case NAME -> {
-            if (value.length() &lt;= 1) yield "*";
-            if (value.length() == 2)  yield value.charAt(0) + "*";
-            // 홍길동 → 홍*동 / 남궁민수 → 남**수
-            yield value.charAt(0) + "*".repeat(value.length() - 2) + value.charAt(value.length() - 1);
-        }
-    };
-}</code></pre>
+      <h2 class="section">2. PointRepository 쿼리 메서드 설계</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">타입</th>
-            <th style="width:30%;">원본 예시</th>
-            <th>마스킹 결과</th>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>PASSWORD</strong></td>
-            <td><code>myP@ssw0rd</code></td>
-            <td><code>******</code></td>
+            <td>메서드명이 과도하게 길어짐<br><small><code>findByTypeAndExpiresAtBeforeAndExpirationProcessedAtIsNull</code></small></td>
+            <td>Spring Data JPA 쿼리 메서드 네이밍은 조건이 많아질수록 가독성이 급격히 떨어진다. <code>@Query</code>로 JPQL을 직접 작성하는 방식으로 변경했다.</td>
           </tr>
           <tr>
-            <td><strong>EMAIL</strong></td>
-            <td><code>hong@example.com</code></td>
-            <td><code>hon***@example.com</code></td>
+            <td>FIFO용 쿼리와 만료 스케줄러용 쿼리를 하나로 합치려 함</td>
+            <td>두 쿼리의 목적이 다르다. FIFO용(<code>findEarnedByUserOrderByExpiresAt</code>)은 특정 유저를 대상으로 만료일 오름차순 조회이고, 만료 스케줄러용(<code>findExpiredEarnedPoints</code>)은 전체 유저 중 만료된 적립 포인트를 대상으로 한다. 목적이 다른 쿼리는 분리해야 한다.</td>
           </tr>
           <tr>
-            <td><strong>NAME</strong> (3글자)</td>
-            <td><code>홍길동</code></td>
-            <td><code>홍*동</code></td>
-          </tr>
-          <tr>
-            <td><strong>NAME</strong> (4글자)</td>
-            <td><code>남궁민수</code></td>
-            <td><code>남**수</code></td>
+            <td><code>expiresAt Before now</code>와 <code>After now</code>의 의미 혼동</td>
+            <td><code>Before(now)</code>는 "만료일이 지금보다 이전 = 이미 만료된 것"을 의미한다. <code>After(now)</code>는 아직 유효한 포인트를 조회한다. 만료 스케줄러는 이미 만료된 것을 처리해야 하므로 <code>Before</code>가 올바르다.</td>
           </tr>
         </tbody>
       </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DTO에 적용 예시
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Builder
-public record SignUpRequest(
-        @NotBlank(message = "사용자 이름은 필수입니다.")
-        @Pattern(regexp = "^[a-z0-9._]{4,20}$", message = "...")
-        @Masking(type = MaskingType.NAME)   // 로그에서 이름 형식으로 마스킹
-        String username,
-
-        @NotBlank(message = "비밀번호는 필수입니다.")
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$", message = "...")
-        @Masking                            // type 생략 시 기본값 PASSWORD → ******
-        String password,
-
-        @NotBlank(message = "이메일 또는 전화번호는 필수입니다.")
-        @Masking(type = MaskingType.EMAIL)  // 로그에서 이메일 형식으로 마스킹
-        String emailOrPhone,
-
-        @NotBlank(message = "이름은 필수입니다.")
-        @Masking(type = MaskingType.NAME)
-        String name
-) {
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          switch 표현식과 yield (Java 13+)
-        </span>
-      </h3>
-
-      <div class="concept-box">
-        <span class="box-title">yield vs return의 차이</span>
-        <strong>return</strong>을 만나면 메서드 전체가 즉시 종료된다.<br>
-        <strong>yield</strong>를 만나면 switch 블록의 결과값만 반환하고, 메서드는 계속 실행된다.<br><br>
-        즉, switch 표현식 전체를 하나의 값으로 평가할 때 중괄호 블록 안에서 값을 돌려보내는 키워드가 <code>yield</code>다.
-      </div>
-
-      <pre><code class="language-java">// 한 줄이면 yield 생략 가능 (화살표 오른쪽 값이 자동 반환)
-String result = switch (mode) {
-    case "FAST"   -> "빠름";
-    case "DETAIL" -> {
-        System.out.println("상세 모드 가동");
-        yield "상세"; // 중괄호 안에서는 yield 필수
-    }
-    default -> "기본";
-};</code></pre>
 
       <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. JWT 단점 방어 전략 3단계</h2>
+      <h2 class="section">3. 스케줄러 구현</h2>
 
-      <p>
-        JWT는 한 번 발급되면 서버에서 무효화하기 어렵다는 근본적인 한계가 있다.
-        탈취된 토큰도 만료되기 전까지는 유효하기 때문에, 아래 세 단계를 조합해 방어한다.
-      </p>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          구현한 스케줄러 목록
+        </span>
+      </h3>
 
       <table>
         <thead>
           <tr>
-            <th style="width:12%; text-align:center;">단계</th>
-            <th style="width:30%;">방어 방법</th>
-            <th>설명</th>
+            <th style="width:35%;">클래스</th>
+            <th>역할</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;"><strong>1단계</strong></td>
-            <td><strong>Access Token 수명 단축</strong></td>
-            <td>Access Token의 유효기간을 짧게(5~15분) 설정한다. 탈취되더라도 피해 지속 시간을 최소화한다.</td>
+            <td><strong>PurchaseConfirmScheduler</strong></td>
+            <td>결제 완료 후 7일이 지난 주문을 자동으로 구매 확정 처리한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>2단계</strong></td>
-            <td><strong>Redis 블랙리스트</strong></td>
-            <td>로그아웃 시 해당 Access Token을 Redis에 블랙리스트로 등록한다. Spring Security 필터가 서명 검증과 함께 Redis 블랙리스트 여부도 확인한다. TTL을 토큰의 남은 유효기간으로 설정해 Redis 메모리를 자동으로 정리한다.</td>
+            <td><strong>PointExpirationScheduler</strong></td>
+            <td>매일 자정에 만료된 포인트를 소멸 처리한다.</td>
           </tr>
           <tr>
-            <td style="text-align:center;"><strong>3단계</strong></td>
-            <td><strong>RTR (Refresh Token Rotation)</strong></td>
-            <td>Access Token 재발급 요청 시 Refresh Token도 <strong>무조건 새것으로 교체</strong>하고 기존 토큰은 폐기한다. Refresh Token이 탈취됐더라도 한 번 사용되는 순간 무효화되어 재사용이 불가능하다.</td>
+            <td><strong>PointExpirationService</strong></td>
+            <td>스케줄러에서 분리된 트랜잭션 처리 서비스 (아래 트러블슈팅 참고)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트러블슈팅 정리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@Transactional</code>이 동일 클래스 내부 메서드 호출 시 무시됨</td>
+            <td>Spring AOP는 프록시 기반으로 동작한다. 같은 클래스 안에서 <code>this.메서드()</code>를 직접 호출하면 프록시를 우회하기 때문에 <code>@Transactional</code>이 적용되지 않는다. <code>processExpiration()</code>을 별도 클래스 <code>PointExpirationService</code>로 분리해서 해결했다.</td>
+          </tr>
+          <tr>
+            <td><code>findExpiredEarnedPoints(PointTransactionType.EARNED, now)</code> 파라미터 오류</td>
+            <td>JPQL에 <code>EARNED</code> 타입이 이미 하드코딩되어 있어 파라미터로 전달할 필요가 없었다. <code>now</code>만 전달하도록 수정했다.</td>
+          </tr>
+          <tr>
+            <td><code>CONFIRM_AFTER_DATS</code> 오타</td>
+            <td><code>CONFIRM_AFTER_DAYS</code>로 수정. 상수명 오타는 컴파일 에러로 잡히지 않으므로 직접 눈으로 확인해야 한다.</td>
+          </tr>
+          <tr>
+            <td><code>findByStatusAndCompletedAtBefore</code> 필드 불일치</td>
+            <td>Order 엔티티에서 PAID 상태 전환 시 세팅되는 필드가 <code>completedAt</code>이 아닌 <code>purchasedAt</code>이었다. 실제 엔티티 필드명을 확인하고 <code>findByStatusAndPurchasedAtBefore</code>로 수정했다.</td>
+          </tr>
+          <tr>
+            <td><code>order.complete()</code> 메서드 없음</td>
+            <td>Order 엔티티에 존재하는 메서드는 <code>complete()</code>가 아닌 <code>purchaseConfirmed()</code>였다. 엔티티를 직접 열어서 실제 메서드명을 확인 후 수정했다.</td>
+          </tr>
+          <tr>
+            <td>실패 로그를 <code>log.info</code>로 작성</td>
+            <td>실패·예외 상황은 반드시 <code>log.error</code>로 기록해야 로그 레벨 필터링 시 누락되지 않는다. 전체를 <code>log.error</code>로 통일했다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">Redis 블랙리스트가 효율적인 이유</span>
-        Redis는 메모리 기반 인메모리 DB이므로 블랙리스트 조회가 매우 빠르다.
-        토큰의 <strong>남은 유효기간을 TTL로 설정</strong>하면, 토큰이 원래 만료될 시점에 Redis에서도 자동으로 삭제된다.
-        만료된 토큰은 애초에 더 이상 쓸 수 없으므로 블랙리스트에 남겨둘 이유가 없다. 메모리 낭비 없이 정확하게 관리된다.
+        <span class="box-title">@Transactional이 동일 클래스 내부 호출에서 무시되는 이유</span>
+        Spring의 <code>@Transactional</code>은 AOP 프록시를 통해 동작한다.
+        외부에서 Bean을 호출하면 프록시 객체가 가로채서 트랜잭션을 시작하지만,
+        <strong>같은 클래스 안에서 <code>this.메서드()</code>로 호출하면 프록시를 거치지 않고 실제 객체를 직접 호출</strong>하기 때문에 트랜잭션이 걸리지 않는다.<br><br>
+        해결 방법은 트랜잭션이 필요한 메서드를 <strong>별도 Bean(다른 클래스)으로 분리</strong>하는 것이다.
+        외부 Bean 호출이 되면 프록시가 정상적으로 개입한다.
+        스케줄러처럼 자기 클래스 내부에서 트랜잭션 메서드를 호출하는 패턴이 많으므로 이 원리를 반드시 기억해야 한다.
       </div>
 
       <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. JWT 규격 — JWS vs JWE</h2>
+      <h2 class="section">4. FIFO 포인트 차감 전략 도입</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          원장 직접 수정 방식 vs 원장 보존형 방식
+        </span>
+      </h3>
+
+      <p>
+        포인트는 만료일이 다른 여러 건으로 적립된다. 사용 시 만료일이 가장 이른 포인트부터 차감하는 FIFO 전략이 필요하다.
+        처음 제안된 방식은 적립 원장(<code>PointTransaction</code>)의 포인트를 직접 줄이는 방법이었지만 문제가 있었다.
+      </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:15%;">규격</th>
-            <th style="width:30%;">방식</th>
-            <th style="width:25%;">보장하는 것</th>
-            <th>내용 노출 여부</th>
+            <th style="width:25%;">방식</th>
+            <th style="width:40%;">문제점</th>
+            <th>결과</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>JWS</strong><br>(JSON Web Signature)</td>
-            <td>서명(Signature)으로 무결성 검증</td>
-            <td>변조되지 않았음(무결성)</td>
-            <td>페이로드 내용이 Base64로 인코딩만 됨 — <strong>누구나 디코딩해서 읽을 수 있음</strong></td>
+            <td><strong>원장 직접 수정</strong><br><code>earned.deductPoints()</code></td>
+            <td>원래 얼마를 적립받았는지 추적 불가. "언제, 얼마를 적립했다"는 사실 자체가 지워진다.</td>
+            <td>폐기</td>
           </tr>
           <tr>
-            <td><strong>JWE</strong><br>(JSON Web Encryption)</td>
-            <td>강력한 암호화 알고리즘으로 페이로드 암호화</td>
-            <td>무결성 + 기밀성</td>
-            <td>비밀키가 없으면 내용을 절대 열어볼 수 없음</td>
+            <td><strong>원장 보존형</strong><br>(PointUsageDetail 별도 엔티티)</td>
+            <td>없음</td>
+            <td><strong>채택</strong></td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">실무에서 JWS를 사용하는 이유</span>
-        JWE는 요청마다 무거운 암호화·복호화 연산을 수행해야 한다.
-        수많은 사용자가 짧은 시간에 수십 개의 API 요청을 보내는 환경에서 매번 JWE를 복호화하면 <strong>심각한 성능 저하</strong>가 발생한다.<br><br>
-        대부분의 JWT에는 <code>userId</code>, 권한, 만료 시각처럼 공개돼도 크게 문제없는 정보만 담는다.
-        이 경우 기밀성보다 <strong>변조 불가능함(무결성)</strong>이 더 중요하므로,
-        성능이 뛰어난 JWS 방식을 사용하는 것이다.
-        JWT 페이로드에 비밀번호, 개인정보 같은 민감 데이터를 담지 않는 것이 전제 조건이다.
+        <span class="box-title">원장 보존형 FIFO 구조</span>
+        <code>PointUsageDetail</code> 엔티티를 별도로 설계하여 "어떤 적립 건에서 얼마를 사용했는지"를 추적한다.<br><br>
+        <strong>적립 원장(<code>PointTransaction</code>)은 절대 수정하지 않는다.</strong> "A 주문으로 500포인트 적립" 사실은 영원히 보존된다.<br>
+        사용 시 <code>PointUsageDetail</code>에 "이 적립 건에서 N포인트 사용"을 기록하는 방식이다.<br><br>
+        잔여 포인트 = 적립 원장 포인트 - 해당 원장에 연결된 <code>PointUsageDetail</code> 합계
       </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트러블슈팅 정리
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>available &lt; 0</code> 조건 버그</td>
+            <td><code>available</code>이 정확히 0일 때도 차감할 포인트가 없으므로 스킵해야 한다. <code>available &lt;= 0</code>으로 수정했다. 경계값은 항상 등호 포함 여부를 명확히 따져야 한다.</td>
+          </tr>
+          <tr>
+            <td><code>PointExpirationService</code>를 <code>scheduler</code> 패키지에 배치</td>
+            <td><code>@Service</code>가 붙은 클래스는 Service 계층이므로 <code>service</code> 패키지에 위치해야 한다. 스케줄러에서 호출한다고 해서 <code>scheduler</code> 패키지에 넣으면 패키지 구조의 의미가 모호해진다.</td>
+          </tr>
+          <tr>
+            <td><code>Math.min(remainPoint, user.getPointBalance())</code> 의미 혼동</td>
+            <td>FIFO 미적용 시 포인트 잔액이 음수가 되는 상황을 방어하기 위한 코드였다. FIFO가 적용되면 <code>remainPoint</code>는 항상 <code>pointBalance</code> 이하이므로 이론상 불필요한 코드가 된다. 제거보다는 주석으로 맥락을 기록해두는 것이 안전하다.</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        MDC는 멀티스레드 환경에서 로그 추적을 가능하게 하는 핵심 도구다.
-        각 요청에 고유한 <code>traceId</code>를 부여하면 수백 개의 동시 요청 속에서도 특정 요청의 로그 흐름을 한눈에 따라갈 수 있다.
-        단, 스레드 풀 환경에서 <code>finally</code> 블록의 <code>MDC.remove()</code>를 빠뜨리는 것은 데이터 오염으로 이어지므로 절대 놓치면 안 된다.
+        오늘 가장 인상 깊었던 설계 결정은 <strong>멤버십 등급 재계산 위치</strong>였다.
+        처음에는 PointService에 직접 넣는 게 가장 쉬웠지만, 그렇게 하면 포인트 서비스가 멤버십 도메인을 제어하는 책임을 갖게 된다.
+        엔티티에 넣으면 Repository 의존 문제가 생긴다.
+        결국 "엔티티는 상태와 순수한 계산만 담당하고, 외부 데이터가 필요하면 파라미터로 받는다"는 원칙이 정답이었다.
+        설계는 여러 후보를 검토하면서 각각의 문제점을 드러내는 과정 자체가 중요하다.
       </p>
 
       <p>
-        동적 마스킹은 <code>@Masking</code>에 <code>type</code> 속성 하나를 추가한 것처럼 보이지만,
-        필드에 선언하는 것만으로 마스킹 전략이 자동으로 적용되어 코드 가독성과 보안이 동시에 향상된다.
-        <code>MaskingType</code>에 새 전략을 추가하고 <code>maskValueByType()</code>에 <code>case</code>만 추가하면
-        기존 코드를 건드리지 않고 확장할 수 있다는 점에서 개방-폐쇄 원칙과도 잘 맞는 설계다.
+        <code>@Transactional</code>이 동일 클래스 내부 호출에서 무시되는 문제는 스프링을 처음 사용할 때 가장 많이 실수하는 부분 중 하나다.
+        프록시 기반 AOP의 동작 원리를 이해하지 못하면 왜 트랜잭션이 안 걸리는지 원인을 찾기 어렵다.
+        스케줄러처럼 자기 클래스 내부에서 트랜잭션 메서드를 호출하는 패턴이 많으므로,
+        <strong>트랜잭션이 필요한 로직은 별도 Bean으로 분리하는 습관</strong>을 들여야 한다.
       </p>
 
       <p>
-        JWT 보안은 단일 방어로는 부족하다.
-        수명 단축으로 피해 범위를 제한하고, Redis 블랙리스트로 즉각적인 무효화를 지원하며, RTR로 Refresh Token 탈취 공격까지 차단하는 다층 방어가 필요하다.
-        JWS와 JWE의 차이도 단순한 이론이 아니라 성능과 보안의 트레이드오프를 이해하는 것이다.
-        JWT 페이로드에 민감 데이터를 담지 않는다는 원칙을 지키는 한, 성능이 뛰어난 JWS로 충분하다.
+        FIFO 차감 전략에서 원장을 수정하지 않고 별도 추적 테이블을 두는 방식을 택한 것은
+        <strong>한 번 기록된 사실은 절대 지우지 않는다</strong>는 원칙을 따른 것이다.
+        "언제, 얼마를 적립받았다"는 사실은 감사(audit) 목적과 고객 문의 대응에도 필수적이다.
+        당장 구현이 복잡해지더라도 원장을 보존하는 방식을 선택한 것이 장기적으로 옳은 결정이다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
