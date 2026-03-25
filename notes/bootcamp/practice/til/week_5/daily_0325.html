@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 66일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 69일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,369 +109,288 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 66일차 TIL — MDC · 동적 마스킹 · JWT 방어 전략 · JWS vs JWE</h1>
-      <p class="muted">작성일 2026-03-20 · 분류: 부트캠프, TIL, Spring Boot, MDC, AOP, JWT, Redis, 보안</p>
+      <h1>내일배움캠프 Spring 백엔드 69일차 TIL — Google / Kakao OAuth 2.0 소셜 로그인 도입 트러블슈팅</h1>
+      <p class="muted">작성일 2026-03-25 · 분류: 부트캠프, TIL, 팀 프로젝트, OAuth 2.0, Spring Security, Google, Kakao, 트러블슈팅</p>
 
-      <h2 class="section">66일차 개요</h2>
+      <h2 class="section">69일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 목표
+          오늘 작업 범위
         </span>
       </h3>
       <ul>
-        <li><strong>MDC(Mapped Diagnostic Context)</strong>의 동작 원리와 스레드 풀 환경에서 주의해야 할 점을 이해한다.</li>
-        <li>AOP 로깅에 MDC를 결합해 요청별 추적 ID를 자동으로 로그에 붙이는 방법을 익힌다.</li>
-        <li><strong>@Masking 동적 마스킹</strong>으로 타입별(이름, 이메일, 비밀번호) 마스킹 전략을 구현한다.</li>
-        <li>Java 13 <strong>switch 표현식과 yield</strong>의 의미를 정확히 이해한다.</li>
-        <li><strong>JWT 단점 방어 3단계</strong>(수명 단축, Redis 블랙리스트, RTR)를 정리한다.</li>
-        <li><strong>JWS와 JWE</strong>의 차이와 실무에서 JWS를 사용하는 이유를 파악한다.</li>
+        <li>결제 시스템 팀 프로젝트에 <strong>Google OAuth 2.0</strong> 소셜 로그인을 도입했다.</li>
+        <li>이어서 <strong>Kakao OAuth 2.0</strong>을 추가로 연동했다.</li>
+        <li>OAuth 토큰 전달 방식의 <strong>보안 불일치 문제</strong>를 발견하고 개선했다.</li>
+        <li>Google과 Kakao의 사용자 정보 JSON 구조 차이에서 발생하는 파싱 문제를 해결했다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. MDC (Mapped Diagnostic Context)</h2>
+      <h2 class="section">1. Google Cloud Console 설정</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>스코프(scope) 설정 위치를 Google Cloud Console에서 찾으려 했으나 항목이 보이지 않음</td>
+            <td>현재 UI에서는 Console에서 별도로 스코프를 설정할 필요가 없다. <code>application.yml</code>의 <code>scope</code> 설정만으로 충분하다.</td>
+          </tr>
+          <tr>
+            <td>리다이렉트 URI를 프론트엔드 주소로 설정하려 함</td>
+            <td>OAuth 플로우를 오해한 것이다. 구글이 인증 코드를 보내는 곳은 <strong>백엔드 서버</strong>이므로 백엔드 주소(<code>/login/oauth2/code/google</code>)로 등록해야 한다. 프론트는 이후 백엔드가 최종 리다이렉트하는 대상이다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">OAuth 2.0 Authorization Code Flow 흐름</span>
+        1. 사용자가 "구글로 로그인" 클릭<br>
+        2. 구글 로그인 화면 → 동의<br>
+        3. 구글이 <strong>백엔드 서버</strong>의 Redirect URI(<code>/login/oauth2/code/google</code>)로 인증 코드 전송<br>
+        4. 백엔드가 인증 코드로 구글 토큰 서버에 Access Token 요청<br>
+        5. Access Token으로 사용자 정보 조회<br>
+        6. JWT 발급 후 <strong>프론트엔드</strong>로 최종 리다이렉트<br><br>
+        리다이렉트 URI는 구글이 인증 코드를 보내는 <strong>백엔드</strong> 주소이며, 프론트 주소가 아니다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Google OAuth 코드 구현</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          구현 파일 목록
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%;">파일</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AuthProvider</code> (enum)</td>
+            <td>LOCAL, GOOGLE (이후 KAKAO 추가)</td>
+          </tr>
+          <tr>
+            <td><code>OAuthUserInfo</code> (DTO)</td>
+            <td>provider별 사용자 정보 파싱 결과를 담는 DTO</td>
+          </tr>
+          <tr>
+            <td><code>CustomOAuth2UserService</code></td>
+            <td>OAuth 로그인 시 사용자 조회/생성 처리</td>
+          </tr>
+          <tr>
+            <td><code>OAuth2SuccessHandler</code></td>
+            <td>OAuth 인증 성공 후 JWT 발급 및 프론트로 리다이렉트</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트러블슈팅
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>User</code> 엔티티에 <code>provider</code> 필드 추가 후 <code>DataInitializer</code>에서 <code>NULL not allowed</code> 에러 발생</td>
+            <td>기존 INSERT 쿼리의 컬럼 목록에 <code>provider</code>가 없었다. SQL 컬럼 목록과 VALUES에 <code>provider</code>, <code>"LOCAL"</code>을 추가해서 해결했다.</td>
+          </tr>
+          <tr>
+            <td>위 수정 후 재실행 시 <code>Column count does not match</code> 에러 발생</td>
+            <td>컬럼 목록에는 <code>provider</code>를 추가했지만 <code>VALUES</code>의 <code>?</code> 개수를 그대로 둬서 불일치가 발생했다. 컬럼 수와 <code>?</code> 개수를 맞춰서 해결했다. SQL을 수정할 때는 컬럼과 값 자리를 항상 함께 확인해야 한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. OAuth 토큰 발급 보안 이슈</h2>
 
       <p>
-        수많은 요청이 동시에 들어오는 서버 환경에서, 특정 사용자의 요청이 어떤 로그들을 남겼는지 한눈에 추적하기 위해 사용한다.
-        각 스레드마다 별도의 저장 공간을 만들어 <code>traceId</code>, <code>userId</code> 같은 정보를 저장해두면,
-        그 스레드가 실행되는 동안 찍히는 <strong>모든 로그에 해당 정보가 자동으로 따라붙는다.</strong>
+        OAuth 인증 성공 후 프론트엔드로 토큰을 전달하는 방식에서 기존 일반 로그인과의 보안 불일치가 발견됐다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">단계</th>
-            <th>동작</th>
+            <th style="width:20%;">방식</th>
+            <th style="width:35%;">초기 구현</th>
+            <th>문제점</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>1. 정보 저장</strong></td>
-            <td>요청이 들어올 때 <code>MDC.put("traceId", "TX1234")</code>로 저장한다.</td>
+            <td><strong>일반 로그인</strong></td>
+            <td>Access Token → 응답 Body / Refresh Token → HttpOnly 쿠키</td>
+            <td>없음</td>
           </tr>
           <tr>
-            <td><strong>2. 로그 출력</strong></td>
-            <td>logback 설정만 해두면 이후 모든 로그에 <code>[TX1234]</code>가 자동으로 붙는다.</td>
-          </tr>
-          <tr>
-            <td><strong>3. 정보 삭제</strong></td>
-            <td>요청이 끝나면 반드시 <code>MDC.clear()</code> 또는 <code>MDC.remove("traceId")</code>로 비워야 한다.</td>
+            <td><strong>OAuth 로그인 (초기)</strong></td>
+            <td>Access Token + Refresh Token 둘 다 URL 파라미터로 전달</td>
+            <td>Refresh Token이 브라우저 주소창, 히스토리, 서버 로그에 노출</td>
           </tr>
         </tbody>
       </table>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 스레드 풀 환경에서 MDC.remove()가 필수인 이유</span>
-        톰캣(Tomcat)은 성능을 위해 스레드를 매번 새로 만들지 않고 <strong>스레드 풀(Thread Pool)</strong>에서 꺼내 재사용한다.
-        요청이 끝난 후 <code>MDC.remove()</code>를 호출하지 않으면, 같은 스레드를 재사용하는 <strong>다른 사용자의 요청에 이전 사용자의 traceId가 그대로 찍힌다.</strong>
-        반드시 <code>finally</code> 블록에서 제거해야 예외가 발생해도 항상 정리가 보장된다.
+        <span class="box-title">⚠️ HTTP 리다이렉트는 Body를 지원하지 않는다</span>
+        <code>OAuth2SuccessHandler</code>에서 프론트로 리다이렉트할 때는 <code>sendRedirect()</code>를 사용한다.
+        HTTP 리다이렉트(302)는 응답 Body를 지원하지 않기 때문에 일반 로그인처럼 Body에 토큰을 담는 방식을 쓸 수 없다.
+        URL 파라미터 외의 방법이 기술적으로 제한된다.
       </div>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AOP + MDC 통합 로깅
-        </span>
-      </h3>
-
-      <p>
-        AOP의 <code>@Around</code>에 MDC를 결합하면 컨트롤러 코드를 건드리지 않고도
-        모든 요청에 고유한 추적 ID를 자동으로 붙일 수 있다.
-        <code>MultipartFile</code>, <code>HttpServletRequest</code>처럼 로깅에 부적합한 객체는
-        <code>isLoggable()</code>로 필터링해서 제외한다.
-      </p>
-
-      <pre><code class="language-java">@Around("execution(* com.example.instagramclone.controller.rest.*.*(..))")
-public Object logApi(ProceedingJoinPoint joinPoint) throws Throwable {
-
-    // UUID 앞 8자리를 traceId로 사용 — 요청마다 고유한 값
-    String traceId = UUID.randomUUID().toString().substring(0, 8);
-    MDC.put("traceId", traceId);
-
-    try {
-        String className  = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        MethodSignature signature      = (MethodSignature) joinPoint.getSignature();
-        String[]        parameterNames = signature.getParameterNames();
-        Object[]        args           = joinPoint.getArgs();
-
-        // MultipartFile, HttpServletRequest 등 로깅 부적합 객체 필터링
-        List&lt;String&gt; filteredParamNames = new ArrayList&lt;&gt;();
-        List&lt;Object&gt; filteredArgs       = new ArrayList&lt;&gt;();
-        for (int i = 0; i &lt; args.length; i++) {
-            if (!isLoggable(args[i])) continue;
-            filteredParamNames.add(parameterNames != null ? parameterNames[i] : "arg" + i);
-            filteredArgs.add(args[i]);
-        }
-
-        String paramsString = LogMaskingUtils.buildMaskedParamsString(
-                filteredParamNames.toArray(new String[0]),
-                filteredArgs.toArray()
-        );
-
-        log.info("[API 요청] {} / {} | 파라미터: [{}]", className, methodName, paramsString);
-
-        long startTime = System.currentTimeMillis();
-        Object result = joinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - startTime;
-
-        log.info("[API 응답] {} / {} (수행시간: {}ms)", className, methodName, executionTime);
-        return result;
-
-    } finally {
-        // 스레드 풀 재사용 시 이전 요청 데이터 오염 방지 — finally 블록 필수
-        MDC.remove("traceId");
-    }
-}</code></pre>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 동적 마스킹 — @Masking(type = MaskingType.XXX)</h2>
-
-      <p>
-        이전에 구현한 <code>@Masking</code>은 모든 필드를 <code>******</code>로 치환하는 단순한 방식이었다.
-        동적 마스킹은 <code>@Masking</code> 어노테이션에 <strong>타입(type) 속성을 추가</strong>하여
-        이름, 이메일, 비밀번호 각각에 맞는 마스킹 전략을 다르게 적용한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          MaskingType enum + @Masking 어노테이션
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// 마스킹 전략 종류
-public enum MaskingType {
-    NAME,     // 홍길동 → 홍*동
-    EMAIL,    // hong@example.com → hon***@example.com
-    PASSWORD  // 무조건 ******
-}
-
-// 수정 포인트: 새 마스킹 전략이 필요하면 MaskingType에 추가하고 maskValueByType()에 case를 추가한다.
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Masking {
-    MaskingType type() default MaskingType.PASSWORD; // 기본값은 PASSWORD
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          타입별 마스킹 로직
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// applyMaskingToObject() 내부 — 기존 field.isAnnotationPresent(Masking.class) 조건 대체
-Masking masking = field.getAnnotation(Masking.class); // 어노테이션 객체를 직접 가져온다
-
-if (masking != null && value != null) {
-    // type 속성을 읽어 동적으로 마스킹 전략 적용
-    String maskedValue = maskValueByType(value.toString(), masking.type());
-    fieldStrings.add(field.getName() + "='" + maskedValue + "'");
-} else {
-    fieldStrings.add(field.getName() + "=" + value);
-}
-
-// 타입별 마스킹 비즈니스 로직
-private static String maskValueByType(String value, MaskingType type) {
-    return switch (type) {
-        case PASSWORD -> "******";
-        case EMAIL -> {
-            int atIndex = value.indexOf('@');
-            // 이메일 형식이 아니거나 @ 앞자리가 너무 짧으면 통째로 마스킹
-            if (atIndex &lt;= 3) yield "***" + value.substring(atIndex);
-            // 앞 3글자 + *** + @도메인
-            yield value.substring(0, 3) + "***" + value.substring(atIndex);
-        }
-        case NAME -> {
-            if (value.length() &lt;= 1) yield "*";
-            if (value.length() == 2)  yield value.charAt(0) + "*";
-            // 홍길동 → 홍*동 / 남궁민수 → 남**수
-            yield value.charAt(0) + "*".repeat(value.length() - 2) + value.charAt(value.length() - 1);
-        }
-    };
-}</code></pre>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">타입</th>
-            <th style="width:30%;">원본 예시</th>
-            <th>마스킹 결과</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>PASSWORD</strong></td>
-            <td><code>myP@ssw0rd</code></td>
-            <td><code>******</code></td>
-          </tr>
-          <tr>
-            <td><strong>EMAIL</strong></td>
-            <td><code>hong@example.com</code></td>
-            <td><code>hon***@example.com</code></td>
-          </tr>
-          <tr>
-            <td><strong>NAME</strong> (3글자)</td>
-            <td><code>홍길동</code></td>
-            <td><code>홍*동</code></td>
-          </tr>
-          <tr>
-            <td><strong>NAME</strong> (4글자)</td>
-            <td><code>남궁민수</code></td>
-            <td><code>남**수</code></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DTO에 적용 예시
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Builder
-public record SignUpRequest(
-        @NotBlank(message = "사용자 이름은 필수입니다.")
-        @Pattern(regexp = "^[a-z0-9._]{4,20}$", message = "...")
-        @Masking(type = MaskingType.NAME)   // 로그에서 이름 형식으로 마스킹
-        String username,
-
-        @NotBlank(message = "비밀번호는 필수입니다.")
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$", message = "...")
-        @Masking                            // type 생략 시 기본값 PASSWORD → ******
-        String password,
-
-        @NotBlank(message = "이메일 또는 전화번호는 필수입니다.")
-        @Masking(type = MaskingType.EMAIL)  // 로그에서 이메일 형식으로 마스킹
-        String emailOrPhone,
-
-        @NotBlank(message = "이름은 필수입니다.")
-        @Masking(type = MaskingType.NAME)
-        String name
-) {
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          switch 표현식과 yield (Java 13+)
-        </span>
-      </h3>
-
-      <div class="concept-box">
-        <span class="box-title">yield vs return의 차이</span>
-        <strong>return</strong>을 만나면 메서드 전체가 즉시 종료된다.<br>
-        <strong>yield</strong>를 만나면 switch 블록의 결과값만 반환하고, 메서드는 계속 실행된다.<br><br>
-        즉, switch 표현식 전체를 하나의 값으로 평가할 때 중괄호 블록 안에서 값을 돌려보내는 키워드가 <code>yield</code>다.
-      </div>
-
-      <pre><code class="language-java">// 한 줄이면 yield 생략 가능 (화살표 오른쪽 값이 자동 반환)
-String result = switch (mode) {
-    case "FAST"   -> "빠름";
-    case "DETAIL" -> {
-        System.out.println("상세 모드 가동");
-        yield "상세"; // 중괄호 안에서는 yield 필수
-    }
-    default -> "기본";
-};</code></pre>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. JWT 단점 방어 전략 3단계</h2>
-
-      <p>
-        JWT는 한 번 발급되면 서버에서 무효화하기 어렵다는 근본적인 한계가 있다.
-        탈취된 토큰도 만료되기 전까지는 유효하기 때문에, 아래 세 단계를 조합해 방어한다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:12%; text-align:center;">단계</th>
-            <th style="width:30%;">방어 방법</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align:center;"><strong>1단계</strong></td>
-            <td><strong>Access Token 수명 단축</strong></td>
-            <td>Access Token의 유효기간을 짧게(5~15분) 설정한다. 탈취되더라도 피해 지속 시간을 최소화한다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2단계</strong></td>
-            <td><strong>Redis 블랙리스트</strong></td>
-            <td>로그아웃 시 해당 Access Token을 Redis에 블랙리스트로 등록한다. Spring Security 필터가 서명 검증과 함께 Redis 블랙리스트 여부도 확인한다. TTL을 토큰의 남은 유효기간으로 설정해 Redis 메모리를 자동으로 정리한다.</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3단계</strong></td>
-            <td><strong>RTR (Refresh Token Rotation)</strong></td>
-            <td>Access Token 재발급 요청 시 Refresh Token도 <strong>무조건 새것으로 교체</strong>하고 기존 토큰은 폐기한다. Refresh Token이 탈취됐더라도 한 번 사용되는 순간 무효화되어 재사용이 불가능하다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="concept-box">
-        <span class="box-title">Redis 블랙리스트가 효율적인 이유</span>
-        Redis는 메모리 기반 인메모리 DB이므로 블랙리스트 조회가 매우 빠르다.
-        토큰의 <strong>남은 유효기간을 TTL로 설정</strong>하면, 토큰이 원래 만료될 시점에 Redis에서도 자동으로 삭제된다.
-        만료된 토큰은 애초에 더 이상 쓸 수 없으므로 블랙리스트에 남겨둘 이유가 없다. 메모리 낭비 없이 정확하게 관리된다.
+      <div class="success-box">
+        <span class="box-title">최종 해결 — Refresh Token은 Set-Cookie 헤더로</span>
+        HTTP 리다이렉트 응답에도 <strong>헤더(Header)</strong>는 함께 전송된다.
+        <code>response.addCookie()</code>를 사용하면 리다이렉트 응답에 <code>Set-Cookie</code> 헤더를 추가할 수 있다.<br><br>
+        <strong>Refresh Token</strong> → HttpOnly 쿠키(<code>Set-Cookie</code> 헤더)로 전달 (브라우저가 자동 저장)<br>
+        <strong>Access Token</strong> → URL 파라미터로 전달 (프론트가 꺼내서 메모리/스토리지에 저장)<br><br>
+        이렇게 하면 일반 로그인과 동일한 보안 수준을 유지할 수 있다.
       </div>
 
       <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. JWT 규격 — JWS vs JWE</h2>
+      <h2 class="section">4. Kakao 개발자 콘솔 설정</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:15%;">규격</th>
-            <th style="width:30%;">방식</th>
-            <th style="width:25%;">보장하는 것</th>
-            <th>내용 노출 여부</th>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>JWS</strong><br>(JSON Web Signature)</td>
-            <td>서명(Signature)으로 무결성 검증</td>
-            <td>변조되지 않았음(무결성)</td>
-            <td>페이로드 내용이 Base64로 인코딩만 됨 — <strong>누구나 디코딩해서 읽을 수 있음</strong></td>
+            <td>Redirect URI 등록 위치를 문서와 다른 UI에서 찾지 못함</td>
+            <td>카카오 개발자 콘솔 UI가 개편되었다. 새 UI 기준: <code>앱 설정</code> → <code>플랫폼 키</code> → <code>REST API 키</code> → <code>더보기</code>에서 Redirect URI를 등록해야 한다.</td>
           </tr>
           <tr>
-            <td><strong>JWE</strong><br>(JSON Web Encryption)</td>
-            <td>강력한 암호화 알고리즘으로 페이로드 암호화</td>
-            <td>무결성 + 기밀성</td>
-            <td>비밀키가 없으면 내용을 절대 열어볼 수 없음</td>
+            <td>기존 <code>[플랫폼] → [Web]</code>에서 사이트 도메인을 등록하는 항목이 사라짐</td>
+            <td>UI 개편으로 설정 위치가 변경되었다. JavaScript SDK 도메인은 JavaScript 키 하위, Redirect URI는 REST API 키 하위에서 각각 설정하는 구조로 분리되었다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. Kakao OAuth 코드 구현</h2>
+
+      <p>
+        Google과 Kakao는 사용자 정보 응답의 JSON 구조가 다르기 때문에 provider별 분기 처리가 필요하다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Google vs Kakao JSON 구조 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">항목</th>
+            <th>Google</th>
+            <th>Kakao</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>JSON 구조</strong></td>
+            <td>flat (단순 1단계)</td>
+            <td>중첩 구조 (<code>kakao_account</code> → <code>profile</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>고유 ID</strong></td>
+            <td><code>"sub"</code> (String)</td>
+            <td><code>"id"</code> (Long)</td>
+          </tr>
+          <tr>
+            <td><strong>이메일 위치</strong></td>
+            <td>최상위 레벨 <code>attributes.get("email")</code></td>
+            <td><code>kakao_account</code> 안에 중첩</td>
+          </tr>
+          <tr>
+            <td><strong>nameAttributeKey</strong></td>
+            <td><code>"sub"</code></td>
+            <td><code>"id"</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          트러블슈팅
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>카카오 중첩 JSON 파싱 실패</td>
+            <td>카카오는 <code>kakao_account</code> → <code>profile</code>의 중첩 구조다. <code>(Map&lt;String, Object&gt;)</code> 캐스팅으로 단계별로 꺼내는 로직을 추가했다. Google은 flat 구조라 별도 처리가 필요 없다.</td>
+          </tr>
+          <tr>
+            <td>카카오 고유 ID 타입 불일치 — <code>id</code>가 <code>Long</code>인데 Google <code>sub</code>은 <code>String</code></td>
+            <td>두 provider의 ID를 통일된 방식으로 처리하려면 <code>String.valueOf()</code>로 변환해서 <code>String</code>으로 통일해야 한다.</td>
+          </tr>
+          <tr>
+            <td><code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>를 구글과 동일하게 <code>"email"</code>로 하드코딩 → 카카오에서 에러 발생</td>
+            <td>카카오는 최상위 레벨에 <code>"email"</code> 키가 없다. <code>userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()</code>으로 각 provider 설정에서 동적으로 가져오도록 변경했다. Google은 <code>"sub"</code>, Kakao는 <code>"id"</code>가 반환된다.</td>
+          </tr>
+          <tr>
+            <td><code>OAuth2SuccessHandler</code>에서 <code>attributes.get("email")</code>로 카카오 이메일 꺼내기 → <code>null</code> 반환</td>
+            <td>카카오는 이메일이 <code>kakao_account</code> 안에 있어 최상위 레벨 <code>attributes</code>에 없다. OAuth 성공 핸들러에서도 provider를 분기해서 이메일을 꺼내는 로직을 추가했다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">실무에서 JWS를 사용하는 이유</span>
-        JWE는 요청마다 무거운 암호화·복호화 연산을 수행해야 한다.
-        수많은 사용자가 짧은 시간에 수십 개의 API 요청을 보내는 환경에서 매번 JWE를 복호화하면 <strong>심각한 성능 저하</strong>가 발생한다.<br><br>
-        대부분의 JWT에는 <code>userId</code>, 권한, 만료 시각처럼 공개돼도 크게 문제없는 정보만 담는다.
-        이 경우 기밀성보다 <strong>변조 불가능함(무결성)</strong>이 더 중요하므로,
-        성능이 뛰어난 JWS 방식을 사용하는 것이다.
-        JWT 페이로드에 비밀번호, 개인정보 같은 민감 데이터를 담지 않는 것이 전제 조건이다.
+        <span class="box-title">nameAttributeKey를 동적으로 가져와야 하는 이유</span>
+        <code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>는 해당 provider의 응답 JSON에서 <strong>반드시 존재하는 최상위 키</strong>여야 한다.
+        Google은 최상위에 <code>"sub"</code>가 있고 Kakao는 최상위에 <code>"id"</code>가 있다.<br><br>
+        <code>"email"</code>처럼 특정 provider에만 있는 키를 하드코딩하면 다른 provider에서 키를 찾지 못해 에러가 발생한다.
+        <code>getUserNameAttributeName()</code>으로 가져오면 <code>application.yml</code>의 각 provider 설정에서 자동으로 올바른 키를 반환하므로 멀티 provider 환경에서도 안전하게 동작한다.
       </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        MDC는 멀티스레드 환경에서 로그 추적을 가능하게 하는 핵심 도구다.
-        각 요청에 고유한 <code>traceId</code>를 부여하면 수백 개의 동시 요청 속에서도 특정 요청의 로그 흐름을 한눈에 따라갈 수 있다.
-        단, 스레드 풀 환경에서 <code>finally</code> 블록의 <code>MDC.remove()</code>를 빠뜨리는 것은 데이터 오염으로 이어지므로 절대 놓치면 안 된다.
+        OAuth 도입에서 가장 먼저 혼동했던 것은 <strong>리다이렉트 URI가 백엔드 주소라는 사실</strong>이었다.
+        구글이 인증 코드를 보내는 곳은 서버이지 브라우저가 아니다. Authorization Code Flow의 전체 흐름을 그림으로 이해하고 나면 당연한 이야기지만, 처음에는 직관적으로 "프론트에 코드를 주는 것 아닌가"라고 오해하기 쉽다.
       </p>
 
       <p>
-        동적 마스킹은 <code>@Masking</code>에 <code>type</code> 속성 하나를 추가한 것처럼 보이지만,
-        필드에 선언하는 것만으로 마스킹 전략이 자동으로 적용되어 코드 가독성과 보안이 동시에 향상된다.
-        <code>MaskingType</code>에 새 전략을 추가하고 <code>maskValueByType()</code>에 <code>case</code>만 추가하면
-        기존 코드를 건드리지 않고 확장할 수 있다는 점에서 개방-폐쇄 원칙과도 잘 맞는 설계다.
+        OAuth 토큰 전달 보안 이슈는 기존 로그인 방식과의 일관성을 점검하다가 발견한 것이다.
+        <strong>HTTP 리다이렉트는 Body를 지원하지 않지만 헤더는 전송된다</strong>는 사실을 이용해
+        <code>Set-Cookie</code> 헤더로 Refresh Token을 전달하는 방식으로 해결했다.
+        기능을 구현할 때 기존 방식과 동일한 보안 수준을 유지하는지 항상 비교하는 습관이 중요하다.
       </p>
 
       <p>
-        JWT 보안은 단일 방어로는 부족하다.
-        수명 단축으로 피해 범위를 제한하고, Redis 블랙리스트로 즉각적인 무효화를 지원하며, RTR로 Refresh Token 탈취 공격까지 차단하는 다층 방어가 필요하다.
-        JWS와 JWE의 차이도 단순한 이론이 아니라 성능과 보안의 트레이드오프를 이해하는 것이다.
-        JWT 페이로드에 민감 데이터를 담지 않는다는 원칙을 지키는 한, 성능이 뛰어난 JWS로 충분하다.
+        Google과 Kakao의 JSON 구조 차이는 멀티 provider를 지원할 때 반드시 부딪히는 문제다.
+        <code>nameAttributeKey</code>를 하드코딩하지 않고 <code>getUserNameAttributeName()</code>으로 동적으로 가져오는 방식이
+        세 번째 provider를 추가할 때도 동일한 코드를 재사용할 수 있게 만든다.
+        특정 provider에 종속된 하드코딩은 확장성을 막는다는 것을 이번에 직접 경험했다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
