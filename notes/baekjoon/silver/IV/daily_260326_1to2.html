@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>오셀로 재배치 (백준 13413)</strong>는<br>
-        N개의 오셀로 돌을 초기 상태에서 목표 상태로 바꿀 때, <strong>뒤집기 연산의 최소 횟수</strong>를 구하는 문제다.<br>
-        <strong>한 번의 연산으로 흰색('W')과 검은색('B')이 다른 위치의 두 돌을 서로 교환</strong>할 수 있다.
+        <strong>파스칼 삼각형 (백준 15489)</strong>는<br>
+        파스칼 삼각형에서 R행 C열을 꼭짓점으로 하는 <strong>크기 W의 삼각형 영역에 속한 모든 수의 합</strong>을 구하는 문제다.<br>
+        <strong>삼각형 영역은 꼭짓점에서 아래로 W행에 걸쳐 왼쪽 변을 따라 펼쳐지는 정삼각형 모양</strong>이다.
       </p>
       
       <ul>
-        <li>초기 상태와 목표 상태가 다른 위치만 처리하면 된다. 이미 맞는 위치는 건드릴 필요가 없다.</li>
-        <li>불일치 위치는 두 종류다. before가 'W'이고 after가 'B'인 경우(<code>wrongWhite</code>)와, before가 'B'이고 after가 'W'인 경우(<code>wrongBlack</code>).</li>
-        <li>두 종류의 불일치 쌍끼리는 한 번의 교환으로 동시에 해결된다. 남는 쪽은 같은 종류끼리 교환해도 해결할 수 없으므로 추가 연산이 필요하지 않고, 실질적으로 최솟값은 두 카운트 중 큰 값이다.</li>
+        <li>파스칼 삼각형의 각 원소는 바로 위 행의 왼쪽과 오른쪽 원소의 합으로 정의된다.</li>
+        <li>R, C, W가 모두 최대 30이므로 전체 파스칼 삼각형을 미리 계산해두는 사전 계산 방식이 적합하다.</li>
+        <li>꼭짓점 (R, C)에서 시작해 r번째 행(0-based)의 원소는 C열부터 C+r열까지 r+1개이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,12 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (불일치 유형별 카운팅)</li>
-        <li><strong>선택 이유</strong>: 불일치 위치를 두 유형으로 나누면, 서로 다른 유형의 불일치 쌍은 한 번의 교환으로 해결된다. min(wrongWhite, wrongBlack)개의 쌍이 교환으로 해결되고, 나머지 |wrongWhite - wrongBlack|개는 두 번의 연산(뒤집기)이 필요하다. 총 연산 수는 min + 2 × |diff| / 2 = min + |diff| = max(wrongWhite, wrongBlack)가 된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (파스칼 삼각형 사전 계산) + 부분합</li>
+        <li><strong>선택 이유</strong>: R + W ≤ 60이지만 R, C, W가 최대 30이므로 31 × 31 크기의 배열로 모든 경우를 커버할 수 있다. 파스칼 삼각형을 미리 계산해두면 이후 영역 합 계산이 O(W²)의 단순 합산으로 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>각 위치에서 before와 after가 같으면 건너뛴다.</li>
-            <li>다른 경우 before가 'W'이면 <code>wrongWhite</code>, 'B'이면 <code>wrongBlack</code>을 증가시킨다.</li>
-            <li>두 값 중 큰 값이 최소 연산 횟수다.</li>
+            <li>1-based 인덱스로 파스칼 삼각형 전체를 미리 계산한다. 양 끝(c == 1 또는 c == r)은 1, 나머지는 <code>triangle[r-1][c-1] + triangle[r-1][c]</code>로 채운다.</li>
+            <li>꼭짓점 (R, C)에서 시작해 r = 0부터 W-1까지 순회하며 각 행의 원소를 합산한다. r번째 행은 <code>triangle[R+r][C]</code>부터 <code>triangle[R+r][C+r]</code>까지 r+1개다.</li>
           </ul>
         </li>
       </ul>
@@ -95,39 +94,45 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기·목표 상태 입력</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
+        <li><strong>1) 파스칼 삼각형 사전 계산</strong>
+          <pre><code>int[][] triangle = new int[31][31];
       
-      char[] before = br.readLine().toCharArray();
-      char[] after = br.readLine().toCharArray();</code></pre>
+      for (int r = 1; r < 31; r++) {
+          for (int c = 1; c < r + 1; c++) {
+              if (c == 1 || c == r) {
+                  triangle[r][c] = 1;
+              } else {
+                  triangle[r][c] = triangle[r - 1][c - 1] + triangle[r - 1][c];
+              }
+          }
+      }</code></pre>
           <ul>
-            <li>초기 상태와 목표 상태를 각각 <code>char</code> 배열로 읽는다.</li>
+            <li>1-based 인덱스로 31 × 31 배열에 파스칼 삼각형을 계산한다.</li>
+            <li>각 행의 첫 번째(<code>c == 1</code>)와 마지막(<code>c == r</code>) 원소는 1이고, 나머지는 바로 위 행의 인접 두 원소의 합이다.</li>
+            <li>R + W - 1이 최대 30 + 30 - 1 = 59가 될 수 있으나, 문제 조건상 R, C, W ≤ 30이고 모두 양의 정수이므로 최대 필요한 행은 R + W - 1 ≤ 59다. 그러나 실제 제약상 30행까지만 필요하다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 불일치 유형별 카운팅</strong>
-          <pre><code>int wrongWhite = 0;
-      int wrongBlack = 0;
+        <li><strong>2) 삼각형 영역 합산</strong>
+          <pre><code>int sum = 0;
       
-      for (int i = 0; i < N; i++) {
-          if (before[i] == after[i]) continue;
-          if (before[i] == 'W') wrongWhite++;
-          else wrongBlack++;
+      for (int r = 0; r < W; r++) {
+          for (int c = 0; c < r + 1; c++) {
+              sum += triangle[R + r][C + c];
+          }
       }</code></pre>
           <ul>
-            <li>초기 상태와 목표 상태가 같은 위치는 건너뛴다.</li>
-            <li>다른 위치에서 before가 'W'이면 'W'→'B'로 바꿔야 하는 위치이므로 <code>wrongWhite</code>를 증가시킨다.</li>
-            <li>before가 'B'이면 'B'→'W'로 바꿔야 하는 위치이므로 <code>wrongBlack</code>을 증가시킨다.</li>
-            <li>'W'→'B' 불일치와 'B'→'W' 불일치가 각각 한 개씩 있으면, 두 위치의 돌을 교환하는 한 번의 연산으로 동시에 해결된다.</li>
-            <li>예시: wrongWhite=3, wrongBlack=2이면 2쌍은 교환으로 해결(2번), 남은 wrongWhite 1개는 추가로 1번 필요. 총 3번 = max(3, 2).</li>
+            <li>r은 꼭짓점에서의 상대적 행 오프셋으로 0부터 W-1까지 순회한다.</li>
+            <li>r번째 행의 원소는 꼭짓점 열 C에서 C+r까지 r+1개이므로, c는 0부터 r까지 순회한다.</li>
+            <li>실제 파스칼 삼각형의 위치는 <code>triangle[R+r][C+c]</code>로 접근한다.</li>
+            <li>예시: R=2, C=2, W=3이면 합산 영역은 triangle[2][2], triangle[3][2~3], triangle[4][2~4] 총 6개 원소의 합이다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>sb.append(Math.max(wrongWhite, wrongBlack)).append('\n');</code></pre>
+          <pre><code>System.out.println(sum);</code></pre>
           <ul>
-            <li>두 불일치 카운트 중 큰 값이 최소 연산 횟수다.</li>
-            <li>결과를 <code>StringBuilder</code>에 누적해 마지막에 한 번에 출력함으로써 I/O 비용을 줄인다.</li>
+            <li>삼각형 영역의 모든 원소 합 <code>sum</code>을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -143,12 +148,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(T × N)</strong>: T개의 테스트 케이스 각각에 대해 N개의 위치를 한 번 순회하며 O(1) 연산만 수행하므로 전체 O(T × N)이다.</li>
+            <li><strong>O(1)</strong>: 파스칼 삼각형 사전 계산이 O(31²) = O(961), 영역 합산이 O(W²) ≤ O(900)으로 모두 상수 크기의 연산이다. 입력 크기와 무관하게 항상 일정한 수의 연산으로 처리된다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 초기 상태와 목표 상태를 저장하는 두 개의 <code>char</code> 배열이 각각 N 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 파스칼 삼각형을 저장하는 31 × 31 고정 크기 배열만 사용하므로 입력 크기와 무관한 상수 공간이다.</li>
           </ul>
         </li>
       </ul>
@@ -204,14 +209,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 3048 — 개미</h2>
+      <h2 class="section">문제 2980 — 도로와 신호등</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/3048">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2980">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260325_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260326_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -229,15 +234,15 @@
       </h3>
       
       <p>
-        <strong>개미 (백준 3048)</strong>는<br>
-        왼쪽 그룹과 오른쪽 그룹의 개미들이 서로 반대 방향으로 이동할 때, <strong>T초 후의 개미 순서</strong>를 출력하는 문제다.<br>
-        <strong>두 개미가 만나면 서로 방향을 바꿔 지나치며</strong>, 이는 두 개미가 교환되는 것과 동일하다.
+        <strong>도로와 신호등 (백준 2980)</strong>는<br>
+        길이 L의 도로에 N개의 신호등이 설치되어 있을 때, <strong>출발점에서 도착점까지 걸리는 최소 시간</strong>을 구하는 문제다.<br>
+        <strong>신호등은 빨간불과 초록불을 반복</strong>하며, 빨간불일 때는 해당 위치에서 대기해야 한다.
       </p>
       
       <ul>
-        <li>왼쪽 그룹은 오른쪽(+1) 방향, 오른쪽 그룹은 왼쪽(-1) 방향으로 이동한다.</li>
-        <li>매 초마다 방향이 +1인 개미와 바로 옆 -1인 개미가 만나면 위치를 교환한다.</li>
-        <li>같은 초에 이미 교환된 개미는 다시 교환되지 않도록 <code>moved</code> 배열로 처리한다.</li>
+        <li>속도는 1로 고정되므로 이동 시간은 이동 거리와 동일하다.</li>
+        <li>신호등에 도착했을 때 빨간불이면 초록불로 바뀔 때까지 대기해야 한다.</li>
+        <li>신호등의 주기는 red + green이며, 도착 시각을 주기로 나눈 나머지로 현재 신호 상태를 판별한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -249,13 +254,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (매 초마다 인접 교환)</li>
-        <li><strong>선택 이유</strong>: T가 최대 100, 개미 수가 최대 50이므로 매 초마다 인접한 반대 방향 개미 쌍을 직접 교환하는 시뮬레이션이 O(T × N)으로 충분히 빠르다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 신호등을 순서대로 처리하며 현재 시각과 각 신호등의 주기 정보만으로 대기 시간을 O(1)에 계산할 수 있다. 신호등의 수가 최대 1,000이므로 O(N) 선형 순회로 충분하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>왼쪽 그룹은 입력 순서를 역순으로 배열에 배치해 실제 위치 순서와 맞춘다. 왼쪽 그룹 문자열의 첫 글자가 오른쪽에서 가장 가까운 개미이므로 배열에서 인덱스 N1-1에 위치한다.</li>
-            <li>매 초마다 왼쪽에서 오른쪽으로 순회하며 방향이 +1인 개미와 바로 오른쪽의 방향이 -1인 개미를 교환한다.</li>
-            <li>같은 초에 이미 교환된 개미는 <code>moved</code> 배열로 표시해 중복 교환을 방지한다.</li>
+            <li>이전 위치에서 현재 신호등 위치까지의 이동 시간을 <code>totalTime</code>에 더한다.</li>
+            <li><code>totalTime % cycle</code>로 신호등 도착 시 현재 신호 위상을 계산한다.</li>
+            <li>위상이 red 미만이면 빨간불 구간이므로 <code>red - color</code>만큼 대기 시간을 추가한다.</li>
+            <li>마지막 신호등 이후 도착점까지의 이동 시간을 더해 최종 시간을 구한다.</li>
           </ul>
         </li>
       </ul>
@@ -269,53 +275,47 @@
       </p>
       
       <ul>
-        <li><strong>1) 개미 배열 초기화</strong>
-          <pre><code>String s = br.readLine();
-      for (int i = 0; i < N1; i++) {
-          ants[N1 - 1 - i] = new Ant(s.charAt(i), 1);
-      }
+        <li><strong>1) 초기화 및 신호등 순서 처리</strong>
+          <pre><code>int totalTime = 0;
+      int pos = 0;
       
-      s = br.readLine();
-      for (int i = 0; i < N2; i++) {
-          ants[N1 + i] = new Ant(s.charAt(i), -1);
+      for (int i = 0; i < N; i++) {
+          int traffic = Integer.parseInt(st.nextToken());
+          int red = Integer.parseInt(st.nextToken());
+          int green = Integer.parseInt(st.nextToken());
+      
+          totalTime += (traffic - pos);
+          pos = traffic;
+          ...
       }</code></pre>
           <ul>
-            <li>왼쪽 그룹은 입력 문자열의 첫 글자가 오른쪽 끝(접경 지점에 가장 가까운 위치)에 해당하므로 역순으로 배치한다. <code>ants[N1-1-i] = s.charAt(i)</code>로 처리한다.</li>
-            <li>오른쪽 그룹은 입력 순서 그대로 N1 인덱스부터 이어 배치한다.</li>
-            <li>각 개미는 이름(<code>info</code>)과 이동 방향(<code>direction</code>)을 가진 <code>Ant</code> 객체로 표현된다.</li>
+            <li><code>totalTime</code>은 현재까지 경과한 총 시간, <code>pos</code>는 현재 위치를 나타낸다.</li>
+            <li>현재 신호등 위치 <code>traffic</code>까지의 이동 거리 <code>traffic - pos</code>를 <code>totalTime</code>에 더하고, <code>pos</code>를 갱신한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) T초 동안 시뮬레이션</strong>
-          <pre><code>for (int t = 0; t < T; t++) {
-          boolean[] moved = new boolean[ants.length];
+        <li><strong>2) 신호등 대기 시간 계산</strong>
+          <pre><code>int cycle = red + green;
+      int color = totalTime % cycle;
       
-          for (int i = 0; i < ants.length - 1; i++) {
-              if (ants[i].direction == 1 && ants[i + 1].direction == -1) {
-                  if (!moved[i] && !moved[i + 1]) {
-                      Ant ant = ants[i];
-                      ants[i] = ants[i + 1];
-                      ants[i + 1] = ant;
-      
-                      moved[i] = true;
-                      moved[i + 1] = true;
-                  }
-              }
-          }
+      if (color < red) {
+          totalTime += (red - color);
       }</code></pre>
           <ul>
-            <li>매 초마다 <code>moved</code> 배열을 초기화해 이번 초의 교환 여부를 추적한다.</li>
-            <li>왼쪽에서 오른쪽으로 순회하며 <code>ants[i].direction == 1</code>이고 <code>ants[i+1].direction == -1</code>이면 두 개미가 만나는 상황이다.</li>
-            <li>두 개미 모두 이번 초에 아직 교환되지 않은 경우에만 위치를 교환하고 <code>moved</code>를 true로 표시한다. 이미 교환된 개미가 연쇄적으로 또 교환되는 것을 방지한다.</li>
-            <li>예시: 개미 배열이 [A(+), B(-), C(+), D(-)]이면 1초 후 [B(-), A(+), D(-), C(+)]가 된다.</li>
+            <li><code>cycle = red + green</code>은 신호등의 한 주기 길이다.</li>
+            <li><code>color = totalTime % cycle</code>은 신호등 도착 시각을 주기로 나눈 나머지로, 현재 신호 위상을 나타낸다.</li>
+            <li><code>color < red</code>이면 빨간불 구간에 도착한 것이므로 초록불로 바뀌기까지 남은 시간 <code>red - color</code>를 대기한다.</li>
+            <li><code>color >= red</code>이면 초록불 구간이므로 즉시 통과한다.</li>
+            <li>예시: cycle=5(red=3, green=2), totalTime=7이면 color=7%5=2. 2 < 3이므로 3-2=1초 대기.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>for (Ant ant : ants) sb.append(ant.info);
-      System.out.println(sb);</code></pre>
+        <li><strong>3) 마지막 구간 이동 및 출력</strong>
+          <pre><code>totalTime += (L - pos);
+      System.out.println(totalTime);</code></pre>
           <ul>
-            <li>T초 후 배열의 각 개미 이름을 순서대로 이어붙여 출력한다.</li>
+            <li>마지막 신호등 이후 도착점 L까지의 이동 거리 <code>L - pos</code>를 더한다.</li>
+            <li>최종 총 시간 <code>totalTime</code>을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -331,16 +331,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(T × N)</strong>: T번의 시뮬레이션 각각에서 N = N1 + N2개의 개미를 한 번 순회하며 O(1) 연산만 수행한다. T ≤ 100, N ≤ 50이므로 최악의 경우에도 5,000번의 연산으로 매우 빠르게 동작한다.</li>
+            <li><strong>O(N)</strong>: N개의 신호등을 순서대로 처리하며 각 신호등에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 개미를 저장하는 배열과 매 초마다 생성되는 <code>moved</code> 배열이 각각 N 크기를 사용한다.</li>
+            <li><strong>O(1)</strong>: 신호등 정보를 배열에 저장하지 않고 입력받는 즉시 처리하므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
