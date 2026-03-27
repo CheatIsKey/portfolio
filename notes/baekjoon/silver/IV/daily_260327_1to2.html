@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-26 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-27 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 15489 — 파스칼 삼각형</h2>
+      <h2 class="section">문제 2840 — 행운의 바퀴</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/15489">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2840">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260326_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260327_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>파스칼 삼각형 (백준 15489)</strong>는<br>
-        파스칼 삼각형에서 R행 C열을 꼭짓점으로 하는 <strong>크기 W의 삼각형 영역에 속한 모든 수의 합</strong>을 구하는 문제다.<br>
-        <strong>삼각형 영역은 꼭짓점에서 아래로 W행에 걸쳐 왼쪽 변을 따라 펼쳐지는 정삼각형 모양</strong>이다.
+        <strong>행운의 바퀴 (백준 2840)</strong>는<br>
+        N칸짜리 원형 바퀴를 K번 돌릴 때의 기록을 바탕으로 <strong>바퀴에 적힌 문자 배열을 복원</strong>하는 문제다.<br>
+        <strong>복원이 불가능한 경우 "!"를 출력</strong>하며, 가능한 경우 현재 위치에서 역방향으로 출력한다.
       </p>
       
       <ul>
-        <li>파스칼 삼각형의 각 원소는 바로 위 행의 왼쪽과 오른쪽 원소의 합으로 정의된다.</li>
-        <li>R, C, W가 모두 최대 30이므로 전체 파스칼 삼각형을 미리 계산해두는 사전 계산 방식이 적합하다.</li>
-        <li>꼭짓점 (R, C)에서 시작해 r번째 행(0-based)의 원소는 C열부터 C+r열까지 r+1개이다.</li>
+        <li>각 칸에는 서로 다른 알파벳이 적혀 있어야 하므로, 같은 문자가 서로 다른 위치에 배치되면 모순이다.</li>
+        <li>이미 다른 문자가 배치된 위치에 새로운 문자가 배치되려 해도 모순이다.</li>
+        <li>출력 순서는 현재 포인터 위치에서 시작해 역방향(반시계 방향)으로 N칸을 순서대로 나열한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,12 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 동적 프로그래밍 (파스칼 삼각형 사전 계산) + 부분합</li>
-        <li><strong>선택 이유</strong>: R + W ≤ 60이지만 R, C, W가 최대 30이므로 31 × 31 크기의 배열로 모든 경우를 커버할 수 있다. 파스칼 삼각형을 미리 계산해두면 이후 영역 합 계산이 O(W²)의 단순 합산으로 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 + 모순 검사</li>
+        <li><strong>선택 이유</strong>: K번의 회전 기록을 순서대로 처리하며 각 위치에 문자를 배치하고, 두 가지 모순 조건을 O(1)에 검사하면 된다. N, K가 최대 1,000이므로 O(K) 선형 시뮬레이션으로 충분하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>1-based 인덱스로 파스칼 삼각형 전체를 미리 계산한다. 양 끝(c == 1 또는 c == r)은 1, 나머지는 <code>triangle[r-1][c-1] + triangle[r-1][c]</code>로 채운다.</li>
-            <li>꼭짓점 (R, C)에서 시작해 r = 0부터 W-1까지 순회하며 각 행의 원소를 합산한다. r번째 행은 <code>triangle[R+r][C]</code>부터 <code>triangle[R+r][C+r]</code>까지 r+1개다.</li>
+            <li><code>board</code> 배열을 '?'로 초기화하고, <code>used</code> 배열로 이미 사용된 문자를 추적한다.</li>
+            <li>각 회전 후 포인터 위치를 <code>(pos + S) % N</code>으로 갱신한다.</li>
+            <li>모순이 없으면 해당 위치에 문자를 배치하고 사용 표시를 한다.</li>
+            <li>모든 기록 처리 후 포인터 위치에서 역방향으로 N칸을 순서대로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -94,45 +96,53 @@
       </p>
       
       <ul>
-        <li><strong>1) 파스칼 삼각형 사전 계산</strong>
-          <pre><code>int[][] triangle = new int[31][31];
+        <li><strong>1) 초기화</strong>
+          <pre><code>char[] board = new char[N];
+      boolean[] used = new boolean[32];
+      int pos = 0;
       
-      for (int r = 1; r < 31; r++) {
-          for (int c = 1; c < r + 1; c++) {
-              if (c == 1 || c == r) {
-                  triangle[r][c] = 1;
-              } else {
-                  triangle[r][c] = triangle[r - 1][c - 1] + triangle[r - 1][c];
-              }
-          }
-      }</code></pre>
+      Arrays.fill(board, '?');</code></pre>
           <ul>
-            <li>1-based 인덱스로 31 × 31 배열에 파스칼 삼각형을 계산한다.</li>
-            <li>각 행의 첫 번째(<code>c == 1</code>)와 마지막(<code>c == r</code>) 원소는 1이고, 나머지는 바로 위 행의 인접 두 원소의 합이다.</li>
-            <li>R + W - 1이 최대 30 + 30 - 1 = 59가 될 수 있으나, 문제 조건상 R, C, W ≤ 30이고 모두 양의 정수이므로 최대 필요한 행은 R + W - 1 ≤ 59다. 그러나 실제 제약상 30행까지만 필요하다.</li>
+            <li>N칸의 바퀴를 나타내는 <code>board</code> 배열을 '?'로 초기화한다. '?'는 아직 문자가 배치되지 않은 칸을 의미한다.</li>
+            <li><code>used</code> 배열은 각 알파벳이 이미 어떤 칸에 배치되었는지를 추적한다. 같은 문자가 두 위치에 배치되는 것을 방지한다.</li>
+            <li><code>pos</code>는 현재 포인터 위치이며 0으로 초기화한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 삼각형 영역 합산</strong>
-          <pre><code>int sum = 0;
+        <li><strong>2) 회전 시뮬레이션 및 모순 검사</strong>
+          <pre><code>pos = (pos + S) % N;
       
-      for (int r = 0; r < W; r++) {
-          for (int c = 0; c < r + 1; c++) {
-              sum += triangle[R + r][C + c];
-          }
-      }</code></pre>
+      if (board[pos] != '?' && board[pos] != word) {
+          System.out.println("!");
+          return;
+      }
+      
+      if (board[pos] == '?' && used[word - 'A']) {
+          System.out.println("!");
+          return;
+      }
+      
+      board[pos] = word;
+      used[word - 'A'] = true;</code></pre>
           <ul>
-            <li>r은 꼭짓점에서의 상대적 행 오프셋으로 0부터 W-1까지 순회한다.</li>
-            <li>r번째 행의 원소는 꼭짓점 열 C에서 C+r까지 r+1개이므로, c는 0부터 r까지 순회한다.</li>
-            <li>실제 파스칼 삼각형의 위치는 <code>triangle[R+r][C+c]</code>로 접근한다.</li>
-            <li>예시: R=2, C=2, W=3이면 합산 영역은 triangle[2][2], triangle[3][2~3], triangle[4][2~4] 총 6개 원소의 합이다.</li>
+            <li><code>(pos + S) % N</code>으로 S칸 회전 후 포인터 위치를 갱신한다.</li>
+            <li>첫 번째 모순 조건: 해당 위치에 이미 다른 문자가 배치된 경우. <code>board[pos] != '?'</code>이고 <code>board[pos] != word</code>이면 "!"를 출력하고 종료한다.</li>
+            <li>두 번째 모순 조건: 해당 위치가 비어있지만 배치하려는 문자가 다른 위치에 이미 사용된 경우. <code>board[pos] == '?'</code>이고 <code>used[word - 'A']</code>가 true이면 "!"를 출력하고 종료한다.</li>
+            <li>모순이 없으면 해당 위치에 문자를 배치하고 사용 표시를 한다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(sum);</code></pre>
+          <pre><code>for (int i = 0; i < N; i++) {
+          int idx = (pos - i + N) % N;
+          sb.append(board[idx]);
+      }
+      
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>삼각형 영역의 모든 원소 합 <code>sum</code>을 출력한다.</li>
+            <li>현재 포인터 위치 <code>pos</code>부터 역방향으로 N칸을 순서대로 순회한다.</li>
+            <li><code>(pos - i + N) % N</code>으로 음수 인덱스를 방지하며 역방향 순환 접근을 구현한다.</li>
+            <li>배치되지 않은 칸은 '?'로 그대로 출력된다.</li>
           </ul>
         </li>
       </ul>
@@ -148,12 +158,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 파스칼 삼각형 사전 계산이 O(31²) = O(961), 영역 합산이 O(W²) ≤ O(900)으로 모두 상수 크기의 연산이다. 입력 크기와 무관하게 항상 일정한 수의 연산으로 처리된다.</li>
+            <li><strong>O(K + N)</strong>: K번의 회전 처리가 각 O(1)이므로 O(K), 결과 출력 시 N칸 순회가 O(N)이다. 전체 O(K + N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 파스칼 삼각형을 저장하는 31 × 31 고정 크기 배열만 사용하므로 입력 크기와 무관한 상수 공간이다.</li>
+            <li><strong>O(N)</strong>: 바퀴 상태를 저장하는 <code>board</code> 배열이 N 크기를 사용하며, <code>used</code> 배열은 알파벳 수에 비례하는 O(1) 상수 공간이다.</li>
           </ul>
         </li>
       </ul>
@@ -209,14 +219,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2980 — 도로와 신호등</h2>
+      <h2 class="section">문제 20186 — 수 고르기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2980">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/20186">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260326_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260327_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
