@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 69일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 71일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,24 +109,27 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 69일차 TIL — Google / Kakao OAuth 2.0 소셜 로그인 도입 트러블슈팅</h1>
-      <p class="muted">작성일 2026-03-25 · 분류: 부트캠프, TIL, 팀 프로젝트, OAuth 2.0, Spring Security, Google, Kakao, 트러블슈팅</p>
+      <h1>내일배움캠프 Spring 백엔드 71일차 TIL — 테스트 코드 · 동시성 · CI · OAuth 트러블슈팅</h1>
+      <p class="muted">작성일 2026-03-27 · 분류: 부트캠프, TIL, 팀 프로젝트, JUnit, Mockito, 동시성, GitHub Actions, OAuth, 트러블슈팅</p>
 
-      <h2 class="section">69일차 개요</h2>
+      <h2 class="section">71일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 작업 범위
         </span>
       </h3>
       <ul>
-        <li>결제 시스템 팀 프로젝트에 <strong>Google OAuth 2.0</strong> 소셜 로그인을 도입했다.</li>
-        <li>이어서 <strong>Kakao OAuth 2.0</strong>을 추가로 연동했다.</li>
-        <li>OAuth 토큰 전달 방식의 <strong>보안 불일치 문제</strong>를 발견하고 개선했다.</li>
-        <li>Google과 Kakao의 사용자 정보 JSON 구조 차이에서 발생하는 파싱 문제를 해결했다.</li>
+        <li>결제 시스템 팀 프로젝트의 <strong>테스트 코드 작성 및 수정</strong> 과정에서 발생한 트러블슈팅을 정리했다.</li>
+        <li>단위 테스트 Mock/Stubbing 오류 해결</li>
+        <li>리팩토링 후 테스트 코드 동기화</li>
+        <li><code>@SpringBootTest</code> 컨텍스트 로딩 에러 해결</li>
+        <li>동시성 테스트 설계 오류 수정</li>
+        <li>GitHub Actions CI 실패 원인 파악 및 해결</li>
+        <li>카카오 OAuth <code>account_email</code> 권한 오류(KOE205) 처리</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Google Cloud Console 설정</h2>
+      <h2 class="section">1. 단위 테스트 — Mock/Stubbing 관련</h2>
 
       <table>
         <thead>
@@ -137,135 +140,94 @@
         </thead>
         <tbody>
           <tr>
-            <td>스코프(scope) 설정 위치를 Google Cloud Console에서 찾으려 했으나 항목이 보이지 않음</td>
-            <td>현재 UI에서는 Console에서 별도로 스코프를 설정할 필요가 없다. <code>application.yml</code>의 <code>scope</code> 설정만으로 충분하다.</td>
+            <td><code>Optional.of(null)</code> → NPE 발생</td>
+            <td>"존재하지 않음"을 표현할 때는 <code>Optional.of(null)</code>이 아닌 <code>Optional.empty()</code>를 사용해야 한다. <code>Optional.of()</code>는 null을 허용하지 않는다.</td>
           </tr>
           <tr>
-            <td>리다이렉트 URI를 프론트엔드 주소로 설정하려 함</td>
-            <td>OAuth 플로우를 오해한 것이다. 구글이 인증 코드를 보내는 곳은 <strong>백엔드 서버</strong>이므로 백엔드 주소(<code>/login/oauth2/code/google</code>)로 등록해야 한다. 프론트는 이후 백엔드가 최종 리다이렉트하는 대상이다.</td>
+            <td>Unnecessary Stubbing 에러</td>
+            <td>서비스 코드의 실제 호출 흐름을 따라가서 실제로 호출되지 않는 stubbing을 제거했다. <code>filter</code>에서 걸러지는 정책의 <code>getMembershipCode()</code>나 <code>confirmPayment()</code>에서 userId 검증 실패 시 이후 코드가 실행되지 않으므로 관련 stubbing이 불필요했다.</td>
+          </tr>
+          <tr>
+            <td><code>payment.getPaymentId()</code> stubbing 불필요</td>
+            <td>리팩토링으로 <code>portOnePaymentClient.getPayment(payment.getPaymentId())</code>가 <code>portOnePaymentClient.getPayment(paymentId)</code>로 변경됐다. 파라미터를 직접 사용하므로 <code>payment.getPaymentId()</code>를 stubbing할 필요가 없어졌다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">OAuth 2.0 Authorization Code Flow 흐름</span>
-        1. 사용자가 "구글로 로그인" 클릭<br>
-        2. 구글 로그인 화면 → 동의<br>
-        3. 구글이 <strong>백엔드 서버</strong>의 Redirect URI(<code>/login/oauth2/code/google</code>)로 인증 코드 전송<br>
-        4. 백엔드가 인증 코드로 구글 토큰 서버에 Access Token 요청<br>
-        5. Access Token으로 사용자 정보 조회<br>
-        6. JWT 발급 후 <strong>프론트엔드</strong>로 최종 리다이렉트<br><br>
-        리다이렉트 URI는 구글이 인증 코드를 보내는 <strong>백엔드</strong> 주소이며, 프론트 주소가 아니다.
+        <span class="box-title">Unnecessary Stubbing을 방지하는 습관</span>
+        테스트를 작성할 때 stubbing을 먼저 다 걸어두고 시작하면 실제로 호출되지 않는 stubbing이 남기 쉽다.
+        <strong>서비스 코드의 실행 흐름을 먼저 파악하고, 실제로 호출되는 메서드만 stubbing</strong>하는 것이 올바른 접근이다.
+        Early Return이나 예외로 실행이 중단되는 지점 이후의 호출은 모두 불필요한 stubbing이 된다.
       </div>
 
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. Google OAuth 코드 구현</h2>
+      <h2 class="section">2. 리팩토링 후 테스트 코드 수정</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          구현 파일 목록
+          PaymentService 구조 변경
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th style="width:35%;">파일</th>
-            <th>역할</th>
+            <th style="width:40%;">변경 내용</th>
+            <th>테스트 코드 수정 사항</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>AuthProvider</code> (enum)</td>
-            <td>LOCAL, GOOGLE (이후 KAKAO 추가)</td>
+            <td><code>findByPaymentIdForUpdate</code> → <code>findByPaymentId</code>로 변경 (락은 <code>PaymentFinalizeService</code>로 이동)</td>
+            <td>stubbing 대상 메서드명 수정</td>
           </tr>
           <tr>
-            <td><code>OAuthUserInfo</code> (DTO)</td>
-            <td>provider별 사용자 정보 파싱 결과를 담는 DTO</td>
+            <td><code>PaymentFinalizeService</code> 의존성 추가</td>
+            <td>테스트 클래스에 <code>@Mock PaymentFinalizeService paymentFinalizeService</code> 추가</td>
           </tr>
           <tr>
-            <td><code>CustomOAuth2UserService</code></td>
-            <td>OAuth 로그인 시 사용자 조회/생성 처리</td>
-          </tr>
-          <tr>
-            <td><code>OAuth2SuccessHandler</code></td>
-            <td>OAuth 인증 성공 후 JWT 발급 및 프론트로 리다이렉트</td>
+            <td>INTERNAL 결제 확정 검증 로직 변경<br><code>processSuccess(payment, "INTERNAL")</code> → <code>paymentFinalizeService.finalizeInternalPayment(paymentId)</code></td>
+            <td><code>verify()</code> 검증 대상을 새 메서드로 교체</td>
           </tr>
         </tbody>
       </table>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블슈팅
+          RefundService 구조 변경
         </span>
       </h3>
 
       <table>
         <thead>
           <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
+            <th style="width:40%;">변경 내용</th>
+            <th>테스트 코드 수정 사항</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>User</code> 엔티티에 <code>provider</code> 필드 추가 후 <code>DataInitializer</code>에서 <code>NULL not allowed</code> 에러 발생</td>
-            <td>기존 INSERT 쿼리의 컬럼 목록에 <code>provider</code>가 없었다. SQL 컬럼 목록과 VALUES에 <code>provider</code>, <code>"LOCAL"</code>을 추가해서 해결했다.</td>
+            <td><code>PublicIdGenerator</code>, <code>RefundTransactionProcessor</code> → <code>RefundFinalizeService</code>로 이동</td>
+            <td>기존 두 Mock을 제거하고 <code>@Mock RefundFinalizeService</code> 하나로 교체</td>
           </tr>
           <tr>
-            <td>위 수정 후 재실행 시 <code>Column count does not match</code> 에러 발생</td>
-            <td>컬럼 목록에는 <code>provider</code>를 추가했지만 <code>VALUES</code>의 <code>?</code> 개수를 그대로 둬서 불일치가 발생했다. 컬럼 수와 <code>?</code> 개수를 맞춰서 해결했다. SQL을 수정할 때는 컬럼과 값 자리를 항상 함께 확인해야 한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. OAuth 토큰 발급 보안 이슈</h2>
-
-      <p>
-        OAuth 인증 성공 후 프론트엔드로 토큰을 전달하는 방식에서 기존 일반 로그인과의 보안 불일치가 발견됐다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">방식</th>
-            <th style="width:35%;">초기 구현</th>
-            <th>문제점</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>일반 로그인</strong></td>
-            <td>Access Token → 응답 Body / Refresh Token → HttpOnly 쿠키</td>
-            <td>없음</td>
-          </tr>
-          <tr>
-            <td><strong>OAuth 로그인 (초기)</strong></td>
-            <td>Access Token + Refresh Token 둘 다 URL 파라미터로 전달</td>
-            <td>Refresh Token이 브라우저 주소창, 히스토리, 서버 로그에 노출</td>
+            <td>환불 처리 메서드 변경<br><code>refundTransactionProcessor.processRefund()</code> → <code>refundFinalizeService.finalizeRefund(paymentId, amount, reason, providerRefundId)</code></td>
+            <td><code>verify()</code> 검증 대상을 <code>refundFinalizeService.finalizeRefund()</code>로 교체</td>
           </tr>
         </tbody>
       </table>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ HTTP 리다이렉트는 Body를 지원하지 않는다</span>
-        <code>OAuth2SuccessHandler</code>에서 프론트로 리다이렉트할 때는 <code>sendRedirect()</code>를 사용한다.
-        HTTP 리다이렉트(302)는 응답 Body를 지원하지 않기 때문에 일반 로그인처럼 Body에 토큰을 담는 방식을 쓸 수 없다.
-        URL 파라미터 외의 방법이 기술적으로 제한된다.
+        <span class="box-title">⚠️ 리팩토링 후 테스트 코드도 함께 수정해야 한다</span>
+        프로덕션 코드를 리팩토링하면 테스트 코드도 반드시 함께 수정해야 한다.
+        Mock 대상, stubbing 메서드명, verify 검증 대상이 모두 구체적인 클래스·메서드에 의존하기 때문에,
+        구조가 바뀌면 테스트가 틀린 것을 검증하고 있는 상태가 된다.
+        <strong>테스트가 통과하더라도 잘못된 것을 검증하고 있을 수 있으므로 리팩토링 후에는 반드시 테스트 코드도 점검</strong>해야 한다.
       </div>
 
-      <div class="success-box">
-        <span class="box-title">최종 해결 — Refresh Token은 Set-Cookie 헤더로</span>
-        HTTP 리다이렉트 응답에도 <strong>헤더(Header)</strong>는 함께 전송된다.
-        <code>response.addCookie()</code>를 사용하면 리다이렉트 응답에 <code>Set-Cookie</code> 헤더를 추가할 수 있다.<br><br>
-        <strong>Refresh Token</strong> → HttpOnly 쿠키(<code>Set-Cookie</code> 헤더)로 전달 (브라우저가 자동 저장)<br>
-        <strong>Access Token</strong> → URL 파라미터로 전달 (프론트가 꺼내서 메모리/스토리지에 저장)<br><br>
-        이렇게 하면 일반 로그인과 동일한 보안 수준을 유지할 수 있다.
-      </div>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. Kakao 개발자 콘솔 설정</h2>
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. @SpringBootTest 컨텍스트 로딩 에러</h2>
 
       <table>
         <thead>
@@ -276,121 +238,148 @@
         </thead>
         <tbody>
           <tr>
-            <td>Redirect URI 등록 위치를 문서와 다른 UI에서 찾지 못함</td>
-            <td>카카오 개발자 콘솔 UI가 개편되었다. 새 UI 기준: <code>앱 설정</code> → <code>플랫폼 키</code> → <code>REST API 키</code> → <code>더보기</code>에서 Redirect URI를 등록해야 한다.</td>
+            <td><code>oauth2.redirect-url</code> PlaceholderResolutionException</td>
+            <td><code>application-test.yml</code>에 <code>oauth2.redirect-url</code> 값이 누락되어 있었다. 더미값을 추가해서 해결했다.</td>
           </tr>
           <tr>
-            <td>기존 <code>[플랫폼] → [Web]</code>에서 사이트 도메인을 등록하는 항목이 사라짐</td>
-            <td>UI 개편으로 설정 위치가 변경되었다. JavaScript SDK 도메인은 JavaScript 키 하위, Redirect URI는 REST API 키 하위에서 각각 설정하는 구조로 분리되었다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. Kakao OAuth 코드 구현</h2>
-
-      <p>
-        Google과 Kakao는 사용자 정보 응답의 JSON 구조가 다르기 때문에 provider별 분기 처리가 필요하다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Google vs Kakao JSON 구조 비교
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">항목</th>
-            <th>Google</th>
-            <th>Kakao</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>JSON 구조</strong></td>
-            <td>flat (단순 1단계)</td>
-            <td>중첩 구조 (<code>kakao_account</code> → <code>profile</code>)</td>
-          </tr>
-          <tr>
-            <td><strong>고유 ID</strong></td>
-            <td><code>"sub"</code> (String)</td>
-            <td><code>"id"</code> (Long)</td>
-          </tr>
-          <tr>
-            <td><strong>이메일 위치</strong></td>
-            <td>최상위 레벨 <code>attributes.get("email")</code></td>
-            <td><code>kakao_account</code> 안에 중첩</td>
-          </tr>
-          <tr>
-            <td><strong>nameAttributeKey</strong></td>
-            <td><code>"sub"</code></td>
-            <td><code>"id"</code></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블슈팅
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>카카오 중첩 JSON 파싱 실패</td>
-            <td>카카오는 <code>kakao_account</code> → <code>profile</code>의 중첩 구조다. <code>(Map&lt;String, Object&gt;)</code> 캐스팅으로 단계별로 꺼내는 로직을 추가했다. Google은 flat 구조라 별도 처리가 필요 없다.</td>
-          </tr>
-          <tr>
-            <td>카카오 고유 ID 타입 불일치 — <code>id</code>가 <code>Long</code>인데 Google <code>sub</code>은 <code>String</code></td>
-            <td>두 provider의 ID를 통일된 방식으로 처리하려면 <code>String.valueOf()</code>로 변환해서 <code>String</code>으로 통일해야 한다.</td>
-          </tr>
-          <tr>
-            <td><code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>를 구글과 동일하게 <code>"email"</code>로 하드코딩 → 카카오에서 에러 발생</td>
-            <td>카카오는 최상위 레벨에 <code>"email"</code> 키가 없다. <code>userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()</code>으로 각 provider 설정에서 동적으로 가져오도록 변경했다. Google은 <code>"sub"</code>, Kakao는 <code>"id"</code>가 반환된다.</td>
-          </tr>
-          <tr>
-            <td><code>OAuth2SuccessHandler</code>에서 <code>attributes.get("email")</code>로 카카오 이메일 꺼내기 → <code>null</code> 반환</td>
-            <td>카카오는 이메일이 <code>kakao_account</code> 안에 있어 최상위 레벨 <code>attributes</code>에 없다. OAuth 성공 핸들러에서도 provider를 분기해서 이메일을 꺼내는 로직을 추가했다.</td>
+            <td><code>webhookSignatureService</code> Illegal base64 character 2d (<code>-</code>)</td>
+            <td><code>portone.webhook.secret</code>에 하이픈(<code>-</code>)이 포함된 문자열을 설정했는데, PortOne SDK가 이 값을 Base64로 디코딩하려다 실패했다. 유효한 Base64 문자열로 교체하거나 <code>@MockitoBean</code>으로 <code>WebhookSignatureService</code>를 Mock 처리하는 방식으로 해결했다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">nameAttributeKey를 동적으로 가져와야 하는 이유</span>
-        <code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>는 해당 provider의 응답 JSON에서 <strong>반드시 존재하는 최상위 키</strong>여야 한다.
-        Google은 최상위에 <code>"sub"</code>가 있고 Kakao는 최상위에 <code>"id"</code>가 있다.<br><br>
-        <code>"email"</code>처럼 특정 provider에만 있는 키를 하드코딩하면 다른 provider에서 키를 찾지 못해 에러가 발생한다.
-        <code>getUserNameAttributeName()</code>으로 가져오면 <code>application.yml</code>의 각 provider 설정에서 자동으로 올바른 키를 반환하므로 멀티 provider 환경에서도 안전하게 동작한다.
+        <span class="box-title">Base64 에러 문자 2d</span>
+        ASCII 코드 <code>2d</code>는 하이픈(<code>-</code>)이다. Base64 인코딩은 <code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, <code>+</code>, <code>/</code>, <code>=</code>만 허용한다. 하이픈은 URL-safe Base64에서는 허용되지만 표준 Base64에서는 유효하지 않은 문자다.
+        테스트용 시크릿 값을 아무 문자열이나 쓰지 않고 <strong>실제로 Base64 인코딩된 값</strong>을 사용해야 하거나, 해당 Bean을 Mock으로 대체해야 한다.
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 동시성 테스트 이슈</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%;">문제</th>
+            <th>원인 및 해결</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>UserPointConcurrencyTest</code> — 검증 로직 오류<br><code>isEqualTo(10_000L - successCount * 2_000L)</code> 실패</td>
+            <td>락이 없는 환경에서 Lost Update가 발생해 실제 잔액이 예측 값과 달라진다. 동시성 테스트의 목적은 <strong>"음수가 되지 않는다"</strong>는 것을 검증하는 것이므로 <code>isGreaterThanOrEqualTo(0L)</code>만 남겼다.</td>
+          </tr>
+          <tr>
+            <td><code>PaymentConcurrencyTest</code> — <code>executor.shutdown()</code> 직후 READY 상태로 조회됨</td>
+            <td><code>shutdown()</code>은 작업 제출을 중단할 뿐 모든 작업이 완료될 때까지 기다리지 않는다. <code>executor.awaitTermination(10, TimeUnit.SECONDS)</code>를 추가해 트랜잭션이 커밋될 때까지 기다린 후 조회하도록 했다.</td>
+          </tr>
+          <tr>
+            <td><code>PaymentConcurrencyTest</code> — 포인트 잔액 부족으로 <code>InsufficientPointException</code> 발생 후 롤백</td>
+            <td>테스트 유저 생성 시 포인트를 초기화하지 않았다. <code>processSuccess()</code> 내부에서 <code>subtractPoint()</code>를 호출할 때 잔액이 0이라 예외가 발생했다. <code>user.addPoint(10_000L)</code>를 추가해서 해결했다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">동시성 테스트에서 검증해야 할 것</span>
+        동시성 테스트는 "정확한 최종값"을 검증하는 테스트가 아니다.
+        락 없이 여러 스레드가 동시에 수정하면 Lost Update가 발생해 최종값이 예측 불가능해진다. 이것 자체가 문제임을 보여주는 것이 테스트의 목적이다.<br><br>
+        락이 <strong>있을 때</strong>는 정확한 최종값을 검증할 수 있다.
+        락이 <strong>없을 때</strong>는 "최소한 음수가 되지 않는다", "데드락 없이 완료된다" 같은 안전성 조건만 검증한다.<br><br>
+        <code>executor.shutdown()</code>과 <code>awaitTermination()</code>은 항상 함께 써야 한다. <code>shutdown()</code>만 호출하면 작업이 끝나기 전에 검증 코드가 실행된다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. GitHub Actions CI 실패</h2>
+
+      <p>
+        CI 파이프라인이 로컬에서는 통과하는데 GitHub Actions에서는 계속 실패했다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>원인</strong></td>
+            <td><code>application-test.yml</code>을 <code>.gitignore</code>에 추가해두어서 GitHub 원격 저장소에 파일이 없었다. CI 환경은 원격 저장소에서 코드를 체크아웃하기 때문에 해당 파일이 없어 컨텍스트 로딩에 실패했다.</td>
+          </tr>
+          <tr>
+            <td><strong>해결</strong></td>
+            <td><code>application-test.yml</code>은 전부 가짜 테스트 더미값만 포함하므로 실제 보안 정보가 없다. <code>.gitignore</code>에서 제외하고 커밋해서 CI 환경에서도 파일을 사용할 수 있도록 했다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ gitignore와 CI 환경의 관계</span>
+        <code>.gitignore</code>에 추가된 파일은 원격 저장소에 올라가지 않으므로 CI 환경에서도 존재하지 않는다.
+        테스트 설정 파일(<code>application-test.yml</code>)은 실제 비밀값이 없다면 <code>.gitignore</code>에 넣으면 안 된다.
+        <strong>민감한 정보는 GitHub Secrets로 관리하고, 테스트 더미값 파일은 버전 관리에 포함</strong>하는 것이 올바른 방식이다.
+      </div>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. 카카오 OAuth — account_email 권한 오류 (KOE205)</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>원인</strong></td>
+            <td>카카오 <code>account_email</code> 권한은 비즈앱 심사를 통과해야만 활성화된다. 심사 전에는 scope에 설정 자체가 불가능하다.</td>
+          </tr>
+          <tr>
+            <td><strong>비즈앱 심사 소요 시간</strong></td>
+            <td>영업일 3~5일. 내일 발표 일정에 맞추는 것은 불가능하다.</td>
+          </tr>
+          <tr>
+            <td><strong>해결 1</strong></td>
+            <td><code>application-local.yml</code>의 scope에서 <code>account_email</code>을 제거한다.</td>
+          </tr>
+          <tr>
+            <td><strong>해결 2</strong></td>
+            <td><code>OAuthUserInfo.fromKakao()</code>에서 이메일 null 처리를 추가하고, 이메일이 없을 경우 <code>providerId@kakao.user</code> 형태의 임시 이메일을 생성하도록 처리한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">카카오 OAuth 비즈앱 심사가 필요한 이유</span>
+        카카오는 개인정보(이메일, 전화번호 등)를 수집하는 권한은 사업자 등록이 된 앱에만 허용한다.
+        일반 테스트 앱 상태에서는 <code>profile_nickname</code>, <code>profile_image</code> 같은 기본 정보만 사용할 수 있다.
+        프로젝트나 서비스를 실제로 출시할 때는 비즈앱 전환과 권한 심사를 미리 진행해야 한다.
+        발표처럼 시간이 촉박한 상황에서는 <strong>이메일 없이도 동작하는 임시 처리</strong>를 먼저 구현하고 심사를 기다리는 방식이 현실적이다.
       </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        OAuth 도입에서 가장 먼저 혼동했던 것은 <strong>리다이렉트 URI가 백엔드 주소라는 사실</strong>이었다.
-        구글이 인증 코드를 보내는 곳은 서버이지 브라우저가 아니다. Authorization Code Flow의 전체 흐름을 그림으로 이해하고 나면 당연한 이야기지만, 처음에는 직관적으로 "프론트에 코드를 주는 것 아닌가"라고 오해하기 쉽다.
+        오늘은 기능 구현보다 <strong>테스트와 CI 환경 안정화</strong>에 집중한 하루였다.
+        Mock과 Stubbing은 단순히 "메서드를 가짜로 만드는 것"이 아니라 서비스 코드의 실행 흐름을 정확히 이해해야 올바르게 쓸 수 있다.
+        불필요한 stubbing은 테스트가 실제 코드 흐름과 다른 것을 가정한다는 신호이므로, Unnecessary Stubbing 에러는 코드를 다시 읽어봐야 한다는 알림으로 받아들여야 한다.
       </p>
 
       <p>
-        OAuth 토큰 전달 보안 이슈는 기존 로그인 방식과의 일관성을 점검하다가 발견한 것이다.
-        <strong>HTTP 리다이렉트는 Body를 지원하지 않지만 헤더는 전송된다</strong>는 사실을 이용해
-        <code>Set-Cookie</code> 헤더로 Refresh Token을 전달하는 방식으로 해결했다.
-        기능을 구현할 때 기존 방식과 동일한 보안 수준을 유지하는지 항상 비교하는 습관이 중요하다.
+        동시성 테스트에서 "정확한 최종값"을 검증하려 한 것이 큰 실수였다.
+        락 없이 여러 스레드가 동시에 같은 데이터를 수정하면 Lost Update가 발생해 최종값은 예측 불가능하다.
+        동시성 테스트의 목적은 정확한 값이 아니라 <strong>안전성 조건(음수 방지, 데드락 없이 완료)</strong>을 검증하는 것이다.
+        <code>executor.awaitTermination()</code>을 빠뜨린 것도 모든 스레드가 완료되기 전에 검증 코드가 실행된다는 타이밍 문제였다.
       </p>
 
       <p>
-        Google과 Kakao의 JSON 구조 차이는 멀티 provider를 지원할 때 반드시 부딪히는 문제다.
-        <code>nameAttributeKey</code>를 하드코딩하지 않고 <code>getUserNameAttributeName()</code>으로 동적으로 가져오는 방식이
-        세 번째 provider를 추가할 때도 동일한 코드를 재사용할 수 있게 만든다.
-        특정 provider에 종속된 하드코딩은 확장성을 막는다는 것을 이번에 직접 경험했다.
+        GitHub Actions CI 실패 원인이 <code>.gitignore</code>에 있었다는 점은 단순하지만 중요한 교훈이다.
+        로컬에서 돌아간다고 CI도 돌아간다고 가정하면 안 된다.
+        CI는 원격 저장소 기준으로 동작하므로 <strong>로컬에만 있는 파일에 의존하는 테스트는 CI에서 반드시 실패</strong>한다.
+        테스트 설정 파일은 실제 비밀값이 없다면 버전 관리에 포함시키고, 민감한 값은 GitHub Secrets로 분리하는 것이 원칙이다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
