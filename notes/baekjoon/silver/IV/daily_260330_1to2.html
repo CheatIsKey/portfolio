@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-27 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-03-30 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -249,15 +249,15 @@
       </h3>
       
       <p>
-        <strong>수 고르기 (백준 20186)</strong>는<br>
-        N개의 수 중 K개를 골라 순서를 정할 때, <strong>선택한 수의 합에서 각 수의 순번(1-based) - 1을 뺀 값의 합을 최대화</strong>하는 문제다.<br>
-        즉, <strong>i번째로 선택한 수의 기여값은 A[i] - (i - 1)</strong>이며, 이 합이 최대가 되도록 K개를 선택하고 순서를 정해야 한다.
+        <strong>지뢰 찾기 (백준 4396)</strong>는<br>
+        n × n 크기의 지뢰 찾기 보드와 현재 열린 칸 정보가 주어질 때, <strong>게임 결과판을 출력</strong>하는 문제다.<br>
+        <strong>열린 칸('x')에 지뢰가 있으면 게임 오버로, 모든 지뢰 위치를 '*'로 공개</strong>해야 한다.
       </p>
       
       <ul>
-        <li>i번째 수의 기여값은 A[i] - (i-1)이므로, 순번이 커질수록 감점이 커진다. 따라서 큰 수를 앞 순번에 배치하는 것이 유리하다.</li>
-        <li>감점의 합은 0 + 1 + 2 + ... + (K-1) = K(K-1)/2로 고정되므로, 선택한 수의 합만 최대화하면 된다.</li>
-        <li>수의 합을 최대화하려면 가장 큰 K개를 선택하면 된다.</li>
+        <li>열린 칸('x')은 주변 8칸의 지뢰 수를 숫자로 표시하고, 열리지 않은 칸은 '.'으로 표시한다.</li>
+        <li>열린 칸 중 지뢰('*')가 있으면 게임 오버이며, 이 경우 보드 전체에서 지뢰 위치를 '*'로 덮어씌워 출력한다.</li>
+        <li>게임 오버가 아닌 경우에는 열린 칸의 주변 지뢰 수와 열리지 않은 칸('.')만 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -269,12 +269,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (내림차순 정렬 후 상위 K개 선택)</li>
-        <li><strong>선택 이유</strong>: 감점의 합 0 + 1 + ... + (K-1)은 선택하는 수에 관계없이 항상 고정된다. 따라서 총 점수를 최대화하려면 선택하는 수의 합을 최대화해야 하며, 이는 가장 큰 K개를 선택하는 그리디 전략으로 달성된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (8방향 탐색 + 게임 오버 판별)</li>
+        <li><strong>선택 이유</strong>: 각 칸에 대한 처리가 독립적이며, 열린 칸의 주변 지뢰 수 계산은 8방향 탐색으로 O(1)에 처리된다. n이 최대 8이므로 O(n²) 시뮬레이션으로 충분히 빠르다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>배열을 오름차순 정렬한 뒤 뒤에서부터 K개를 선택해 내림차순 효과를 낸다.</li>
-            <li>선택한 K개의 합에서 0 + 1 + 2 + ... + (K-1)을 빼면 최댓값이 된다.</li>
+            <li>보드를 순회하며 열린 칸('x')에 대해 8방향 지뢰 수를 세어 숫자로 기록하고, 열리지 않은 칸은 '.'으로 기록한다.</li>
+            <li>열린 칸에 지뢰가 있으면 <code>flag = true</code>로 게임 오버를 표시한다.</li>
+            <li>게임 오버이면 보드 전체를 다시 순회해 지뢰 위치를 '*'로 덮어씌운다.</li>
           </ul>
         </li>
       </ul>
@@ -288,41 +289,66 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 정렬</strong>
-          <pre><code>int[] numbers = new int[N];
-      
-      st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < N; i++) {
-          numbers[i] = Integer.parseInt(st.nextToken());
+        <li><strong>1) 입력 및 배열 구성</strong>
+          <pre><code>for (int i = 0; i < n; i++) {
+          board[i] = br.readLine().toCharArray();
       }
       
-      Arrays.sort(numbers);</code></pre>
-          <ul>
-            <li>N개의 수를 배열에 저장하고 오름차순 정렬한다.</li>
-            <li>정렬 후 배열 뒤에서부터 순회하면 가장 큰 수부터 선택할 수 있다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 상위 K개 합산 및 감점 계산</strong>
-          <pre><code>int answer = 0;
-      int minus = 0;
-      
-      for (int i = 0; i < K; i++) {
-          answer += numbers[N - 1 - i];
-          minus += i;
+      for (int i = 0; i < n; i++) {
+          playing[i] = br.readLine().toCharArray();
       }</code></pre>
           <ul>
-            <li>i = 0부터 K-1까지 순회하며 <code>numbers[N-1-i]</code>로 가장 큰 수부터 K개를 <code>answer</code>에 누적한다.</li>
-            <li><code>minus</code>에는 0 + 1 + 2 + ... + (K-1)의 감점 합을 누적한다. i번째(0-based) 선택 수의 감점은 i이다.</li>
-            <li>감점의 합은 K(K-1)/2로 고정되므로, 어떤 K개를 선택하든 감점은 동일하다. 따라서 선택하는 수의 합을 최대화하는 것이 핵심이다.</li>
-            <li>예시: numbers = [1, 3, 5, 7], K = 3이면 상위 3개 선택: 7+5+3=15, minus=0+1+2=3. 답: 15-3=12.</li>
+            <li><code>board</code>는 실제 지뢰 배치('*' 또는 '.')를 저장하고, <code>playing</code>은 현재 열린 칸('x') 여부를 저장한다.</li>
+            <li><code>answer</code>는 최종 출력 결과를 저장하는 배열이다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(answer - minus);</code></pre>
+        <li><strong>2) 열린 칸 처리 및 게임 오버 판별</strong>
+          <pre><code>if (playing[r][c] == 'x') {
+          if (board[r][c] == '*') flag = true;
+      
+          int bomb = 0;
+          for (int k = 0; k < 8; k++) {
+              int row = r + ROW[k];
+              int col = c + COL[k];
+      
+              if (row < 0 || row >= n || col < 0 || col >= n) continue;
+              if (board[row][col] == '*') bomb++;
+          }
+          answer[r][c] = (char) (bomb + '0');
+          continue;
+      }
+      answer[r][c] = '.';</code></pre>
           <ul>
-            <li>선택한 K개의 합에서 감점의 합을 빼 최종 최댓값을 출력한다.</li>
+            <li>열린 칸에 지뢰가 있으면 <code>flag = true</code>로 게임 오버를 기록한다. 지뢰 수 계산과 게임 오버 판별을 동시에 처리해 한 번의 순회로 해결한다.</li>
+            <li>8방향 탐색으로 주변 지뢰 수 <code>bomb</code>를 센 뒤 <code>(char)(bomb + '0')</code>으로 숫자 문자로 변환해 <code>answer</code>에 저장한다.</li>
+            <li>열리지 않은 칸은 '.'으로 기록한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 게임 오버 시 지뢰 위치 공개</strong>
+          <pre><code>if (flag) {
+          for (int r = 0; r < n; r++) {
+              for (int c = 0; c < n; c++) {
+                  if (board[r][c] == '*') {
+                      answer[r][c] = '*';
+                  }
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li>게임 오버인 경우 보드 전체를 다시 순회해 지뢰 위치를 '*'로 덮어씌운다.</li>
+            <li>이미 숫자가 기록된 열린 칸이라도 지뢰가 있으면 '*'로 덮어쓴다. 지뢰를 밟은 칸도 '*'로 표시되어야 하기 때문이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>for (char[] chars : answer) {
+          sb.append(chars).append('\n');
+      }
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>완성된 <code>answer</code> 배열의 각 행을 순서대로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -338,12 +364,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 전체 시간을 지배하는 것은 <code>Arrays.sort()</code>의 정렬 비용이다. 이후 K번의 선형 순회는 O(K)이므로 전체 O(N log N)이다.</li>
+            <li><strong>O(n²)</strong>: 보드 전체를 최대 두 번 순회하며(처리 + 게임 오버 시 지뢰 공개), 각 칸에서 8방향 탐색은 O(1)이므로 전체 O(n²)이다. n이 최대 8이므로 사실상 O(1)에 수렴한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(n²)</strong>: 지뢰 배치, 열린 칸, 결과를 저장하는 세 개의 n × n 배열이 주요 메모리 사용처이며, n이 최대 8이므로 사실상 O(1)에 수렴한다.</li>
           </ul>
         </li>
       </ul>
