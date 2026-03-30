@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 2840 — 행운의 바퀴</h2>
+      <h2 class="section">문제 11502 — 세 개의 소수 문제</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2840">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11502">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260327_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260330_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>행운의 바퀴 (백준 2840)</strong>는<br>
-        N칸짜리 원형 바퀴를 K번 돌릴 때의 기록을 바탕으로 <strong>바퀴에 적힌 문자 배열을 복원</strong>하는 문제다.<br>
-        <strong>복원이 불가능한 경우 "!"를 출력</strong>하며, 가능한 경우 현재 위치에서 역방향으로 출력한다.
+        <strong>세 개의 소수 문제 (백준 11502)</strong>는<br>
+        정수 K가 주어질 때, <strong>세 소수의 합으로 K를 표현하는 가장 작은 조합</strong>을 구하는 문제다.<br>
+        <strong>세 소수는 p ≤ q ≤ r을 만족</strong>해야 하며, K가 6 미만이면 표현이 불가능하므로 0을 출력한다.
       </p>
       
       <ul>
-        <li>각 칸에는 서로 다른 알파벳이 적혀 있어야 하므로, 같은 문자가 서로 다른 위치에 배치되면 모순이다.</li>
-        <li>이미 다른 문자가 배치된 위치에 새로운 문자가 배치되려 해도 모순이다.</li>
-        <li>출력 순서는 현재 포인터 위치에서 시작해 역방향(반시계 방향)으로 N칸을 순서대로 나열한다.</li>
+        <li>K는 최대 1,000이며, 에라토스테네스의 체로 1,000 이하의 소수를 미리 구해두면 효율적이다.</li>
+        <li>세 소수 p ≤ q ≤ r의 조건에서 p를 가장 작은 값부터 탐색하면 사전순으로 가장 앞선 조합을 찾을 수 있다.</li>
+        <li>가장 작은 소수 3개의 합은 2 + 2 + 2 = 6이므로, K < 6이면 항상 불가능하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 + 모순 검사</li>
-        <li><strong>선택 이유</strong>: K번의 회전 기록을 순서대로 처리하며 각 위치에 문자를 배치하고, 두 가지 모순 조건을 O(1)에 검사하면 된다. N, K가 최대 1,000이므로 O(K) 선형 시뮬레이션으로 충분하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 에라토스테네스의 체 + 3중 브루트포스</li>
+        <li><strong>선택 이유</strong>: K가 최대 1,000이므로 소수 범위도 최대 1,000이다. p ≤ q ≤ r 조건으로 중복을 줄이면 최악의 경우에도 약 1,000³ / 6 이하의 탐색이 필요하지만, 소수만 탐색하므로 실제 반복 횟수는 훨씬 적어 충분히 빠르다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li><code>board</code> 배열을 '?'로 초기화하고, <code>used</code> 배열로 이미 사용된 문자를 추적한다.</li>
-            <li>각 회전 후 포인터 위치를 <code>(pos + S) % N</code>으로 갱신한다.</li>
-            <li>모순이 없으면 해당 위치에 문자를 배치하고 사용 표시를 한다.</li>
-            <li>모든 기록 처리 후 포인터 위치에서 역방향으로 N칸을 순서대로 출력한다.</li>
+            <li>에라토스테네스의 체로 1,000 이하의 소수를 미리 구한다.</li>
+            <li>p를 2부터, q를 p부터, r을 q부터 순서대로 탐색하며 p + q + r == K를 만족하는 첫 번째 조합을 출력한다.</li>
+            <li>조합을 찾는 즉시 <code>flag</code>를 통해 3중 반복문을 모두 탈출한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,53 +95,60 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기화</strong>
-          <pre><code>char[] board = new char[N];
-      boolean[] used = new boolean[32];
-      int pos = 0;
+        <li><strong>1) 에라토스테네스의 체로 소수 사전 계산</strong>
+          <pre><code>boolean[] isPrime = new boolean[1001];
+      Arrays.fill(isPrime, true);
       
-      Arrays.fill(board, '?');</code></pre>
+      isPrime[0] = false;
+      isPrime[1] = false;
+      
+      for (int i = 2; i * i < isPrime.length; i++) {
+          if (isPrime[i]) {
+              for (int j = i * i; j < isPrime.length; j += i) {
+                  isPrime[j] = false;
+              }
+          }
+      }</code></pre>
           <ul>
-            <li>N칸의 바퀴를 나타내는 <code>board</code> 배열을 '?'로 초기화한다. '?'는 아직 문자가 배치되지 않은 칸을 의미한다.</li>
-            <li><code>used</code> 배열은 각 알파벳이 이미 어떤 칸에 배치되었는지를 추적한다. 같은 문자가 두 위치에 배치되는 것을 방지한다.</li>
-            <li><code>pos</code>는 현재 포인터 위치이며 0으로 초기화한다.</li>
+            <li>1,001 크기의 배열을 true로 초기화한 뒤, 0과 1은 소수가 아니므로 false로 설정한다.</li>
+            <li>2부터 √1,000까지 순회하며 각 소수의 배수를 false로 표시한다. 테스트 케이스마다 반복하지 않고 한 번만 계산하므로 효율적이다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 회전 시뮬레이션 및 모순 검사</strong>
-          <pre><code>pos = (pos + S) % N;
-      
-      if (board[pos] != '?' && board[pos] != word) {
-          System.out.println("!");
-          return;
-      }
-      
-      if (board[pos] == '?' && used[word - 'A']) {
-          System.out.println("!");
-          return;
-      }
-      
-      board[pos] = word;
-      used[word - 'A'] = true;</code></pre>
+        <li><strong>2) K < 6 예외 처리</strong>
+          <pre><code>if (K <= 5) {
+          sb.append(0).append('\n');
+          continue;
+      }</code></pre>
           <ul>
-            <li><code>(pos + S) % N</code>으로 S칸 회전 후 포인터 위치를 갱신한다.</li>
-            <li>첫 번째 모순 조건: 해당 위치에 이미 다른 문자가 배치된 경우. <code>board[pos] != '?'</code>이고 <code>board[pos] != word</code>이면 "!"를 출력하고 종료한다.</li>
-            <li>두 번째 모순 조건: 해당 위치가 비어있지만 배치하려는 문자가 다른 위치에 이미 사용된 경우. <code>board[pos] == '?'</code>이고 <code>used[word - 'A']</code>가 true이면 "!"를 출력하고 종료한다.</li>
-            <li>모순이 없으면 해당 위치에 문자를 배치하고 사용 표시를 한다.</li>
+            <li>세 소수의 합의 최솟값은 2 + 2 + 2 = 6이므로, K가 5 이하이면 조합이 존재하지 않는다. 즉시 0을 출력하고 다음 테스트 케이스로 넘어간다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>for (int i = 0; i < N; i++) {
-          int idx = (pos - i + N) % N;
-          sb.append(board[idx]);
-      }
-      
-      System.out.println(sb);</code></pre>
+        <li><strong>3) 3중 브루트포스로 첫 번째 조합 탐색</strong>
+          <pre><code>for (int i = 2; i < K; i++) {
+          if (isPrime[i]) {
+              for (int j = i; j < K; j++) {
+                  if (isPrime[j]) {
+                      for (int k = j; k < K; k++) {
+                          if (isPrime[k]) {
+                              if (i + j + k == K) {
+                                  sb.append(i).append(" ").append(j).append(" ").append(k).append('\n');
+                                  flag = true;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  if (flag) break;
+              }
+          }
+          if (flag) break;
+      }</code></pre>
           <ul>
-            <li>현재 포인터 위치 <code>pos</code>부터 역방향으로 N칸을 순서대로 순회한다.</li>
-            <li><code>(pos - i + N) % N</code>으로 음수 인덱스를 방지하며 역방향 순환 접근을 구현한다.</li>
-            <li>배치되지 않은 칸은 '?'로 그대로 출력된다.</li>
+            <li>p(i)를 2부터, q(j)를 p 이상, r(k)를 q 이상으로 탐색해 p ≤ q ≤ r 조건을 만족하는 조합만 검사한다.</li>
+            <li>소수인 경우에만 내부로 진입해 탐색 횟수를 줄인다.</li>
+            <li>p + q + r == K를 만족하는 첫 번째 조합을 찾으면 결과를 출력하고 <code>flag = true</code>로 설정해 3중 반복문을 모두 탈출한다. 가장 작은 p를 먼저 탐색하므로 자동으로 사전순 최솟값이 출력된다.</li>
           </ul>
         </li>
       </ul>
@@ -158,16 +164,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(K + N)</strong>: K번의 회전 처리가 각 O(1)이므로 O(K), 결과 출력 시 N칸 순회가 O(N)이다. 전체 O(K + N)이다.</li>
+            <li><strong>O(K² / ln(K)²)</strong>: 소수 사전 계산은 O(K log log K), 각 테스트 케이스의 3중 탐색은 소수만 탐색하므로 실제 탐색 횟수가 K 이하 소수의 수의 제곱에 비례한다. K ≤ 1,000이고 소수 밀도가 낮아 실제 수행 횟수는 매우 적다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 바퀴 상태를 저장하는 <code>board</code> 배열이 N 크기를 사용하며, <code>used</code> 배열은 알파벳 수에 비례하는 O(1) 상수 공간이다.</li>
+            <li><strong>O(K)</strong>: 소수 판별 배열이 K + 1 크기를 사용하며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -219,14 +224,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 20186 — 수 고르기</h2>
+      <h2 class="section">문제 4396 — 지뢰 찾기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/20186">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/4396">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260327_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260330_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
