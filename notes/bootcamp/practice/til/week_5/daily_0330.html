@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 69일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 72일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,288 +109,265 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 69일차 TIL — Google / Kakao OAuth 2.0 소셜 로그인 도입 트러블슈팅</h1>
-      <p class="muted">작성일 2026-03-25 · 분류: 부트캠프, TIL, 팀 프로젝트, OAuth 2.0, Spring Security, Google, Kakao, 트러블슈팅</p>
+      <h1>내일배움캠프 Spring 백엔드 72일차 TIL — 데이터베이스 인덱스(Index)와 B-Tree · Index Scan 종류</h1>
+      <p class="muted">작성일 2026-03-30 · 분류: 부트캠프, TIL, Database, Index, B-Tree, 쿼리 최적화</p>
 
-      <h2 class="section">69일차 개요</h2>
+      <h2 class="section">72일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 작업 범위
+          오늘 목표
         </span>
       </h3>
       <ul>
-        <li>결제 시스템 팀 프로젝트에 <strong>Google OAuth 2.0</strong> 소셜 로그인을 도입했다.</li>
-        <li>이어서 <strong>Kakao OAuth 2.0</strong>을 추가로 연동했다.</li>
-        <li>OAuth 토큰 전달 방식의 <strong>보안 불일치 문제</strong>를 발견하고 개선했다.</li>
-        <li>Google과 Kakao의 사용자 정보 JSON 구조 차이에서 발생하는 파싱 문제를 해결했다.</li>
+        <li><strong>Index</strong>의 개념과 역할을 이해한다.</li>
+        <li>인덱스 적용 여부에 따른 검색 성능 차이를 파악한다.</li>
+        <li><strong>B-Tree</strong> 구조가 인덱스에 사용되는 이유를 이해한다.</li>
+        <li><strong>Index Scan 4종류</strong>(Unique Scan, Range Scan, Full Index Scan, ICP)의 동작 방식과 발생 조건을 정리한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Google Cloud Console 설정</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>스코프(scope) 설정 위치를 Google Cloud Console에서 찾으려 했으나 항목이 보이지 않음</td>
-            <td>현재 UI에서는 Console에서 별도로 스코프를 설정할 필요가 없다. <code>application.yml</code>의 <code>scope</code> 설정만으로 충분하다.</td>
-          </tr>
-          <tr>
-            <td>리다이렉트 URI를 프론트엔드 주소로 설정하려 함</td>
-            <td>OAuth 플로우를 오해한 것이다. 구글이 인증 코드를 보내는 곳은 <strong>백엔드 서버</strong>이므로 백엔드 주소(<code>/login/oauth2/code/google</code>)로 등록해야 한다. 프론트는 이후 백엔드가 최종 리다이렉트하는 대상이다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="concept-box">
-        <span class="box-title">OAuth 2.0 Authorization Code Flow 흐름</span>
-        1. 사용자가 "구글로 로그인" 클릭<br>
-        2. 구글 로그인 화면 → 동의<br>
-        3. 구글이 <strong>백엔드 서버</strong>의 Redirect URI(<code>/login/oauth2/code/google</code>)로 인증 코드 전송<br>
-        4. 백엔드가 인증 코드로 구글 토큰 서버에 Access Token 요청<br>
-        5. Access Token으로 사용자 정보 조회<br>
-        6. JWT 발급 후 <strong>프론트엔드</strong>로 최종 리다이렉트<br><br>
-        리다이렉트 URI는 구글이 인증 코드를 보내는 <strong>백엔드</strong> 주소이며, 프론트 주소가 아니다.
-      </div>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. Google OAuth 코드 구현</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          구현 파일 목록
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:35%;">파일</th>
-            <th>역할</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>AuthProvider</code> (enum)</td>
-            <td>LOCAL, GOOGLE (이후 KAKAO 추가)</td>
-          </tr>
-          <tr>
-            <td><code>OAuthUserInfo</code> (DTO)</td>
-            <td>provider별 사용자 정보 파싱 결과를 담는 DTO</td>
-          </tr>
-          <tr>
-            <td><code>CustomOAuth2UserService</code></td>
-            <td>OAuth 로그인 시 사용자 조회/생성 처리</td>
-          </tr>
-          <tr>
-            <td><code>OAuth2SuccessHandler</code></td>
-            <td>OAuth 인증 성공 후 JWT 발급 및 프론트로 리다이렉트</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블슈팅
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>User</code> 엔티티에 <code>provider</code> 필드 추가 후 <code>DataInitializer</code>에서 <code>NULL not allowed</code> 에러 발생</td>
-            <td>기존 INSERT 쿼리의 컬럼 목록에 <code>provider</code>가 없었다. SQL 컬럼 목록과 VALUES에 <code>provider</code>, <code>"LOCAL"</code>을 추가해서 해결했다.</td>
-          </tr>
-          <tr>
-            <td>위 수정 후 재실행 시 <code>Column count does not match</code> 에러 발생</td>
-            <td>컬럼 목록에는 <code>provider</code>를 추가했지만 <code>VALUES</code>의 <code>?</code> 개수를 그대로 둬서 불일치가 발생했다. 컬럼 수와 <code>?</code> 개수를 맞춰서 해결했다. SQL을 수정할 때는 컬럼과 값 자리를 항상 함께 확인해야 한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. OAuth 토큰 발급 보안 이슈</h2>
+      <h2 class="section">1. Index란 무엇인가</h2>
 
       <p>
-        OAuth 인증 성공 후 프론트엔드로 토큰을 전달하는 방식에서 기존 일반 로그인과의 보안 불일치가 발견됐다.
+        데이터를 빠르게 찾기 위한 <strong>검색용 지도</strong>다.
+        단순히 가나다순으로 정렬된 목록이 아니라, 검색에 특화된 <strong>트리(Tree) 구조의 탐색 지도</strong>다.
+        테이블과 별도의 자료 구조로 관리되며, <code>PRIMARY KEY</code>와 <code>UNIQUE</code> 제약 조건이 걸린 컬럼에는 자동으로 생성된다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">방식</th>
-            <th style="width:35%;">초기 구현</th>
-            <th>문제점</th>
+            <th style="width:25%;">항목</th>
+            <th>내용</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>일반 로그인</strong></td>
-            <td>Access Token → 응답 Body / Refresh Token → HttpOnly 쿠키</td>
-            <td>없음</td>
+            <td><strong>기본 역할</strong></td>
+            <td>원하는 데이터를 빠르게 찾도록 도와준다.</td>
           </tr>
           <tr>
-            <td><strong>OAuth 로그인 (초기)</strong></td>
-            <td>Access Token + Refresh Token 둘 다 URL 파라미터로 전달</td>
-            <td>Refresh Token이 브라우저 주소창, 히스토리, 서버 로그에 노출</td>
+            <td><strong>저장 위치</strong></td>
+            <td>테이블과 별도의 자료 구조로 관리된다.</td>
+          </tr>
+          <tr>
+            <td><strong>구조 형태</strong></td>
+            <td>B-Tree 알고리즘을 사용한다.</td>
+          </tr>
+          <tr>
+            <td><strong>자동 생성 조건</strong></td>
+            <td><code>PRIMARY KEY</code>, <code>UNIQUE</code> 제약 조건이 걸린 컬럼</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          인덱스 적용 여부 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구분</th>
+            <th>인덱스 없음</th>
+            <th>인덱스 있음</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>검색 방식</strong></td>
+            <td>전체 테이블 탐색 (Full Table Scan)</td>
+            <td>정렬된 인덱스 탐색</td>
+          </tr>
+          <tr>
+            <td><strong>시간 복잡도</strong></td>
+            <td>O(n)</td>
+            <td>O(log n)</td>
+          </tr>
+          <tr>
+            <td><strong>I/O 비용</strong></td>
+            <td>매우 높음</td>
+            <td>낮음</td>
+          </tr>
+          <tr>
+            <td><strong>추가 공간</strong></td>
+            <td>없음</td>
+            <td>필요</td>
+          </tr>
+          <tr>
+            <td><strong>INSERT / UPDATE</strong></td>
+            <td>빠름</td>
+            <td>약간 느림 (인덱스도 함께 갱신)</td>
           </tr>
         </tbody>
       </table>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ HTTP 리다이렉트는 Body를 지원하지 않는다</span>
-        <code>OAuth2SuccessHandler</code>에서 프론트로 리다이렉트할 때는 <code>sendRedirect()</code>를 사용한다.
-        HTTP 리다이렉트(302)는 응답 Body를 지원하지 않기 때문에 일반 로그인처럼 Body에 토큰을 담는 방식을 쓸 수 없다.
-        URL 파라미터 외의 방법이 기술적으로 제한된다.
+        <span class="box-title">⚠️ 인덱스는 공짜가 아니다</span>
+        인덱스를 추가하면 조회 성능은 향상되지만, <strong>INSERT / UPDATE / DELETE 시 인덱스도 함께 갱신</strong>해야 하므로 쓰기 성능이 저하된다.
+        또한 인덱스 자체가 별도의 저장 공간을 차지한다.
+        조회가 압도적으로 많은 컬럼에 선택적으로 적용해야 한다.
       </div>
 
-      <div class="success-box">
-        <span class="box-title">최종 해결 — Refresh Token은 Set-Cookie 헤더로</span>
-        HTTP 리다이렉트 응답에도 <strong>헤더(Header)</strong>는 함께 전송된다.
-        <code>response.addCookie()</code>를 사용하면 리다이렉트 응답에 <code>Set-Cookie</code> 헤더를 추가할 수 있다.<br><br>
-        <strong>Refresh Token</strong> → HttpOnly 쿠키(<code>Set-Cookie</code> 헤더)로 전달 (브라우저가 자동 저장)<br>
-        <strong>Access Token</strong> → URL 파라미터로 전달 (프론트가 꺼내서 메모리/스토리지에 저장)<br><br>
-        이렇게 하면 일반 로그인과 동일한 보안 수준을 유지할 수 있다.
-      </div>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. Kakao 개발자 콘솔 설정</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Redirect URI 등록 위치를 문서와 다른 UI에서 찾지 못함</td>
-            <td>카카오 개발자 콘솔 UI가 개편되었다. 새 UI 기준: <code>앱 설정</code> → <code>플랫폼 키</code> → <code>REST API 키</code> → <code>더보기</code>에서 Redirect URI를 등록해야 한다.</td>
-          </tr>
-          <tr>
-            <td>기존 <code>[플랫폼] → [Web]</code>에서 사이트 도메인을 등록하는 항목이 사라짐</td>
-            <td>UI 개편으로 설정 위치가 변경되었다. JavaScript SDK 도메인은 JavaScript 키 하위, Redirect URI는 REST API 키 하위에서 각각 설정하는 구조로 분리되었다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. Kakao OAuth 코드 구현</h2>
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. B-Tree (Balanced Tree)</h2>
 
       <p>
-        Google과 Kakao는 사용자 정보 응답의 JSON 구조가 다르기 때문에 provider별 분기 처리가 필요하다.
+        데이터를 <strong>분할, 정렬, 균형 유지</strong>하는 탐색 트리다.
+        루트 노드를 기준으로 검색할 값이 더 크면 오른쪽, 더 작으면 왼쪽으로 이동한다.
+        이 구조 덕분에 전체 데이터를 다 보지 않고 절반씩 줄여가며 탐색할 수 있어 O(log n)의 시간 복잡도를 달성한다.
       </p>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Google vs Kakao JSON 구조 비교
-        </span>
-      </h3>
+      <div class="concept-box">
+        <span class="box-title">B-Tree가 인덱스에 적합한 이유</span>
+        B-Tree는 항상 균형(Balanced)을 유지하기 때문에 어떤 데이터를 찾더라도 탐색 깊이가 일정하다.
+        특정 데이터에만 편향된 탐색 경로가 생기지 않으므로 최악의 경우에도 O(log n)이 보장된다.<br><br>
+        또한 <strong>리프 노드(Leaf Node)끼리 연결되어 있어 범위 검색에 유리</strong>하다.
+        시작 위치를 찾은 뒤 옆으로 이어서 읽으면 되기 때문에 <code>BETWEEN</code>, <code>></code>, <code><</code> 같은 범위 조건이 효율적으로 처리된다.
+      </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">항목</th>
-            <th>Google</th>
-            <th>Kakao</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>JSON 구조</strong></td>
-            <td>flat (단순 1단계)</td>
-            <td>중첩 구조 (<code>kakao_account</code> → <code>profile</code>)</td>
-          </tr>
-          <tr>
-            <td><strong>고유 ID</strong></td>
-            <td><code>"sub"</code> (String)</td>
-            <td><code>"id"</code> (Long)</td>
-          </tr>
-          <tr>
-            <td><strong>이메일 위치</strong></td>
-            <td>최상위 레벨 <code>attributes.get("email")</code></td>
-            <td><code>kakao_account</code> 안에 중첩</td>
-          </tr>
-          <tr>
-            <td><strong>nameAttributeKey</strong></td>
-            <td><code>"sub"</code></td>
-            <td><code>"id"</code></td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. Index Scan 종류</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          트러블슈팅
+          1. Unique Scan
         </span>
       </h3>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40%;">문제</th>
-            <th>원인 및 해결</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>카카오 중첩 JSON 파싱 실패</td>
-            <td>카카오는 <code>kakao_account</code> → <code>profile</code>의 중첩 구조다. <code>(Map&lt;String, Object&gt;)</code> 캐스팅으로 단계별로 꺼내는 로직을 추가했다. Google은 flat 구조라 별도 처리가 필요 없다.</td>
-          </tr>
-          <tr>
-            <td>카카오 고유 ID 타입 불일치 — <code>id</code>가 <code>Long</code>인데 Google <code>sub</code>은 <code>String</code></td>
-            <td>두 provider의 ID를 통일된 방식으로 처리하려면 <code>String.valueOf()</code>로 변환해서 <code>String</code>으로 통일해야 한다.</td>
-          </tr>
-          <tr>
-            <td><code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>를 구글과 동일하게 <code>"email"</code>로 하드코딩 → 카카오에서 에러 발생</td>
-            <td>카카오는 최상위 레벨에 <code>"email"</code> 키가 없다. <code>userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()</code>으로 각 provider 설정에서 동적으로 가져오도록 변경했다. Google은 <code>"sub"</code>, Kakao는 <code>"id"</code>가 반환된다.</td>
-          </tr>
-          <tr>
-            <td><code>OAuth2SuccessHandler</code>에서 <code>attributes.get("email")</code>로 카카오 이메일 꺼내기 → <code>null</code> 반환</td>
-            <td>카카오는 이메일이 <code>kakao_account</code> 안에 있어 최상위 레벨 <code>attributes</code>에 없다. OAuth 성공 핸들러에서도 provider를 분기해서 이메일을 꺼내는 로직을 추가했다.</td>
-          </tr>
-        </tbody>
-      </table>
+      <p>
+        정확히 <strong>한 건의 데이터</strong>를 찾는 탐색이다.
+        인덱스가 <code>PRIMARY KEY</code> 또는 <code>UNIQUE</code> 제약일 때 발생하며,
+        B-Tree에서 정확히 한 경로만 따라가면 끝나기 때문에 탐색 속도가 가장 빠르다.
+        불필요한 비교나 순회가 전혀 없다.
+      </p>
+
+      <pre><code class="language-sql">-- PRIMARY KEY 조건 → Unique Scan 발생
+SELECT * FROM orders WHERE id = 1;</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          2. Range Scan
+        </span>
+      </h3>
+
+      <p>
+        일정 <strong>범위(구간)의 데이터</strong>를 연속적으로 읽는 탐색이다.
+        B-Tree의 정렬된 구조를 활용해 시작 위치를 찾은 뒤 순서대로 이어서 읽는다.
+        이미 정렬된 상태로 읽히기 때문에 <code>ORDER BY</code>를 사용해도 추가 정렬이 불필요하다.
+      </p>
+
+      <pre><code class="language-sql">-- BETWEEN, >, <, LIKE 'abc%' → Range Scan 발생
+SELECT * FROM orders WHERE created_at BETWEEN '2026-01-01' AND '2026-03-31';
+SELECT * FROM members WHERE name LIKE '김%';</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">nameAttributeKey를 동적으로 가져와야 하는 이유</span>
-        <code>DefaultOAuth2User</code>의 세 번째 인자 <code>nameAttributeKey</code>는 해당 provider의 응답 JSON에서 <strong>반드시 존재하는 최상위 키</strong>여야 한다.
-        Google은 최상위에 <code>"sub"</code>가 있고 Kakao는 최상위에 <code>"id"</code>가 있다.<br><br>
-        <code>"email"</code>처럼 특정 provider에만 있는 키를 하드코딩하면 다른 provider에서 키를 찾지 못해 에러가 발생한다.
-        <code>getUserNameAttributeName()</code>으로 가져오면 <code>application.yml</code>의 각 provider 설정에서 자동으로 올바른 키를 반환하므로 멀티 provider 환경에서도 안전하게 동작한다.
+        <span class="box-title">LIKE 조건에서 Range Scan이 되는 경우와 안 되는 경우</span>
+        <code>LIKE '김%'</code>처럼 <strong>앞부분이 고정된 경우</strong>에는 인덱스의 시작 위치를 특정할 수 있어 Range Scan이 가능하다.<br>
+        <code>LIKE '%김'</code>처럼 <strong>앞부분이 와일드카드인 경우</strong>에는 시작 위치를 특정할 수 없어 Full Table Scan이 발생한다.
       </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          3. Full Index Scan
+        </span>
+      </h3>
+
+      <p>
+        인덱스 <strong>전체를 처음부터 끝까지 순서대로</strong> 읽는 탐색이다.
+        WHERE 조건이 없어 인덱스 전체를 탐색하지만, 인덱스 자체가 이미 정렬된 상태이므로 <code>ORDER BY</code> 시 추가 정렬이 필요 없다.
+        Full Table Scan보다는 읽는 데이터량이 적기 때문에 I/O 비용이 낮다.
+      </p>
+
+      <pre><code class="language-sql">-- WHERE 조건 없이 정렬만 있는 경우 → Full Index Scan 발생 가능
+SELECT id, name FROM members ORDER BY name;</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          4. Index Condition Pushdown (ICP)
+        </span>
+      </h3>
+
+      <p>
+        WHERE 조건 중 일부를 <strong>인덱스 탐색 단계에서 미리 필터링</strong>하는 최적화 기법이다.
+        기존에는 인덱스로 후보 데이터를 찾은 뒤 테이블에서 실제 행을 읽어와 조건을 검사했다.
+        ICP가 적용되면 인덱스 탐색 중에 조건을 먼저 검사해서 조건을 만족하지 않는 행은 테이블 접근 자체를 하지 않는다.
+        불필요한 디스크 I/O가 줄어들어 성능이 향상된다.
+      </p>
+
+      <pre><code class="language-sql">-- 복합 인덱스 (last_name, first_name)이 있을 때
+-- last_name으로 Range Scan 후 first_name 조건을 인덱스 단계에서 미리 필터링
+SELECT * FROM members WHERE last_name = '김' AND first_name LIKE '민%';</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">ICP 적용 전후 비교</span>
+        <strong>ICP 적용 전:</strong> 인덱스에서 <code>last_name = '김'</code>인 행을 모두 찾음 → 각 행에 대해 테이블 접근 → <code>first_name LIKE '민%'</code> 조건 검사<br><br>
+        <strong>ICP 적용 후:</strong> 인덱스에서 <code>last_name = '김'</code>인 행을 찾는 중에 <code>first_name LIKE '민%'</code>도 함께 검사 → 조건을 통과한 행만 테이블에 접근<br><br>
+        테이블 접근 횟수 자체를 줄이므로 <strong>디스크 I/O가 대폭 감소</strong>한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          4가지 Index Scan 요약 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">종류</th>
+            <th style="width:30%;">발생 조건</th>
+            <th style="width:20%;">탐색 범위</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Unique Scan</strong></td>
+            <td>PK 또는 UNIQUE 컬럼 조건</td>
+            <td>정확히 1건</td>
+            <td>가장 빠름. 추가 순회 없음</td>
+          </tr>
+          <tr>
+            <td><strong>Range Scan</strong></td>
+            <td>BETWEEN, >, <, LIKE 'abc%'</td>
+            <td>시작 ~ 끝 구간</td>
+            <td>정렬된 순서로 읽어 ORDER BY 효율적</td>
+          </tr>
+          <tr>
+            <td><strong>Full Index Scan</strong></td>
+            <td>WHERE 없이 인덱스 컬럼 전체 조회</td>
+            <td>인덱스 전체</td>
+            <td>Full Table Scan보다 I/O 적음</td>
+          </tr>
+          <tr>
+            <td><strong>ICP</strong></td>
+            <td>복합 인덱스 + 추가 WHERE 조건</td>
+            <td>인덱스 탐색 중 필터링</td>
+            <td>테이블 접근 횟수 감소 → I/O 절감</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        OAuth 도입에서 가장 먼저 혼동했던 것은 <strong>리다이렉트 URI가 백엔드 주소라는 사실</strong>이었다.
-        구글이 인증 코드를 보내는 곳은 서버이지 브라우저가 아니다. Authorization Code Flow의 전체 흐름을 그림으로 이해하고 나면 당연한 이야기지만, 처음에는 직관적으로 "프론트에 코드를 주는 것 아닌가"라고 오해하기 쉽다.
+        인덱스는 조회 성능을 극적으로 향상시키지만 공짜가 아니라는 것이 핵심이다.
+        쓰기 성능 저하와 추가 저장 공간이라는 비용이 따른다.
+        따라서 인덱스를 모든 컬럼에 무조건 추가하는 것이 아니라 <strong>조회 빈도가 높고 카디널리티(고유값 수)가 높은 컬럼</strong>에 선택적으로 적용해야 한다.
       </p>
 
       <p>
-        OAuth 토큰 전달 보안 이슈는 기존 로그인 방식과의 일관성을 점검하다가 발견한 것이다.
-        <strong>HTTP 리다이렉트는 Body를 지원하지 않지만 헤더는 전송된다</strong>는 사실을 이용해
-        <code>Set-Cookie</code> 헤더로 Refresh Token을 전달하는 방식으로 해결했다.
-        기능을 구현할 때 기존 방식과 동일한 보안 수준을 유지하는지 항상 비교하는 습관이 중요하다.
+        B-Tree 구조를 이해하면 왜 LIKE <code>'%김'</code>이 인덱스를 타지 못하는지, 왜 <code>ORDER BY</code>가 인덱스를 사용하면 추가 정렬이 필요 없는지 자연스럽게 이해된다.
+        B-Tree는 이미 정렬된 상태를 유지하기 때문에 범위 검색과 정렬 모두에 유리한 것이다.
       </p>
 
       <p>
-        Google과 Kakao의 JSON 구조 차이는 멀티 provider를 지원할 때 반드시 부딪히는 문제다.
-        <code>nameAttributeKey</code>를 하드코딩하지 않고 <code>getUserNameAttributeName()</code>으로 동적으로 가져오는 방식이
-        세 번째 provider를 추가할 때도 동일한 코드를 재사용할 수 있게 만든다.
-        특정 provider에 종속된 하드코딩은 확장성을 막는다는 것을 이번에 직접 경험했다.
+        ICP는 인덱스 탐색 단계에서 조건을 미리 적용해 테이블 접근 횟수 자체를 줄이는 최적화다.
+        복합 인덱스를 설계할 때 ICP가 적용될 수 있는 구조를 고려하면 I/O 비용을 크게 줄일 수 있다.
+        실무에서 쿼리가 느릴 때 <code>EXPLAIN</code>으로 어떤 Index Scan이 발생하는지 확인하는 것이 쿼리 최적화의 첫 단계다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
