@@ -109,8 +109,8 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 72일차 TIL — 데이터베이스 인덱스(Index)와 B-Tree · Index Scan 종류</h1>
-      <p class="muted">작성일 2026-03-30 · 분류: 부트캠프, TIL, Database, Index, B-Tree, 쿼리 최적화</p>
+      <h1>내일배움캠프 Spring 백엔드 72일차 TIL — QueryDSL · 동적 쿼리 · ID 기반 엔티티 설계</h1>
+      <p class="muted">작성일 2026-03-30 · 분류: 부트캠프, TIL, JPA, QueryDSL, 동적 쿼리, BooleanBuilder, BooleanExpression, 엔티티 설계</p>
 
       <h2 class="section">72일차 개요</h2>
       <h3 class="section">
@@ -119,51 +119,137 @@
         </span>
       </h3>
       <ul>
-        <li><strong>Index</strong>의 개념과 역할을 이해한다.</li>
-        <li>인덱스 적용 여부에 따른 검색 성능 차이를 파악한다.</li>
-        <li><strong>B-Tree</strong> 구조가 인덱스에 사용되는 이유를 이해한다.</li>
-        <li><strong>Index Scan 4종류</strong>(Unique Scan, Range Scan, Full Index Scan, ICP)의 동작 방식과 발생 조건을 정리한다.</li>
+        <li>JPQL의 한계와 <strong>QueryDSL</strong>이 이를 해결하는 방식을 이해한다.</li>
+        <li><strong>동적 쿼리</strong>가 필요한 이유와 SRP와의 관계를 정리한다.</li>
+        <li><strong>BooleanBuilder vs BooleanExpression</strong>의 차이와 사용 시점을 파악한다.</li>
+        <li>JPA 연관관계가 유발하는 문제를 이해하고 <strong>ID 기반 설계 + QueryDSL 조인</strong>으로 전환하는 방식을 익힌다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Index란 무엇인가</h2>
+      <h2 class="section">1. JPQL의 한계와 QueryDSL</h2>
 
       <p>
-        데이터를 빠르게 찾기 위한 <strong>검색용 지도</strong>다.
-        단순히 가나다순으로 정렬된 목록이 아니라, 검색에 특화된 <strong>트리(Tree) 구조의 탐색 지도</strong>다.
-        테이블과 별도의 자료 구조로 관리되며, <code>PRIMARY KEY</code>와 <code>UNIQUE</code> 제약 조건이 걸린 컬럼에는 자동으로 생성된다.
+        JPQL은 JPA에서 객체를 대상으로 쿼리를 작성하는 언어지만, <strong>문자열 기반</strong>이라는 근본적인 한계가 있다.
+        QueryDSL은 이 JPQL을 <strong>타입 안전하게 작성하기 위한 라이브러리</strong>이며,
+        SQL이 아닌 JPA 위에서 동작하는 쿼리 빌더다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:25%;">항목</th>
-            <th>내용</th>
+            <th style="width:30%;">JPQL 문제점</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>기본 역할</strong></td>
-            <td>원하는 데이터를 빠르게 찾도록 도와준다.</td>
+            <td><strong>문자열 기반</strong></td>
+            <td>IDE 자동완성, 리팩토링이 불가능하다.</td>
           </tr>
           <tr>
-            <td><strong>저장 위치</strong></td>
-            <td>테이블과 별도의 자료 구조로 관리된다.</td>
+            <td><strong>컴파일 시 검증 불가</strong></td>
+            <td>오타나 필드 변경 시 런타임 오류로 이어진다.</td>
           </tr>
           <tr>
-            <td><strong>구조 형태</strong></td>
-            <td>B-Tree 알고리즘을 사용한다.</td>
-          </tr>
-          <tr>
-            <td><strong>자동 생성 조건</strong></td>
-            <td><code>PRIMARY KEY</code>, <code>UNIQUE</code> 제약 조건이 걸린 컬럼</td>
+            <td><strong>유지보수 어려움</strong></td>
+            <td>동적 쿼리 작성 시 가독성이 크게 저하된다.</td>
           </tr>
         </tbody>
       </table>
 
+      <div class="success-box">
+        <span class="box-title">QueryDSL의 장점</span>
+        IDE 자동완성 지원 · 컴파일 타임 검증 · 동적 쿼리 작성 간결화 · 코드 가독성 및 유지보수성 향상
+      </div>
+
+      <div class="concept-box">
+        <span class="box-title">Q-Type</span>
+        QueryDSL 전용 클래스로, <strong>빌드 시 자동으로 생성</strong>된다.
+        엔티티 클래스 <code>User</code>에 대해 <code>QUser</code>가 생성되며,
+        <code>QUser.user.username</code> 같은 방식으로 필드에 타입 안전하게 접근한다.
+        문자열 대신 자바 코드로 쿼리를 작성하므로 오타가 컴파일 에러로 바로 잡힌다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 동적 쿼리가 필요한 이유</h2>
+
+      <p>
+        동적 쿼리는 <strong>사용자가 입력한 검색 조건에 따라 쿼리를 유연하게 생성하는 방식</strong>이다.
+        Spring Data JPA의 메서드 이름 기반 방식만으로는 여러 복합 조건(이름이 ~이거나, 이메일이 ~이면서, 역할이 ~인 경우)을 표현하기 어렵다.
+      </p>
+
+      <pre><code class="language-java">// 메서드 이름 기반 방식의 한계 — 조건이 조금만 바뀌어도 메서드가 폭발적으로 늘어난다
+List&lt;User&gt; findByUsernameAndEmailContainsAndRoleEnum(
+    String username, String email, UserRoleEnum roleEnum
+);</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">동적 쿼리와 SRP (단일 책임 원칙)</span>
+        SRP는 "클래스마다 하나의 책임만 가져야 한다"는 원칙이며, 더 정확히는 <strong>"하나의 클래스(또는 함수)가 한 가지 이유로만 변경되어야 한다"</strong>는 의미다.<br><br>
+        동적 쿼리는 '검색 조건이 다양하다'는 <strong>하나의 책임(검색 기능)</strong>을 수행하는 것이므로 SRP를 준수한다.
+        조건 하나가 추가될 때마다 새 메서드를 만드는 것이 오히려 책임을 분산시키는 나쁜 설계다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. BooleanBuilder vs BooleanExpression</h2>
+
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          인덱스 적용 여부 비교
+          BooleanBuilder
+        </span>
+      </h3>
+
+      <p>
+        여러 조건을 동적으로 추가하거나 제거할 수 있는 <strong>가변 조건 컨테이너</strong>다.
+        조건을 하나씩 쌓아가며 만드는 방식이라 복잡한 검색 조건에 유용하다.
+        다만 <code>if</code>문이 길어지고 조건 메서드를 재사용하기 어렵다.
+      </p>
+
+      <pre><code class="language-java">BooleanBuilder builder = new BooleanBuilder();
+
+if (username != null) builder.and(user.username.contains(username));
+if (email != null)    builder.and(user.email.contains(email));
+if (role != null)     builder.and(user.role.eq(role));
+
+queryFactory.selectFrom(user).where(builder).fetch();</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          BooleanExpression
+        </span>
+      </h3>
+
+      <p>
+        하나의 조건(표현식)을 <strong>메서드로 정의해 조합하는 불변 표현식</strong>이다.
+        null을 반환하면 QueryDSL이 해당 조건을 자동으로 무시하므로 별도의 null 체크 없이 코드가 깔끔해진다.
+        메서드 간 <code>.and()</code>나 <code>.or()</code>로 병합하며, 재사용성이 높다.
+      </p>
+
+      <pre><code class="language-java">private BooleanExpression usernameContains(String username) {
+    return username != null ? user.username.contains(username) : null;
+}
+
+private BooleanExpression emailContains(String email) {
+    return email != null ? user.email.contains(email) : null;
+}
+
+private BooleanExpression roleEq(UserRoleEnum role) {
+    return role != null ? user.role.eq(role) : null;
+}
+
+// null을 반환하는 조건은 QueryDSL이 자동으로 무시
+queryFactory
+    .selectFrom(user)
+    .where(
+        usernameContains(cond.getUsername()),
+        emailContains(cond.getEmail()),
+        roleEq(cond.getRole())
+    )
+    .fetch();</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          비교 요약
         </span>
       </h3>
 
@@ -171,203 +257,196 @@
         <thead>
           <tr>
             <th style="width:25%;">구분</th>
-            <th>인덱스 없음</th>
-            <th>인덱스 있음</th>
+            <th>BooleanBuilder</th>
+            <th>BooleanExpression</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>검색 방식</strong></td>
-            <td>전체 테이블 탐색 (Full Table Scan)</td>
-            <td>정렬된 인덱스 탐색</td>
+            <td><strong>개념</strong></td>
+            <td>조건을 모아두는 컨테이너</td>
+            <td>단일 조건의 표현식</td>
           </tr>
           <tr>
-            <td><strong>시간 복잡도</strong></td>
-            <td>O(n)</td>
-            <td>O(log n)</td>
+            <td><strong>객체 성격</strong></td>
+            <td>가변 (Mutable)</td>
+            <td>불변 (Immutable)</td>
           </tr>
           <tr>
-            <td><strong>I/O 비용</strong></td>
-            <td>매우 높음</td>
+            <td><strong>null 처리</strong></td>
+            <td>직접 제어 (if문 필요)</td>
+            <td>null 반환 시 자동 무시</td>
+          </tr>
+          <tr>
+            <td><strong>where 작성 방식</strong></td>
+            <td><code>.where(builder)</code></td>
+            <td><code>.where(조건1, 조건2, 조건3)</code></td>
+          </tr>
+          <tr>
+            <td><strong>재사용성</strong></td>
             <td>낮음</td>
+            <td>높음</td>
           </tr>
           <tr>
-            <td><strong>추가 공간</strong></td>
-            <td>없음</td>
-            <td>필요</td>
-          </tr>
-          <tr>
-            <td><strong>INSERT / UPDATE</strong></td>
-            <td>빠름</td>
-            <td>약간 느림 (인덱스도 함께 갱신)</td>
+            <td><strong>코드 가독성</strong></td>
+            <td>복잡함</td>
+            <td>깔끔함</td>
           </tr>
         </tbody>
       </table>
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ 인덱스는 공짜가 아니다</span>
-        인덱스를 추가하면 조회 성능은 향상되지만, <strong>INSERT / UPDATE / DELETE 시 인덱스도 함께 갱신</strong>해야 하므로 쓰기 성능이 저하된다.
-        또한 인덱스 자체가 별도의 저장 공간을 차지한다.
-        조회가 압도적으로 많은 컬럼에 선택적으로 적용해야 한다.
+      <div class="success-box">
+        <span class="box-title">선택 기준</span>
+        <strong>BooleanBuilder:</strong> 조건이 많고, 일부 조건을 동적으로 추가/삭제해야 할 때<br>
+        <strong>BooleanExpression:</strong> 조건이 고정되어 있고, null만 무시하면 될 때
       </div>
 
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. B-Tree (Balanced Tree)</h2>
-
-      <p>
-        데이터를 <strong>분할, 정렬, 균형 유지</strong>하는 탐색 트리다.
-        루트 노드를 기준으로 검색할 값이 더 크면 오른쪽, 더 작으면 왼쪽으로 이동한다.
-        이 구조 덕분에 전체 데이터를 다 보지 않고 절반씩 줄여가며 탐색할 수 있어 O(log n)의 시간 복잡도를 달성한다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">B-Tree가 인덱스에 적합한 이유</span>
-        B-Tree는 항상 균형(Balanced)을 유지하기 때문에 어떤 데이터를 찾더라도 탐색 깊이가 일정하다.
-        특정 데이터에만 편향된 탐색 경로가 생기지 않으므로 최악의 경우에도 O(log n)이 보장된다.<br><br>
-        또한 <strong>리프 노드(Leaf Node)끼리 연결되어 있어 범위 검색에 유리</strong>하다.
-        시작 위치를 찾은 뒤 옆으로 이어서 읽으면 되기 때문에 <code>BETWEEN</code>, <code>></code>, <code><</code> 같은 범위 조건이 효율적으로 처리된다.
-      </div>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. Index Scan 종류</h2>
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. JPA 연관관계의 문제와 ID 기반 설계</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. Unique Scan
+          JPA 연관관계가 유발하는 문제들
         </span>
       </h3>
 
       <p>
-        정확히 <strong>한 건의 데이터</strong>를 찾는 탐색이다.
-        인덱스가 <code>PRIMARY KEY</code> 또는 <code>UNIQUE</code> 제약일 때 발생하며,
-        B-Tree에서 정확히 한 경로만 따라가면 끝나기 때문에 탐색 속도가 가장 빠르다.
-        불필요한 비교나 순회가 전혀 없다.
+        JPA는 객체와 테이블을 1:1로 매핑하는 ORM이므로 객체 그래프 탐색이 가능하도록 엔티티 간 연결이 필요하다.
+        개발자가 SQL을 직접 작성하지 않아도 객체 참조만으로 관계를 탐색할 수 있다.
+        하지만 이 편리함이 아래와 같은 문제들을 유발한다.
       </p>
-
-      <pre><code class="language-sql">-- PRIMARY KEY 조건 → Unique Scan 발생
-SELECT * FROM orders WHERE id = 1;</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Range Scan
-        </span>
-      </h3>
-
-      <p>
-        일정 <strong>범위(구간)의 데이터</strong>를 연속적으로 읽는 탐색이다.
-        B-Tree의 정렬된 구조를 활용해 시작 위치를 찾은 뒤 순서대로 이어서 읽는다.
-        이미 정렬된 상태로 읽히기 때문에 <code>ORDER BY</code>를 사용해도 추가 정렬이 불필요하다.
-      </p>
-
-      <pre><code class="language-sql">-- BETWEEN, >, <, LIKE 'abc%' → Range Scan 발생
-SELECT * FROM orders WHERE created_at BETWEEN '2026-01-01' AND '2026-03-31';
-SELECT * FROM members WHERE name LIKE '김%';</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">LIKE 조건에서 Range Scan이 되는 경우와 안 되는 경우</span>
-        <code>LIKE '김%'</code>처럼 <strong>앞부분이 고정된 경우</strong>에는 인덱스의 시작 위치를 특정할 수 있어 Range Scan이 가능하다.<br>
-        <code>LIKE '%김'</code>처럼 <strong>앞부분이 와일드카드인 경우</strong>에는 시작 위치를 특정할 수 없어 Full Table Scan이 발생한다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          3. Full Index Scan
-        </span>
-      </h3>
-
-      <p>
-        인덱스 <strong>전체를 처음부터 끝까지 순서대로</strong> 읽는 탐색이다.
-        WHERE 조건이 없어 인덱스 전체를 탐색하지만, 인덱스 자체가 이미 정렬된 상태이므로 <code>ORDER BY</code> 시 추가 정렬이 필요 없다.
-        Full Table Scan보다는 읽는 데이터량이 적기 때문에 I/O 비용이 낮다.
-      </p>
-
-      <pre><code class="language-sql">-- WHERE 조건 없이 정렬만 있는 경우 → Full Index Scan 발생 가능
-SELECT id, name FROM members ORDER BY name;</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          4. Index Condition Pushdown (ICP)
-        </span>
-      </h3>
-
-      <p>
-        WHERE 조건 중 일부를 <strong>인덱스 탐색 단계에서 미리 필터링</strong>하는 최적화 기법이다.
-        기존에는 인덱스로 후보 데이터를 찾은 뒤 테이블에서 실제 행을 읽어와 조건을 검사했다.
-        ICP가 적용되면 인덱스 탐색 중에 조건을 먼저 검사해서 조건을 만족하지 않는 행은 테이블 접근 자체를 하지 않는다.
-        불필요한 디스크 I/O가 줄어들어 성능이 향상된다.
-      </p>
-
-      <pre><code class="language-sql">-- 복합 인덱스 (last_name, first_name)이 있을 때
--- last_name으로 Range Scan 후 first_name 조건을 인덱스 단계에서 미리 필터링
-SELECT * FROM members WHERE last_name = '김' AND first_name LIKE '민%';</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">ICP 적용 전후 비교</span>
-        <strong>ICP 적용 전:</strong> 인덱스에서 <code>last_name = '김'</code>인 행을 모두 찾음 → 각 행에 대해 테이블 접근 → <code>first_name LIKE '민%'</code> 조건 검사<br><br>
-        <strong>ICP 적용 후:</strong> 인덱스에서 <code>last_name = '김'</code>인 행을 찾는 중에 <code>first_name LIKE '민%'</code>도 함께 검사 → 조건을 통과한 행만 테이블에 접근<br><br>
-        테이블 접근 횟수 자체를 줄이므로 <strong>디스크 I/O가 대폭 감소</strong>한다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          4가지 Index Scan 요약 비교
-        </span>
-      </h3>
 
       <table>
         <thead>
           <tr>
-            <th style="width:25%;">종류</th>
-            <th style="width:30%;">발생 조건</th>
-            <th style="width:20%;">탐색 범위</th>
-            <th>특징</th>
+            <th style="width:25%;">문제</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Unique Scan</strong></td>
-            <td>PK 또는 UNIQUE 컬럼 조건</td>
-            <td>정확히 1건</td>
-            <td>가장 빠름. 추가 순회 없음</td>
+            <td><strong>N+1 문제</strong></td>
+            <td>연관 객체를 탐색할 때 쿼리가 N번 추가로 실행된다.</td>
           </tr>
           <tr>
-            <td><strong>Range Scan</strong></td>
-            <td>BETWEEN, >, <, LIKE 'abc%'</td>
-            <td>시작 ~ 끝 구간</td>
-            <td>정렬된 순서로 읽어 ORDER BY 효율적</td>
+            <td><strong>Lazy/Eager 로딩 충돌</strong></td>
+            <td>서비스마다 로딩 전략이 달라 일관성을 유지하기 어렵다.</td>
           </tr>
           <tr>
-            <td><strong>Full Index Scan</strong></td>
-            <td>WHERE 없이 인덱스 컬럼 전체 조회</td>
-            <td>인덱스 전체</td>
-            <td>Full Table Scan보다 I/O 적음</td>
+            <td><strong>순환 참조</strong></td>
+            <td>양방향 매핑 시 JSON 직렬화에서 무한 루프가 발생한다.</td>
           </tr>
           <tr>
-            <td><strong>ICP</strong></td>
-            <td>복합 인덱스 + 추가 WHERE 조건</td>
-            <td>인덱스 탐색 중 필터링</td>
-            <td>테이블 접근 횟수 감소 → I/O 절감</td>
+            <td><strong>쿼리 제어 불가</strong></td>
+            <td>JPA가 내부적으로 어떤 SQL을 날릴지 예측하기 어렵다.</td>
+          </tr>
+          <tr>
+            <td><strong>성능 튜닝 제한</strong></td>
+            <td>fetch join, batch size 등으로 임시 해결만 가능하다.</td>
           </tr>
         </tbody>
       </table>
 
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방향 — ID 기반 설계 + QueryDSL 조인
+        </span>
+      </h3>
+
+      <p>
+        JPA 연관관계 어노테이션(<code>@ManyToOne</code> 등) 대신 단순히 <strong>외래키 ID 값만 필드로 저장</strong>하고,
+        조인이 필요한 시점에만 QueryDSL로 연결하는 방식이다.
+        연관은 코드가 아니라 쿼리로 관리한다.
+      </p>
+
+      <pre><code class="language-java">// Before: JPA 연관관계 방식
+@Entity
+public class Post {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user; // 언제 로딩될지 제어하기 어렵다
+}
+
+// After: ID 기반 설계
+@Entity
+public class Post {
+    private Long userId; // 단순 ID 값만 저장
+}</code></pre>
+
+      <pre><code class="language-java">// 조인이 필요할 때만 QueryDSL로 명시적으로 연결
+queryFactory
+    .selectFrom(post)
+    .leftJoin(user).on(post.userId.eq(user.id))
+    .fetch();</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구분</th>
+            <th>JPA 연관관계 방식</th>
+            <th>QueryDSL + ID 방식</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>관계 표현</strong></td>
+            <td><code>@ManyToOne</code></td>
+            <td><code>Long userId</code></td>
+          </tr>
+          <tr>
+            <td><strong>쿼리 생성</strong></td>
+            <td>JPA가 자동으로 SQL 생성</td>
+            <td>개발자가 직접 제어</td>
+          </tr>
+          <tr>
+            <td><strong>성능 예측</strong></td>
+            <td>어려움</td>
+            <td>완전한 예측 가능</td>
+          </tr>
+          <tr>
+            <td><strong>Lazy 로딩</strong></td>
+            <td>프록시 객체 필요</td>
+            <td>불필요</td>
+          </tr>
+          <tr>
+            <td><strong>순환 참조</strong></td>
+            <td>위험 있음</td>
+            <td>완전 제거</td>
+          </tr>
+          <tr>
+            <td><strong>유지보수성</strong></td>
+            <td>낮음</td>
+            <td>매우 높음</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">언제 연관관계를 쓰고 언제 ID 기반으로 쓸까</span>
+        <strong>연관이 필요 없는 것은 JPA가, 조인이 필요한 것은 QueryDSL이 처리</strong>하도록 설계한다.<br><br>
+        단순 CRUD처럼 조인이 거의 발생하지 않는 관계라면 JPA 연관관계가 편리하다.
+        하지만 복잡한 조인 쿼리, 성능이 중요한 조회, N+1이 빈번하게 발생하는 관계라면
+        ID만 보관하고 QueryDSL에서 필요할 때만 조인하는 방식이 훨씬 예측 가능하고 유지보수하기 쉽다.
+      </div>
+
       <h2 class="section">마무리</h2>
 
       <p>
-        인덱스는 조회 성능을 극적으로 향상시키지만 공짜가 아니라는 것이 핵심이다.
-        쓰기 성능 저하와 추가 저장 공간이라는 비용이 따른다.
-        따라서 인덱스를 모든 컬럼에 무조건 추가하는 것이 아니라 <strong>조회 빈도가 높고 카디널리티(고유값 수)가 높은 컬럼</strong>에 선택적으로 적용해야 한다.
+        QueryDSL은 단순히 JPQL을 대체하는 도구가 아니라, <strong>타입 안전성과 동적 쿼리 작성이라는 두 가지 문제를 동시에 해결</strong>한다.
+        문자열로 쿼리를 작성하던 방식에서 자바 코드로 쿼리를 표현하면 오타와 필드 변경에 의한 런타임 오류가 컴파일 오류로 바뀐다.
+        오류가 늦게 발견될수록 고치는 비용이 커지기 때문에 이 차이는 실무에서 매우 중요하다.
       </p>
 
       <p>
-        B-Tree 구조를 이해하면 왜 LIKE <code>'%김'</code>이 인덱스를 타지 못하는지, 왜 <code>ORDER BY</code>가 인덱스를 사용하면 추가 정렬이 필요 없는지 자연스럽게 이해된다.
-        B-Tree는 이미 정렬된 상태를 유지하기 때문에 범위 검색과 정렬 모두에 유리한 것이다.
+        BooleanBuilder와 BooleanExpression은 상황에 따라 선택한다.
+        BooleanExpression으로 각 조건을 메서드로 쪼개면 조건 하나를 다른 쿼리에서 재사용할 수 있고, null 처리가 자동으로 되어 코드가 훨씬 깔끔해진다.
+        <code>where()</code>에 여러 조건을 나열할 때 null이 있으면 그냥 무시되기 때문에 별도의 if 분기 없이도 동적 쿼리를 만들 수 있다는 점이 핵심이다.
       </p>
 
       <p>
-        ICP는 인덱스 탐색 단계에서 조건을 미리 적용해 테이블 접근 횟수 자체를 줄이는 최적화다.
-        복합 인덱스를 설계할 때 ICP가 적용될 수 있는 구조를 고려하면 I/O 비용을 크게 줄일 수 있다.
-        실무에서 쿼리가 느릴 때 <code>EXPLAIN</code>으로 어떤 Index Scan이 발생하는지 확인하는 것이 쿼리 최적화의 첫 단계다.
+        JPA 연관관계를 ID 기반으로 전환하는 아이디어는 처음에는 낯설게 느껴졌지만, N+1과 순환 참조 문제를 근본적으로 제거한다는 점에서 설득력이 있다.
+        조인이 필요할 때만 명시적으로 QueryDSL로 연결하면 어떤 SQL이 실행되는지 완전히 예측할 수 있다.
+        <strong>JPA의 편리함이 필요한 곳에는 연관관계를, 쿼리 제어가 중요한 곳에는 ID 기반 + QueryDSL을</strong> 선택적으로 사용하는 것이 균형 잡힌 접근이다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
