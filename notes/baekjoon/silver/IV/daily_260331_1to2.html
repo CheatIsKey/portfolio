@@ -255,15 +255,15 @@
       </h3>
       
       <p>
-        <strong>지뢰 찾기 (백준 4396)</strong>는<br>
-        n × n 크기의 지뢰 찾기 보드와 현재 열린 칸 정보가 주어질 때, <strong>게임 결과판을 출력</strong>하는 문제다.<br>
-        <strong>열린 칸('x')에 지뢰가 있으면 게임 오버로, 모든 지뢰 위치를 '*'로 공개</strong>해야 한다.
+        <strong>스케이트 연습 (백준 28324)</strong>는<br>
+        N개의 구간마다 최대 속도 제한이 있을 때, <strong>각 구간에서의 속도 합을 최대화</strong>하는 문제다.<br>
+        <strong>인접한 구간 사이에서 속도는 최대 1씩만 증가</strong>할 수 있으며, 각 구간의 속도는 제한을 초과할 수 없다.
       </p>
       
       <ul>
-        <li>열린 칸('x')은 주변 8칸의 지뢰 수를 숫자로 표시하고, 열리지 않은 칸은 '.'으로 표시한다.</li>
-        <li>열린 칸 중 지뢰('*')가 있으면 게임 오버이며, 이 경우 보드 전체에서 지뢰 위치를 '*'로 덮어씌워 출력한다.</li>
-        <li>게임 오버가 아닌 경우에는 열린 칸의 주변 지뢰 수와 열리지 않은 칸('.')만 출력한다.</li>
+        <li>속도는 최대 1씩 증가할 수 있으므로, 뒤쪽 구간의 낮은 속도 제한이 앞쪽 구간의 속도에 영향을 준다.</li>
+        <li>앞에서 뒤로 탐색하면 미래의 속도 제한을 알 수 없어 최적 속도를 결정하기 어렵다.</li>
+        <li>뒤에서 앞으로 탐색하면 각 구간의 속도를 이전 구간(오른쪽) 속도 + 1과 현재 제한 중 최솟값으로 결정할 수 있어 최적임이 보장된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -275,13 +275,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (8방향 탐색 + 게임 오버 판별)</li>
-        <li><strong>선택 이유</strong>: 각 칸에 대한 처리가 독립적이며, 열린 칸의 주변 지뢰 수 계산은 8방향 탐색으로 O(1)에 처리된다. n이 최대 8이므로 O(n²) 시뮬레이션으로 충분히 빠르다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (역방향 순회)</li>
+        <li><strong>선택 이유</strong>: 속도를 최대화하려면 각 구간에서 가능한 한 빠르게 달려야 한다. 뒤에서 앞으로 순회하면, 오른쪽 구간에서 달렸던 속도에 1을 더한 값과 현재 제한 중 작은 값이 현재 구간의 최적 속도가 된다. 이 결정이 항상 지역적으로도 전역적으로도 최적임이 보장된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>보드를 순회하며 열린 칸('x')에 대해 8방향 지뢰 수를 세어 숫자로 기록하고, 열리지 않은 칸은 '.'으로 기록한다.</li>
-            <li>열린 칸에 지뢰가 있으면 <code>flag = true</code>로 게임 오버를 표시한다.</li>
-            <li>게임 오버이면 보드 전체를 다시 순회해 지뢰 위치를 '*'로 덮어씌운다.</li>
+            <li>마지막 구간부터 역순으로 순회한다.</li>
+            <li>각 구간에서 <code>speed = min(speed + 1, restrict[i])</code>로 현재 속도를 결정한다.</li>
+            <li>결정된 속도를 <code>answer</code>에 누적한다.</li>
           </ul>
         </li>
       </ul>
@@ -295,66 +295,38 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 배열 구성</strong>
-          <pre><code>for (int i = 0; i < n; i++) {
-          board[i] = br.readLine().toCharArray();
-      }
+        <li><strong>1) 입력</strong>
+          <pre><code>int[] restrict = new int[N];
       
-      for (int i = 0; i < n; i++) {
-          playing[i] = br.readLine().toCharArray();
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          restrict[i] = Integer.parseInt(st.nextToken());
       }</code></pre>
           <ul>
-            <li><code>board</code>는 실제 지뢰 배치('*' 또는 '.')를 저장하고, <code>playing</code>은 현재 열린 칸('x') 여부를 저장한다.</li>
-            <li><code>answer</code>는 최종 출력 결과를 저장하는 배열이다.</li>
+            <li>N개의 구간별 최대 속도 제한을 배열에 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 열린 칸 처리 및 게임 오버 판별</strong>
-          <pre><code>if (playing[r][c] == 'x') {
-          if (board[r][c] == '*') flag = true;
+        <li><strong>2) 역방향 순회로 최적 속도 계산</strong>
+          <pre><code>long speed = 0;
+      long answer = 0;
       
-          int bomb = 0;
-          for (int k = 0; k < 8; k++) {
-              int row = r + ROW[k];
-              int col = c + COL[k];
-      
-              if (row < 0 || row >= n || col < 0 || col >= n) continue;
-              if (board[row][col] == '*') bomb++;
-          }
-          answer[r][c] = (char) (bomb + '0');
-          continue;
-      }
-      answer[r][c] = '.';</code></pre>
-          <ul>
-            <li>열린 칸에 지뢰가 있으면 <code>flag = true</code>로 게임 오버를 기록한다. 지뢰 수 계산과 게임 오버 판별을 동시에 처리해 한 번의 순회로 해결한다.</li>
-            <li>8방향 탐색으로 주변 지뢰 수 <code>bomb</code>를 센 뒤 <code>(char)(bomb + '0')</code>으로 숫자 문자로 변환해 <code>answer</code>에 저장한다.</li>
-            <li>열리지 않은 칸은 '.'으로 기록한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 게임 오버 시 지뢰 위치 공개</strong>
-          <pre><code>if (flag) {
-          for (int r = 0; r < n; r++) {
-              for (int c = 0; c < n; c++) {
-                  if (board[r][c] == '*') {
-                      answer[r][c] = '*';
-                  }
-              }
-          }
+      for (int i = N - 1; i >= 0; i--) {
+          speed = Math.min(speed + 1, restrict[i]);
+          answer += speed;
       }</code></pre>
           <ul>
-            <li>게임 오버인 경우 보드 전체를 다시 순회해 지뢰 위치를 '*'로 덮어씌운다.</li>
-            <li>이미 숫자가 기록된 열린 칸이라도 지뢰가 있으면 '*'로 덮어쓴다. 지뢰를 밟은 칸도 '*'로 표시되어야 하기 때문이다.</li>
+            <li><code>speed</code>는 직전(오른쪽)에 처리한 구간에서의 속도를 나타낸다. 0으로 초기화하면 가장 마지막 구간은 제한 속도 이하에서 자유롭게 시작한다.</li>
+            <li><code>speed + 1</code>은 오른쪽 구간 속도에서 1 증가한 값으로, 현재 구간에서 낼 수 있는 최대 속도다. 여기에 현재 제한 <code>restrict[i]</code>와 비교해 더 작은 값을 선택한다.</li>
+            <li>뒤에서 앞으로 순회하므로 미래 제한이 현재 속도 결정에 자연스럽게 반영된다.</li>
+            <li>예시: restrict = [5, 3, 10, 2, 8]을 역방향 처리하면 speed: 2→3→3→4→5. answer = 2+3+3+4+5=17.</li>
           </ul>
         </li>
       
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>for (char[] chars : answer) {
-          sb.append(chars).append('\n');
-      }
-      System.out.println(sb);</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>완성된 <code>answer</code> 배열의 각 행을 순서대로 출력한다.</li>
+            <li>모든 구간의 속도 합 <code>answer</code>를 출력한다. 속도와 구간 수가 크면 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
           </ul>
         </li>
       </ul>
@@ -370,12 +342,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(n²)</strong>: 보드 전체를 최대 두 번 순회하며(처리 + 게임 오버 시 지뢰 공개), 각 칸에서 8방향 탐색은 O(1)이므로 전체 O(n²)이다. n이 최대 8이므로 사실상 O(1)에 수렴한다.</li>
+            <li><strong>O(N)</strong>: 배열을 한 번 역순으로 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(n²)</strong>: 지뢰 배치, 열린 칸, 결과를 저장하는 세 개의 n × n 배열이 주요 메모리 사용처이며, n이 최대 8이므로 사실상 O(1)에 수렴한다.</li>
+            <li><strong>O(N)</strong>: 속도 제한을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
