@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 72일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 72일차 TIL — QueryDSL · 동적 쿼리 · ID 기반 엔티티 설계</h1>
+      <p class="muted">작성일 2026-03-30 · 분류: 부트캠프, TIL, JPA, QueryDSL, 동적 쿼리, BooleanBuilder, BooleanExpression, 엔티티 설계</p>
+
+      <h2 class="section">72일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li>JPQL의 한계와 <strong>QueryDSL</strong>이 이를 해결하는 방식을 이해한다.</li>
+        <li><strong>동적 쿼리</strong>가 필요한 이유와 SRP와의 관계를 정리한다.</li>
+        <li><strong>BooleanBuilder vs BooleanExpression</strong>의 차이와 사용 시점을 파악한다.</li>
+        <li>JPA 연관관계가 유발하는 문제를 이해하고 <strong>ID 기반 설계 + QueryDSL 조인</strong>으로 전환하는 방식을 익힌다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. JPQL의 한계와 QueryDSL</h2>
+
+      <p>
+        JPQL은 JPA에서 객체를 대상으로 쿼리를 작성하는 언어지만, <strong>문자열 기반</strong>이라는 근본적인 한계가 있다.
+        QueryDSL은 이 JPQL을 <strong>타입 안전하게 작성하기 위한 라이브러리</strong>이며,
+        SQL이 아닌 JPA 위에서 동작하는 쿼리 빌더다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">JPQL 문제점</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>문자열 기반</strong></td>
+            <td>IDE 자동완성, 리팩토링이 불가능하다.</td>
+          </tr>
+          <tr>
+            <td><strong>컴파일 시 검증 불가</strong></td>
+            <td>오타나 필드 변경 시 런타임 오류로 이어진다.</td>
+          </tr>
+          <tr>
+            <td><strong>유지보수 어려움</strong></td>
+            <td>동적 쿼리 작성 시 가독성이 크게 저하된다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box">
+        <span class="box-title">QueryDSL의 장점</span>
+        IDE 자동완성 지원 · 컴파일 타임 검증 · 동적 쿼리 작성 간결화 · 코드 가독성 및 유지보수성 향상
+      </div>
+
+      <div class="concept-box">
+        <span class="box-title">Q-Type</span>
+        QueryDSL 전용 클래스로, <strong>빌드 시 자동으로 생성</strong>된다.
+        엔티티 클래스 <code>User</code>에 대해 <code>QUser</code>가 생성되며,
+        <code>QUser.user.username</code> 같은 방식으로 필드에 타입 안전하게 접근한다.
+        문자열 대신 자바 코드로 쿼리를 작성하므로 오타가 컴파일 에러로 바로 잡힌다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 동적 쿼리가 필요한 이유</h2>
+
+      <p>
+        동적 쿼리는 <strong>사용자가 입력한 검색 조건에 따라 쿼리를 유연하게 생성하는 방식</strong>이다.
+        Spring Data JPA의 메서드 이름 기반 방식만으로는 여러 복합 조건(이름이 ~이거나, 이메일이 ~이면서, 역할이 ~인 경우)을 표현하기 어렵다.
+      </p>
+
+      <pre><code class="language-java">// 메서드 이름 기반 방식의 한계 — 조건이 조금만 바뀌어도 메서드가 폭발적으로 늘어난다
+List&lt;User&gt; findByUsernameAndEmailContainsAndRoleEnum(
+    String username, String email, UserRoleEnum roleEnum
+);</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">동적 쿼리와 SRP (단일 책임 원칙)</span>
+        SRP는 "클래스마다 하나의 책임만 가져야 한다"는 원칙이며, 더 정확히는 <strong>"하나의 클래스(또는 함수)가 한 가지 이유로만 변경되어야 한다"</strong>는 의미다.<br><br>
+        동적 쿼리는 '검색 조건이 다양하다'는 <strong>하나의 책임(검색 기능)</strong>을 수행하는 것이므로 SRP를 준수한다.
+        조건 하나가 추가될 때마다 새 메서드를 만드는 것이 오히려 책임을 분산시키는 나쁜 설계다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. BooleanBuilder vs BooleanExpression</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          BooleanBuilder
+        </span>
+      </h3>
+
+      <p>
+        여러 조건을 동적으로 추가하거나 제거할 수 있는 <strong>가변 조건 컨테이너</strong>다.
+        조건을 하나씩 쌓아가며 만드는 방식이라 복잡한 검색 조건에 유용하다.
+        다만 <code>if</code>문이 길어지고 조건 메서드를 재사용하기 어렵다.
+      </p>
+
+      <pre><code class="language-java">BooleanBuilder builder = new BooleanBuilder();
+
+if (username != null) builder.and(user.username.contains(username));
+if (email != null)    builder.and(user.email.contains(email));
+if (role != null)     builder.and(user.role.eq(role));
+
+queryFactory.selectFrom(user).where(builder).fetch();</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          BooleanExpression
+        </span>
+      </h3>
+
+      <p>
+        하나의 조건(표현식)을 <strong>메서드로 정의해 조합하는 불변 표현식</strong>이다.
+        null을 반환하면 QueryDSL이 해당 조건을 자동으로 무시하므로 별도의 null 체크 없이 코드가 깔끔해진다.
+        메서드 간 <code>.and()</code>나 <code>.or()</code>로 병합하며, 재사용성이 높다.
+      </p>
+
+      <pre><code class="language-java">private BooleanExpression usernameContains(String username) {
+    return username != null ? user.username.contains(username) : null;
+}
+
+private BooleanExpression emailContains(String email) {
+    return email != null ? user.email.contains(email) : null;
+}
+
+private BooleanExpression roleEq(UserRoleEnum role) {
+    return role != null ? user.role.eq(role) : null;
+}
+
+// null을 반환하는 조건은 QueryDSL이 자동으로 무시
+queryFactory
+    .selectFrom(user)
+    .where(
+        usernameContains(cond.getUsername()),
+        emailContains(cond.getEmail()),
+        roleEq(cond.getRole())
+    )
+    .fetch();</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          비교 요약
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구분</th>
+            <th>BooleanBuilder</th>
+            <th>BooleanExpression</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>개념</strong></td>
+            <td>조건을 모아두는 컨테이너</td>
+            <td>단일 조건의 표현식</td>
+          </tr>
+          <tr>
+            <td><strong>객체 성격</strong></td>
+            <td>가변 (Mutable)</td>
+            <td>불변 (Immutable)</td>
+          </tr>
+          <tr>
+            <td><strong>null 처리</strong></td>
+            <td>직접 제어 (if문 필요)</td>
+            <td>null 반환 시 자동 무시</td>
+          </tr>
+          <tr>
+            <td><strong>where 작성 방식</strong></td>
+            <td><code>.where(builder)</code></td>
+            <td><code>.where(조건1, 조건2, 조건3)</code></td>
+          </tr>
+          <tr>
+            <td><strong>재사용성</strong></td>
+            <td>낮음</td>
+            <td>높음</td>
+          </tr>
+          <tr>
+            <td><strong>코드 가독성</strong></td>
+            <td>복잡함</td>
+            <td>깔끔함</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box">
+        <span class="box-title">선택 기준</span>
+        <strong>BooleanBuilder:</strong> 조건이 많고, 일부 조건을 동적으로 추가/삭제해야 할 때<br>
+        <strong>BooleanExpression:</strong> 조건이 고정되어 있고, null만 무시하면 될 때
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. JPA 연관관계의 문제와 ID 기반 설계</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          JPA 연관관계가 유발하는 문제들
+        </span>
+      </h3>
+
+      <p>
+        JPA는 객체와 테이블을 1:1로 매핑하는 ORM이므로 객체 그래프 탐색이 가능하도록 엔티티 간 연결이 필요하다.
+        개발자가 SQL을 직접 작성하지 않아도 객체 참조만으로 관계를 탐색할 수 있다.
+        하지만 이 편리함이 아래와 같은 문제들을 유발한다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">문제</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>N+1 문제</strong></td>
+            <td>연관 객체를 탐색할 때 쿼리가 N번 추가로 실행된다.</td>
+          </tr>
+          <tr>
+            <td><strong>Lazy/Eager 로딩 충돌</strong></td>
+            <td>서비스마다 로딩 전략이 달라 일관성을 유지하기 어렵다.</td>
+          </tr>
+          <tr>
+            <td><strong>순환 참조</strong></td>
+            <td>양방향 매핑 시 JSON 직렬화에서 무한 루프가 발생한다.</td>
+          </tr>
+          <tr>
+            <td><strong>쿼리 제어 불가</strong></td>
+            <td>JPA가 내부적으로 어떤 SQL을 날릴지 예측하기 어렵다.</td>
+          </tr>
+          <tr>
+            <td><strong>성능 튜닝 제한</strong></td>
+            <td>fetch join, batch size 등으로 임시 해결만 가능하다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방향 — ID 기반 설계 + QueryDSL 조인
+        </span>
+      </h3>
+
+      <p>
+        JPA 연관관계 어노테이션(<code>@ManyToOne</code> 등) 대신 단순히 <strong>외래키 ID 값만 필드로 저장</strong>하고,
+        조인이 필요한 시점에만 QueryDSL로 연결하는 방식이다.
+        연관은 코드가 아니라 쿼리로 관리한다.
+      </p>
+
+      <pre><code class="language-java">// Before: JPA 연관관계 방식
+@Entity
+public class Post {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user; // 언제 로딩될지 제어하기 어렵다
+}
+
+// After: ID 기반 설계
+@Entity
+public class Post {
+    private Long userId; // 단순 ID 값만 저장
+}</code></pre>
+
+      <pre><code class="language-java">// 조인이 필요할 때만 QueryDSL로 명시적으로 연결
+queryFactory
+    .selectFrom(post)
+    .leftJoin(user).on(post.userId.eq(user.id))
+    .fetch();</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">구분</th>
+            <th>JPA 연관관계 방식</th>
+            <th>QueryDSL + ID 방식</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>관계 표현</strong></td>
+            <td><code>@ManyToOne</code></td>
+            <td><code>Long userId</code></td>
+          </tr>
+          <tr>
+            <td><strong>쿼리 생성</strong></td>
+            <td>JPA가 자동으로 SQL 생성</td>
+            <td>개발자가 직접 제어</td>
+          </tr>
+          <tr>
+            <td><strong>성능 예측</strong></td>
+            <td>어려움</td>
+            <td>완전한 예측 가능</td>
+          </tr>
+          <tr>
+            <td><strong>Lazy 로딩</strong></td>
+            <td>프록시 객체 필요</td>
+            <td>불필요</td>
+          </tr>
+          <tr>
+            <td><strong>순환 참조</strong></td>
+            <td>위험 있음</td>
+            <td>완전 제거</td>
+          </tr>
+          <tr>
+            <td><strong>유지보수성</strong></td>
+            <td>낮음</td>
+            <td>매우 높음</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">언제 연관관계를 쓰고 언제 ID 기반으로 쓸까</span>
+        <strong>연관이 필요 없는 것은 JPA가, 조인이 필요한 것은 QueryDSL이 처리</strong>하도록 설계한다.<br><br>
+        단순 CRUD처럼 조인이 거의 발생하지 않는 관계라면 JPA 연관관계가 편리하다.
+        하지만 복잡한 조인 쿼리, 성능이 중요한 조회, N+1이 빈번하게 발생하는 관계라면
+        ID만 보관하고 QueryDSL에서 필요할 때만 조인하는 방식이 훨씬 예측 가능하고 유지보수하기 쉽다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        QueryDSL은 단순히 JPQL을 대체하는 도구가 아니라, <strong>타입 안전성과 동적 쿼리 작성이라는 두 가지 문제를 동시에 해결</strong>한다.
+        문자열로 쿼리를 작성하던 방식에서 자바 코드로 쿼리를 표현하면 오타와 필드 변경에 의한 런타임 오류가 컴파일 오류로 바뀐다.
+        오류가 늦게 발견될수록 고치는 비용이 커지기 때문에 이 차이는 실무에서 매우 중요하다.
+      </p>
+
+      <p>
+        BooleanBuilder와 BooleanExpression은 상황에 따라 선택한다.
+        BooleanExpression으로 각 조건을 메서드로 쪼개면 조건 하나를 다른 쿼리에서 재사용할 수 있고, null 처리가 자동으로 되어 코드가 훨씬 깔끔해진다.
+        <code>where()</code>에 여러 조건을 나열할 때 null이 있으면 그냥 무시되기 때문에 별도의 if 분기 없이도 동적 쿼리를 만들 수 있다는 점이 핵심이다.
+      </p>
+
+      <p>
+        JPA 연관관계를 ID 기반으로 전환하는 아이디어는 처음에는 낯설게 느껴졌지만, N+1과 순환 참조 문제를 근본적으로 제거한다는 점에서 설득력이 있다.
+        조인이 필요할 때만 명시적으로 QueryDSL로 연결하면 어떤 SQL이 실행되는지 완전히 예측할 수 있다.
+        <strong>JPA의 편리함이 필요한 곳에는 연관관계를, 쿼리 제어가 중요한 곳에는 ID 기반 + QueryDSL을</strong> 선택적으로 사용하는 것이 균형 잡힌 접근이다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
