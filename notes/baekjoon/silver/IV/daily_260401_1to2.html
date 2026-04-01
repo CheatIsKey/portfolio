@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-03-31 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 28215 — 대피소</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/28215">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260331_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>대피소 (백준 28215)</strong>는<br>
+        N개의 집 중 K개를 대피소로 선정할 때, <strong>각 집에서 가장 가까운 대피소까지의 거리 중 최댓값을 최소화</strong>하는 문제다.<br>
+        <strong>거리는 맨해튼 거리(|x1-x2| + |y1-y2|)</strong>로 계산한다.
+      </p>
+      
+      <ul>
+        <li>N개 중 K개를 선택하는 모든 조합을 탐색해 최적 대피소 배치를 찾는다.</li>
+        <li>각 조합에 대해 모든 집의 "가장 가까운 대피소까지의 거리" 중 최댓값을 구하고, 이를 최소화하는 조합이 정답이다.</li>
+        <li>N이 최대 10, K가 최대 N이므로 최악의 경우 C(10, 5) = 252가지 조합으로 브루트포스가 충분하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 백트래킹 조합 탐색 (완전 탐색)</li>
+        <li><strong>선택 이유</strong>: N이 최대 10으로 매우 작아 N개 중 K개를 선택하는 모든 조합을 탐색해도 최대 C(10, 5) = 252가지에 불과하다. 각 조합 검증에 O(N × K) = O(100)이 소요되므로 전체 탐색이 충분히 빠르다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>재귀 함수 <code>combine</code>으로 N개 중 K개를 선택하는 모든 조합을 생성한다.</li>
+            <li>K개가 선택되면 각 집에 대해 K개의 대피소 중 가장 가까운 거리를 구하고, 그 중 최댓값을 계산한다.</li>
+            <li>모든 조합에서의 최댓값 중 최솟값을 <code>answer</code>에 유지한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          int x = Integer.parseInt(st.nextToken());
+          int y = Integer.parseInt(st.nextToken());
+          houses.add(new House(x, y));
+      }
+      
+      int[] shelter = new int[K];
+      answer = Integer.MAX_VALUE;
+      combine(0, 0, shelter);</code></pre>
+          <ul>
+            <li>N개의 집 좌표를 <code>House</code> 객체 리스트에 저장한다.</li>
+            <li><code>shelter</code>는 현재 선택된 대피소의 인덱스를 저장하는 배열이다.</li>
+            <li><code>answer</code>를 충분히 큰 값으로 초기화하고 조합 탐색을 시작한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 백트래킹으로 조합 생성</strong>
+          <pre><code>for (int i = start; i < N; i++) {
+          shelter[count] = i;
+          combine(i + 1, count + 1, shelter);
+      }</code></pre>
+          <ul>
+            <li><code>start</code>부터 N-1까지 순서대로 대피소 후보를 선택하며 재귀 호출한다.</li>
+            <li><code>i + 1</code>을 다음 시작점으로 넘겨 중복 없이 오름차순 조합만 생성한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 조합 완성 시 최솟값·최댓값 계산</strong>
+          <pre><code>if (count == K) {
+          int max = Integer.MIN_VALUE;
+      
+          for (int i = 0; i < N; i++) {
+              int min = Integer.MAX_VALUE;
+      
+              for (int j = 0; j < K; j++) {
+                  int shelterIdx = shelter[j];
+                  int dist = dist(houses.get(i), houses.get(shelterIdx));
+                  min = Math.min(min, dist);
+              }
+      
+              max = Math.max(max, min);
+          }
+      
+          answer = Math.min(answer, max);
+          return;
+      }</code></pre>
+          <ul>
+            <li>K개의 대피소가 선택되면 각 집 i에 대해 K개의 대피소 중 가장 가까운 거리 <code>min</code>을 구한다.</li>
+            <li>N개의 집 중 <code>min</code>의 최댓값 <code>max</code>가 현재 조합의 "최악의 집"이 대피소까지 가야 하는 거리다.</li>
+            <li>모든 조합에서 <code>max</code>의 최솟값을 <code>answer</code>에 유지한다.</li>
+            <li>예시: 집이 [(0,0), (5,5), (10,0)]이고 K=1이면 세 가지 조합 각각의 max를 비교해 최솟값을 구한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 맨해튼 거리 계산</strong>
+          <pre><code>private static int dist(House houseOne, House houseTwo) {
+          return Math.abs(houseOne.x - houseTwo.x) + Math.abs(houseOne.y - houseTwo.y);
+      }</code></pre>
+          <ul>
+            <li>두 집 사이의 맨해튼 거리를 |x1-x2| + |y1-y2|로 계산한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(C(N, K) × N × K)</strong>: C(N, K)가지의 조합 각각에 대해 N개의 집과 K개의 대피소를 비교하는 O(N × K) 검증이 수행된다. N ≤ 10이므로 최악의 경우에도 C(10, 5) × 10 × 5 = 12,600번의 연산으로 매우 빠르다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N + K)</strong>: N개의 집을 저장하는 리스트가 O(N), 현재 선택된 대피소 인덱스를 저장하는 배열이 O(K), 재귀 호출 스택이 최대 K 깊이로 O(K)이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 28324 — 스케이트 연습</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/28324">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260331_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>스케이트 연습 (백준 28324)</strong>는<br>
+        N개의 구간마다 최대 속도 제한이 있을 때, <strong>각 구간에서의 속도 합을 최대화</strong>하는 문제다.<br>
+        <strong>인접한 구간 사이에서 속도는 최대 1씩만 증가</strong>할 수 있으며, 각 구간의 속도는 제한을 초과할 수 없다.
+      </p>
+      
+      <ul>
+        <li>속도는 최대 1씩 증가할 수 있으므로, 뒤쪽 구간의 낮은 속도 제한이 앞쪽 구간의 속도에 영향을 준다.</li>
+        <li>앞에서 뒤로 탐색하면 미래의 속도 제한을 알 수 없어 최적 속도를 결정하기 어렵다.</li>
+        <li>뒤에서 앞으로 탐색하면 각 구간의 속도를 이전 구간(오른쪽) 속도 + 1과 현재 제한 중 최솟값으로 결정할 수 있어 최적임이 보장된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (역방향 순회)</li>
+        <li><strong>선택 이유</strong>: 속도를 최대화하려면 각 구간에서 가능한 한 빠르게 달려야 한다. 뒤에서 앞으로 순회하면, 오른쪽 구간에서 달렸던 속도에 1을 더한 값과 현재 제한 중 작은 값이 현재 구간의 최적 속도가 된다. 이 결정이 항상 지역적으로도 전역적으로도 최적임이 보장된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>마지막 구간부터 역순으로 순회한다.</li>
+            <li>각 구간에서 <code>speed = min(speed + 1, restrict[i])</code>로 현재 속도를 결정한다.</li>
+            <li>결정된 속도를 <code>answer</code>에 누적한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력</strong>
+          <pre><code>int[] restrict = new int[N];
+      
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          restrict[i] = Integer.parseInt(st.nextToken());
+      }</code></pre>
+          <ul>
+            <li>N개의 구간별 최대 속도 제한을 배열에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 역방향 순회로 최적 속도 계산</strong>
+          <pre><code>long speed = 0;
+      long answer = 0;
+      
+      for (int i = N - 1; i >= 0; i--) {
+          speed = Math.min(speed + 1, restrict[i]);
+          answer += speed;
+      }</code></pre>
+          <ul>
+            <li><code>speed</code>는 직전(오른쪽)에 처리한 구간에서의 속도를 나타낸다. 0으로 초기화하면 가장 마지막 구간은 제한 속도 이하에서 자유롭게 시작한다.</li>
+            <li><code>speed + 1</code>은 오른쪽 구간 속도에서 1 증가한 값으로, 현재 구간에서 낼 수 있는 최대 속도다. 여기에 현재 제한 <code>restrict[i]</code>와 비교해 더 작은 값을 선택한다.</li>
+            <li>뒤에서 앞으로 순회하므로 미래 제한이 현재 속도 결정에 자연스럽게 반영된다.</li>
+            <li>예시: restrict = [5, 3, 10, 2, 8]을 역방향 처리하면 speed: 2→3→3→4→5. answer = 2+3+3+4+5=17.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>모든 구간의 속도 합 <code>answer</code>를 출력한다. 속도와 구간 수가 크면 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 배열을 한 번 역순으로 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 속도 제한을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
