@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-03-31 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-01 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 28215 — 대피소</h2>
+      <h2 class="section">문제 13706 — 제곱근</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/28215">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/13706">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260331_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260401_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>대피소 (백준 28215)</strong>는<br>
-        N개의 집 중 K개를 대피소로 선정할 때, <strong>각 집에서 가장 가까운 대피소까지의 거리 중 최댓값을 최소화</strong>하는 문제다.<br>
-        <strong>거리는 맨해튼 거리(|x1-x2| + |y1-y2|)</strong>로 계산한다.
+        <strong>제곱근 (백준 13706)</strong>는<br>
+        완전 제곱수 N이 주어질 때 <strong>√N을 구하는</strong> 문제다.<br>
+        <strong>N의 자릿수가 최대 1,000자리</strong>로 매우 크므로 <code>BigInteger</code>와 이진 탐색을 사용해야 한다.
       </p>
       
       <ul>
-        <li>N개 중 K개를 선택하는 모든 조합을 탐색해 최적 대피소 배치를 찾는다.</li>
-        <li>각 조합에 대해 모든 집의 "가장 가까운 대피소까지의 거리" 중 최댓값을 구하고, 이를 최소화하는 조합이 정답이다.</li>
-        <li>N이 최대 10, K가 최대 N이므로 최악의 경우 C(10, 5) = 252가지 조합으로 브루트포스가 충분하다.</li>
+        <li>N이 완전 제곱수임이 보장되므로 반드시 mid² == N인 mid가 존재한다.</li>
+        <li>N의 자릿수가 최대 1,000자리이므로 <code>long</code>은 물론 일반적인 부동소수점 연산도 사용할 수 없다.</li>
+        <li>탐색 범위를 1부터 N으로 설정하고 mid²와 N을 비교하는 이진 탐색으로 O(log N)에 해결된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 백트래킹 조합 탐색 (완전 탐색)</li>
-        <li><strong>선택 이유</strong>: N이 최대 10으로 매우 작아 N개 중 K개를 선택하는 모든 조합을 탐색해도 최대 C(10, 5) = 252가지에 불과하다. 각 조합 검증에 O(N × K) = O(100)이 소요되므로 전체 탐색이 충분히 빠르다.</li>
+        <li><strong>핵심 알고리즘</strong>: BigInteger 이진 탐색 (Binary Search on Answer)</li>
+        <li><strong>선택 이유</strong>: √N이 커질수록 mid²도 커지는 단조성이 성립하므로 이진 탐색을 적용할 수 있다. N이 최대 1,000자리의 큰 수이므로 <code>Math.sqrt()</code>의 부동소수점 오차를 피하기 위해 <code>BigInteger</code> 정수 연산으로 정확하게 비교한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>재귀 함수 <code>combine</code>으로 N개 중 K개를 선택하는 모든 조합을 생성한다.</li>
-            <li>K개가 선택되면 각 집에 대해 K개의 대피소 중 가장 가까운 거리를 구하고, 그 중 최댓값을 계산한다.</li>
-            <li>모든 조합에서의 최댓값 중 최솟값을 <code>answer</code>에 유지한다.</li>
+            <li>탐색 범위를 1부터 N으로 설정한다.</li>
+            <li>중간값 <code>mid = (low + high) / 2</code>를 계산하고 mid²와 N을 비교한다.</li>
+            <li>mid² == N이면 즉시 mid를 출력하고 종료한다.</li>
+            <li>mid² < N이면 답이 더 크므로 탐색 범위를 오른쪽으로, mid² > N이면 왼쪽으로 좁힌다.</li>
           </ul>
         </li>
       </ul>
@@ -95,67 +96,35 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 초기화</strong>
-          <pre><code>for (int i = 0; i < N; i++) {
-          int x = Integer.parseInt(st.nextToken());
-          int y = Integer.parseInt(st.nextToken());
-          houses.add(new House(x, y));
-      }
+        <li><strong>1) 입력 및 탐색 범위 초기화</strong>
+          <pre><code>BigInteger N = new BigInteger(br.readLine());
       
-      int[] shelter = new int[K];
-      answer = Integer.MAX_VALUE;
-      combine(0, 0, shelter);</code></pre>
+      BigInteger low = BigInteger.ONE;
+      BigInteger high = N;</code></pre>
           <ul>
-            <li>N개의 집 좌표를 <code>House</code> 객체 리스트에 저장한다.</li>
-            <li><code>shelter</code>는 현재 선택된 대피소의 인덱스를 저장하는 배열이다.</li>
-            <li><code>answer</code>를 충분히 큰 값으로 초기화하고 조합 탐색을 시작한다.</li>
+            <li>N이 최대 1,000자리이므로 <code>BigInteger</code>로 입력받는다.</li>
+            <li>탐색 범위를 1부터 N으로 설정한다. √N ≤ N이 항상 성립하므로 N이 상한값으로 충분하다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 백트래킹으로 조합 생성</strong>
-          <pre><code>for (int i = start; i < N; i++) {
-          shelter[count] = i;
-          combine(i + 1, count + 1, shelter);
-      }</code></pre>
-          <ul>
-            <li><code>start</code>부터 N-1까지 순서대로 대피소 후보를 선택하며 재귀 호출한다.</li>
-            <li><code>i + 1</code>을 다음 시작점으로 넘겨 중복 없이 오름차순 조합만 생성한다.</li>
-          </ul>
-        </li>
+        <li><strong>2) 이진 탐색으로 √N 탐색</strong>
+          <pre><code>while (low.compareTo(high) <= 0) {
+          BigInteger mid = low.add(high).divide(BigInteger.valueOf(2));
+          int compared = mid.multiply(mid).compareTo(N);
       
-        <li><strong>3) 조합 완성 시 최솟값·최댓값 계산</strong>
-          <pre><code>if (count == K) {
-          int max = Integer.MIN_VALUE;
-      
-          for (int i = 0; i < N; i++) {
-              int min = Integer.MAX_VALUE;
-      
-              for (int j = 0; j < K; j++) {
-                  int shelterIdx = shelter[j];
-                  int dist = dist(houses.get(i), houses.get(shelterIdx));
-                  min = Math.min(min, dist);
-              }
-      
-              max = Math.max(max, min);
+          if (compared == 0) {
+              System.out.println(mid);
+              return;
+          } else if (compared < 0) {
+              low = mid.add(BigInteger.ONE);
+          } else if (compared > 0) {
+              high = mid.subtract(BigInteger.ONE);
           }
-      
-          answer = Math.min(answer, max);
-          return;
       }</code></pre>
           <ul>
-            <li>K개의 대피소가 선택되면 각 집 i에 대해 K개의 대피소 중 가장 가까운 거리 <code>min</code>을 구한다.</li>
-            <li>N개의 집 중 <code>min</code>의 최댓값 <code>max</code>가 현재 조합의 "최악의 집"이 대피소까지 가야 하는 거리다.</li>
-            <li>모든 조합에서 <code>max</code>의 최솟값을 <code>answer</code>에 유지한다.</li>
-            <li>예시: 집이 [(0,0), (5,5), (10,0)]이고 K=1이면 세 가지 조합 각각의 max를 비교해 최솟값을 구한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 맨해튼 거리 계산</strong>
-          <pre><code>private static int dist(House houseOne, House houseTwo) {
-          return Math.abs(houseOne.x - houseTwo.x) + Math.abs(houseOne.y - houseTwo.y);
-      }</code></pre>
-          <ul>
-            <li>두 집 사이의 맨해튼 거리를 |x1-x2| + |y1-y2|로 계산한다.</li>
+            <li><code>mid = (low + high) / 2</code>를 <code>BigInteger</code> 연산으로 계산한다. <code>(low + high)</code> 계산 시 오버플로우가 없으므로 별도의 오버플로우 방지 처리가 필요 없다.</li>
+            <li><code>mid.multiply(mid).compareTo(N)</code>으로 mid²와 N을 비교한다. <code>compareTo</code>가 0이면 같고, 음수이면 mid² < N, 양수이면 mid² > N이다.</li>
+            <li>N이 완전 제곱수임이 보장되므로 반드시 <code>compared == 0</code>인 경우가 존재하며, 그 즉시 mid를 출력하고 종료한다.</li>
           </ul>
         </li>
       </ul>
@@ -171,12 +140,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(C(N, K) × N × K)</strong>: C(N, K)가지의 조합 각각에 대해 N개의 집과 K개의 대피소를 비교하는 O(N × K) 검증이 수행된다. N ≤ 10이므로 최악의 경우에도 C(10, 5) × 10 × 5 = 12,600번의 연산으로 매우 빠르다.</li>
+            <li><strong>O(D² × log N)</strong>: D는 N의 자릿수(최대 1,000)다. 이진 탐색은 log₂N ≈ 3,321번 반복되며, 각 반복에서 <code>BigInteger</code> 곱셈이 O(D²)이므로 전체 O(D² × log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N + K)</strong>: N개의 집을 저장하는 리스트가 O(N), 현재 선택된 대피소 인덱스를 저장하는 배열이 O(K), 재귀 호출 스택이 최대 K 깊이로 O(K)이다.</li>
+            <li><strong>O(D)</strong>: <code>BigInteger</code> 변수들이 각각 최대 D자리의 수를 저장하므로 O(D)의 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -230,14 +199,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 28324 — 스케이트 연습</h2>
+      <h2 class="section">문제 1544 — 사이클 단어</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/28324">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1544">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260331_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260401_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -255,15 +224,15 @@
       </h3>
       
       <p>
-        <strong>스케이트 연습 (백준 28324)</strong>는<br>
-        N개의 구간마다 최대 속도 제한이 있을 때, <strong>각 구간에서의 속도 합을 최대화</strong>하는 문제다.<br>
-        <strong>인접한 구간 사이에서 속도는 최대 1씩만 증가</strong>할 수 있으며, 각 구간의 속도는 제한을 초과할 수 없다.
+        <strong>사이클 단어 (백준 1544)</strong>는<br>
+        N개의 문자열이 주어질 때, <strong>회전(rotation)이 동일한 문자열끼리는 같은 것으로 간주</strong>하여<br>
+        <strong>서로 다른 사이클 단어의 개수를 구</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>속도는 최대 1씩 증가할 수 있으므로, 뒤쪽 구간의 낮은 속도 제한이 앞쪽 구간의 속도에 영향을 준다.</li>
-        <li>앞에서 뒤로 탐색하면 미래의 속도 제한을 알 수 없어 최적 속도를 결정하기 어렵다.</li>
-        <li>뒤에서 앞으로 탐색하면 각 구간의 속도를 이전 구간(오른쪽) 속도 + 1과 현재 제한 중 최솟값으로 결정할 수 있어 최적임이 보장된다.</li>
+        <li>문자열 A를 회전하면 B가 되는지 판별하는 고전적 방법으로, <code>A + A</code>가 B를 포함하는지 확인한다.</li>
+        <li>단, 두 문자열의 길이가 같아야 회전 관계일 수 있으므로 길이 동치 조건이 선행된다.</li>
+        <li>이미 집합에 있는 문자열과 회전 관계라면 새 문자열은 같은 그룹으로 보아 집합에 추가하지 않는다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -275,13 +244,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (역방향 순회)</li>
-        <li><strong>선택 이유</strong>: 속도를 최대화하려면 각 구간에서 가능한 한 빠르게 달려야 한다. 뒤에서 앞으로 순회하면, 오른쪽 구간에서 달렸던 속도에 1을 더한 값과 현재 제한 중 작은 값이 현재 구간의 최적 속도가 된다. 이 결정이 항상 지역적으로도 전역적으로도 최적임이 보장된다.</li>
+        <li><strong>핵심 알고리즘</strong>: HashSet + 문자열 회전 판별 (<code>str + str</code> 포함 검사)</li>
+        <li><strong>선택 이유</strong>: 회전 동치류(equivalence class)의 대표 원소만 집합에 유지하면, 마지막에 집합의 크기가 곧 서로 다른 그룹의 수가 된다. 회전 판별은 <code>str + str</code>에 <code>s</code>가 포함되는지로 O(L) 안에 확인할 수 있어 직관적이고 효율적이다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>마지막 구간부터 역순으로 순회한다.</li>
-            <li>각 구간에서 <code>speed = min(speed + 1, restrict[i])</code>로 현재 속도를 결정한다.</li>
-            <li>결정된 속도를 <code>answer</code>에 누적한다.</li>
+            <li>새 문자열 <code>s</code>를 읽을 때마다 집합 내 원소와 길이가 같은 것만 골라 회전 관계를 확인한다.</li>
+            <li>회전 관계인 원소가 하나라도 있으면 <code>s</code>는 이미 집합에 대표가 있으므로 추가하지 않는다.</li>
+            <li>그렇지 않으면 <code>s</code>를 새 동치류의 대표로 집합에 추가한다.</li>
+            <li>최종적으로 <code>set.size()</code>가 정답이다.</li>
           </ul>
         </li>
       </ul>
@@ -295,38 +265,43 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력</strong>
-          <pre><code>int[] restrict = new int[N];
-      
-      StringTokenizer st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < N; i++) {
-          restrict[i] = Integer.parseInt(st.nextToken());
-      }</code></pre>
+        <li><strong>1) 입력 및 자료구조 초기화</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      Set&lt;String&gt; set = new HashSet&lt;&gt;();</code></pre>
           <ul>
-            <li>N개의 구간별 최대 속도 제한을 배열에 저장한다.</li>
+            <li>문자열의 개수 N을 읽고, 동치류 대표 문자열을 보관할 HashSet을 초기화한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 역방향 순회로 최적 속도 계산</strong>
-          <pre><code>long speed = 0;
-      long answer = 0;
+        <li><strong>2) 각 문자열에 대해 회전 동치 여부 확인</strong>
+          <pre><code>for (int i = 0; i &lt; N; i++) {
+          String s = br.readLine();
+          boolean flag = false;
       
-      for (int i = N - 1; i >= 0; i--) {
-          speed = Math.min(speed + 1, restrict[i]);
-          answer += speed;
+          for (String str : set) {
+              if (str.length() == s.length() &amp;&amp; (str + str).contains(s)) {
+                  flag = true;
+                  break;
+              }
+          }
+      
+          if (!flag) {
+              set.add(s);
+          }
       }</code></pre>
           <ul>
-            <li><code>speed</code>는 직전(오른쪽)에 처리한 구간에서의 속도를 나타낸다. 0으로 초기화하면 가장 마지막 구간은 제한 속도 이하에서 자유롭게 시작한다.</li>
-            <li><code>speed + 1</code>은 오른쪽 구간 속도에서 1 증가한 값으로, 현재 구간에서 낼 수 있는 최대 속도다. 여기에 현재 제한 <code>restrict[i]</code>와 비교해 더 작은 값을 선택한다.</li>
-            <li>뒤에서 앞으로 순회하므로 미래 제한이 현재 속도 결정에 자연스럽게 반영된다.</li>
-            <li>예시: restrict = [5, 3, 10, 2, 8]을 역방향 처리하면 speed: 2→3→3→4→5. answer = 2+3+3+4+5=17.</li>
+            <li><code>s</code>를 읽은 뒤 집합의 모든 원소 <code>str</code>을 순회한다.</li>
+            <li><code>str.length() == s.length()</code>: 길이가 다른 경우 회전 관계일 수 없으므로 먼저 걸러낸다.</li>
+            <li><code>(str + str).contains(s)</code>: 길이 L인 문자열을 두 번 이어붙이면 가능한 모든 회전이 부분 문자열로 등장한다. Java의 <code>contains</code>는 내부적으로 <code>indexOf</code>를 사용하므로 O(L²) 이하의 비용으로 판별한다.</li>
+            <li><code>flag</code>가 세워지면 이미 같은 그룹의 대표가 있다는 뜻이므로 추가하지 않고 넘어간다.</li>
+            <li><code>flag</code>가 세워지지 않으면 <code>s</code>가 새로운 동치류이므로 집합에 대표로 추가한다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(answer);</code></pre>
+          <pre><code>System.out.println(set.size());</code></pre>
           <ul>
-            <li>모든 구간의 속도 합 <code>answer</code>를 출력한다. 속도와 구간 수가 크면 합이 <code>int</code> 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언했다.</li>
+            <li>집합에는 각 동치류의 대표 원소 하나씩만 남아 있으므로, <code>set.size()</code>가 곧 서로 다른 사이클 단어의 수다.</li>
           </ul>
         </li>
       </ul>
@@ -342,12 +317,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 배열을 한 번 역순으로 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
+            <li><strong>O(N² · L)</strong>: N개의 문자열 각각에 대해 집합 내 최대 N개의 원소와 비교하며, 회전 판별(<code>str + str</code> 생성 및 <code>contains</code>)에 O(L)이 소요된다. 따라서 전체 O(N² · L)이다. (L은 문자열의 최대 길이)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 속도 제한을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N · L)</strong>: 최악의 경우 N개의 문자열이 모두 서로 다른 동치류여서 집합에 N개가 저장되며, 각 문자열의 길이가 최대 L이므로 O(N · L)의 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
