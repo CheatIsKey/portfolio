@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 73일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 75일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,334 +109,228 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 73일차 TIL — 데이터베이스 인덱스 · B-Tree · Index Scan · 옵티마이저 · 복합 인덱스</h1>
-      <p class="muted">작성일 2026-03-31 · 분류: 부트캠프, TIL, Database, Index, B-Tree, EXPLAIN, 복합 인덱스, 쿼리 최적화</p>
+      <h1>내일배움캠프 Spring 백엔드 75일차 TIL — Spring Cache 심화: Self-Invocation 문제와 Null 캐싱</h1>
+      <p class="muted">작성일 2026-04-02 · 분류: 부트캠프, TIL, Cache, Spring Cache, AOP, Self-Invocation, Null Caching</p>
 
-      <h2 class="section">73일차 개요</h2>
+      <h2 class="section">75일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>Index</strong>의 개념과 역할, 적용 시 성능 차이를 이해한다.</li>
-        <li><strong>B-Tree</strong> 구조가 인덱스에 사용되는 이유를 파악한다.</li>
-        <li><strong>Index Scan 5종류</strong>의 동작 방식과 발생 조건을 정리한다.</li>
-        <li><strong>옵티마이저</strong>가 인덱스 탐색 방법을 자동으로 결정하는 원리를 이해한다.</li>
-        <li><strong>EXPLAIN</strong>으로 실행 계획을 확인하는 방법을 익힌다.</li>
-        <li><strong>복합 인덱스</strong>와 Leftmost Prefix Rule을 이해한다.</li>
+        <li>어제 배운 Spring Cache의 심화 내용을 정리한다.</li>
+        <li><strong>Self-Invocation 문제</strong> — 같은 클래스 내부 호출에서 캐시가 동작하지 않는 이유와 두 가지 해결 방법을 이해한다.</li>
+        <li><strong>Null 캐싱</strong> — DB에 없는 데이터도 캐시에 저장해 불필요한 DB 조회를 막는 방법을 익힌다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Index란 무엇인가</h2>
+      <h2 class="section">1. Self-Invocation 문제 — 같은 클래스 내부 호출 시 캐시 미적용</h2>
 
       <p>
-        데이터를 빠르게 찾기 위한 <strong>검색용 지도</strong>다.
-        단순히 가나다순으로 정렬된 목록이 아니라, 검색에 특화된 <strong>트리(Tree) 구조의 탐색 지도</strong>다.
-        테이블과 별도의 자료 구조로 관리되며, <code>PRIMARY KEY</code>와 <code>UNIQUE</code> 제약 조건이 걸린 컬럼에는 자동으로 생성된다.
+        Spring Cache는 <code>@Transactional</code>과 마찬가지로 <strong>AOP 프록시 기반</strong>으로 동작한다.
+        외부에서 Bean을 호출하면 프록시가 가로채서 캐시 로직을 적용하지만,
+        <strong>같은 클래스 안에서 <code>this.메서드()</code>로 호출하면 프록시를 거치지 않고 실제 객체를 직접 호출</strong>하기 때문에
+        <code>@Cacheable</code>이 전혀 동작하지 않는다.
       </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">항목</th>
-            <th>내용</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>기본 역할</strong></td>
-            <td>원하는 데이터를 빠르게 찾도록 도와준다.</td>
-          </tr>
-          <tr>
-            <td><strong>저장 위치</strong></td>
-            <td>테이블과 별도의 자료 구조로 관리된다.</td>
-          </tr>
-          <tr>
-            <td><strong>구조 형태</strong></td>
-            <td>B-Tree 알고리즘을 사용한다.</td>
-          </tr>
-          <tr>
-            <td><strong>자동 생성 조건</strong></td>
-            <td><code>PRIMARY KEY</code>, <code>UNIQUE</code> 제약 조건이 걸린 컬럼</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          인덱스 적용 여부 비교
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">구분</th>
-            <th>인덱스 없음</th>
-            <th>인덱스 있음</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>검색 방식</strong></td>
-            <td>전체 테이블 탐색 (Full Table Scan)</td>
-            <td>정렬된 인덱스 탐색</td>
-          </tr>
-          <tr>
-            <td><strong>시간 복잡도</strong></td>
-            <td>O(n)</td>
-            <td>O(log n)</td>
-          </tr>
-          <tr>
-            <td><strong>I/O 비용</strong></td>
-            <td>매우 높음</td>
-            <td>낮음</td>
-          </tr>
-          <tr>
-            <td><strong>추가 공간</strong></td>
-            <td>없음</td>
-            <td>필요</td>
-          </tr>
-          <tr>
-            <td><strong>INSERT / UPDATE</strong></td>
-            <td>빠름</td>
-            <td>약간 느림 (인덱스도 함께 갱신)</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. B-Tree (Balanced Tree)</h2>
-
-      <p>
-        데이터를 <strong>분할, 정렬, 균형 유지</strong>하는 탐색 트리다.
-        루트 노드를 기준으로 검색할 값이 더 크면 오른쪽, 더 작으면 왼쪽으로 이동한다.
-        항상 균형(Balanced)을 유지하기 때문에 어떤 데이터를 찾더라도 탐색 깊이가 일정하고 최악의 경우에도 O(log n)이 보장된다.
-        또한 리프 노드끼리 연결되어 있어 시작 위치를 찾은 뒤 옆으로 이어서 읽는 범위 검색에도 유리하다.
-      </p>
-
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. Index Scan 종류</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          1. Unique Scan
-        </span>
-      </h3>
-
-      <p>
-        정확히 <strong>한 건의 데이터</strong>를 찾는 탐색이다.
-        인덱스가 <code>PRIMARY KEY</code> 또는 <code>UNIQUE</code> 제약일 때 발생하며,
-        B-Tree에서 정확히 한 경로만 따라가면 끝나기 때문에 탐색 속도가 가장 빠르다.
-        불필요한 비교나 순회가 전혀 없다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          2. Range Scan
-        </span>
-      </h3>
-
-      <p>
-        일정 <strong>범위(구간)의 데이터</strong>를 연속적으로 읽는 탐색이다.
-        B-Tree의 정렬된 구조를 활용해 시작 위치를 찾은 뒤 순서대로 이어서 읽는다.
-        이미 정렬된 상태로 읽히기 때문에 <code>ORDER BY</code>를 사용해도 추가 정렬이 필요 없다.
-        <code>BETWEEN</code>, <code>&gt;</code>, <code>&lt;</code>, <code>LIKE 'abc%'</code> 등의 조건에서 발생한다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">LIKE 조건에서 Range Scan이 가능한 경우</span>
-        <code>LIKE '김%'</code>처럼 <strong>앞부분이 고정된 경우</strong>에는 인덱스 시작 위치를 특정할 수 있어 Range Scan이 가능하다.<br>
-        <code>LIKE '%김'</code>처럼 <strong>앞부분이 와일드카드인 경우</strong>에는 시작 위치를 특정할 수 없어 Full Table Scan이 발생한다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          3. Full Index Scan
-        </span>
-      </h3>
-
-      <p>
-        인덱스 <strong>전체를 처음부터 끝까지 순서대로</strong> 읽는 탐색이다.
-        WHERE 조건 없이 인덱스 컬럼 전체를 조회할 때 발생하며, 인덱스가 이미 정렬된 상태이므로 <code>ORDER BY</code> 시 추가 정렬이 필요 없다.
-        Full Table Scan보다 읽는 데이터량이 적어 I/O 비용이 낮다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          4. Index Condition Pushdown (ICP)
-        </span>
-      </h3>
-
-      <p>
-        WHERE 조건 중 일부를 <strong>인덱스 탐색 단계에서 미리 필터링</strong>하는 최적화 기법이다.
-        기존에는 인덱스로 후보 데이터를 찾은 뒤 테이블에서 실제 행을 읽어와 조건을 검사했다.
-        ICP가 적용되면 조건을 만족하지 않는 행은 테이블 접근 자체를 하지 않으므로 불필요한 디스크 I/O가 줄어든다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          5. Table Full Scan
-        </span>
-      </h3>
-
-      <p>
-        인덱스를 <strong>전혀 사용하지 않는</strong> 탐색이다.
-        테이블의 모든 데이터를 처음부터 끝까지 확인하므로 O(n)의 시간 복잡도를 가진다.
-        인덱스가 없거나 옵티마이저가 인덱스보다 Full Scan이 더 유리하다고 판단할 때 발생한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          5가지 Index Scan 요약 비교
-        </span>
-      </h3>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">종류</th>
-            <th style="width:30%;">발생 조건</th>
-            <th>특징</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Unique Scan</strong></td>
-            <td>PK 또는 UNIQUE 컬럼 조건</td>
-            <td>가장 빠름. 정확히 1건, 추가 순회 없음</td>
-          </tr>
-          <tr>
-            <td><strong>Range Scan</strong></td>
-            <td>BETWEEN, >, &lt;, LIKE 'abc%'</td>
-            <td>정렬된 순서로 읽어 ORDER BY 효율적</td>
-          </tr>
-          <tr>
-            <td><strong>Full Index Scan</strong></td>
-            <td>WHERE 없이 인덱스 컬럼 전체 조회</td>
-            <td>Full Table Scan보다 I/O 적음</td>
-          </tr>
-          <tr>
-            <td><strong>ICP</strong></td>
-            <td>복합 인덱스 + 추가 WHERE 조건</td>
-            <td>테이블 접근 횟수 감소 → I/O 절감</td>
-          </tr>
-          <tr>
-            <td><strong>Table Full Scan</strong></td>
-            <td>인덱스 없음 또는 옵티마이저 판단</td>
-            <td>모든 행을 순회. O(n), 가장 느림</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. 옵티마이저 (Optimizer)</h2>
-
-      <p>
-        DB가 스스로 <strong>가장 효율적인 실행 방법을 고르는 두뇌</strong>다.
-        인덱스를 만들어 두면 어떤 Index Scan(Unique, Range 등)을 쓸지 DB가 자동으로 결정한다.
-        개발자는 인덱스만 잘 설계하면 된다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">EXPLAIN으로 실행 계획 확인하기</span>
-        <code>EXPLAIN</code>을 쿼리 앞에 붙이면 옵티마이저가 해당 SQL을 어떻게 실행할지 확인할 수 있다.<br><br>
-        <strong>type 필드</strong> — 어떤 Index Scan을 사용하는지 나타낸다. <code>const</code>는 Unique Scan, <code>range</code>는 Range Scan을 의미한다.<br>
-        <strong>key 필드</strong> — 어떤 인덱스 키를 사용하는지 나타낸다.
-      </div>
-
-      <pre><code class="language-sql">-- Unique Scan 확인 — type: const, key: PRIMARY
-EXPLAIN FORMAT=TRADITIONAL SELECT * FROM users WHERE id = 1;
-
--- Range Scan 확인 — type: range, key: idx_age
--- B-Tree에서 20의 위치를 찾고, 그 이후 데이터를 순서대로 탐색한다.
-EXPLAIN FORMAT=TRADITIONAL SELECT * FROM users WHERE age BETWEEN 20 AND 30;</code></pre>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. Index의 한계</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:45%;">한계</th>
-            <th>이유</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>자주 갱신되는 컬럼에는 비효율적</strong></td>
-            <td>삽입·삭제마다 트리 구조를 재정렬해야 한다 (균형 재조정 비용).</td>
-          </tr>
-          <tr>
-            <td><strong>너무 많은 인덱스는 오히려 성능 저하</strong></td>
-            <td>쓰기 시 모든 인덱스를 함께 업데이트해야 하므로 쓰기 성능이 저하된다.</td>
-          </tr>
-          <tr>
-            <td><strong>메모리 공간 소모</strong></td>
-            <td>인덱스도 별도의 파일 구조로 저장되며 수 GB 이상 차지할 수 있다.</td>
-          </tr>
-        </tbody>
-      </table>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 인덱스는 공짜가 아니다</span>
-        인덱스를 추가할수록 조회는 빨라지지만 INSERT / UPDATE / DELETE 성능은 저하되고 저장 공간도 늘어난다.
-        <strong>조회 빈도가 높고 카디널리티(고유값 수)가 높은 컬럼</strong>에 선택적으로 적용해야 한다.
-        모든 컬럼에 인덱스를 추가하는 것은 오히려 역효과다.
+        <span class="box-title">⚠️ Self-Invocation 문제 발생 예시</span>
+        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@Service
+public class PostService {
+
+    // 외부에서 호출 시 → 프록시 경유 → 캐시 적용 ✅
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+
+    public void someMethod(Long postId) {
+        // 같은 클래스 내부 호출 → 프록시 우회 → 캐시 미적용 ❌
+        Post post = this.getPost(postId);
+    }
+}</code></pre>
       </div>
 
-      <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. 복합 인덱스 (Composite Index)</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방법 1 — 별도 클래스로 분리
+        </span>
+      </h3>
 
       <p>
-        <strong>두 개 이상의 컬럼을 묶어서 하나의 인덱스로 만드는 것</strong>이다.
-        두 개 이상의 컬럼이 항상 함께 WHERE이나 ORDER BY에 등장할 때, 단일 인덱스 여러 개보다 복합 인덱스 하나가 더 빠르고 효율적이다.
+        캐시가 필요한 메서드를 별도 클래스(Bean)로 분리하면, 호출 시 반드시 프록시를 거치게 된다.
+        가장 명확하고 권장되는 방법이다.
       </p>
 
+      <pre><code class="language-java">// 캐시 로직을 별도 클래스로 분리
+@Service
+public class PostCacheService {
+
+    private final PostRepository postRepository;
+
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+}
+
+// 원래 서비스는 별도 Bean을 주입받아 사용
+@Service
+@RequiredArgsConstructor
+public class PostService {
+
+    private final PostCacheService postCacheService; // 다른 Bean을 통해 호출 → 프록시 경유 ✅
+
+    public void someMethod(Long postId) {
+        Post post = postCacheService.getPost(postId); // 캐시 적용됨
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방법 2 — Self 주입 (Self-Invocation 우회)
+        </span>
+      </h3>
+
+      <p>
+        클래스가 자기 자신의 프록시 Bean을 주입받아 사용하는 방법이다.
+        <code>this</code>가 아닌 <strong>프록시 객체를 통해 호출</strong>하도록 속여서 AOP가 정상 동작하게 만든다.
+        별도 클래스를 만들기 부담스러울 때 사용할 수 있지만, 코드가 다소 어색해 보인다는 단점이 있다.
+      </p>
+
+      <pre><code class="language-java">@Service
+public class PostService {
+
+    private final PostRepository postRepository;
+
+    // 자기 자신의 프록시 Bean을 주입받는다
+    @Lazy  // 순환 참조 방지를 위해 지연 주입 사용
+    @Autowired
+    private PostService self;
+
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+
+    public void someMethod(Long postId) {
+        // this.getPost() 대신 self.getPost() → 프록시를 경유 → 캐시 적용 ✅
+        Post post = self.getPost(postId);
+    }
+}</code></pre>
+
       <div class="concept-box">
-        <span class="box-title">왼쪽 접두어 규칙 (Leftmost Prefix Rule)</span>
-        복합 인덱스는 <strong>왼쪽(첫 번째 컬럼)부터 순서대로 작동</strong>한다.<br><br>
-        <strong>첫 번째 컬럼이 WHERE 조건에 없으면</strong> 인덱스 자체가 적용되지 않는다.<br><br>
-        예를 들어 <code>(col1, col2, col3)</code> 복합 인덱스가 있을 때:<br>
-        — WHERE에 col1, col2, col3이 모두 있으면 → 세 컬럼 모두 인덱스 활용<br>
-        — WHERE에 col1, col3만 있으면 → col2가 빠졌으므로 col3은 인덱스 없는 것처럼 동작 (col1만 활용)<br>
-        — WHERE에 col2, col3만 있으면 → 첫 번째 컬럼(col1) 없으므로 인덱스 미적용<br><br>
-        <strong>첫 번째 컬럼은 항상 WHERE 조건에 포함되어야 인덱스가 동작한다.</strong>
+        <span class="box-title">두 가지 해결 방법 비교</span>
+        <strong>별도 클래스 분리:</strong> 코드가 명확하고, 단일 책임 원칙에도 맞다. 팀 프로젝트나 규모가 있는 코드에서 권장된다.<br><br>
+        <strong>Self 주입:</strong> 기존 클래스 구조를 유지하면서 빠르게 해결할 수 있다. 다만 <code>@Lazy</code>를 함께 사용해 순환 참조를 방지해야 하고, 코드가 직관적이지 않아 유지보수 시 혼란을 줄 수 있다.
       </div>
 
-      <pre><code class="language-sql">-- (last_name, first_name) 복합 인덱스 생성
-CREATE INDEX idx_name ON users (last_name, first_name);
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Null 캐싱</h2>
 
--- ✅ 인덱스 활용 — last_name(첫 번째)이 WHERE에 포함
-SELECT * FROM users WHERE last_name = '김' AND first_name = '민준';
-SELECT * FROM users WHERE last_name = '김';
+      <p>
+        DB에 데이터가 없다는 사실도 캐시에 저장해두는 기법이다.
+        없는 데이터를 반복적으로 요청하면 매번 DB를 조회하게 되는데, 이를 <strong>캐시 미스 공격(Cache Miss Attack)</strong>이라고 한다.
+        null 캐싱을 적용하면 "이 key에는 데이터가 없다"는 사실 자체를 캐시에 저장해, 이후 요청은 DB 없이 null을 즉시 반환한다.
+      </p>
 
--- ⚠️ 인덱스 부분 활용 — last_name만 인덱스 적용, first_name은 미적용
-SELECT * FROM users WHERE last_name = '김' AND first_name LIKE '민%';
+      <div class="warning-box">
+        <span class="box-title">⚠️ Spring Cache의 기본 동작 — null 캐싱 비활성화</span>
+        Spring Cache는 <strong>기본적으로 null을 캐싱하지 않는다.</strong>
+        메서드가 null을 반환하면 캐시에 저장하지 않기 때문에, 없는 데이터를 조회할 때마다 DB 쿼리가 발생한다.
+        null도 캐싱하려면 <code>unless</code> 조건 또는 CacheManager 설정에서 null 캐싱을 활성화해야 한다.
+      </div>
 
--- ❌ 인덱스 미적용 — 첫 번째 컬럼(last_name) 없음
-SELECT * FROM users WHERE first_name = '민준';</code></pre>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          방법 1 — @Cacheable의 unless 조건 제거 (null 허용)
+        </span>
+      </h3>
+
+      <p>
+        <code>@Cacheable</code>의 <code>unless</code> 속성은 반환값이 특정 조건일 때 캐싱을 건너뛰는 옵션이다.
+        기본 설정에서 null이 캐싱되지 않는 이유는 <code>unless = "#result == null"</code>이 암묵적으로 적용된 것과 같다.
+        null도 캐싱하려면 <code>unless</code>에 null 제외 조건을 넣지 않으면 된다.
+      </p>
+
+      <pre><code class="language-java">// unless를 명시하지 않으면 null도 캐싱됨
+@Cacheable(value = "postCache", key = "#postId")
+public Post getPost(Long postId) {
+    return postRepository.findById(postId).orElse(null); // null 반환 시 캐시에 저장됨
+}
+
+// unless로 null을 명시적으로 제외하면 null은 캐싱 안 됨 (기본 동작 명시)
+@Cacheable(value = "postCache", key = "#postId", unless = "#result == null")
+public Post getPost(Long postId) {
+    return postRepository.findById(postId).orElse(null);
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          방법 2 — CacheManager에서 null 캐싱 활성화
+        </span>
+      </h3>
+
+      <p>
+        Caffeine이나 Redis 기반 CacheManager를 설정할 때 <code>disableCachingNullValues()</code> 옵션을 비활성화하면
+        전역적으로 null 캐싱이 허용된다.
+      </p>
+
+      <pre><code class="language-java">// Caffeine 기반 CacheManager — null 캐싱 활성화
+@Configuration
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(
+            Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .maximumSize(1000)
+        );
+        // 수정 포인트: 기본값은 null 캐싱 비활성화 — 아래 옵션을 제거해 null 허용
+        // cacheManager.setAllowNullValues(false); // 이 줄 없으면 null 허용이 기본값
+        cacheManager.setAllowNullValues(true); // 명시적으로 null 허용 설정
+        return cacheManager;
+    }
+}
+
+// Redis 기반 CacheManager — null 캐싱 활성화
+@Bean
+public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(10))
+            // 수정 포인트: 아래 줄이 null 캐싱을 비활성화한다. 제거하면 null 허용
+            // .disableCachingNullValues()  ← 이 옵션을 제거해야 null이 캐싱됨
+            ;
+    return RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(config)
+            .build();
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">null 캐싱이 유용한 상황</span>
+        존재하지 않는 ID를 반복적으로 조회하는 패턴에서 효과적이다.<br><br>
+        예를 들어 악의적인 사용자가 존재하지 않는 상품 ID 1억 개를 반복 요청하면, null 캐싱 없이는 매번 DB 쿼리가 발생한다.
+        null 캐싱을 적용하면 첫 번째 요청만 DB에 가고 이후에는 "없다"는 사실이 캐시에서 즉시 반환된다.<br><br>
+        단, null을 캐싱하면 TTL 내에는 실제로 데이터가 생겨도 null을 반환하는 문제가 생길 수 있다.
+        <strong>TTL을 짧게 설정하거나 데이터 생성 시 해당 key의 캐시를 Evict</strong>하는 방식을 함께 적용해야 한다.
+      </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        인덱스는 데이터베이스 성능 최적화의 핵심 도구다.
-        하지만 인덱스를 추가하는 것 자체가 목적이 되어선 안 된다.
-        조회 빈도, 카디널리티, 갱신 빈도를 함께 고려해서 <strong>어떤 컬럼에, 어떤 순서로 인덱스를 걸지</strong>를 결정해야 한다.
-        B-Tree 구조를 이해하면 Range Scan의 효율, LIKE 조건의 제한, Full Scan이 발생하는 이유가 모두 자연스럽게 연결된다.
+        Self-Invocation 문제는 Spring Cache뿐만 아니라 <code>@Transactional</code>, AOP 전반에서 공통으로 발생하는 패턴이다.
+        원인은 동일하다. 프록시 기반 AOP는 외부 Bean 호출에서만 동작하고, 같은 클래스 내부 호출(<code>this.메서드()</code>)은 프록시를 우회한다.
+        별도 클래스로 분리하는 방법이 가장 깔끔하고, Self 주입은 빠른 임시 해결책으로 활용할 수 있다.
       </p>
 
       <p>
-        옵티마이저가 자동으로 실행 계획을 선택한다고 해도 개발자가 <code>EXPLAIN</code>으로 실제로 어떤 인덱스를 사용하는지 확인하는 습관이 중요하다.
-        예상과 다른 탐색 방식이 선택됐다면 인덱스 설계를 재검토해야 한다는 신호다.
-        <code>type: const</code>나 <code>type: range</code>가 보이면 인덱스가 잘 활용되고 있는 것이고,
-        <code>type: ALL</code>이 보이면 Full Table Scan이 발생하고 있다는 의미다.
-      </p>
-
-      <p>
-        복합 인덱스는 Leftmost Prefix Rule을 이해하지 못하면 인덱스를 만들어 놓고도 효과를 전혀 보지 못하는 상황이 생긴다.
-        첫 번째 컬럼이 항상 WHERE에 포함되어야 한다는 원칙, 중간 컬럼이 빠지면 그 이후 컬럼은 인덱스 효과가 없다는 점을 기억하고 컬럼 순서를 신중하게 결정해야 한다.
+        Null 캐싱은 처음에는 직관적으로 이상하게 느껴질 수 있지만, "없다는 사실도 정보"라는 관점에서 보면 자연스럽다.
+        DB에 없는 데이터를 매번 조회하는 것은 DB 입장에서 불필요한 I/O이고, 트래픽이 높을수록 그 비용이 커진다.
+        다만 null을 캐싱하면 TTL 내에 데이터가 실제로 생겨도 null을 반환하는 불일치가 생기기 때문에,
+        <strong>null 캐싱의 TTL은 짧게, 데이터 생성 시 Evict 처리를 함께</strong> 설계해야 한다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
