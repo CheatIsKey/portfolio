@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-02 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-03 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 20551 — Sort 마스터 배지훈의 후계자</h2>
+      <h2 class="section">문제 11582 — 치킨 TOP N</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/20551">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11582">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260402_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260403_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>Sort 마스터 배지훈의 후계자 (백준 20551)</strong>는<br>
-        N개의 정수로 이루어진 배열을 정렬한 뒤, M개의 쿼리마다 <strong>특정 값이 배열에 존재하면 그 첫 번째 인덱스를, 없으면 -1을 출력</strong>하는 문제다.<br>
-        <strong>쿼리마다 선형 탐색을 하면 시간 초과</strong>가 발생하므로, 정렬 후 이진 탐색으로 빠르게 처리해야 한다.
+        <strong>치킨 TOP N (백준 11582)</strong>는<br>
+        N개의 점수를 K개의 그룹으로 나누어 <strong>각 그룹 내에서 독립적으로 정렬</strong>한 뒤,<br>
+        <strong>전체 배열을 순서대로 출력</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>N과 M이 최대 100,000이므로 쿼리마다 O(N) 탐색을 하면 최대 10억 번의 연산이 발생해 시간 초과가 난다.</li>
-        <li>배열을 미리 정렬하면 이진 탐색으로 각 쿼리를 O(log N)에 처리할 수 있다.</li>
-        <li>중복 원소가 있을 수 있으므로, 목표값을 찾았더라도 더 왼쪽에 같은 값이 있을 수 있어 <strong>왼쪽 경계(leftmost) 이진 탐색</strong>을 사용해야 한다.</li>
+        <li>N개의 점수를 입력받은 뒤, 두 번째 입력값 K(isNum)으로 그룹 크기 <code>group = N / K</code>를 결정한다.</li>
+        <li>배열을 앞에서부터 <code>group</code> 크기씩 K개의 구간으로 나누고, 각 구간을 오름차순으로 정렬한다.</li>
+        <li>전체 구간 정렬이 아닌 부분 구간 정렬이므로, 그룹 경계를 넘는 원소 간의 순서는 바뀌지 않는다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,15 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 정렬 + 좌측 경계 이진 탐색 (Leftmost Binary Search)</li>
-        <li><strong>선택 이유</strong>: 배열을 한 번만 정렬해두면 이후 M개의 쿼리를 각각 O(log N)에 처리할 수 있어 전체 O((N + M) log N)으로 해결된다. 중복 원소가 있을 때 항상 가장 왼쪽 인덱스를 반환해야 하므로, 목표값을 찾아도 탐색 범위를 왼쪽으로 계속 좁히는 leftmost 방식을 사용한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 구간 분할 + 부분 정렬 (<code>Arrays.sort(arr, from, to)</code>)</li>
+        <li><strong>선택 이유</strong>: 전체 배열을 한꺼번에 정렬하지 않고, N/K 크기의 구간마다 독립적으로 정렬해야 하기 때문에 Java의 <code>Arrays.sort(array, fromIndex, toIndex)</code>를 활용해 범위를 지정한 부분 정렬을 수행한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>N개의 입력을 배열에 저장한 뒤 <code>Arrays.sort()</code>로 오름차순 정렬한다.</li>
-            <li>각 쿼리마다 <code>binarySearch()</code>를 호출해 목표값의 첫 번째 인덱스를 구한다.</li>
-            <li>이진 탐색 중 <code>numbers[mid] == target</code>이면 <code>result = mid</code>로 기록하고, <code>end = mid - 1</code>로 좁혀 더 왼쪽에 같은 값이 있는지 계속 탐색한다.</li>
-            <li>끝까지 찾지 못하면 <code>result</code>의 초깃값인 -1이 반환된다.</li>
-            <li>결과는 <code>StringBuilder</code>에 누적하여 한 번에 출력해 I/O 비용을 줄인다.</li>
+            <li>그룹 크기 <code>group = N / isNum</code>을 계산한다.</li>
+            <li>인덱스 <code>i</code>를 <code>group</code>씩 증가시키며 <code>scores[i, i + group)</code> 범위를 정렬한다.</li>
+            <li>정렬이 끝난 배열을 순서대로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -97,61 +95,42 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 정렬</strong>
-          <pre><code>int[] numbers = new int[N];
+        <li><strong>1) 입력 및 그룹 크기 결정</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      int[] scores = new int[N];
       
+      StringTokenizer st = new StringTokenizer(br.readLine());
       for (int i = 0; i < N; i++) {
-          numbers[i] = Integer.parseInt(br.readLine());
+          scores[i] = Integer.parseInt(st.nextToken());
       }
       
-      Arrays.sort(numbers);</code></pre>
+      int isNum = Integer.parseInt(br.readLine());
+      int group = N / isNum;</code></pre>
           <ul>
-            <li>N개의 정수를 배열에 저장하고 오름차순으로 정렬한다. 이후 이진 탐색이 가능한 상태로 만든다.</li>
+            <li>N개의 점수를 배열에 저장하고, 이후 입력받은 K(<code>isNum</code>)로 각 그룹의 크기 <code>group = N / isNum</code>을 계산한다.</li>
+            <li>예시: N=6, isNum=2이면 group=3으로, 배열을 3개씩 2개의 그룹으로 나눈다.</li>
           </ul>
         </li>
       
-        <li><strong>2) M개의 쿼리 처리</strong>
-          <pre><code>for (int i = 0; i < M; i++) {
-          int target = Integer.parseInt(br.readLine());
-          sb.append(binarySearch(numbers, target)).append("\n");
+        <li><strong>2) 그룹별 부분 정렬</strong>
+          <pre><code>for (int i = 0; i < N; i += group) {
+          Arrays.sort(scores, i, group + i);
       }</code></pre>
           <ul>
-            <li>각 쿼리마다 목표값 <code>target</code>을 읽고 <code>binarySearch()</code>를 호출한 뒤, 결과를 <code>StringBuilder</code>에 누적한다.</li>
-            <li><code>System.out.println</code>을 M번 호출하는 대신 <code>StringBuilder</code>로 모아 마지막에 한 번만 출력하여 I/O 성능을 높인다.</li>
+            <li><code>i</code>를 0부터 <code>group</code>씩 증가시키며 <code>scores[i]</code>부터 <code>scores[i + group - 1]</code>까지의 구간을 오름차순으로 정렬한다.</li>
+            <li><code>Arrays.sort(arr, fromIndex, toIndex)</code>는 <code>fromIndex</code> 이상 <code>toIndex</code> 미만의 범위를 정렬하므로, <code>group + i</code>를 toIndex로 전달한다.</li>
+            <li>각 그룹은 독립적으로 정렬되므로 그룹 경계를 넘는 원소 간의 상대적 위치는 변하지 않는다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 좌측 경계 이진 탐색</strong>
-          <pre><code>private static int binarySearch(int[] numbers, int target) {
-          int start = 0;
-          int end = numbers.length - 1;
-          int result = -1;
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>for (int score : scores) {
+          sb.append(score).append(" ");
+      }
       
-          while (start <= end) {
-              int mid = (start + end) / 2;
-      
-              if (numbers[mid] == target) {
-                  result = mid;
-                  end = mid - 1;
-              } else if (numbers[mid] > target) {
-                  end = mid - 1;
-              } else {
-                  start = mid + 1;
-              }
-          }
-          return result;
-      }</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li><code>result = -1</code>로 초기화하여, 탐색 중 목표값을 한 번도 못 찾으면 -1이 반환되도록 한다.</li>
-            <li><code>numbers[mid] == target</code>일 때 <code>result = mid</code>로 후보를 기록하고, <code>end = mid - 1</code>로 탐색 범위를 왼쪽으로 좁혀 더 앞선 인덱스에 같은 값이 있는지 계속 확인한다.</li>
-            <li>루프가 끝나면 <code>result</code>에는 목표값이 처음 등장하는 인덱스(없으면 -1)가 저장된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(sb);</code></pre>
-          <ul>
-            <li><code>StringBuilder</code>에 누적된 M개의 결과를 한 번에 출력한다.</li>
+            <li>그룹별 정렬이 완료된 배열을 순서대로 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -167,16 +146,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O((N + M) log N)</strong>: 배열 정렬에 O(N log N), M개의 쿼리 각각에 O(log N)의 이진 탐색이 수행되므로 전체 O(N log N + M log N) = O((N + M) log N)이다.</li>
+            <li><strong>O(N log(N/K))</strong>: 크기 N/K인 그룹을 K번 정렬하므로, 각 정렬에 O((N/K) log(N/K))가 소요되고 이를 K번 반복하면 전체 O(N log(N/K))이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 배열 저장에 O(N)이 사용되며, 그 외 변수와 <code>StringBuilder</code>는 O(M) 수준으로 전체 O(N + M)이나 N과 M이 같은 차수이므로 O(N)으로 표기한다.</li>
+            <li><strong>O(N)</strong>: 입력 점수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -226,14 +204,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 14929 — 귀찮아 (SIB)</h2>
+      <h2 class="section">문제 2891 — 카약과 강풍</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/14929">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2891">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260402_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260403_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -251,15 +229,15 @@
       </h3>
       
       <p>
-        <strong>귀찮아 (SIB) (백준 14929)</strong>는<br>
-        N개의 정수가 주어질 때, <strong>i &lt; j인 모든 쌍 (i, j)에 대해 a[i] × a[j]의 합을 구</strong>하는 문제다.<br>
-        <strong>이중 반복문으로 모든 쌍을 직접 탐색하면 O(N²)으로 시간 초과</strong>가 발생하므로, 누적합을 활용해 O(N)으로 줄여야 한다.
+        <strong>카약과 강풍 (백준 2891)</strong>는<br>
+        N팀이 카약을 타고 있을 때, 강풍으로 카약이 손상된 팀과 여분 카약을 가진 팀 정보를 바탕으로<br>
+        <strong>여분 카약을 인접한 팀에게 빌려주어 최종적으로 카약이 없는 팀의 수를 구</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>N이 최대 100,000이므로 이중 반복문을 사용하면 최대 50억 번의 연산이 필요해 시간 초과가 난다.</li>
-        <li>i번째 원소 a[i]에 대해, a[i]와 곱해야 할 대상은 i+1부터 N-1까지의 원소들이다. 이는 전체 합에서 a[0]~a[i]를 뺀 값, 즉 a[i] 이후의 합계와 같다.</li>
-        <li>전체 합 <code>totalSum</code>을 유지하면서 a[i]를 순서대로 빼나가면, 매 순간 <code>totalSum</code>이 현재 원소 이후 원소들의 합이 되어 단일 순회로 해결할 수 있다.</li>
+        <li>각 팀은 카약 1개로 시작하며, 손상 시 -1, 여분 보유 시 +1로 카약 수를 관리한다.</li>
+        <li>여분 카약(count == 2)을 가진 팀은 인접한 팀(idx-1 또는 idx+1) 중 카약이 없는 팀(count == 0)에게만 빌려줄 수 있다.</li>
+        <li>왼쪽 인접 팀을 우선으로 빌려주어야 중복 대여 없이 탐욕적으로 최적 배분이 가능하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -271,14 +249,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 누적합 활용 그리디 (단일 순회)</li>
-        <li><strong>선택 이유</strong>: a[i] × (a[i+1] + a[i+2] + ... + a[N-1])의 형태로 변환하면, 전체 합에서 왼쪽 원소를 순서대로 제거해나가는 방식으로 O(N)에 답을 구할 수 있다. 이중 반복문 대신 합산 한 번으로 동일한 결과를 얻는 핵심 수학적 관찰이다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (카약 수 배열 시뮬레이션)</li>
+        <li><strong>선택 이유</strong>: 각 팀의 카약 보유 수를 배열로 관리하면, 손상·여분 정보를 단순 증감으로 처리할 수 있다. 이후 왼쪽부터 순서대로 여분 카약을 인접 팀에 배분하면, 한 번의 순회만으로 최적 대여 결과를 얻을 수 있어 그리디가 적합하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>입력을 받는 동시에 전체 합 <code>totalSum</code>을 계산한다.</li>
-            <li>배열을 순회하면서, 현재 원소 <code>x = a[i]</code>를 <code>totalSum</code>에서 먼저 뺀다.</li>
-            <li>그러면 <code>totalSum</code>은 a[i+1]~a[N-1]의 합이 되므로, <code>answer += x * totalSum</code>이 i &lt; j인 모든 쌍의 기여분을 한 번에 누적한다.</li>
-            <li>정수 곱의 합이 int 범위를 초과할 수 있으므로 <code>long</code> 타입으로 선언한다.</li>
+            <li>모든 팀의 카약 수를 1로 초기화한 뒤, 손상 팀은 -1, 여분 팀은 +1을 적용한다.</li>
+            <li>왼쪽부터 순회하며 <code>count[idx] == 2</code>인 팀이 있으면 왼쪽 인접 팀을 먼저 확인하고, 없으면 오른쪽 인접 팀에게 카약을 빌려준다.</li>
+            <li>순회가 끝난 뒤 <code>count[i] == 0</code>인 팀의 수를 세어 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -292,39 +269,61 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 전체 합 계산</strong>
-          <pre><code>int[] numbers = new int[n];
-      long totalSum = 0;
+        <li><strong>1) 초기화 및 손상·여분 반영</strong>
+          <pre><code>int[] count = new int[N + 1];
+      Arrays.fill(count, 1);
       
-      StringTokenizer st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < n; i++) {
-          int x = Integer.parseInt(st.nextToken());
-          numbers[i] = x;
-          totalSum += x;
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < S; i++) {
+          int idx = Integer.parseInt(st.nextToken());
+          count[idx]--;
+      }
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < R; i++) {
+          int idx = Integer.parseInt(st.nextToken());
+          count[idx]++;
       }</code></pre>
           <ul>
-            <li>입력을 받는 동시에 모든 원소의 합 <code>totalSum</code>을 구한다. 원소값이 크면 합이 int 범위를 초과할 수 있으므로 <code>long</code>으로 선언한다.</li>
+            <li>배열을 1로 초기화하여 모든 팀이 카약 1개를 가진 상태로 시작한다. 인덱스를 1-based로 맞추기 위해 크기를 N+1로 선언한다.</li>
+            <li>카약이 손상된 팀은 <code>count[idx]--</code>로 0이 되고, 여분 카약을 가진 팀은 <code>count[idx]++</code>로 2가 된다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 단일 순회로 모든 쌍의 곱의 합 계산</strong>
-          <pre><code>long answer = 0;
-      for (int i = 0; i < n; i++) {
-          int x = numbers[i];
-          totalSum -= x;
-          answer += x * totalSum;
+        <li><strong>2) 인접 팀에게 여분 카약 배분</strong>
+          <pre><code>for (int idx = 1; idx < count.length; idx++) {
+          if (count[idx] == 2) {
+              int prev = idx - 1;
+              int next = idx + 1;
+              if (prev > 0 && count[prev] == 0) {
+                  count[prev]++;
+                  count[idx]--;
+                  continue;
+              }
+              if (next <= N && count[next] == 0) {
+                  count[next]++;
+                  count[idx]--;
+              }
+          }
       }</code></pre>
           <ul>
-            <li><code>totalSum -= x</code>: 현재 원소 <code>x</code>를 합에서 제거하면, <code>totalSum</code>은 a[i+1]~a[N-1]의 합이 된다.</li>
-            <li><code>answer += x * totalSum</code>: a[i]와 i 이후 모든 원소의 곱을 한 번에 누적한다. 이는 이중 반복문의 안쪽 루프 전체를 단 한 번의 곱셈으로 대체하는 핵심 아이디어다.</li>
-            <li>예시: [1, 2, 3]이면 i=0일 때 totalSum=5, answer+=1×5=5 / i=1일 때 totalSum=3, answer+=2×3=6 / i=2일 때 totalSum=0, answer+=3×0=0. 최종 answer=11. 실제 1×2+1×3+2×3=2+3+6=11로 일치한다.</li>
+            <li><code>count[idx] == 2</code>인 팀은 여분 카약이 있으므로 인접 팀에게 빌려줄 수 있다.</li>
+            <li>왼쪽 팀(<code>prev</code>)을 먼저 확인한다. 왼쪽에서 오른쪽으로 순회하기 때문에 왼쪽 팀을 우선 처리해야 이미 해결된 팀을 다시 건드리지 않는다.</li>
+            <li>왼쪽 팀이 조건을 만족하지 않을 때만 오른쪽 팀(<code>next</code>)을 확인한다. 빌려주는 팀과 받는 팀 모두 카약 수가 1씩 조정된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(answer);</code></pre>
+        <li><strong>3) 카약 없는 팀 집계 및 출력</strong>
+          <pre><code>int answer = 0;
+      for (int i = 1; i < count.length; i++) {
+          if (count[i] == 0) {
+              answer++;
+          }
+      }
+      
+      System.out.println(answer);</code></pre>
           <ul>
-            <li>모든 i &lt; j 쌍에 대한 a[i] × a[j]의 합 <code>answer</code>를 출력한다.</li>
+            <li>배분이 끝난 뒤 <code>count[i] == 0</code>인 팀의 수를 세어 출력한다. 이 값이 끝내 카약을 구하지 못한 팀의 수다.</li>
           </ul>
         </li>
       </ul>
@@ -340,12 +339,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 시 전체 합을 계산하는 순회 1회, 답을 누적하는 순회 1회로 총 두 번의 O(N) 순회만 수행한다.</li>
+            <li><strong>O(N)</strong>: 손상·여분 반영에 각각 O(S), O(R), 배분 및 집계에 O(N)이 소요되며, S와 R 모두 N 이하이므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 배열 저장에 O(N)이 사용되며, 그 외 <code>totalSum</code>, <code>answer</code> 등은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 팀별 카약 수를 저장하는 배열 <code>count</code>가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
