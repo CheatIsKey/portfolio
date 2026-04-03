@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 75일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 75일차 TIL — Spring Cache 심화: Self-Invocation 문제와 Null 캐싱</h1>
+      <p class="muted">작성일 2026-04-02 · 분류: 부트캠프, TIL, Cache, Spring Cache, AOP, Self-Invocation, Null Caching</p>
+
+      <h2 class="section">75일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li>어제 배운 Spring Cache의 심화 내용을 정리한다.</li>
+        <li><strong>Self-Invocation 문제</strong> — 같은 클래스 내부 호출에서 캐시가 동작하지 않는 이유와 두 가지 해결 방법을 이해한다.</li>
+        <li><strong>Null 캐싱</strong> — DB에 없는 데이터도 캐시에 저장해 불필요한 DB 조회를 막는 방법을 익힌다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. Self-Invocation 문제 — 같은 클래스 내부 호출 시 캐시 미적용</h2>
+
+      <p>
+        Spring Cache는 <code>@Transactional</code>과 마찬가지로 <strong>AOP 프록시 기반</strong>으로 동작한다.
+        외부에서 Bean을 호출하면 프록시가 가로채서 캐시 로직을 적용하지만,
+        <strong>같은 클래스 안에서 <code>this.메서드()</code>로 호출하면 프록시를 거치지 않고 실제 객체를 직접 호출</strong>하기 때문에
+        <code>@Cacheable</code>이 전혀 동작하지 않는다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Self-Invocation 문제 발생 예시</span>
+        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@Service
+public class PostService {
+
+    // 외부에서 호출 시 → 프록시 경유 → 캐시 적용 ✅
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+
+    public void someMethod(Long postId) {
+        // 같은 클래스 내부 호출 → 프록시 우회 → 캐시 미적용 ❌
+        Post post = this.getPost(postId);
+    }
+}</code></pre>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방법 1 — 별도 클래스로 분리
+        </span>
+      </h3>
+
+      <p>
+        캐시가 필요한 메서드를 별도 클래스(Bean)로 분리하면, 호출 시 반드시 프록시를 거치게 된다.
+        가장 명확하고 권장되는 방법이다.
+      </p>
+
+      <pre><code class="language-java">// 캐시 로직을 별도 클래스로 분리
+@Service
+public class PostCacheService {
+
+    private final PostRepository postRepository;
+
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+}
+
+// 원래 서비스는 별도 Bean을 주입받아 사용
+@Service
+@RequiredArgsConstructor
+public class PostService {
+
+    private final PostCacheService postCacheService; // 다른 Bean을 통해 호출 → 프록시 경유 ✅
+
+    public void someMethod(Long postId) {
+        Post post = postCacheService.getPost(postId); // 캐시 적용됨
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해결 방법 2 — Self 주입 (Self-Invocation 우회)
+        </span>
+      </h3>
+
+      <p>
+        클래스가 자기 자신의 프록시 Bean을 주입받아 사용하는 방법이다.
+        <code>this</code>가 아닌 <strong>프록시 객체를 통해 호출</strong>하도록 속여서 AOP가 정상 동작하게 만든다.
+        별도 클래스를 만들기 부담스러울 때 사용할 수 있지만, 코드가 다소 어색해 보인다는 단점이 있다.
+      </p>
+
+      <pre><code class="language-java">@Service
+public class PostService {
+
+    private final PostRepository postRepository;
+
+    // 자기 자신의 프록시 Bean을 주입받는다
+    @Lazy  // 순환 참조 방지를 위해 지연 주입 사용
+    @Autowired
+    private PostService self;
+
+    @Cacheable(value = "postCache", key = "#postId")
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow();
+    }
+
+    public void someMethod(Long postId) {
+        // this.getPost() 대신 self.getPost() → 프록시를 경유 → 캐시 적용 ✅
+        Post post = self.getPost(postId);
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">두 가지 해결 방법 비교</span>
+        <strong>별도 클래스 분리:</strong> 코드가 명확하고, 단일 책임 원칙에도 맞다. 팀 프로젝트나 규모가 있는 코드에서 권장된다.<br><br>
+        <strong>Self 주입:</strong> 기존 클래스 구조를 유지하면서 빠르게 해결할 수 있다. 다만 <code>@Lazy</code>를 함께 사용해 순환 참조를 방지해야 하고, 코드가 직관적이지 않아 유지보수 시 혼란을 줄 수 있다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Null 캐싱</h2>
+
+      <p>
+        DB에 데이터가 없다는 사실도 캐시에 저장해두는 기법이다.
+        없는 데이터를 반복적으로 요청하면 매번 DB를 조회하게 되는데, 이를 <strong>캐시 미스 공격(Cache Miss Attack)</strong>이라고 한다.
+        null 캐싱을 적용하면 "이 key에는 데이터가 없다"는 사실 자체를 캐시에 저장해, 이후 요청은 DB 없이 null을 즉시 반환한다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Spring Cache의 기본 동작 — null 캐싱 비활성화</span>
+        Spring Cache는 <strong>기본적으로 null을 캐싱하지 않는다.</strong>
+        메서드가 null을 반환하면 캐시에 저장하지 않기 때문에, 없는 데이터를 조회할 때마다 DB 쿼리가 발생한다.
+        null도 캐싱하려면 <code>unless</code> 조건 또는 CacheManager 설정에서 null 캐싱을 활성화해야 한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          방법 1 — @Cacheable의 unless 조건 제거 (null 허용)
+        </span>
+      </h3>
+
+      <p>
+        <code>@Cacheable</code>의 <code>unless</code> 속성은 반환값이 특정 조건일 때 캐싱을 건너뛰는 옵션이다.
+        기본 설정에서 null이 캐싱되지 않는 이유는 <code>unless = "#result == null"</code>이 암묵적으로 적용된 것과 같다.
+        null도 캐싱하려면 <code>unless</code>에 null 제외 조건을 넣지 않으면 된다.
+      </p>
+
+      <pre><code class="language-java">// unless를 명시하지 않으면 null도 캐싱됨
+@Cacheable(value = "postCache", key = "#postId")
+public Post getPost(Long postId) {
+    return postRepository.findById(postId).orElse(null); // null 반환 시 캐시에 저장됨
+}
+
+// unless로 null을 명시적으로 제외하면 null은 캐싱 안 됨 (기본 동작 명시)
+@Cacheable(value = "postCache", key = "#postId", unless = "#result == null")
+public Post getPost(Long postId) {
+    return postRepository.findById(postId).orElse(null);
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          방법 2 — CacheManager에서 null 캐싱 활성화
+        </span>
+      </h3>
+
+      <p>
+        Caffeine이나 Redis 기반 CacheManager를 설정할 때 <code>disableCachingNullValues()</code> 옵션을 비활성화하면
+        전역적으로 null 캐싱이 허용된다.
+      </p>
+
+      <pre><code class="language-java">// Caffeine 기반 CacheManager — null 캐싱 활성화
+@Configuration
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(
+            Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .maximumSize(1000)
+        );
+        // 수정 포인트: 기본값은 null 캐싱 비활성화 — 아래 옵션을 제거해 null 허용
+        // cacheManager.setAllowNullValues(false); // 이 줄 없으면 null 허용이 기본값
+        cacheManager.setAllowNullValues(true); // 명시적으로 null 허용 설정
+        return cacheManager;
+    }
+}
+
+// Redis 기반 CacheManager — null 캐싱 활성화
+@Bean
+public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(10))
+            // 수정 포인트: 아래 줄이 null 캐싱을 비활성화한다. 제거하면 null 허용
+            // .disableCachingNullValues()  ← 이 옵션을 제거해야 null이 캐싱됨
+            ;
+    return RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(config)
+            .build();
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">null 캐싱이 유용한 상황</span>
+        존재하지 않는 ID를 반복적으로 조회하는 패턴에서 효과적이다.<br><br>
+        예를 들어 악의적인 사용자가 존재하지 않는 상품 ID 1억 개를 반복 요청하면, null 캐싱 없이는 매번 DB 쿼리가 발생한다.
+        null 캐싱을 적용하면 첫 번째 요청만 DB에 가고 이후에는 "없다"는 사실이 캐시에서 즉시 반환된다.<br><br>
+        단, null을 캐싱하면 TTL 내에는 실제로 데이터가 생겨도 null을 반환하는 문제가 생길 수 있다.
+        <strong>TTL을 짧게 설정하거나 데이터 생성 시 해당 key의 캐시를 Evict</strong>하는 방식을 함께 적용해야 한다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        Self-Invocation 문제는 Spring Cache뿐만 아니라 <code>@Transactional</code>, AOP 전반에서 공통으로 발생하는 패턴이다.
+        원인은 동일하다. 프록시 기반 AOP는 외부 Bean 호출에서만 동작하고, 같은 클래스 내부 호출(<code>this.메서드()</code>)은 프록시를 우회한다.
+        별도 클래스로 분리하는 방법이 가장 깔끔하고, Self 주입은 빠른 임시 해결책으로 활용할 수 있다.
+      </p>
+
+      <p>
+        Null 캐싱은 처음에는 직관적으로 이상하게 느껴질 수 있지만, "없다는 사실도 정보"라는 관점에서 보면 자연스럽다.
+        DB에 없는 데이터를 매번 조회하는 것은 DB 입장에서 불필요한 I/O이고, 트래픽이 높을수록 그 비용이 커진다.
+        다만 null을 캐싱하면 TTL 내에 데이터가 실제로 생겨도 null을 반환하는 불일치가 생기기 때문에,
+        <strong>null 캐싱의 TTL은 짧게, 데이터 생성 시 Evict 처리를 함께</strong> 설계해야 한다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
