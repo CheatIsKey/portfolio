@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-03 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-06 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 11582 — 치킨 TOP N</h2>
+      <h2 class="section">문제 9324 — 진짜 메시지</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11582">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/9324">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260403_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260406_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>치킨 TOP N (백준 11582)</strong>는<br>
-        N개의 점수를 K개의 그룹으로 나누어 <strong>각 그룹 내에서 독립적으로 정렬</strong>한 뒤,<br>
-        <strong>전체 배열을 순서대로 출력</strong>하는 문제다.
+        <strong>진짜 메시지 (백준 9324)</strong>는<br>
+        주어진 문자열이 특정 인코딩 규칙을 따르는지 검사하여 <strong>진짜(OK) 또는 가짜(FAKE) 메시지를 판별</strong>하는 문제다.<br>
+        <strong>어떤 문자가 3번 등장할 때마다 그 직후에 해당 문자가 한 번 더 반복</strong>되어야 유효한 메시지다.
       </p>
       
       <ul>
-        <li>N개의 점수를 입력받은 뒤, 두 번째 입력값 K(isNum)으로 그룹 크기 <code>group = N / K</code>를 결정한다.</li>
-        <li>배열을 앞에서부터 <code>group</code> 크기씩 K개의 구간으로 나누고, 각 구간을 오름차순으로 정렬한다.</li>
-        <li>전체 구간 정렬이 아닌 부분 구간 정렬이므로, 그룹 경계를 넘는 원소 간의 순서는 바뀌지 않는다.</li>
+        <li>각 문자의 등장 횟수를 추적하다가 3의 배수가 되는 순간, 바로 다음 문자가 동일한 문자인지 확인한다.</li>
+        <li>다음 문자가 없거나 다른 문자라면 규칙 위반으로 FAKE를 출력한다.</li>
+        <li>규칙을 만족하는 반복 문자를 확인한 뒤에는 해당 문자의 카운트를 0으로 초기화하여 이후 등장을 다시 추적한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 구간 분할 + 부분 정렬 (<code>Arrays.sort(arr, from, to)</code>)</li>
-        <li><strong>선택 이유</strong>: 전체 배열을 한꺼번에 정렬하지 않고, N/K 크기의 구간마다 독립적으로 정렬해야 하기 때문에 Java의 <code>Arrays.sort(array, fromIndex, toIndex)</code>를 활용해 범위를 지정한 부분 정렬을 수행한다.</li>
+        <li><strong>핵심 알고리즘</strong>: 문자 빈도 배열을 활용한 단일 순회 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 알파벳 26자의 등장 횟수만 추적하면 되므로 크기 26의 정수 배열로 충분하다. 문자열을 왼쪽에서 오른쪽으로 한 번만 순회하면서 3의 배수 시점마다 즉시 규칙을 검사하면 O(L)에 판별할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>그룹 크기 <code>group = N / isNum</code>을 계산한다.</li>
-            <li>인덱스 <code>i</code>를 <code>group</code>씩 증가시키며 <code>scores[i, i + group)</code> 범위를 정렬한다.</li>
-            <li>정렬이 끝난 배열을 순서대로 출력한다.</li>
+            <li>문자를 하나씩 읽으며 해당 문자의 카운트를 증가시킨다.</li>
+            <li>카운트가 3이 되면 바로 다음 인덱스의 문자가 동일한지 확인한다. 조건 불만족 시 즉시 FAKE를 기록하고 순회를 중단한다.</li>
+            <li>조건을 만족하면 인덱스를 한 칸 추가로 전진(<code>i++</code>)하여 반복 문자를 건너뛰고, 카운트를 0으로 초기화한다.</li>
+            <li>순회를 끝까지 마치면 OK를 기록한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,42 +96,46 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 그룹 크기 결정</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
-      int[] scores = new int[N];
+        <li><strong>1) 테스트케이스별 초기화</strong>
+          <pre><code>int[] counts = new int[26];
+      boolean flag = true;
       
-      StringTokenizer st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < N; i++) {
-          scores[i] = Integer.parseInt(st.nextToken());
-      }
-      
-      int isNum = Integer.parseInt(br.readLine());
-      int group = N / isNum;</code></pre>
+      String word = br.readLine();</code></pre>
           <ul>
-            <li>N개의 점수를 배열에 저장하고, 이후 입력받은 K(<code>isNum</code>)로 각 그룹의 크기 <code>group = N / isNum</code>을 계산한다.</li>
-            <li>예시: N=6, isNum=2이면 group=3으로, 배열을 3개씩 2개의 그룹으로 나눈다.</li>
+            <li>테스트케이스마다 알파벳 26자의 등장 횟수를 저장할 배열 <code>counts</code>를 새로 초기화한다. <code>flag</code>는 메시지가 유효한지 추적하며, 위반이 발생하면 false로 전환된다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 그룹별 부분 정렬</strong>
-          <pre><code>for (int i = 0; i < N; i += group) {
-          Arrays.sort(scores, i, group + i);
+        <li><strong>2) 문자열 순회 및 규칙 검사</strong>
+          <pre><code>for (int i = 0; i < word.length(); i++) {
+          char c = word.charAt(i);
+          counts[c - 'A']++;
+      
+          if (counts[c - 'A'] == 3) {
+              if ((i + 1) >= word.length() || word.charAt(i + 1) != c) {
+                  sb.append("FAKE").append('\n');
+                  flag = false;
+                  break;
+              }
+      
+              i++;
+              counts[c - 'A'] = 0;
+          }
       }</code></pre>
           <ul>
-            <li><code>i</code>를 0부터 <code>group</code>씩 증가시키며 <code>scores[i]</code>부터 <code>scores[i + group - 1]</code>까지의 구간을 오름차순으로 정렬한다.</li>
-            <li><code>Arrays.sort(arr, fromIndex, toIndex)</code>는 <code>fromIndex</code> 이상 <code>toIndex</code> 미만의 범위를 정렬하므로, <code>group + i</code>를 toIndex로 전달한다.</li>
-            <li>각 그룹은 독립적으로 정렬되므로 그룹 경계를 넘는 원소 간의 상대적 위치는 변하지 않는다.</li>
+            <li><code>counts[c - 'A']++</code>: 현재 문자의 등장 횟수를 누적한다. 대문자 A를 기준으로 인덱스를 계산한다.</li>
+            <li><code>counts[c - 'A'] == 3</code>: 해당 문자가 세 번째로 등장한 시점이다. 이 순간 바로 다음 문자를 확인해야 한다.</li>
+            <li><code>(i + 1) >= word.length() || word.charAt(i + 1) != c</code>: 다음 문자가 존재하지 않거나 동일한 문자가 아니면 규칙 위반이므로 FAKE를 기록하고 <code>break</code>로 순회를 종료한다.</li>
+            <li>규칙을 만족하면 <code>i++</code>로 반복 문자를 건너뛰고, <code>counts[c - 'A'] = 0</code>으로 해당 문자의 카운트를 초기화하여 이후 등장을 다시 추적한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>for (int score : scores) {
-          sb.append(score).append(" ");
-      }
+        <li><strong>3) 결과 누적 및 출력</strong>
+          <pre><code>if (flag) sb.append("OK").append('\n');
       
       System.out.println(sb);</code></pre>
           <ul>
-            <li>그룹별 정렬이 완료된 배열을 순서대로 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력한다.</li>
+            <li>순회를 마친 뒤 <code>flag</code>가 여전히 true이면 OK를 기록한다. 모든 테스트케이스의 결과를 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       </ul>
@@ -146,12 +151,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log(N/K))</strong>: 크기 N/K인 그룹을 K번 정렬하므로, 각 정렬에 O((N/K) log(N/K))가 소요되고 이를 K번 반복하면 전체 O(N log(N/K))이다.</li>
+            <li><strong>O(T · L)</strong>: T개의 테스트케이스마다 길이 L인 문자열을 한 번 순회하므로 전체 O(T · L)이다. (L은 문자열의 최대 길이)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 점수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 알파벳 빈도를 저장하는 크기 26의 배열만 사용하며, 이는 입력 크기와 무관한 상수 공간이다.</li>
           </ul>
         </li>
       </ul>
@@ -204,14 +209,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2891 — 카약과 강풍</h2>
+      <h2 class="section">문제 16439 — 치킨치킨치킨</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2891">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/16439">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260403_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260406_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -229,15 +234,15 @@
       </h3>
       
       <p>
-        <strong>카약과 강풍 (백준 2891)</strong>는<br>
-        N팀이 카약을 타고 있을 때, 강풍으로 카약이 손상된 팀과 여분 카약을 가진 팀 정보를 바탕으로<br>
-        <strong>여분 카약을 인접한 팀에게 빌려주어 최종적으로 카약이 없는 팀의 수를 구</strong>하는 문제다.
+        <strong>치킨치킨치킨 (백준 16439)</strong>는<br>
+        N명의 사람과 M종류의 치킨이 있을 때, <strong>치킨 3가지를 선택하여 모든 사람의 만족도 합을 최대화</strong>하는 문제다.<br>
+        <strong>각 사람의 만족도는 선택된 3가지 치킨 중 자신이 가장 좋아하는 치킨의 점수</strong>로 결정된다.
       </p>
       
       <ul>
-        <li>각 팀은 카약 1개로 시작하며, 손상 시 -1, 여분 보유 시 +1로 카약 수를 관리한다.</li>
-        <li>여분 카약(count == 2)을 가진 팀은 인접한 팀(idx-1 또는 idx+1) 중 카약이 없는 팀(count == 0)에게만 빌려줄 수 있다.</li>
-        <li>왼쪽 인접 팀을 우선으로 빌려주어야 중복 대여 없이 탐욕적으로 최적 배분이 가능하다.</li>
+        <li>M종류 중 3가지를 고르는 조합의 수는 최대 C(30, 3) = 4060으로 완전 탐색이 가능하다.</li>
+        <li>각 치킨 조합에 대해 N명의 만족도 합을 계산하며, 한 사람의 만족도는 선택된 3가지 중 최댓값이다.</li>
+        <li>모든 조합 중 만족도 합이 가장 큰 값을 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -249,13 +254,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (카약 수 배열 시뮬레이션)</li>
-        <li><strong>선택 이유</strong>: 각 팀의 카약 보유 수를 배열로 관리하면, 손상·여분 정보를 단순 증감으로 처리할 수 있다. 이후 왼쪽부터 순서대로 여분 카약을 인접 팀에 배분하면, 한 번의 순회만으로 최적 대여 결과를 얻을 수 있어 그리디가 적합하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 완전 탐색 (3중 반복문으로 조합 열거)</li>
+        <li><strong>선택 이유</strong>: M이 최대 30이므로 3가지를 고르는 조합의 수는 C(30, 3) = 4060이고, 각 조합마다 N명(최대 30명)의 만족도를 계산하면 최대 약 12만 번의 연산으로 충분히 시간 내에 해결된다. 별도의 최적화 없이 단순 완전 탐색으로 정답을 구할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>모든 팀의 카약 수를 1로 초기화한 뒤, 손상 팀은 -1, 여분 팀은 +1을 적용한다.</li>
-            <li>왼쪽부터 순회하며 <code>count[idx] == 2</code>인 팀이 있으면 왼쪽 인접 팀을 먼저 확인하고, 없으면 오른쪽 인접 팀에게 카약을 빌려준다.</li>
-            <li>순회가 끝난 뒤 <code>count[i] == 0</code>인 팀의 수를 세어 출력한다.</li>
+            <li>3중 반복문으로 i &lt; j &lt; k 조건을 만족하는 치킨 인덱스 조합 (i, j, k)를 모두 열거한다.</li>
+            <li>각 조합에 대해 N명의 만족도를 순회하며, 각 사람의 점수 중 최댓값을 합산한다.</li>
+            <li>모든 조합의 합 중 최댓값을 갱신하여 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -269,61 +274,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기화 및 손상·여분 반영</strong>
-          <pre><code>int[] count = new int[N + 1];
-      Arrays.fill(count, 1);
+        <li><strong>1) 입력</strong>
+          <pre><code>int[][] scores = new int[N][M];
       
-      st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < S; i++) {
-          int idx = Integer.parseInt(st.nextToken());
-          count[idx]--;
-      }
-      
-      st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < R; i++) {
-          int idx = Integer.parseInt(st.nextToken());
-          count[idx]++;
+      for (int i = 0; i < N; i++) {
+          st = new StringTokenizer(br.readLine());
+          for (int j = 0; j < M; j++) {
+              scores[i][j] = Integer.parseInt(st.nextToken());
+          }
       }</code></pre>
           <ul>
-            <li>배열을 1로 초기화하여 모든 팀이 카약 1개를 가진 상태로 시작한다. 인덱스를 1-based로 맞추기 위해 크기를 N+1로 선언한다.</li>
-            <li>카약이 손상된 팀은 <code>count[idx]--</code>로 0이 되고, 여분 카약을 가진 팀은 <code>count[idx]++</code>로 2가 된다.</li>
+            <li>N×M 크기의 2차원 배열에 각 사람(행)의 치킨 종류별(열) 만족도 점수를 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 인접 팀에게 여분 카약 배분</strong>
-          <pre><code>for (int idx = 1; idx < count.length; idx++) {
-          if (count[idx] == 2) {
-              int prev = idx - 1;
-              int next = idx + 1;
-              if (prev > 0 && count[prev] == 0) {
-                  count[prev]++;
-                  count[idx]--;
-                  continue;
-              }
-              if (next <= N && count[next] == 0) {
-                  count[next]++;
-                  count[idx]--;
+        <li><strong>2) 3가지 치킨 조합 완전 탐색</strong>
+          <pre><code>for (int i = 0; i < M; i++) {
+          for (int j = i + 1; j < M; j++) {
+              for (int k = j + 1; k < M; k++) {
+                  int sum = 0;
+      
+                  for (int idx = 0; idx < N; idx++) {
+                      int scoreOne = scores[idx][i];
+                      int scoreTwo = scores[idx][j];
+                      int scoreThree = scores[idx][k];
+      
+                      sum += Math.max(scoreOne, Math.max(scoreTwo, scoreThree));
+                  }
+      
+                  max = Math.max(sum, max);
               }
           }
       }</code></pre>
           <ul>
-            <li><code>count[idx] == 2</code>인 팀은 여분 카약이 있으므로 인접 팀에게 빌려줄 수 있다.</li>
-            <li>왼쪽 팀(<code>prev</code>)을 먼저 확인한다. 왼쪽에서 오른쪽으로 순회하기 때문에 왼쪽 팀을 우선 처리해야 이미 해결된 팀을 다시 건드리지 않는다.</li>
-            <li>왼쪽 팀이 조건을 만족하지 않을 때만 오른쪽 팀(<code>next</code>)을 확인한다. 빌려주는 팀과 받는 팀 모두 카약 수가 1씩 조정된다.</li>
+            <li><code>i &lt; j &lt; k</code> 조건의 3중 반복문으로 중복 없이 모든 치킨 조합을 열거한다.</li>
+            <li>각 조합에 대해 N명을 순회하며, <code>Math.max(scoreOne, Math.max(scoreTwo, scoreThree))</code>로 해당 사람의 만족도(선택된 3가지 중 최댓값)를 구해 <code>sum</code>에 누적한다.</li>
+            <li>조합별 합산이 끝나면 <code>max</code>와 비교하여 최댓값을 갱신한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 카약 없는 팀 집계 및 출력</strong>
-          <pre><code>int answer = 0;
-      for (int i = 1; i < count.length; i++) {
-          if (count[i] == 0) {
-              answer++;
-          }
-      }
-      
-      System.out.println(answer);</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(max);</code></pre>
           <ul>
-            <li>배분이 끝난 뒤 <code>count[i] == 0</code>인 팀의 수를 세어 출력한다. 이 값이 끝내 카약을 구하지 못한 팀의 수다.</li>
+            <li>모든 조합 중 만족도 합의 최댓값 <code>max</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -339,16 +332,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 손상·여분 반영에 각각 O(S), O(R), 배분 및 집계에 O(N)이 소요되며, S와 R 모두 N 이하이므로 전체 O(N)이다.</li>
+            <li><strong>O(M³ · N)</strong>: 치킨 조합을 열거하는 3중 반복문이 O(M³), 각 조합마다 N명의 만족도를 계산하므로 전체 O(M³ · N)이다. M ≤ 30, N ≤ 30이므로 최대 약 81,000번의 연산으로 충분하다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 팀별 카약 수를 저장하는 배열 <code>count</code>가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N · M)</strong>: 만족도 점수를 저장하는 2차원 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
