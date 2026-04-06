@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 75일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 77일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,228 +109,276 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 75일차 TIL — Spring Cache 심화: Self-Invocation 문제와 Null 캐싱</h1>
-      <p class="muted">작성일 2026-04-02 · 분류: 부트캠프, TIL, Cache, Spring Cache, AOP, Self-Invocation, Null Caching</p>
+      <h1>내일배움캠프 Spring 백엔드 77일차 TIL — Docker 개발 환경 활용: Image · Container · Compose · Network</h1>
+      <p class="muted">작성일 2026-04-06 · 분류: 부트캠프, TIL, Docker, Docker Compose, Docker Network, 개발 환경</p>
 
-      <h2 class="section">75일차 개요</h2>
+      <h2 class="section">77일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li>어제 배운 Spring Cache의 심화 내용을 정리한다.</li>
-        <li><strong>Self-Invocation 문제</strong> — 같은 클래스 내부 호출에서 캐시가 동작하지 않는 이유와 두 가지 해결 방법을 이해한다.</li>
-        <li><strong>Null 캐싱</strong> — DB에 없는 데이터도 캐시에 저장해 불필요한 DB 조회를 막는 방법을 익힌다.</li>
+        <li>Docker가 배포 전용 도구가 아닌 <strong>개발 환경에서도 적극 활용</strong>해야 하는 이유를 이해한다.</li>
+        <li><strong>Image와 Container</strong>의 차이와 관계를 명확히 파악한다.</li>
+        <li><strong>Docker Hub</strong>에서 이미지를 검색하고 실행하는 흐름을 익힌다.</li>
+        <li>주요 Docker 명령어를 정리한다.</li>
+        <li><strong>Docker Compose</strong>로 여러 컨테이너를 한 번에 실행하는 방법을 이해한다.</li>
+        <li><strong>Docker Network</strong>로 컨테이너 간 통신을 연결하는 방식을 파악한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Self-Invocation 문제 — 같은 클래스 내부 호출 시 캐시 미적용</h2>
-
-      <p>
-        Spring Cache는 <code>@Transactional</code>과 마찬가지로 <strong>AOP 프록시 기반</strong>으로 동작한다.
-        외부에서 Bean을 호출하면 프록시가 가로채서 캐시 로직을 적용하지만,
-        <strong>같은 클래스 안에서 <code>this.메서드()</code>로 호출하면 프록시를 거치지 않고 실제 객체를 직접 호출</strong>하기 때문에
-        <code>@Cacheable</code>이 전혀 동작하지 않는다.
-      </p>
+      <h2 class="section">1. Docker는 배포 전용이 아니다</h2>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ Self-Invocation 문제 발생 예시</span>
-        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@Service
-public class PostService {
-
-    // 외부에서 호출 시 → 프록시 경유 → 캐시 적용 ✅
-    @Cacheable(value = "postCache", key = "#postId")
-    public Post getPost(Long postId) {
-        return postRepository.findById(postId).orElseThrow();
-    }
-
-    public void someMethod(Long postId) {
-        // 같은 클래스 내부 호출 → 프록시 우회 → 캐시 미적용 ❌
-        Post post = this.getPost(postId);
-    }
-}</code></pre>
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해결 방법 1 — 별도 클래스로 분리
-        </span>
-      </h3>
-
-      <p>
-        캐시가 필요한 메서드를 별도 클래스(Bean)로 분리하면, 호출 시 반드시 프록시를 거치게 된다.
-        가장 명확하고 권장되는 방법이다.
-      </p>
-
-      <pre><code class="language-java">// 캐시 로직을 별도 클래스로 분리
-@Service
-public class PostCacheService {
-
-    private final PostRepository postRepository;
-
-    @Cacheable(value = "postCache", key = "#postId")
-    public Post getPost(Long postId) {
-        return postRepository.findById(postId).orElseThrow();
-    }
-}
-
-// 원래 서비스는 별도 Bean을 주입받아 사용
-@Service
-@RequiredArgsConstructor
-public class PostService {
-
-    private final PostCacheService postCacheService; // 다른 Bean을 통해 호출 → 프록시 경유 ✅
-
-    public void someMethod(Long postId) {
-        Post post = postCacheService.getPost(postId); // 캐시 적용됨
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          해결 방법 2 — Self 주입 (Self-Invocation 우회)
-        </span>
-      </h3>
-
-      <p>
-        클래스가 자기 자신의 프록시 Bean을 주입받아 사용하는 방법이다.
-        <code>this</code>가 아닌 <strong>프록시 객체를 통해 호출</strong>하도록 속여서 AOP가 정상 동작하게 만든다.
-        별도 클래스를 만들기 부담스러울 때 사용할 수 있지만, 코드가 다소 어색해 보인다는 단점이 있다.
-      </p>
-
-      <pre><code class="language-java">@Service
-public class PostService {
-
-    private final PostRepository postRepository;
-
-    // 자기 자신의 프록시 Bean을 주입받는다
-    @Lazy  // 순환 참조 방지를 위해 지연 주입 사용
-    @Autowired
-    private PostService self;
-
-    @Cacheable(value = "postCache", key = "#postId")
-    public Post getPost(Long postId) {
-        return postRepository.findById(postId).orElseThrow();
-    }
-
-    public void someMethod(Long postId) {
-        // this.getPost() 대신 self.getPost() → 프록시를 경유 → 캐시 적용 ✅
-        Post post = self.getPost(postId);
-    }
-}</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">두 가지 해결 방법 비교</span>
-        <strong>별도 클래스 분리:</strong> 코드가 명확하고, 단일 책임 원칙에도 맞다. 팀 프로젝트나 규모가 있는 코드에서 권장된다.<br><br>
-        <strong>Self 주입:</strong> 기존 클래스 구조를 유지하면서 빠르게 해결할 수 있다. 다만 <code>@Lazy</code>를 함께 사용해 순환 참조를 방지해야 하고, 코드가 직관적이지 않아 유지보수 시 혼란을 줄 수 있다.
+        <span class="box-title">⚠️ 잘못된 인식 — "Docker는 배포할 때만 쓰는 것"</span>
+        Docker는 배포 시점뿐만 아니라 <strong>개발 환경 구성에도 필수적으로 활용</strong>해야 한다.<br><br>
+        MySQL, Redis를 로컬에 직접 설치하면 OS마다 설치 방법이 다르고, 버전 충돌이 생기며, 팀원 간 환경이 달라진다.
+        Docker를 쓰면 명령어 한 줄로 동일한 버전의 DB를 어디서든 동일하게 실행할 수 있다.
+        <strong>개발부터 Docker를 활용하는 것이 올바른 방법이다.</strong>
       </div>
 
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. Null 캐싱</h2>
-
-      <p>
-        DB에 데이터가 없다는 사실도 캐시에 저장해두는 기법이다.
-        없는 데이터를 반복적으로 요청하면 매번 DB를 조회하게 되는데, 이를 <strong>캐시 미스 공격(Cache Miss Attack)</strong>이라고 한다.
-        null 캐싱을 적용하면 "이 key에는 데이터가 없다"는 사실 자체를 캐시에 저장해, 이후 요청은 DB 없이 null을 즉시 반환한다.
-      </p>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ Spring Cache의 기본 동작 — null 캐싱 비활성화</span>
-        Spring Cache는 <strong>기본적으로 null을 캐싱하지 않는다.</strong>
-        메서드가 null을 반환하면 캐시에 저장하지 않기 때문에, 없는 데이터를 조회할 때마다 DB 쿼리가 발생한다.
-        null도 캐싱하려면 <code>unless</code> 조건 또는 CacheManager 설정에서 null 캐싱을 활성화해야 한다.
-      </div>
+      <h2 class="section">2. Image와 Container</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          방법 1 — @Cacheable의 unless 조건 제거 (null 허용)
+          Image — 실행 환경의 설계도
         </span>
       </h3>
 
       <p>
-        <code>@Cacheable</code>의 <code>unless</code> 속성은 반환값이 특정 조건일 때 캐싱을 건너뛰는 옵션이다.
-        기본 설정에서 null이 캐싱되지 않는 이유는 <code>unless = "#result == null"</code>이 암묵적으로 적용된 것과 같다.
-        null도 캐싱하려면 <code>unless</code>에 null 제외 조건을 넣지 않으면 된다.
+        애플리케이션을 실행하는 데 필요한 <strong>운영체제, 라이브러리, 코드, 설정이 모두 들어있는 불변 패키지</strong>다.
+        "이 환경에서 앱을 이렇게 실행하라"는 정보를 담고 있으며 읽기 전용이다.
+        하나의 이미지로 여러 개의 컨테이너를 동시에 생성할 수 있다.
       </p>
-
-      <pre><code class="language-java">// unless를 명시하지 않으면 null도 캐싱됨
-@Cacheable(value = "postCache", key = "#postId")
-public Post getPost(Long postId) {
-    return postRepository.findById(postId).orElse(null); // null 반환 시 캐시에 저장됨
-}
-
-// unless로 null을 명시적으로 제외하면 null은 캐싱 안 됨 (기본 동작 명시)
-@Cacheable(value = "postCache", key = "#postId", unless = "#result == null")
-public Post getPost(Long postId) {
-    return postRepository.findById(postId).orElse(null);
-}</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          방법 2 — CacheManager에서 null 캐싱 활성화
+          Container — 이미지를 실행한 인스턴스
         </span>
       </h3>
 
       <p>
-        Caffeine이나 Redis 기반 CacheManager를 설정할 때 <code>disableCachingNullValues()</code> 옵션을 비활성화하면
-        전역적으로 null 캐싱이 허용된다.
+        이미지를 실제로 실행한 결과물, 즉 <strong>동작 중인 인스턴스</strong>다.
+        운영체제를 새로 띄우지 않고 호스트 OS의 커널을 공유하기 때문에 가볍고 빠르게 실행된다.
+        컨테이너는 독립된 공간에서 실행되어 서로 간섭하지 않으며, 필요할 때 만들고 언제든지 지울 수 있다.
       </p>
-
-      <pre><code class="language-java">// Caffeine 기반 CacheManager — null 캐싱 활성화
-@Configuration
-public class CacheConfig {
-
-    @Bean
-    public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCaffeine(
-            Caffeine.newBuilder()
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                .maximumSize(1000)
-        );
-        // 수정 포인트: 기본값은 null 캐싱 비활성화 — 아래 옵션을 제거해 null 허용
-        // cacheManager.setAllowNullValues(false); // 이 줄 없으면 null 허용이 기본값
-        cacheManager.setAllowNullValues(true); // 명시적으로 null 허용 설정
-        return cacheManager;
-    }
-}
-
-// Redis 기반 CacheManager — null 캐싱 활성화
-@Bean
-public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
-    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(10))
-            // 수정 포인트: 아래 줄이 null 캐싱을 비활성화한다. 제거하면 null 허용
-            // .disableCachingNullValues()  ← 이 옵션을 제거해야 null이 캐싱됨
-            ;
-    return RedisCacheManager.builder(connectionFactory)
-            .cacheDefaults(config)
-            .build();
-}</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">null 캐싱이 유용한 상황</span>
-        존재하지 않는 ID를 반복적으로 조회하는 패턴에서 효과적이다.<br><br>
-        예를 들어 악의적인 사용자가 존재하지 않는 상품 ID 1억 개를 반복 요청하면, null 캐싱 없이는 매번 DB 쿼리가 발생한다.
-        null 캐싱을 적용하면 첫 번째 요청만 DB에 가고 이후에는 "없다"는 사실이 캐시에서 즉시 반환된다.<br><br>
-        단, null을 캐싱하면 TTL 내에는 실제로 데이터가 생겨도 null을 반환하는 문제가 생길 수 있다.
-        <strong>TTL을 짧게 설정하거나 데이터 생성 시 해당 key의 캐시를 Evict</strong>하는 방식을 함께 적용해야 한다.
+        <span class="box-title">Image vs Container 비유</span>
+        <strong>Image</strong>는 집을 짓기 위한 설계도(Blueprint)다. 설계도 자체는 변하지 않는다.<br>
+        <strong>Container</strong>는 그 설계도로 실제로 지은 집이다. 같은 설계도로 여러 채의 집을 지을 수 있다.<br><br>
+        이미지는 읽기 전용이며, 컨테이너는 실행 중에 상태를 가진다.
+        컨테이너를 삭제해도 이미지는 그대로 남아 있어 언제든지 새 컨테이너를 만들 수 있다.
       </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>Image</th>
+            <th>Container</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>성격</strong></td>
+            <td>읽기 전용 설계도</td>
+            <td>실행 중인 인스턴스</td>
+          </tr>
+          <tr>
+            <td><strong>상태</strong></td>
+            <td>불변 (Immutable)</td>
+            <td>가변 (실행 중 상태 존재)</td>
+          </tr>
+          <tr>
+            <td><strong>관계</strong></td>
+            <td>컨테이너 생성의 기반</td>
+            <td>이미지로부터 생성됨</td>
+          </tr>
+          <tr>
+            <td><strong>재사용</strong></td>
+            <td>하나의 이미지로 여러 컨테이너 생성 가능</td>
+            <td>삭제하면 사라짐</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. Docker Hub와 주요 명령어</h2>
+
+      <p>
+        <strong>Docker Hub</strong>는 전 세계 개발자들이 만든 이미지를 검색하고 내려받을 수 있는 이미지 저장소다.
+        MySQL, Redis, Nginx 같은 대부분의 오픈소스 소프트웨어 공식 이미지가 Docker Hub에 올라와 있어
+        직접 설치 없이 바로 사용할 수 있다.
+      </p>
+
+      <div class="success-box">
+        <span class="box-title">Docker Hub 사용 흐름</span>
+        <strong>search</strong> → Docker Hub에서 원하는 이미지 검색<br>
+        <strong>pull</strong> → 이미지를 로컬로 내려받기<br>
+        <strong>run</strong> → 이미지를 실행해 컨테이너 생성
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:45%;">명령어</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>docker run -d -p 6379:6379 --name &lt;컨테이너명&gt; &lt;이미지명&gt;</code></td>
+            <td>컨테이너를 백그라운드(<code>-d</code>)로 생성 및 실행. <code>-p</code>로 호스트 포트와 컨테이너 포트를 연결</td>
+          </tr>
+          <tr>
+            <td><code>docker ps</code></td>
+            <td>실행 중인 컨테이너 목록 확인. <code>STATUS</code>가 <code>Up</code>이면 실행 중</td>
+          </tr>
+          <tr>
+            <td><code>docker exec -it &lt;CONTAINER ID&gt; bash</code></td>
+            <td>실행 중인 컨테이너 내부에 접속. <code>-it</code>는 인터랙티브 터미널 모드</td>
+          </tr>
+          <tr>
+            <td><code>redis-cli</code></td>
+            <td>Redis 컨테이너 내부에서 Redis CLI 실행. Redis 명령어를 직접 입력할 수 있음</td>
+          </tr>
+          <tr>
+            <td><code>docker stop &lt;컨테이너명 또는 ID&gt;</code></td>
+            <td>실행 중인 컨테이너 중지</td>
+          </tr>
+          <tr>
+            <td><code>docker rm &lt;컨테이너명 또는 ID&gt;</code></td>
+            <td>컨테이너 삭제 (중지 후 삭제)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-bash"># Redis 컨테이너 실행 예시
+docker run -d -p 6379:6379 --name my-redis redis
+
+# 실행 중인 컨테이너 확인
+docker ps
+
+# Redis 컨테이너 내부 접속
+docker exec -it my-redis bash
+
+# Redis CLI 실행 (컨테이너 내부에서)
+redis-cli</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. Docker Compose</h2>
+
+      <p>
+        <strong>여러 컨테이너(Spring, MySQL, Redis 등)를 하나의 파일에 정의하고 한 번에 실행</strong>할 수 있는 도구다.
+        개발 환경에서 Spring Boot 앱과 MySQL, Redis를 각각 <code>docker run</code>으로 따로 실행하는 대신,
+        <code>docker-compose.yml</code> 한 파일로 전체 스택을 관리할 수 있다.
+      </p>
+
+      <pre><code class="language-bash"># Compose 파일에 정의된 모든 컨테이너를 백그라운드로 실행
+docker compose up -d
+
+# 모든 컨테이너 중지 및 제거
+docker compose down
+
+# 로그 확인
+docker compose logs -f</code></pre>
+
+      <pre><code class="language-yaml"># docker-compose.yml 예시
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: myapp
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis</code></pre>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. Docker Network</h2>
+
+      <p>
+        Docker 컨테이너는 기본적으로 <strong>독립적으로 실행되어 서로를 알지 못한다.</strong>
+        Spring Boot 컨테이너가 MySQL 컨테이너에 접근하려면 두 컨테이너를 같은 네트워크에 연결해야 한다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">Docker Compose와 Network의 관계</span>
+        <code>docker-compose.yml</code>에 정의된 컨테이너들은 <strong>자동으로 같은 네트워크에 배치</strong>된다.
+        같은 Compose 파일 안의 컨테이너끼리는 <strong>서비스 이름을 호스트명으로 사용</strong>해 통신할 수 있다.<br><br>
+        예를 들어 Compose 파일에서 MySQL의 서비스 이름이 <code>mysql</code>이라면,
+        Spring Boot 컨테이너의 <code>application.yml</code>에서 <code>spring.datasource.url: jdbc:mysql://mysql:3306/myapp</code>처럼
+        서비스 이름을 그대로 호스트명으로 사용하면 된다.
+      </div>
+
+      <pre><code class="language-yaml"># application.yml — Docker Compose 환경에서의 설정
+spring:
+  datasource:
+    # 수정 포인트: 로컬 직접 실행 시 localhost, Compose 환경에서는 서비스 이름(mysql)
+    url: jdbc:mysql://${MYSQL_HOST:mysql}:3306/myapp
+  data:
+    redis:
+      # 수정 포인트: 로컬 직접 실행 시 localhost, Compose 환경에서는 서비스 이름(redis)
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: 6379</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">상황</th>
+            <th>접속 호스트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>로컬에서 직접 실행 (Docker 없음)</td>
+            <td><code>localhost</code></td>
+          </tr>
+          <tr>
+            <td>컨테이너에서 호스트 머신의 서비스에 접근</td>
+            <td><code>host.docker.internal</code></td>
+          </tr>
+          <tr>
+            <td>Compose 환경에서 같은 네트워크의 컨테이너에 접근</td>
+            <td>서비스 이름 (<code>mysql</code>, <code>redis</code>)</td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        Self-Invocation 문제는 Spring Cache뿐만 아니라 <code>@Transactional</code>, AOP 전반에서 공통으로 발생하는 패턴이다.
-        원인은 동일하다. 프록시 기반 AOP는 외부 Bean 호출에서만 동작하고, 같은 클래스 내부 호출(<code>this.메서드()</code>)은 프록시를 우회한다.
-        별도 클래스로 분리하는 방법이 가장 깔끔하고, Self 주입은 빠른 임시 해결책으로 활용할 수 있다.
+        Docker를 배포 전용 도구로만 알고 있었다면 개발 환경에서의 큰 이점을 놓치고 있는 것이다.
+        MySQL, Redis를 로컬에 직접 설치하면 팀원마다 버전이 다르고 설정이 달라 "내 환경에서는 되는데"라는 상황이 반복된다.
+        Docker를 사용하면 <code>docker compose up -d</code> 한 줄로 모든 팀원이 동일한 환경을 즉시 구성할 수 있다.
       </p>
 
       <p>
-        Null 캐싱은 처음에는 직관적으로 이상하게 느껴질 수 있지만, "없다는 사실도 정보"라는 관점에서 보면 자연스럽다.
-        DB에 없는 데이터를 매번 조회하는 것은 DB 입장에서 불필요한 I/O이고, 트래픽이 높을수록 그 비용이 커진다.
-        다만 null을 캐싱하면 TTL 내에 데이터가 실제로 생겨도 null을 반환하는 불일치가 생기기 때문에,
-        <strong>null 캐싱의 TTL은 짧게, 데이터 생성 시 Evict 처리를 함께</strong> 설계해야 한다.
+        Image와 Container의 관계를 명확히 이해하는 것이 중요하다.
+        이미지는 불변하는 설계도이고, 컨테이너는 그 설계도로 만든 실행 인스턴스다.
+        컨테이너를 아무리 삭제하고 다시 만들어도 이미지가 있으면 동일한 환경을 재현할 수 있다는 것이 Docker의 핵심 가치다.
+      </p>
+
+      <p>
+        Docker Compose에서 컨테이너끼리 서비스 이름으로 통신한다는 점도 중요하다.
+        <code>localhost</code>는 컨테이너 자기 자신을 가리키기 때문에 다른 컨테이너에 접근할 수 없다.
+        Compose 환경에서는 서비스 이름을 호스트명으로 사용해야 하며, 환경변수로 override할 수 있도록 설정하면 로컬 직접 실행과 Compose 실행 모두를 하나의 설정 파일로 처리할 수 있다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
