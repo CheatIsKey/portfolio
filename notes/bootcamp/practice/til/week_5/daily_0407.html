@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 76일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 76일차 TIL — Redis · RedisTemplate · Cache-Aside · Lettuce 커넥션 풀</h1>
+      <p class="muted">작성일 2026-04-03 · 분류: 부트캠프, TIL, Redis, RedisTemplate, Cache-Aside, TTL, Lettuce, 커넥션 풀</p>
+
+      <h2 class="section">76일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Redis</strong>의 개념과 RDB와의 차이, 빠른 이유를 이해한다.</li>
+        <li>Redis가 지원하는 <strong>자료형 5가지</strong>와 데이터 영속성 옵션을 파악한다.</li>
+        <li><strong>RedisTemplate</strong>으로 Java 코드에서 Redis를 제어하는 방법을 익힌다.</li>
+        <li><strong>Cache-Aside 패턴</strong>을 코드로 구현하는 방법을 정리한다.</li>
+        <li><strong>캐시 Key 네이밍 전략</strong>과 TTL 설계 원칙을 이해한다.</li>
+        <li><strong>Lettuce 커넥션 풀</strong>의 개념과 설정 항목을 파악한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. Redis란 무엇인가</h2>
+
+      <p>
+        <strong>Remote Dictionary Server</strong>의 약자로, 데이터를 <strong>메모리(RAM)에 저장하는 초고속 Key-Value 데이터베이스</strong>다.
+        모든 데이터를 메모리에서 읽고 쓰기 때문에 디스크 기반 DB보다 속도가 훨씬 빠르다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">구분</th>
+            <th>관계형 데이터베이스 (RDB)</th>
+            <th>Key-Value DB (Redis)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>구조</strong></td>
+            <td>테이블(행·열) 기반</td>
+            <td>Key와 Value 한 쌍으로 저장</td>
+          </tr>
+          <tr>
+            <td><strong>데이터 접근</strong></td>
+            <td>SQL로 복잡한 조건 검색 가능</td>
+            <td>Key로 바로 값 조회 (단순하고 빠름)</td>
+          </tr>
+          <tr>
+            <td><strong>저장 위치</strong></td>
+            <td>디스크 (영구 저장)</td>
+            <td>메모리 (빠르지만 휘발성)</td>
+          </tr>
+          <tr>
+            <td><strong>주요 용도</strong></td>
+            <td>영구 데이터 저장, 관계형 모델</td>
+            <td>캐시, 세션, 실시간 데이터 처리</td>
+          </tr>
+          <tr>
+            <td><strong>예시</strong></td>
+            <td>MySQL, PostgreSQL</td>
+            <td>Redis, Memcached</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">Redis가 빠른 이유</span>
+        모든 데이터를 <strong>메모리(RAM)에 저장</strong>하기 때문에 디스크(SSD/HDD)를 거치는 I/O가 없다. CPU가 메모리에 직접 접근하므로 응답 속도가 μs(마이크로초) 단위다.<br><br>
+        디스크 기반 DB는 데이터를 읽기 위해 파일 입출력이 필요해 ms(밀리초) 단위의 지연이 생긴다.
+        메모리와 디스크의 속도 차이가 Redis 성능 차이의 핵심 원인이다.<br><br>
+        단, 서버가 꺼지면 메모리의 데이터가 사라지므로 영속성 옵션을 별도로 설정해야 한다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Redis 자료형</h2>
+
+      <p>
+        Redis는 단순한 문자열 저장을 넘어 다양한 자료구조를 Value로 지원한다.
+        상황에 맞는 자료형을 선택하면 복잡한 로직을 Redis 명령어 하나로 처리할 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">타입</th>
+            <th style="width:35%;">설명</th>
+            <th>예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>String</strong></td>
+            <td>단일 값 저장. 가장 기본적인 타입</td>
+            <td><code>"user:1"</code> → <code>"Ravi"</code></td>
+          </tr>
+          <tr>
+            <td><strong>List</strong></td>
+            <td>순서 있는 데이터. 큐/스택 구현에 유용</td>
+            <td><code>"queue"</code> → <code>[A, B, C]</code></td>
+          </tr>
+          <tr>
+            <td><strong>Set</strong></td>
+            <td>중복 없는 집합</td>
+            <td><code>"tags"</code> → <code>{spring, redis}</code></td>
+          </tr>
+          <tr>
+            <td><strong>Hash</strong></td>
+            <td>하나의 Key에 여러 필드-값 쌍 저장 (Map 구조)</td>
+            <td><code>"user:1"</code> → <code>{name: Ravi, age: 30}</code></td>
+          </tr>
+          <tr>
+            <td><strong>Sorted Set</strong></td>
+            <td>점수(score) 기반 자동 정렬된 집합. 랭킹 구현에 적합</td>
+            <td><code>"ranking"</code> → <code>{Ravi:100, Kim:200}</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          데이터 영속성 옵션
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">모드</th>
+            <th style="width:40%;">설명</th>
+            <th>특징</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>RDB</strong><br>(Redis Database Snapshot)</td>
+            <td>일정 주기마다 전체 데이터를 스냅샷으로 저장</td>
+            <td>빠름, 주기적 백업</td>
+          </tr>
+          <tr>
+            <td><strong>AOF</strong><br>(Append Only File)</td>
+            <td>실행된 명령어를 순차적으로 기록</td>
+            <td>높은 안정성, 장애 후 복구 가능</td>
+          </tr>
+          <tr>
+            <td><strong>Hybrid</strong></td>
+            <td>RDB + AOF 혼합 방식</td>
+            <td>Redis 7.x 이상 기본 설정</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. RedisTemplate</h2>
+
+      <p>
+        Spring이 제공하는 Redis용 클라이언트다.
+        Java 코드로 Redis 명령어를 대신 실행해주는 도구로,
+        자료형별 <code>opsFor~()</code> 메서드로 해당 Redis 명령어를 추상화해서 사용한다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">메서드</th>
+            <th style="width:25%;">역할</th>
+            <th>대응 Redis 명령</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>opsForValue()</code></td>
+            <td>단일 값 저장/조회</td>
+            <td>SET / GET</td>
+          </tr>
+          <tr>
+            <td><code>opsForHash()</code></td>
+            <td>해시 구조 저장</td>
+            <td>HSET / HGET</td>
+          </tr>
+          <tr>
+            <td><code>opsForList()</code></td>
+            <td>리스트 형태 저장</td>
+            <td>LPUSH / LRANGE</td>
+          </tr>
+          <tr>
+            <td><code>opsForSet()</code></td>
+            <td>중복 없는 집합</td>
+            <td>SADD / SMEMBERS</td>
+          </tr>
+          <tr>
+            <td><code>opsForZSet()</code></td>
+            <td>순위 정렬 집합</td>
+            <td>ZADD / ZRANGE</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-java">// TTL 설정 예시 — (key, value, 기간, 단위)
+redisTemplate.opsForValue().set("temp:data", "123", 10, TimeUnit.MINUTES);
+
+// 단일 값 저장 및 조회
+redisTemplate.opsForValue().set("user:1", "Ravi");
+String value = (String) redisTemplate.opsForValue().get("user:1");
+
+// Key 삭제
+redisTemplate.delete("user:1");</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. Cache-Aside 패턴 구현</h2>
+
+      <p>
+        데이터를 먼저 캐시에서 찾고, 없으면 DB에서 가져와 캐시에 저장하는 패턴이다.
+        가장 범용적으로 사용되는 캐싱 전략이다.
+      </p>
+
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class PostService {
+
+    private static final String PREFIX = "post:";
+    private final PostRepository postRepository;
+    private final RedisTemplate&lt;String, Object&gt; redisTemplate;
+
+    public Post getPost(Long postId) {
+        String key = PREFIX + postId; // 수정 포인트: 캐시 Key 네이밍 규칙 참고
+
+        // (1) 캐시 확인 — Cache Hit 시 DB 조회 없이 즉시 반환
+        Post cached = (Post) redisTemplate.opsForValue().get(key);
+        if (cached != null) {
+            return cached;
+        }
+
+        // (2) Cache Miss — DB 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // (3) 캐시에 저장 (TTL 설정으로 일관성 관리)
+        redisTemplate.opsForValue().set(key, post, 10, TimeUnit.MINUTES);
+        return post;
+    }
+
+    // 데이터 수정 시 캐시 무효화 (Cache Invalidation)
+    public void updatePost(Long postId, PostUpdateRequest request) {
+        postRepository.findById(postId).orElseThrow().update(request);
+        redisTemplate.delete(PREFIX + postId); // 수정 포인트: 캐시 삭제 후 다음 조회 시 DB에서 최신 값 로딩
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 캐시 Key 네이밍 전략과 TTL 설계</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          캐시 Key 네이밍 전략
+        </span>
+      </h3>
+
+      <p>
+        캐시 Key는 <code>{도메인}:{리소스}:{식별자}</code> 형식을 사용한다.
+        Redis에서는 콜론(<code>:</code>)이 계층 구분자 역할을 하며, Redis GUI 도구에서 트리 구조로 시각화된다.
+      </p>
+
+      <pre><code class="language-java">// 수정 포인트: Key 값은 상수로 선언해서 오타와 중복을 방지한다
+private static final String POST_PREFIX   = "post:";
+private static final String USER_PREFIX   = "user:";
+private static final String SEARCH_PREFIX = "search:";
+
+// 예시
+"post:42"              // 단일 게시글
+"user:7"               // 단일 유저
+"search:spring:1"      // 검색 결과 (키워드 + 페이지)</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          TTL 설계 원칙
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%;">상황</th>
+            <th>TTL 권장</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>변경이 거의 없는 데이터 (공지사항, 카테고리 등)</td>
+            <td>길게 설정 (수 시간 ~ 1일)</td>
+          </tr>
+          <tr>
+            <td>조회가 잦고 변경이 적은 데이터</td>
+            <td>중간 (수십 분)</td>
+          </tr>
+          <tr>
+            <td>변경이 잦은 데이터</td>
+            <td>짧게 설정하거나 캐시 적용 재고</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ TTL 설정 시 주의사항</span>
+        TTL이 너무 짧으면 캐시 히트율이 낮아져 캐시 효과가 없다.<br>
+        TTL이 너무 길면 DB 데이터가 바뀌어도 캐시에는 오래된 값이 남아 데이터 불일치가 발생한다.<br>
+        <strong>데이터 변경 시 반드시 캐시도 삭제(Evict)하거나 갱신(Put)</strong>해야 일관성을 유지할 수 있다.
+      </div>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. Lettuce와 커넥션 풀</h2>
+
+      <p>
+        <strong>Lettuce</strong>는 Java 애플리케이션과 Redis 서버 사이를 연결해주는 클라이언트 라이브러리다.
+        Spring Data Redis에서 기본으로 사용하는 Redis 클라이언트이다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">커넥션 풀(Connection Pool)이 필요한 이유</span>
+        Redis에 요청할 때마다 커넥션을 새로 생성하고 요청이 끝나면 소멸시키는 방식은 비효율적이다.
+        커넥션 생성 자체에 시간이 걸리고, 트래픽이 높을 때는 생성/소멸을 반복하다가 Redis 서버가 버티지 못한다.<br><br>
+        <strong>커넥션 풀</strong>은 미리 일정 개수의 커넥션을 생성해두고, 요청이 들어오면 풀에서 꺼내주고 사용이 끝나면 반납하는 방식이다.
+        생성/소멸 비용 없이 커넥션을 재사용하므로 성능이 안정된다.
+      </div>
+
+      <pre><code class="language-yaml">spring:
+  data:
+    redis:
+      # 수정 포인트: Docker Compose 환경에서는 서비스 이름 'redis'가 호스트명으로 사용됨
+      # 환경변수 SPRING_DATA_REDIS_HOST로 override 가능
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 8    # 수정 포인트: 동시에 사용할 수 있는 최대 커넥션 수 (Redis 스펙과 동시 요청 수 기반으로 결정)
+          max-idle: 8      # 풀에 유지할 최대 유휴 커넥션 수
+          min-idle: 1      # 풀에 최소한 유지할 유휴 커넥션 수
+          max-wait: -1ms   # 수정 포인트: -1은 무한 대기. 실무에서는 1000ms ~ 5000ms로 타임아웃 설정 권장</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">옵션</th>
+            <th style="width:35%;">의미</th>
+            <th>주의사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>max-active</strong></td>
+            <td>풀에서 동시에 사용 가능한 최대 커넥션 수</td>
+            <td>Redis 서버 스펙과 예상 동시 요청 수를 기반으로 결정</td>
+          </tr>
+          <tr>
+            <td><strong>max-idle</strong></td>
+            <td>풀에 유지할 최대 유휴(대기 중인) 커넥션 수</td>
+            <td>보통 max-active와 동일하게 설정</td>
+          </tr>
+          <tr>
+            <td><strong>min-idle</strong></td>
+            <td>풀에 최소한 유지할 유휴 커넥션 수</td>
+            <td>너무 낮으면 요청 급증 시 커넥션 부족 발생</td>
+          </tr>
+          <tr>
+            <td><strong>max-wait</strong></td>
+            <td>풀이 꽉 찼을 때 커넥션을 기다리는 최대 시간</td>
+            <td>-1은 무한 대기. 실무에서는 타임아웃을 명시해야 요청이 쌓여 서버가 다운되는 것을 방지</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        Redis는 단순히 "빠른 캐시"가 아니라 String, Hash, Sorted Set 등 다양한 자료구조를 지원하는 인메모리 데이터베이스다.
+        어떤 자료형을 선택하느냐에 따라 랭킹 시스템, 세션 저장, 메시지 큐 등 다양한 기능을 Redis 하나로 구현할 수 있다.
+        RedisTemplate의 <code>opsFor~()</code> 메서드는 각 자료형에 대응하는 Redis 명령어를 Java 코드로 추상화한 것이므로, 자료형과 명령어의 대응 관계를 이해하면 자연스럽게 사용할 수 있다.
+      </p>
+
+      <p>
+        Cache-Aside 패턴은 Redis를 실무에서 가장 많이 쓰는 방식이다.
+        캐시 확인 → DB 조회 → 캐시 저장의 세 단계가 핵심이고, 데이터 수정 시 반드시 캐시를 무효화해야 한다는 점을 항상 기억해야 한다.
+        캐시 Key는 코드에서 상수로 관리해야 오타로 인한 버그를 방지할 수 있다.
+      </p>
+
+      <p>
+        커넥션 풀은 Redis뿐만 아니라 DB 연결에서도 동일하게 적용되는 개념이다.
+        커넥션을 매번 생성하고 소멸하는 방식은 비용이 크기 때문에, 미리 생성해두고 재사용하는 풀 방식이 필수다.
+        <code>max-wait: -1</code>처럼 무한 대기로 설정하면 풀이 꽉 찼을 때 요청이 쌓이다 서버가 다운될 수 있다.
+        실무에서는 <strong>반드시 타임아웃을 명시</strong>해야 한다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
