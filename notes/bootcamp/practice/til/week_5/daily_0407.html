@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 76일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 78일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -91,6 +91,24 @@
       color: #0a3622;
       display: inline;
     }
+    .screenshot {
+      width: 100%;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      margin: 0.8rem 0 1.5rem;
+      display: block;
+    }
+    .level-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.82em;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .lv1 { background-color: #e3f2fd; color: #1565c0; }
+    .lv2 { background-color: #e8f5e9; color: #2e7d32; }
+    .lv3 { background-color: #fce4ec; color: #880e4f; }
   </style>
 </head>
 <body>
@@ -109,370 +127,524 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 76일차 TIL — Redis · RedisTemplate · Cache-Aside · Lettuce 커넥션 풀</h1>
-      <p class="muted">작성일 2026-04-03 · 분류: 부트캠프, TIL, Redis, RedisTemplate, Cache-Aside, TTL, Lettuce, 커넥션 풀</p>
+      <h1>내일배움캠프 Spring 백엔드 78일차 TIL — Spring Expert 과제: 일정 관리 애플리케이션 13단계 구현</h1>
+      <p class="muted">작성일 2026-04-07 · 분류: 부트캠프, TIL, Spring Boot, JPA, QueryDSL, Spring Security, Redis, AWS, 과제</p>
 
-      <h2 class="section">76일차 개요</h2>
+      <h2 class="section">78일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          오늘 목표
+          Spring Expert 과제 — 일정 관리 REST API
         </span>
       </h3>
-      <ul>
-        <li><strong>Redis</strong>의 개념과 RDB와의 차이, 빠른 이유를 이해한다.</li>
-        <li>Redis가 지원하는 <strong>자료형 5가지</strong>와 데이터 영속성 옵션을 파악한다.</li>
-        <li><strong>RedisTemplate</strong>으로 Java 코드에서 Redis를 제어하는 방법을 익힌다.</li>
-        <li><strong>Cache-Aside 패턴</strong>을 코드로 구현하는 방법을 정리한다.</li>
-        <li><strong>캐시 Key 네이밍 전략</strong>과 TTL 설계 원칙을 이해한다.</li>
-        <li><strong>Lettuce 커넥션 풀</strong>의 개념과 설정 항목을 파악한다.</li>
-      </ul>
-
-      <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Redis란 무엇인가</h2>
-
       <p>
-        <strong>Remote Dictionary Server</strong>의 약자로, 데이터를 <strong>메모리(RAM)에 저장하는 초고속 Key-Value 데이터베이스</strong>다.
-        모든 데이터를 메모리에서 읽고 쓰기 때문에 디스크 기반 DB보다 속도가 훨씬 빠르다.
+        사용자, 할 일, 댓글, 담당자를 관리하는 일정 관리 REST API 서비스다.
+        코드의 버그를 직접 발견 및 수정하고, 성능 최적화, 인증/인가 고도화, 대용량 데이터 처리, AWS 배포까지 단계별로 진행했다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">구분</th>
-            <th>관계형 데이터베이스 (RDB)</th>
-            <th>Key-Value DB (Redis)</th>
+            <th style="width:12%;">단계</th>
+            <th>목표</th>
+            <th style="width:30%;">핵심 기술</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>구조</strong></td>
-            <td>테이블(행·열) 기반</td>
-            <td>Key와 Value 한 쌍으로 저장</td>
-          </tr>
-          <tr>
-            <td><strong>데이터 접근</strong></td>
-            <td>SQL로 복잡한 조건 검색 가능</td>
-            <td>Key로 바로 값 조회 (단순하고 빠름)</td>
-          </tr>
-          <tr>
-            <td><strong>저장 위치</strong></td>
-            <td>디스크 (영구 저장)</td>
-            <td>메모리 (빠르지만 휘발성)</td>
-          </tr>
-          <tr>
-            <td><strong>주요 용도</strong></td>
-            <td>영구 데이터 저장, 관계형 모델</td>
-            <td>캐시, 세션, 실시간 데이터 처리</td>
-          </tr>
-          <tr>
-            <td><strong>예시</strong></td>
-            <td>MySQL, PostgreSQL</td>
-            <td>Redis, Memcached</td>
-          </tr>
+          <tr><td><span class="level-badge lv1">LV 1-①</span></td><td><code>@Transactional</code> 읽기 전용 오류 수정</td><td>JPA, Transaction</td></tr>
+          <tr><td><span class="level-badge lv1">LV 1-②</span></td><td>User에 nickname 추가 + JWT 클레임 반영</td><td>JWT</td></tr>
+          <tr><td><span class="level-badge lv1">LV 1-③</span></td><td>weather와 기간 조건 동적 쿼리</td><td>JPQL</td></tr>
+          <tr><td><span class="level-badge lv1">LV 1-④</span></td><td>컨트롤러 테스트 코드 수정</td><td>JUnit 5, MockMvc</td></tr>
+          <tr><td><span class="level-badge lv1">LV 1-⑤</span></td><td>AOP 어드바이스 실행 시점 버그 수정</td><td>Spring AOP</td></tr>
+          <tr><td><span class="level-badge lv2">LV 2-⑥</span></td><td>JPA Cascade로 담당자 자동 등록</td><td>JPA Cascade</td></tr>
+          <tr><td><span class="level-badge lv2">LV 2-⑦</span></td><td>댓글 조회 N+1 문제 해결</td><td>JPQL Fetch Join</td></tr>
+          <tr><td><span class="level-badge lv2">LV 2-⑧</span></td><td>JPQL → QueryDSL 전환</td><td>QueryDSL</td></tr>
+          <tr><td><span class="level-badge lv2">LV 2-⑨</span></td><td>Filter/Resolver → Spring Security 전환</td><td>Spring Security</td></tr>
+          <tr><td><span class="level-badge lv3">LV 3-⑩</span></td><td>QueryDSL 고급 검색 API (Projections + 페이징)</td><td>QueryDSL</td></tr>
+          <tr><td><span class="level-badge lv3">LV 3-⑪</span></td><td>매니저 등록 로그 독립 트랜잭션 처리</td><td>REQUIRES_NEW</td></tr>
+          <tr><td><span class="level-badge lv3">LV 3-⑫</span></td><td>EC2, RDS, S3 클라우드 배포</td><td>AWS</td></tr>
+          <tr><td><span class="level-badge lv3">LV 3-⑬</span></td><td>500만 건 Bulk Insert 및 닉네임 검색 최적화</td><td>JDBC, Index, Redis</td></tr>
         </tbody>
       </table>
+
+      <!-- ===================== LV 1 ===================== -->
+      <h2 class="section">LV 1 — 필수 기능</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ① @Transactional 읽기 전용 오류 수정
+        </span>
+      </h3>
+
+      <p>
+        <code>POST /todos</code> 호출 시 <code>Connection is read-only. Queries leading to data modification are not allowed</code> 에러가 발생했다.
+        <code>TodoService</code> 클래스 레벨에 <code>@Transactional(readOnly = true)</code>가 선언되어 있어,
+        데이터를 쓰는 <code>saveTodo()</code> 메서드도 읽기 전용 트랜잭션으로 실행된 것이 원인이다.
+      </p>
+
+      <pre><code class="language-java">// 클래스 레벨: @Transactional(readOnly = true)
+
+@Transactional  // 수정 포인트: 메서드 레벨이 클래스 레벨을 오버라이드 → 쓰기 가능
+public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest request) { ... }</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">Redis가 빠른 이유</span>
-        모든 데이터를 <strong>메모리(RAM)에 저장</strong>하기 때문에 디스크(SSD/HDD)를 거치는 I/O가 없다. CPU가 메모리에 직접 접근하므로 응답 속도가 μs(마이크로초) 단위다.<br><br>
-        디스크 기반 DB는 데이터를 읽기 위해 파일 입출력이 필요해 ms(밀리초) 단위의 지연이 생긴다.
-        메모리와 디스크의 속도 차이가 Redis 성능 차이의 핵심 원인이다.<br><br>
-        단, 서버가 꺼지면 메모리의 데이터가 사라지므로 영속성 옵션을 별도로 설정해야 한다.
+        <span class="box-title">readOnly = true의 올바른 사용 방법</span>
+        <code>readOnly = true</code>는 SELECT 쿼리에 대한 성능 최적화(스냅샷 생략 등)에 유용하다.
+        클래스 레벨에 선언하면 해당 클래스의 모든 메서드에 적용된다.
+        <strong>INSERT / UPDATE / DELETE가 필요한 메서드에는 반드시 <code>@Transactional</code>을 메서드 레벨에 별도로 선언</strong>해야 한다.
+        메서드 레벨 어노테이션이 클래스 레벨을 오버라이드한다.
       </div>
 
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. Redis 자료형</h2>
-
-      <p>
-        Redis는 단순한 문자열 저장을 넘어 다양한 자료구조를 Value로 지원한다.
-        상황에 맞는 자료형을 선택하면 복잡한 로직을 Redis 명령어 하나로 처리할 수 있다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">타입</th>
-            <th style="width:35%;">설명</th>
-            <th>예시</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>String</strong></td>
-            <td>단일 값 저장. 가장 기본적인 타입</td>
-            <td><code>"user:1"</code> → <code>"Ravi"</code></td>
-          </tr>
-          <tr>
-            <td><strong>List</strong></td>
-            <td>순서 있는 데이터. 큐/스택 구현에 유용</td>
-            <td><code>"queue"</code> → <code>[A, B, C]</code></td>
-          </tr>
-          <tr>
-            <td><strong>Set</strong></td>
-            <td>중복 없는 집합</td>
-            <td><code>"tags"</code> → <code>{spring, redis}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Hash</strong></td>
-            <td>하나의 Key에 여러 필드-값 쌍 저장 (Map 구조)</td>
-            <td><code>"user:1"</code> → <code>{name: Ravi, age: 30}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Sorted Set</strong></td>
-            <td>점수(score) 기반 자동 정렬된 집합. 랭킹 구현에 적합</td>
-            <td><code>"ranking"</code> → <code>{Ravi:100, Kim:200}</code></td>
-          </tr>
-        </tbody>
-      </table>
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv1_1_transactional.png" alt="LV1-1 할 일 정상 저장 결과" />
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          데이터 영속성 옵션
+          ② User에 nickname 추가 + JWT 클레임 반영
         </span>
       </h3>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">모드</th>
-            <th style="width:40%;">설명</th>
-            <th>특징</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>RDB</strong><br>(Redis Database Snapshot)</td>
-            <td>일정 주기마다 전체 데이터를 스냅샷으로 저장</td>
-            <td>빠름, 주기적 백업</td>
-          </tr>
-          <tr>
-            <td><strong>AOF</strong><br>(Append Only File)</td>
-            <td>실행된 명령어를 순차적으로 기록</td>
-            <td>높은 안정성, 장애 후 복구 가능</td>
-          </tr>
-          <tr>
-            <td><strong>Hybrid</strong></td>
-            <td>RDB + AOF 혼합 방식</td>
-            <td>Redis 7.x 이상 기본 설정</td>
-          </tr>
-        </tbody>
-      </table>
+      <p>
+        <code>users</code> 테이블에 <code>nickname</code> 컬럼을 추가하고(중복 허용),
+        JWT 발급 시 <code>nickname</code> 클레임을 포함시켰다.
+        프론트엔드에서 토큰을 파싱하는 것만으로 닉네임을 사용할 수 있어 별도 API 호출이 필요 없다.
+      </p>
 
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. RedisTemplate</h2>
+      <pre><code class="language-java">// JwtTokenProvider — 토큰 생성 시 nickname 클레임 추가
+Claims claims = Jwts.claims()
+    .add("userId",   user.getId())
+    .add("email",    user.getEmail())
+    .add("nickname", user.getNickname())  // 수정 포인트: nickname 클레임 추가
+    .add("userRole", user.getUserRole())
+    .build();</code></pre>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv1_2_jwt_nickname.png" alt="LV1-2 JWT에 nickname 클레임 확인" />
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ③ JPQL 동적 쿼리 — weather 및 기간 검색
+        </span>
+      </h3>
 
       <p>
-        Spring이 제공하는 Redis용 클라이언트다.
-        Java 코드로 Redis 명령어를 대신 실행해주는 도구로,
-        자료형별 <code>opsFor~()</code> 메서드로 해당 Redis 명령어를 추상화해서 사용한다.
+        <code>weather</code>, <code>startDate</code>, <code>endDate</code> 조건이 모두 선택적(<code>null</code> 가능)이므로,
+        서비스 계층에서 조건 조합에 따라 적합한 JPQL을 호출하도록 구현했다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:25%;">메서드</th>
-            <th style="width:25%;">역할</th>
-            <th>대응 Redis 명령</th>
+            <th style="width:15%; text-align:center;">weather</th>
+            <th style="width:15%; text-align:center;">기간</th>
+            <th>호출 쿼리</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><code>opsForValue()</code></td>
-            <td>단일 값 저장/조회</td>
-            <td>SET / GET</td>
-          </tr>
-          <tr>
-            <td><code>opsForHash()</code></td>
-            <td>해시 구조 저장</td>
-            <td>HSET / HGET</td>
-          </tr>
-          <tr>
-            <td><code>opsForList()</code></td>
-            <td>리스트 형태 저장</td>
-            <td>LPUSH / LRANGE</td>
-          </tr>
-          <tr>
-            <td><code>opsForSet()</code></td>
-            <td>중복 없는 집합</td>
-            <td>SADD / SMEMBERS</td>
-          </tr>
-          <tr>
-            <td><code>opsForZSet()</code></td>
-            <td>순위 정렬 집합</td>
-            <td>ZADD / ZRANGE</td>
-          </tr>
+          <tr><td style="text-align:center;">✅</td><td style="text-align:center;">✅</td><td>weather + 기간 필터</td></tr>
+          <tr><td style="text-align:center;">✅</td><td style="text-align:center;">❌</td><td>weather 필터만</td></tr>
+          <tr><td style="text-align:center;">❌</td><td style="text-align:center;">✅</td><td>기간 필터만</td></tr>
+          <tr><td style="text-align:center;">❌</td><td style="text-align:center;">❌</td><td>전체 조회</td></tr>
         </tbody>
       </table>
 
-      <pre><code class="language-java">// TTL 설정 예시 — (key, value, 기간, 단위)
-redisTemplate.opsForValue().set("temp:data", "123", 10, TimeUnit.MINUTES);
+      <pre><code class="language-java">// weather + 기간 조건 예시
+@Query("SELECT t FROM Todo t WHERE t.weather = :weather " +
+       "AND t.modifiedAt BETWEEN :start AND :end ORDER BY t.modifiedAt DESC")
+Page&lt;Todo&gt; findByWeatherAndPeriod(@Param("weather") String weather,
+                                   @Param("start") LocalDateTime start,
+                                   @Param("end") LocalDateTime end,
+                                   Pageable pageable);</code></pre>
 
-// 단일 값 저장 및 조회
-redisTemplate.opsForValue().set("user:1", "Ravi");
-String value = (String) redisTemplate.opsForValue().get("user:1");
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv1_3_weather_search.png" alt="LV1-3 weather 및 기간 검색 결과" />
 
-// Key 삭제
-redisTemplate.delete("user:1");</code></pre>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. Cache-Aside 패턴 구현</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ④ 컨트롤러 테스트 코드 수정
+        </span>
+      </h3>
 
       <p>
-        데이터를 먼저 캐시에서 찾고, 없으면 DB에서 가져와 캐시에 저장하는 패턴이다.
-        가장 범용적으로 사용되는 캐싱 전략이다.
+        <code>todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다()</code> 테스트가 실패했다.
+        <code>TodoService.getTodo()</code>는 <code>InvalidRequestException</code>을 던지지만,
+        테스트가 기대하는 HTTP 상태코드가 실제 응답과 달랐다.
+        <code>@MockBean</code>으로 서비스 스터빙을 올바르게 설정하고 기댓값을 수정했다.
       </p>
 
-      <pre><code class="language-java">@Service
-@RequiredArgsConstructor
-public class PostService {
+      <pre><code class="language-java">given(todoService.getTodo(anyLong()))
+    .willThrow(new InvalidRequestException("Todo not found"));
 
-    private static final String PREFIX = "post:";
-    private final PostRepository postRepository;
-    private final RedisTemplate&lt;String, Object&gt; redisTemplate;
+mockMvc.perform(get("/todos/{todoId}", 1L))
+    .andExpect(status().isBadRequest());  // 수정 포인트: 실제 응답 코드와 일치하도록 수정</code></pre>
 
-    public Post getPost(Long postId) {
-        String key = PREFIX + postId; // 수정 포인트: 캐시 Key 네이밍 규칙 참고
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv1_4_test_pass.png" alt="LV1-4 테스트 통과 결과" />
 
-        // (1) 캐시 확인 — Cache Hit 시 DB 조회 없이 즉시 반환
-        Post cached = (Post) redisTemplate.opsForValue().get(key);
-        if (cached != null) {
-            return cached;
-        }
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑤ AOP 어드바이스 실행 시점 버그 수정
+        </span>
+      </h3>
 
-        // (2) Cache Miss — DB 조회
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+      <p>
+        <code>UserAdminController.changeUserRole()</code> 실행 전에 로그를 남겨야 하는데,
+        <code>AdminAccessLoggingAspect</code>의 포인트컷이 <code>UserController.getUser()</code>를 대상으로 잘못 지정되어 있었다.
+        포인트컷 대상을 올바른 메서드로 변경했다.
+      </p>
 
-        // (3) 캐시에 저장 (TTL 설정으로 일관성 관리)
-        redisTemplate.opsForValue().set(key, post, 10, TimeUnit.MINUTES);
-        return post;
-    }
+      <pre><code class="language-java">// 수정 전 — 잘못된 대상
+@Before("execution(* org.example.expert.domain.user.controller.UserController.getUser(..))")
 
-    // 데이터 수정 시 캐시 무효화 (Cache Invalidation)
-    public void updatePost(Long postId, PostUpdateRequest request) {
-        postRepository.findById(postId).orElseThrow().update(request);
-        redisTemplate.delete(PREFIX + postId); // 수정 포인트: 캐시 삭제 후 다음 조회 시 DB에서 최신 값 로딩
-    }
+// 수정 후 — 올바른 대상
+@Before("execution(* org.example.expert.domain.user.controller.UserAdminController.changeUserRole(..))")
+public void logBeforeChangeUserRole(JoinPoint joinPoint) { ... }</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">AOP 어드바이스 종류와 실행 시점</span>
+        <strong>@Before:</strong> 메서드 실행 전 — 접근 로그, 권한 검증 등에 사용<br>
+        <strong>@After:</strong> 메서드 실행 후 (성공/실패 무관) — 자원 정리 등에 사용<br>
+        <strong>@Around:</strong> 메서드 실행 전후 모두 제어 — 실행 시간 측정, 트랜잭션 관리 등에 사용<br><br>
+        이 요구사항은 "실행 전 로깅"이므로 <code>@Before</code>가 정확하다.
+      </div>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv1_5_aop.png" alt="LV1-5 AOP 로그 출력 확인" />
+
+      <!-- ===================== LV 2 ===================== -->
+      <h2 class="section">LV 2 — 필수 기능</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e8f5e9; color:#2e7d32; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑥ JPA Cascade — 담당자 자동 등록
+        </span>
+      </h3>
+
+      <p>
+        <code>Todo</code> 엔티티의 <code>managers</code> 컬렉션에 <code>CascadeType.PERSIST</code>를 적용했다.
+        <code>Todo</code>를 저장(<code>persist</code>)할 때 <code>Manager</code>도 자동으로 함께 INSERT된다.
+        할 일 생성자가 자동으로 첫 번째 담당자로 등록된다.
+      </p>
+
+      <pre><code class="language-java">// Todo.java
+@OneToMany(mappedBy = "todo", cascade = CascadeType.PERSIST)
+private List&lt;Manager&gt; managers = new ArrayList&lt;&gt;();
+
+// 수정 포인트: 생성자에서 할 일 생성자를 담당자 목록에 추가
+public Todo(String title, String contents, String weather, User user) {
+    this.user = user;
+    this.managers.add(new Manager(user, this)); // PERSIST cascade로 자동 저장됨
 }</code></pre>
 
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. 캐시 Key 네이밍 전략과 TTL 설계</h2>
+      <div class="concept-box">
+        <span class="box-title">CascadeType.PERSIST만 적용한 이유</span>
+        <code>PERSIST</code>만 적용했으므로 <code>Todo</code> 삭제 시 <code>Manager</code>가 연쇄 삭제되지 않는다.
+        삭제 연쇄는 <code>CascadeType.REMOVE</code> 또는 <code>orphanRemoval = true</code>로 별도로 제어한다.
+        필요한 전파 타입만 명시적으로 지정해 의도치 않은 삭제를 방지하는 것이 안전하다.
+      </div>
 
       <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          캐시 Key 네이밍 전략
+        <span style="background-color:#e8f5e9; color:#2e7d32; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑦ N+1 문제 해결 — JPQL Fetch Join
         </span>
       </h3>
 
       <p>
-        캐시 Key는 <code>{도메인}:{리소스}:{식별자}</code> 형식을 사용한다.
-        Redis에서는 콜론(<code>:</code>)이 계층 구분자 역할을 하며, Redis GUI 도구에서 트리 구조로 시각화된다.
+        <code>GET /todos/{todoId}/comments</code> 호출 시 댓글 수(N)만큼 유저 정보를 개별 조회하는 N+1 문제가 있었다.
+        댓글이 100개면 쿼리가 101번 실행된다.
+        JPQL에 <code>JOIN FETCH</code>를 추가해 댓글과 유저를 한 번의 쿼리로 가져오도록 수정했다.
       </p>
 
-      <pre><code class="language-java">// 수정 포인트: Key 값은 상수로 선언해서 오타와 중복을 방지한다
-private static final String POST_PREFIX   = "post:";
-private static final String USER_PREFIX   = "user:";
-private static final String SEARCH_PREFIX = "search:";
+      <pre><code class="language-java">// 수정 전: N+1 발생
+List&lt;Comment&gt; findByTodoId(Long todoId); // 댓글 조회 후 유저마다 추가 쿼리
 
-// 예시
-"post:42"              // 단일 게시글
-"user:7"               // 단일 유저
-"search:spring:1"      // 검색 결과 (키워드 + 페이지)</code></pre>
+// 수정 후: JOIN FETCH로 한 번에 조회
+@Query("SELECT c FROM Comment c JOIN FETCH c.user WHERE c.todo.id = :todoId")
+List&lt;Comment&gt; findByTodoIdWithUser(@Param("todoId") Long todoId);</code></pre>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv2_7_n1.png" alt="LV2-7 N+1 해결 전후 쿼리 비교" />
 
       <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          TTL 설계 원칙
+        <span style="background-color:#e8f5e9; color:#2e7d32; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑧ JPQL → QueryDSL 전환
         </span>
       </h3>
+
+      <p>
+        문자열 기반의 JPQL을 타입 안전한 QueryDSL로 전환했다.
+        오타나 필드 변경 시 컴파일 타임에 오류를 잡을 수 있어 유지보수성이 크게 향상된다.
+      </p>
+
+      <pre><code class="language-java">// 기존 JPQL (문자열 기반)
+// @Query("SELECT t FROM Todo t LEFT JOIN t.user WHERE t.id = :todoId")
+
+// 변경 후 QueryDSL (타입 안전)
+@Override
+public Optional&lt;Todo&gt; findByIdWithUser(Long todoId) {
+    return Optional.ofNullable(
+        queryFactory.selectFrom(todo)
+            .leftJoin(todo.user).fetchJoin()  // N+1 방지 + 타입 안전
+            .where(todo.id.eq(todoId))
+            .fetchOne()
+    );
+}</code></pre>
 
       <table>
         <thead>
           <tr>
-            <th style="width:35%;">상황</th>
-            <th>TTL 권장</th>
+            <th style="width:25%;">구분</th>
+            <th>JPQL</th>
+            <th>QueryDSL</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>변경이 거의 없는 데이터 (공지사항, 카테고리 등)</td>
-            <td>길게 설정 (수 시간 ~ 1일)</td>
+            <td><strong>오류 감지</strong></td>
+            <td>런타임</td>
+            <td><strong>컴파일 타임</strong></td>
           </tr>
           <tr>
-            <td>조회가 잦고 변경이 적은 데이터</td>
-            <td>중간 (수십 분)</td>
+            <td><strong>타입 안전성</strong></td>
+            <td>문자열 기반</td>
+            <td><strong>Q클래스 기반</strong></td>
           </tr>
           <tr>
-            <td>변경이 잦은 데이터</td>
-            <td>짧게 설정하거나 캐시 적용 재고</td>
+            <td><strong>동적 쿼리</strong></td>
+            <td>복잡 (문자열 조합)</td>
+            <td><strong>BooleanExpression으로 간결</strong></td>
           </tr>
         </tbody>
       </table>
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ TTL 설정 시 주의사항</span>
-        TTL이 너무 짧으면 캐시 히트율이 낮아져 캐시 효과가 없다.<br>
-        TTL이 너무 길면 DB 데이터가 바뀌어도 캐시에는 오래된 값이 남아 데이터 불일치가 발생한다.<br>
-        <strong>데이터 변경 시 반드시 캐시도 삭제(Evict)하거나 갱신(Put)</strong>해야 일관성을 유지할 수 있다.
-      </div>
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv2_8_querydsl.png" alt="LV2-8 QueryDSL 단건 조회 결과" />
 
-      <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. Lettuce와 커넥션 풀</h2>
+      <h3 class="section">
+        <span style="background-color:#e8f5e9; color:#2e7d32; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑨ Filter/Resolver → Spring Security 전환
+        </span>
+      </h3>
 
       <p>
-        <strong>Lettuce</strong>는 Java 애플리케이션과 Redis 서버 사이를 연결해주는 클라이언트 라이브러리다.
-        Spring Data Redis에서 기본으로 사용하는 Redis 클라이언트이다.
+        기존의 커스텀 <code>AuthFilter</code> + <code>ArgumentResolver</code> 방식을 Spring Security로 전환했다.
+        인증(Authentication)과 인가(Authorization)를 프레임워크 레벨에서 통합하고,
+        경로별 권한 규칙을 <code>SecurityConfig</code> 한 곳에서 선언적으로 관리할 수 있게 됐다.
       </p>
 
-      <div class="concept-box">
-        <span class="box-title">커넥션 풀(Connection Pool)이 필요한 이유</span>
-        Redis에 요청할 때마다 커넥션을 새로 생성하고 요청이 끝나면 소멸시키는 방식은 비효율적이다.
-        커넥션 생성 자체에 시간이 걸리고, 트래픽이 높을 때는 생성/소멸을 반복하다가 Redis 서버가 버티지 못한다.<br><br>
-        <strong>커넥션 풀</strong>은 미리 일정 개수의 커넥션을 생성해두고, 요청이 들어오면 풀에서 꺼내주고 사용이 끝나면 반납하는 방식이다.
-        생성/소멸 비용 없이 커넥션을 재사용하므로 성능이 안정된다.
-      </div>
+      <pre><code class="language-java">.sessionManagement(session ->
+    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT → 세션 미사용
+)
+.authorizeHttpRequests(auth -> auth
+    .requestMatchers("/auth/**", "/actuator/**").permitAll()        // 인증 없이 허용
+    .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")        // 관리자만 허용
+    .anyRequest().authenticated()                                   // 나머지는 인증 필수
+)
+.addFilterBefore(
+    new JwtAuthenticationFilter(provider),
+    UsernamePasswordAuthenticationFilter.class
+);</code></pre>
 
-      <pre><code class="language-yaml">spring:
-  data:
-    redis:
-      # 수정 포인트: Docker Compose 환경에서는 서비스 이름 'redis'가 호스트명으로 사용됨
-      # 환경변수 SPRING_DATA_REDIS_HOST로 override 가능
-      host: ${SPRING_DATA_REDIS_HOST:redis}
-      port: 6379
-      lettuce:
-        pool:
-          max-active: 8    # 수정 포인트: 동시에 사용할 수 있는 최대 커넥션 수 (Redis 스펙과 동시 요청 수 기반으로 결정)
-          max-idle: 8      # 풀에 유지할 최대 유휴 커넥션 수
-          min-idle: 1      # 풀에 최소한 유지할 유휴 커넥션 수
-          max-wait: -1ms   # 수정 포인트: -1은 무한 대기. 실무에서는 1000ms ~ 5000ms로 타임아웃 설정 권장</code></pre>
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv2_9_security.png" alt="LV2-9 Spring Security 인증/인가 확인" />
+
+      <!-- ===================== LV 3 ===================== -->
+      <h2 class="section">LV 3 — 도전 기능</h2>
+
+      <h3 class="section">
+        <span style="background-color:#fce4ec; color:#880e4f; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑩ QueryDSL 고급 검색 API — Projections + 페이징
+        </span>
+      </h3>
+
+      <p>
+        <code>GET /todos/detail</code> 엔드포인트에서 제목, 생성일, 담당자 닉네임을 조합한 고급 검색을 구현했다.
+        <code>Projections</code>를 사용해 엔티티 전체가 아닌 필요한 필드만 반환하며,
+        모든 검색 조건은 선택적으로 적용된다.
+      </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">옵션</th>
-            <th style="width:35%;">의미</th>
-            <th>주의사항</th>
+            <th style="width:25%;">파라미터</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>titleKeyword</code></td><td>제목 부분 검색 (대소문자 무시)</td></tr>
+          <tr><td><code>startDate</code> / <code>endDate</code></td><td>생성일 기간 검색</td></tr>
+          <tr><td><code>nicknameKeyword</code></td><td>담당자 닉네임 부분 검색</td></tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-java">queryFactory
+    .select(Projections.constructor(TodoDetailResponse.class,
+        todo.title,
+        manager.countDistinct(),  // 담당자 수
+        comment.countDistinct()   // 댓글 수
+    ))
+    .from(todo)
+    .leftJoin(todo.managers, manager)
+    .leftJoin(manager.user, user)
+    .leftJoin(todo.comments, comment)
+    .where(
+        titleKeywordCondition(condition.titleKeyword()),
+        startDateCondition(condition.startDate()),
+        endDateCondition(condition.endDate()),
+        managerKeywordCondition(condition.nicknameKeyword())
+    )
+    .groupBy(todo.id, todo.title, todo.createdAt)
+    .orderBy(todo.createdAt.desc())
+    .fetch();</code></pre>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_10_1_search.png" alt="LV3-10 고급 검색 결과 1" />
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_10_2_search.png" alt="LV3-10 고급 검색 결과 2" />
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_10_3_search.png" alt="LV3-10 고급 검색 결과 3" />
+
+      <h3 class="section">
+        <span style="background-color:#fce4ec; color:#880e4f; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑪ Transaction 심화 — 매니저 등록 로그 독립 트랜잭션
+        </span>
+      </h3>
+
+      <p>
+        매니저 등록이 실패하더라도 <code>log</code> 테이블에는 반드시 요청 기록이 남아야 한다는 요구사항이 있었다.
+        같은 트랜잭션 안에 로그를 넣으면 매니저 등록 실패 시 로그도 함께 롤백된다.
+        <code>REQUIRES_NEW</code>로 로그 저장을 별도 트랜잭션으로 분리해서 해결했다.
+      </p>
+
+      <pre><code class="language-java">// LogService — 호출 측 트랜잭션과 완전히 독립된 새 트랜잭션으로 실행
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void save(Long todoId, Long requestUserId, Status result, String failReason) {
+    logRepository.save(new Log(todoId, requestUserId, result, failReason));
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">REQUIRES_NEW 동작 흐름</span>
+        [ManagerService — 트랜잭션 A 시작]<br>
+        &nbsp;&nbsp;├── 매니저 등록 로직 실행<br>
+        &nbsp;&nbsp;├── LogService.save() 호출<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── [트랜잭션 B 독립 시작 → 즉시 커밋] ← REQUIRES_NEW<br>
+        &nbsp;&nbsp;├── 등록 성공 → 트랜잭션 A 커밋<br>
+        &nbsp;&nbsp;└── (실패 시) 트랜잭션 A 롤백<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <strong>트랜잭션 B(로그)는 이미 커밋 완료</strong>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#fce4ec; color:#880e4f; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑫ AWS 클라우드 배포 — EC2 · RDS · S3
+        </span>
+      </h3>
+
+      <p>
+        <strong>EC2:</strong> Amazon Linux 2023 인스턴스에 Docker로 애플리케이션을 실행했다. 탄력적 IP를 할당해 재시작 후에도 주소가 유지된다.
+      </p>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_12_ec2.png" alt="EC2 인스턴스 설정 화면" />
+
+      <p>
+        <strong>RDS:</strong> MySQL 8.0 RDS 인스턴스를 생성했다. 보안 그룹 인바운드는 EC2 보안 그룹 ID만 허용해 외부 직접 접근을 차단했다. DB 접속 정보는 환경변수(<code>DB_URL</code>, <code>DB_USERNAME</code>, <code>PASSWORD</code>)로 주입한다.
+      </p>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_12_rds.png" alt="RDS 설정 및 보안 그룹 화면" />
+
+      <p>
+        <strong>S3:</strong> S3 버킷을 생성하고(퍼블릭 액세스 차단) 프로필 이미지 업로드에 사용했다.
+        이미지를 직접 노출하지 않고 <strong>Presigned URL</strong>(1시간 유효)을 발급해 보안을 유지한다.
+      </p>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_12_s3.png" alt="S3 버킷 설정 화면" />
+
+      <h3 class="section">
+        <span style="background-color:#fce4ec; color:#880e4f; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ⑬ 대용량 데이터 처리 — 500만 건 닉네임 검색 최적화
+        </span>
+      </h3>
+
+      <p>
+        JPA <code>save()</code> 반복 호출은 건당 INSERT로 500만 건에서 매우 느리다.
+        <code>JdbcTemplate.batchUpdate()</code>로 한 번에 대량 INSERT하도록 구현했다.
+      </p>
+
+      <pre><code class="language-java">// DataInitializer.java — 500만 건 Bulk Insert
+jdbcTemplate.batchUpdate(
+    "INSERT INTO users (nickname, email, password, user_role) VALUES (?, ?, ?, ?)",
+    new BatchPreparedStatementSetter() {
+        @Override
+        public void setValues(PreparedStatement ps, int i) throws SQLException {
+            ps.setString(1, UUID.randomUUID().toString().substring(0, 8)); // 랜덤 닉네임
+            ps.setString(2, "user" + i + "@test.com");
+            ps.setString(3, encodedPassword);
+            ps.setString(4, "USER");
+        }
+        @Override
+        public int getBatchSize() { return 5_000_000; }
+    }
+);</code></pre>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_13_bulk.png" alt="LV3-13 500만 건 Bulk Insert 완료" />
+
+      <p>
+        닉네임 완전 일치 검색(<code>GET /users?nickname=xxx</code>)의 성능을 3단계로 최적화했다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10%; text-align:center;">단계</th>
+            <th>방법</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>max-active</strong></td>
-            <td>풀에서 동시에 사용 가능한 최대 커넥션 수</td>
-            <td>Redis 서버 스펙과 예상 동시 요청 수를 기반으로 결정</td>
+            <td style="text-align:center;"><strong>1단계</strong></td>
+            <td>인덱스 없음 → Full Table Scan (가장 느림)</td>
           </tr>
           <tr>
-            <td><strong>max-idle</strong></td>
-            <td>풀에 유지할 최대 유휴(대기 중인) 커넥션 수</td>
-            <td>보통 max-active와 동일하게 설정</td>
+            <td style="text-align:center;"><strong>2단계</strong></td>
+            <td><code>nickname</code> 컬럼 인덱스 추가 → B-Tree 탐색 (대폭 향상)</td>
           </tr>
           <tr>
-            <td><strong>min-idle</strong></td>
-            <td>풀에 최소한 유지할 유휴 커넥션 수</td>
-            <td>너무 낮으면 요청 급증 시 커넥션 부족 발생</td>
+            <td style="text-align:center;"><strong>3단계</strong></td>
+            <td>Redis 캐시 적용 (<code>@Cacheable</code>, TTL 10분) → 두 번째 요청부터 DB 미조회</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <pre><code class="language-java">// 인덱스 정의 — User 엔티티
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_nickname", columnList = "nickname")
+})
+
+// Redis 캐시 적용 — 동일 닉네임 두 번째 요청부터 DB 조회 없이 반환
+@Cacheable(value = "users", key = "'nickname:' + #nickname")
+public List&lt;UserPageResponse&gt; getUserByNickname(String nickname) { ... }
+
+// RedisConfig — TTL 10분, JSON 직렬화
+RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+    .entryTtl(Duration.ofMinutes(10));</code></pre>
+
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_13_index_before.png" alt="LV3-13 인덱스 적용 전 조회 속도" />
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_13_index_after.png" alt="LV3-13 인덱스 적용 후 조회 속도" />
+      <img class="screenshot" src="/assets/notes/bootcamp/practice/til/week_6/spring-plus/lv3_13_redis.png" alt="LV3-13 Redis 캐시 적용 후 조회 속도" />
+
+      <!-- ===================== 기술적 의사결정 ===================== -->
+      <h2 class="section">기술적 의사결정 — 왜 이 기술을 선택했나</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">결정</th>
+            <th>선택 이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Spring Security 도입</strong></td>
+            <td>기존 커스텀 Filter는 JWT 검증만 처리하고 권한 체크는 서비스 코드 곳곳에 흩어져 있었다. Spring Security는 인증과 인가를 프레임워크 레벨에서 통합하고, 경로별 권한 규칙을 <code>SecurityConfig</code> 한 곳에서 선언적으로 관리할 수 있어 유지보수성이 높아진다.</td>
           </tr>
           <tr>
-            <td><strong>max-wait</strong></td>
-            <td>풀이 꽉 찼을 때 커넥션을 기다리는 최대 시간</td>
-            <td>-1은 무한 대기. 실무에서는 타임아웃을 명시해야 요청이 쌓여 서버가 다운되는 것을 방지</td>
+            <td><strong>QueryDSL 선택</strong></td>
+            <td>JPQL은 문자열 기반이라 오타가 있어도 런타임에야 오류를 알 수 있다. QueryDSL은 Q클래스로 IDE 자동완성과 컴파일 검증이 가능하다. 제목·기간·닉네임을 조합하는 고급 검색처럼 조건 경우의 수가 많을수록 <code>BooleanExpression</code>의 장점이 극대화된다.</td>
+          </tr>
+          <tr>
+            <td><strong>REQUIRES_NEW로 로그 분리</strong></td>
+            <td>같은 트랜잭션 안에 로그가 있으면 비즈니스 로직 실패 시 로그도 함께 롤백된다. <code>REQUIRES_NEW</code>로 분리하면 성공·실패 여부와 무관하게 로그가 항상 커밋된다. 감사(audit) 목적의 로그는 비즈니스 트랜잭션과 독립되어야 한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Redis 캐시로 검색 최적화</strong></td>
+            <td>DB 인덱스만으로도 속도가 크게 개선되지만, 동일한 닉네임 검색이 반복되면 매번 DB를 조회한다. <code>@Cacheable</code>로 결과를 Redis에 캐싱하면 두 번째 요청부터 DB를 거치지 않는다. TTL 10분으로 설정해 데이터 정합성과 성능 사이의 균형을 맞췄다.</td>
           </tr>
         </tbody>
       </table>
@@ -480,22 +652,17 @@ private static final String SEARCH_PREFIX = "search:";
       <h2 class="section">마무리</h2>
 
       <p>
-        Redis는 단순히 "빠른 캐시"가 아니라 String, Hash, Sorted Set 등 다양한 자료구조를 지원하는 인메모리 데이터베이스다.
-        어떤 자료형을 선택하느냐에 따라 랭킹 시스템, 세션 저장, 메시지 큐 등 다양한 기능을 Redis 하나로 구현할 수 있다.
-        RedisTemplate의 <code>opsFor~()</code> 메서드는 각 자료형에 대응하는 Redis 명령어를 Java 코드로 추상화한 것이므로, 자료형과 명령어의 대응 관계를 이해하면 자연스럽게 사용할 수 있다.
+        이번 과제는 "이미 동작하는 코드를 더 잘 만드는" 연습이었다.
+        버그를 발견하고 수정하는 것부터 시작해서, 성능 최적화, 보안 강화, 대용량 처리, 클라우드 배포까지 단계적으로 진행했다.
+        가장 인상 깊었던 것은 <strong>같은 기능이라도 구현 방법에 따라 성능이 얼마나 달라지는지</strong>를 직접 수치로 확인한 부분이다.
+        500만 건 데이터에서 인덱스 유무, Redis 캐시 적용 여부가 체감할 수 있는 차이를 만들어냈다.
       </p>
 
       <p>
-        Cache-Aside 패턴은 Redis를 실무에서 가장 많이 쓰는 방식이다.
-        캐시 확인 → DB 조회 → 캐시 저장의 세 단계가 핵심이고, 데이터 수정 시 반드시 캐시를 무효화해야 한다는 점을 항상 기억해야 한다.
-        캐시 Key는 코드에서 상수로 관리해야 오타로 인한 버그를 방지할 수 있다.
-      </p>
-
-      <p>
-        커넥션 풀은 Redis뿐만 아니라 DB 연결에서도 동일하게 적용되는 개념이다.
-        커넥션을 매번 생성하고 소멸하는 방식은 비용이 크기 때문에, 미리 생성해두고 재사용하는 풀 방식이 필수다.
-        <code>max-wait: -1</code>처럼 무한 대기로 설정하면 풀이 꽉 찼을 때 요청이 쌓이다 서버가 다운될 수 있다.
-        실무에서는 <strong>반드시 타임아웃을 명시</strong>해야 한다.
+        <code>REQUIRES_NEW</code>로 로그 트랜잭션을 분리한 것은 단순한 기술 적용이 아니라,
+        "비즈니스 실패와 무관하게 기록은 남아야 한다"는 설계 철학의 반영이다.
+        감사 로그는 시스템의 신뢰성을 보여주는 증거이므로 비즈니스 트랜잭션에 종속되면 안 된다.
+        Spring Security로 전환한 것도 마찬가지다. 흩어진 권한 체크를 한 곳에 집중시키는 것이 단순히 코드를 줄이는 것이 아니라 <strong>변경이 발생했을 때 수정해야 할 곳을 하나로 만든다</strong>는 점에서 의미가 있다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
