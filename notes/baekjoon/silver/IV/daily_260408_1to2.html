@@ -236,15 +236,15 @@
       </h3>
       
       <p>
-        <strong>최대 GCD (백준 9417)</strong>는<br>
-        여러 개의 정수가 주어질 때, <strong>임의의 두 수를 골라 계산한 GCD 중 최댓값을 구</strong>하는 문제다.<br>
-        <strong>모든 쌍에 대해 GCD를 계산하는 완전 탐색</strong>으로 해결할 수 있다.
+        <strong>30번 (백준 13116)</strong>는<br>
+        완전 이진 트리에서 두 노드 A, B가 주어질 때, <strong>두 노드의 최소 공통 조상(LCA)을 구하고 그 노드 번호에 10을 곱한 값을 출력</strong>하는 문제다.<br>
+        <strong>트리를 배열로 명시적으로 구성하지 않고</strong>, 부모 노드 번호가 항상 자식 노드 번호의 절반이라는 완전 이진 트리의 성질만으로 LCA를 구할 수 있다.
       </p>
       
       <ul>
-        <li>한 줄에 주어지는 정수의 개수가 많지 않으므로, 모든 쌍을 열거하는 이중 반복문이 시간 내에 동작한다.</li>
-        <li>두 수의 GCD는 유클리드 호제법으로 O(log min(a, b))에 계산한다.</li>
-        <li>테스트케이스마다 독립적으로 처리하며, 결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
+        <li>완전 이진 트리에서 노드 n의 부모는 항상 n / 2이므로, 두 노드를 번갈아 부모로 올리다 보면 반드시 공통 조상에서 만난다.</li>
+        <li>두 노드 중 더 큰 번호를 가진 노드를 먼저 부모로 올리면, 항상 같은 깊이로 수렴하며 결국 동일한 노드에서 만난다.</li>
+        <li>LCA 노드 번호에 10을 곱한 값이 문제의 정답이다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -256,14 +256,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 완전 탐색 (모든 쌍 열거) + 유클리드 호제법 GCD</li>
-        <li><strong>선택 이유</strong>: 한 줄의 정수 개수가 제한적이므로 모든 쌍을 열거해도 충분히 빠르다. 각 쌍의 GCD는 재귀 유클리드 호제법으로 O(log min(a, b))에 계산하며, 최댓값을 갱신해 나가면 정답을 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 완전 이진 트리의 부모 노드 성질을 이용한 LCA 탐색</li>
+        <li><strong>선택 이유</strong>: 완전 이진 트리에서 부모 노드 번호는 항상 현재 노드 번호를 2로 나눈 값이다. 따라서 별도의 트리 구성 없이 두 노드를 번갈아 부모로 올리는 단순 반복만으로 O(log N)에 LCA를 구할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>한 줄의 토큰을 모두 읽어 리스트에 저장한다.</li>
-            <li>이중 반복문으로 i &lt; j인 모든 쌍 (i, j)를 열거하며 GCD를 계산한다.</li>
-            <li>계산된 GCD가 현재 최댓값보다 크면 갱신한다.</li>
-            <li>테스트케이스가 끝나면 최댓값을 <code>StringBuilder</code>에 누적한다.</li>
+            <li>A와 B가 같아질 때까지 반복한다.</li>
+            <li>매 반복에서 A와 B 중 더 큰 값을 2로 나눠 부모 노드로 이동시킨다.</li>
+            <li>A == B가 되는 순간이 LCA이며, 이 값에 10을 곱해 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -277,53 +276,35 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 파싱</strong>
+        <li><strong>1) 입력</strong>
           <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
-      
-      List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
-      
-      while (st.hasMoreTokens()) {
-          int num = Integer.parseInt(st.nextToken());
-          list.add(num);
-      }</code></pre>
+      int A = Integer.parseInt(st.nextToken());
+      int B = Integer.parseInt(st.nextToken());</code></pre>
           <ul>
-            <li>한 줄에 공백으로 구분된 정수들을 <code>StringTokenizer</code>로 읽어 리스트에 저장한다. 정수의 개수가 고정되지 않으므로 <code>hasMoreTokens()</code>로 끝까지 읽는다.</li>
+            <li>테스트케이스마다 두 노드 번호 A, B를 입력받는다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 모든 쌍에 대해 최대 GCD 탐색</strong>
-          <pre><code>int answer = 0;
-      
-      for (int i = 0; i < list.size() - 1; i++) {
-          for (int j = i + 1; j < list.size(); j++) {
-              int numOne = list.get(i);
-              int numTwo = list.get(j);
-      
-              answer = Math.max(gcd(numOne, numTwo), answer);
+        <li><strong>2) LCA 탐색</strong>
+          <pre><code>while (A != B) {
+          if (A > B) {
+              A /= 2;
+          } else {
+              B /= 2;
           }
       }</code></pre>
           <ul>
-            <li><code>i &lt; j</code> 조건의 이중 반복문으로 중복 없이 모든 쌍을 열거한다.</li>
-            <li>각 쌍의 GCD를 계산하여 현재 최댓값 <code>answer</code>와 비교 후 갱신한다.</li>
+            <li>A와 B가 같아질 때까지 더 큰 노드를 2로 나눠 부모로 이동시킨다. 완전 이진 트리에서 노드 번호가 클수록 더 깊은 레벨에 있으므로, 큰 쪽을 먼저 올리면 두 노드의 깊이를 맞춰가며 공통 조상으로 수렴한다.</li>
+            <li>예시: A=12, B=5일 때 → A=6, B=5 → A=3, B=5 → A=3, B=2 → A=3, B=1 → ... 순으로 진행되며 결국 A == B인 LCA에 도달한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 유클리드 호제법 GCD</strong>
-          <pre><code>private static int gcd(int numOne, int numTwo) {
-          if (numTwo == 0) return numOne;
-          return gcd(numTwo, numOne % numTwo);
-      }</code></pre>
-          <ul>
-            <li><code>numTwo</code>가 0이 될 때까지 재귀적으로 나머지 연산을 수행하는 유클리드 호제법이다. O(log min(numOne, numTwo))의 시간 복잡도로 GCD를 계산한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 결과 누적 및 출력</strong>
-          <pre><code>sb.append(answer).append("\n");
+        <li><strong>3) 결과 누적 및 출력</strong>
+          <pre><code>sb.append(A * 10).append('\n');
       
       System.out.println(sb);</code></pre>
           <ul>
-            <li>테스트케이스별 최댓값을 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
+            <li>LCA 노드 번호 A에 10을 곱한 값을 <code>StringBuilder</code>에 누적한 뒤 모든 테스트케이스가 끝나면 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -339,16 +320,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N · K² · log V)</strong>: N개의 테스트케이스마다 K개의 정수에서 모든 쌍을 열거하는 O(K²)와 각 쌍의 GCD 계산 O(log V)가 수행된다. (K는 한 줄의 정수 개수, V는 정수의 최댓값)</li>
+            <li><strong>O(T · log N)</strong>: T개의 테스트케이스마다 두 노드를 루트 방향으로 올리는 반복이 최대 트리 높이인 O(log N)번 수행된다. (N은 노드 번호의 최댓값)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(K)</strong>: 테스트케이스마다 한 줄의 정수를 저장하는 리스트가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 트리를 별도로 구성하지 않고 두 정수 변수 A, B만으로 LCA를 추적하므로 상수 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
