@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 77일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 79일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,276 +109,361 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 77일차 TIL — Docker 개발 환경 활용: Image · Container · Compose · Network</h1>
-      <p class="muted">작성일 2026-04-06 · 분류: 부트캠프, TIL, Docker, Docker Compose, Docker Network, 개발 환경</p>
+      <h1>내일배움캠프 Spring 백엔드 79일차 TIL — 동시성 · 비관적 락 · 낙관적 락 · 분산 락(Redis)</h1>
+      <p class="muted">작성일 2026-04-08 · 분류: 부트캠프, TIL, 동시성, Pessimistic Lock, Optimistic Lock, Distributed Lock, Redis</p>
 
-      <h2 class="section">77일차 개요</h2>
+      <h2 class="section">79일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li>Docker가 배포 전용 도구가 아닌 <strong>개발 환경에서도 적극 활용</strong>해야 하는 이유를 이해한다.</li>
-        <li><strong>Image와 Container</strong>의 차이와 관계를 명확히 파악한다.</li>
-        <li><strong>Docker Hub</strong>에서 이미지를 검색하고 실행하는 흐름을 익힌다.</li>
-        <li>주요 Docker 명령어를 정리한다.</li>
-        <li><strong>Docker Compose</strong>로 여러 컨테이너를 한 번에 실행하는 방법을 이해한다.</li>
-        <li><strong>Docker Network</strong>로 컨테이너 간 통신을 연결하는 방식을 파악한다.</li>
+        <li><strong>동시성 문제</strong>와 경쟁 상태(Race Condition)가 발생하는 원인을 이해한다.</li>
+        <li><strong>비관적 락</strong>과 <strong>낙관적 락</strong>의 동작 방식 및 차이를 정리한다.</li>
+        <li>단일 서버에서는 충분한 락이 다중 서버 환경에서 한계를 갖는 이유를 파악한다.</li>
+        <li><strong>분산 락</strong>의 필요성과 Redis SETNX 기반 구현 방법을 이해한다.</li>
+        <li>락 획득 전략 3가지(즉시 실패, 재시도, 블로킹)의 차이와 사용 시점을 익힌다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Docker는 배포 전용이 아니다</h2>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ 잘못된 인식 — "Docker는 배포할 때만 쓰는 것"</span>
-        Docker는 배포 시점뿐만 아니라 <strong>개발 환경 구성에도 필수적으로 활용</strong>해야 한다.<br><br>
-        MySQL, Redis를 로컬에 직접 설치하면 OS마다 설치 방법이 다르고, 버전 충돌이 생기며, 팀원 간 환경이 달라진다.
-        Docker를 쓰면 명령어 한 줄로 동일한 버전의 DB를 어디서든 동일하게 실행할 수 있다.
-        <strong>개발부터 Docker를 활용하는 것이 올바른 방법이다.</strong>
-      </div>
-
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. Image와 Container</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Image — 실행 환경의 설계도
-        </span>
-      </h3>
+      <h2 class="section">1. 동시성과 경쟁 상태</h2>
 
       <p>
-        애플리케이션을 실행하는 데 필요한 <strong>운영체제, 라이브러리, 코드, 설정이 모두 들어있는 불변 패키지</strong>다.
-        "이 환경에서 앱을 이렇게 실행하라"는 정보를 담고 있으며 읽기 전용이다.
-        하나의 이미지로 여러 개의 컨테이너를 동시에 생성할 수 있다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Container — 이미지를 실행한 인스턴스
-        </span>
-      </h3>
-
-      <p>
-        이미지를 실제로 실행한 결과물, 즉 <strong>동작 중인 인스턴스</strong>다.
-        운영체제를 새로 띄우지 않고 호스트 OS의 커널을 공유하기 때문에 가볍고 빠르게 실행된다.
-        컨테이너는 독립된 공간에서 실행되어 서로 간섭하지 않으며, 필요할 때 만들고 언제든지 지울 수 있다.
+        <strong>동시성</strong>은 하나의 데이터를 여러 사용자가 동시에 수정하거나 읽는 상황을 의미한다.
+        DB는 요청을 독립된 트랜잭션으로 처리하기 때문에, 현재 다른 요청이 같은 데이터를 수정하고 있는지 알지 못한다.
+        그래서 여러 요청이 동시에 들어오면 서로의 결과를 덮어쓰는 문제가 생긴다.
       </p>
 
       <div class="concept-box">
-        <span class="box-title">Image vs Container 비유</span>
-        <strong>Image</strong>는 집을 짓기 위한 설계도(Blueprint)다. 설계도 자체는 변하지 않는다.<br>
-        <strong>Container</strong>는 그 설계도로 실제로 지은 집이다. 같은 설계도로 여러 채의 집을 지을 수 있다.<br><br>
-        이미지는 읽기 전용이며, 컨테이너는 실행 중에 상태를 가진다.
-        컨테이너를 삭제해도 이미지는 그대로 남아 있어 언제든지 새 컨테이너를 만들 수 있다.
+        <span class="box-title">경쟁 상태 (Race Condition)</span>
+        동일 자원을 누가 먼저 처리하느냐에 따라 결과가 달라지고 데이터 일관성이 깨지는 문제다.<br><br>
+        예를 들어 잔액이 10,000원인 계좌에서 두 요청이 동시에 5,000원씩 출금을 시도한다면,
+        두 요청 모두 10,000원을 읽은 뒤 각각 5,000원을 뺀 값을 저장하면 잔액이 5,000원으로 기록된다.
+        실제로는 둘 다 성공했으니 0원이 되어야 하는데, <strong>한 번의 출금이 사라진 것</strong>이다.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">해결 방법</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>비관적 락</strong></td>
+            <td>먼저 잠그고 다른 사용자는 대기시킨다. (선행 조치)</td>
+          </tr>
+          <tr>
+            <td><strong>낙관적 락</strong></td>
+            <td>잠그지 않고, 나중에 충돌 여부를 확인한다. (후행 조치)</td>
+          </tr>
+          <tr>
+            <td><strong>분산 락</strong></td>
+            <td>여러 서버 환경에서도 동일한 데이터를 하나만 수정하도록 조정한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 비관적 락 (Pessimistic Lock)</h2>
+
+      <p>
+        한 트랜잭션이 데이터를 수정하는 동안 다른 트랜잭션은 그 데이터에 <strong>접근 자체가 불가능</strong>하다.
+        다른 요청은 락이 해제될 때까지 대기 상태가 된다.
+        충돌이 발생할 것이라는 비관적 가정 하에 <strong>조회 시점부터 미리 락을 거는 선행 조치</strong> 방식이다.
+      </p>
+
+      <pre><code class="language-java">// JPA Repository — 조회 시점에 DB Row를 잠근다
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT a FROM Account a WHERE a.id = :id")
+Account findByIdForLock(@Param("id") Long id);</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 비관적 락 사용 시 주의사항</span>
+        조회용 쿼리에는 사용하지 않는다. 불필요하게 락을 걸면 전체 성능이 저하된다.<br>
+        <strong>쓰기 작업이 동시에 발생할 가능성이 높은 구간에만</strong> 사용한다.<br>
+        트랜잭션을 짧게 유지해야 한다. 락을 오래 잡고 있으면 다른 요청들이 대기하면서 서버가 느려진다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. 낙관적 락 (Optimistic Lock)</h2>
+
+      <p>
+        동시에 같은 데이터를 수정할 가능성이 낮다고 낙관적으로 가정하고, <strong>데이터를 잠그지 않고 자유롭게 수정</strong>한다.
+        수정이 완료되는 시점에 해당 데이터가 이미 변경됐는지를 <strong>버전(version) 필드</strong>를 통해 감지한다.
+        충돌이 감지되면 예외를 발생시키고 재시도 로직이 처리한다.
+      </p>
+
+      <pre><code class="language-java">// 엔티티에 @Version 필드를 추가하면 JPA가 자동으로 관리
+@Entity
+public class Account {
+
+    @Id
+    private Long id;
+
+    private Long balance;
+
+    @Version  // 수정 포인트: 이 필드 하나로 낙관적 락이 자동 적용된다
+    private Long version;
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">@Version이 동작하는 방식</span>
+        데이터를 수정할 때 JPA는 <code>UPDATE ... WHERE id = ? AND version = ?</code> 형태의 쿼리를 실행한다.
+        다른 트랜잭션이 먼저 수정해서 <code>version</code> 값이 바뀌었다면 UPDATE가 0건 처리되고,
+        JPA는 이를 감지해 <code>OptimisticLockException</code>을 던진다.
+        애플리케이션 코드에서 이 예외를 잡아 재시도 로직을 구현해야 한다.
       </div>
 
       <table>
         <thead>
           <tr>
             <th style="width:20%;">구분</th>
-            <th>Image</th>
-            <th>Container</th>
+            <th>비관적 락</th>
+            <th>낙관적 락</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>성격</strong></td>
-            <td>읽기 전용 설계도</td>
-            <td>실행 중인 인스턴스</td>
+            <td><strong>락 시점</strong></td>
+            <td>조회할 때부터 잠금</td>
+            <td>수정/저장 시점에만 충돌 감지</td>
           </tr>
           <tr>
-            <td><strong>상태</strong></td>
-            <td>불변 (Immutable)</td>
-            <td>가변 (실행 중 상태 존재)</td>
+            <td><strong>대기 방식</strong></td>
+            <td>다른 요청은 락 해제까지 대기</td>
+            <td>대기 없음, 충돌 시 예외 발생</td>
           </tr>
           <tr>
-            <td><strong>관계</strong></td>
-            <td>컨테이너 생성의 기반</td>
-            <td>이미지로부터 생성됨</td>
+            <td><strong>적합한 상황</strong></td>
+            <td>충돌이 자주 발생하는 쓰기 위주 환경</td>
+            <td>충돌이 드문 읽기 위주 환경 (게시글 수정 등)</td>
           </tr>
           <tr>
-            <td><strong>재사용</strong></td>
-            <td>하나의 이미지로 여러 컨테이너 생성 가능</td>
-            <td>삭제하면 사라짐</td>
+            <td><strong>단점</strong></td>
+            <td>락 대기로 인한 성능 저하 가능</td>
+            <td>충돌 시 재시도 로직 직접 구현 필요</td>
           </tr>
         </tbody>
       </table>
 
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. Docker Hub와 주요 명령어</h2>
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 분산 락 (Distributed Lock)</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          왜 분산 락이 필요한가
+        </span>
+      </h3>
 
       <p>
-        <strong>Docker Hub</strong>는 전 세계 개발자들이 만든 이미지를 검색하고 내려받을 수 있는 이미지 저장소다.
-        MySQL, Redis, Nginx 같은 대부분의 오픈소스 소프트웨어 공식 이미지가 Docker Hub에 올라와 있어
-        직접 설치 없이 바로 사용할 수 있다.
+        서버가 1대일 때는 비관적 락과 낙관적 락으로 충분하다.
+        모든 요청이 단일 서버에서 순차적으로 처리되고, Hibernate의 버전 방식과 DB의 Row Lock이 정상적으로 동작한다.
       </p>
 
-      <div class="success-box">
-        <span class="box-title">Docker Hub 사용 흐름</span>
-        <strong>search</strong> → Docker Hub에서 원하는 이미지 검색<br>
-        <strong>pull</strong> → 이미지를 로컬로 내려받기<br>
-        <strong>run</strong> → 이미지를 실행해 컨테이너 생성
+      <p>
+        서버가 여러 대인 환경에서는 문제가 발생한다.
+        서버 A와 서버 B는 서로의 상태를 알지 못한다. 메모리를 공유하지 않고, Hibernate의 영속성 컨텍스트도 각각 따로 존재한다.
+        어떤 서버에서 락이 걸렸는지 서로 알 수 없기 때문에 동시성 문제가 그대로 발생한다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">락 종류별 보호 범위 비교</span>
+        <strong>낙관적 락:</strong> Hibernate가 관리. UPDATE 충돌만 감지. 다중 서버에서 안전하지 않음.<br>
+        <strong>비관적 락:</strong> DB가 관리. DB Row 수정 시점만 보호. 다중 서버에서 UPDATE는 보호되나 로직 전체는 아님.<br>
+        <strong>분산 락:</strong> Redis 등 외부 저장소가 관리. 조회~비즈니스 로직~DB까지 <strong>전체 흐름을 보호</strong>. 가장 안전.
       </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Redis SETNX 기반 분산 락
+        </span>
+      </h3>
+
+      <p>
+        Redis의 <strong>SETNX(Set if Not Exists)</strong> 명령을 이용해 "아직 없는 키만" 등록할 수 있다.
+        이미 키가 존재하면 등록에 실패하므로, 한 번에 한 서버만 락을 획득할 수 있다.
+      </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:45%;">명령어</th>
+            <th style="width:10%; text-align:center;">단계</th>
             <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>docker run -d -p 6379:6379 --name &lt;컨테이너명&gt; &lt;이미지명&gt;</code></td>
-            <td>컨테이너를 백그라운드(<code>-d</code>)로 생성 및 실행. <code>-p</code>로 호스트 포트와 컨테이너 포트를 연결</td>
+            <td style="text-align:center;"><strong>1</strong></td>
+            <td><code>SETNX lock:account:1</code> 요청 → 성공하면 락 획득</td>
           </tr>
           <tr>
-            <td><code>docker ps</code></td>
-            <td>실행 중인 컨테이너 목록 확인. <code>STATUS</code>가 <code>Up</code>이면 실행 중</td>
+            <td style="text-align:center;"><strong>2</strong></td>
+            <td>TTL(유효 시간)을 설정해 서버 장애 시 락이 자동으로 해제되도록 설정</td>
           </tr>
           <tr>
-            <td><code>docker exec -it &lt;CONTAINER ID&gt; bash</code></td>
-            <td>실행 중인 컨테이너 내부에 접속. <code>-it</code>는 인터랙티브 터미널 모드</td>
+            <td style="text-align:center;"><strong>3</strong></td>
+            <td>락을 획득한 서버가 안전하게 작업 수행</td>
           </tr>
           <tr>
-            <td><code>redis-cli</code></td>
-            <td>Redis 컨테이너 내부에서 Redis CLI 실행. Redis 명령어를 직접 입력할 수 있음</td>
-          </tr>
-          <tr>
-            <td><code>docker stop &lt;컨테이너명 또는 ID&gt;</code></td>
-            <td>실행 중인 컨테이너 중지</td>
-          </tr>
-          <tr>
-            <td><code>docker rm &lt;컨테이너명 또는 ID&gt;</code></td>
-            <td>컨테이너 삭제 (중지 후 삭제)</td>
+            <td style="text-align:center;"><strong>4</strong></td>
+            <td>작업 완료 후 <code>DEL lock:account:1</code>로 락 해제</td>
           </tr>
         </tbody>
       </table>
-
-      <pre><code class="language-bash"># Redis 컨테이너 실행 예시
-docker run -d -p 6379:6379 --name my-redis redis
-
-# 실행 중인 컨테이너 확인
-docker ps
-
-# Redis 컨테이너 내부 접속
-docker exec -it my-redis bash
-
-# Redis CLI 실행 (컨테이너 내부에서)
-redis-cli</code></pre>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. Docker Compose</h2>
-
-      <p>
-        <strong>여러 컨테이너(Spring, MySQL, Redis 등)를 하나의 파일에 정의하고 한 번에 실행</strong>할 수 있는 도구다.
-        개발 환경에서 Spring Boot 앱과 MySQL, Redis를 각각 <code>docker run</code>으로 따로 실행하는 대신,
-        <code>docker-compose.yml</code> 한 파일로 전체 스택을 관리할 수 있다.
-      </p>
-
-      <pre><code class="language-bash"># Compose 파일에 정의된 모든 컨테이너를 백그라운드로 실행
-docker compose up -d
-
-# 모든 컨테이너 중지 및 제거
-docker compose down
-
-# 로그 확인
-docker compose logs -f</code></pre>
-
-      <pre><code class="language-yaml"># docker-compose.yml 예시
-version: "3.8"
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: myapp
-    ports:
-      - "3306:3306"
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql
-      - redis</code></pre>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. Docker Network</h2>
-
-      <p>
-        Docker 컨테이너는 기본적으로 <strong>독립적으로 실행되어 서로를 알지 못한다.</strong>
-        Spring Boot 컨테이너가 MySQL 컨테이너에 접근하려면 두 컨테이너를 같은 네트워크에 연결해야 한다.
-      </p>
-
-      <div class="concept-box">
-        <span class="box-title">Docker Compose와 Network의 관계</span>
-        <code>docker-compose.yml</code>에 정의된 컨테이너들은 <strong>자동으로 같은 네트워크에 배치</strong>된다.
-        같은 Compose 파일 안의 컨테이너끼리는 <strong>서비스 이름을 호스트명으로 사용</strong>해 통신할 수 있다.<br><br>
-        예를 들어 Compose 파일에서 MySQL의 서비스 이름이 <code>mysql</code>이라면,
-        Spring Boot 컨테이너의 <code>application.yml</code>에서 <code>spring.datasource.url: jdbc:mysql://mysql:3306/myapp</code>처럼
-        서비스 이름을 그대로 호스트명으로 사용하면 된다.
-      </div>
-
-      <pre><code class="language-yaml"># application.yml — Docker Compose 환경에서의 설정
-spring:
-  datasource:
-    # 수정 포인트: 로컬 직접 실행 시 localhost, Compose 환경에서는 서비스 이름(mysql)
-    url: jdbc:mysql://${MYSQL_HOST:mysql}:3306/myapp
-  data:
-    redis:
-      # 수정 포인트: 로컬 직접 실행 시 localhost, Compose 환경에서는 서비스 이름(redis)
-      host: ${SPRING_DATA_REDIS_HOST:redis}
-      port: 6379</code></pre>
 
       <table>
         <thead>
           <tr>
-            <th style="width:30%;">상황</th>
-            <th>접속 호스트</th>
+            <th style="width:25%;">고려 항목</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>로컬에서 직접 실행 (Docker 없음)</td>
-            <td><code>localhost</code></td>
+            <td><strong>TTL 설정</strong></td>
+            <td>서버 장애 시 락이 영원히 잠기지 않도록 반드시 설정해야 한다.</td>
           </tr>
           <tr>
-            <td>컨테이너에서 호스트 머신의 서비스에 접근</td>
-            <td><code>host.docker.internal</code></td>
+            <td><strong>락 주인 확인</strong></td>
+            <td>락을 잡은 주체만 해제할 수 있도록 UUID를 값으로 저장하고 해제 전 검증한다.</td>
           </tr>
           <tr>
-            <td>Compose 환경에서 같은 네트워크의 컨테이너에 접근</td>
-            <td>서비스 이름 (<code>mysql</code>, <code>redis</code>)</td>
+            <td><strong>재시도 로직</strong></td>
+            <td>락 획득 실패 시 일정 시간 대기 후 재시도하는 전략이 필요하다.</td>
           </tr>
         </tbody>
       </table>
 
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 락 획득 실패 시 전략</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 1 — 즉시 실패 (Return Error)
+        </span>
+      </h3>
+
+      <p>
+        락 획득에 실패하면 바로 실패 응답을 반환한다.
+        출금, 주문, 결제처럼 <strong>동일 요청을 중복 실행하면 안 되는 작업</strong>이나 이벤트 쿠폰 선착순 로직에 적합하다.
+        Redis에 부하가 없고 중복 요청을 확실히 방지하지만, 사용자가 즉시 실패 응답을 받는다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 2 — 재시도 (Retry)
+        </span>
+      </h3>
+
+      <p>
+        잠시 기다렸다가 다시 시도한다.
+        상품 재고 감소, 장바구니 → 주문 변환처럼 <strong>조금 기다려서라도 반드시 성공해야 하는 작업</strong>에 사용한다.
+      </p>
+
+      <pre><code class="language-java">int retry = 0;
+while (retry < 5) {
+    boolean locked = lockService.tryLock(key, value, 5); // TTL 5초
+
+    if (locked) break; // 락 획득 성공
+
+    Thread.sleep(100); // 수정 포인트: 100ms 간격으로 재시도. 백오프 전략 적용 권장
+    retry++;
+}
+
+if (retry == 5) {
+    throw new IllegalStateException("잠시 후 다시 시도해주세요.");
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 3 — 블로킹 대기 (Blocking)
+        </span>
+      </h3>
+
+      <p>
+        락이 풀릴 때까지 계속 기다린다. 실무에서는 거의 사용하지 않는다.
+        서버 스레드를 오래 점유해 서버 부하가 증가하고, 하나의 요청이 수 초 동안 대기하면 전체 시스템에 영향을 준다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">전략</th>
+            <th style="width:25%;">적합한 상황</th>
+            <th style="width:25%;">장점</th>
+            <th>단점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>즉시 실패</strong></td>
+            <td>결제, 출금, 선착순 이벤트</td>
+            <td>Redis 부하 없음, 중복 방지 확실</td>
+            <td>사용자가 바로 실패 응답을 받음</td>
+          </tr>
+          <tr>
+            <td><strong>재시도</strong></td>
+            <td>재고 감소, 주문 변환</td>
+            <td>늦어져도 성공 가능</td>
+            <td>재시도 과다 시 Redis 부하, 백오프 설계 필요</td>
+          </tr>
+          <tr>
+            <td><strong>블로킹</strong></td>
+            <td>실무에서 거의 미사용</td>
+            <td>—</td>
+            <td>스레드 점유, 전체 시스템 영향</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. 분산 락 사용 시 주의사항</h2>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ TTL이 너무 짧으면 발생하는 문제</span>
+        작업이 끝나지 않았는데 TTL이 먼저 만료되면 락이 풀린다.
+        락이 풀린 사이에 다른 요청이 들어와 같은 작업을 중복 실행하는 문제가 생긴다.
+        <strong>작업이 완료되는 시간보다 TTL을 충분히 길게 설정</strong>해야 한다.
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Redis 장애 시 동시성 제어가 무너진다</span>
+        Redis가 다운되면 락을 잡는 것 자체가 불가능해진다.
+        락이 없는 상태에서 요청이 모두 동시에 처리되어 경쟁 상태가 발생한다.
+        Redis를 분산 락의 단일 장애점(SPOF)으로 사용할 때는 Redis 고가용성(Sentinel, Cluster) 구성을 함께 고려해야 한다.
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 락 남용 시 성능 저하</span>
+        모든 요청이 순차적으로 처리되어 처리량(Throughput)이 크게 떨어진다.
+        서버 스레드가 대기하다 Timeout이 발생하고 Redis에도 부하가 생긴다.
+        <strong>실제로 동시성 문제가 발생할 가능성이 있는 구간에만 선택적으로 적용</strong>해야 한다.
+      </div>
+
       <h2 class="section">마무리</h2>
 
       <p>
-        Docker를 배포 전용 도구로만 알고 있었다면 개발 환경에서의 큰 이점을 놓치고 있는 것이다.
-        MySQL, Redis를 로컬에 직접 설치하면 팀원마다 버전이 다르고 설정이 달라 "내 환경에서는 되는데"라는 상황이 반복된다.
-        Docker를 사용하면 <code>docker compose up -d</code> 한 줄로 모든 팀원이 동일한 환경을 즉시 구성할 수 있다.
+        동시성 문제는 코드를 아무리 잘 짜도 여러 요청이 동시에 들어오는 순간 언제든 발생할 수 있다.
+        중요한 것은 어떤 락을 어느 범위에 적용할지를 상황에 맞게 판단하는 것이다.
+        충돌이 드문 환경에서 비관적 락을 남용하면 모든 요청이 줄을 서게 되어 처리량이 크게 떨어지고,
+        충돌이 잦은 환경에서 낙관적 락만 쓰면 예외와 재시도가 폭발적으로 늘어난다.
       </p>
 
       <p>
-        Image와 Container의 관계를 명확히 이해하는 것이 중요하다.
-        이미지는 불변하는 설계도이고, 컨테이너는 그 설계도로 만든 실행 인스턴스다.
-        컨테이너를 아무리 삭제하고 다시 만들어도 이미지가 있으면 동일한 환경을 재현할 수 있다는 것이 Docker의 핵심 가치다.
+        분산 락은 다중 서버 환경에서 비관적 락과 낙관적 락이 보호하지 못하는 영역을 커버한다.
+        비관적 락이 DB Row 수정 시점만 보호하는 것과 달리, 분산 락은 조회부터 비즈니스 로직 전체를 하나의 임계 구간으로 보호한다.
+        단, Redis가 단일 장애점이 되지 않도록 고가용성 구성을 함께 고려해야 하고,
+        TTL 설정과 락 주인 검증을 빠뜨리면 오히려 더 심각한 문제가 생긴다.
       </p>
 
       <p>
-        Docker Compose에서 컨테이너끼리 서비스 이름으로 통신한다는 점도 중요하다.
-        <code>localhost</code>는 컨테이너 자기 자신을 가리키기 때문에 다른 컨테이너에 접근할 수 없다.
-        Compose 환경에서는 서비스 이름을 호스트명으로 사용해야 하며, 환경변수로 override할 수 있도록 설정하면 로컬 직접 실행과 Compose 실행 모두를 하나의 설정 파일로 처리할 수 있다.
+        락 획득 실패 시 전략도 상황마다 다르다.
+        결제나 선착순처럼 중복이 절대 허용되지 않는 곳에서는 즉시 실패가 안전하고,
+        재고 감소처럼 조금 늦더라도 반드시 성공해야 하는 곳에서는 재시도 전략이 적합하다.
+        재시도를 구현할 때는 고정 간격이 아닌 <strong>지수 백오프(Exponential Backoff)</strong>를 적용해 Redis 부하를 분산하는 것이 좋다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
