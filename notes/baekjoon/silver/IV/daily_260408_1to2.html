@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-07 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-08 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 20436 — ZOAC 3</h2>
+      <h2 class="section">문제 13567 — 로봇</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/20436">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/13567">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260407_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>ZOAC 3 (백준 20436)</strong>는<br>
-        왼손과 오른손의 초기 위치가 주어질 때, 문자열을 타이핑하는 데 필요한 <strong>총 이동 거리와 키 입력 횟수의 합을 구</strong>하는 문제다.<br>
-        <strong>자음은 왼손, 모음은 오른손으로만 입력</strong>하며, 각 키까지의 이동 거리는 키보드 배열 위에서의 맨해튼 거리로 계산한다.
+        <strong>로봇 (백준 13567)</strong>는<br>
+        M×M 크기의 격자 위에서 로봇에게 MOVE와 TURN 명령을 내릴 때, <strong>모든 명령을 수행한 뒤 로봇의 최종 위치를 구</strong>하는 문제다.<br>
+        <strong>격자 범위를 벗어나는 순간 즉시 -1을 출력</strong>하고 종료해야 한다.
       </p>
       
       <ul>
-        <li>키보드는 3행으로 구성되며, 각 행의 열 위치를 기준으로 두 키 사이의 맨해튼 거리를 계산한다.</li>
-        <li>자음 14개(q w e r t a s d f g z x c v)는 왼손, 나머지 모음 12개(y u i o p h j k l b n m)는 오른손으로 입력한다.</li>
-        <li>한 키를 입력할 때마다 이동 거리에 1(키 누르는 비용)을 추가로 더한다.</li>
+        <li>로봇은 (0, 0)에서 출발하며, 초기 방향은 +x 방향(동쪽)이다.</li>
+        <li>MOVE 명령은 현재 방향으로 주어진 칸 수만큼 이동하고, TURN 명령은 오른쪽(0) 또는 왼쪽(1)으로 90도 회전한다.</li>
+        <li>이동 후 좌표가 0 이상 M 이하를 벗어나면 -1을 출력하고 프로그램을 종료한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 시뮬레이션 (맨해튼 거리 계산)</li>
-        <li><strong>선택 이유</strong>: 키보드 배열을 2차원 배열로 정의하고 각 키의 (행, 열) 좌표를 추출하면, 현재 손의 위치에서 목표 키까지의 이동 거리를 맨해튼 거리로 즉시 계산할 수 있다. 자음·모음 분류 배열로 어느 손을 사용할지 결정한 뒤 손의 위치를 갱신하며 순회하면 O(L)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 방향 벡터 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 방향을 정수 인덱스(0~3)로 관리하고 dx, dy 배열로 방향 벡터를 정의하면, TURN 명령을 나머지 연산으로 간단히 처리할 수 있다. MOVE 명령은 현재 방향 벡터에 이동 거리를 곱해 좌표를 갱신하면 되므로 명령 수 n에 비례한 O(n) 시뮬레이션으로 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>왼손·오른손의 초기 위치를 <code>extractPos()</code>로 (행, 열) 좌표로 변환한다.</li>
-            <li>문자열의 각 문자에 대해 자음 배열 <code>CONSONANT</code>에 속하면 왼손, 아니면 오른손을 사용한다.</li>
-            <li>해당 손의 현재 위치에서 목표 키까지 맨해튼 거리를 구하고, 거리 + 1(키 누르기)을 <code>answer</code>에 누적한다.</li>
-            <li>입력 후 해당 손의 위치를 목표 키 위치로 갱신한다.</li>
+            <li>방향을 0(동), 1(북), 2(서), 3(남) 순서로 정의하고 dx, dy 배열로 각 방향의 이동량을 관리한다.</li>
+            <li>MOVE 명령 시 현재 방향의 벡터에 이동 거리를 곱해 좌표를 갱신하고, 범위를 벗어나면 즉시 -1 출력 후 종료한다.</li>
+            <li>TURN 0(오른쪽)은 <code>(direction + 1) % 4</code>, TURN 1(왼쪽)은 <code>(direction + 3) % 4</code>로 방향을 갱신한다.</li>
+            <li>모든 명령을 처리한 뒤 최종 좌표를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,71 +96,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 키보드 배열 및 자음·모음 정의</strong>
-          <pre><code>static final char[][] KEYBOARD = {{'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'},
-              {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'},
-              {'z', 'x', 'c', 'v', 'b', 'n', 'm'}};
-      static final char[] CONSONANT = {'q', 'w', 'e', 'r', 't', 'a', 's', 'd', 'f', 'g', 'z', 'x', 'c', 'v'};
-      static final char[] VOWEL = {'y', 'u', 'i', 'o', 'p', 'h', 'j', 'k', 'l', 'b', 'n', 'm'};</code></pre>
+        <li><strong>1) 초기 상태 설정</strong>
+          <pre><code>int[] curPos = {0, 0};
+      int[] dx = {1, 0, -1, 0};
+      int[] dy = {0, 1,  0, -1};
+      int direction = 0;</code></pre>
           <ul>
-            <li>실제 키보드 배열을 2차원 배열로 정의하여 각 키의 (행, 열) 좌표를 <code>extractPos()</code>로 탐색할 수 있게 한다.</li>
-            <li><code>CONSONANT</code>에 속하면 왼손, 그렇지 않으면 오른손으로 입력하는 기준으로 사용한다.</li>
+            <li>로봇의 초기 위치를 (0, 0)으로 설정한다. 방향 벡터 배열 <code>dx</code>, <code>dy</code>는 인덱스 0~3 순서로 동·북·서·남 방향을 나타낸다. 초기 방향은 0(동쪽, +x 방향)이다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 초기 손 위치 설정</strong>
-          <pre><code>char left = st.nextToken().charAt(0);
-      char right = st.nextToken().charAt(0);
+        <li><strong>2) MOVE 명령 처리</strong>
+          <pre><code>if (commend.equals("MOVE")) {
+          curPos[0] += dx[direction] * number;
+          curPos[1] += dy[direction] * number;
       
-      int[] curLeft = extractPos(left);
-      int[] curRight = extractPos(right);</code></pre>
-          <ul>
-            <li>왼손과 오른손의 초기 위치를 입력받아 <code>extractPos()</code>로 (행, 열) 좌표 배열로 변환한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 문자열 순회 및 비용 계산</strong>
-          <pre><code>for (char c : word.toCharArray()) {
-          int[] targetPos = extractPos(c);
-          boolean isLeft = false;
-      
-          for (char isConsonant : CONSONANT) {
-              if (c == isConsonant) {
-                  isLeft = true;
-                  break;
-              }
-          }
-      
-          if (isLeft) {
-              int dist = Math.abs(targetPos[0] - curLeft[0]) + Math.abs(targetPos[1] - curLeft[1]);
-              answer += dist + 1;
-              curLeft = targetPos;
-          } else {
-              int dist = Math.abs(targetPos[0] - curRight[0]) + Math.abs(targetPos[1] - curRight[1]);
-              answer += dist + 1;
-              curRight = targetPos;
+          if (curPos[0] < 0 || curPos[0] > M || curPos[1] < 0 || curPos[1] > M) {
+              System.out.println(-1);
+              return;
           }
       }</code></pre>
           <ul>
-            <li>각 문자에 대해 <code>extractPos()</code>로 목표 위치를 구하고, <code>CONSONANT</code> 배열 순회로 자음 여부를 판별해 사용할 손을 결정한다.</li>
-            <li>맨해튼 거리 <code>|row 차| + |col 차|</code>에 키 누르기 비용 1을 더해 <code>answer</code>에 누적한다.</li>
-            <li>입력 후 해당 손의 현재 위치(<code>curLeft</code> 또는 <code>curRight</code>)를 목표 위치로 갱신한다.</li>
+            <li>현재 방향의 단위 벡터 <code>(dx[direction], dy[direction])</code>에 이동 거리 <code>number</code>를 곱해 좌표를 갱신한다.</li>
+            <li>이동 후 좌표가 [0, M] 범위를 벗어나면 즉시 -1을 출력하고 <code>return</code>으로 프로그램을 종료한다.</li>
           </ul>
         </li>
       
-        <li><strong>4) 키 좌표 추출 메서드</strong>
-          <pre><code>private static int[] extractPos(char key) {
-          for (int r = 0; r < KEYBOARD.length; r++) {
-              for (int c = 0; c < KEYBOARD[r].length; c++) {
-                  if (KEYBOARD[r][c] == key) {
-                      return new int[]{r, c};
-                  }
-              }
+        <li><strong>3) TURN 명령 처리</strong>
+          <pre><code>} else if (commend.equals("TURN")) {
+          switch (number) {
+              case 0 -> direction = (direction + 1) % 4;
+              case 1 -> direction = ((direction + 4) - 1) % 4;
           }
-          return null;
       }</code></pre>
           <ul>
-            <li><code>KEYBOARD</code> 배열을 전체 탐색하여 목표 문자의 (행, 열) 좌표를 반환한다. 키보드 크기가 최대 26자로 고정이므로 O(1)에 수렴한다.</li>
+            <li>TURN 0(오른쪽 90도)은 <code>(direction + 1) % 4</code>로 방향 인덱스를 한 칸 증가시킨다.</li>
+            <li>TURN 1(왼쪽 90도)은 음수 인덱스를 방지하기 위해 <code>(direction + 3) % 4</code>로 방향 인덱스를 한 칸 감소시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 최종 위치 출력</strong>
+          <pre><code>System.out.println(curPos[0] + " " + curPos[1]);</code></pre>
+          <ul>
+            <li>모든 명령을 정상적으로 수행한 뒤 로봇의 최종 x, y 좌표를 공백으로 구분하여 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -176,12 +154,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(L)</strong>: 문자열의 각 문자에 대해 자음 판별(최대 14번), 좌표 추출(최대 26번), 거리 계산(O(1))을 수행하므로 전체 O(L)이다. (L은 문자열의 길이)</li>
+            <li><strong>O(n)</strong>: n개의 명령을 순서대로 한 번씩 처리하며, 각 명령에서 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 키보드 배열과 자음·모음 배열은 크기가 고정된 상수 공간이며, 그 외 변수들도 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 현재 위치, 방향 벡터 배열, 방향 인덱스 등 크기가 고정된 상수 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -233,14 +211,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 9417 — 최대 GCD</h2>
+      <h2 class="section">문제 13116 — 30번</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/9417">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/13116">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260407_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
