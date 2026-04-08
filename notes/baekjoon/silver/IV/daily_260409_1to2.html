@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-08 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 13567 — 로봇</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/13567">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>로봇 (백준 13567)</strong>는<br>
+        M×M 크기의 격자 위에서 로봇에게 MOVE와 TURN 명령을 내릴 때, <strong>모든 명령을 수행한 뒤 로봇의 최종 위치를 구</strong>하는 문제다.<br>
+        <strong>격자 범위를 벗어나는 순간 즉시 -1을 출력</strong>하고 종료해야 한다.
+      </p>
+      
+      <ul>
+        <li>로봇은 (0, 0)에서 출발하며, 초기 방향은 +x 방향(동쪽)이다.</li>
+        <li>MOVE 명령은 현재 방향으로 주어진 칸 수만큼 이동하고, TURN 명령은 오른쪽(0) 또는 왼쪽(1)으로 90도 회전한다.</li>
+        <li>이동 후 좌표가 0 이상 M 이하를 벗어나면 -1을 출력하고 프로그램을 종료한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 방향 벡터 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 방향을 정수 인덱스(0~3)로 관리하고 dx, dy 배열로 방향 벡터를 정의하면, TURN 명령을 나머지 연산으로 간단히 처리할 수 있다. MOVE 명령은 현재 방향 벡터에 이동 거리를 곱해 좌표를 갱신하면 되므로 명령 수 n에 비례한 O(n) 시뮬레이션으로 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>방향을 0(동), 1(북), 2(서), 3(남) 순서로 정의하고 dx, dy 배열로 각 방향의 이동량을 관리한다.</li>
+            <li>MOVE 명령 시 현재 방향의 벡터에 이동 거리를 곱해 좌표를 갱신하고, 범위를 벗어나면 즉시 -1 출력 후 종료한다.</li>
+            <li>TURN 0(오른쪽)은 <code>(direction + 1) % 4</code>, TURN 1(왼쪽)은 <code>(direction + 3) % 4</code>로 방향을 갱신한다.</li>
+            <li>모든 명령을 처리한 뒤 최종 좌표를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기 상태 설정</strong>
+          <pre><code>int[] curPos = {0, 0};
+      int[] dx = {1, 0, -1, 0};
+      int[] dy = {0, 1,  0, -1};
+      int direction = 0;</code></pre>
+          <ul>
+            <li>로봇의 초기 위치를 (0, 0)으로 설정한다. 방향 벡터 배열 <code>dx</code>, <code>dy</code>는 인덱스 0~3 순서로 동·북·서·남 방향을 나타낸다. 초기 방향은 0(동쪽, +x 방향)이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) MOVE 명령 처리</strong>
+          <pre><code>if (commend.equals("MOVE")) {
+          curPos[0] += dx[direction] * number;
+          curPos[1] += dy[direction] * number;
+      
+          if (curPos[0] < 0 || curPos[0] > M || curPos[1] < 0 || curPos[1] > M) {
+              System.out.println(-1);
+              return;
+          }
+      }</code></pre>
+          <ul>
+            <li>현재 방향의 단위 벡터 <code>(dx[direction], dy[direction])</code>에 이동 거리 <code>number</code>를 곱해 좌표를 갱신한다.</li>
+            <li>이동 후 좌표가 [0, M] 범위를 벗어나면 즉시 -1을 출력하고 <code>return</code>으로 프로그램을 종료한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) TURN 명령 처리</strong>
+          <pre><code>} else if (commend.equals("TURN")) {
+          switch (number) {
+              case 0 -> direction = (direction + 1) % 4;
+              case 1 -> direction = ((direction + 4) - 1) % 4;
+          }
+      }</code></pre>
+          <ul>
+            <li>TURN 0(오른쪽 90도)은 <code>(direction + 1) % 4</code>로 방향 인덱스를 한 칸 증가시킨다.</li>
+            <li>TURN 1(왼쪽 90도)은 음수 인덱스를 방지하기 위해 <code>(direction + 3) % 4</code>로 방향 인덱스를 한 칸 감소시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 최종 위치 출력</strong>
+          <pre><code>System.out.println(curPos[0] + " " + curPos[1]);</code></pre>
+          <ul>
+            <li>모든 명령을 정상적으로 수행한 뒤 로봇의 최종 x, y 좌표를 공백으로 구분하여 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(n)</strong>: n개의 명령을 순서대로 한 번씩 처리하며, 각 명령에서 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 현재 위치, 방향 벡터 배열, 방향 인덱스 등 크기가 고정된 상수 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 13116 — 30번</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/13116">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>30번 (백준 13116)</strong>는<br>
+        완전 이진 트리에서 두 노드 A, B가 주어질 때, <strong>두 노드의 최소 공통 조상(LCA)을 구하고 그 노드 번호에 10을 곱한 값을 출력</strong>하는 문제다.<br>
+        <strong>트리를 배열로 명시적으로 구성하지 않고</strong>, 부모 노드 번호가 항상 자식 노드 번호의 절반이라는 완전 이진 트리의 성질만으로 LCA를 구할 수 있다.
+      </p>
+      
+      <ul>
+        <li>완전 이진 트리에서 노드 n의 부모는 항상 n / 2이므로, 두 노드를 번갈아 부모로 올리다 보면 반드시 공통 조상에서 만난다.</li>
+        <li>두 노드 중 더 큰 번호를 가진 노드를 먼저 부모로 올리면, 항상 같은 깊이로 수렴하며 결국 동일한 노드에서 만난다.</li>
+        <li>LCA 노드 번호에 10을 곱한 값이 문제의 정답이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 완전 이진 트리의 부모 노드 성질을 이용한 LCA 탐색</li>
+        <li><strong>선택 이유</strong>: 완전 이진 트리에서 부모 노드 번호는 항상 현재 노드 번호를 2로 나눈 값이다. 따라서 별도의 트리 구성 없이 두 노드를 번갈아 부모로 올리는 단순 반복만으로 O(log N)에 LCA를 구할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>A와 B가 같아질 때까지 반복한다.</li>
+            <li>매 반복에서 A와 B 중 더 큰 값을 2로 나눠 부모 노드로 이동시킨다.</li>
+            <li>A == B가 되는 순간이 LCA이며, 이 값에 10을 곱해 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력</strong>
+          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
+      int A = Integer.parseInt(st.nextToken());
+      int B = Integer.parseInt(st.nextToken());</code></pre>
+          <ul>
+            <li>테스트케이스마다 두 노드 번호 A, B를 입력받는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) LCA 탐색</strong>
+          <pre><code>while (A != B) {
+          if (A > B) {
+              A /= 2;
+          } else {
+              B /= 2;
+          }
+      }</code></pre>
+          <ul>
+            <li>A와 B가 같아질 때까지 더 큰 노드를 2로 나눠 부모로 이동시킨다. 완전 이진 트리에서 노드 번호가 클수록 더 깊은 레벨에 있으므로, 큰 쪽을 먼저 올리면 두 노드의 깊이를 맞춰가며 공통 조상으로 수렴한다.</li>
+            <li>예시: A=12, B=5일 때 → A=6, B=5 → A=3, B=5 → A=3, B=2 → A=3, B=1 → ... 순으로 진행되며 결국 A == B인 LCA에 도달한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 누적 및 출력</strong>
+          <pre><code>sb.append(A * 10).append('\n');
+      
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>LCA 노드 번호 A에 10을 곱한 값을 <code>StringBuilder</code>에 누적한 뒤 모든 테스트케이스가 끝나면 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(T · log N)</strong>: T개의 테스트케이스마다 두 노드를 루트 방향으로 올리는 반복이 최대 트리 높이인 O(log N)번 수행된다. (N은 노드 번호의 최댓값)</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 트리를 별도로 구성하지 않고 두 정수 변수 A, B만으로 LCA를 추적하므로 상수 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
