@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-08 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-09 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 13567 — 로봇</h2>
+      <h2 class="section">문제 17521 — Byte Coin</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/13567">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/17521">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260409_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>로봇 (백준 13567)</strong>는<br>
-        M×M 크기의 격자 위에서 로봇에게 MOVE와 TURN 명령을 내릴 때, <strong>모든 명령을 수행한 뒤 로봇의 최종 위치를 구</strong>하는 문제다.<br>
-        <strong>격자 범위를 벗어나는 순간 즉시 -1을 출력</strong>하고 종료해야 한다.
+        <strong>Byte Coin (백준 17521)</strong>는<br>
+        n일간의 코인 가격이 주어질 때, <strong>초기 현금 W로 코인을 사고팔아 최종 보유 현금을 최대화</strong>하는 문제다.<br>
+        <strong>다음 날 가격이 오를 때 전량 매수, 다음 날 가격이 내릴 때 전량 매도</strong>하는 그리디 전략으로 최적 수익을 얻을 수 있다.
       </p>
       
       <ul>
-        <li>로봇은 (0, 0)에서 출발하며, 초기 방향은 +x 방향(동쪽)이다.</li>
-        <li>MOVE 명령은 현재 방향으로 주어진 칸 수만큼 이동하고, TURN 명령은 오른쪽(0) 또는 왼쪽(1)으로 90도 회전한다.</li>
-        <li>이동 후 좌표가 0 이상 M 이하를 벗어나면 -1을 출력하고 프로그램을 종료한다.</li>
+        <li>내일 가격이 오늘보다 높으면 오늘 살 수 있는 만큼 전량 매수한다.</li>
+        <li>내일 가격이 오늘보다 낮고 코인을 보유 중이라면 오늘 전량 매도한다.</li>
+        <li>가격과 현금이 int 범위를 초과할 수 있으므로 <code>long</code> 타입으로 처리해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 방향 벡터 시뮬레이션</li>
-        <li><strong>선택 이유</strong>: 방향을 정수 인덱스(0~3)로 관리하고 dx, dy 배열로 방향 벡터를 정의하면, TURN 명령을 나머지 연산으로 간단히 처리할 수 있다. MOVE 명령은 현재 방향 벡터에 이동 거리를 곱해 좌표를 갱신하면 되므로 명령 수 n에 비례한 O(n) 시뮬레이션으로 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (내일 가격 기준 전량 매수·매도)</li>
+        <li><strong>선택 이유</strong>: 미래 가격을 모두 알고 있는 상황에서, 오르기 직전에 사고 내리기 직전에 파는 전략이 항상 최적임이 보장된다. 연속 상승 구간에서는 첫날 매수 후 마지막 날 매도하는 것과 매일 사고파는 것이 동일한 수익을 내므로, 단순히 다음 날 가격과 비교하는 O(n) 순회로 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>방향을 0(동), 1(북), 2(서), 3(남) 순서로 정의하고 dx, dy 배열로 각 방향의 이동량을 관리한다.</li>
-            <li>MOVE 명령 시 현재 방향의 벡터에 이동 거리를 곱해 좌표를 갱신하고, 범위를 벗어나면 즉시 -1 출력 후 종료한다.</li>
-            <li>TURN 0(오른쪽)은 <code>(direction + 1) % 4</code>, TURN 1(왼쪽)은 <code>(direction + 3) % 4</code>로 방향을 갱신한다.</li>
-            <li>모든 명령을 처리한 뒤 최종 좌표를 출력한다.</li>
+            <li>오늘 가격(<code>cur</code>)과 내일 가격(<code>next</code>)을 비교한다.</li>
+            <li><code>cur &lt; next</code>이면 현금으로 살 수 있는 최대 코인 수를 매수하고 잔돈을 남긴다.</li>
+            <li><code>cur &gt; next</code>이고 보유 코인이 있으면 전량 매도하여 현금화한다.</li>
+            <li>마지막 날 이후에도 코인을 보유 중이면 마지막 가격으로 전량 매도한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,49 +96,46 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기 상태 설정</strong>
-          <pre><code>int[] curPos = {0, 0};
-      int[] dx = {1, 0, -1, 0};
-      int[] dy = {0, 1,  0, -1};
-      int direction = 0;</code></pre>
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>int n = Integer.parseInt(st.nextToken());
+      long W = Long.parseLong(st.nextToken());
+      
+      long coin = 0;
+      long cur = Long.parseLong(br.readLine());</code></pre>
           <ul>
-            <li>로봇의 초기 위치를 (0, 0)으로 설정한다. 방향 벡터 배열 <code>dx</code>, <code>dy</code>는 인덱스 0~3 순서로 동·북·서·남 방향을 나타낸다. 초기 방향은 0(동쪽, +x 방향)이다.</li>
+            <li>날 수 n과 초기 현금 W를 입력받는다. 보유 코인 수 <code>coin</code>을 0으로 초기화하고, 첫째 날 가격 <code>cur</code>을 읽어 둔다. 현금과 코인 수가 int 범위를 초과할 수 있으므로 모두 <code>long</code>으로 선언한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) MOVE 명령 처리</strong>
-          <pre><code>if (commend.equals("MOVE")) {
-          curPos[0] += dx[direction] * number;
-          curPos[1] += dy[direction] * number;
+        <li><strong>2) 일별 매수·매도 결정</strong>
+          <pre><code>for (int i = 0; i < n - 1; i++) {
+          long next = Long.parseLong(br.readLine());
       
-          if (curPos[0] < 0 || curPos[0] > M || curPos[1] < 0 || curPos[1] > M) {
-              System.out.println(-1);
-              return;
+          if (cur < next) {
+              coin += W / cur;
+              W %= cur;
+          } else if (coin > 0 && cur > next) {
+              W += coin * cur;
+              coin = 0;
           }
+      
+          cur = next;
       }</code></pre>
           <ul>
-            <li>현재 방향의 단위 벡터 <code>(dx[direction], dy[direction])</code>에 이동 거리 <code>number</code>를 곱해 좌표를 갱신한다.</li>
-            <li>이동 후 좌표가 [0, M] 범위를 벗어나면 즉시 -1을 출력하고 <code>return</code>으로 프로그램을 종료한다.</li>
+            <li><code>cur &lt; next</code>: 내일 가격이 더 높으므로 오늘 전량 매수한다. <code>W / cur</code>개의 코인을 사고 <code>W % cur</code>의 잔돈을 남긴다.</li>
+            <li><code>cur &gt; next &amp;&amp; coin &gt; 0</code>: 내일 가격이 더 낮고 코인을 보유 중이므로 오늘 전량 매도한다. <code>coin * cur</code>을 현금에 더하고 코인을 0으로 초기화한다.</li>
+            <li>순회가 끝나면 <code>cur</code>을 <code>next</code>로 갱신하여 다음 날 비교를 준비한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) TURN 명령 처리</strong>
-          <pre><code>} else if (commend.equals("TURN")) {
-          switch (number) {
-              case 0 -> direction = (direction + 1) % 4;
-              case 1 -> direction = ((direction + 4) - 1) % 4;
-          }
-      }</code></pre>
-          <ul>
-            <li>TURN 0(오른쪽 90도)은 <code>(direction + 1) % 4</code>로 방향 인덱스를 한 칸 증가시킨다.</li>
-            <li>TURN 1(왼쪽 90도)은 음수 인덱스를 방지하기 위해 <code>(direction + 3) % 4</code>로 방향 인덱스를 한 칸 감소시킨다.</li>
-          </ul>
-        </li>
+        <li><strong>3) 마지막 날 잔여 코인 처리 및 출력</strong>
+          <pre><code>if (coin > 0) {
+          W += coin * cur;
+      }
       
-        <li><strong>4) 최종 위치 출력</strong>
-          <pre><code>System.out.println(curPos[0] + " " + curPos[1]);</code></pre>
+      System.out.println(W);</code></pre>
           <ul>
-            <li>모든 명령을 정상적으로 수행한 뒤 로봇의 최종 x, y 좌표를 공백으로 구분하여 출력한다.</li>
+            <li>루프 종료 후 코인을 아직 보유 중이라면 마지막 날 가격 <code>cur</code>로 전량 매도하여 현금화한다. 최종 현금 W를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -154,12 +151,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(n)</strong>: n개의 명령을 순서대로 한 번씩 처리하며, 각 명령에서 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
+            <li><strong>O(n)</strong>: n일간의 가격을 한 번 순회하며 각 날에 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 현재 위치, 방향 벡터 배열, 방향 인덱스 등 크기가 고정된 상수 공간만 사용한다.</li>
+            <li><strong>O(1)</strong>: 현금 W, 코인 수 coin, 현재 가격 cur, 다음 가격 next 등 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
           </ul>
         </li>
       </ul>
@@ -211,14 +208,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 13116 — 30번</h2>
+      <h2 class="section">문제 9322 — 철벽 보안 알고리즘</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/13116">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/9322">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260408_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260409_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
