@@ -233,15 +233,15 @@
       </h3>
       
       <p>
-        <strong>30번 (백준 13116)</strong>는<br>
-        완전 이진 트리에서 두 노드 A, B가 주어질 때, <strong>두 노드의 최소 공통 조상(LCA)을 구하고 그 노드 번호에 10을 곱한 값을 출력</strong>하는 문제다.<br>
-        <strong>트리를 배열로 명시적으로 구성하지 않고</strong>, 부모 노드 번호가 항상 자식 노드 번호의 절반이라는 완전 이진 트리의 성질만으로 LCA를 구할 수 있다.
+        <strong>철벽 보안 알고리즘 (백준 9322)</strong>는<br>
+        세 줄의 문자열 배열이 주어질 때, 첫 번째 배열을 기준 순서로 삼아 <strong>두 번째 배열의 순서를 첫 번째에 맞게 재배열한 뒤, 세 번째 배열을 그 순서로 출력</strong>하는 문제다.<br>
+        <strong>문자열과 인덱스의 대응 관계를 HashMap으로 관리</strong>하여 효율적으로 순서를 복원한다.
       </p>
       
       <ul>
-        <li>완전 이진 트리에서 노드 n의 부모는 항상 n / 2이므로, 두 노드를 번갈아 부모로 올리다 보면 반드시 공통 조상에서 만난다.</li>
-        <li>두 노드 중 더 큰 번호를 가진 노드를 먼저 부모로 올리면, 항상 같은 깊이로 수렴하며 결국 동일한 노드에서 만난다.</li>
-        <li>LCA 노드 번호에 10을 곱한 값이 문제의 정답이다.</li>
+        <li>첫 번째 줄의 각 문자열이 원래 위치(인덱스)를 정의하는 기준이 된다.</li>
+        <li>두 번째 줄은 첫 번째 줄과 동일한 문자열이 섞인 순서로 주어지며, 이를 통해 각 위치가 원래 어느 인덱스에 대응하는지 파악할 수 있다.</li>
+        <li>세 번째 줄의 문자열을 두 번째 줄의 순서 정보를 역추적하여 첫 번째 줄 기준의 올바른 위치에 배치한 뒤 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -253,13 +253,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 완전 이진 트리의 부모 노드 성질을 이용한 LCA 탐색</li>
-        <li><strong>선택 이유</strong>: 완전 이진 트리에서 부모 노드 번호는 항상 현재 노드 번호를 2로 나눈 값이다. 따라서 별도의 트리 구성 없이 두 노드를 번갈아 부모로 올리는 단순 반복만으로 O(log N)에 LCA를 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 인덱스 매핑</li>
+        <li><strong>선택 이유</strong>: 첫 번째 줄의 문자열과 그 인덱스를 HashMap에 저장해두면, 두 번째 줄의 각 문자열이 원래 몇 번째 위치에 있었는지를 O(1)에 조회할 수 있다. 이 대응 관계를 이용해 세 번째 줄의 문자열을 정답 배열의 올바른 위치에 삽입하면 별도의 정렬 없이 O(n)에 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>A와 B가 같아질 때까지 반복한다.</li>
-            <li>매 반복에서 A와 B 중 더 큰 값을 2로 나눠 부모 노드로 이동시킨다.</li>
-            <li>A == B가 되는 순간이 LCA이며, 이 값에 10을 곱해 출력한다.</li>
+            <li>첫 번째 줄의 문자열 → 인덱스를 HashMap <code>map</code>에 저장한다.</li>
+            <li>두 번째 줄의 i번째 문자열을 <code>map</code>에서 조회해 원래 인덱스를 <code>number[i]</code>에 저장한다.</li>
+            <li>세 번째 줄의 i번째 문자열을 <code>answer[number[i]]</code> 위치에 배치한다.</li>
+            <li><code>answer</code> 배열을 순서대로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -273,35 +274,52 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력</strong>
-          <pre><code>StringTokenizer st = new StringTokenizer(br.readLine());
-      int A = Integer.parseInt(st.nextToken());
-      int B = Integer.parseInt(st.nextToken());</code></pre>
-          <ul>
-            <li>테스트케이스마다 두 노드 번호 A, B를 입력받는다.</li>
-          </ul>
-        </li>
+        <li><strong>1) 첫 번째 줄: 문자열 → 인덱스 매핑</strong>
+          <pre><code>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+      StringTokenizer st = new StringTokenizer(br.readLine());
       
-        <li><strong>2) LCA 탐색</strong>
-          <pre><code>while (A != B) {
-          if (A > B) {
-              A /= 2;
-          } else {
-              B /= 2;
-          }
+      for (int i = 0; i < n; i++) {
+          String s = st.nextToken();
+          map.put(s, i);
       }</code></pre>
           <ul>
-            <li>A와 B가 같아질 때까지 더 큰 노드를 2로 나눠 부모로 이동시킨다. 완전 이진 트리에서 노드 번호가 클수록 더 깊은 레벨에 있으므로, 큰 쪽을 먼저 올리면 두 노드의 깊이를 맞춰가며 공통 조상으로 수렴한다.</li>
-            <li>예시: A=12, B=5일 때 → A=6, B=5 → A=3, B=5 → A=3, B=2 → A=3, B=1 → ... 순으로 진행되며 결국 A == B인 LCA에 도달한다.</li>
+            <li>첫 번째 줄의 각 문자열을 키로, 그 인덱스를 값으로 HashMap에 저장한다. 이후 문자열이 원래 몇 번째 위치였는지를 O(1)에 조회할 수 있다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 누적 및 출력</strong>
-          <pre><code>sb.append(A * 10).append('\n');
+        <li><strong>2) 두 번째 줄: 섞인 순서에서 원래 인덱스 복원</strong>
+          <pre><code>st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < n; i++) {
+          String s = st.nextToken();
+          number[i] = map.get(s);
+      }</code></pre>
+          <ul>
+            <li>두 번째 줄의 i번째 문자열을 <code>map</code>에서 조회하여 해당 문자열의 원래 인덱스를 <code>number[i]</code>에 저장한다. 즉, 현재 i번째 위치가 원래 <code>number[i]</code>번째였음을 기록한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 세 번째 줄: 정답 배열에 올바른 위치로 배치</strong>
+          <pre><code>st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < n; i++) {
+          String s = st.nextToken();
+          int idx = number[i];
+          answer[idx] = s;
+      }</code></pre>
+          <ul>
+            <li>세 번째 줄의 i번째 문자열을 <code>answer[number[i]]</code> 위치에 삽입한다. 두 번째 줄의 i번째 항목이 원래 <code>number[i]</code>번째였으므로, 세 번째 줄의 같은 위치 문자열도 동일한 인덱스로 이동시키면 첫 번째 줄 기준의 올바른 순서가 복원된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 누적 및 출력</strong>
+          <pre><code>for (String s : answer) {
+          sb.append(s).append(" ");
+      }
+      
+      sb.append('\n');
       
       System.out.println(sb);</code></pre>
           <ul>
-            <li>LCA 노드 번호 A에 10을 곱한 값을 <code>StringBuilder</code>에 누적한 뒤 모든 테스트케이스가 끝나면 한 번에 출력한다.</li>
+            <li>복원된 <code>answer</code> 배열을 순서대로 <code>StringBuilder</code>에 누적하고, 모든 테스트케이스가 끝난 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       </ul>
@@ -317,16 +335,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(T · log N)</strong>: T개의 테스트케이스마다 두 노드를 루트 방향으로 올리는 반복이 최대 트리 높이인 O(log N)번 수행된다. (N은 노드 번호의 최댓값)</li>
+            <li><strong>O(T · n)</strong>: T개의 테스트케이스마다 세 줄을 각각 n번 순회하며 HashMap 조회와 배열 접근은 O(1)이므로 전체 O(T · n)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 트리를 별도로 구성하지 않고 두 정수 변수 A, B만으로 LCA를 추적하므로 상수 공간만 사용한다.</li>
+            <li><strong>O(n)</strong>: HashMap, <code>number</code> 배열, <code>answer</code> 배열이 각각 O(n)의 공간을 사용하며, 테스트케이스마다 초기화되므로 동시에 사용되는 최대 공간은 O(n)이다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
