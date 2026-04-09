@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 79일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 80일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,361 +109,378 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 79일차 TIL — 동시성 · 비관적 락 · 낙관적 락 · 분산 락(Redis)</h1>
-      <p class="muted">작성일 2026-04-08 · 분류: 부트캠프, TIL, 동시성, Pessimistic Lock, Optimistic Lock, Distributed Lock, Redis</p>
+      <h1>내일배움캠프 Spring 백엔드 80일차 TIL — 실시간 서비스 · WebSocket · STOMP</h1>
+      <p class="muted">작성일 2026-04-09 · 분류: 부트캠프, TIL, WebSocket, STOMP, 실시간 서비스, Spring</p>
 
-      <h2 class="section">79일차 개요</h2>
+      <h2 class="section">80일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>동시성 문제</strong>와 경쟁 상태(Race Condition)가 발생하는 원인을 이해한다.</li>
-        <li><strong>비관적 락</strong>과 <strong>낙관적 락</strong>의 동작 방식 및 차이를 정리한다.</li>
-        <li>단일 서버에서는 충분한 락이 다중 서버 환경에서 한계를 갖는 이유를 파악한다.</li>
-        <li><strong>분산 락</strong>의 필요성과 Redis SETNX 기반 구현 방법을 이해한다.</li>
-        <li>락 획득 전략 3가지(즉시 실패, 재시도, 블로킹)의 차이와 사용 시점을 익힌다.</li>
+        <li>실시간 서비스의 요구사항과 HTTP의 구조적 한계를 이해한다.</li>
+        <li><strong>WebSocket</strong>의 동작 원리와 Spring 구현 구조(Config + Handler)를 익힌다.</li>
+        <li><strong>STOMP</strong>가 필요한 이유와 순수 WebSocket 방식과의 차이를 파악한다.</li>
+        <li>STOMP의 인증 처리 방식(<code>ChannelInterceptor</code>)과 <code>AuthenticatedUser</code> 설계를 이해한다.</li>
+        <li>STOMP 프레임(CONNECT, SUBSCRIBE, SEND) 구조를 정리한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. 동시성과 경쟁 상태</h2>
+      <h2 class="section">1. 실시간 서비스와 HTTP의 한계</h2>
 
       <p>
-        <strong>동시성</strong>은 하나의 데이터를 여러 사용자가 동시에 수정하거나 읽는 상황을 의미한다.
-        DB는 요청을 독립된 트랜잭션으로 처리하기 때문에, 현재 다른 요청이 같은 데이터를 수정하고 있는지 알지 못한다.
-        그래서 여러 요청이 동시에 들어오면 서로의 결과를 덮어쓰는 문제가 생긴다.
+        실시간 서비스는 이벤트가 발생했을 때 지연 없이 즉시 전달되는 서비스다.
+        연결이 지속되어야 하고, <strong>서버가 클라이언트의 요청 없이도 먼저 메시지를 전달</strong>할 수 있어야 한다.
       </p>
-
-      <div class="concept-box">
-        <span class="box-title">경쟁 상태 (Race Condition)</span>
-        동일 자원을 누가 먼저 처리하느냐에 따라 결과가 달라지고 데이터 일관성이 깨지는 문제다.<br><br>
-        예를 들어 잔액이 10,000원인 계좌에서 두 요청이 동시에 5,000원씩 출금을 시도한다면,
-        두 요청 모두 10,000원을 읽은 뒤 각각 5,000원을 뺀 값을 저장하면 잔액이 5,000원으로 기록된다.
-        실제로는 둘 다 성공했으니 0원이 되어야 하는데, <strong>한 번의 출금이 사라진 것</strong>이다.
-      </div>
 
       <table>
         <thead>
           <tr>
-            <th style="width:25%;">해결 방법</th>
-            <th>설명</th>
+            <th style="width:25%;">항목</th>
+            <th>HTTP 구조</th>
+            <th>실시간 서비스 요구사항</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>비관적 락</strong></td>
-            <td>먼저 잠그고 다른 사용자는 대기시킨다. (선행 조치)</td>
+            <td><strong>연결 방식</strong></td>
+            <td>요청마다 연결을 맺고 바로 끊음 (Stateless)</td>
+            <td>연결이 지속되어야 함</td>
           </tr>
           <tr>
-            <td><strong>낙관적 락</strong></td>
-            <td>잠그지 않고, 나중에 충돌 여부를 확인한다. (후행 조치)</td>
+            <td><strong>통신 방향</strong></td>
+            <td>클라이언트 → 서버 단방향</td>
+            <td>서버 → 클라이언트 Push 가능해야 함</td>
           </tr>
           <tr>
-            <td><strong>분산 락</strong></td>
-            <td>여러 서버 환경에서도 동일한 데이터를 하나만 수정하도록 조정한다.</td>
+            <td><strong>이벤트 반응</strong></td>
+            <td>클라이언트가 먼저 요청해야 함</td>
+            <td>이벤트 발생 즉시 반응해야 함</td>
           </tr>
         </tbody>
       </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Polling으로 실시간을 흉내 내는 방식의 문제점</span>
+        클라이언트가 일정 주기로 서버에 반복 요청하는 Polling 방식은 <strong>데이터가 없어도 요청이 발생</strong>한다.
+        불필요한 트래픽이 지속적으로 생기고, 실시간성이 요청 주기에 의존한다.
+        1초 주기로 Polling하면 최대 1초의 지연이 발생하고, 동시 사용자가 많으면 서버 부하가 폭증한다.
+      </div>
 
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 비관적 락 (Pessimistic Lock)</h2>
+      <h2 class="section">2. WebSocket — 지속적인 양방향 통신 채널</h2>
 
       <p>
-        한 트랜잭션이 데이터를 수정하는 동안 다른 트랜잭션은 그 데이터에 <strong>접근 자체가 불가능</strong>하다.
-        다른 요청은 락이 해제될 때까지 대기 상태가 된다.
-        충돌이 발생할 것이라는 비관적 가정 하에 <strong>조회 시점부터 미리 락을 거는 선행 조치</strong> 방식이다.
+        WebSocket은 HTTP의 구조적 한계를 보완하기 위해 등장한 통신 프로토콜이다.
+        클라이언트와 서버가 한 번 연결되면 연결을 유지하고, 양방향으로 자유롭게 메시지를 주고받는다.
+        서버는 클라이언트의 요청 없이도 언제든지 메시지를 전송할 수 있다.
       </p>
 
-      <pre><code class="language-java">// JPA Repository — 조회 시점에 DB Row를 잠근다
-@Lock(LockModeType.PESSIMISTIC_WRITE)
-@Query("SELECT a FROM Account a WHERE a.id = :id")
-Account findByIdForLock(@Param("id") Long id);</code></pre>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          WebSocketConfig — 연결 진입점 설정
+        </span>
+      </h3>
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ 비관적 락 사용 시 주의사항</span>
-        조회용 쿼리에는 사용하지 않는다. 불필요하게 락을 걸면 전체 성능이 저하된다.<br>
-        <strong>쓰기 작업이 동시에 발생할 가능성이 높은 구간에만</strong> 사용한다.<br>
-        트랜잭션을 짧게 유지해야 한다. 락을 오래 잡고 있으면 다른 요청들이 대기하면서 서버가 느려진다.
-      </div>
+      <p>
+        <code>WebSocketConfig</code>는 어떤 주소로 WebSocket 연결을 받을 것인지,
+        어떤 Handler가 이 연결을 처리할 것인지를 결정하는 WebSocket 서버의 진입점이다.
+      </p>
+
+      <pre><code class="language-java">@Configuration
+@EnableWebSocket  // Spring에서 WebSocket 기능을 활성화
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(chatWebSocketHandler(), "/chat")
+                .setAllowedOriginPatterns("*"); // 수정 포인트: 운영에서는 허용 Origin을 제한한다
+    }
+
+    @Bean
+    public WebSocketHandler chatWebSocketHandler() {
+        return new ChatWebSocketHandler();
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          ChatWebSocketHandler — 실제 통신 로직
+        </span>
+      </h3>
+
+      <p>
+        <code>ChatWebSocketHandler</code>는 연결됐을 때, 메시지를 받았을 때, 연결이 끊어졌을 때 각각 무엇을 할지를 정의한다.
+      </p>
+
+      <pre><code class="language-java">public class ChatWebSocketHandler extends TextWebSocketHandler {
+
+    // 현재 연결된 모든 세션을 저장 — 여러 클라이언트가 동시에 연결될 수 있으므로 필요
+    private final Set&lt;WebSocketSession&gt; sessions = new HashSet&lt;&gt;();
+
+    // WebSocket 연결이 성공했을 때 자동으로 호출
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session);
+        // 수정 포인트: 서버가 클라이언트에게 먼저 메시지를 전송할 수 있다
+        session.sendMessage(new TextMessage("WebSocket 연결이 완료되었습니다."));
+    }
+
+    // 클라이언트가 메시지를 보낼 때 호출
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        // 현재 연결된 모든 세션에 메시지를 브로드캐스트
+        for (WebSocketSession s : sessions) {
+            s.sendMessage(new TextMessage("서버에서 받은 메시지: " + message.getPayload()));
+        }
+    }
+
+    // WebSocket 연결이 종료되었을 때 호출
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        sessions.remove(session); // 종료된 세션을 목록에서 제거
+    }
+}</code></pre>
 
       <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. 낙관적 락 (Optimistic Lock)</h2>
+      <h2 class="section">3. STOMP — WebSocket 위의 메시지 규칙</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          순수 WebSocket 방식의 한계
+        </span>
+      </h3>
 
       <p>
-        동시에 같은 데이터를 수정할 가능성이 낮다고 낙관적으로 가정하고, <strong>데이터를 잠그지 않고 자유롭게 수정</strong>한다.
-        수정이 완료되는 시점에 해당 데이터가 이미 변경됐는지를 <strong>버전(version) 필드</strong>를 통해 감지한다.
-        충돌이 감지되면 예외를 발생시키고 재시도 로직이 처리한다.
+        순수 WebSocket만 쓰면 서버가 모든 세션을 직접 관리해야 하고,
+        메시지를 받을 때마다 어디로 보낼지 판단하는 라우팅 로직을 직접 작성해야 한다.
+        채팅방 개념을 구현하려면 세션 분류 코드가 점점 복잡해진다.
       </p>
 
-      <pre><code class="language-java">// 엔티티에 @Version 필드를 추가하면 JPA가 자동으로 관리
-@Entity
-public class Account {
+      <div class="concept-box">
+        <span class="box-title">STOMP가 해결하는 것</span>
+        STOMP(Simple Text Oriented Messaging Protocol)는 WebSocket 위에서 동작하는 메시지 프로토콜이다.<br><br>
+        <strong>WebSocket</strong>은 통신 통로를 제공한다.<br>
+        <strong>STOMP</strong>는 그 통로 위에서 메시지를 어떻게 주고받을지에 대한 규칙을 제공한다.<br><br>
+        메시지 전달 기준이 <strong>세션 중심 → 목적지(destination) 중심</strong>으로 전환된다.
+        서버는 메시지 목적지만 정의하고, 그 목적지를 구독한 클라이언트에게 자동으로 메시지가 전달된다.
+      </div>
 
-    @Id
-    private Long id;
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          STOMP WebSocketConfig
+        </span>
+      </h3>
 
-    private Long balance;
+      <pre><code class="language-java">@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Version  // 수정 포인트: 이 필드 하나로 낙관적 락이 자동 적용된다
-    private Long version;
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/sub");           // 서버 → 클라이언트 브로드캐스트 경로
+        registry.setApplicationDestinationPrefixes("/pub"); // 클라이언트 → 서버 메시지 전송 경로
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws")                    // WebSocket 연결 엔드포인트
+                .setAllowedOriginPatterns("*");
+    }
 }</code></pre>
 
-      <div class="concept-box">
-        <span class="box-title">@Version이 동작하는 방식</span>
-        데이터를 수정할 때 JPA는 <code>UPDATE ... WHERE id = ? AND version = ?</code> 형태의 쿼리를 실행한다.
-        다른 트랜잭션이 먼저 수정해서 <code>version</code> 값이 바뀌었다면 UPDATE가 0건 처리되고,
-        JPA는 이를 감지해 <code>OptimisticLockException</code>을 던진다.
-        애플리케이션 코드에서 이 예외를 잡아 재시도 로직을 구현해야 한다.
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">구분</th>
-            <th>비관적 락</th>
-            <th>낙관적 락</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>락 시점</strong></td>
-            <td>조회할 때부터 잠금</td>
-            <td>수정/저장 시점에만 충돌 감지</td>
-          </tr>
-          <tr>
-            <td><strong>대기 방식</strong></td>
-            <td>다른 요청은 락 해제까지 대기</td>
-            <td>대기 없음, 충돌 시 예외 발생</td>
-          </tr>
-          <tr>
-            <td><strong>적합한 상황</strong></td>
-            <td>충돌이 자주 발생하는 쓰기 위주 환경</td>
-            <td>충돌이 드문 읽기 위주 환경 (게시글 수정 등)</td>
-          </tr>
-          <tr>
-            <td><strong>단점</strong></td>
-            <td>락 대기로 인한 성능 저하 가능</td>
-            <td>충돌 시 재시도 로직 직접 구현 필요</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. 분산 락 (Distributed Lock)</h2>
-
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          왜 분산 락이 필요한가
+          ChatController — STOMP 메시지 처리
         </span>
       </h3>
 
-      <p>
-        서버가 1대일 때는 비관적 락과 낙관적 락으로 충분하다.
-        모든 요청이 단일 서버에서 순차적으로 처리되고, Hibernate의 버전 방식과 DB의 Row Lock이 정상적으로 동작한다.
-      </p>
+      <pre><code class="language-java">@Slf4j
+@Controller  // 수정 포인트: @RestController는 HTTP 응답 반환용 → STOMP에는 @Controller 사용
+@RequiredArgsConstructor
+public class ChatController {
 
-      <p>
-        서버가 여러 대인 환경에서는 문제가 발생한다.
-        서버 A와 서버 B는 서로의 상태를 알지 못한다. 메모리를 공유하지 않고, Hibernate의 영속성 컨텍스트도 각각 따로 존재한다.
-        어떤 서버에서 락이 걸렸는지 서로 알 수 없기 때문에 동시성 문제가 그대로 발생한다.
-      </p>
+    private final SimpMessagingTemplate messagingTemplate;
 
-      <div class="concept-box">
-        <span class="box-title">락 종류별 보호 범위 비교</span>
-        <strong>낙관적 락:</strong> Hibernate가 관리. UPDATE 충돌만 감지. 다중 서버에서 안전하지 않음.<br>
-        <strong>비관적 락:</strong> DB가 관리. DB Row 수정 시점만 보호. 다중 서버에서 UPDATE는 보호되나 로직 전체는 아님.<br>
-        <strong>분산 락:</strong> Redis 등 외부 저장소가 관리. 조회~비즈니스 로직~DB까지 <strong>전체 흐름을 보호</strong>. 가장 안전.
-      </div>
+    @MessageMapping("/chat.send")  // /pub/chat.send로 온 STOMP SEND 메시지를 처리
+    public void sendMessage(ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
+        String sessionId = headerAccessor.getSessionId();
+        log.info("sessionId: {} | content: {}", sessionId, message.getContent());
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Redis SETNX 기반 분산 락
-        </span>
-      </h3>
-
-      <p>
-        Redis의 <strong>SETNX(Set if Not Exists)</strong> 명령을 이용해 "아직 없는 키만" 등록할 수 있다.
-        이미 키가 존재하면 등록에 실패하므로, 한 번에 한 서버만 락을 획득할 수 있다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:10%; text-align:center;">단계</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>SETNX lock:account:1</code> 요청 → 성공하면 락 획득</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td>TTL(유효 시간)을 설정해 서버 장애 시 락이 자동으로 해제되도록 설정</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td>락을 획득한 서버가 안전하게 작업 수행</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>4</strong></td>
-            <td>작업 완료 후 <code>DEL lock:account:1</code>로 락 해제</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">고려 항목</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>TTL 설정</strong></td>
-            <td>서버 장애 시 락이 영원히 잠기지 않도록 반드시 설정해야 한다.</td>
-          </tr>
-          <tr>
-            <td><strong>락 주인 확인</strong></td>
-            <td>락을 잡은 주체만 해제할 수 있도록 UUID를 값으로 저장하고 해제 전 검증한다.</td>
-          </tr>
-          <tr>
-            <td><strong>재시도 로직</strong></td>
-            <td>락 획득 실패 시 일정 시간 대기 후 재시도하는 전략이 필요하다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. 락 획득 실패 시 전략</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 1 — 즉시 실패 (Return Error)
-        </span>
-      </h3>
-
-      <p>
-        락 획득에 실패하면 바로 실패 응답을 반환한다.
-        출금, 주문, 결제처럼 <strong>동일 요청을 중복 실행하면 안 되는 작업</strong>이나 이벤트 쿠폰 선착순 로직에 적합하다.
-        Redis에 부하가 없고 중복 요청을 확실히 방지하지만, 사용자가 즉시 실패 응답을 받는다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 2 — 재시도 (Retry)
-        </span>
-      </h3>
-
-      <p>
-        잠시 기다렸다가 다시 시도한다.
-        상품 재고 감소, 장바구니 → 주문 변환처럼 <strong>조금 기다려서라도 반드시 성공해야 하는 작업</strong>에 사용한다.
-      </p>
-
-      <pre><code class="language-java">int retry = 0;
-while (retry < 5) {
-    boolean locked = lockService.tryLock(key, value, 5); // TTL 5초
-
-    if (locked) break; // 락 획득 성공
-
-    Thread.sleep(100); // 수정 포인트: 100ms 간격으로 재시도. 백오프 전략 적용 권장
-    retry++;
+        // /sub/chat을 구독한 모든 클라이언트에게 메시지 전송
+        messagingTemplate.convertAndSend("/sub/chat", message);
+    }
 }
 
-if (retry == 5) {
-    throw new IllegalStateException("잠시 후 다시 시도해주세요.");
+@Getter
+@Setter
+@AllArgsConstructor
+public class ChatMessage {
+    private String sender;   // 전송자
+    private String content;  // 내용
+}</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. STOMP 인증 처리 — ChannelInterceptor</h2>
+
+      <p>
+        STOMP는 HTTP와 달리 연결을 유지하기 때문에 Spring Security의 Filter에서 인증을 수행할 수 없다.
+        대신 <strong>ChannelInterceptor에서 CONNECT 시점에 JWT를 검증</strong>하고 사용자 정보를 세션에 저장한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AuthenticatedUser — 세션 내 사용자 정보 저장소
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// Principal 인터페이스를 구현해 Spring이 사용자를 식별할 수 있게 한다
+@Getter
+public class AuthenticatedUser implements Principal {
+
+    private final User user;
+    private final String name;
+
+    public AuthenticatedUser(User user) {
+        this.user = user;
+        this.name = user.getName();
+    }
+
+    // 컨트롤러에서 Principal로부터 User 객체를 꺼낼 때 사용
+    public static User fromPrincipal(Principal principal) {
+        return ((AuthenticatedUser) principal).getUser();
+    }
 }</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 3 — 블로킹 대기 (Blocking)
+          StompAuthInterceptor — CONNECT 시점 JWT 검증
         </span>
       </h3>
 
+      <pre><code class="language-java">@Component
+@RequiredArgsConstructor
+public class StompAuthInterceptor implements ChannelInterceptor {
+
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    @Override
+    public Message&lt;?&gt; preSend(Message&lt;?&gt; message, MessageChannel channel) {
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+        // 수정 포인트: CONNECT 명령일 때만 JWT 검증을 수행한다
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+            String token = accessor.getFirstNativeHeader("Authorization")
+                    .replace("Bearer ", "");
+
+            Long userId = jwtUtil.getUserId(token);
+            User user   = userRepository.findById(userId).orElseThrow();
+
+            // 세션에 인증된 사용자 정보를 저장
+            // 이후 같은 sessionId로 들어오는 SUBSCRIBE, SEND는 이 값을 공유한다
+            accessor.setUser(new AuthenticatedUser(user));
+        }
+
+        return message;
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">accessor.setUser()가 동작하는 방식</span>
+        CONNECT 시점에 <code>accessor.setUser(new AuthenticatedUser(user))</code>를 호출하면,
+        이후 같은 세션 ID로 들어오는 모든 SUBSCRIBE, SEND 요청에서 <strong>세션의 주인이 누구인지를 공유</strong>한다.
+        컨트롤러에서 <code>Principal principal</code>로 주입받으면 언제든지 현재 사용자를 꺼낼 수 있다.
+        HTTP의 세션 쿠키와 유사하지만, WebSocket 연결 단위로 관리된다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. STOMP 프레임 구조</h2>
+
       <p>
-        락이 풀릴 때까지 계속 기다린다. 실무에서는 거의 사용하지 않는다.
-        서버 스레드를 오래 점유해 서버 부하가 증가하고, 하나의 요청이 수 초 동안 대기하면 전체 시스템에 영향을 준다.
+        STOMP는 텍스트 기반 프레임 프로토콜이다.
+        Postman으로 테스트할 때는 STOMP 프레임 원본을 <strong>Base64로 인코딩</strong>해서 전송해야 한다.
+        각 프레임은 명령(Command), 헤더(Header), 바디(Body), NULL 종료 문자(<code>\0</code>)로 구성된다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">전략</th>
-            <th style="width:25%;">적합한 상황</th>
-            <th style="width:25%;">장점</th>
-            <th>단점</th>
+            <th style="width:20%;">프레임</th>
+            <th style="width:35%;">역할</th>
+            <th>주요 헤더</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>즉시 실패</strong></td>
-            <td>결제, 출금, 선착순 이벤트</td>
-            <td>Redis 부하 없음, 중복 방지 확실</td>
-            <td>사용자가 바로 실패 응답을 받음</td>
+            <td><strong>CONNECT</strong></td>
+            <td>STOMP 통신을 시작하겠다는 핸드셰이크. 어떤 메시지 규칙을 준수할 것인지 약속한다.</td>
+            <td><code>accept-version</code>, <code>host</code>, <code>Authorization</code></td>
           </tr>
           <tr>
-            <td><strong>재시도</strong></td>
-            <td>재고 감소, 주문 변환</td>
-            <td>늦어져도 성공 가능</td>
-            <td>재시도 과다 시 Redis 부하, 백오프 설계 필요</td>
+            <td><strong>SUBSCRIBE</strong></td>
+            <td>특정 목적지(destination)의 메시지를 받겠다고 구독 등록한다.</td>
+            <td><code>id</code> (구독 식별자), <code>destination</code> (구독 경로)</td>
           </tr>
           <tr>
-            <td><strong>블로킹</strong></td>
-            <td>실무에서 거의 미사용</td>
-            <td>—</td>
-            <td>스레드 점유, 전체 시스템 영향</td>
+            <td><strong>SEND</strong></td>
+            <td>서버로 메시지를 전송한다. HTTP의 POST 요청과 유사한 역할이다.</td>
+            <td><code>destination</code> (전송 경로), <code>content-type</code>, <code>content-length</code></td>
           </tr>
         </tbody>
       </table>
 
-      <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. 분산 락 사용 시 주의사항</h2>
+      <pre><code class="language-text">-- CONNECT 프레임 (원본)
+CONNECT
+accept-version:1.2
+host:localhost
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ TTL이 너무 짧으면 발생하는 문제</span>
-        작업이 끝나지 않았는데 TTL이 먼저 만료되면 락이 풀린다.
-        락이 풀린 사이에 다른 요청이 들어와 같은 작업을 중복 실행하는 문제가 생긴다.
-        <strong>작업이 완료되는 시간보다 TTL을 충분히 길게 설정</strong>해야 한다.
-      </div>
+\0
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ Redis 장애 시 동시성 제어가 무너진다</span>
-        Redis가 다운되면 락을 잡는 것 자체가 불가능해진다.
-        락이 없는 상태에서 요청이 모두 동시에 처리되어 경쟁 상태가 발생한다.
-        Redis를 분산 락의 단일 장애점(SPOF)으로 사용할 때는 Redis 고가용성(Sentinel, Cluster) 구성을 함께 고려해야 한다.
-      </div>
+-- SUBSCRIBE 프레임 (원본)
+SUBSCRIBE
+id:sub-0              ← 하나의 연결에서 여러 구독을 구분하기 위한 구독 ID
+destination:/sub/chat ← 이 경로로 발행되는 메시지를 수신
 
-      <div class="warning-box">
-        <span class="box-title">⚠️ 락 남용 시 성능 저하</span>
-        모든 요청이 순차적으로 처리되어 처리량(Throughput)이 크게 떨어진다.
-        서버 스레드가 대기하다 Timeout이 발생하고 Redis에도 부하가 생긴다.
-        <strong>실제로 동시성 문제가 발생할 가능성이 있는 구간에만 선택적으로 적용</strong>해야 한다.
+\0
+
+-- SEND 프레임 (원본)
+SEND
+destination:/pub/chat.send  ← Spring @MessageMapping("/chat.send")에 연결
+content-type:application/json
+content-length:33
+
+{"sender":"A","content":"hello"}
+
+\0</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">STOMP에서 /pub과 /sub의 역할</span>
+        <strong>/pub (Application Destination Prefix):</strong> 클라이언트 → 서버로 메시지를 보낼 때 사용하는 경로다.
+        <code>/pub/chat.send</code>로 SEND 프레임을 보내면 <code>@MessageMapping("/chat.send")</code>가 처리한다.<br><br>
+        <strong>/sub (Broker Destination):</strong> 서버 → 클라이언트로 메시지를 브로드캐스트하는 경로다.
+        <code>/sub/chat</code>을 구독한 클라이언트들은 서버가 이 경로로 발행하는 메시지를 자동으로 수신한다.
       </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        동시성 문제는 코드를 아무리 잘 짜도 여러 요청이 동시에 들어오는 순간 언제든 발생할 수 있다.
-        중요한 것은 어떤 락을 어느 범위에 적용할지를 상황에 맞게 판단하는 것이다.
-        충돌이 드문 환경에서 비관적 락을 남용하면 모든 요청이 줄을 서게 되어 처리량이 크게 떨어지고,
-        충돌이 잦은 환경에서 낙관적 락만 쓰면 예외와 재시도가 폭발적으로 늘어난다.
+        실시간 서비스는 HTTP의 요청-응답 구조로는 근본적으로 구현하기 어렵다.
+        Polling이 그 한계를 우회하려는 시도였지만, 불필요한 트래픽과 지연이라는 근본적인 문제는 해결하지 못한다.
+        WebSocket은 이 문제를 연결 유지와 양방향 통신으로 해결하고, STOMP는 그 위에 메시지 라우팅 규칙을 얹어서 채팅방 같은 복잡한 구조를 세션 관리 코드 없이 구현할 수 있게 한다.
       </p>
 
       <p>
-        분산 락은 다중 서버 환경에서 비관적 락과 낙관적 락이 보호하지 못하는 영역을 커버한다.
-        비관적 락이 DB Row 수정 시점만 보호하는 것과 달리, 분산 락은 조회부터 비즈니스 로직 전체를 하나의 임계 구간으로 보호한다.
-        단, Redis가 단일 장애점이 되지 않도록 고가용성 구성을 함께 고려해야 하고,
-        TTL 설정과 락 주인 검증을 빠뜨리면 오히려 더 심각한 문제가 생긴다.
+        STOMP 인증에서 가장 중요한 개념은 <strong>CONNECT 시점에 한 번만 인증하고 이후 메시지들이 그 세션 정보를 공유</strong>한다는 것이다.
+        HTTP는 매 요청마다 토큰을 검증하지만, WebSocket은 연결이 지속되기 때문에 CONNECT 한 번에 인증하면 그 세션이 살아있는 동안 인증이 유지된다.
+        이 차이를 이해하지 못하면 ChannelInterceptor 대신 Filter에서 인증하려다 동작하지 않는 문제를 겪게 된다.
       </p>
 
       <p>
-        락 획득 실패 시 전략도 상황마다 다르다.
-        결제나 선착순처럼 중복이 절대 허용되지 않는 곳에서는 즉시 실패가 안전하고,
-        재고 감소처럼 조금 늦더라도 반드시 성공해야 하는 곳에서는 재시도 전략이 적합하다.
-        재시도를 구현할 때는 고정 간격이 아닌 <strong>지수 백오프(Exponential Backoff)</strong>를 적용해 Redis 부하를 분산하는 것이 좋다.
+        STOMP 프레임의 구조(명령 / 헤더 / 바디 / NULL 종료)를 직접 작성해보면서 HTTP의 요청-응답과 얼마나 다른 방식으로 설계되어 있는지를 체감했다.
+        특히 <code>destination</code> 헤더 하나로 어떤 컨트롤러 메서드를 실행할지, 어떤 구독자들에게 메시지를 전달할지를 결정한다는 것이 목적지 중심 설계의 핵심이다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
