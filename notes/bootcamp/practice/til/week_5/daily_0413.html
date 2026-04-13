@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 79일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 81일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,361 +109,386 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 79일차 TIL — 동시성 · 비관적 락 · 낙관적 락 · 분산 락(Redis)</h1>
-      <p class="muted">작성일 2026-04-08 · 분류: 부트캠프, TIL, 동시성, Pessimistic Lock, Optimistic Lock, Distributed Lock, Redis</p>
+      <h1>내일배움캠프 Spring 백엔드 81일차 TIL — DB 커넥션 풀, 재고 동시성 설계, Row 분산 저장 전략</h1>
+      <p class="muted">작성일 2026-04-13 · 분류: 부트캠프, TIL, DB 커넥션 풀, 분산 락, 재고 관리, Redis, Write-back, 동시성</p>
 
-      <h2 class="section">79일차 개요</h2>
+      <h2 class="section">81일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>동시성 문제</strong>와 경쟁 상태(Race Condition)가 발생하는 원인을 이해한다.</li>
-        <li><strong>비관적 락</strong>과 <strong>낙관적 락</strong>의 동작 방식 및 차이를 정리한다.</li>
-        <li>단일 서버에서는 충분한 락이 다중 서버 환경에서 한계를 갖는 이유를 파악한다.</li>
-        <li><strong>분산 락</strong>의 필요성과 Redis SETNX 기반 구현 방법을 이해한다.</li>
-        <li>락 획득 전략 3가지(즉시 실패, 재시도, 블로킹)의 차이와 사용 시점을 익힌다.</li>
+        <li>요청 처리 전체 흐름(스레드 풀 → 분산 락 → DB 커넥션 풀)에서 각 자원의 역할을 이해한다.</li>
+        <li>단순 재고 컬럼 방식이 동시성 상황에서 왜 위험한지 파악한다.</li>
+        <li><strong>재고 추적 테이블(Row 분산 저장)</strong>의 개념과 한계를 이해한다.</li>
+        <li>실무에서 사용하는 <strong>3가지 재고 동시성 전략</strong>을 비교한다.</li>
+        <li><strong>Redis 원자적 카운트 + Write-back</strong> 패턴의 동작 방식을 익힌다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. 동시성과 경쟁 상태</h2>
+      <h2 class="section">1. 요청 처리 전체 흐름과 자원 병목</h2>
 
       <p>
-        <strong>동시성</strong>은 하나의 데이터를 여러 사용자가 동시에 수정하거나 읽는 상황을 의미한다.
-        DB는 요청을 독립된 트랜잭션으로 처리하기 때문에, 현재 다른 요청이 같은 데이터를 수정하고 있는지 알지 못한다.
-        그래서 여러 요청이 동시에 들어오면 서로의 결과를 덮어쓰는 문제가 생긴다.
+        하나의 주문 요청이 처리되는 과정에는 여러 자원이 순서대로 관여한다.
+        각 자원은 수용 한계가 있으며, 한 곳이 막히면 뒤의 모든 처리가 대기 상태에 빠진다.
       </p>
+
+      <pre><code class="language-text">요청 도착
+  ↓
+[디스패처 서블릿 — 스레드 풀]
+  → 유휴 스레드가 없으면 요청을 큐에서 대기
+  ↓
+[컨트롤러]
+  ↓
+[분산 락 — Redis (productId 기준)]
+  → 같은 상품을 동시에 처리 중이면 락 획득 대기 or 즉시 실패
+  ↓
+[DB — 커넥션 풀]
+  → 커넥션이 모두 사용 중이면 대기 (max-wait 초과 시 타임아웃)
+  ↓
+처리 완료 → 커넥션 반납 → 스레드 반납</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">경쟁 상태 (Race Condition)</span>
-        동일 자원을 누가 먼저 처리하느냐에 따라 결과가 달라지고 데이터 일관성이 깨지는 문제다.<br><br>
-        예를 들어 잔액이 10,000원인 계좌에서 두 요청이 동시에 5,000원씩 출금을 시도한다면,
-        두 요청 모두 10,000원을 읽은 뒤 각각 5,000원을 뺀 값을 저장하면 잔액이 5,000원으로 기록된다.
-        실제로는 둘 다 성공했으니 0원이 되어야 하는데, <strong>한 번의 출금이 사라진 것</strong>이다.
+        <span class="box-title">감으로 조절하지 말고, 모니터링으로 조절한다</span>
+        스레드 풀과 DB 커넥션 풀의 크기는 임의로 크게 잡는다고 무조건 좋지 않다.
+        스레드를 너무 많이 열면 컨텍스트 스위칭 비용이 증가하고, 커넥션을 너무 많이 열면 DB 서버가 버티지 못한다.<br><br>
+        <strong>APM(Application Performance Monitoring) 도구로 스레드 대기 시간, 커넥션 대기 시간, 처리량을 실측한 뒤</strong>
+        병목 지점을 확인하고 조절하는 것이 올바른 방법이다.
+        적정값은 서버 스펙과 트래픽 패턴에 따라 달라진다.
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">해결 방법</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>비관적 락</strong></td>
-            <td>먼저 잠그고 다른 사용자는 대기시킨다. (선행 조치)</td>
-          </tr>
-          <tr>
-            <td><strong>낙관적 락</strong></td>
-            <td>잠그지 않고, 나중에 충돌 여부를 확인한다. (후행 조치)</td>
-          </tr>
-          <tr>
-            <td><strong>분산 락</strong></td>
-            <td>여러 서버 환경에서도 동일한 데이터를 하나만 수정하도록 조정한다.</td>
-          </tr>
-        </tbody>
-      </table>
-
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 비관적 락 (Pessimistic Lock)</h2>
+      <h2 class="section">2. 단순 재고 컬럼 방식의 문제</h2>
 
       <p>
-        한 트랜잭션이 데이터를 수정하는 동안 다른 트랜잭션은 그 데이터에 <strong>접근 자체가 불가능</strong>하다.
-        다른 요청은 락이 해제될 때까지 대기 상태가 된다.
-        충돌이 발생할 것이라는 비관적 가정 하에 <strong>조회 시점부터 미리 락을 거는 선행 조치</strong> 방식이다.
+        가장 흔한 재고 설계는 상품 테이블에 <code>stock</code> 컬럼을 두고 직접 증감하는 방식이다.
+        동시 요청이 없을 때는 단순하고 잘 동작하지만, 여러 요청이 동시에 들어오는 순간 문제가 터진다.
       </p>
 
-      <pre><code class="language-java">// JPA Repository — 조회 시점에 DB Row를 잠근다
-@Lock(LockModeType.PESSIMISTIC_WRITE)
-@Query("SELECT a FROM Account a WHERE a.id = :id")
-Account findByIdForLock(@Param("id") Long id);</code></pre>
+      <pre><code class="language-java">// 단순 재고 방식 — 동시성 문제 발생 예시
+@Entity
+public class Product {
+    @Id private Long id;
+    private int stock; // 재고를 숫자 하나로 관리
+}
+
+// 서비스 로직 — 락 없이 동시 요청이 오면?
+public void decreaseStock(Long productId, int quantity) {
+    Product product = productRepository.findById(productId).orElseThrow();
+    // 요청 A: stock = 24 읽음
+    // 요청 B: stock = 24 읽음 (A가 아직 저장 안 함)
+    if (product.getStock() < quantity) throw new RuntimeException("재고 부족");
+    product.setStock(product.getStock() - quantity);
+    // 요청 A: stock = 22 저장
+    // 요청 B: stock = 22 저장 (A의 차감이 덮어씌워짐 — Lost Update!)
+}</code></pre>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ 비관적 락 사용 시 주의사항</span>
-        조회용 쿼리에는 사용하지 않는다. 불필요하게 락을 걸면 전체 성능이 저하된다.<br>
-        <strong>쓰기 작업이 동시에 발생할 가능성이 높은 구간에만</strong> 사용한다.<br>
-        트랜잭션을 짧게 유지해야 한다. 락을 오래 잡고 있으면 다른 요청들이 대기하면서 서버가 느려진다.
+        <span class="box-title">⚠️ Lost Update 문제 — 재고가 사라지지 않는다</span>
+        재고 24에서 요청 A(2개 차감), 요청 B(2개 차감)가 동시에 들어오면,
+        두 요청 모두 24를 읽고 각각 22를 저장한다.
+        실제로는 4개가 나가야 하는데 최종 재고는 22가 된다.
+        <strong>2개가 공중에서 사라진 것이다.</strong>
       </div>
 
       <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. 낙관적 락 (Optimistic Lock)</h2>
+      <h2 class="section">3. 재고 추적 테이블 — Row 분산 저장</h2>
 
       <p>
-        동시에 같은 데이터를 수정할 가능성이 낮다고 낙관적으로 가정하고, <strong>데이터를 잠그지 않고 자유롭게 수정</strong>한다.
-        수정이 완료되는 시점에 해당 데이터가 이미 변경됐는지를 <strong>버전(version) 필드</strong>를 통해 감지한다.
-        충돌이 감지되면 예외를 발생시키고 재시도 로직이 처리한다.
+        재고를 숫자 하나로 관리하는 대신, <strong>입고(IN)와 출고(OUT)를 별도 Row로 기록</strong>하고
+        현재 재고를 <code>SUM</code>으로 계산하는 방식이다.
+        각 트랜잭션이 같은 Row를 수정하는 대신 새 Row를 INSERT하기 때문에 동시성 충돌이 근본적으로 줄어든다.
       </p>
 
-      <pre><code class="language-java">// 엔티티에 @Version 필드를 추가하면 JPA가 자동으로 관리
-@Entity
-public class Account {
+      <pre><code class="language-sql">-- 재고 추적 테이블 설계
+CREATE TABLE stock_ledger (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id  BIGINT      NOT NULL,
+    type        ENUM('IN', 'OUT') NOT NULL,  -- 입고 / 출고
+    quantity    INT         NOT NULL,
+    created_at  DATETIME    NOT NULL DEFAULT NOW()
+);
 
-    @Id
-    private Long id;
+-- 입고 기록 (상품 24개 입고)
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'IN',  24);
 
-    private Long balance;
+-- 출고 기록 (2개 판매)
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'OUT',  2);
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'OUT',  2);
 
-    @Version  // 수정 포인트: 이 필드 하나로 낙관적 락이 자동 적용된다
-    private Long version;
-}</code></pre>
+-- 현재 재고 계산
+SELECT
+    SUM(CASE WHEN type = 'IN'  THEN  quantity ELSE 0 END) -
+    SUM(CASE WHEN type = 'OUT' THEN  quantity ELSE 0 END) AS current_stock
+FROM stock_ledger
+WHERE product_id = 1;</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">@Version이 동작하는 방식</span>
-        데이터를 수정할 때 JPA는 <code>UPDATE ... WHERE id = ? AND version = ?</code> 형태의 쿼리를 실행한다.
-        다른 트랜잭션이 먼저 수정해서 <code>version</code> 값이 바뀌었다면 UPDATE가 0건 처리되고,
-        JPA는 이를 감지해 <code>OptimisticLockException</code>을 던진다.
-        애플리케이션 코드에서 이 예외를 잡아 재시도 로직을 구현해야 한다.
+        <span class="box-title">재고 추적 테이블이 '진실의 원천(Source of Truth)'이 되는 이유</span>
+        단순 재고 컬럼은 "지금 몇 개 있다"만 알 수 있다. 언제 몇 개가 들어오고 나갔는지 이력이 없다.<br><br>
+        재고 추적 테이블은 모든 입출고 이벤트를 Row로 남기기 때문에,
+        "어느 시점에 재고가 얼마였는지", "어떤 주문이 재고를 차감했는지"를 항상 재계산할 수 있다.
+        데이터를 수정하는 것이 아니라 새 Row를 추가하기 때문에 <strong>데이터가 절대 사라지지 않는다.</strong>
       </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          재고 추적 테이블의 한계
+        </span>
+      </h3>
+
+      <p>
+        시간이 지날수록 Row 수가 폭발적으로 증가한다.
+        거래가 많은 상품은 수천만 Row가 쌓이고, 매번 <code>SUM</code>을 풀 스캔으로 계산하면 성능이 급격히 저하된다.
+        이를 해결하기 위한 전략이 필요하다.
+      </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">구분</th>
-            <th>비관적 락</th>
-            <th>낙관적 락</th>
+            <th style="width:30%;">문제</th>
+            <th>해결 방향</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>락 시점</strong></td>
-            <td>조회할 때부터 잠금</td>
-            <td>수정/저장 시점에만 충돌 감지</td>
+            <td>Row 수 폭증 → 조회 느림</td>
+            <td>테이블 파티셔닝(날짜 기준 분리), 오래된 데이터 아카이빙</td>
           </tr>
           <tr>
-            <td><strong>대기 방식</strong></td>
-            <td>다른 요청은 락 해제까지 대기</td>
-            <td>대기 없음, 충돌 시 예외 발생</td>
+            <td>매번 SUM → 성능 이슈</td>
+            <td>별도 스냅샷 컬럼 유지, Redis 캐싱, 배치 집계</td>
           </tr>
           <tr>
-            <td><strong>적합한 상황</strong></td>
-            <td>충돌이 자주 발생하는 쓰기 위주 환경</td>
-            <td>충돌이 드문 읽기 위주 환경 (게시글 수정 등)</td>
-          </tr>
-          <tr>
-            <td><strong>단점</strong></td>
-            <td>락 대기로 인한 성능 저하 가능</td>
-            <td>충돌 시 재시도 로직 직접 구현 필요</td>
+            <td>대규모 동시 삽입 → DB 부하</td>
+            <td>Redis 원자적 카운트 + Write-back 패턴으로 위임</td>
           </tr>
         </tbody>
       </table>
 
       <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. 분산 락 (Distributed Lock)</h2>
+      <h2 class="section">4. 실무 재고 동시성 전략 3가지</h2>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          왜 분산 락이 필요한가
+          전략 1 — 분산 락 + 비정규화 + 낙관적/비관적 락
         </span>
       </h3>
 
       <p>
-        서버가 1대일 때는 비관적 락과 낙관적 락으로 충분하다.
-        모든 요청이 단일 서버에서 순차적으로 처리되고, Hibernate의 버전 방식과 DB의 Row Lock이 정상적으로 동작한다.
+        Redis 분산 락으로 같은 상품에 대한 동시 접근을 직렬화하고,
+        상품 테이블의 재고 컬럼(비정규화된 숫자 하나)을 낙관적 락 또는 비관적 락으로 보호한다.
       </p>
 
-      <p>
-        서버가 여러 대인 환경에서는 문제가 발생한다.
-        서버 A와 서버 B는 서로의 상태를 알지 못한다. 메모리를 공유하지 않고, Hibernate의 영속성 컨텍스트도 각각 따로 존재한다.
-        어떤 서버에서 락이 걸렸는지 서로 알 수 없기 때문에 동시성 문제가 그대로 발생한다.
-      </p>
+      <pre><code class="language-java">public void decreaseStockWithLock(Long productId, int quantity) {
+    String lockKey = "lock:stock:" + productId;
+    String lockValue = UUID.randomUUID().toString();
 
-      <div class="concept-box">
-        <span class="box-title">락 종류별 보호 범위 비교</span>
-        <strong>낙관적 락:</strong> Hibernate가 관리. UPDATE 충돌만 감지. 다중 서버에서 안전하지 않음.<br>
-        <strong>비관적 락:</strong> DB가 관리. DB Row 수정 시점만 보호. 다중 서버에서 UPDATE는 보호되나 로직 전체는 아님.<br>
-        <strong>분산 락:</strong> Redis 등 외부 저장소가 관리. 조회~비즈니스 로직~DB까지 <strong>전체 흐름을 보호</strong>. 가장 안전.
-      </div>
+    // 1. 분산 락 획득 (TTL 5초)
+    boolean locked = redisTemplate.opsForValue()
+            .setIfAbsent(lockKey, lockValue, 5, TimeUnit.SECONDS);
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Redis SETNX 기반 분산 락
-        </span>
-      </h3>
+    if (!locked) throw new RuntimeException("잠시 후 다시 시도해주세요.");
 
-      <p>
-        Redis의 <strong>SETNX(Set if Not Exists)</strong> 명령을 이용해 "아직 없는 키만" 등록할 수 있다.
-        이미 키가 존재하면 등록에 실패하므로, 한 번에 한 서버만 락을 획득할 수 있다.
-      </p>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:10%; text-align:center;">단계</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="text-align:center;"><strong>1</strong></td>
-            <td><code>SETNX lock:account:1</code> 요청 → 성공하면 락 획득</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>2</strong></td>
-            <td>TTL(유효 시간)을 설정해 서버 장애 시 락이 자동으로 해제되도록 설정</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>3</strong></td>
-            <td>락을 획득한 서버가 안전하게 작업 수행</td>
-          </tr>
-          <tr>
-            <td style="text-align:center;"><strong>4</strong></td>
-            <td>작업 완료 후 <code>DEL lock:account:1</code>로 락 해제</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">고려 항목</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>TTL 설정</strong></td>
-            <td>서버 장애 시 락이 영원히 잠기지 않도록 반드시 설정해야 한다.</td>
-          </tr>
-          <tr>
-            <td><strong>락 주인 확인</strong></td>
-            <td>락을 잡은 주체만 해제할 수 있도록 UUID를 값으로 저장하고 해제 전 검증한다.</td>
-          </tr>
-          <tr>
-            <td><strong>재시도 로직</strong></td>
-            <td>락 획득 실패 시 일정 시간 대기 후 재시도하는 전략이 필요하다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. 락 획득 실패 시 전략</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 1 — 즉시 실패 (Return Error)
-        </span>
-      </h3>
-
-      <p>
-        락 획득에 실패하면 바로 실패 응답을 반환한다.
-        출금, 주문, 결제처럼 <strong>동일 요청을 중복 실행하면 안 되는 작업</strong>이나 이벤트 쿠폰 선착순 로직에 적합하다.
-        Redis에 부하가 없고 중복 요청을 확실히 방지하지만, 사용자가 즉시 실패 응답을 받는다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 2 — 재시도 (Retry)
-        </span>
-      </h3>
-
-      <p>
-        잠시 기다렸다가 다시 시도한다.
-        상품 재고 감소, 장바구니 → 주문 변환처럼 <strong>조금 기다려서라도 반드시 성공해야 하는 작업</strong>에 사용한다.
-      </p>
-
-      <pre><code class="language-java">int retry = 0;
-while (retry < 5) {
-    boolean locked = lockService.tryLock(key, value, 5); // TTL 5초
-
-    if (locked) break; // 락 획득 성공
-
-    Thread.sleep(100); // 수정 포인트: 100ms 간격으로 재시도. 백오프 전략 적용 권장
-    retry++;
-}
-
-if (retry == 5) {
-    throw new IllegalStateException("잠시 후 다시 시도해주세요.");
+    try {
+        // 2. 비관적 락으로 DB Row 잠금 후 재고 차감
+        Product product = productRepository.findByIdForLock(productId);
+        if (product.getStock() < quantity) throw new RuntimeException("재고 부족");
+        product.setStock(product.getStock() - quantity);
+        // 3. 재고 추적 테이블에도 기록
+        stockLedgerRepository.save(new StockLedger(productId, "OUT", quantity));
+    } finally {
+        // 4. 락 해제 — 반드시 내가 건 락만 해제
+        if (lockValue.equals(redisTemplate.opsForValue().get(lockKey))) {
+            redisTemplate.delete(lockKey);
+        }
+    }
 }</code></pre>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          전략 3 — 블로킹 대기 (Blocking)
+          전략 2 — Redis 원자적 카운트 + Write-back
         </span>
       </h3>
 
       <p>
-        락이 풀릴 때까지 계속 기다린다. 실무에서는 거의 사용하지 않는다.
-        서버 스레드를 오래 점유해 서버 부하가 증가하고, 하나의 요청이 수 초 동안 대기하면 전체 시스템에 영향을 준다.
+        재고를 Redis에서 관리한다. <code>DECRBY</code>는 원자적 연산이므로 동시 요청이 와도 순서가 보장된다.
+        변경 내역은 즉시 DB에 쓰지 않고 Redis에 쌓아두다가 주기적으로 DB에 반영한다(Write-back).
       </p>
+
+      <pre><code class="language-java">// Redis로 재고 차감 — DECRBY는 원자적 연산
+public boolean decreaseStockInRedis(Long productId, int quantity) {
+    String key = "stock:" + productId;
+
+    // 수정 포인트: Lua 스크립트로 "조회 → 비교 → 차감"을 원자적으로 실행
+    String luaScript =
+        "local stock = redis.call('GET', KEYS[1]) " +
+        "if stock == false or tonumber(stock) < tonumber(ARGV[1]) then " +
+        "    return -1 " +
+        "end " +
+        "return redis.call('DECRBY', KEYS[1], ARGV[1])";
+
+    Long result = redisTemplate.execute(
+            new DefaultRedisScript&lt;&gt;(luaScript, Long.class),
+            List.of(key),
+            String.valueOf(quantity)
+    );
+
+    // -1이면 재고 부족
+    return result != null && result >= 0;
+}
+
+// Write-back — 주기적으로 Redis 변경분을 DB에 반영
+@Scheduled(fixedDelay = 5000)
+public void flushStockToDb() {
+    // 수정 포인트: Redis에 쌓인 변경분을 DB 재고 추적 테이블에 배치로 INSERT
+    List&lt;StockChange&gt; changes = collectPendingChanges();
+    if (!changes.isEmpty()) {
+        stockLedgerRepository.saveAll(changes.stream()
+                .map(c -> new StockLedger(c.productId(), "OUT", c.quantity()))
+                .toList());
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Lua 스크립트가 필요한 이유 — 원자성 보장</span>
+        Redis에서 "재고 조회 → 재고 비교 → 재고 차감"을 Java 코드 3번의 명령으로 나눠 실행하면,
+        명령 사이 틈에 다른 요청이 끼어들어 비교 시점과 차감 시점의 값이 달라질 수 있다.<br><br>
+        <strong>Lua 스크립트</strong>는 Redis에서 <strong>원자적으로(중단 없이) 실행</strong>되기 때문에,
+        조회-비교-차감이 하나의 불가분한 작업이 된다.
+        다른 명령이 중간에 끼어들 수 없으므로 재고 음수 문제가 원천 차단된다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Redis가 장애를 일으켰을 때 — 재고 추적 테이블로 복구
+        </span>
+      </h3>
+
+      <pre><code class="language-java">public int getCurrentStock(Long productId) {
+    String key = "stock:" + productId;
+    String cached = (String) redisTemplate.opsForValue().get(key);
+
+    if (cached != null) {
+        return Integer.parseInt(cached); // Redis 정상 — 캐시에서 즉시 반환
+    }
+
+    // Redis 장애 또는 캐시 미스 — 재고 추적 테이블에서 SUM으로 재계산
+    int stock = stockLedgerRepository.calculateCurrentStock(productId);
+
+    // Redis 복구 후 warm-up — 다시 캐시에 올림
+    redisTemplate.opsForValue().set(key, String.valueOf(stock), 1, TimeUnit.HOURS);
+    return stock;
+}</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">Redis 장애 대응 흐름</span>
+        <strong>정상 상태:</strong> Redis가 재고를 원자적으로 관리하고, Write-back으로 주기적으로 DB에 반영한다.<br>
+        <strong>Redis 장애:</strong> 재고 추적 테이블(진실의 원천)에서 SUM으로 재계산한다.<br>
+        <strong>Redis 복구:</strong> 계산된 값을 다시 Redis에 올려 캐시를 warm-up한다.<br><br>
+        재고 추적 테이블이 진실의 원천이기 때문에 Redis가 뻗어도 데이터 손실이 없다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. Redis Sorted Set으로 제한 횟수 관리 + Write-back</h2>
+
+      <p>
+        "1인당 1시간에 5회까지 구매 가능" 같은 요청 제한 로직도 Redis Sorted Set으로 구현할 수 있다.
+        Sorted Set에 요청 시각을 score로 기록하고, 슬라이딩 윈도우로 1시간 내 요청 수를 계산한다.
+        데이터는 TTL이 지나면 자동 삭제되고, 중요한 기록은 DB에 Write-back한다.
+      </p>
+
+      <pre><code class="language-java">public boolean checkAndRecordPurchase(Long userId, Long productId) {
+    String key = "purchase:limit:" + userId + ":" + productId;
+    long now = System.currentTimeMillis();
+    long windowStart = now - TimeUnit.HOURS.toMillis(1); // 1시간 슬라이딩 윈도우
+
+    // 1. 1시간 이전 데이터 제거
+    redisTemplate.opsForZSet().removeRangeByScore(key, 0, windowStart);
+
+    // 2. 현재 윈도우 내 구매 횟수 확인
+    Long count = redisTemplate.opsForZSet().count(key, windowStart, now);
+    if (count != null && count >= 5) {
+        return false; // 5회 초과 — 구매 불가
+    }
+
+    // 3. 현재 요청 기록 (score = timestamp)
+    redisTemplate.opsForZSet().add(key, UUID.randomUUID().toString(), now);
+
+    // 4. TTL 설정 (1시간 후 자동 삭제)
+    redisTemplate.expire(key, 1, TimeUnit.HOURS);
+
+    // 5. Write-back — DB 기록 테이블에 비동기 저장
+    purchaseRecordRepository.save(new PurchaseRecord(userId, productId, now));
+    return true;
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">이 패턴이 Write-back인 이유</span>
+        Write-through는 Redis와 DB에 동시에 쓴다. Write-back은 <strong>Redis에 먼저 쓰고 DB에는 나중에 반영</strong>한다.<br><br>
+        제한 횟수 체크의 핵심 로직(빠른 카운트 조회 및 증가)은 Redis가 담당하고,
+        DB는 "이 요청이 실제로 있었다"는 감사 기록 용도로 사용한다.
+        Redis가 장애를 일으켜도 DB 기록을 보고 현재 상태를 복원할 수 있다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략별 요약 비교
+        </span>
+      </h3>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">전략</th>
+            <th style="width:25%;">전략</th>
             <th style="width:25%;">적합한 상황</th>
             <th style="width:25%;">장점</th>
-            <th>단점</th>
+            <th>단점 / 주의사항</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>즉시 실패</strong></td>
-            <td>결제, 출금, 선착순 이벤트</td>
-            <td>Redis 부하 없음, 중복 방지 확실</td>
-            <td>사용자가 바로 실패 응답을 받음</td>
+            <td><strong>분산 락 + 비정규화 + DB 락</strong></td>
+            <td>서버 다중화 환경, 충돌이 잦은 재고</td>
+            <td>구현이 상대적으로 단순, DB가 최종 보루</td>
+            <td>락 직렬화로 처리량 제한, DB 부하 집중</td>
           </tr>
           <tr>
-            <td><strong>재시도</strong></td>
-            <td>재고 감소, 주문 변환</td>
-            <td>늦어져도 성공 가능</td>
-            <td>재시도 과다 시 Redis 부하, 백오프 설계 필요</td>
+            <td><strong>재고 추적 테이블 (Row 분산)</strong></td>
+            <td>감사 추적이 중요한 금융/커머스</td>
+            <td>이력 완전 보존, 진실의 원천 확보</td>
+            <td>Row 폭증 → 파티셔닝 필요, SUM 비용</td>
           </tr>
           <tr>
-            <td><strong>블로킹</strong></td>
-            <td>실무에서 거의 미사용</td>
-            <td>—</td>
-            <td>스레드 점유, 전체 시스템 영향</td>
+            <td><strong>Redis 원자 카운트 + Write-back</strong></td>
+            <td>트래픽이 매우 많은 고성능 서비스</td>
+            <td>Redis 원자성으로 락 없이 처리, 빠름</td>
+            <td>Redis 장애 대응 설계 필수, warm-up 필요</td>
           </tr>
         </tbody>
       </table>
 
-      <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. 분산 락 사용 시 주의사항</h2>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ TTL이 너무 짧으면 발생하는 문제</span>
-        작업이 끝나지 않았는데 TTL이 먼저 만료되면 락이 풀린다.
-        락이 풀린 사이에 다른 요청이 들어와 같은 작업을 중복 실행하는 문제가 생긴다.
-        <strong>작업이 완료되는 시간보다 TTL을 충분히 길게 설정</strong>해야 한다.
-      </div>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ Redis 장애 시 동시성 제어가 무너진다</span>
-        Redis가 다운되면 락을 잡는 것 자체가 불가능해진다.
-        락이 없는 상태에서 요청이 모두 동시에 처리되어 경쟁 상태가 발생한다.
-        Redis를 분산 락의 단일 장애점(SPOF)으로 사용할 때는 Redis 고가용성(Sentinel, Cluster) 구성을 함께 고려해야 한다.
-      </div>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ 락 남용 시 성능 저하</span>
-        모든 요청이 순차적으로 처리되어 처리량(Throughput)이 크게 떨어진다.
-        서버 스레드가 대기하다 Timeout이 발생하고 Redis에도 부하가 생긴다.
-        <strong>실제로 동시성 문제가 발생할 가능성이 있는 구간에만 선택적으로 적용</strong>해야 한다.
-      </div>
-
       <h2 class="section">마무리</h2>
 
       <p>
-        동시성 문제는 코드를 아무리 잘 짜도 여러 요청이 동시에 들어오는 순간 언제든 발생할 수 있다.
-        중요한 것은 어떤 락을 어느 범위에 적용할지를 상황에 맞게 판단하는 것이다.
-        충돌이 드문 환경에서 비관적 락을 남용하면 모든 요청이 줄을 서게 되어 처리량이 크게 떨어지고,
-        충돌이 잦은 환경에서 낙관적 락만 쓰면 예외와 재시도가 폭발적으로 늘어난다.
+        재고 관리는 단순히 숫자를 하나 저장하고 빼는 것처럼 보이지만,
+        동시 요청이 발생하는 순간 그 단순함이 가장 위험한 설계가 된다.
+        Lost Update 한 번으로 재고가 공중에서 사라지고, 그게 누적되면 실제 재고와 시스템 재고가 완전히 달라진다.
       </p>
 
       <p>
-        분산 락은 다중 서버 환경에서 비관적 락과 낙관적 락이 보호하지 못하는 영역을 커버한다.
-        비관적 락이 DB Row 수정 시점만 보호하는 것과 달리, 분산 락은 조회부터 비즈니스 로직 전체를 하나의 임계 구간으로 보호한다.
-        단, Redis가 단일 장애점이 되지 않도록 고가용성 구성을 함께 고려해야 하고,
-        TTL 설정과 락 주인 검증을 빠뜨리면 오히려 더 심각한 문제가 생긴다.
+        재고 추적 테이블은 "숫자를 수정하는 것"에서 "이벤트를 기록하는 것"으로 패러다임을 바꾼다.
+        동일 Row를 수정하는 경쟁이 사라지고, 감사 추적이 자연스럽게 완성된다.
+        하지만 Row가 폭증한다는 근본적인 한계가 있으므로 파티셔닝, 아카이빙, 스냅샷 전략을 함께 설계해야 한다.
       </p>
 
       <p>
-        락 획득 실패 시 전략도 상황마다 다르다.
-        결제나 선착순처럼 중복이 절대 허용되지 않는 곳에서는 즉시 실패가 안전하고,
-        재고 감소처럼 조금 늦더라도 반드시 성공해야 하는 곳에서는 재시도 전략이 적합하다.
-        재시도를 구현할 때는 고정 간격이 아닌 <strong>지수 백오프(Exponential Backoff)</strong>를 적용해 Redis 부하를 분산하는 것이 좋다.
+        Redis를 재고 관리의 주체로 쓰는 방식은 가장 높은 처리량을 달성할 수 있지만,
+        <strong>Redis가 뻗으면 어떻게 할 것인가</strong>에 대한 답이 반드시 있어야 한다.
+        재고 추적 테이블을 진실의 원천으로 유지하고, Redis는 그 위에 얹힌 고속 캐시로 설계하면
+        Redis 장애 시에도 데이터 손실 없이 DB에서 복구하고 다시 warm-up할 수 있다.
+        어떤 기술을 쓰더라도 <strong>실측 모니터링 없이 수치를 임의로 정하는 것은 위험</strong>하다는 것도 함께 기억해야 한다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
