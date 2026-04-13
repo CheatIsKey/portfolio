@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-10 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-13 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 15736 — 청기 백기</h2>
+      <h2 class="section">문제 14468 — 소가 길을 건너간 이유 2</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/15736">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/14468">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260410_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260413_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,16 +55,15 @@
       </h3>
       
       <p>
-        <strong>청기 백기 (백준 15736)</strong>는<br>
-        N개의 깃발이 모두 내려진 상태에서 시작하여 i번째 명령마다 i의 배수 번호 깃발을 토글할 때,<br>
-        <strong>N번의 명령이 끝난 뒤 올라가 있는 깃발의 수를 구</strong>하는 문제다.<br>
-        <strong>약수의 개수가 홀수인 번호, 즉 완전제곱수에 해당하는 깃발만 최종적으로 올라가 있다.</strong>
+        <strong>소가 길을 건너간 이유 2 (백준 14468)</strong>는<br>
+        26마리의 소가 각각 두 번씩 등장하는 52자리 문자열이 주어질 때, <strong>서로 교차하며 길을 건너는 소 쌍의 수를 구</strong>하는 문제다.<br>
+        <strong>소 A의 첫 번째와 두 번째 등장 사이에 소 B가 홀수 번 등장하면, A와 B는 교차</strong>하는 관계다.
       </p>
       
       <ul>
-        <li>k번 깃발은 k의 약수 개수만큼 토글된다. 약수는 보통 쌍으로 존재하므로 대부분의 깃발은 짝수 번 토글되어 원래 상태(내려짐)로 돌아온다.</li>
-        <li>k가 완전제곱수이면 √k가 약수 쌍의 중복 약수가 되어 약수의 개수가 홀수가 되고, 홀수 번 토글된 깃발은 올라간 채로 남는다.</li>
-        <li>따라서 1부터 N까지의 완전제곱수의 개수, 즉 ⌊√N⌋이 정답이다.</li>
+        <li>소 A의 구간 (start, end) 사이에 소 B가 정확히 한 번만 등장하면 A와 B는 교차한다. 두 번 등장하면 교차하지 않는다.</li>
+        <li>따라서 구간 내에서 각 소의 등장 횟수를 토글 방식으로 추적하면, 최종적으로 true인 소가 A와 교차하는 소다.</li>
+        <li>이중 카운팅을 방지하기 위해 j &gt; i인 소에 대해서만 교차 여부를 집계한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -76,13 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 수학적 관찰 (완전제곱수의 개수 = ⌊√N⌋)</li>
-        <li><strong>선택 이유</strong>: 시뮬레이션으로 N개의 깃발을 직접 토글하면 O(N log N)이 필요하지만, 올라가 있는 깃발이 완전제곱수 번호뿐이라는 수학적 성질을 이용하면 <code>Math.sqrt(N)</code> 한 번으로 O(1)에 답을 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 구간 내 토글 플래그를 이용한 교차 쌍 카운팅</li>
+        <li><strong>선택 이유</strong>: 소의 종류가 26가지로 고정이므로, 각 소의 구간 내에서 다른 소의 등장을 토글 방식으로 추적하면 O(26 × 52) = O(1)에 수렴하는 상수 시간 안에 모든 교차 쌍을 셀 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>N을 입력받는다.</li>
-            <li><code>(int) Math.sqrt(N)</code>으로 ⌊√N⌋을 계산한다.</li>
-            <li>이 값이 1부터 N까지의 완전제곱수의 개수이자 최종적으로 올라가 있는 깃발의 수다.</li>
+            <li>52자리 문자열을 순회하며 각 소의 첫 번째·두 번째 등장 위치를 <code>cows[26][2]</code>에 저장한다.</li>
+            <li>소 i의 구간 (start+1, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다.</li>
+            <li>구간 순회가 끝난 뒤 <code>flags[j]</code>가 true이고 j &gt; i이면 교차 쌍으로 집계한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,18 +95,53 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());</code></pre>
+        <li><strong>1) 입력 및 각 소의 등장 위치 기록</strong>
+          <pre><code>char[] logs = br.readLine().toCharArray();
+      int[][] cows = new int[26][2];
+      
+      for (int i = 0; i < 26; i++) {
+          Arrays.fill(cows[i], -1);
+      }
+      
+      for (int i = 0; i < 52; i++) {
+          int idx = logs[i] - 'A';
+      
+          if (cows[idx][0] == -1) {
+              cows[idx][0] = i;
+          } else {
+              cows[idx][1] = i;
+          }
+      }</code></pre>
           <ul>
-            <li>깃발의 수이자 명령의 횟수 N을 입력받는다.</li>
+            <li>52자리 문자열을 <code>char[]</code>로 변환한다. <code>cows[i][0]</code>은 소 i의 첫 번째 등장 위치, <code>cows[i][1]</code>은 두 번째 등장 위치를 저장한다. 초깃값 -1로 채워 아직 등장하지 않은 소를 구분한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 완전제곱수 개수 계산 및 출력</strong>
-          <pre><code>System.out.println((int) Math.sqrt(N));</code></pre>
+        <li><strong>2) 각 소의 구간 내 교차 소 탐색</strong>
+          <pre><code>for (int i = 0; i < 26; i++) {
+          int start = cows[i][0];
+          int end = cows[i][1];
+          boolean[] flags = new boolean[26];
+      
+          for (int s = start + 1; s < end; s++) {
+              flags[logs[s] - 'A'] = !flags[logs[s] - 'A'];
+          }
+      
+          for (int j = i + 1; j < 26; j++) {
+              if (flags[j]) count++;
+          }
+      }</code></pre>
           <ul>
-            <li><code>Math.sqrt(N)</code>으로 √N을 구하고 <code>(int)</code>로 내림 처리하여 ⌊√N⌋을 얻는다. 이 값이 1부터 N까지 존재하는 완전제곱수의 개수이며, 최종적으로 올라가 있는 깃발의 수와 같다.</li>
-            <li>예시: N=16이면 √16=4이므로 완전제곱수는 1, 4, 9, 16으로 4개. N=10이면 √10≈3.16이므로 완전제곱수는 1, 4, 9로 3개.</li>
+            <li>소 i의 구간 (start, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다. 짝수 번 등장하면 false(교차 아님), 홀수 번 등장하면 true(교차)가 된다.</li>
+            <li>구간 순회 후 <code>j &gt; i</code>인 소에 대해서만 <code>flags[j]</code>가 true인지 확인하여 이중 카운팅을 방지한다.</li>
+            <li>등장하지 않은 소(start == -1)는 <code>flags</code>가 모두 false로 유지되어 집계에 영향을 주지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(count);</code></pre>
+          <ul>
+            <li>교차하는 소 쌍의 총 수 <code>count</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -123,12 +157,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 입력을 받고 <code>Math.sqrt()</code> 한 번을 호출하는 것이 전부이므로 상수 시간이다.</li>
+            <li><strong>O(1)</strong>: 소의 종류(26)와 문자열 길이(52)가 모두 고정 상수이므로, 모든 반복문의 순회 횟수가 상수로 결정된다. 전체 연산은 O(26 × 52) = O(1)에 수렴한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 정수 변수 N 하나만 사용하므로 상수 공간만 필요하다.</li>
+            <li><strong>O(1)</strong>: <code>logs</code>(52), <code>cows</code>(26×2), <code>flags</code>(26) 모두 고정 크기 배열이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -180,14 +214,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 2799 — 블라인드</h2>
+      <h2 class="section">문제 1895 — 필터</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2799">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1895">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260410_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260413_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
