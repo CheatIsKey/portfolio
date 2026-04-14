@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 81일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 81일차 TIL — DB 커넥션 풀, 재고 동시성 설계, Row 분산 저장 전략</h1>
+      <p class="muted">작성일 2026-04-13 · 분류: 부트캠프, TIL, DB 커넥션 풀, 분산 락, 재고 관리, Redis, Write-back, 동시성</p>
+
+      <h2 class="section">81일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li>요청 처리 전체 흐름(스레드 풀 → 분산 락 → DB 커넥션 풀)에서 각 자원의 역할을 이해한다.</li>
+        <li>단순 재고 컬럼 방식이 동시성 상황에서 왜 위험한지 파악한다.</li>
+        <li><strong>재고 추적 테이블(Row 분산 저장)</strong>의 개념과 한계를 이해한다.</li>
+        <li>실무에서 사용하는 <strong>3가지 재고 동시성 전략</strong>을 비교한다.</li>
+        <li><strong>Redis 원자적 카운트 + Write-back</strong> 패턴의 동작 방식을 익힌다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. 요청 처리 전체 흐름과 자원 병목</h2>
+
+      <p>
+        하나의 주문 요청이 처리되는 과정에는 여러 자원이 순서대로 관여한다.
+        각 자원은 수용 한계가 있으며, 한 곳이 막히면 뒤의 모든 처리가 대기 상태에 빠진다.
+      </p>
+
+      <pre><code class="language-text">요청 도착
+  ↓
+[디스패처 서블릿 — 스레드 풀] → 유휴 스레드가 없으면 요청을 큐에서 대기
+  ↓
+[컨트롤러]
+  ↓
+[분산 락 — Redis (productId 기준)] → 같은 상품을 동시에 처리 중이면 락 획득 대기 or 즉시 실패
+  ↓
+[DB — 커넥션 풀] → 커넥션이 모두 사용 중이면 대기 (max-wait 초과 시 타임아웃)
+  ↓
+처리 완료 → 커넥션 반납 → 스레드 반납</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">감으로 조절하지 말고, 모니터링으로 조절한다</span>
+        스레드 풀과 DB 커넥션 풀의 크기는 임의로 크게 잡는다고 무조건 좋지 않다.
+        스레드를 너무 많이 열면 컨텍스트 스위칭 비용이 증가하고, 커넥션을 너무 많이 열면 DB 서버가 버티지 못한다.<br><br>
+        <strong>APM(Application Performance Monitoring) 도구로 스레드 대기 시간, 커넥션 대기 시간, 처리량을 실측한 뒤</strong>
+        병목 지점을 확인하고 조절하는 것이 올바른 방법이다.
+        적정값은 서버 스펙과 트래픽 패턴에 따라 달라진다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 단순 재고 컬럼 방식의 문제</h2>
+
+      <p>
+        가장 흔한 재고 설계는 상품 테이블에 <code>stock</code> 컬럼을 두고 직접 증감하는 방식이다.
+        동시 요청이 없을 때는 단순하고 잘 동작하지만, 여러 요청이 동시에 들어오는 순간 문제가 터진다.
+      </p>
+
+      <pre><code class="language-java">// 단순 재고 방식 — 동시성 문제 발생 예시
+@Entity
+public class Product {
+    @Id private Long id;
+    private int stock; // 재고를 숫자 하나로 관리
+}
+
+// 서비스 로직 — 락 없이 동시 요청이 오면?
+public void decreaseStock(Long productId, int quantity) {
+    Product product = productRepository.findById(productId).orElseThrow();
+    // 요청 A: stock = 24 읽음
+    // 요청 B: stock = 24 읽음 (A가 아직 저장 안 함)
+    if (product.getStock() < quantity) throw new RuntimeException("재고 부족");
+    product.setStock(product.getStock() - quantity);
+    // 요청 A: stock = 22 저장
+    // 요청 B: stock = 22 저장 (A의 차감이 덮어씌워짐 — Lost Update!)
+}</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Lost Update 문제 — 재고가 사라지지 않는다</span>
+        재고 24에서 요청 A(2개 차감), 요청 B(2개 차감)가 동시에 들어오면,
+        두 요청 모두 24를 읽고 각각 22를 저장한다.
+        실제로는 4개가 나가야 하는데 최종 재고는 22가 된다.
+        <strong>2개가 공중에서 사라진 것이다.</strong>
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. 재고 추적 테이블 — Row 분산 저장</h2>
+
+      <p>
+        재고를 숫자 하나로 관리하는 대신, <strong>입고(IN)와 출고(OUT)를 별도 Row로 기록</strong>하고
+        현재 재고를 <code>SUM</code>으로 계산하는 방식이다.
+        각 트랜잭션이 같은 Row를 수정하는 대신 새 Row를 INSERT하기 때문에 동시성 충돌이 근본적으로 줄어든다.
+      </p>
+
+      <pre><code class="language-sql">-- 재고 추적 테이블 설계
+CREATE TABLE stock_ledger (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id  BIGINT      NOT NULL,
+    type        ENUM('IN', 'OUT') NOT NULL,  -- 입고 / 출고
+    quantity    INT         NOT NULL,
+    created_at  DATETIME    NOT NULL DEFAULT NOW()
+);
+
+-- 입고 기록 (상품 24개 입고)
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'IN',  24);
+
+-- 출고 기록 (2개 판매)
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'OUT',  2);
+INSERT INTO stock_ledger (product_id, type, quantity) VALUES (1, 'OUT',  2);
+
+-- 현재 재고 계산
+SELECT
+    SUM(CASE WHEN type = 'IN'  THEN  quantity ELSE 0 END) -
+    SUM(CASE WHEN type = 'OUT' THEN  quantity ELSE 0 END) AS current_stock
+FROM stock_ledger
+WHERE product_id = 1;</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">재고 추적 테이블이 '진실의 원천(Source of Truth)'이 되는 이유</span>
+        단순 재고 컬럼은 "지금 몇 개 있다"만 알 수 있다. 언제 몇 개가 들어오고 나갔는지 이력이 없다.<br><br>
+        재고 추적 테이블은 모든 입출고 이벤트를 Row로 남기기 때문에,
+        "어느 시점에 재고가 얼마였는지", "어떤 주문이 재고를 차감했는지"를 항상 재계산할 수 있다.
+        데이터를 수정하는 것이 아니라 새 Row를 추가하기 때문에 <strong>데이터가 절대 사라지지 않는다.</strong>
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          재고 추적 테이블의 한계
+        </span>
+      </h3>
+
+      <p>
+        시간이 지날수록 Row 수가 폭발적으로 증가한다.
+        거래가 많은 상품은 수천만 Row가 쌓이고, 매번 <code>SUM</code>을 풀 스캔으로 계산하면 성능이 급격히 저하된다.
+        이를 해결하기 위한 전략이 필요하다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">문제</th>
+            <th>해결 방향</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Row 수 폭증 → 조회 느림</td>
+            <td>테이블 파티셔닝(날짜 기준 분리), 오래된 데이터 아카이빙</td>
+          </tr>
+          <tr>
+            <td>매번 SUM → 성능 이슈</td>
+            <td>별도 스냅샷 컬럼 유지, Redis 캐싱, 배치 집계</td>
+          </tr>
+          <tr>
+            <td>대규모 동시 삽입 → DB 부하</td>
+            <td>Redis 원자적 카운트 + Write-back 패턴으로 위임</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 실무 재고 동시성 전략 3가지</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 1 — 분산 락 + 비정규화 + 낙관적/비관적 락
+        </span>
+      </h3>
+
+      <p>
+        Redis 분산 락으로 같은 상품에 대한 동시 접근을 직렬화하고,
+        상품 테이블의 재고 컬럼(비정규화된 숫자 하나)을 낙관적 락 또는 비관적 락으로 보호한다.
+      </p>
+
+      <pre><code class="language-java">public void decreaseStockWithLock(Long productId, int quantity) {
+    String lockKey = "lock:stock:" + productId;
+    String lockValue = UUID.randomUUID().toString();
+
+    // 1. 분산 락 획득 (TTL 5초)
+    boolean locked = redisTemplate.opsForValue()
+            .setIfAbsent(lockKey, lockValue, 5, TimeUnit.SECONDS);
+
+    if (!locked) throw new RuntimeException("잠시 후 다시 시도해주세요.");
+
+    try {
+        // 2. 비관적 락으로 DB Row 잠금 후 재고 차감
+        Product product = productRepository.findByIdForLock(productId);
+        if (product.getStock() < quantity) throw new RuntimeException("재고 부족");
+        product.setStock(product.getStock() - quantity);
+        // 3. 재고 추적 테이블에도 기록
+        stockLedgerRepository.save(new StockLedger(productId, "OUT", quantity));
+    } finally {
+        // 4. 락 해제 — 반드시 내가 건 락만 해제
+        if (lockValue.equals(redisTemplate.opsForValue().get(lockKey))) {
+            redisTemplate.delete(lockKey);
+        }
+    }
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 2 — Redis 원자적 카운트 + Write-back
+        </span>
+      </h3>
+
+      <p>
+        재고를 Redis에서 관리한다. <code>DECRBY</code>는 원자적 연산이므로 동시 요청이 와도 순서가 보장된다.
+        변경 내역은 즉시 DB에 쓰지 않고 Redis에 쌓아두다가 주기적으로 DB에 반영한다(Write-back).
+      </p>
+
+      <pre><code class="language-java">// Redis로 재고 차감 — DECRBY는 원자적 연산
+public boolean decreaseStockInRedis(Long productId, int quantity) {
+    String key = "stock:" + productId;
+
+    // 수정 포인트: Lua 스크립트로 "조회 → 비교 → 차감"을 원자적으로 실행
+    String luaScript =
+        "local stock = redis.call('GET', KEYS[1]) " +
+        "if stock == false or tonumber(stock) < tonumber(ARGV[1]) then " +
+        "    return -1 " +
+        "end " +
+        "return redis.call('DECRBY', KEYS[1], ARGV[1])";
+
+    Long result = redisTemplate.execute(
+            new DefaultRedisScript&lt;&gt;(luaScript, Long.class),
+            List.of(key),
+            String.valueOf(quantity)
+    );
+
+    // -1이면 재고 부족
+    return result != null && result >= 0;
+}
+
+// Write-back — 주기적으로 Redis 변경분을 DB에 반영
+@Scheduled(fixedDelay = 5000)
+public void flushStockToDb() {
+    // 수정 포인트: Redis에 쌓인 변경분을 DB 재고 추적 테이블에 배치로 INSERT
+    List&lt;StockChange&gt; changes = collectPendingChanges();
+    if (!changes.isEmpty()) {
+        stockLedgerRepository.saveAll(changes.stream()
+                .map(c -> new StockLedger(c.productId(), "OUT", c.quantity()))
+                .toList());
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Lua 스크립트가 필요한 이유 — 원자성 보장</span>
+        Redis에서 "재고 조회 → 재고 비교 → 재고 차감"을 Java 코드 3번의 명령으로 나눠 실행하면,
+        명령 사이 틈에 다른 요청이 끼어들어 비교 시점과 차감 시점의 값이 달라질 수 있다.<br><br>
+        <strong>Lua 스크립트</strong>는 Redis에서 <strong>원자적으로(중단 없이) 실행</strong>되기 때문에,
+        조회-비교-차감이 하나의 불가분한 작업이 된다.
+        다른 명령이 중간에 끼어들 수 없으므로 재고 음수 문제가 원천 차단된다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Redis가 장애를 일으켰을 때 — 재고 추적 테이블로 복구
+        </span>
+      </h3>
+
+      <pre><code class="language-java">public int getCurrentStock(Long productId) {
+    String key = "stock:" + productId;
+    String cached = (String) redisTemplate.opsForValue().get(key);
+
+    if (cached != null) {
+        return Integer.parseInt(cached); // Redis 정상 — 캐시에서 즉시 반환
+    }
+
+    // Redis 장애 또는 캐시 미스 — 재고 추적 테이블에서 SUM으로 재계산
+    int stock = stockLedgerRepository.calculateCurrentStock(productId);
+
+    // Redis 복구 후 warm-up — 다시 캐시에 올림
+    redisTemplate.opsForValue().set(key, String.valueOf(stock), 1, TimeUnit.HOURS);
+    return stock;
+}</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">Redis 장애 대응 흐름</span>
+        <strong>정상 상태:</strong> Redis가 재고를 원자적으로 관리하고, Write-back으로 주기적으로 DB에 반영한다.<br>
+        <strong>Redis 장애:</strong> 재고 추적 테이블(진실의 원천)에서 SUM으로 재계산한다.<br>
+        <strong>Redis 복구:</strong> 계산된 값을 다시 Redis에 올려 캐시를 warm-up한다.<br><br>
+        재고 추적 테이블이 진실의 원천이기 때문에 Redis가 뻗어도 데이터 손실이 없다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. Redis Sorted Set으로 제한 횟수 관리 + Write-back</h2>
+
+      <p>
+        "1인당 1시간에 5회까지 구매 가능" 같은 요청 제한 로직도 Redis Sorted Set으로 구현할 수 있다.
+        Sorted Set에 요청 시각을 score로 기록하고, 슬라이딩 윈도우로 1시간 내 요청 수를 계산한다.
+        데이터는 TTL이 지나면 자동 삭제되고, 중요한 기록은 DB에 Write-back한다.
+      </p>
+
+      <pre><code class="language-java">public boolean checkAndRecordPurchase(Long userId, Long productId) {
+    String key = "purchase:limit:" + userId + ":" + productId;
+    long now = System.currentTimeMillis();
+    long windowStart = now - TimeUnit.HOURS.toMillis(1); // 1시간 슬라이딩 윈도우
+
+    // 1. 1시간 이전 데이터 제거
+    redisTemplate.opsForZSet().removeRangeByScore(key, 0, windowStart);
+
+    // 2. 현재 윈도우 내 구매 횟수 확인
+    Long count = redisTemplate.opsForZSet().count(key, windowStart, now);
+    if (count != null && count >= 5) {
+        return false; // 5회 초과 — 구매 불가
+    }
+
+    // 3. 현재 요청 기록 (score = timestamp)
+    redisTemplate.opsForZSet().add(key, UUID.randomUUID().toString(), now);
+
+    // 4. TTL 설정 (1시간 후 자동 삭제)
+    redisTemplate.expire(key, 1, TimeUnit.HOURS);
+
+    // 5. Write-back — DB 기록 테이블에 비동기 저장
+    purchaseRecordRepository.save(new PurchaseRecord(userId, productId, now));
+    return true;
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">이 패턴이 Write-back인 이유</span>
+        Write-through는 Redis와 DB에 동시에 쓴다. Write-back은 <strong>Redis에 먼저 쓰고 DB에는 나중에 반영</strong>한다.<br><br>
+        제한 횟수 체크의 핵심 로직(빠른 카운트 조회 및 증가)은 Redis가 담당하고,
+        DB는 "이 요청이 실제로 있었다"는 감사 기록 용도로 사용한다.
+        Redis가 장애를 일으켜도 DB 기록을 보고 현재 상태를 복원할 수 있다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략별 요약 비교
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">전략</th>
+            <th style="width:25%;">적합한 상황</th>
+            <th style="width:25%;">장점</th>
+            <th>단점 / 주의사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>분산 락 + 비정규화 + DB 락</strong></td>
+            <td>서버 다중화 환경, 충돌이 잦은 재고</td>
+            <td>구현이 상대적으로 단순, DB가 최종 보루</td>
+            <td>락 직렬화로 처리량 제한, DB 부하 집중</td>
+          </tr>
+          <tr>
+            <td><strong>재고 추적 테이블 (Row 분산)</strong></td>
+            <td>감사 추적이 중요한 금융/커머스</td>
+            <td>이력 완전 보존, 진실의 원천 확보</td>
+            <td>Row 폭증 → 파티셔닝 필요, SUM 비용</td>
+          </tr>
+          <tr>
+            <td><strong>Redis 원자 카운트 + Write-back</strong></td>
+            <td>트래픽이 매우 많은 고성능 서비스</td>
+            <td>Redis 원자성으로 락 없이 처리, 빠름</td>
+            <td>Redis 장애 대응 설계 필수, warm-up 필요</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        재고 관리는 단순히 숫자를 하나 저장하고 빼는 것처럼 보이지만,
+        동시 요청이 발생하는 순간 그 단순함이 가장 위험한 설계가 된다.
+        Lost Update 한 번으로 재고가 공중에서 사라지고, 그게 누적되면 실제 재고와 시스템 재고가 완전히 달라진다.
+      </p>
+
+      <p>
+        재고 추적 테이블은 "숫자를 수정하는 것"에서 "이벤트를 기록하는 것"으로 패러다임을 바꾼다.
+        동일 Row를 수정하는 경쟁이 사라지고, 감사 추적이 자연스럽게 완성된다.
+        하지만 Row가 폭증한다는 근본적인 한계가 있으므로 파티셔닝, 아카이빙, 스냅샷 전략을 함께 설계해야 한다.
+      </p>
+
+      <p>
+        Redis를 재고 관리의 주체로 쓰는 방식은 가장 높은 처리량을 달성할 수 있지만,
+        <strong>Redis가 뻗으면 어떻게 할 것인가</strong>에 대한 답이 반드시 있어야 한다.
+        재고 추적 테이블을 진실의 원천으로 유지하고, Redis는 그 위에 얹힌 고속 캐시로 설계하면
+        Redis 장애 시에도 데이터 손실 없이 DB에서 복구하고 다시 warm-up할 수 있다.
+        어떤 기술을 쓰더라도 <strong>실측 모니터링 없이 수치를 임의로 정하는 것은 위험</strong>하다는 것도 함께 기억해야 한다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>

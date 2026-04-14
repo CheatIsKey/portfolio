@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-13 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 14468 — 소가 길을 건너간 이유 2</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/14468">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260413_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>소가 길을 건너간 이유 2 (백준 14468)</strong>는<br>
+        26마리의 소가 각각 두 번씩 등장하는 52자리 문자열이 주어질 때, <strong>서로 교차하며 길을 건너는 소 쌍의 수를 구</strong>하는 문제다.<br>
+        <strong>소 A의 첫 번째와 두 번째 등장 사이에 소 B가 홀수 번 등장하면, A와 B는 교차</strong>하는 관계다.
+      </p>
+      
+      <ul>
+        <li>소 A의 구간 (start, end) 사이에 소 B가 정확히 한 번만 등장하면 A와 B는 교차한다. 두 번 등장하면 교차하지 않는다.</li>
+        <li>따라서 구간 내에서 각 소의 등장 횟수를 토글 방식으로 추적하면, 최종적으로 true인 소가 A와 교차하는 소다.</li>
+        <li>이중 카운팅을 방지하기 위해 j &gt; i인 소에 대해서만 교차 여부를 집계한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 구간 내 토글 플래그를 이용한 교차 쌍 카운팅</li>
+        <li><strong>선택 이유</strong>: 소의 종류가 26가지로 고정이므로, 각 소의 구간 내에서 다른 소의 등장을 토글 방식으로 추적하면 O(26 × 52) = O(1)에 수렴하는 상수 시간 안에 모든 교차 쌍을 셀 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>52자리 문자열을 순회하며 각 소의 첫 번째·두 번째 등장 위치를 <code>cows[26][2]</code>에 저장한다.</li>
+            <li>소 i의 구간 (start+1, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다.</li>
+            <li>구간 순회가 끝난 뒤 <code>flags[j]</code>가 true이고 j &gt; i이면 교차 쌍으로 집계한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 각 소의 등장 위치 기록</strong>
+          <pre><code>char[] logs = br.readLine().toCharArray();
+      int[][] cows = new int[26][2];
+      
+      for (int i = 0; i < 26; i++) {
+          Arrays.fill(cows[i], -1);
+      }
+      
+      for (int i = 0; i < 52; i++) {
+          int idx = logs[i] - 'A';
+      
+          if (cows[idx][0] == -1) {
+              cows[idx][0] = i;
+          } else {
+              cows[idx][1] = i;
+          }
+      }</code></pre>
+          <ul>
+            <li>52자리 문자열을 <code>char[]</code>로 변환한다. <code>cows[i][0]</code>은 소 i의 첫 번째 등장 위치, <code>cows[i][1]</code>은 두 번째 등장 위치를 저장한다. 초깃값 -1로 채워 아직 등장하지 않은 소를 구분한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 각 소의 구간 내 교차 소 탐색</strong>
+          <pre><code>for (int i = 0; i < 26; i++) {
+          int start = cows[i][0];
+          int end = cows[i][1];
+          boolean[] flags = new boolean[26];
+      
+          for (int s = start + 1; s < end; s++) {
+              flags[logs[s] - 'A'] = !flags[logs[s] - 'A'];
+          }
+      
+          for (int j = i + 1; j < 26; j++) {
+              if (flags[j]) count++;
+          }
+      }</code></pre>
+          <ul>
+            <li>소 i의 구간 (start, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다. 짝수 번 등장하면 false(교차 아님), 홀수 번 등장하면 true(교차)가 된다.</li>
+            <li>구간 순회 후 <code>j &gt; i</code>인 소에 대해서만 <code>flags[j]</code>가 true인지 확인하여 이중 카운팅을 방지한다.</li>
+            <li>등장하지 않은 소(start == -1)는 <code>flags</code>가 모두 false로 유지되어 집계에 영향을 주지 않는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(count);</code></pre>
+          <ul>
+            <li>교차하는 소 쌍의 총 수 <code>count</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 소의 종류(26)와 문자열 길이(52)가 모두 고정 상수이므로, 모든 반복문의 순회 횟수가 상수로 결정된다. 전체 연산은 O(26 × 52) = O(1)에 수렴한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: <code>logs</code>(52), <code>cows</code>(26×2), <code>flags</code>(26) 모두 고정 크기 배열이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 1895 — 필터</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/1895">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260413_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>필터 (백준 1895)</strong>는<br>
+        R×C 크기의 픽셀 배열에 중앙값 필터를 적용할 때, <strong>3×3 윈도우의 중앙값이 임계값 T 이상인 픽셀의 수를 구</strong>하는 문제다.<br>
+        <strong>경계를 제외한 내부 픽셀 각각에 대해 3×3 이웃 픽셀 9개의 중앙값을 계산</strong>하여 T와 비교한다.
+      </p>
+      
+      <ul>
+        <li>중앙값 필터는 3×3 윈도우 내 9개 픽셀 값을 정렬했을 때 5번째(인덱스 4) 값, 즉 중앙값을 해당 위치의 결과값으로 사용한다.</li>
+        <li>3×3 윈도우를 적용하려면 상하좌우로 1칸의 여백이 필요하므로, 순회 범위는 행 1~R-2, 열 1~C-2로 제한된다.</li>
+        <li>9방향 오프셋을 상수 배열 <code>ROW</code>, <code>COL</code>로 정의하면 윈도우 수집 로직을 간결하게 표현할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 슬라이딩 윈도우 + 정렬을 통한 중앙값 계산</li>
+        <li><strong>선택 이유</strong>: 윈도우 크기가 3×3으로 고정이므로 매 위치에서 9개의 값을 정렬하는 비용이 O(9 log 9) = O(1)이다. 전체 내부 픽셀 수는 (R-2)×(C-2)이므로 전체 시간 복잡도는 O(R·C)로 충분히 빠르다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>9방향 오프셋 배열 <code>ROW</code>, <code>COL</code>로 3×3 윈도우의 각 셀을 순서대로 수집한다.</li>
+            <li>수집한 9개 값을 정렬하여 인덱스 4의 중앙값을 구한다.</li>
+            <li>중앙값이 T 이상이면 <code>count</code>를 증가시킨다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 방향 오프셋 정의 및 입력</strong>
+          <pre><code>static final int[] ROW = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
+      static final int[] COL = {-1, 0, 1, -1, 0, 1, -1, 0, 1};</code></pre>
+          <ul>
+            <li>3×3 윈도우의 9개 셀을 나타내는 행·열 오프셋을 상수 배열로 정의한다. 왼쪽 위부터 오른쪽 아래 순서로 나열되어 있으며, <code>ROW[k]</code>와 <code>COL[k]</code>를 현재 위치에 더하면 k번째 이웃 셀의 좌표가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 내부 픽셀 순회 및 중앙값 계산</strong>
+          <pre><code>for (int r = 1; r < R - 1; r++) {
+          for (int c = 1; c < C - 1; c++) {
+      
+              for (int k = 0; k < 9; k++) {
+                  numbers[k] = pixel[r + ROW[k]][c + COL[k]];
+              }
+      
+              Arrays.sort(numbers);
+      
+              if (numbers[4] >= T) {
+                  count++;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>r</code>을 1부터 R-2, <code>c</code>를 1부터 C-2까지 순회하여 3×3 윈도우를 온전히 적용할 수 있는 내부 픽셀만 처리한다.</li>
+            <li>오프셋 배열을 이용해 현재 위치 (r, c)를 중심으로 한 3×3 윈도우의 픽셀 9개를 <code>numbers</code>에 수집한다.</li>
+            <li><code>Arrays.sort(numbers)</code>로 9개 값을 정렬한 뒤 인덱스 4(중앙값)를 T와 비교한다. 중앙값이 T 이상이면 <code>count</code>를 증가시킨다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(count);</code></pre>
+          <ul>
+            <li>중앙값이 T 이상인 픽셀의 총 수 <code>count</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(R · C)</strong>: 내부 픽셀 (R-2)×(C-2)개를 순회하며 각 위치에서 9개 값 수집 및 정렬이 O(9 log 9) = O(1)이므로 전체 O(R · C)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(R · C)</strong>: 입력 픽셀 전체를 저장하는 2차원 배열이 주요 메모리 사용처이며, 윈도우 값을 담는 <code>numbers</code> 배열은 크기 9의 고정 배열로 O(1)이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
