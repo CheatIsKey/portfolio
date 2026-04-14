@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>소가 길을 건너간 이유 2 (백준 14468)</strong>는<br>
-        26마리의 소가 각각 두 번씩 등장하는 52자리 문자열이 주어질 때, <strong>서로 교차하며 길을 건너는 소 쌍의 수를 구</strong>하는 문제다.<br>
-        <strong>소 A의 첫 번째와 두 번째 등장 사이에 소 B가 홀수 번 등장하면, A와 B는 교차</strong>하는 관계다.
+        <strong>트리 만들기 (백준 14244)</strong>는<br>
+        n개의 노드로 이루어진 트리를 구성할 때, <strong>단말 노드(리프)의 수가 정확히 m개가 되도록 간선을 출력</strong>하는 문제다.<br>
+        <strong>m의 값에 따라 체인 혹은 스타 구조를 조합</strong>하여 리프 수를 정확히 맞춘다.
       </p>
       
       <ul>
-        <li>소 A의 구간 (start, end) 사이에 소 B가 정확히 한 번만 등장하면 A와 B는 교차한다. 두 번 등장하면 교차하지 않는다.</li>
-        <li>따라서 구간 내에서 각 소의 등장 횟수를 토글 방식으로 추적하면, 최종적으로 true인 소가 A와 교차하는 소다.</li>
-        <li>이중 카운팅을 방지하기 위해 j &gt; i인 소에 대해서만 교차 여부를 집계한다.</li>
+        <li>m=1일 때는 모든 노드를 일렬로 연결한 체인(대나무)으로 리프가 끝 노드 하나만 남는다.</li>
+        <li>m=2일 때는 체인을 구성하면 양 끝 노드 두 개가 리프가 된다.</li>
+        <li>m≥3일 때는 루트(노드 0)에 m개의 자식을 붙여 m개의 리프를 만든 뒤, 마지막으로 붙인 자식 노드부터 나머지 노드를 체인으로 이어 해당 자식을 내부 노드로 전환하고 체인 끝 노드를 새 리프로 만들어 리프 수를 m으로 유지한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 구간 내 토글 플래그를 이용한 교차 쌍 카운팅</li>
-        <li><strong>선택 이유</strong>: 소의 종류가 26가지로 고정이므로, 각 소의 구간 내에서 다른 소의 등장을 토글 방식으로 추적하면 O(26 × 52) = O(1)에 수렴하는 상수 시간 안에 모든 교차 쌍을 셀 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (스타 + 체인 혼합 구조 생성)</li>
+        <li><strong>선택 이유</strong>: 리프 수를 정확히 m개로 맞추려면, 루트에 자식을 붙이는 것(리프 증가)과 기존 리프에 자식을 붙이는 것(리프 유지 또는 이동)을 적절히 조합해야 한다. <code>lastNumber</code>가 가리키는 노드에 새 노드를 연결하고, 리프 수가 m에 도달한 시점부터 체인으로 전환하면 O(n)에 조건을 만족하는 트리를 구성할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>52자리 문자열을 순회하며 각 소의 첫 번째·두 번째 등장 위치를 <code>cows[26][2]</code>에 저장한다.</li>
-            <li>소 i의 구간 (start+1, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다.</li>
-            <li>구간 순회가 끝난 뒤 <code>flags[j]</code>가 true이고 j &gt; i이면 교차 쌍으로 집계한다.</li>
+            <li><code>lastNumber</code>는 다음 노드를 연결할 부모 노드 번호를, <code>countLeaf</code>는 현재까지 생성된 리프 수를 추적한다.</li>
+            <li>리프 수가 m 미만인 동안은 루트(0)에 계속 자식을 붙여 리프를 늘린다. 단, m=2이면 즉시 체인으로 전환한다.</li>
+            <li>리프 수가 m에 도달하면 <code>lastNumber = i</code>로 갱신하여 이후 노드를 체인으로 연결한다. 체인의 끝 노드가 유일한 새 리프가 되어 총 리프 수가 m으로 유지된다.</li>
           </ul>
         </li>
       </ul>
@@ -95,53 +95,29 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 각 소의 등장 위치 기록</strong>
-          <pre><code>char[] logs = br.readLine().toCharArray();
-      int[][] cows = new int[26][2];
+        <li><strong>1) 초기화</strong>
+          <pre><code>int lastNumber = 0;
+      int countLeaf = 0;</code></pre>
+          <ul>
+            <li><code>lastNumber</code>는 다음 노드를 연결할 부모 노드로, 초기값은 루트 노드 0이다. <code>countLeaf</code>는 현재까지 생성된 리프 수를 추적한다.</li>
+          </ul>
+        </li>
       
-      for (int i = 0; i < 26; i++) {
-          Arrays.fill(cows[i], -1);
-      }
+        <li><strong>2) 노드 연결 및 부모 갱신</strong>
+          <pre><code>for (int i = 1; i < n; i++) {
+          System.out.println(lastNumber + " " + i);
+          countLeaf++;
       
-      for (int i = 0; i < 52; i++) {
-          int idx = logs[i] - 'A';
-      
-          if (cows[idx][0] == -1) {
-              cows[idx][0] = i;
+          if (countLeaf < m) {
+              if (m == 2) lastNumber = i;
           } else {
-              cows[idx][1] = i;
+              lastNumber = i;
           }
       }</code></pre>
           <ul>
-            <li>52자리 문자열을 <code>char[]</code>로 변환한다. <code>cows[i][0]</code>은 소 i의 첫 번째 등장 위치, <code>cows[i][1]</code>은 두 번째 등장 위치를 저장한다. 초깃값 -1로 채워 아직 등장하지 않은 소를 구분한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>2) 각 소의 구간 내 교차 소 탐색</strong>
-          <pre><code>for (int i = 0; i < 26; i++) {
-          int start = cows[i][0];
-          int end = cows[i][1];
-          boolean[] flags = new boolean[26];
-      
-          for (int s = start + 1; s < end; s++) {
-              flags[logs[s] - 'A'] = !flags[logs[s] - 'A'];
-          }
-      
-          for (int j = i + 1; j < 26; j++) {
-              if (flags[j]) count++;
-          }
-      }</code></pre>
-          <ul>
-            <li>소 i의 구간 (start, end) 사이를 순회하며 등장하는 소마다 <code>flags</code>를 토글한다. 짝수 번 등장하면 false(교차 아님), 홀수 번 등장하면 true(교차)가 된다.</li>
-            <li>구간 순회 후 <code>j &gt; i</code>인 소에 대해서만 <code>flags[j]</code>가 true인지 확인하여 이중 카운팅을 방지한다.</li>
-            <li>등장하지 않은 소(start == -1)는 <code>flags</code>가 모두 false로 유지되어 집계에 영향을 주지 않는다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(count);</code></pre>
-          <ul>
-            <li>교차하는 소 쌍의 총 수 <code>count</code>를 출력한다.</li>
+            <li>노드 i를 <code>lastNumber</code>에 연결하는 간선을 출력하고 <code>countLeaf</code>를 증가시킨다.</li>
+            <li><code>countLeaf &lt; m</code>: 아직 리프가 부족하다. m=2인 경우에만 <code>lastNumber = i</code>로 갱신하여 체인을 형성하고, 나머지 m≥3은 <code>lastNumber</code>를 0으로 유지해 루트에 계속 자식을 붙인다.</li>
+            <li><code>countLeaf &gt;= m</code>: 리프가 충분히 만들어졌다. <code>lastNumber = i</code>로 갱신하여 이후 노드들을 체인으로 연결한다. 체인으로 연결된 노드는 자식이 생기는 순간 리프에서 내부 노드로 전환되고, 가장 마지막 노드만 리프로 남아 총 리프 수가 m으로 유지된다.</li>
           </ul>
         </li>
       </ul>
@@ -157,12 +133,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 소의 종류(26)와 문자열 길이(52)가 모두 고정 상수이므로, 모든 반복문의 순회 횟수가 상수로 결정된다. 전체 연산은 O(26 × 52) = O(1)에 수렴한다.</li>
+            <li><strong>O(n)</strong>: 노드 1부터 n-1까지 한 번씩 순회하며 각 반복에서 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: <code>logs</code>(52), <code>cows</code>(26×2), <code>flags</code>(26) 모두 고정 크기 배열이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
+            <li><strong>O(1)</strong>: <code>lastNumber</code>와 <code>countLeaf</code> 두 개의 정수 변수만 사용하므로 입력 크기와 무관한 상수 공간만 필요하다.</li>
           </ul>
         </li>
       </ul>
@@ -214,14 +190,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1895 — 필터</h2>
+      <h2 class="section">문제 12927 — 배수 스위치</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1895">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/12927">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260413_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260414_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -239,15 +215,15 @@
       </h3>
       
       <p>
-        <strong>필터 (백준 1895)</strong>는<br>
-        R×C 크기의 픽셀 배열에 중앙값 필터를 적용할 때, <strong>3×3 윈도우의 중앙값이 임계값 T 이상인 픽셀의 수를 구</strong>하는 문제다.<br>
-        <strong>경계를 제외한 내부 픽셀 각각에 대해 3×3 이웃 픽셀 9개의 중앙값을 계산</strong>하여 T와 비교한다.
+        <strong>배수 스위치 (백준 12927)</strong>는<br>
+        N개의 전구가 켜짐(Y) 또는 꺼짐(N) 상태로 주어질 때, <strong>최소 횟수의 스위치 조작으로 모든 전구를 꺼진 상태로 만드는 횟수를 구</strong>하는 문제다.<br>
+        <strong>i번 스위치를 누르면 i의 배수 번호 전구가 모두 토글</strong>되며, 불가능한 경우 -1을 출력한다.
       </p>
       
       <ul>
-        <li>중앙값 필터는 3×3 윈도우 내 9개 픽셀 값을 정렬했을 때 5번째(인덱스 4) 값, 즉 중앙값을 해당 위치의 결과값으로 사용한다.</li>
-        <li>3×3 윈도우를 적용하려면 상하좌우로 1칸의 여백이 필요하므로, 순회 범위는 행 1~R-2, 열 1~C-2로 제한된다.</li>
-        <li>9방향 오프셋을 상수 배열 <code>ROW</code>, <code>COL</code>로 정의하면 윈도우 수집 로직을 간결하게 표현할 수 있다.</li>
+        <li>스위치는 1번부터 N번까지 존재하며, i번 스위치를 누르면 i, 2i, 3i, ... 번 전구가 토글된다.</li>
+        <li>그리디하게 1번부터 순서대로 처리하면, i번 전구가 켜져 있을 때 i번 스위치를 반드시 한 번 눌러야 한다. i번 전구는 1번~(i-1)번 스위치로는 제어할 수 없기 때문이다.</li>
+        <li>모든 스위치를 순서대로 처리한 뒤에도 켜진 전구가 남아 있으면 불가능하므로 -1을 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -259,13 +235,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 슬라이딩 윈도우 + 정렬을 통한 중앙값 계산</li>
-        <li><strong>선택 이유</strong>: 윈도우 크기가 3×3으로 고정이므로 매 위치에서 9개의 값을 정렬하는 비용이 O(9 log 9) = O(1)이다. 전체 내부 픽셀 수는 (R-2)×(C-2)이므로 전체 시간 복잡도는 O(R·C)로 충분히 빠르다.</li>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (1번부터 순서대로 스위치 조작)</li>
+        <li><strong>선택 이유</strong>: i번 전구를 끄는 수단은 i번 스위치뿐이다(1~i-1번 스위치는 i를 건드리지 않고, i+1번 이후 스위치는 i의 약수가 아니므로 해당 없음). 따라서 i번 전구가 켜져 있으면 반드시 i번 스위치를 눌러야 하는 유일한 선택이며, 이 결정이 항상 최적임이 보장된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>9방향 오프셋 배열 <code>ROW</code>, <code>COL</code>로 3×3 윈도우의 각 셀을 순서대로 수집한다.</li>
-            <li>수집한 9개 값을 정렬하여 인덱스 4의 중앙값을 구한다.</li>
-            <li>중앙값이 T 이상이면 <code>count</code>를 증가시킨다.</li>
+            <li>1번부터 N번까지 순회하며, 현재 전구가 켜져 있으면 해당 번호의 스위치를 누른다.</li>
+            <li>스위치를 누를 때마다 해당 번호의 배수 전구를 모두 토글하고 <code>count</code>를 증가시킨다.</li>
+            <li>순회가 끝난 뒤 켜진 전구가 남아 있으면 -1, 없으면 <code>count</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -279,40 +255,46 @@
       </p>
       
       <ul>
-        <li><strong>1) 방향 오프셋 정의 및 입력</strong>
-          <pre><code>static final int[] ROW = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
-      static final int[] COL = {-1, 0, 1, -1, 0, 1, -1, 0, 1};</code></pre>
+        <li><strong>1) 입력 및 전구 배열 초기화</strong>
+          <pre><code>String N = br.readLine();
+      
+      char[] bulbs = new char[N.length() + 1];
+      
+      for (int i = 1; i < bulbs.length; i++) {
+          bulbs[i] = N.charAt(i - 1);
+      }</code></pre>
           <ul>
-            <li>3×3 윈도우의 9개 셀을 나타내는 행·열 오프셋을 상수 배열로 정의한다. 왼쪽 위부터 오른쪽 아래 순서로 나열되어 있으며, <code>ROW[k]</code>와 <code>COL[k]</code>를 현재 위치에 더하면 k번째 이웃 셀의 좌표가 된다.</li>
+            <li>전구 상태 문자열을 읽어 1-based 인덱스로 사용하기 위해 크기 N+1의 <code>char[]</code>에 저장한다. <code>bulbs[0]</code>은 사용하지 않고 <code>bulbs[1]</code>부터 전구 상태를 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 내부 픽셀 순회 및 중앙값 계산</strong>
-          <pre><code>for (int r = 1; r < R - 1; r++) {
-          for (int c = 1; c < C - 1; c++) {
+        <li><strong>2) 그리디 스위치 조작</strong>
+          <pre><code>for (int i = 1; i < bulbs.length; i++) {
+          if (bulbs[i] == 'Y') {
+              count++;
       
-              for (int k = 0; k < 9; k++) {
-                  numbers[k] = pixel[r + ROW[k]][c + COL[k]];
-              }
-      
-              Arrays.sort(numbers);
-      
-              if (numbers[4] >= T) {
-                  count++;
+              for (int j = i; j < bulbs.length; j += i) {
+                  bulbs[j] = (bulbs[j] == 'N') ? 'Y' : 'N';
               }
           }
       }</code></pre>
           <ul>
-            <li><code>r</code>을 1부터 R-2, <code>c</code>를 1부터 C-2까지 순회하여 3×3 윈도우를 온전히 적용할 수 있는 내부 픽셀만 처리한다.</li>
-            <li>오프셋 배열을 이용해 현재 위치 (r, c)를 중심으로 한 3×3 윈도우의 픽셀 9개를 <code>numbers</code>에 수집한다.</li>
-            <li><code>Arrays.sort(numbers)</code>로 9개 값을 정렬한 뒤 인덱스 4(중앙값)를 T와 비교한다. 중앙값이 T 이상이면 <code>count</code>를 증가시킨다.</li>
+            <li><code>bulbs[i] == 'Y'</code>: i번 전구가 켜져 있으므로 반드시 i번 스위치를 눌러야 한다. <code>count</code>를 증가시킨다.</li>
+            <li>내부 반복문에서 i의 배수 인덱스(i, 2i, 3i, ...)를 순회하며 전구를 토글한다. 이 과정에서 i번 전구 자체도 꺼지고, 이후 배수 전구들의 상태도 갱신된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(count);</code></pre>
+        <li><strong>3) 불가능 여부 확인 및 출력</strong>
+          <pre><code>for (int i = 1; i < bulbs.length; i++) {
+          if (bulbs[i] == 'Y') {
+              System.out.println(-1);
+              return;
+          }
+      }
+      
+      System.out.println(count);</code></pre>
           <ul>
-            <li>중앙값이 T 이상인 픽셀의 총 수 <code>count</code>를 출력한다.</li>
+            <li>모든 스위치를 처리한 뒤에도 켜진 전구가 남아 있으면 어떤 조작으로도 끌 수 없는 상태이므로 -1을 출력하고 종료한다. 모든 전구가 꺼졌다면 최소 조작 횟수 <code>count</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -328,16 +310,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(R · C)</strong>: 내부 픽셀 (R-2)×(C-2)개를 순회하며 각 위치에서 9개 값 수집 및 정렬이 O(9 log 9) = O(1)이므로 전체 O(R · C)이다.</li>
+            <li><strong>O(N log N)</strong>: 각 스위치 i를 눌렀을 때 N/i개의 배수 전구를 토글하므로, 전체 토글 횟수는 N/1 + N/2 + ... + N/N = O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(R · C)</strong>: 입력 픽셀 전체를 저장하는 2차원 배열이 주요 메모리 사용처이며, 윈도우 값을 담는 <code>numbers</code> 배열은 크기 9의 고정 배열로 O(1)이다.</li>
+            <li><strong>O(N)</strong>: 전구 상태를 저장하는 <code>char[]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
