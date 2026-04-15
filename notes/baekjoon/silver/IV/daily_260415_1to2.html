@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-14 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 14244 — 트리 만들기</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/14244">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260414_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>트리 만들기 (백준 14244)</strong>는<br>
+        n개의 노드로 이루어진 트리를 구성할 때, <strong>단말 노드(리프)의 수가 정확히 m개가 되도록 간선을 출력</strong>하는 문제다.<br>
+        <strong>m의 값에 따라 체인 혹은 스타 구조를 조합</strong>하여 리프 수를 정확히 맞춘다.
+      </p>
+      
+      <ul>
+        <li>m=1일 때는 모든 노드를 일렬로 연결한 체인(대나무)으로 리프가 끝 노드 하나만 남는다.</li>
+        <li>m=2일 때는 체인을 구성하면 양 끝 노드 두 개가 리프가 된다.</li>
+        <li>m≥3일 때는 루트(노드 0)에 m개의 자식을 붙여 m개의 리프를 만든 뒤, 마지막으로 붙인 자식 노드부터 나머지 노드를 체인으로 이어 해당 자식을 내부 노드로 전환하고 체인 끝 노드를 새 리프로 만들어 리프 수를 m으로 유지한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (스타 + 체인 혼합 구조 생성)</li>
+        <li><strong>선택 이유</strong>: 리프 수를 정확히 m개로 맞추려면, 루트에 자식을 붙이는 것(리프 증가)과 기존 리프에 자식을 붙이는 것(리프 유지 또는 이동)을 적절히 조합해야 한다. <code>lastNumber</code>가 가리키는 노드에 새 노드를 연결하고, 리프 수가 m에 도달한 시점부터 체인으로 전환하면 O(n)에 조건을 만족하는 트리를 구성할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li><code>lastNumber</code>는 다음 노드를 연결할 부모 노드 번호를, <code>countLeaf</code>는 현재까지 생성된 리프 수를 추적한다.</li>
+            <li>리프 수가 m 미만인 동안은 루트(0)에 계속 자식을 붙여 리프를 늘린다. 단, m=2이면 즉시 체인으로 전환한다.</li>
+            <li>리프 수가 m에 도달하면 <code>lastNumber = i</code>로 갱신하여 이후 노드를 체인으로 연결한다. 체인의 끝 노드가 유일한 새 리프가 되어 총 리프 수가 m으로 유지된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기화</strong>
+          <pre><code>int lastNumber = 0;
+      int countLeaf = 0;</code></pre>
+          <ul>
+            <li><code>lastNumber</code>는 다음 노드를 연결할 부모 노드로, 초기값은 루트 노드 0이다. <code>countLeaf</code>는 현재까지 생성된 리프 수를 추적한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 노드 연결 및 부모 갱신</strong>
+          <pre><code>for (int i = 1; i < n; i++) {
+          System.out.println(lastNumber + " " + i);
+          countLeaf++;
+      
+          if (countLeaf < m) {
+              if (m == 2) lastNumber = i;
+          } else {
+              lastNumber = i;
+          }
+      }</code></pre>
+          <ul>
+            <li>노드 i를 <code>lastNumber</code>에 연결하는 간선을 출력하고 <code>countLeaf</code>를 증가시킨다.</li>
+            <li><code>countLeaf &lt; m</code>: 아직 리프가 부족하다. m=2인 경우에만 <code>lastNumber = i</code>로 갱신하여 체인을 형성하고, 나머지 m≥3은 <code>lastNumber</code>를 0으로 유지해 루트에 계속 자식을 붙인다.</li>
+            <li><code>countLeaf &gt;= m</code>: 리프가 충분히 만들어졌다. <code>lastNumber = i</code>로 갱신하여 이후 노드들을 체인으로 연결한다. 체인으로 연결된 노드는 자식이 생기는 순간 리프에서 내부 노드로 전환되고, 가장 마지막 노드만 리프로 남아 총 리프 수가 m으로 유지된다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(n)</strong>: 노드 1부터 n-1까지 한 번씩 순회하며 각 반복에서 O(1) 연산만 수행하므로 전체 O(n)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: <code>lastNumber</code>와 <code>countLeaf</code> 두 개의 정수 변수만 사용하므로 입력 크기와 무관한 상수 공간만 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 12927 — 배수 스위치</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/12927">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260414_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>배수 스위치 (백준 12927)</strong>는<br>
+        N개의 전구가 켜짐(Y) 또는 꺼짐(N) 상태로 주어질 때, <strong>최소 횟수의 스위치 조작으로 모든 전구를 꺼진 상태로 만드는 횟수를 구</strong>하는 문제다.<br>
+        <strong>i번 스위치를 누르면 i의 배수 번호 전구가 모두 토글</strong>되며, 불가능한 경우 -1을 출력한다.
+      </p>
+      
+      <ul>
+        <li>스위치는 1번부터 N번까지 존재하며, i번 스위치를 누르면 i, 2i, 3i, ... 번 전구가 토글된다.</li>
+        <li>그리디하게 1번부터 순서대로 처리하면, i번 전구가 켜져 있을 때 i번 스위치를 반드시 한 번 눌러야 한다. i번 전구는 1번~(i-1)번 스위치로는 제어할 수 없기 때문이다.</li>
+        <li>모든 스위치를 순서대로 처리한 뒤에도 켜진 전구가 남아 있으면 불가능하므로 -1을 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 그리디 (1번부터 순서대로 스위치 조작)</li>
+        <li><strong>선택 이유</strong>: i번 전구를 끄는 수단은 i번 스위치뿐이다(1~i-1번 스위치는 i를 건드리지 않고, i+1번 이후 스위치는 i의 약수가 아니므로 해당 없음). 따라서 i번 전구가 켜져 있으면 반드시 i번 스위치를 눌러야 하는 유일한 선택이며, 이 결정이 항상 최적임이 보장된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>1번부터 N번까지 순회하며, 현재 전구가 켜져 있으면 해당 번호의 스위치를 누른다.</li>
+            <li>스위치를 누를 때마다 해당 번호의 배수 전구를 모두 토글하고 <code>count</code>를 증가시킨다.</li>
+            <li>순회가 끝난 뒤 켜진 전구가 남아 있으면 -1, 없으면 <code>count</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 전구 배열 초기화</strong>
+          <pre><code>String N = br.readLine();
+      
+      char[] bulbs = new char[N.length() + 1];
+      
+      for (int i = 1; i < bulbs.length; i++) {
+          bulbs[i] = N.charAt(i - 1);
+      }</code></pre>
+          <ul>
+            <li>전구 상태 문자열을 읽어 1-based 인덱스로 사용하기 위해 크기 N+1의 <code>char[]</code>에 저장한다. <code>bulbs[0]</code>은 사용하지 않고 <code>bulbs[1]</code>부터 전구 상태를 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 그리디 스위치 조작</strong>
+          <pre><code>for (int i = 1; i < bulbs.length; i++) {
+          if (bulbs[i] == 'Y') {
+              count++;
+      
+              for (int j = i; j < bulbs.length; j += i) {
+                  bulbs[j] = (bulbs[j] == 'N') ? 'Y' : 'N';
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>bulbs[i] == 'Y'</code>: i번 전구가 켜져 있으므로 반드시 i번 스위치를 눌러야 한다. <code>count</code>를 증가시킨다.</li>
+            <li>내부 반복문에서 i의 배수 인덱스(i, 2i, 3i, ...)를 순회하며 전구를 토글한다. 이 과정에서 i번 전구 자체도 꺼지고, 이후 배수 전구들의 상태도 갱신된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 불가능 여부 확인 및 출력</strong>
+          <pre><code>for (int i = 1; i < bulbs.length; i++) {
+          if (bulbs[i] == 'Y') {
+              System.out.println(-1);
+              return;
+          }
+      }
+      
+      System.out.println(count);</code></pre>
+          <ul>
+            <li>모든 스위치를 처리한 뒤에도 켜진 전구가 남아 있으면 어떤 조작으로도 끌 수 없는 상태이므로 -1을 출력하고 종료한다. 모든 전구가 꺼졌다면 최소 조작 횟수 <code>count</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 각 스위치 i를 눌렀을 때 N/i개의 배수 전구를 토글하므로, 전체 토글 횟수는 N/1 + N/2 + ... + N/N = O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 전구 상태를 저장하는 <code>char[]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
