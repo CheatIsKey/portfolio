@@ -216,15 +216,15 @@
       </h3>
       
       <p>
-        <strong>배수 스위치 (백준 12927)</strong>는<br>
-        N개의 전구가 켜짐(Y) 또는 꺼짐(N) 상태로 주어질 때, <strong>최소 횟수의 스위치 조작으로 모든 전구를 꺼진 상태로 만드는 횟수를 구</strong>하는 문제다.<br>
-        <strong>i번 스위치를 누르면 i의 배수 번호 전구가 모두 토글</strong>되며, 불가능한 경우 -1을 출력한다.
+        <strong>캠프가는 영식 (백준 1590)</strong>는<br>
+        N개의 버스 노선이 각각 출발 시각, 배차 간격, 운행 횟수를 가질 때, <strong>영식이가 T 이후로 탈 수 있는 가장 빠른 버스의 대기 시간을 구</strong>하는 문제다.<br>
+        <strong>T 이상인 버스 시각 중 최솟값을 노선별로 이진 탐색</strong>으로 구한 뒤 전체 최솟값을 출력한다.
       </p>
       
       <ul>
-        <li>스위치는 1번부터 N번까지 존재하며, i번 스위치를 누르면 i, 2i, 3i, ... 번 전구가 토글된다.</li>
-        <li>그리디하게 1번부터 순서대로 처리하면, i번 전구가 켜져 있을 때 i번 스위치를 반드시 한 번 눌러야 한다. i번 전구는 1번~(i-1)번 스위치로는 제어할 수 없기 때문이다.</li>
-        <li>모든 스위치를 순서대로 처리한 뒤에도 켜진 전구가 남아 있으면 불가능하므로 -1을 출력한다.</li>
+        <li>각 버스 노선의 k번째 버스 출발 시각은 S + I × k (0 ≤ k ≤ C-1)이다. k가 최대 10억에 달할 수 있어 선형 탐색은 시간 초과가 발생하므로 이진 탐색이 필요하다.</li>
+        <li>노선마다 T 이상인 첫 번째 버스 시각을 이진 탐색으로 구하고, 전체 노선 중 최솟값이 정답이다.</li>
+        <li>모든 노선에서 T 이후 탈 수 있는 버스가 없으면 -1을 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -236,13 +236,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (1번부터 순서대로 스위치 조작)</li>
-        <li><strong>선택 이유</strong>: i번 전구를 끄는 수단은 i번 스위치뿐이다(1~i-1번 스위치는 i를 건드리지 않고, i+1번 이후 스위치는 i의 약수가 아니므로 해당 없음). 따라서 i번 전구가 켜져 있으면 반드시 i번 스위치를 눌러야 하는 유일한 선택이며, 이 결정이 항상 최적임이 보장된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 노선별 이진 탐색 (T 이상인 최소 출발 시각 탐색)</li>
+        <li><strong>선택 이유</strong>: 각 버스 노선의 출발 시각은 S, S+I, S+2I, ... 로 등차수열을 이루므로 단조 증가한다. 단조 증가 수열에서 T 이상인 첫 번째 값을 찾는 것은 이진 탐색의 전형적인 적용 사례로, 운행 횟수 C가 최대 10억이더라도 O(log C)에 탐색할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>1번부터 N번까지 순회하며, 현재 전구가 켜져 있으면 해당 번호의 스위치를 누른다.</li>
-            <li>스위치를 누를 때마다 해당 번호의 배수 전구를 모두 토글하고 <code>count</code>를 증가시킨다.</li>
-            <li>순회가 끝난 뒤 켜진 전구가 남아 있으면 -1, 없으면 <code>count</code>를 출력한다.</li>
+            <li>탐색 범위를 운행 인덱스 0~C-1로 설정하고, 중간 인덱스 <code>mid</code>에 해당하는 시각 <code>S + I × mid</code>를 T와 비교한다.</li>
+            <li>시각이 T 이상이면 후보로 기록하고 더 앞선 인덱스를 탐색한다.</li>
+            <li>시각이 T 미만이면 더 뒤의 인덱스를 탐색한다.</li>
+            <li>노선별로 구한 후보 중 전체 최솟값에서 T를 빼면 대기 시간이 된다.</li>
           </ul>
         </li>
       </ul>
@@ -256,46 +257,52 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 전구 배열 초기화</strong>
-          <pre><code>String N = br.readLine();
+        <li><strong>1) 입력 및 초기화</strong>
+          <pre><code>int N = Integer.parseInt(st.nextToken());
+      long T = Long.parseLong(st.nextToken());
       
-      char[] bulbs = new char[N.length() + 1];
-      
-      for (int i = 1; i < bulbs.length; i++) {
-          bulbs[i] = N.charAt(i - 1);
-      }</code></pre>
+      long answer = Long.MAX_VALUE;</code></pre>
           <ul>
-            <li>전구 상태 문자열을 읽어 1-based 인덱스로 사용하기 위해 크기 N+1의 <code>char[]</code>에 저장한다. <code>bulbs[0]</code>은 사용하지 않고 <code>bulbs[1]</code>부터 전구 상태를 저장한다.</li>
+            <li>버스 노선 수 N과 영식이의 도착 시각 T를 입력받는다. 출발 시각과 배차 간격의 곱이 int 범위를 초과할 수 있으므로 <code>long</code>으로 처리한다. <code>answer</code>는 T 이후 탈 수 있는 버스 시각의 전체 최솟값을 추적하며 초깃값을 <code>Long.MAX_VALUE</code>로 설정한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 그리디 스위치 조작</strong>
-          <pre><code>for (int i = 1; i < bulbs.length; i++) {
-          if (bulbs[i] == 'Y') {
-              count++;
+        <li><strong>2) 노선별 이진 탐색</strong>
+          <pre><code>long start = 0;
+      long end = C - 1;
+      long busTime = -1;
       
-              for (int j = i; j < bulbs.length; j += i) {
-                  bulbs[j] = (bulbs[j] == 'N') ? 'Y' : 'N';
-              }
-          }
-      }</code></pre>
-          <ul>
-            <li><code>bulbs[i] == 'Y'</code>: i번 전구가 켜져 있으므로 반드시 i번 스위치를 눌러야 한다. <code>count</code>를 증가시킨다.</li>
-            <li>내부 반복문에서 i의 배수 인덱스(i, 2i, 3i, ...)를 순회하며 전구를 토글한다. 이 과정에서 i번 전구 자체도 꺼지고, 이후 배수 전구들의 상태도 갱신된다.</li>
-          </ul>
-        </li>
+      while (start <= end) {
+          long mid = (start + end) / 2;
+          long time = S + (I * mid);
       
-        <li><strong>3) 불가능 여부 확인 및 출력</strong>
-          <pre><code>for (int i = 1; i < bulbs.length; i++) {
-          if (bulbs[i] == 'Y') {
-              System.out.println(-1);
-              return;
+          if (time >= T) {
+              busTime = time;
+              end = mid - 1;
+          } else {
+              start = mid + 1;
           }
       }
       
-      System.out.println(count);</code></pre>
+      if (busTime != -1) {
+          answer = Math.min(answer, busTime);
+      }</code></pre>
           <ul>
-            <li>모든 스위치를 처리한 뒤에도 켜진 전구가 남아 있으면 어떤 조작으로도 끌 수 없는 상태이므로 -1을 출력하고 종료한다. 모든 전구가 꺼졌다면 최소 조작 횟수 <code>count</code>를 출력한다.</li>
+            <li>탐색 범위를 운행 인덱스 0~C-1로 설정한다. 중간 인덱스 <code>mid</code>에 해당하는 출발 시각 <code>time = S + I × mid</code>를 T와 비교한다.</li>
+            <li><code>time &gt;= T</code>이면 후보로 기록하고 <code>end = mid - 1</code>로 더 앞선 인덱스를 탐색하여 T 이상인 최소 시각을 찾는다.</li>
+            <li><code>time &lt; T</code>이면 <code>start = mid + 1</code>로 더 뒤의 인덱스를 탐색한다.</li>
+            <li>탐색이 끝나면 <code>busTime</code>이 해당 노선에서 T 이후 탈 수 있는 가장 빠른 버스 시각이며, 전체 <code>answer</code>와 비교해 최솟값을 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>if (answer != Long.MAX_VALUE) {
+          System.out.println(answer - T);
+      } else {
+          System.out.println("-1");
+      }</code></pre>
+          <ul>
+            <li><code>answer</code>가 갱신되었으면 대기 시간 <code>answer - T</code>를 출력하고, 갱신되지 않았으면 탈 수 있는 버스가 없으므로 -1을 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -311,16 +318,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 각 스위치 i를 눌렀을 때 N/i개의 배수 전구를 토글하므로, 전체 토글 횟수는 N/1 + N/2 + ... + N/N = O(N log N)이다.</li>
+            <li><strong>O(N log C)</strong>: N개의 노선마다 운행 횟수 C에 대해 이진 탐색을 수행하므로 전체 O(N log C)이다. (C는 운행 횟수의 최댓값)</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 전구 상태를 저장하는 <code>char[]</code> 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 노선 정보를 별도 배열에 저장하지 않고 입력 즉시 처리하므로, <code>answer</code>를 포함한 상수 개수의 변수만 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
