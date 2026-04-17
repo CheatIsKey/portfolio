@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-16 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-17 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1359 — 복권</h2>
+      <h2 class="section">문제 1730 — 판화</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1359">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/1730">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260416_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260417_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>복권 (백준 1359)</strong>는<br>
-        1부터 N까지의 수 중 M개를 뽑는 복권에서 내가 고른 M개의 번호 중 <strong>K개 이상이 일치할 확률을 구</strong>하는 문제다.<br>
-        <strong>조합론을 이용해 당첨 경우의 수를 계산</strong>하고 전체 경우의 수로 나누어 확률을 구한다.
+        <strong>판화 (백준 1730)</strong>는<br>
+        N×N 격자 위에서 명령어에 따라 도장을 이동시킬 때, <strong>이동 경로에 따라 각 칸에 수직선(|), 수평선(-), 교차점(+), 빈칸(.) 중 하나를 출력</strong>하는 문제다.<br>
+        <strong>각 칸을 수직 방향으로 지나갔는지, 수평 방향으로 지나갔는지를 독립적으로 추적</strong>하여 최종 상태를 결정한다.
       </p>
       
       <ul>
-        <li>복권 당첨 번호 M개와 내가 고른 M개 중 정확히 i개가 일치하는 경우의 수는 C(M, i) × C(N-M, M-i)이다.</li>
-        <li>C(M, i)는 당첨 번호 M개 중 i개를 고르는 경우, C(N-M, M-i)는 나머지 N-M개 중 틀린 번호 M-i개를 고르는 경우다.</li>
-        <li>K개 이상 일치하는 경우의 합을 전체 경우의 수 C(N, M)으로 나누면 확률이 된다.</li>
+        <li>이동 시 현재 칸과 다음 칸 모두에 방향 정보를 기록해야 선분이 올바르게 표현된다.</li>
+        <li>수직(U, D) 이동이면 <code>vertical</code> 배열, 수평(L, R) 이동이면 <code>horizontal</code> 배열에 표시한다.</li>
+        <li>격자 범위를 벗어나는 이동 명령은 무시하고 현재 위치를 유지한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 조합(nCr) 계산을 통한 확률 산출</li>
-        <li><strong>선택 이유</strong>: 정확히 i개 일치하는 경우의 수를 조합으로 표현하면 반복적인 시뮬레이션 없이 수식 하나로 계산할 수 있다. K부터 M까지 각 i에 대해 경우의 수를 합산한 뒤 전체 경우의 수로 나누면 O(M²) 이내에 확률을 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 방향별 방문 배열을 이용한 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 각 칸의 최종 출력 문자는 수직·수평 방향 통과 여부의 조합으로 결정된다. 두 개의 boolean 배열로 방향을 독립적으로 추적하면, 명령어를 한 번 순회하는 O(L)과 격자를 한 번 출력하는 O(N²)만으로 전체를 해결할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>i를 K부터 M까지 순회하며 C(M, i) × C(N-M, M-i)를 <code>numerator</code>에 누적한다.</li>
-            <li>전체 경우의 수 C(N, M)을 <code>denominator</code>로 계산한다.</li>
-            <li><code>numerator / denominator</code>를 출력한다.</li>
-            <li><code>nCr</code>에서 r이 음수이거나 n보다 크면 0을 반환하여 유효하지 않은 조합을 처리한다.</li>
+            <li>명령어를 순서대로 처리하며 다음 위치를 계산하고, 범위를 벗어나면 건너뛴다.</li>
+            <li>이동 방향에 따라 현재 칸과 다음 칸 모두 <code>vertical</code> 또는 <code>horizontal</code> 배열에 true로 표시한다.</li>
+            <li>모든 명령어를 처리한 뒤 N×N 격자를 순회하며 두 배열의 조합으로 출력 문자를 결정한다.</li>
           </ul>
         </li>
       </ul>
@@ -96,36 +95,55 @@
       </p>
       
       <ul>
-        <li><strong>1) K개 이상 일치하는 경우의 수 합산</strong>
-          <pre><code>double numerator = 0;
-      for (int i = K; i <= M; i++) {
-          numerator += nCr(M, i) * nCr(N - M, M - i);
-      }</code></pre>
-          <ul>
-            <li>i를 K부터 M까지 순회하며 정확히 i개 일치하는 경우의 수 C(M, i) × C(N-M, M-i)를 누적한다. C(N-M, M-i)에서 M-i가 N-M을 초과하거나 음수이면 <code>nCr</code>이 0을 반환하므로 자연스럽게 걸러진다.</li>
-          </ul>
-        </li>
+        <li><strong>1) 초기화 및 명령어 시뮬레이션</strong>
+          <pre><code>boolean[][] horizontal = new boolean[N][N];
+      boolean[][] vertical = new boolean[N][N];
       
-        <li><strong>2) 전체 경우의 수 계산 및 확률 출력</strong>
-          <pre><code>double denominator = nCr(N, M);
-      System.out.println(numerator / denominator);</code></pre>
-          <ul>
-            <li>N개 중 M개를 고르는 전체 경우의 수 C(N, M)을 구하고, 분자를 분모로 나눠 확률을 출력한다.</li>
-          </ul>
-        </li>
+      int row = 0;
+      int col = 0;
       
-        <li><strong>3) 조합 계산 메서드</strong>
-          <pre><code>public static long nCr(int n, int r) {
-          if (r < 0 || r > n) return 0;
-          long res = 1;
-          for (int i = 1; i <= r; i++) {
-              res = res * (n - i + 1) / i;
+      for (int i = 0; i < command.length; i++) {
+          int nr = row;
+          int nc = col;
+      
+          if (command[i] == 'U') nr--;
+          else if (command[i] == 'D') nr++;
+          else if (command[i] == 'L') nc--;
+          else if (command[i] == 'R') nc++;
+      
+          if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+      
+          if (command[i] == 'U' || command[i] == 'D') {
+              vertical[row][col] = true;
+              vertical[nr][nc] = true;
+          } else {
+              horizontal[row][col] = true;
+              horizontal[nr][nc] = true;
           }
-          return res;
+      
+          row = nr;
+          col = nc;
       }</code></pre>
           <ul>
-            <li>r이 음수이거나 n보다 크면 0을 반환하여 유효하지 않은 조합을 처리한다.</li>
-            <li><code>res = res * (n - i + 1) / i</code>를 반복해 C(n, r)을 계산한다. 매 단계에서 나눗셈을 수행하므로 중간 값이 과도하게 커지지 않으며 정수 범위를 유지할 수 있다.</li>
+            <li>시작 위치 (0, 0)에서 명령어를 순서대로 처리한다. 다음 위치 <code>(nr, nc)</code>가 격자 범위를 벗어나면 <code>continue</code>로 건너뛰고 현재 위치를 유지한다.</li>
+            <li>U·D 이동이면 현재 칸과 다음 칸의 <code>vertical</code>을, L·R 이동이면 <code>horizontal</code>을 true로 표시한다. 양 끝 칸 모두에 표시해야 선분이 완전하게 기록된다.</li>
+            <li>이동이 유효하면 현재 위치를 <code>(nr, nc)</code>로 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 격자 출력</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          for (int j = 0; j < N; j++) {
+              if (vertical[i][j] && horizontal[i][j]) sb.append('+');
+              else if (vertical[i][j]) sb.append('|');
+              else if (horizontal[i][j]) sb.append('-');
+              else sb.append('.');
+          }
+          sb.append('\n');
+      }</code></pre>
+          <ul>
+            <li>수직·수평 모두 true이면 교차점 <code>'+'</code>, 수직만 true이면 <code>'|'</code>, 수평만 true이면 <code>'-'</code>, 둘 다 false이면 빈칸 <code>'.'</code>을 출력한다.</li>
+            <li>결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -141,16 +159,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(M²)</strong>: K부터 M까지 최대 M번 순회하며 각 반복에서 <code>nCr</code>을 두 번 호출하고, 각 호출은 O(M)이므로 전체 O(M²)이다.</li>
+            <li><strong>O(L + N²)</strong>: 명령어 길이 L만큼 시뮬레이션을 수행하고, 이후 N×N 격자를 한 번 순회하며 출력하므로 전체 O(L + N²)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: <code>numerator</code>, <code>denominator</code>, <code>res</code> 등 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+            <li><strong>O(N²)</strong>: 수직·수평 방향 방문 여부를 저장하는 두 개의 N×N boolean 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
