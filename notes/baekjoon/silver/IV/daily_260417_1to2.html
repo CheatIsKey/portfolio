@@ -214,14 +214,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 12782 — 비트 우정지수</h2>
+      <h2 class="section">문제 24499 — blobyum</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/12782">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/24499">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260416_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260417_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -239,15 +239,15 @@
       </h3>
       
       <p>
-        <strong>비트 우정지수 (백준 12782)</strong>는<br>
-        같은 길이의 두 이진 문자열 N과 M이 주어질 때, <strong>최소 횟수의 연산으로 N을 M으로 변환하는 연산 횟수를 구</strong>하는 문제다.<br>
-        <strong>연산은 비트 교환(swap)과 비트 반전(flip) 두 가지</strong>이며, 교환이 반전보다 비용 효율이 높다.
+        <strong>blobyum (백준 24499)</strong>는<br>
+        원형으로 배열된 N개의 파이 조각 중 <strong>연속된 K개를 선택했을 때 합의 최댓값을 구</strong>하는 문제다.<br>
+        <strong>원형 배열을 선형으로 펼친 뒤 슬라이딩 윈도우</strong>를 적용하여 O(N)에 해결한다.
       </p>
       
       <ul>
-        <li>N[i] ≠ M[i]인 위치는 두 종류로 나뉜다. N[i]=0, M[i]=1인 위치(diffZero)와 N[i]=1, M[i]=0인 위치(diffOne)다.</li>
-        <li>두 종류의 불일치 위치가 각각 하나씩 있으면 교환 1회로 동시에 해결할 수 있다(비용 1, 2개 해결).</li>
-        <li>짝을 지을 수 없는 나머지 불일치 위치는 반전 1회로 각각 처리해야 한다(비용 1, 1개 해결).</li>
+        <li>원형 배열에서 연속된 K개를 선택하면 시작점이 어디든 상관없이 순환하며 이어진다. 이를 선형으로 처리하기 위해 배열을 두 번 이어붙여 크기 2N 배열로 만든다.</li>
+        <li>슬라이딩 윈도우 크기는 K이며, 시작점은 0부터 N-1까지 총 N가지만 유효하다. N번째 이후는 동일한 구간이 반복되므로 N-1번만 이동하면 된다.</li>
+        <li>윈도우를 한 칸 오른쪽으로 이동할 때 왼쪽 끝 값을 빼고 새로운 오른쪽 끝 값을 더하면 O(1)에 합을 갱신할 수 있다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -259,13 +259,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 그리디 (교환 우선, 나머지 반전)</li>
-        <li><strong>선택 이유</strong>: 교환 1회로 2개의 불일치를 동시에 해결할 수 있으므로 반전보다 효율적이다. 따라서 짝을 지을 수 있는 만큼 교환을 먼저 수행하고, 남은 불일치를 반전으로 처리하면 항상 최소 연산 횟수가 보장된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 배열 복제 + 슬라이딩 윈도우</li>
+        <li><strong>선택 이유</strong>: 원형 배열 문제는 배열을 두 번 이어붙여 선형화하면 원형 순환을 자연스럽게 처리할 수 있다. 이후 고정 크기 K의 슬라이딩 윈도우를 N번 이동하면 모든 시작점에 대한 합을 O(N)에 구할 수 있어, 완전 탐색 O(NK)보다 훨씬 효율적이다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>불일치 위치를 <code>diffZero</code>(N=0, M=1)와 <code>diffOne</code>(N=1, M=0)으로 분류한다.</li>
-            <li>두 값의 최솟값만큼 교환을 수행하여 쌍을 이루는 불일치를 모두 해결한다.</li>
-            <li>남은 <code>diffZero</code> 또는 <code>diffOne</code>은 각각 반전 1회씩으로 처리한다.</li>
+            <li>원본 배열을 두 번 이어붙여 크기 2N의 배열 <code>pies</code>를 만든다.</li>
+            <li>인덱스 0부터 K-1까지의 합으로 초기 윈도우 합 <code>sum</code>을 구한다.</li>
+            <li>시작점을 1씩 옮기며 <code>sum = sum - pies[i] + pies[i + K]</code>로 합을 갱신하고 최댓값을 추적한다.</li>
+            <li>시작점은 0부터 N-1까지 총 N가지이므로 이동 횟수는 N-1번이다.</li>
           </ul>
         </li>
       </ul>
@@ -279,42 +280,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 불일치 위치 분류</strong>
-          <pre><code>for (int i = 0; i < N.length; i++) {
-          if (N[i] != M[i] && N[i] == '0') {
-              diffZero++;
-          } else if (N[i] != M[i] && N[i] == '1') {
-              diffOne++;
-          }
+        <li><strong>1) 원형 배열 선형화</strong>
+          <pre><code>int[] pies = new int[N * 2];
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          int num = Integer.parseInt(st.nextToken());
+          pies[i] = num;
+          pies[N + i] = num;
       }</code></pre>
           <ul>
-            <li>두 문자열을 순회하며 N[i] ≠ M[i]인 위치를 두 종류로 분류한다. N[i]='0'인 불일치는 <code>diffZero</code>, N[i]='1'인 불일치는 <code>diffOne</code>에 누적한다.</li>
+            <li>크기 2N의 배열에 원본 배열을 두 번 저장한다. 예시: [1, 2, 3, 4] → [1, 2, 3, 4, 1, 2, 3, 4]. 이렇게 하면 인덱스 i부터 i+K-1까지의 구간이 원형 순환을 포함한 연속 K개를 나타낸다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 교환 우선 처리</strong>
-          <pre><code>int move = Math.min(diffZero, diffOne);
-      count += move;
+        <li><strong>2) 초기 윈도우 합 계산</strong>
+          <pre><code>int sum = 0;
       
-      diffZero = diffZero - move;
-      diffOne = diffOne - move;</code></pre>
-          <ul>
-            <li><code>diffZero</code>와 <code>diffOne</code>의 최솟값만큼 교환을 수행한다. 교환 1회가 두 종류의 불일치를 동시에 1개씩 해결하므로, <code>move</code>번의 교환으로 <code>2 × move</code>개의 불일치가 사라진다.</li>
-            <li>교환 후 남은 불일치 수를 각각 갱신한다. 둘 중 하나는 반드시 0이 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 나머지 반전 처리 및 출력</strong>
-          <pre><code>if (diffZero != 0) {
-          count += diffZero;
-      } else if (diffOne != 0) {
-          count += diffOne;
+      for (int i = 0; i < K; i++) {
+          sum += pies[i];
       }
       
-      sb.append(count).append("\n");</code></pre>
+      int answer = sum;</code></pre>
           <ul>
-            <li>짝을 짓지 못한 나머지 불일치는 반전 1회씩으로 처리하므로 남은 수만큼 <code>count</code>에 더한다. <code>diffZero</code>와 <code>diffOne</code> 중 하나는 반드시 0이므로 둘 다 더해지는 경우는 없다.</li>
-            <li>결과를 <code>StringBuilder</code>에 누적하고 모든 테스트케이스가 끝난 뒤 한 번에 출력한다.</li>
+            <li>시작점 0에서의 K개 합을 구해 초기 <code>answer</code>로 설정한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 슬라이딩 윈도우로 최댓값 탐색</strong>
+          <pre><code>for (int i = 0; i < N - 1; i++) {
+          sum = sum - pies[i] + pies[i + K];
+          answer = Math.max(answer, sum);
+      }</code></pre>
+          <ul>
+            <li>시작점을 1씩 오른쪽으로 옮기며 윈도우 왼쪽 끝 <code>pies[i]</code>를 빼고 새로운 오른쪽 끝 <code>pies[i + K]</code>를 더해 O(1)에 합을 갱신한다.</li>
+            <li>이동 횟수는 N-1번으로, 시작점 0부터 N-1까지 총 N가지 경우를 모두 확인한다.</li>
+            <li>매 단계마다 <code>answer</code>와 비교하여 최댓값을 갱신한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>4) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>연속된 K개 파이 조각 합의 최댓값 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -330,12 +338,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(T · L)</strong>: T개의 테스트케이스마다 길이 L인 문자열을 한 번 순회하며 O(1) 연산만 수행하므로 전체 O(T · L)이다. (L은 문자열의 길이)</li>
+            <li><strong>O(N)</strong>: 배열 초기화에 O(N), 초기 윈도우 합 계산에 O(K), 슬라이딩 윈도우 이동에 O(N)이 소요되며, K ≤ N이므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(L)</strong>: 두 문자열을 <code>char[]</code>로 저장하는 공간이 주요 메모리 사용처이며, 그 외 카운터 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 원형 배열을 선형화하기 위해 크기 2N의 배열을 사용하는 것이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
