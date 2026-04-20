@@ -221,15 +221,15 @@
       </h3>
       
       <p>
-        <strong>blobyum (백준 24499)</strong>는<br>
-        원형으로 배열된 N개의 파이 조각 중 <strong>연속된 K개를 선택했을 때 합의 최댓값을 구</strong>하는 문제다.<br>
-        <strong>원형 배열을 선형으로 펼친 뒤 슬라이딩 윈도우</strong>를 적용하여 O(N)에 해결한다.
+        <strong>카드셋트 (백준 11507)</strong>는<br>
+        P, K, H, T 네 종류의 카드 덱에서 각 13장씩 총 52장이 있을 때, 주어진 카드 목록을 확인하여 <strong>중복 카드가 있으면 GRESKA를, 없으면 각 종류별 빠진 카드 수를 출력</strong>하는 문제다.<br>
+        <strong>카드 종류별 HashSet으로 중복 여부를 판별</strong>하고, 13에서 보유 수를 빼면 빠진 카드 수를 구할 수 있다.
       </p>
       
       <ul>
-        <li>원형 배열에서 연속된 K개를 선택하면 시작점이 어디든 상관없이 순환하며 이어진다. 이를 선형으로 처리하기 위해 배열을 두 번 이어붙여 크기 2N 배열로 만든다.</li>
-        <li>슬라이딩 윈도우 크기는 K이며, 시작점은 0부터 N-1까지 총 N가지만 유효하다. N번째 이후는 동일한 구간이 반복되므로 N-1번만 이동하면 된다.</li>
-        <li>윈도우를 한 칸 오른쪽으로 이동할 때 왼쪽 끝 값을 빼고 새로운 오른쪽 끝 값을 더하면 O(1)에 합을 갱신할 수 있다.</li>
+        <li>입력은 공백 없이 이어진 문자열이며, 3글자씩 끊어 카드 종류(1글자)와 번호(2글자)를 파싱한다.</li>
+        <li>같은 종류의 같은 번호 카드가 두 번 등장하면 중복이므로 즉시 GRESKA를 출력하고 종료한다.</li>
+        <li>중복이 없으면 각 종류별로 13에서 HashSet의 크기를 빼면 빠진 카드 수가 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -241,14 +241,15 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 배열 복제 + 슬라이딩 윈도우</li>
-        <li><strong>선택 이유</strong>: 원형 배열 문제는 배열을 두 번 이어붙여 선형화하면 원형 순환을 자연스럽게 처리할 수 있다. 이후 고정 크기 K의 슬라이딩 윈도우를 N번 이동하면 모든 시작점에 대한 합을 O(N)에 구할 수 있어, 완전 탐색 O(NK)보다 훨씬 효율적이다.</li>
+        <li><strong>핵심 알고리즘</strong>: HashMap + HashSet을 이용한 중복 검사</li>
+        <li><strong>선택 이유</strong>: 카드 종류(P, K, H, T)를 키로, 해당 종류의 번호 집합을 값으로 하는 HashMap을 구성하면, 카드를 추가할 때 HashSet의 <code>contains()</code>로 O(1)에 중복을 판별할 수 있다. 모든 카드를 처리한 뒤 각 HashSet의 크기를 13에서 빼면 빠진 카드 수를 바로 구할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>원본 배열을 두 번 이어붙여 크기 2N의 배열 <code>pies</code>를 만든다.</li>
-            <li>인덱스 0부터 K-1까지의 합으로 초기 윈도우 합 <code>sum</code>을 구한다.</li>
-            <li>시작점을 1씩 옮기며 <code>sum = sum - pies[i] + pies[i + K]</code>로 합을 갱신하고 최댓값을 추적한다.</li>
-            <li>시작점은 0부터 N-1까지 총 N가지이므로 이동 횟수는 N-1번이다.</li>
+            <li>P, K, H, T 네 종류 각각에 빈 HashSet을 매핑한 HashMap을 초기화한다.</li>
+            <li>입력 문자열을 3글자씩 끊어 카드 종류와 번호를 파싱한다.</li>
+            <li>해당 종류의 HashSet에 번호가 이미 있으면 GRESKA를 출력하고 종료한다.</li>
+            <li>없으면 HashSet에 번호를 추가한다.</li>
+            <li>모든 카드 처리 후 각 종류별 <code>13 - set.size()</code>를 순서대로 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -262,49 +263,45 @@
       </p>
       
       <ul>
-        <li><strong>1) 원형 배열 선형화</strong>
-          <pre><code>int[] pies = new int[N * 2];
-      
-      st = new StringTokenizer(br.readLine());
-      for (int i = 0; i < N; i++) {
-          int num = Integer.parseInt(st.nextToken());
-          pies[i] = num;
-          pies[N + i] = num;
-      }</code></pre>
+        <li><strong>1) 자료구조 초기화</strong>
+          <pre><code>Map&lt;Character, Set&lt;String&gt;&gt; cards = new HashMap&lt;&gt;();
+      cards.put('P', new HashSet&lt;&gt;());
+      cards.put('K', new HashSet&lt;&gt;());
+      cards.put('H', new HashSet&lt;&gt;());
+      cards.put('T', new HashSet&lt;&gt;());</code></pre>
           <ul>
-            <li>크기 2N의 배열에 원본 배열을 두 번 저장한다. 예시: [1, 2, 3, 4] → [1, 2, 3, 4, 1, 2, 3, 4]. 이렇게 하면 인덱스 i부터 i+K-1까지의 구간이 원형 순환을 포함한 연속 K개를 나타낸다.</li>
+            <li>카드 종류 문자를 키로, 해당 종류에서 등장한 번호들을 저장하는 HashSet을 값으로 하는 HashMap을 초기화한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 초기 윈도우 합 계산</strong>
-          <pre><code>int sum = 0;
+        <li><strong>2) 카드 파싱 및 중복 검사</strong>
+          <pre><code>for (int i = 0; i < s.length(); i += 3) {
+          char type = s.charAt(i);
+          String number = s.substring(i + 1, i + 3);
       
-      for (int i = 0; i < K; i++) {
-          sum += pies[i];
+          if (cards.get(type).contains(number)) {
+              System.out.println("GRESKA");
+              return;
+          }
+      
+          cards.get(type).add(number);
+      }</code></pre>
+          <ul>
+            <li>3글자씩 끊어 첫 글자를 종류, 나머지 두 글자를 번호로 파싱한다.</li>
+            <li>해당 종류의 HashSet에 번호가 이미 존재하면 중복이므로 GRESKA를 출력하고 즉시 종료한다.</li>
+            <li>중복이 아니면 HashSet에 번호를 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 빠진 카드 수 계산 및 출력</strong>
+          <pre><code>char[] types = {'P', 'K', 'H', 'T'};
+      for (char type : types) {
+          sb.append(13 - cards.get(type).size()).append(' ');
       }
       
-      int answer = sum;</code></pre>
+      System.out.println(sb);</code></pre>
           <ul>
-            <li>시작점 0에서의 K개 합을 구해 초기 <code>answer</code>로 설정한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 슬라이딩 윈도우로 최댓값 탐색</strong>
-          <pre><code>for (int i = 0; i < N - 1; i++) {
-          sum = sum - pies[i] + pies[i + K];
-          answer = Math.max(answer, sum);
-      }</code></pre>
-          <ul>
-            <li>시작점을 1씩 오른쪽으로 옮기며 윈도우 왼쪽 끝 <code>pies[i]</code>를 빼고 새로운 오른쪽 끝 <code>pies[i + K]</code>를 더해 O(1)에 합을 갱신한다.</li>
-            <li>이동 횟수는 N-1번으로, 시작점 0부터 N-1까지 총 N가지 경우를 모두 확인한다.</li>
-            <li>매 단계마다 <code>answer</code>와 비교하여 최댓값을 갱신한다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>4) 결과 출력</strong>
-          <pre><code>System.out.println(answer);</code></pre>
-          <ul>
-            <li>연속된 K개 파이 조각 합의 최댓값 <code>answer</code>를 출력한다.</li>
+            <li>P, K, H, T 순서로 각 종류의 HashSet 크기를 13에서 빼 빠진 카드 수를 구한다. 결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -320,16 +317,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 배열 초기화에 O(N), 초기 윈도우 합 계산에 O(K), 슬라이딩 윈도우 이동에 O(N)이 소요되며, K ≤ N이므로 전체 O(N)이다.</li>
+            <li><strong>O(L)</strong>: 입력 문자열 길이 L에 비례하여 3글자씩 순회하며 각 카드에 대해 O(1)의 HashSet 연산을 수행하므로 전체 O(L)이다. 카드의 최대 수가 52장으로 고정이므로 사실상 O(1)에 수렴한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 원형 배열을 선형화하기 위해 크기 2N의 배열을 사용하는 것이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 네 종류의 HashSet에 저장되는 카드 수의 합이 최대 52로 고정이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
