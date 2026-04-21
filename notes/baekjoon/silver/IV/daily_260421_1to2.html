@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 25214 — 크림 파스타</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/25214">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260420_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>크림 파스타 (백준 25214)</strong>는<br>
+        N개의 수열이 주어질 때, <strong>i번째 원소까지 고려했을 때 j &lt; i인 임의의 쌍 (j, i)에서 a[i] - a[j]의 최댓값을 매 원소마다 출력</strong>하는 문제다.<br>
+        <strong>현재까지의 최솟값을 추적</strong>하면 각 위치에서 O(1)에 최대 차이를 갱신할 수 있다.
+      </p>
+      
+      <ul>
+        <li>a[i] - a[j]를 최대화하려면 a[j]가 최소이고 a[i]가 최대여야 하므로, i를 고정했을 때 j &lt; i인 최솟값만 알면 된다.</li>
+        <li>왼쪽에서 오른쪽으로 순회하며 현재까지의 최솟값 <code>min</code>을 갱신하면, 매 위치에서 <code>a[i] - min</code>이 해당 위치까지의 최대 차이 후보가 된다.</li>
+        <li>이 후보를 전체 최댓값 <code>maxSub</code>와 비교해 갱신하면 i번째 원소까지의 정답이 O(1)에 결정된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 단일 순회 + 누적 최솟값 추적 그리디</li>
+        <li><strong>선택 이유</strong>: 모든 쌍 (j, i)를 직접 탐색하면 O(N²)이 필요하지만, 왼쪽부터 순회하며 현재까지의 최솟값만 유지하면 각 위치에서 O(1)에 최대 차이를 구할 수 있다. 최솟값은 단조적으로 유지되므로 별도의 자료구조 없이 변수 하나로 충분하다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>원소를 하나씩 읽으며 현재까지의 최솟값 <code>min</code>을 갱신한다.</li>
+            <li>현재 원소에서 <code>min</code>을 뺀 값을 전체 최댓값 <code>maxSub</code>와 비교해 갱신한다.</li>
+            <li>갱신된 <code>maxSub</code>를 즉시 출력 버퍼에 누적한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기화</strong>
+          <pre><code>long min = Long.MAX_VALUE;
+      long maxSub = 0;</code></pre>
+          <ul>
+            <li><code>min</code>은 현재까지 등장한 원소 중 최솟값을 추적하며, 아직 아무 원소도 보지 않은 상태를 나타내기 위해 <code>Long.MAX_VALUE</code>로 초기화한다. <code>maxSub</code>는 현재까지의 최대 차이로 0으로 초기화한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 단일 순회로 누적 최솟값 및 최대 차이 갱신</strong>
+          <pre><code>for (int i = 0; i < N; i++) {
+          long K = Long.parseLong(st.nextToken());
+      
+          min = Math.min(K, min);
+      
+          long sub = K - min;
+          maxSub = Math.max(maxSub, sub);
+      
+          sb.append(maxSub).append(' ');
+      }</code></pre>
+          <ul>
+            <li><code>min = Math.min(K, min)</code>: 현재 원소를 포함하여 지금까지의 최솟값을 갱신한다. 최솟값 갱신을 먼저 수행하므로 j = i인 경우(차이가 0인 경우)도 자연스럽게 처리된다.</li>
+            <li><code>sub = K - min</code>: 현재 원소에서 지금까지의 최솟값을 뺀 값이 이 위치에서의 최대 차이 후보다.</li>
+            <li><code>maxSub = Math.max(maxSub, sub)</code>: 전체 최댓값을 갱신한다. 이 값이 i번째 원소까지 고려했을 때의 정답이다.</li>
+            <li>갱신된 <code>maxSub</code>를 즉시 <code>StringBuilder</code>에 누적한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(sb);</code></pre>
+          <ul>
+            <li>N개의 답을 공백으로 구분하여 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 원소를 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 별도의 배열 없이 <code>min</code>과 <code>maxSub</code> 두 개의 변수만으로 모든 계산을 처리하므로 상수 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 11507 — 카드셋트</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11507">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260420_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>카드셋트 (백준 11507)</strong>는<br>
+        P, K, H, T 네 종류의 카드 덱에서 각 13장씩 총 52장이 있을 때, 주어진 카드 목록을 확인하여 <strong>중복 카드가 있으면 GRESKA를, 없으면 각 종류별 빠진 카드 수를 출력</strong>하는 문제다.<br>
+        <strong>카드 종류별 HashSet으로 중복 여부를 판별</strong>하고, 13에서 보유 수를 빼면 빠진 카드 수를 구할 수 있다.
+      </p>
+      
+      <ul>
+        <li>입력은 공백 없이 이어진 문자열이며, 3글자씩 끊어 카드 종류(1글자)와 번호(2글자)를 파싱한다.</li>
+        <li>같은 종류의 같은 번호 카드가 두 번 등장하면 중복이므로 즉시 GRESKA를 출력하고 종료한다.</li>
+        <li>중복이 없으면 각 종류별로 13에서 HashSet의 크기를 빼면 빠진 카드 수가 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: HashMap + HashSet을 이용한 중복 검사</li>
+        <li><strong>선택 이유</strong>: 카드 종류(P, K, H, T)를 키로, 해당 종류의 번호 집합을 값으로 하는 HashMap을 구성하면, 카드를 추가할 때 HashSet의 <code>contains()</code>로 O(1)에 중복을 판별할 수 있다. 모든 카드를 처리한 뒤 각 HashSet의 크기를 13에서 빼면 빠진 카드 수를 바로 구할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>P, K, H, T 네 종류 각각에 빈 HashSet을 매핑한 HashMap을 초기화한다.</li>
+            <li>입력 문자열을 3글자씩 끊어 카드 종류와 번호를 파싱한다.</li>
+            <li>해당 종류의 HashSet에 번호가 이미 있으면 GRESKA를 출력하고 종료한다.</li>
+            <li>없으면 HashSet에 번호를 추가한다.</li>
+            <li>모든 카드 처리 후 각 종류별 <code>13 - set.size()</code>를 순서대로 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 자료구조 초기화</strong>
+          <pre><code>Map&lt;Character, Set&lt;String&gt;&gt; cards = new HashMap&lt;&gt;();
+      cards.put('P', new HashSet&lt;&gt;());
+      cards.put('K', new HashSet&lt;&gt;());
+      cards.put('H', new HashSet&lt;&gt;());
+      cards.put('T', new HashSet&lt;&gt;());</code></pre>
+          <ul>
+            <li>카드 종류 문자를 키로, 해당 종류에서 등장한 번호들을 저장하는 HashSet을 값으로 하는 HashMap을 초기화한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 카드 파싱 및 중복 검사</strong>
+          <pre><code>for (int i = 0; i < s.length(); i += 3) {
+          char type = s.charAt(i);
+          String number = s.substring(i + 1, i + 3);
+      
+          if (cards.get(type).contains(number)) {
+              System.out.println("GRESKA");
+              return;
+          }
+      
+          cards.get(type).add(number);
+      }</code></pre>
+          <ul>
+            <li>3글자씩 끊어 첫 글자를 종류, 나머지 두 글자를 번호로 파싱한다.</li>
+            <li>해당 종류의 HashSet에 번호가 이미 존재하면 중복이므로 GRESKA를 출력하고 즉시 종료한다.</li>
+            <li>중복이 아니면 HashSet에 번호를 추가한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 빠진 카드 수 계산 및 출력</strong>
+          <pre><code>char[] types = {'P', 'K', 'H', 'T'};
+      for (char type : types) {
+          sb.append(13 - cards.get(type).size()).append(' ');
+      }
+      
+      System.out.println(sb);</code></pre>
+          <ul>
+            <li>P, K, H, T 순서로 각 종류의 HashSet 크기를 13에서 빼 빠진 카드 수를 구한다. 결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(L)</strong>: 입력 문자열 길이 L에 비례하여 3글자씩 순회하며 각 카드에 대해 O(1)의 HashSet 연산을 수행하므로 전체 O(L)이다. 카드의 최대 수가 52장으로 고정이므로 사실상 O(1)에 수렴한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 네 종류의 HashSet에 저장되는 카드 수의 합이 최대 52로 고정이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
