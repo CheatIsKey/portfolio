@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-20 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-21 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 25214 — 크림 파스타</h2>
+      <h2 class="section">문제 12788 — 제 2회 IUPC는 잘 개최될 수 있을까?</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/25214">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/12788">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260420_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260421_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>크림 파스타 (백준 25214)</strong>는<br>
-        N개의 수열이 주어질 때, <strong>i번째 원소까지 고려했을 때 j &lt; i인 임의의 쌍 (j, i)에서 a[i] - a[j]의 최댓값을 매 원소마다 출력</strong>하는 문제다.<br>
-        <strong>현재까지의 최솟값을 추적</strong>하면 각 위치에서 O(1)에 최대 차이를 갱신할 수 있다.
+        <strong>제 2회 IUPC는 잘 개최될 수 있을까? (백준 12788)</strong>는<br>
+        N명의 참가자가 각자 데려올 수 있는 사람 수가 주어질 때, <strong>팀 수 × 팀원 수를 충족하기 위해 섭외해야 할 최소 참가자 수를 구</strong>하는 문제다.<br>
+        <strong>가장 많은 사람을 데려올 수 있는 참가자부터 선택</strong>하는 그리디 전략으로 최소 인원을 결정한다.
       </p>
       
       <ul>
-        <li>a[i] - a[j]를 최대화하려면 a[j]가 최소이고 a[i]가 최대여야 하므로, i를 고정했을 때 j &lt; i인 최솟값만 알면 된다.</li>
-        <li>왼쪽에서 오른쪽으로 순회하며 현재까지의 최솟값 <code>min</code>을 갱신하면, 매 위치에서 <code>a[i] - min</code>이 해당 위치까지의 최대 차이 후보가 된다.</li>
-        <li>이 후보를 전체 최댓값 <code>maxSub</code>와 비교해 갱신하면 i번째 원소까지의 정답이 O(1)에 결정된다.</li>
+        <li>필요한 총 인원 <code>need = team × people</code>를 목표로, 가장 많은 인원을 채울 수 있는 참가자부터 내림차순으로 선택한다.</li>
+        <li>누적 합이 <code>need</code> 이상이 되는 순간 선택을 멈추며, 그때까지 선택한 참가자 수가 최솟값이다.</li>
+        <li>모든 참가자를 선택해도 <code>need</code>를 충족하지 못하면 STRESS를 출력한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 단일 순회 + 누적 최솟값 추적 그리디</li>
-        <li><strong>선택 이유</strong>: 모든 쌍 (j, i)를 직접 탐색하면 O(N²)이 필요하지만, 왼쪽부터 순회하며 현재까지의 최솟값만 유지하면 각 위치에서 O(1)에 최대 차이를 구할 수 있다. 최솟값은 단조적으로 유지되므로 별도의 자료구조 없이 변수 하나로 충분하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 그리디 (내림차순 누적 선택)</li>
+        <li><strong>선택 이유</strong>: 최소 참가자 수로 최대 인원을 채우려면 한 명당 기여도가 큰 순서대로 선택하는 것이 항상 최적이다. 배열을 오름차순 정렬한 뒤 뒤에서부터 순회하면 내림차순으로 참가자를 선택할 수 있으며, 목표 인원을 달성하는 순간 즉시 종료한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>원소를 하나씩 읽으며 현재까지의 최솟값 <code>min</code>을 갱신한다.</li>
-            <li>현재 원소에서 <code>min</code>을 뺀 값을 전체 최댓값 <code>maxSub</code>와 비교해 갱신한다.</li>
-            <li>갱신된 <code>maxSub</code>를 즉시 출력 버퍼에 누적한다.</li>
+            <li>총 필요 인원 <code>need = team × people</code>을 계산한다.</li>
+            <li>참가자 배열을 오름차순 정렬한 뒤 뒤에서부터 순회하며 <code>need</code>에서 순차적으로 차감한다.</li>
+            <li><code>need</code>가 0 이하가 되면 즉시 중단하고 선택한 참가자 수를 출력한다.</li>
+            <li>순회가 끝난 후에도 <code>need</code>가 양수이면 STRESS를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,37 +96,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 초기화</strong>
-          <pre><code>long min = Long.MAX_VALUE;
-      long maxSub = 0;</code></pre>
+        <li><strong>1) 입력 및 필요 인원 계산</strong>
+          <pre><code>int team = Integer.parseInt(st.nextToken());
+      int people = Integer.parseInt(st.nextToken());
+      
+      int need = team * people;
+      
+      int[] CTP = new int[N];
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          CTP[i] = Integer.parseInt(st.nextToken());
+      }
+      
+      Arrays.sort(CTP);</code></pre>
           <ul>
-            <li><code>min</code>은 현재까지 등장한 원소 중 최솟값을 추적하며, 아직 아무 원소도 보지 않은 상태를 나타내기 위해 <code>Long.MAX_VALUE</code>로 초기화한다. <code>maxSub</code>는 현재까지의 최대 차이로 0으로 초기화한다.</li>
+            <li>팀 수 <code>team</code>과 팀원 수 <code>people</code>을 곱해 충족해야 할 총 인원 <code>need</code>를 계산한다. 참가자 배열을 오름차순 정렬하여 이후 뒤에서부터 순회하면 내림차순 선택이 가능하게 준비한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 단일 순회로 누적 최솟값 및 최대 차이 갱신</strong>
-          <pre><code>for (int i = 0; i < N; i++) {
-          long K = Long.parseLong(st.nextToken());
+        <li><strong>2) 내림차순 그리디 선택</strong>
+          <pre><code>int answer = 0;
       
-          min = Math.min(K, min);
+      for (int i = N - 1; i >= 0; i--) {
+          need -= CTP[i];
+          answer++;
       
-          long sub = K - min;
-          maxSub = Math.max(maxSub, sub);
-      
-          sb.append(maxSub).append(' ');
+          if (need <= 0) break;
       }</code></pre>
           <ul>
-            <li><code>min = Math.min(K, min)</code>: 현재 원소를 포함하여 지금까지의 최솟값을 갱신한다. 최솟값 갱신을 먼저 수행하므로 j = i인 경우(차이가 0인 경우)도 자연스럽게 처리된다.</li>
-            <li><code>sub = K - min</code>: 현재 원소에서 지금까지의 최솟값을 뺀 값이 이 위치에서의 최대 차이 후보다.</li>
-            <li><code>maxSub = Math.max(maxSub, sub)</code>: 전체 최댓값을 갱신한다. 이 값이 i번째 원소까지 고려했을 때의 정답이다.</li>
-            <li>갱신된 <code>maxSub</code>를 즉시 <code>StringBuilder</code>에 누적한다.</li>
+            <li>가장 많은 인원을 데려올 수 있는 참가자부터 선택하며 <code>need</code>를 차감한다. 매 선택마다 <code>answer</code>를 증가시켜 선택한 참가자 수를 추적한다.</li>
+            <li><code>need</code>가 0 이하가 되는 순간 목표를 달성했으므로 즉시 <code>break</code>하여 불필요한 탐색을 막는다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(sb);</code></pre>
+          <pre><code>if (need > 0) {
+          System.out.println("STRESS");
+          return;
+      }
+      
+      System.out.println(answer);</code></pre>
           <ul>
-            <li>N개의 답을 공백으로 구분하여 한 번에 출력한다.</li>
+            <li>순회가 끝난 후에도 <code>need</code>가 양수이면 모든 참가자를 선택해도 인원이 부족한 것이므로 STRESS를 출력하고 종료한다. 그렇지 않으면 최소 참가자 수 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -141,12 +154,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 원소를 한 번 순회하며 각 위치에서 O(1) 연산만 수행하므로 전체 O(N)이다.</li>
+            <li><strong>O(N log N)</strong>: 배열 정렬에 O(N log N)이 소요되며, 이후 순회는 최대 O(N)이므로 전체 O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 별도의 배열 없이 <code>min</code>과 <code>maxSub</code> 두 개의 변수만으로 모든 계산을 처리하므로 상수 공간만 사용한다.</li>
+            <li><strong>O(N)</strong>: 참가자 인원 수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
@@ -196,14 +209,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 11507 — 카드셋트</h2>
+      <h2 class="section">문제 14594 — 동방 프로젝트 (Small)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11507">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/14594">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260420_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260421_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -221,15 +234,15 @@
       </h3>
       
       <p>
-        <strong>카드셋트 (백준 11507)</strong>는<br>
-        P, K, H, T 네 종류의 카드 덱에서 각 13장씩 총 52장이 있을 때, 주어진 카드 목록을 확인하여 <strong>중복 카드가 있으면 GRESKA를, 없으면 각 종류별 빠진 카드 수를 출력</strong>하는 문제다.<br>
-        <strong>카드 종류별 HashSet으로 중복 여부를 판별</strong>하고, 13에서 보유 수를 빼면 빠진 카드 수를 구할 수 있다.
+        <strong>동방 프로젝트 (Small) (백준 14594)</strong>는<br>
+        N개의 방이 일렬로 연결되어 있을 때, M개의 구간 쿼리마다 해당 구간의 문을 부수어 <strong>최종적으로 남아 있는 방의 그룹 수를 구</strong>하는 문제다.<br>
+        <strong>인접한 두 방 사이의 문이 부서지면 두 방이 하나의 그룹으로 합쳐지므로</strong>, 부서진 문의 수만큼 초기 그룹 수 N에서 차감하면 된다.
       </p>
       
       <ul>
-        <li>입력은 공백 없이 이어진 문자열이며, 3글자씩 끊어 카드 종류(1글자)와 번호(2글자)를 파싱한다.</li>
-        <li>같은 종류의 같은 번호 카드가 두 번 등장하면 중복이므로 즉시 GRESKA를 출력하고 종료한다.</li>
-        <li>중복이 없으면 각 종류별로 13에서 HashSet의 크기를 빼면 빠진 카드 수가 된다.</li>
+        <li>초기 상태에서 N개의 방은 모두 독립된 그룹이므로 그룹 수는 N이다.</li>
+        <li>인접한 두 방 사이의 문이 처음으로 부서질 때마다 두 그룹이 하나로 합쳐지므로 그룹 수가 1 감소한다.</li>
+        <li>같은 문이 여러 쿼리에서 중복으로 부서지더라도 이미 부서진 문은 그룹 수에 영향을 주지 않으므로, 중복 처리를 방지하는 <code>isBroken</code> 배열이 필요하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -241,15 +254,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: HashMap + HashSet을 이용한 중복 검사</li>
-        <li><strong>선택 이유</strong>: 카드 종류(P, K, H, T)를 키로, 해당 종류의 번호 집합을 값으로 하는 HashMap을 구성하면, 카드를 추가할 때 HashSet의 <code>contains()</code>로 O(1)에 중복을 판별할 수 있다. 모든 카드를 처리한 뒤 각 HashSet의 크기를 13에서 빼면 빠진 카드 수를 바로 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 구간 시뮬레이션 + 부서진 문 중복 방지</li>
+        <li><strong>선택 이유</strong>: 문이 N-1개로 고정이므로 크기 N-1의 boolean 배열로 각 문의 상태를 추적할 수 있다. 쿼리마다 구간 내 문을 순회하며 처음 부서지는 문만 카운트하면 전체 O(M × N) 시뮬레이션으로 해결된다. (Small 버전이므로 N, M이 작아 선형 순회가 허용된다.)</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>P, K, H, T 네 종류 각각에 빈 HashSet을 매핑한 HashMap을 초기화한다.</li>
-            <li>입력 문자열을 3글자씩 끊어 카드 종류와 번호를 파싱한다.</li>
-            <li>해당 종류의 HashSet에 번호가 이미 있으면 GRESKA를 출력하고 종료한다.</li>
-            <li>없으면 HashSet에 번호를 추가한다.</li>
-            <li>모든 카드 처리 후 각 종류별 <code>13 - set.size()</code>를 순서대로 출력한다.</li>
+            <li>그룹 수 <code>answer</code>를 N으로 초기화한다.</li>
+            <li>각 쿼리의 구간 [left, right]에 대해 j를 left부터 right-1까지 순회하며 j번 문(방 j와 방 j+1 사이)을 확인한다.</li>
+            <li>아직 부서지지 않은 문이면 <code>answer</code>를 1 감소시키고 <code>isBroken</code>을 true로 표시한다.</li>
+            <li>모든 쿼리를 처리한 뒤 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -263,45 +275,39 @@
       </p>
       
       <ul>
-        <li><strong>1) 자료구조 초기화</strong>
-          <pre><code>Map&lt;Character, Set&lt;String&gt;&gt; cards = new HashMap&lt;&gt;();
-      cards.put('P', new HashSet&lt;&gt;());
-      cards.put('K', new HashSet&lt;&gt;());
-      cards.put('H', new HashSet&lt;&gt;());
-      cards.put('T', new HashSet&lt;&gt;());</code></pre>
+        <li><strong>1) 초기화</strong>
+          <pre><code>boolean[] isBroken = new boolean[N - 1];
+      int answer = N;</code></pre>
           <ul>
-            <li>카드 종류 문자를 키로, 해당 종류에서 등장한 번호들을 저장하는 HashSet을 값으로 하는 HashMap을 초기화한다.</li>
+            <li>N개의 방 사이에 존재하는 N-1개의 문 상태를 추적하는 배열을 초기화한다. 초기 그룹 수는 방의 수 N과 같다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 카드 파싱 및 중복 검사</strong>
-          <pre><code>for (int i = 0; i < s.length(); i += 3) {
-          char type = s.charAt(i);
-          String number = s.substring(i + 1, i + 3);
+        <li><strong>2) 쿼리별 구간 처리</strong>
+          <pre><code>for (int i = 0; i < M; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
       
-          if (cards.get(type).contains(number)) {
-              System.out.println("GRESKA");
-              return;
+          int left = Integer.parseInt(st.nextToken());
+          int right = Integer.parseInt(st.nextToken());
+      
+          for (int j = left; j < right; j++) {
+              if (!isBroken[j - 1]) {
+                  answer--;
+                  isBroken[j - 1] = true;
+              }
           }
-      
-          cards.get(type).add(number);
       }</code></pre>
           <ul>
-            <li>3글자씩 끊어 첫 글자를 종류, 나머지 두 글자를 번호로 파싱한다.</li>
-            <li>해당 종류의 HashSet에 번호가 이미 존재하면 중복이므로 GRESKA를 출력하고 즉시 종료한다.</li>
-            <li>중복이 아니면 HashSet에 번호를 추가한다.</li>
+            <li><code>j</code>를 <code>left</code>부터 <code>right - 1</code>까지 순회하며 방 j와 방 j+1 사이의 문(인덱스 j-1)을 확인한다.</li>
+            <li><code>isBroken[j - 1]</code>이 false이면 처음 부서지는 문이므로 <code>answer</code>를 1 감소시키고 <code>isBroken[j - 1]</code>을 true로 표시한다.</li>
+            <li>이미 부서진 문(<code>isBroken[j - 1] == true</code>)은 그냥 건너뛰어 중복 차감을 방지한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 빠진 카드 수 계산 및 출력</strong>
-          <pre><code>char[] types = {'P', 'K', 'H', 'T'};
-      for (char type : types) {
-          sb.append(13 - cards.get(type).size()).append(' ');
-      }
-      
-      System.out.println(sb);</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>P, K, H, T 순서로 각 종류의 HashSet 크기를 13에서 빼 빠진 카드 수를 구한다. 결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
+            <li>모든 쿼리를 처리한 뒤 최종 그룹 수 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -317,12 +323,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(L)</strong>: 입력 문자열 길이 L에 비례하여 3글자씩 순회하며 각 카드에 대해 O(1)의 HashSet 연산을 수행하므로 전체 O(L)이다. 카드의 최대 수가 52장으로 고정이므로 사실상 O(1)에 수렴한다.</li>
+            <li><strong>O(M · N)</strong>: M개의 쿼리마다 최대 N-1개의 문을 순회하므로 전체 O(M · N)이다. Small 버전에서는 N과 M이 충분히 작아 시간 내에 해결된다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 네 종류의 HashSet에 저장되는 카드 수의 합이 최대 52로 고정이므로 입력 크기와 무관한 상수 공간만 사용한다.</li>
+            <li><strong>O(N)</strong>: 문의 상태를 저장하는 크기 N-1의 boolean 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
