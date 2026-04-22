@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-21 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 12788 — 제 2회 IUPC는 잘 개최될 수 있을까?</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/12788">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260421_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>제 2회 IUPC는 잘 개최될 수 있을까? (백준 12788)</strong>는<br>
+        N명의 참가자가 각자 데려올 수 있는 사람 수가 주어질 때, <strong>팀 수 × 팀원 수를 충족하기 위해 섭외해야 할 최소 참가자 수를 구</strong>하는 문제다.<br>
+        <strong>가장 많은 사람을 데려올 수 있는 참가자부터 선택</strong>하는 그리디 전략으로 최소 인원을 결정한다.
+      </p>
+      
+      <ul>
+        <li>필요한 총 인원 <code>need = team × people</code>를 목표로, 가장 많은 인원을 채울 수 있는 참가자부터 내림차순으로 선택한다.</li>
+        <li>누적 합이 <code>need</code> 이상이 되는 순간 선택을 멈추며, 그때까지 선택한 참가자 수가 최솟값이다.</li>
+        <li>모든 참가자를 선택해도 <code>need</code>를 충족하지 못하면 STRESS를 출력한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 그리디 (내림차순 누적 선택)</li>
+        <li><strong>선택 이유</strong>: 최소 참가자 수로 최대 인원을 채우려면 한 명당 기여도가 큰 순서대로 선택하는 것이 항상 최적이다. 배열을 오름차순 정렬한 뒤 뒤에서부터 순회하면 내림차순으로 참가자를 선택할 수 있으며, 목표 인원을 달성하는 순간 즉시 종료한다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>총 필요 인원 <code>need = team × people</code>을 계산한다.</li>
+            <li>참가자 배열을 오름차순 정렬한 뒤 뒤에서부터 순회하며 <code>need</code>에서 순차적으로 차감한다.</li>
+            <li><code>need</code>가 0 이하가 되면 즉시 중단하고 선택한 참가자 수를 출력한다.</li>
+            <li>순회가 끝난 후에도 <code>need</code>가 양수이면 STRESS를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 필요 인원 계산</strong>
+          <pre><code>int team = Integer.parseInt(st.nextToken());
+      int people = Integer.parseInt(st.nextToken());
+      
+      int need = team * people;
+      
+      int[] CTP = new int[N];
+      
+      st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          CTP[i] = Integer.parseInt(st.nextToken());
+      }
+      
+      Arrays.sort(CTP);</code></pre>
+          <ul>
+            <li>팀 수 <code>team</code>과 팀원 수 <code>people</code>을 곱해 충족해야 할 총 인원 <code>need</code>를 계산한다. 참가자 배열을 오름차순 정렬하여 이후 뒤에서부터 순회하면 내림차순 선택이 가능하게 준비한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 내림차순 그리디 선택</strong>
+          <pre><code>int answer = 0;
+      
+      for (int i = N - 1; i >= 0; i--) {
+          need -= CTP[i];
+          answer++;
+      
+          if (need <= 0) break;
+      }</code></pre>
+          <ul>
+            <li>가장 많은 인원을 데려올 수 있는 참가자부터 선택하며 <code>need</code>를 차감한다. 매 선택마다 <code>answer</code>를 증가시켜 선택한 참가자 수를 추적한다.</li>
+            <li><code>need</code>가 0 이하가 되는 순간 목표를 달성했으므로 즉시 <code>break</code>하여 불필요한 탐색을 막는다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>if (need > 0) {
+          System.out.println("STRESS");
+          return;
+      }
+      
+      System.out.println(answer);</code></pre>
+          <ul>
+            <li>순회가 끝난 후에도 <code>need</code>가 양수이면 모든 참가자를 선택해도 인원이 부족한 것이므로 STRESS를 출력하고 종료한다. 그렇지 않으면 최소 참가자 수 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 배열 정렬에 O(N log N)이 소요되며, 이후 순회는 최대 O(N)이므로 전체 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 참가자 인원 수를 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 14594 — 동방 프로젝트 (Small)</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/14594">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260421_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>동방 프로젝트 (Small) (백준 14594)</strong>는<br>
+        N개의 방이 일렬로 연결되어 있을 때, M개의 구간 쿼리마다 해당 구간의 문을 부수어 <strong>최종적으로 남아 있는 방의 그룹 수를 구</strong>하는 문제다.<br>
+        <strong>인접한 두 방 사이의 문이 부서지면 두 방이 하나의 그룹으로 합쳐지므로</strong>, 부서진 문의 수만큼 초기 그룹 수 N에서 차감하면 된다.
+      </p>
+      
+      <ul>
+        <li>초기 상태에서 N개의 방은 모두 독립된 그룹이므로 그룹 수는 N이다.</li>
+        <li>인접한 두 방 사이의 문이 처음으로 부서질 때마다 두 그룹이 하나로 합쳐지므로 그룹 수가 1 감소한다.</li>
+        <li>같은 문이 여러 쿼리에서 중복으로 부서지더라도 이미 부서진 문은 그룹 수에 영향을 주지 않으므로, 중복 처리를 방지하는 <code>isBroken</code> 배열이 필요하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 구간 시뮬레이션 + 부서진 문 중복 방지</li>
+        <li><strong>선택 이유</strong>: 문이 N-1개로 고정이므로 크기 N-1의 boolean 배열로 각 문의 상태를 추적할 수 있다. 쿼리마다 구간 내 문을 순회하며 처음 부서지는 문만 카운트하면 전체 O(M × N) 시뮬레이션으로 해결된다. (Small 버전이므로 N, M이 작아 선형 순회가 허용된다.)</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>그룹 수 <code>answer</code>를 N으로 초기화한다.</li>
+            <li>각 쿼리의 구간 [left, right]에 대해 j를 left부터 right-1까지 순회하며 j번 문(방 j와 방 j+1 사이)을 확인한다.</li>
+            <li>아직 부서지지 않은 문이면 <code>answer</code>를 1 감소시키고 <code>isBroken</code>을 true로 표시한다.</li>
+            <li>모든 쿼리를 처리한 뒤 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 초기화</strong>
+          <pre><code>boolean[] isBroken = new boolean[N - 1];
+      int answer = N;</code></pre>
+          <ul>
+            <li>N개의 방 사이에 존재하는 N-1개의 문 상태를 추적하는 배열을 초기화한다. 초기 그룹 수는 방의 수 N과 같다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 쿼리별 구간 처리</strong>
+          <pre><code>for (int i = 0; i < M; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int left = Integer.parseInt(st.nextToken());
+          int right = Integer.parseInt(st.nextToken());
+      
+          for (int j = left; j < right; j++) {
+              if (!isBroken[j - 1]) {
+                  answer--;
+                  isBroken[j - 1] = true;
+              }
+          }
+      }</code></pre>
+          <ul>
+            <li><code>j</code>를 <code>left</code>부터 <code>right - 1</code>까지 순회하며 방 j와 방 j+1 사이의 문(인덱스 j-1)을 확인한다.</li>
+            <li><code>isBroken[j - 1]</code>이 false이면 처음 부서지는 문이므로 <code>answer</code>를 1 감소시키고 <code>isBroken[j - 1]</code>을 true로 표시한다.</li>
+            <li>이미 부서진 문(<code>isBroken[j - 1] == true</code>)은 그냥 건너뛰어 중복 차감을 방지한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>모든 쿼리를 처리한 뒤 최종 그룹 수 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(M · N)</strong>: M개의 쿼리마다 최대 N-1개의 문을 순회하므로 전체 O(M · N)이다. Small 버전에서는 N과 M이 충분히 작아 시간 내에 해결된다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 문의 상태를 저장하는 크기 N-1의 boolean 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
