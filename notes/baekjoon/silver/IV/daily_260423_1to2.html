@@ -233,15 +233,15 @@
       </h3>
       
       <p>
-        <strong>사탕 (백준 1812)</strong>는<br>
-        N명의 학생이 일렬로 앉아 있을 때 인접한 두 학생의 사탕 합이 주어지면, <strong>각 학생이 원래 가지고 있던 사탕 수를 복원</strong>하는 문제다.<br>
-        <strong>첫 번째 학생의 사탕 수를 수학적으로 유도한 뒤, 인접합 관계를 역추적</strong>하여 모든 학생의 값을 결정한다.
+        <strong>시간초과 (백준 11332)</strong>는<br>
+        알고리즘의 시간 복잡도 S, 입력 크기 N, 테스트케이스 수 T, 제한 시간 L이 주어질 때,<br>
+        <strong>총 연산 횟수가 허용 범위를 초과하는지 판별하여 TLE 여부를 출력</strong>하는 문제다.
       </p>
       
       <ul>
-        <li>입력 <code>candies[i]</code>는 i번째 학생과 i+1번째 학생의 사탕 합, 즉 <code>a[i] + a[i+1]</code>을 나타낸다.</li>
-        <li>전체 합을 2로 나누면 <code>a[0] + a[1] + ... + a[N-1]</code>의 합이 되고, 여기서 홀수 인덱스의 인접합을 빼면 <code>a[0]</code>만 남는다.</li>
-        <li><code>a[0]</code>을 구한 뒤 <code>a[i+1] = candies[i] - a[i]</code> 점화식으로 나머지 값을 순서대로 복원할 수 있다.</li>
+        <li>1초당 최대 연산 수를 1억(10⁸)으로 가정하므로, 허용 최대 연산 수는 <code>maxOps = L × 10⁸</code>이다.</li>
+        <li>복잡도별 총 연산 수는 <code>f(N) × T</code>이며, 이 값이 <code>maxOps</code>를 초과하면 TLE다.</li>
+        <li>N이 충분히 크면 <code>f(N)</code> 계산 자체가 오버플로우를 일으킬 수 있으므로, 복잡도별로 N의 임계값을 먼저 확인하는 조기 종료 조건이 필요하다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -253,13 +253,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 수학적 초기값 유도 + 점화식 역추적</li>
-        <li><strong>선택 이유</strong>: <code>a[i] + a[i+1] = candies[i]</code> 관계에서 짝수 인덱스 합과 홀수 인덱스 합의 차이를 이용하면 <code>a[0]</code>을 O(N)에 구할 수 있다. <code>a[0]</code>이 결정되면 이후 모든 값은 <code>a[i+1] = candies[i] - a[i]</code>로 O(N)에 순서대로 복원된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 복잡도별 분기 처리 + 오버플로우 방지 임계값 조기 종료</li>
+        <li><strong>선택 이유</strong>: 시간 복잡도 종류가 O(N), O(N²), O(N³), O(2^N), O(N!) 다섯 가지로 고정이므로 분기 처리로 충분하다. 각 복잡도에서 long 범위를 초과하는 N의 임계값을 미리 확인하면 안전하게 연산할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>전체 인접합의 합을 2로 나눈 값에서 홀수 인덱스(candies[1], candies[3], ...)의 합을 빼면 <code>a[0]</code>이 남는다.</li>
-            <li><code>a[0]</code>부터 시작해 <code>sub = candies[i] - student</code>로 다음 학생의 사탕 수를 순서대로 계산한다.</li>
-            <li>결과를 <code>StringBuilder</code>에 누적하여 한 번에 출력한다.</li>
+            <li>허용 최대 연산 수 <code>maxOps = L × 10⁸</code>을 계산한다.</li>
+            <li>복잡도별로 오버플로우 임계값을 먼저 확인하고, 안전한 범위에서만 <code>f(N) × T &gt; maxOps</code>를 검사한다.</li>
+            <li>O(N!)은 팩토리얼을 직접 계산하며, N ≥ 13이면 13! = 6,227,020,800으로 long 안에서도 maxOps를 초과하므로 즉시 TLE로 처리한다.</li>
           </ul>
         </li>
       </ul>
@@ -273,44 +273,51 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 전체 합 계산</strong>
-          <pre><code>int[] candies = new int[N];
-      int totalCandies = 0;
+        <li><strong>1) 허용 최대 연산 수 계산</strong>
+          <pre><code>static final long LIMIT = 100_000_000L;
       
-      for (int i = 0; i < N; i++) {
-          int candy = Integer.parseInt(br.readLine());
-          candies[i] = candy;
-          totalCandies += candy;
-      }</code></pre>
+      long maxOps = L * LIMIT;</code></pre>
           <ul>
-            <li>N개의 인접합 <code>candies[i] = a[i] + a[i+1]</code>을 배열에 저장하고 전체 합을 구한다.</li>
+            <li>1초당 최대 연산 수 10⁸에 제한 시간 L을 곱해 허용 최대 연산 수 <code>maxOps</code>를 구한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 첫 번째 학생의 사탕 수 유도</strong>
-          <pre><code>totalCandies /= 2;
-      
-      for (int i = 1; i < candies.length; i += 2) {
-          totalCandies -= candies[i];
+        <li><strong>2) 복잡도별 TLE 판별</strong>
+          <pre><code>if (S.equals("O(N)")) {
+          if (N * T > maxOps) isTLE = true;
       }
-      
-      int student = totalCandies;</code></pre>
+      else if (S.equals("O(N^2)")) {
+          if (N >= 31623) isTLE = true;
+          else if (N * N * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(N^3)")) {
+          if (N >= 1001) isTLE = true;
+          else if (N * N * N * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(2^N)")) {
+          if (N >= 30) isTLE = true;
+          else if ((1L << N) * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(N!)")) {
+          if (N >= 13) isTLE = true;
+          else {
+              long res = 1;
+              for (int i = 1; i <= N; i++) res *= i;
+              if (res * T > maxOps) isTLE = true;
+          }
+      }</code></pre>
           <ul>
-            <li><code>totalCandies / 2</code>는 <code>a[0] + a[1] + ... + a[N-1]</code>의 합이다. 여기서 홀수 인덱스의 인접합 <code>candies[1], candies[3], ...</code>을 빼면 다음과 같이 전개된다. candies[1] = a[1] + a[2], candies[3] = a[3] + a[4], ...을 빼고 나면 <code>a[0]</code>만 남아 첫 번째 학생의 사탕 수가 결정된다.</li>
+            <li><strong>O(N²)</strong>: √(Long.MAX_VALUE) ≈ 30억이지만 maxOps가 최대 10¹³이므로, N² 자체가 이미 10¹⁰을 넘는 N ≥ 31623이면 TLE로 처리한다.</li>
+            <li><strong>O(N³)</strong>: N ≥ 1001이면 N³ ≥ 10⁹으로 T를 곱하면 오버플로우 위험이 있어 즉시 TLE로 처리한다.</li>
+            <li><strong>O(2^N)</strong>: N ≥ 30이면 2³⁰ ≈ 10⁹으로 T를 곱하면 long 범위를 초과할 수 있어 즉시 TLE로 처리한다.</li>
+            <li><strong>O(N!)</strong>: N ≥ 13이면 13! = 6,227,020,800으로 어떤 T에 대해서도 maxOps를 초과하므로 즉시 TLE로 처리한다. N &lt; 13이면 팩토리얼을 직접 계산하여 비교한다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 점화식으로 나머지 학생 복원</strong>
-          <pre><code>sb.append(student).append("\n");
-      
-      for (int i = 0; i < candies.length - 1; i++) {
-          int sub = candies[i] - student;
-          sb.append(sub).append('\n');
-          student = sub;
-      }</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(isTLE ? "TLE!" : "May Pass.");</code></pre>
           <ul>
-            <li><code>a[0]</code>을 먼저 출력한 뒤, <code>a[i+1] = candies[i] - a[i]</code> 점화식으로 다음 학생의 사탕 수를 순서대로 계산한다.</li>
-            <li><code>student</code>를 현재 학생의 값으로 갱신하며 N-1번 반복하면 모든 학생의 값이 복원된다.</li>
+            <li><code>isTLE</code>가 true이면 "TLE!", false이면 "May Pass."를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -326,12 +333,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 저장, 홀수 인덱스 합산, 점화식 복원 모두 각각 O(N)의 단일 순회로 구성되므로 전체 O(N)이다.</li>
+            <li><strong>O(C)</strong>: C개의 쿼리마다 복잡도 판별에 O(1) 또는 O(N!) 계산에 최대 O(12)의 상수 반복이 수행되므로 전체 O(C)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 인접합을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(1)</strong>: 쿼리별로 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
           </ul>
         </li>
       </ul>
