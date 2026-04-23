@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-22 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 14584 — 암호 해독</h2>
+      <h2 class="section">문제 11558 — The Game of Death</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/14584">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11558">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260422_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>암호 해독 (백준 14584)</strong>는<br>
-        카이사르 암호로 인코딩된 문자열이 주어질 때, <strong>0~25 중 올바른 시프트 값을 찾아 복호화된 문자열을 출력</strong>하는 문제다.<br>
-        <strong>복호화된 문자열에 사전 단어 중 하나라도 포함되면 해당 시프트 값이 정답</strong>이다.
+        <strong>The Game of Death (백준 11558)</strong>는<br>
+        N명이 원형으로 앉아 각자 다음 사람을 지목할 때, 1번 사람부터 시작하여 <strong>N번 사람에게 지목이 도달하기까지의 이동 횟수를 구</strong>하는 문제다.<br>
+        <strong>N번에 도달하기 전에 이미 방문한 사람을 다시 방문하면 N번에 영원히 도달할 수 없으므로 0을 출력</strong>한다.
       </p>
       
       <ul>
-        <li>카이사르 암호는 알파벳을 일정한 수만큼 순환 이동하는 방식이므로, 가능한 시프트 값은 0부터 25까지 총 26가지다.</li>
-        <li>각 시프트 값으로 복호화한 문자열이 사전 단어를 포함하는지 확인하며, 처음으로 조건을 만족하는 복호화 결과를 출력한다.</li>
-        <li>사전 단어를 HashSet에 저장하면 각 단어의 포함 여부 확인을 빠르게 수행할 수 있다.</li>
+        <li>1번 사람이 지목한 사람을 따라가며 N번에 도달하면 이동 횟수를 출력한다.</li>
+        <li>이동 도중 이미 방문한 사람을 다시 방문하면 사이클이 형성된 것이므로 N번에 영원히 도달하지 못한다. 이 경우 0을 출력한다.</li>
+        <li>방문 여부를 boolean 배열로 추적하여 사이클을 O(N)에 감지한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 완전 탐색 (26가지 시프트 값 순회) + 문자열 포함 검사</li>
-        <li><strong>선택 이유</strong>: 가능한 시프트 값이 26가지로 고정이므로 모든 경우를 직접 시도하는 완전 탐색이 적합하다. 각 시프트마다 문자열 전체를 복호화하고, 사전 단어 포함 여부를 <code>contains()</code>로 확인하면 O(26 × L × W)로 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 링크드 리스트 순회 + 방문 배열을 이용한 사이클 감지</li>
+        <li><strong>선택 이유</strong>: 각 사람이 다음 지목자를 하나씩만 가지므로 구조가 링크드 리스트와 같다. 현재 노드에서 다음 노드로 이동하며 N에 도달하거나 사이클이 발생하는 두 가지 종료 조건만 처리하면 되므로, 방문 배열 하나로 O(N)에 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>시프트 값 i를 0부터 25까지 순회하며 암호문의 각 문자를 <code>(c - 'a' + i) % 26 + 'a'</code>로 복호화한다.</li>
-            <li>복호화된 문자열이 사전 단어를 하나라도 포함하면 즉시 출력하고 종료한다.</li>
-            <li>조건을 만족하지 않으면 <code>StringBuilder</code>를 초기화하고 다음 시프트 값을 시도한다.</li>
+            <li>1번부터 시작하여 지목 체인을 따라가며 이동 횟수 <code>move</code>를 증가시킨다.</li>
+            <li>다음 사람 x가 이미 방문된 경우 사이클이 형성된 것이므로 0을 기록하고 종료한다.</li>
+            <li>x가 N번인 경우 목표에 도달한 것이므로 현재 <code>move</code>를 기록하고 종료한다.</li>
+            <li>그 외의 경우 x를 현재 위치로 갱신하고 방문 표시를 한 뒤 계속 순회한다.</li>
           </ul>
         </li>
       </ul>
@@ -95,41 +96,50 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 사전 초기화</strong>
-          <pre><code>char[] encoded = br.readLine().toCharArray();
-      
-      Set&lt;String&gt; set = new HashSet&lt;&gt;();
-      
-      int N = Integer.parseInt(br.readLine());
-      for (int i = 0; i < N; i++) {
-          set.add(br.readLine());
+        <li><strong>1) 지목 배열 입력</strong>
+          <pre><code>int[] toMember = new int[N + 1];
+      for (int i = 1; i <= N; i++) {
+          toMember[i] = Integer.parseInt(br.readLine());
       }</code></pre>
           <ul>
-            <li>암호문을 <code>char[]</code>로 저장하고, N개의 사전 단어를 HashSet에 저장한다. HashSet을 사용하면 이후 <code>contains()</code> 호출 시 O(1)에 단어 존재 여부를 확인할 수 있다.</li>
+            <li>1번부터 N번까지 각 사람이 지목하는 다음 사람의 번호를 1-based 배열에 저장한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 26가지 시프트 값 순회 및 복호화</strong>
-          <pre><code>for (int i = 0; i < 26; i++) {
-          for (char c : encoded) {
-              sb.append((char) ((c - 'a' + i) % 26 + 'a'));
+        <li><strong>2) 지목 체인 순회 및 종료 조건 처리</strong>
+          <pre><code>boolean[] visited = new boolean[N + 1];
+      int cur = 1;
+      int move = 0;
+      
+      while (true) {
+          int x = toMember[cur];
+          move++;
+      
+          if (visited[x]) {
+              sb.append(0).append('\n');
+              break;
           }
       
-          String decoded = sb.toString();
-      
-          for (String word : set) {
-              if (decoded.contains(word)) {
-                  System.out.println(decoded);
-                  return;
-              }
+          if (x == N) {
+              sb.append(move).append('\n');
+              break;
           }
       
-          sb.setLength(0);
+          cur = x;
+          visited[cur] = true;
       }</code></pre>
           <ul>
-            <li>시프트 값 i로 각 문자를 <code>(c - 'a' + i) % 26 + 'a'</code>로 변환한다. <code>% 26</code>으로 알파벳 범위를 순환시키고, 다시 <code>'a'</code>를 더해 소문자 범위로 매핑한다.</li>
-            <li>복호화된 문자열 <code>decoded</code>에 대해 사전 단어를 순회하며 <code>contains()</code>로 포함 여부를 확인한다. 하나라도 포함되면 즉시 출력하고 <code>return</code>으로 종료한다.</li>
-            <li>조건 불만족 시 <code>sb.setLength(0)</code>으로 버퍼를 초기화하고 다음 시프트 값을 시도한다.</li>
+            <li>현재 위치 <code>cur</code>에서 다음 사람 <code>x = toMember[cur]</code>로 이동하며 <code>move</code>를 증가시킨다.</li>
+            <li><code>visited[x]</code>가 true이면 이미 방문한 사람을 다시 방문한 것으로, 사이클이 형성되어 N번에 도달 불가능하다. 0을 기록하고 즉시 종료한다.</li>
+            <li><code>x == N</code>이면 목표에 도달한 것이므로 현재 이동 횟수 <code>move</code>를 기록하고 종료한다.</li>
+            <li>두 조건 모두 해당하지 않으면 <code>cur = x</code>로 이동하고 <code>visited[cur] = true</code>로 방문 표시를 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 누적 및 출력</strong>
+          <pre><code>System.out.println(sb);</code></pre>
+          <ul>
+            <li>모든 테스트케이스의 결과를 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
           </ul>
         </li>
       </ul>
@@ -145,16 +155,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(26 · (L + N · W))</strong>: 26가지 시프트 값마다 길이 L인 문자열을 복호화하고, N개의 사전 단어 각각에 대해 <code>contains()</code>를 수행한다. <code>contains()</code>는 내부적으로 O(L · W)이므로 전체 O(26 · L · N · W)이나, L, N, W가 모두 작으므로 실질적으로 빠르게 동작한다.</li>
+            <li><strong>O(T · N)</strong>: T개의 테스트케이스마다 최대 N번의 이동으로 순회가 종료되므로 전체 O(T · N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N · W + L)</strong>: N개의 사전 단어를 저장하는 HashSet과 복호화 문자열을 담는 <code>StringBuilder</code>가 주요 메모리 사용처이다. (W는 사전 단어의 평균 길이)</li>
+            <li><strong>O(N)</strong>: 지목 배열 <code>toMember</code>와 방문 배열 <code>visited</code>가 각각 크기 N+1이며, 테스트케이스마다 초기화되므로 동시에 사용되는 최대 공간은 O(N)이다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -199,14 +208,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 1812 — 사탕</h2>
+      <h2 class="section">문제 11332 — 시간초과</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/1812">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/11332">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260422_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
