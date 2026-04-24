@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 11558 — The Game of Death</h2>
+      <h2 class="section">문제 2358 — 평행선</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11558">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/2358">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260424_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>The Game of Death (백준 11558)</strong>는<br>
-        N명이 원형으로 앉아 각자 다음 사람을 지목할 때, 1번 사람부터 시작하여 <strong>N번 사람에게 지목이 도달하기까지의 이동 횟수를 구</strong>하는 문제다.<br>
-        <strong>N번에 도달하기 전에 이미 방문한 사람을 다시 방문하면 N번에 영원히 도달할 수 없으므로 0을 출력</strong>한다.
+        <strong>평행선 (백준 2358)</strong>는<br>
+        N개의 점이 주어질 때, <strong>축에 평행한 직선(수평선 또는 수직선) 중 2개 이상의 점을 지나는 직선의 수를 구</strong>하는 문제다.<br>
+        <strong>같은 x좌표를 공유하는 점이 2개 이상이면 수직선, 같은 y좌표를 공유하는 점이 2개 이상이면 수평선</strong>이 존재한다.
       </p>
       
       <ul>
-        <li>1번 사람이 지목한 사람을 따라가며 N번에 도달하면 이동 횟수를 출력한다.</li>
-        <li>이동 도중 이미 방문한 사람을 다시 방문하면 사이클이 형성된 것이므로 N번에 영원히 도달하지 못한다. 이 경우 0을 출력한다.</li>
-        <li>방문 여부를 boolean 배열로 추적하여 사이클을 O(N)에 감지한다.</li>
+        <li>축에 평행한 직선은 수직선(x = k)과 수평선(y = k) 두 종류뿐이다.</li>
+        <li>같은 x좌표를 가진 점이 2개 이상이면 해당 x값에 대한 수직선이 존재하고, 같은 y좌표를 가진 점이 2개 이상이면 해당 y값에 대한 수평선이 존재한다.</li>
+        <li>x좌표별, y좌표별 등장 횟수를 HashMap으로 집계한 뒤, 횟수가 2 이상인 항목의 수를 세면 된다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,14 +75,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 링크드 리스트 순회 + 방문 배열을 이용한 사이클 감지</li>
-        <li><strong>선택 이유</strong>: 각 사람이 다음 지목자를 하나씩만 가지므로 구조가 링크드 리스트와 같다. 현재 노드에서 다음 노드로 이동하며 N에 도달하거나 사이클이 발생하는 두 가지 종료 조건만 처리하면 되므로, 방문 배열 하나로 O(N)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 좌표별 빈도 집계</li>
+        <li><strong>선택 이유</strong>: x좌표와 y좌표 각각에 대해 등장 횟수를 HashMap으로 집계하면, 2개 이상 등장한 좌표값의 수를 O(N)에 구할 수 있다. 좌표 범위가 넓어 배열 인덱싱이 어렵기 때문에 HashMap이 적합하다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>1번부터 시작하여 지목 체인을 따라가며 이동 횟수 <code>move</code>를 증가시킨다.</li>
-            <li>다음 사람 x가 이미 방문된 경우 사이클이 형성된 것이므로 0을 기록하고 종료한다.</li>
-            <li>x가 N번인 경우 목표에 도달한 것이므로 현재 <code>move</code>를 기록하고 종료한다.</li>
-            <li>그 외의 경우 x를 현재 위치로 갱신하고 방문 표시를 한 뒤 계속 순회한다.</li>
+            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>와 <code>posY</code> HashMap에 등장 횟수를 누적한다.</li>
+            <li>모든 점을 처리한 뒤 <code>posX</code>의 값 중 2 이상인 항목 수와 <code>posY</code>의 값 중 2 이상인 항목 수를 합산한다.</li>
+            <li>합산 결과가 곧 축에 평행한 직선의 총 수다.</li>
           </ul>
         </li>
       </ul>
@@ -96,50 +95,47 @@
       </p>
       
       <ul>
-        <li><strong>1) 지목 배열 입력</strong>
-          <pre><code>int[] toMember = new int[N + 1];
-      for (int i = 1; i <= N; i++) {
-          toMember[i] = Integer.parseInt(br.readLine());
+        <li><strong>1) 좌표별 등장 횟수 집계</strong>
+          <pre><code>Map&lt;Integer, Integer&gt; posX = new HashMap&lt;&gt;();
+      Map&lt;Integer, Integer&gt; posY = new HashMap&lt;&gt;();
+      
+      for (int i = 0; i < n; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int x = Integer.parseInt(st.nextToken());
+          int y = Integer.parseInt(st.nextToken());
+      
+          posX.put(x, posX.getOrDefault(x, 0) + 1);
+          posY.put(y, posY.getOrDefault(y, 0) + 1);
       }</code></pre>
           <ul>
-            <li>1번부터 N번까지 각 사람이 지목하는 다음 사람의 번호를 1-based 배열에 저장한다.</li>
+            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>에는 x좌표별, <code>posY</code>에는 y좌표별 등장 횟수를 누적한다. <code>getOrDefault</code>로 키가 없는 경우 0을 기본값으로 사용한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 지목 체인 순회 및 종료 조건 처리</strong>
-          <pre><code>boolean[] visited = new boolean[N + 1];
-      int cur = 1;
-      int move = 0;
+        <li><strong>2) 직선 수 집계</strong>
+          <pre><code>int answer = 0;
       
-      while (true) {
-          int x = toMember[cur];
-          move++;
-      
-          if (visited[x]) {
-              sb.append(0).append('\n');
-              break;
+      for (int value : posX.values()) {
+          if (value > 1) {
+              answer++;
           }
+      }
       
-          if (x == N) {
-              sb.append(move).append('\n');
-              break;
+      for (int value : posY.values()) {
+          if (value > 1) {
+              answer++;
           }
-      
-          cur = x;
-          visited[cur] = true;
       }</code></pre>
           <ul>
-            <li>현재 위치 <code>cur</code>에서 다음 사람 <code>x = toMember[cur]</code>로 이동하며 <code>move</code>를 증가시킨다.</li>
-            <li><code>visited[x]</code>가 true이면 이미 방문한 사람을 다시 방문한 것으로, 사이클이 형성되어 N번에 도달 불가능하다. 0을 기록하고 즉시 종료한다.</li>
-            <li><code>x == N</code>이면 목표에 도달한 것이므로 현재 이동 횟수 <code>move</code>를 기록하고 종료한다.</li>
-            <li>두 조건 모두 해당하지 않으면 <code>cur = x</code>로 이동하고 <code>visited[cur] = true</code>로 방문 표시를 한다.</li>
+            <li><code>posX</code>에서 값이 2 이상인 항목은 해당 x값에 수직선이 존재함을 의미하며, <code>posY</code>에서 값이 2 이상인 항목은 해당 y값에 수평선이 존재함을 의미한다. 두 경우를 합산하면 전체 축 평행 직선의 수가 된다.</li>
           </ul>
         </li>
       
-        <li><strong>3) 결과 누적 및 출력</strong>
-          <pre><code>System.out.println(sb);</code></pre>
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>모든 테스트케이스의 결과를 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
+            <li>축에 평행하고 2개 이상의 점을 지나는 직선의 총 수 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -155,16 +151,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(T · N)</strong>: T개의 테스트케이스마다 최대 N번의 이동으로 순회가 종료되므로 전체 O(T · N)이다.</li>
+            <li><strong>O(N)</strong>: N개의 점을 순회하며 HashMap에 삽입하는 데 O(N), 이후 두 HashMap의 값을 순회하는 데 O(N)이 소요되므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 지목 배열 <code>toMember</code>와 방문 배열 <code>visited</code>가 각각 크기 N+1이며, 테스트케이스마다 초기화되므로 동시에 사용되는 최대 공간은 O(N)이다.</li>
+            <li><strong>O(N)</strong>: x좌표 HashMap과 y좌표 HashMap이 각각 최대 N개의 항목을 저장하므로 전체 O(N)의 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -208,14 +203,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 11332 — 시간초과</h2>
+      <h2 class="section">문제 22351 — 수학은 체육과목 입니다 3</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/11332">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/22351">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260424_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
