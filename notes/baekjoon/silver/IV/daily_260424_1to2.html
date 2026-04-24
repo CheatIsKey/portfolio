@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-23 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 11558 — The Game of Death</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11558">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>The Game of Death (백준 11558)</strong>는<br>
+        N명이 원형으로 앉아 각자 다음 사람을 지목할 때, 1번 사람부터 시작하여 <strong>N번 사람에게 지목이 도달하기까지의 이동 횟수를 구</strong>하는 문제다.<br>
+        <strong>N번에 도달하기 전에 이미 방문한 사람을 다시 방문하면 N번에 영원히 도달할 수 없으므로 0을 출력</strong>한다.
+      </p>
+      
+      <ul>
+        <li>1번 사람이 지목한 사람을 따라가며 N번에 도달하면 이동 횟수를 출력한다.</li>
+        <li>이동 도중 이미 방문한 사람을 다시 방문하면 사이클이 형성된 것이므로 N번에 영원히 도달하지 못한다. 이 경우 0을 출력한다.</li>
+        <li>방문 여부를 boolean 배열로 추적하여 사이클을 O(N)에 감지한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 링크드 리스트 순회 + 방문 배열을 이용한 사이클 감지</li>
+        <li><strong>선택 이유</strong>: 각 사람이 다음 지목자를 하나씩만 가지므로 구조가 링크드 리스트와 같다. 현재 노드에서 다음 노드로 이동하며 N에 도달하거나 사이클이 발생하는 두 가지 종료 조건만 처리하면 되므로, 방문 배열 하나로 O(N)에 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>1번부터 시작하여 지목 체인을 따라가며 이동 횟수 <code>move</code>를 증가시킨다.</li>
+            <li>다음 사람 x가 이미 방문된 경우 사이클이 형성된 것이므로 0을 기록하고 종료한다.</li>
+            <li>x가 N번인 경우 목표에 도달한 것이므로 현재 <code>move</code>를 기록하고 종료한다.</li>
+            <li>그 외의 경우 x를 현재 위치로 갱신하고 방문 표시를 한 뒤 계속 순회한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 지목 배열 입력</strong>
+          <pre><code>int[] toMember = new int[N + 1];
+      for (int i = 1; i <= N; i++) {
+          toMember[i] = Integer.parseInt(br.readLine());
+      }</code></pre>
+          <ul>
+            <li>1번부터 N번까지 각 사람이 지목하는 다음 사람의 번호를 1-based 배열에 저장한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 지목 체인 순회 및 종료 조건 처리</strong>
+          <pre><code>boolean[] visited = new boolean[N + 1];
+      int cur = 1;
+      int move = 0;
+      
+      while (true) {
+          int x = toMember[cur];
+          move++;
+      
+          if (visited[x]) {
+              sb.append(0).append('\n');
+              break;
+          }
+      
+          if (x == N) {
+              sb.append(move).append('\n');
+              break;
+          }
+      
+          cur = x;
+          visited[cur] = true;
+      }</code></pre>
+          <ul>
+            <li>현재 위치 <code>cur</code>에서 다음 사람 <code>x = toMember[cur]</code>로 이동하며 <code>move</code>를 증가시킨다.</li>
+            <li><code>visited[x]</code>가 true이면 이미 방문한 사람을 다시 방문한 것으로, 사이클이 형성되어 N번에 도달 불가능하다. 0을 기록하고 즉시 종료한다.</li>
+            <li><code>x == N</code>이면 목표에 도달한 것이므로 현재 이동 횟수 <code>move</code>를 기록하고 종료한다.</li>
+            <li>두 조건 모두 해당하지 않으면 <code>cur = x</code>로 이동하고 <code>visited[cur] = true</code>로 방문 표시를 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 누적 및 출력</strong>
+          <pre><code>System.out.println(sb);</code></pre>
+          <ul>
+            <li>모든 테스트케이스의 결과를 <code>StringBuilder</code>에 누적한 뒤 한 번에 출력하여 I/O 비용을 줄인다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(T · N)</strong>: T개의 테스트케이스마다 최대 N번의 이동으로 순회가 종료되므로 전체 O(T · N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 지목 배열 <code>toMember</code>와 방문 배열 <code>visited</code>가 각각 크기 N+1이며, 테스트케이스마다 초기화되므로 동시에 사용되는 최대 공간은 O(N)이다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 11332 — 시간초과</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/11332">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260423_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>시간초과 (백준 11332)</strong>는<br>
+        알고리즘의 시간 복잡도 S, 입력 크기 N, 테스트케이스 수 T, 제한 시간 L이 주어질 때,<br>
+        <strong>총 연산 횟수가 허용 범위를 초과하는지 판별하여 TLE 여부를 출력</strong>하는 문제다.
+      </p>
+      
+      <ul>
+        <li>1초당 최대 연산 수를 1억(10⁸)으로 가정하므로, 허용 최대 연산 수는 <code>maxOps = L × 10⁸</code>이다.</li>
+        <li>복잡도별 총 연산 수는 <code>f(N) × T</code>이며, 이 값이 <code>maxOps</code>를 초과하면 TLE다.</li>
+        <li>N이 충분히 크면 <code>f(N)</code> 계산 자체가 오버플로우를 일으킬 수 있으므로, 복잡도별로 N의 임계값을 먼저 확인하는 조기 종료 조건이 필요하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 복잡도별 분기 처리 + 오버플로우 방지 임계값 조기 종료</li>
+        <li><strong>선택 이유</strong>: 시간 복잡도 종류가 O(N), O(N²), O(N³), O(2^N), O(N!) 다섯 가지로 고정이므로 분기 처리로 충분하다. 각 복잡도에서 long 범위를 초과하는 N의 임계값을 미리 확인하면 안전하게 연산할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>허용 최대 연산 수 <code>maxOps = L × 10⁸</code>을 계산한다.</li>
+            <li>복잡도별로 오버플로우 임계값을 먼저 확인하고, 안전한 범위에서만 <code>f(N) × T &gt; maxOps</code>를 검사한다.</li>
+            <li>O(N!)은 팩토리얼을 직접 계산하며, N ≥ 13이면 13! = 6,227,020,800으로 long 안에서도 maxOps를 초과하므로 즉시 TLE로 처리한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 허용 최대 연산 수 계산</strong>
+          <pre><code>static final long LIMIT = 100_000_000L;
+      
+      long maxOps = L * LIMIT;</code></pre>
+          <ul>
+            <li>1초당 최대 연산 수 10⁸에 제한 시간 L을 곱해 허용 최대 연산 수 <code>maxOps</code>를 구한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 복잡도별 TLE 판별</strong>
+          <pre><code>if (S.equals("O(N)")) {
+          if (N * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(N^2)")) {
+          if (N >= 31623) isTLE = true;
+          else if (N * N * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(N^3)")) {
+          if (N >= 1001) isTLE = true;
+          else if (N * N * N * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(2^N)")) {
+          if (N >= 30) isTLE = true;
+          else if ((1L << N) * T > maxOps) isTLE = true;
+      }
+      else if (S.equals("O(N!)")) {
+          if (N >= 13) isTLE = true;
+          else {
+              long res = 1;
+              for (int i = 1; i <= N; i++) res *= i;
+              if (res * T > maxOps) isTLE = true;
+          }
+      }</code></pre>
+          <ul>
+            <li><strong>O(N²)</strong>: √(Long.MAX_VALUE) ≈ 30억이지만 maxOps가 최대 10¹³이므로, N² 자체가 이미 10¹⁰을 넘는 N ≥ 31623이면 TLE로 처리한다.</li>
+            <li><strong>O(N³)</strong>: N ≥ 1001이면 N³ ≥ 10⁹으로 T를 곱하면 오버플로우 위험이 있어 즉시 TLE로 처리한다.</li>
+            <li><strong>O(2^N)</strong>: N ≥ 30이면 2³⁰ ≈ 10⁹으로 T를 곱하면 long 범위를 초과할 수 있어 즉시 TLE로 처리한다.</li>
+            <li><strong>O(N!)</strong>: N ≥ 13이면 13! = 6,227,020,800으로 어떤 T에 대해서도 maxOps를 초과하므로 즉시 TLE로 처리한다. N &lt; 13이면 팩토리얼을 직접 계산하여 비교한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(isTLE ? "TLE!" : "May Pass.");</code></pre>
+          <ul>
+            <li><code>isTLE</code>가 true이면 "TLE!", false이면 "May Pass."를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(C)</strong>: C개의 쿼리마다 복잡도 판별에 O(1) 또는 O(N!) 계산에 최대 O(12)의 상수 반복이 수행되므로 전체 O(C)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 쿼리별로 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
