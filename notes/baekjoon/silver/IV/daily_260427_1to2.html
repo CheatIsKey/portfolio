@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 2358 — 평행선</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/2358">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260424_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>평행선 (백준 2358)</strong>는<br>
+        N개의 점이 주어질 때, <strong>축에 평행한 직선(수평선 또는 수직선) 중 2개 이상의 점을 지나는 직선의 수를 구</strong>하는 문제다.<br>
+        <strong>같은 x좌표를 공유하는 점이 2개 이상이면 수직선, 같은 y좌표를 공유하는 점이 2개 이상이면 수평선</strong>이 존재한다.
+      </p>
+      
+      <ul>
+        <li>축에 평행한 직선은 수직선(x = k)과 수평선(y = k) 두 종류뿐이다.</li>
+        <li>같은 x좌표를 가진 점이 2개 이상이면 해당 x값에 대한 수직선이 존재하고, 같은 y좌표를 가진 점이 2개 이상이면 해당 y값에 대한 수평선이 존재한다.</li>
+        <li>x좌표별, y좌표별 등장 횟수를 HashMap으로 집계한 뒤, 횟수가 2 이상인 항목의 수를 세면 된다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 좌표별 빈도 집계</li>
+        <li><strong>선택 이유</strong>: x좌표와 y좌표 각각에 대해 등장 횟수를 HashMap으로 집계하면, 2개 이상 등장한 좌표값의 수를 O(N)에 구할 수 있다. 좌표 범위가 넓어 배열 인덱싱이 어렵기 때문에 HashMap이 적합하다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>와 <code>posY</code> HashMap에 등장 횟수를 누적한다.</li>
+            <li>모든 점을 처리한 뒤 <code>posX</code>의 값 중 2 이상인 항목 수와 <code>posY</code>의 값 중 2 이상인 항목 수를 합산한다.</li>
+            <li>합산 결과가 곧 축에 평행한 직선의 총 수다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 좌표별 등장 횟수 집계</strong>
+          <pre><code>Map&lt;Integer, Integer&gt; posX = new HashMap&lt;&gt;();
+      Map&lt;Integer, Integer&gt; posY = new HashMap&lt;&gt;();
+      
+      for (int i = 0; i < n; i++) {
+          StringTokenizer st = new StringTokenizer(br.readLine());
+      
+          int x = Integer.parseInt(st.nextToken());
+          int y = Integer.parseInt(st.nextToken());
+      
+          posX.put(x, posX.getOrDefault(x, 0) + 1);
+          posY.put(y, posY.getOrDefault(y, 0) + 1);
+      }</code></pre>
+          <ul>
+            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>에는 x좌표별, <code>posY</code>에는 y좌표별 등장 횟수를 누적한다. <code>getOrDefault</code>로 키가 없는 경우 0을 기본값으로 사용한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 직선 수 집계</strong>
+          <pre><code>int answer = 0;
+      
+      for (int value : posX.values()) {
+          if (value > 1) {
+              answer++;
+          }
+      }
+      
+      for (int value : posY.values()) {
+          if (value > 1) {
+              answer++;
+          }
+      }</code></pre>
+          <ul>
+            <li><code>posX</code>에서 값이 2 이상인 항목은 해당 x값에 수직선이 존재함을 의미하며, <code>posY</code>에서 값이 2 이상인 항목은 해당 y값에 수평선이 존재함을 의미한다. 두 경우를 합산하면 전체 축 평행 직선의 수가 된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>축에 평행하고 2개 이상의 점을 지나는 직선의 총 수 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N개의 점을 순회하며 HashMap에 삽입하는 데 O(N), 이후 두 HashMap의 값을 순회하는 데 O(N)이 소요되므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: x좌표 HashMap과 y좌표 HashMap이 각각 최대 N개의 항목을 저장하므로 전체 O(N)의 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 22351 — 수학은 체육과목 입니다 3</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/22351">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260424_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>수학은 체육과목 입니다 3 (백준 22351)</strong>는<br>
+        연속된 자연수를 이어 붙인 문자열이 주어질 때, <strong>시작 수와 끝 수를 구</strong>하는 문제다.<br>
+        <strong>시작 수를 1부터 999까지 완전 탐색</strong>하며, 각 시작 수에서 연속된 수를 이어 붙여 주어진 문자열과 일치하는지 확인한다.
+      </p>
+      
+      <ul>
+        <li>시작 수 i에서 i, i+1, i+2, ...를 순서대로 이어 붙이며 주어진 문자열 S의 접두사인지 확인한다.</li>
+        <li>이어 붙인 문자열이 S의 접두사가 아닌 순간 해당 시작 수로는 불가능하므로 즉시 중단하고 다음 시작 수를 시도한다.</li>
+        <li>이어 붙인 문자열이 S와 완전히 일치하면 현재 시작 수 i와 마지막으로 추가한 수 x가 정답이다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 완전 탐색 (시작 수 순회 + 접두사 검사로 조기 종료)</li>
+        <li><strong>선택 이유</strong>: 시작 수의 범위가 1~999로 제한되어 있으므로 완전 탐색이 가능하다. 각 시작 수에 대해 이어 붙인 문자열이 S의 접두사인지 매 단계 확인하면, 조건을 만족하지 않는 순간 즉시 중단하여 불필요한 탐색을 줄인다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>시작 수 i를 1부터 999까지 순회한다.</li>
+            <li>i부터 시작해 x를 1씩 증가시키며 <code>sb</code>에 이어 붙인다.</li>
+            <li>이어 붙인 문자열이 S의 접두사가 아니면 즉시 <code>break</code>하고 다음 i를 시도한다.</li>
+            <li>이어 붙인 문자열이 S와 완전히 일치하면 i와 x를 출력하고 종료한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 시작 수 완전 탐색</strong>
+          <pre><code>for (int i = 1; i <= 999; i++) {
+          int x = i;
+      
+          while (sb.length() < S.length()) {
+              sb.append(x);
+      
+              if (!S.startsWith(sb.toString())) break;
+      
+              if (sb.toString().equals(S)) {
+                  System.out.println(i + " " + x);
+                  return;
+              }
+      
+              x++;
+          }
+      
+          sb.setLength(0);
+      }</code></pre>
+          <ul>
+            <li>시작 수 <code>i</code>를 1부터 999까지 순회하며, 각 <code>i</code>에 대해 <code>x = i</code>부터 숫자를 하나씩 <code>sb</code>에 이어 붙인다.</li>
+            <li><code>S.startsWith(sb.toString())</code>: 현재까지 이어 붙인 문자열이 S의 접두사가 아니면 이 시작 수로는 정답이 될 수 없으므로 즉시 <code>break</code>한다.</li>
+            <li><code>sb.toString().equals(S)</code>: 이어 붙인 문자열이 S와 완전히 일치하면 시작 수 <code>i</code>와 마지막으로 추가한 수 <code>x</code>를 출력하고 종료한다.</li>
+            <li>다음 시작 수를 시도하기 전 <code>sb.setLength(0)</code>으로 버퍼를 초기화한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(999 · L)</strong>: 시작 수 999가지에 대해 각각 최대 L(문자열 길이)만큼 이어 붙이며 접두사 검사를 수행하므로 전체 O(999 · L)이다. 시작 수가 상수로 고정되므로 사실상 O(L)에 수렴한다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(L)</strong>: 이어 붙인 문자열을 저장하는 <code>StringBuilder</code>가 최대 S의 길이 L만큼 커지므로 O(L)의 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
