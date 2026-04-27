@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-24 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-27 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 2358 — 평행선</h2>
+      <h2 class="section">문제 17419 — 비트가 넘쳐흘러</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/2358">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/17419">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260424_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260427_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>평행선 (백준 2358)</strong>는<br>
-        N개의 점이 주어질 때, <strong>축에 평행한 직선(수평선 또는 수직선) 중 2개 이상의 점을 지나는 직선의 수를 구</strong>하는 문제다.<br>
-        <strong>같은 x좌표를 공유하는 점이 2개 이상이면 수직선, 같은 y좌표를 공유하는 점이 2개 이상이면 수평선</strong>이 존재한다.
+        <strong>비트가 넘쳐흘러 (백준 17419)</strong>는<br>
+        N비트 이진수 문자열이 주어질 때, <strong>모든 비트를 0으로 만들기 위해 필요한 최소 연산 횟수를 구</strong>하는 문제다.<br>
+        <strong>연산은 가장 낮은 1비트와 그보다 낮은 모든 비트를 0으로 만드는 것</strong>이므로, 결국 1의 개수만큼 연산이 필요하다.
       </p>
       
       <ul>
-        <li>축에 평행한 직선은 수직선(x = k)과 수평선(y = k) 두 종류뿐이다.</li>
-        <li>같은 x좌표를 가진 점이 2개 이상이면 해당 x값에 대한 수직선이 존재하고, 같은 y좌표를 가진 점이 2개 이상이면 해당 y값에 대한 수평선이 존재한다.</li>
-        <li>x좌표별, y좌표별 등장 횟수를 HashMap으로 집계한 뒤, 횟수가 2 이상인 항목의 수를 세면 된다.</li>
+        <li>연산 한 번은 현재 수에서 가장 낮은 위치의 1비트와 그 아래 비트를 모두 0으로 만든다.</li>
+        <li>이 연산은 정확히 1비트 하나를 제거하는 효과이므로, 초기 이진수에서 1의 개수가 곧 필요한 최소 연산 횟수다.</li>
+        <li>따라서 문자열에서 '1'의 개수만 세면 정답을 O(N)에 구할 수 있다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,13 +75,12 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: HashMap을 이용한 좌표별 빈도 집계</li>
-        <li><strong>선택 이유</strong>: x좌표와 y좌표 각각에 대해 등장 횟수를 HashMap으로 집계하면, 2개 이상 등장한 좌표값의 수를 O(N)에 구할 수 있다. 좌표 범위가 넓어 배열 인덱싱이 어렵기 때문에 HashMap이 적합하다.</li>
+        <li><strong>핵심 알고리즘</strong>: 수학적 관찰 (1비트 개수 세기)</li>
+        <li><strong>선택 이유</strong>: 연산 한 번이 정확히 1비트 하나를 소거하는 효과임을 관찰하면, 시뮬레이션 없이 문자열에서 '1'의 개수를 세는 것만으로 O(N)에 정답을 구할 수 있다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>와 <code>posY</code> HashMap에 등장 횟수를 누적한다.</li>
-            <li>모든 점을 처리한 뒤 <code>posX</code>의 값 중 2 이상인 항목 수와 <code>posY</code>의 값 중 2 이상인 항목 수를 합산한다.</li>
-            <li>합산 결과가 곧 축에 평행한 직선의 총 수다.</li>
+            <li>이진수 문자열을 순회하며 '1'인 문자의 수를 누적한다.</li>
+            <li>누적된 값이 곧 최소 연산 횟수다.</li>
           </ul>
         </li>
       </ul>
@@ -95,47 +94,24 @@
       </p>
       
       <ul>
-        <li><strong>1) 좌표별 등장 횟수 집계</strong>
-          <pre><code>Map&lt;Integer, Integer&gt; posX = new HashMap&lt;&gt;();
-      Map&lt;Integer, Integer&gt; posY = new HashMap&lt;&gt;();
+        <li><strong>1) 입력 및 1비트 개수 집계</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      char[] arr = br.readLine().toCharArray();
       
-      for (int i = 0; i < n; i++) {
-          StringTokenizer st = new StringTokenizer(br.readLine());
+      int answer = 0;
       
-          int x = Integer.parseInt(st.nextToken());
-          int y = Integer.parseInt(st.nextToken());
-      
-          posX.put(x, posX.getOrDefault(x, 0) + 1);
-          posY.put(y, posY.getOrDefault(y, 0) + 1);
+      for (char c : arr) {
+          if (c == '1') answer++;
       }</code></pre>
           <ul>
-            <li>각 점의 x좌표와 y좌표를 읽으며 <code>posX</code>에는 x좌표별, <code>posY</code>에는 y좌표별 등장 횟수를 누적한다. <code>getOrDefault</code>로 키가 없는 경우 0을 기본값으로 사용한다.</li>
+            <li>N비트 이진수 문자열을 <code>char[]</code>로 변환한 뒤 순회하며 '1'인 문자의 수를 <code>answer</code>에 누적한다. 연산 한 번이 1비트를 정확히 하나 소거하므로, 1의 개수가 곧 모든 비트를 0으로 만드는 데 필요한 최소 연산 횟수다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 직선 수 집계</strong>
-          <pre><code>int answer = 0;
-      
-      for (int value : posX.values()) {
-          if (value > 1) {
-              answer++;
-          }
-      }
-      
-      for (int value : posY.values()) {
-          if (value > 1) {
-              answer++;
-          }
-      }</code></pre>
-          <ul>
-            <li><code>posX</code>에서 값이 2 이상인 항목은 해당 x값에 수직선이 존재함을 의미하며, <code>posY</code>에서 값이 2 이상인 항목은 해당 y값에 수평선이 존재함을 의미한다. 두 경우를 합산하면 전체 축 평행 직선의 수가 된다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 결과 출력</strong>
+        <li><strong>2) 결과 출력</strong>
           <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>축에 평행하고 2개 이상의 점을 지나는 직선의 총 수 <code>answer</code>를 출력한다.</li>
+            <li>최소 연산 횟수 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -151,16 +127,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N개의 점을 순회하며 HashMap에 삽입하는 데 O(N), 이후 두 HashMap의 값을 순회하는 데 O(N)이 소요되므로 전체 O(N)이다.</li>
+            <li><strong>O(N)</strong>: N비트 문자열을 한 번 순회하며 각 문자에 대해 O(1) 비교만 수행하므로 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: x좌표 HashMap과 y좌표 HashMap이 각각 최대 N개의 항목을 저장하므로 전체 O(N)의 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 입력 문자열을 저장하는 <code>char[]</code>가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
