@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-27 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+      <p class="muted">작성일 2026-04-28 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
 
 
 
@@ -32,14 +32,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 17419 — 비트가 넘쳐흘러</h2>
+      <h2 class="section">문제 22993 — 서든어택 3</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/17419">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/22993">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260427_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260428_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -55,15 +55,15 @@
       </h3>
       
       <p>
-        <strong>비트가 넘쳐흘러 (백준 17419)</strong>는<br>
-        N비트 이진수 문자열이 주어질 때, <strong>모든 비트를 0으로 만들기 위해 필요한 최소 연산 횟수를 구</strong>하는 문제다.<br>
-        <strong>연산은 가장 낮은 1비트와 그보다 낮은 모든 비트를 0으로 만드는 것</strong>이므로, 결국 1의 개수만큼 연산이 필요하다.
+        <strong>서든어택 3 (백준 22993)</strong>는<br>
+        플레이어 1의 공격력과 나머지 N-1명의 공격력이 주어질 때, <strong>플레이어 1이 나머지를 순서대로 모두 처치할 수 있는지 판별</strong>하는 문제다.<br>
+        <strong>처치한 적의 공격력이 누적되어 플레이어 1의 총 공격력이 증가</strong>하므로, 약한 적부터 순서대로 처치하는 것이 최적 전략이다.
       </p>
       
       <ul>
-        <li>연산 한 번은 현재 수에서 가장 낮은 위치의 1비트와 그 아래 비트를 모두 0으로 만든다.</li>
-        <li>이 연산은 정확히 1비트 하나를 제거하는 효과이므로, 초기 이진수에서 1의 개수가 곧 필요한 최소 연산 횟수다.</li>
-        <li>따라서 문자열에서 '1'의 개수만 세면 정답을 O(N)에 구할 수 있다.</li>
+        <li>플레이어 1은 자신의 총 공격력보다 공격력이 낮은 적만 처치할 수 있다.</li>
+        <li>적을 처치하면 그 적의 공격력이 플레이어 1의 총 공격력에 합산된다.</li>
+        <li>가장 약한 적부터 처치해야 연쇄적으로 더 강한 적을 상대할 수 있으므로, 나머지 공격력을 오름차순으로 정렬한 뒤 순서대로 처치 가능 여부를 확인한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -75,12 +75,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 수학적 관찰 (1비트 개수 세기)</li>
-        <li><strong>선택 이유</strong>: 연산 한 번이 정확히 1비트 하나를 소거하는 효과임을 관찰하면, 시뮬레이션 없이 문자열에서 '1'의 개수를 세는 것만으로 O(N)에 정답을 구할 수 있다.</li>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 그리디 (약한 적부터 순차 처치)</li>
+        <li><strong>선택 이유</strong>: 현재 총 공격력으로 처치할 수 있는 적 중 가장 약한 적을 먼저 처치하면 공격력이 최대한 빠르게 누적되어 이후 더 강한 적을 상대할 수 있다. 정렬 후 순서대로 처치 가능 여부를 확인하면 O(N log N)에 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>이진수 문자열을 순회하며 '1'인 문자의 수를 누적한다.</li>
-            <li>누적된 값이 곧 최소 연산 횟수다.</li>
+            <li>나머지 N-1명의 공격력을 오름차순으로 정렬한다.</li>
+            <li>순서대로 순회하며 현재 총 공격력이 적의 공격력 이하이면 즉시 "No"를 출력하고 종료한다.</li>
+            <li>처치 가능하면 해당 공격력을 총 공격력에 누적한다.</li>
+            <li>모든 적을 처치하면 "Yes"를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -94,24 +96,44 @@
       </p>
       
       <ul>
-        <li><strong>1) 입력 및 1비트 개수 집계</strong>
-          <pre><code>int N = Integer.parseInt(br.readLine());
-      char[] arr = br.readLine().toCharArray();
+        <li><strong>1) 입력 및 정렬</strong>
+          <pre><code>long[] attack = new long[N - 1];
       
-      int answer = 0;
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      long playerOne = Long.parseLong(st.nextToken());
       
-      for (char c : arr) {
-          if (c == '1') answer++;
-      }</code></pre>
+      for (int i = 0; i < N - 1; i++) {
+          attack[i] = Long.parseLong(st.nextToken());
+      }
+      
+      Arrays.sort(attack);</code></pre>
           <ul>
-            <li>N비트 이진수 문자열을 <code>char[]</code>로 변환한 뒤 순회하며 '1'인 문자의 수를 <code>answer</code>에 누적한다. 연산 한 번이 1비트를 정확히 하나 소거하므로, 1의 개수가 곧 모든 비트를 0으로 만드는 데 필요한 최소 연산 횟수다.</li>
+            <li>플레이어 1의 초기 공격력 <code>playerOne</code>을 읽고, 나머지 N-1명의 공격력을 배열에 저장한 뒤 오름차순 정렬한다. 공격력 합이 int 범위를 초과할 수 있으므로 <code>long</code>으로 선언한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 결과 출력</strong>
-          <pre><code>System.out.println(answer);</code></pre>
+        <li><strong>2) 순차 처치 가능 여부 확인</strong>
+          <pre><code>long totalAttack = playerOne;
+      
+      for (int i = 0; i < N - 1; i++) {
+          if (totalAttack <= attack[i]) {
+              System.out.println("No");
+              return;
+          }
+      
+          totalAttack += attack[i];
+      }</code></pre>
           <ul>
-            <li>최소 연산 횟수 <code>answer</code>를 출력한다.</li>
+            <li>총 공격력 <code>totalAttack</code>을 <code>playerOne</code>으로 초기화한다.</li>
+            <li><code>totalAttack &lt;= attack[i]</code>: 현재 총 공격력이 적의 공격력 이하이면 처치 불가능하므로 즉시 "No"를 출력하고 종료한다. 등호 조건에서도 처치할 수 없음에 유의한다.</li>
+            <li>처치 가능하면 <code>totalAttack += attack[i]</code>로 처치한 적의 공격력을 누적하여 다음 적을 상대할 준비를 한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println("Yes");</code></pre>
+          <ul>
+            <li>모든 적을 처치할 수 있으면 "Yes"를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -127,16 +149,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: N비트 문자열을 한 번 순회하며 각 문자에 대해 O(1) 비교만 수행하므로 전체 O(N)이다.</li>
+            <li><strong>O(N log N)</strong>: 배열 정렬에 O(N log N), 이후 순회에 O(N)이 소요되므로 전체 O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(N)</strong>: 입력 문자열을 저장하는 <code>char[]</code>가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+            <li><strong>O(N)</strong>: 나머지 N-1명의 공격력을 저장하는 배열이 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -178,14 +199,14 @@
 
 
       <!-- 문제 2 -->
-      <h2 class="section">문제 5637 — 가장 긴 단어</h2>
+      <h2 class="section">문제 23827 — 수열 (Easy)</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://www.acmicpc.net/problem/5637">백준 문제 보기</a></p>
+      <p><a href="https://www.acmicpc.net/problem/23827">백준 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/baekjoon/silver/IV/daily_260427_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260428_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -203,15 +224,15 @@
       </h3>
       
       <p>
-        <strong>가장 긴 단어 (백준 5637)</strong>는<br>
-        여러 줄의 텍스트에서 특수문자를 구분자로 단어를 추출하여, <strong>"E-N-D"가 등장하기 전까지 가장 긴 단어를 소문자로 출력</strong>하는 문제다.<br>
-        <strong>공백 및 다양한 특수문자를 구분자로 처리</strong>하여 순수한 단어만 추출해야 한다.
+        <strong>수열 (Easy) (백준 23827)</strong>는<br>
+        N개의 수열이 주어질 때, <strong>i &lt; j인 모든 쌍 (i, j)에 대해 a[i] × a[j]의 합을 MOD(10⁹+7)로 나눈 나머지를 구</strong>하는 문제다.<br>
+        <strong>이중 반복문으로 모든 쌍을 직접 탐색하면 O(N²)으로 시간 초과</strong>가 발생하므로, 누적합을 활용해 O(N)으로 줄여야 한다.
       </p>
       
       <ul>
-        <li>입력 종료 신호는 "E-N-D"이며, 이 단어를 만나는 즉시 탐색을 중단한다.</li>
-        <li>공백 외에도 ~!@#$%^&*()_+`={}|[]\:";'&lt;&gt;?,./ 등 다양한 특수문자가 구분자로 사용된다.</li>
-        <li>가장 긴 단어가 여러 개일 경우 먼저 등장한 단어를 출력하며, 최종 출력은 소문자로 변환한다.</li>
+        <li>N이 최대 100,000이므로 이중 반복문을 사용하면 최대 50억 번의 연산이 필요해 시간 초과가 난다.</li>
+        <li>i번째 원소 a[i]에 대해 곱해야 할 대상은 a[i+1]~a[N-1]의 합이다. 전체 합에서 a[0]~a[i]를 순서대로 빼나가면 매 위치에서 이후 원소들의 합을 O(1)에 구할 수 있다.</li>
+        <li>각 항이 MOD 범위를 초과할 수 있으므로 곱셈과 덧셈마다 MOD 연산을 적용해야 한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -223,14 +244,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: StringTokenizer 다중 구분자 파싱 + 단일 순회 최댓값 추적</li>
-        <li><strong>선택 이유</strong>: Java의 <code>StringTokenizer</code>는 두 번째 인자로 구분자 문자열을 받아 여러 특수문자를 한 번에 처리할 수 있다. 입력을 한 줄씩 읽으며 토큰을 추출하고, "E-N-D" 감지와 최댓값 갱신을 동시에 수행하면 O(L)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 누적합 활용 그리디 (단일 순회)</li>
+        <li><strong>선택 이유</strong>: a[i] × (a[i+1] + a[i+2] + ... + a[N-1])의 형태로 변환하면, 전체 합에서 왼쪽 원소를 순서대로 제거해나가는 방식으로 O(N)에 답을 구할 수 있다. 귀찮아 (SIB)와 동일한 핵심 아이디어이며, 이 문제에서는 추가로 MOD 연산을 적용해야 한다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>EOF까지 한 줄씩 읽으며 특수문자를 구분자로 토큰을 추출한다.</li>
-            <li>토큰이 "E-N-D"이면 이중 루프를 즉시 탈출한다.</li>
-            <li>그 외 토큰은 현재 최장 단어와 길이를 비교하여 더 길면 갱신한다.</li>
-            <li>최종적으로 최장 단어를 소문자로 변환하여 출력한다.</li>
+            <li>입력을 받는 동시에 전체 합 <code>totalSum</code>을 계산한다.</li>
+            <li>배열을 순회하면서 현재 원소 <code>numbers[i]</code>를 <code>totalSum</code>에서 먼저 뺀다.</li>
+            <li><code>totalSum</code>이 a[i+1]~a[N-1]의 합이 되므로, <code>(numbers[i] × (totalSum % MOD)) % MOD</code>를 <code>answer</code>에 누적한다.</li>
+            <li>매 단계마다 MOD 연산을 적용하여 오버플로우를 방지한다.</li>
           </ul>
         </li>
       </ul>
@@ -244,43 +265,40 @@
       </p>
       
       <ul>
-        <li><strong>1) 다중 구분자로 토큰 파싱</strong>
-          <pre><code>outer:
-      while (true) {
-          String line = br.readLine();
-          if (line == null) break;
+        <li><strong>1) 입력 및 전체 합 계산</strong>
+          <pre><code>int[] numbers = new int[N];
+      long totalSum = 0;
       
-          StringTokenizer st = new StringTokenizer(line, " ~!@#$%^&*()_+`={}|[]\\:\";'<>?,./");
-      
-          while (st.hasMoreTokens()) {
-              String word = st.nextToken();
-              ...
-          }
+      StringTokenizer st = new StringTokenizer(br.readLine());
+      for (int i = 0; i < N; i++) {
+          numbers[i] = Integer.parseInt(st.nextToken());
+          totalSum += numbers[i];
       }</code></pre>
           <ul>
-            <li>EOF를 만날 때까지 한 줄씩 읽으며 공백과 특수문자 전체를 구분자로 지정한 <code>StringTokenizer</code>로 토큰을 추출한다. <code>outer</code> 레이블을 사용하여 "E-N-D" 감지 시 이중 루프를 한 번에 탈출할 수 있다.</li>
+            <li>입력을 받는 동시에 모든 원소의 합 <code>totalSum</code>을 구한다. 합이 int 범위를 초과할 수 있으므로 <code>long</code>으로 선언한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 종료 신호 감지 및 최장 단어 갱신</strong>
-          <pre><code>if (word.equals("E-N-D")) {
-          break outer;
-      }
+        <li><strong>2) 단일 순회로 모든 쌍의 곱의 합 계산</strong>
+          <pre><code>long answer = 0;
       
-      if (word.length() > maxLength) {
-          maxLength = word.length();
-          maxWord = word;
+      for (int i = 0; i < N - 1; i++) {
+          totalSum -= numbers[i];
+          long term = (numbers[i] * (totalSum % MOD)) % MOD;
+          answer = (answer + term) % MOD;
       }</code></pre>
           <ul>
-            <li>토큰이 "E-N-D"이면 <code>break outer</code>로 즉시 전체 순회를 종료한다.</li>
-            <li>그 외 토큰은 현재 최장 길이 <code>maxLength</code>보다 길 때만 <code>maxWord</code>와 <code>maxLength</code>를 갱신한다. 길이가 같으면 갱신하지 않으므로 먼저 등장한 단어가 유지된다.</li>
+            <li><code>totalSum -= numbers[i]</code>: 현재 원소를 합에서 제거하면 <code>totalSum</code>은 a[i+1]~a[N-1]의 합이 된다.</li>
+            <li><code>totalSum % MOD</code>: 이후 원소들의 합이 MOD 범위를 초과할 수 있으므로 먼저 MOD 연산을 적용한다.</li>
+            <li><code>numbers[i] * (totalSum % MOD))</code>: a[i]와 이후 원소 합의 곱을 구한 뒤 다시 MOD로 나눠 <code>term</code>을 계산한다. 이 한 번의 곱셈이 이중 반복문의 안쪽 루프 전체를 대체한다.</li>
+            <li><code>answer = (answer + term) % MOD</code>: 누적합에 매 단계 MOD 연산을 적용하여 오버플로우를 방지한다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 출력</strong>
-          <pre><code>System.out.println(maxWord.toLowerCase());</code></pre>
+          <pre><code>System.out.println(answer);</code></pre>
           <ul>
-            <li>가장 긴 단어를 <code>toLowerCase()</code>로 소문자로 변환하여 출력한다.</li>
+            <li>모든 i &lt; j 쌍에 대한 a[i] × a[j]의 합을 MOD로 나눈 나머지 <code>answer</code>를 출력한다.</li>
           </ul>
         </li>
       </ul>
@@ -296,12 +314,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(L)</strong>: 입력 전체 길이 L에 비례하여 각 문자를 한 번씩 처리하며, 각 토큰에 대해 O(W)(W는 단어 길이)의 비교만 수행하므로 전체 O(L)이다.</li>
+            <li><strong>O(N)</strong>: 입력 시 전체 합을 계산하는 순회 1회, 답을 누적하는 순회 1회로 총 두 번의 O(N) 순회만 수행한다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(W)</strong>: 현재 최장 단어 문자열 하나만 저장하면 되므로 단어의 최대 길이 W에 비례하는 공간만 사용한다.</li>
+            <li><strong>O(N)</strong>: 입력 배열 저장에 O(N)이 사용되며, 그 외 <code>totalSum</code>, <code>answer</code> 등은 O(1)의 상수 공간을 사용한다.</li>
           </ul>
         </li>
       </ul>
