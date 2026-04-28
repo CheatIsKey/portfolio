@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백준 알고리즘 Silver IV - Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>백준 알고리즘 Silver IV - Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-27 · 분류: 코딩 테스트(백준 알고리즘), Silver IV</p>
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 17419 — 비트가 넘쳐흘러</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/17419">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260427_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>비트가 넘쳐흘러 (백준 17419)</strong>는<br>
+        N비트 이진수 문자열이 주어질 때, <strong>모든 비트를 0으로 만들기 위해 필요한 최소 연산 횟수를 구</strong>하는 문제다.<br>
+        <strong>연산은 가장 낮은 1비트와 그보다 낮은 모든 비트를 0으로 만드는 것</strong>이므로, 결국 1의 개수만큼 연산이 필요하다.
+      </p>
+      
+      <ul>
+        <li>연산 한 번은 현재 수에서 가장 낮은 위치의 1비트와 그 아래 비트를 모두 0으로 만든다.</li>
+        <li>이 연산은 정확히 1비트 하나를 제거하는 효과이므로, 초기 이진수에서 1의 개수가 곧 필요한 최소 연산 횟수다.</li>
+        <li>따라서 문자열에서 '1'의 개수만 세면 정답을 O(N)에 구할 수 있다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 수학적 관찰 (1비트 개수 세기)</li>
+        <li><strong>선택 이유</strong>: 연산 한 번이 정확히 1비트 하나를 소거하는 효과임을 관찰하면, 시뮬레이션 없이 문자열에서 '1'의 개수를 세는 것만으로 O(N)에 정답을 구할 수 있다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>이진수 문자열을 순회하며 '1'인 문자의 수를 누적한다.</li>
+            <li>누적된 값이 곧 최소 연산 횟수다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 입력 및 1비트 개수 집계</strong>
+          <pre><code>int N = Integer.parseInt(br.readLine());
+      char[] arr = br.readLine().toCharArray();
+      
+      int answer = 0;
+      
+      for (char c : arr) {
+          if (c == '1') answer++;
+      }</code></pre>
+          <ul>
+            <li>N비트 이진수 문자열을 <code>char[]</code>로 변환한 뒤 순회하며 '1'인 문자의 수를 <code>answer</code>에 누적한다. 연산 한 번이 1비트를 정확히 하나 소거하므로, 1의 개수가 곧 모든 비트를 0으로 만드는 데 필요한 최소 연산 횟수다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 결과 출력</strong>
+          <pre><code>System.out.println(answer);</code></pre>
+          <ul>
+            <li>최소 연산 횟수 <code>answer</code>를 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: N비트 문자열을 한 번 순회하며 각 문자에 대해 O(1) 비교만 수행하므로 전체 O(N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(N)</strong>: 입력 문자열을 저장하는 <code>char[]</code>가 주요 메모리 사용처이며, 그 외 변수들은 O(1)의 상수 공간을 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+      <!-- 문제 2 -->
+      <h2 class="section">문제 5637 — 가장 긴 단어</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://www.acmicpc.net/problem/5637">백준 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/baekjoon/silver/IV/daily_260427_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+
+
+      
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>가장 긴 단어 (백준 5637)</strong>는<br>
+        여러 줄의 텍스트에서 특수문자를 구분자로 단어를 추출하여, <strong>"E-N-D"가 등장하기 전까지 가장 긴 단어를 소문자로 출력</strong>하는 문제다.<br>
+        <strong>공백 및 다양한 특수문자를 구분자로 처리</strong>하여 순수한 단어만 추출해야 한다.
+      </p>
+      
+      <ul>
+        <li>입력 종료 신호는 "E-N-D"이며, 이 단어를 만나는 즉시 탐색을 중단한다.</li>
+        <li>공백 외에도 ~!@#$%^&*()_+`={}|[]\:";'&lt;&gt;?,./ 등 다양한 특수문자가 구분자로 사용된다.</li>
+        <li>가장 긴 단어가 여러 개일 경우 먼저 등장한 단어를 출력하며, 최종 출력은 소문자로 변환한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: StringTokenizer 다중 구분자 파싱 + 단일 순회 최댓값 추적</li>
+        <li><strong>선택 이유</strong>: Java의 <code>StringTokenizer</code>는 두 번째 인자로 구분자 문자열을 받아 여러 특수문자를 한 번에 처리할 수 있다. 입력을 한 줄씩 읽으며 토큰을 추출하고, "E-N-D" 감지와 최댓값 갱신을 동시에 수행하면 O(L)에 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>EOF까지 한 줄씩 읽으며 특수문자를 구분자로 토큰을 추출한다.</li>
+            <li>토큰이 "E-N-D"이면 이중 루프를 즉시 탈출한다.</li>
+            <li>그 외 토큰은 현재 최장 단어와 길이를 비교하여 더 길면 갱신한다.</li>
+            <li>최종적으로 최장 단어를 소문자로 변환하여 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 다중 구분자로 토큰 파싱</strong>
+          <pre><code>outer:
+      while (true) {
+          String line = br.readLine();
+          if (line == null) break;
+      
+          StringTokenizer st = new StringTokenizer(line, " ~!@#$%^&*()_+`={}|[]\\:\";'<>?,./");
+      
+          while (st.hasMoreTokens()) {
+              String word = st.nextToken();
+              ...
+          }
+      }</code></pre>
+          <ul>
+            <li>EOF를 만날 때까지 한 줄씩 읽으며 공백과 특수문자 전체를 구분자로 지정한 <code>StringTokenizer</code>로 토큰을 추출한다. <code>outer</code> 레이블을 사용하여 "E-N-D" 감지 시 이중 루프를 한 번에 탈출할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 종료 신호 감지 및 최장 단어 갱신</strong>
+          <pre><code>if (word.equals("E-N-D")) {
+          break outer;
+      }
+      
+      if (word.length() > maxLength) {
+          maxLength = word.length();
+          maxWord = word;
+      }</code></pre>
+          <ul>
+            <li>토큰이 "E-N-D"이면 <code>break outer</code>로 즉시 전체 순회를 종료한다.</li>
+            <li>그 외 토큰은 현재 최장 길이 <code>maxLength</code>보다 길 때만 <code>maxWord</code>와 <code>maxLength</code>를 갱신한다. 길이가 같으면 갱신하지 않으므로 먼저 등장한 단어가 유지된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 출력</strong>
+          <pre><code>System.out.println(maxWord.toLowerCase());</code></pre>
+          <ul>
+            <li>가장 긴 단어를 <code>toLowerCase()</code>로 소문자로 변환하여 출력한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(L)</strong>: 입력 전체 길이 L에 비례하여 각 문자를 한 번씩 처리하며, 각 토큰에 대해 O(W)(W는 단어 길이)의 비교만 수행하므로 전체 O(L)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(W)</strong>: 현재 최장 단어 문자열 하나만 저장하면 되므로 단어의 최대 길이 W에 비례하는 공간만 사용한다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 백준 알고리즘, 
+        <a href="https://www.acmicpc.net/problemset" target="_blank">
+          https://www.acmicpc.net/problemset
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
