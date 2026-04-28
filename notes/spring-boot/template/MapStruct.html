@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>템플릿 — Spring Security + JWT</title>
+  <title>템플릿 — MapStruct 매퍼</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -115,1029 +115,327 @@
     </aside>
 
     <article class="prose">
-      <h1>템플릿 — Spring Security + JWT</h1>
-      <p class="muted">분류: 템플릿, Spring Boot, Spring Security, JWT, RTR, RefreshToken, ArgumentResolver</p>
+      <h1>템플릿 — MapStruct 매퍼</h1>
+      <p class="muted">분류: 템플릿, Spring Boot, MapStruct, DTO 변환, 엔티티 매핑</p>
 
       <div class="concept-box">
         <span class="box-title">이 템플릿의 구성</span>
-        공통 설정 파일과 세 가지 케이스를 제공한다. 케이스는 JWT 필터와 SecurityConfig의 구현 수준에 따라 단계적으로 발전한다.<br><br>
-        <strong>공통</strong> — build.gradle, AuthConstants, AuthTokens, CookieUtils, JwtTokenProvider (완성본)<br>
-        <strong>케이스 1</strong> — 기본 JWT 인증 (Principal: Long memberId) + 기본 SecurityConfig<br>
-        <strong>케이스 2</strong> — DTO Principal 방식 (Principal: LoginUserInfoDto) + @LoginUser ArgumentResolver<br>
-        <strong>케이스 3</strong> — 케이스 2 + JWT 예외 세분화 (EntryPoint로 만료/위조 구분 응답)<br>
-        <strong>RefreshToken 관리</strong> — RTR 기반 재발급 (AuthService + AuthController + RefreshToken 엔티티)
+        MapStruct를 사용한 엔티티 ↔ DTO 변환 패턴 3가지를 제공한다.<br><br>
+        <strong>패턴 1</strong> — 필드명 동일: 자동 매핑 (코드 없음)<br>
+        <strong>패턴 2</strong> — 필드명 다름: <code>@Mapping(source, target)</code>으로 명시<br>
+        <strong>패턴 3</strong> — List 변환: 단건 메서드를 선언하면 MapStruct가 자동으로 List 변환 생성<br>
+        <strong>패턴 4</strong> — 커스텀 로직: <code>default</code> 메서드로 직접 구현<br>
+        <strong>서비스 사용법</strong> — 생성된 Bean을 주입해서 호출하는 방법
       </div>
 
-      <!-- ===================== 공통 설정 ===================== -->
-      <h2 class="section">공통 설정 및 유틸</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          build.gradle
-        </span>
-      </h3>
-
-      <pre><code class="language-groovy">// JWT
-implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-runtimeOnly    'io.jsonwebtoken:jjwt-impl:0.12.6'
-runtimeOnly    'io.jsonwebtoken:jjwt-jackson:0.12.6'
-
-// Spring Security
-implementation 'org.springframework.boot:spring-boot-starter-security'
-testImplementation 'org.springframework.security:spring-security-test'</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          application.properties
-        </span>
-      </h3>
-
-      <pre><code class="language-properties"># 수정 포인트: 인텔리제이 Run Configuration > Environment Variables에 JWT_SECRET_KEY를 등록한다.
-# Base64 인코딩된 256bit(32바이트) 이상의 문자열이어야 한다.
-jwt.secret-key=${JWT_SECRET_KEY}
-
-# 수정 포인트: 각 환경에 맞게 조정 (ms 단위)
-jwt.access-token-validity-time=1800000    # 30분
-jwt.refresh-token-validity-time=604800000 # 7일</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AuthConstants.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">public class AuthConstants {
-    public static final String AUTHORIZATION_HEADER = "Authorization";  // 요청 헤더 키 이름
-    public static final String BEARER_PREFIX        = "Bearer ";        // 토큰 앞에 붙는 접두사 (공백 포함)
-    public static final String REFRESH_TOKEN        = "refresh_token";  // 쿠키 이름
-    public static final String COOKIE_PATH_ROOT     = "/";              // 쿠키 유효 경로
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AuthTokens.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// Access Token과 Refresh Token을 묶어 반환하는 응답 DTO
-public record AuthTokens(
-        String accessToken,
-        String refreshToken
-) {}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          CookieUtils.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Component
-public class CookieUtils {
-
-    /**
-     * HttpOnly 쿠키 생성
-     * @param name   쿠키 이름
-     * @param value  쿠키 값
-     * @param maxAge 쿠키 수명 (초 단위)
-     */
-    public Cookie createCookie(String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath(AuthConstants.COOKIE_PATH_ROOT);
-        cookie.setMaxAge(maxAge);
-        cookie.setHttpOnly(true);   // JS에서 쿠키 접근 차단 → XSS 방어
-        // cookie.setSecure(true);  // 수정 포인트: HTTPS 배포 시 활성화 (HTTP 개발 환경에서는 주석 유지)
-        return cookie;
-    }
-
-    /**
-     * 쿠키 삭제 — maxAge를 0으로 설정하면 브라우저가 즉시 파기
-     */
-    public Cookie deleteCookie(String name) {
-        return createCookie(name, null, 0);
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JwtTokenProvider.java — 완성본 (모든 케이스 공통)
-        </span>
-      </h3>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ jjwt 0.12.x API 변경 사항</span>
-        jjwt <strong>0.12.x</strong>에서 빌더 메서드명이 전면 변경되었다. 이전 버전(0.11.x) 코드를 그대로 붙이면 컴파일 오류가 발생한다.<br><br>
-        <strong>토큰 생성:</strong> <code>Jwts.claims().setSubject()</code> → <code>Jwts.builder().subject()</code><br>
-        <strong>토큰 파싱:</strong> <code>Jwts.parserBuilder()</code> → <code>Jwts.parser()</code><br>
-        <strong>파싱 결과:</strong> <code>.parseClaimsJws(token).getBody()</code> → <code>.parseSignedClaims(token).getPayload()</code><br>
-        <strong>서명 알고리즘:</strong> <code>.signWith(key, SignatureAlgorithm.HS256)</code> → <code>.signWith(key)</code> (알고리즘 자동 추론)
-      </div>
-
-      <pre><code class="language-java">@Slf4j
-@Component
-public class JwtTokenProvider {
-
-    private static final String ISSUER = "MyAppAuthServer"; // 수정 포인트: 프로젝트 이름으로 변경
-
-    @Value("${jwt.secret-key}")
-    private String secretKeyString;
-
-    @Value("${jwt.access-token-validity-time}")
-    private long accessTokenValidityInMilliseconds;
-
-    @Value("${jwt.refresh-token-validity-time}")
-    private long refreshTokenValidityInMilliseconds;
-
-    private SecretKey key;
-
-    @PostConstruct
-    public void init() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKeyString);
-        if (keyBytes.length < 32) {
-            throw new IllegalArgumentException("JWT secret-key는 최소 32바이트(256bit) 이상이어야 합니다.");
-        }
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-        log.info("HS256 대칭키가 성공적으로 초기화되었습니다.");
-    }
-
-    /** Access Token 발급 */
-    public String createAccessToken(Long memberId, String role) {
-        return buildToken(memberId, role, accessTokenValidityInMilliseconds);
-    }
-
-    /** Refresh Token 발급 (권한 정보 없이 PK만 담음) */
-    public String createRefreshToken(Long memberId) {
-        return buildToken(memberId, null, refreshTokenValidityInMilliseconds);
-    }
-
-    /**
-     * 실제 JWT 생성 내부 메서드 — jjwt 0.12.x API
-     *
-     * 0.11.x → 0.12.x 변경 요약:
-     *   setClaims()    → claims() 빌더 체이닝으로 대체
-     *   setSubject()   → subject()
-     *   setIssuer()    → issuer()
-     *   setIssuedAt()  → issuedAt()
-     *   setExpiration()→ expiration()
-     *   setId()        → id()
-     *   signWith(key, SignatureAlgorithm.HS256) → signWith(key) (알고리즘 자동 추론)
-     */
-    private String buildToken(Long memberId, String role, long validityTimeInMs) {
-        Date now      = new Date();
-        Date validity = new Date(now.getTime() + validityTimeInMs);
-
-        // 0.12.x: Jwts.builder()에서 직접 클레임 메서드를 체이닝
-        var builder = Jwts.builder()
-                .subject(String.valueOf(memberId)) // PK를 Subject로 지정
-                .issuer(ISSUER)
-                .issuedAt(now)
-                .expiration(validity)
-                .id(UUID.randomUUID().toString());
-
-        if (role != null) {
-            builder.claim("role", role); // Custom Claim 추가
-        }
-
-        return builder
-                .signWith(key) // 0.12.x: SecretKey 타입에서 알고리즘(HS256) 자동 추론
-                .compact();
-    }
-
-    /** 토큰에서 회원 PK(Subject) 추출 */
-    public Long getMemberId(String token) {
-        // 0.12.x: parserBuilder() → parser() / parseClaimsJws() → parseSignedClaims() / getBody() → getPayload()
-        String subject = Jwts.parser()
-                .verifyWith(key)
-                .requireIssuer(ISSUER)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-        return Long.parseLong(subject);
-    }
-
-    /** 토큰에서 역할(role) 추출 — Refresh Token은 role이 없어 null 반환 가능 */
-    public String getRole(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .requireIssuer(ISSUER)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("role", String.class);
-    }
-
-    /** Refresh Token 유효기간을 초(second) 단위로 반환 — 쿠키 maxAge 설정용 */
-    public int getRefreshTokenValidityInSeconds() {
-        return (int) (refreshTokenValidityInMilliseconds / 1000);
-    }
-
-    /**
-     * 토큰 유효성 검증 — 케이스 1, 2에서 사용 (예외를 내부에서 처리하고 boolean 반환)
-     * 케이스 3에서는 이 메서드 대신 필터에서 try-catch로 직접 예외를 잡는다.
-     */
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                .verifyWith(key)
-                .requireIssuer(ISSUER)
-                .build()
-                .parseSignedClaims(token);
-            return true;
-        } catch (SecurityException | MalformedJwtException | SignatureException e) {
-            log.warn("잘못된 JWT 서명입니다 (위조 의심): {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.warn("지원되지 않는 JWT 토큰입니다: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.warn("JWT 토큰이 잘못되었습니다: {}", e.getMessage());
-        }
-        return false;
-    }
-}</code></pre>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== CASE 1 ===================== -->
-      <h2 class="section">케이스 1. 기본 JWT 인증 — Principal: Long memberId</h2>
-
-      <p>
-        SecurityContext의 Principal 자리에 <strong>Long 타입의 memberId</strong>를 직접 저장하는 가장 단순한 방식이다.
-        컨트롤러에서 <code>@AuthenticationPrincipal Long memberId</code>로 꺼내 쓴다.
-        에러 응답은 Spring Security 기본 동작에 맡긴다(401/403 단순 응답).
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JwtAuthenticationFilter.java — 케이스 1
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Slf4j
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        // 1. Authorization 헤더에서 "Bearer {token}" 형태로 토큰을 꺼낸다
-        String token = resolveToken(request);
-
-        // 2. 토큰이 존재하고 유효하면 SecurityContext에 인증 정보를 심는다
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            Long   memberId = jwtTokenProvider.getMemberId(token);
-            String role     = jwtTokenProvider.getRole(token);
-
-            // Principal 자리에 Long(memberId)을 직접 저장
-            // 컨트롤러에서: @AuthenticationPrincipal Long memberId
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    memberId,
-                    null,
-                    Collections.singletonList(
-                            new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
-                    )
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
-        }
-
-        // 3. 토큰이 없거나 유효하지 않아도 일단 다음 필터로 넘긴다
-        //    이후 인가(Authorization) 필터가 미인증 요청을 401로 튕겨낸다
-        filterChain.doFilter(request, response);
-    }
-
-    /** "Bearer {token}" 에서 순수 토큰 문자열만 추출 */
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
-        }
-        return null;
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          SecurityConfig.java — 케이스 1 (EntryPoint 없는 기본 버전)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            .csrf(csrf -> csrf.disable())        // JWT 사용 환경에서 CSRF 불필요
-            .formLogin(form -> form.disable())   // 기본 폼 로그인 비활성화
-            .httpBasic(basic -> basic.disable()) // HTTP Basic 인증 비활성화
-
-            // JWT = Stateless → 세션을 생성하지 않도록 설정
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            .authorizeHttpRequests(auth -> auth
-                // 수정 포인트: 개발 편의 허용 경로 (운영 배포 전 검토 필요)
-                .requestMatchers(
-                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
-                        "/h2-console/**"
-                ).permitAll()
-
-                // 수정 포인트: 인증 없이 접근 가능한 API 경로 추가
-                .requestMatchers(HttpMethod.POST,
-                        "/api/auth/login",
-                        "/api/auth/signup",
-                        "/api/auth/reissue"
-                ).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
-
-                // 위에서 허용한 경로 외 모든 요청은 인증 필수
-                .anyRequest().authenticated()
-            )
-
-            // 우리가 만든 JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
-            // 폼 로그인 처리 전에 JWT 인증을 먼저 완료시키기 위함
-            .addFilterBefore(
-                    new JwtAuthenticationFilter(jwtTokenProvider),
-                    UsernamePasswordAuthenticationFilter.class
-            );
-
-        return http.build();
-    }
-}</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">컨트롤러에서의 사용 (케이스 1)</span>
-        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@GetMapping("/my-profile")
-public ResponseEntity&lt;ProfileResponse&gt; getMyProfile(
-        @AuthenticationPrincipal Long memberId) {  // SecurityContext에서 Long 타입 자동 추출
-    return ResponseEntity.ok(memberService.getProfile(memberId));
-}</code></pre>
-      </div>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== CASE 2 ===================== -->
-      <h2 class="section">케이스 2. DTO Principal 방식 — Principal: LoginUserInfoDto + @LoginUser ArgumentResolver</h2>
-
-      <p>
-        SecurityContext의 Principal 자리에 <code>Long</code> 대신 <strong>LoginUserInfoDto 객체를 저장</strong>하는 방식이다.
-        이후 추가 정보(닉네임, 역할 등)가 필요할 때 DTO 필드를 확장하기만 하면 되므로 유지보수가 용이하다.
-        <code>@LoginUser</code> 어노테이션과 <code>LoginUserArgumentResolver</code>로 컨트롤러 파라미터에 자동 주입한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          LoginUserInfoDto.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// 수정 포인트: 추후 필드 확장 가능 (nickname, role 등)
-// SecurityContext의 Principal 자리에 저장되는 인증 DTO
-@Builder
-public record LoginUserInfoDto(
-        Long id
-) {
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          @LoginUser 어노테이션
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Target(ElementType.PARAMETER)       // 메서드 파라미터에만 적용 가능
-@Retention(RetentionPolicy.RUNTIME)  // 런타임까지 어노테이션 정보 유지
-public @interface LoginUser {
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          LoginUserArgumentResolver.java — SecurityContext 기반 (케이스 2)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Component
-public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
-
-    @Override
-    public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        boolean hasAnnotation   = parameter.hasParameterAnnotation(LoginUser.class);
-        // 수정 포인트: LoginUserInfoDto를 프로젝트 실제 인증 DTO 타입으로 교체
-        boolean hasLoginUserType = LoginUserInfoDto.class.isAssignableFrom(parameter.getParameterType());
-        return hasAnnotation && hasLoginUserType;
-    }
-
-    @Override
-    public Object resolveArgument(@NonNull MethodParameter parameter,
-                                  @Nullable ModelAndViewContainer mavContainer,
-                                  @NonNull NativeWebRequest webRequest,
-                                  @Nullable WebDataBinderFactory binderFactory) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // 인증 정보가 없거나 비로그인(anonymous) 상태이면 즉시 예외 발생
-        if (authentication == null
-                || authentication.getPrincipal().equals("anonymousUser")
-                || !(authentication.getPrincipal() instanceof LoginUserInfoDto)) {
-            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        // JwtAuthenticationFilter에서 Principal에 저장한 LoginUserInfoDto 객체를 그대로 반환
-        return authentication.getPrincipal();
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JwtAuthenticationFilter.java — 케이스 2 (DTO Principal 저장)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Slf4j
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String token = resolveToken(request);
-
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            Long   memberId = jwtTokenProvider.getMemberId(token);
-            String role     = jwtTokenProvider.getRole(token);
-
-            // 케이스 1과의 차이: Principal 자리에 Long이 아닌 LoginUserInfoDto를 저장
-            // ArgumentResolver에서 authentication.getPrincipal()로 꺼낼 수 있도록 DTO로 감쌈
-            LoginUserInfoDto loginUser = LoginUserInfoDto.builder()
-                    .id(memberId)
-                    .build();
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    loginUser,  // Principal = LoginUserInfoDto
-                    null,
-                    Collections.singletonList(
-                            new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
-                    )
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
-        }
-
-        filterChain.doFilter(request, response);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
-        }
-        return null;
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          SecurityConfig.java — 케이스 2 (케이스 1과 동일한 설정)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// SecurityConfig는 케이스 1과 동일하다.
-// 변경은 JwtAuthenticationFilter 내부(Principal 타입)와
-// LoginUserArgumentResolver 등록(WebMvcConfig)에서만 발생한다.
-// 아래 WebMvcConfig에 ArgumentResolver를 추가로 등록한다.
-
-@Configuration
-@RequiredArgsConstructor
-public class SecurityConfig {
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
-                        "/h2-console/**"
-                ).permitAll()
-                .requestMatchers(HttpMethod.POST,
-                        "/api/auth/login",
-                        "/api/auth/signup",
-                        "/api/auth/reissue"
-                ).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(
-                    new JwtAuthenticationFilter(jwtTokenProvider),  // 케이스 2 버전 필터
-                    UsernamePasswordAuthenticationFilter.class
-            );
-        return http.build();
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          WebMvcConfig.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Configuration
-@RequiredArgsConstructor
-public class WebMvcConfig implements WebMvcConfigurer {
-
-    private final LoginUserArgumentResolver loginUserArgumentResolver;
-    // 수정 포인트: 다른 ArgumentResolver가 있으면 여기에 함께 추가
-
-    @Override
-    public void addArgumentResolvers(@NonNull List&lt;HandlerMethodArgumentResolver&gt; resolvers) {
-        resolvers.add(loginUserArgumentResolver);
-    }
-}</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">컨트롤러에서의 사용 (케이스 2)</span>
-        <pre style="margin:0; background:transparent; border:none; padding:0;"><code class="language-java">@GetMapping("/my-profile")
-public ResponseEntity&lt;ProfileResponse&gt; getMyProfile(
-        @LoginUser LoginUserInfoDto loginUser) {  // ArgumentResolver가 SecurityContext에서 자동 주입
-    return ResponseEntity.ok(memberService.getProfile(loginUser.id()));
-}</code></pre>
-      </div>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== CASE 3 ===================== -->
-      <h2 class="section">케이스 3. JWT 예외 세분화 — 만료/위조 에러 구분 응답 (EntryPoint 추가)</h2>
-
-      <p>
-        케이스 2를 기반으로 JWT 관련 예외를 <strong>종류별로 구분하여 다른 에러 응답</strong>을 내려주는 방식이다.
-        필터에서 예외를 <code>request.setAttribute()</code>에 보관하고,
-        <code>JwtAuthenticationEntryPoint</code>가 꺼내서 만료/위조/미제출로 분기하여 응답한다.
-        <code>@RestControllerAdvice</code>는 필터 단계의 예외를 잡지 못하므로 EntryPoint에서 직접 JSON 응답을 생성한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JwtAuthenticationFilter.java — 케이스 3 (try-catch + request.setAttribute)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Slf4j
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private final JwtTokenProvider jwtTokenProvider;
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String token = resolveToken(request);
-
-        try {
-            if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-                Long   memberId = jwtTokenProvider.getMemberId(token);
-                String role     = jwtTokenProvider.getRole(token);
-
-                LoginUserInfoDto loginUser = LoginUserInfoDto.builder()
-                        .id(memberId)
-                        .build();
-
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        loginUser,
-                        null,
-                        Collections.singletonList(
-                                new SimpleGrantedAuthority(StringUtils.hasText(role) ? role : "ROLE_USER")
-                        )
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. (uri: {})", memberId, request.getRequestURI());
-            }
-        } catch (ExpiredJwtException e) {
-            // 핵심: 예외를 바로 던지지 않고 request에 보관 → EntryPoint가 꺼내서 처리
-            log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
-            request.setAttribute("exception", e);
-        } catch (SecurityException | MalformedJwtException | SignatureException | UnsupportedJwtException e) {
-            log.warn("잘못된 JWT 서명입니다: {}", e.getMessage());
-            request.setAttribute("exception", e);
-        } catch (Exception e) {
-            log.error("JWT 검증 중 알 수 없는 예외가 발생했습니다: {}", e.getMessage());
-            request.setAttribute("exception", e);
-        }
-
-        // 예외가 발생했어도 일단 다음 필터로 넘긴다 — EntryPoint가 최종 처리
-        filterChain.doFilter(request, response);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
-        }
-        return null;
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          JwtAuthenticationEntryPoint.java
-        </span>
-      </h3>
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. 의존성 추가</h2>
 
       <div class="warning-box">
         <span class="box-title">수정 포인트</span>
-        <code>MemberErrorCode</code>와 <code>ApiResponse</code>를 프로젝트 실제 예외/응답 클래스로 교체한다.<br>
-        <code>setResponse()</code> 내부의 JSON 빌드 방식도 프로젝트의 에러 응답 포맷에 맞게 수정한다.
+        Lombok과 MapStruct를 함께 사용할 때 <code>annotationProcessorPaths</code> 순서가 중요하다.
+        <strong>Lombok이 MapStruct보다 먼저</strong> 와야 한다.
+        순서가 바뀌면 MapStruct가 Lombok이 생성한 생성자/getter를 인식하지 못해 컴파일 오류가 발생한다.
       </div>
 
-      <pre><code class="language-java">@Slf4j
-@Component
-@RequiredArgsConstructor
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+      <pre><code class="language-groovy">// build.gradle
 
-    private final ObjectMapper objectMapper;
+dependencies {
+    // MapStruct 런타임 — 어노테이션만 포함 (구현체는 컴파일 타임에 생성됨)
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
+    // MapStruct 어노테이션 프로세서 — 컴파일 타임에 MapperImpl 자동 생성
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-        // 1. JwtAuthenticationFilter에서 request에 보관해둔 예외 객체를 꺼낸다
-        Object exception = request.getAttribute("exception");
-
-        // 2. 예외 종류에 따라 에러 코드를 분기
-        if (exception instanceof ExpiredJwtException) {
-            // 토큰이 만료된 경우 → 프론트엔드에서 Refresh Token으로 재발급 요청을 보내야 함
-            setErrorResponse(request, response, MemberErrorCode.EXPIRED_TOKEN);
-            return;
-        }
-
-        if (exception != null) {
-            // 토큰이 위조/손상된 경우 → 재로그인 필요
-            setErrorResponse(request, response, MemberErrorCode.INVALID_TOKEN);
-            return;
-        }
-
-        // 3. 예외가 없는 경우 = 토큰 자체를 보내지 않은 미인증 요청
-        setErrorResponse(request, response, MemberErrorCode.UNAUTHORIZED_ACCESS);
-    }
-
-    /**
-     * @RestControllerAdvice는 필터 단계 예외를 처리하지 못하므로
-     * ObjectMapper로 직접 JSON 응답을 만들어 write한다.
-     */
-    private void setErrorResponse(HttpServletRequest request, HttpServletResponse response,
-                                   MemberErrorCode errorCode) throws IOException {
-        log.warn("[인증 에러] 코드: {}, 메시지: {}, 경로: {}",
-                errorCode.getCode(), errorCode.getMessage(), request.getRequestURI());
-
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(errorCode.getStatus().value());
-
-        // 수정 포인트: 프로젝트의 에러 응답 포맷에 맞게 수정
-        ApiResponse&lt;Void&gt; apiResponse = ApiResponse.fail(
-                ErrorResponse.builder()
-                        .timestamp(LocalDateTime.now())
-                        .status(errorCode.getStatus().value())
-                        .error(errorCode.getStatus().name())
-                        .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
-                        .path(request.getRequestURI())
-                        .build()
-        );
-
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-    }
+    // Lombok과 함께 사용할 때 필수 — 반드시 Lombok 다음에 위치
+    // 수정 포인트: Lombok을 사용하지 않는다면 아래 두 줄 제거
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 }</code></pre>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 매퍼 인터페이스 설계</h2>
+
+      <div class="concept-box">
+        <span class="box-title">MapStruct의 동작 원리</span>
+        MapStruct는 <strong>컴파일 타임</strong>에 인터페이스를 분석해 <code>PostMapperImpl</code> 구현체를 자동 생성한다.
+        런타임 리플렉션이 없으므로 ModelMapper보다 훨씬 빠르고, 생성된 코드를 직접 확인할 수 있다.<br><br>
+        <code>componentModel = "spring"</code>을 설정하면 생성된 구현체가 <strong>Spring Bean으로 자동 등록</strong>되어
+        <code>@RequiredArgsConstructor</code>로 바로 주입받을 수 있다.
+      </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          SecurityConfig.java — 케이스 3 (EntryPoint 등록)
+          파일 구성
         </span>
       </h3>
-
-      <pre><code class="language-java">@Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
-
-    private final JwtTokenProvider jwtTokenProvider;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // 케이스 3에서 추가
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/", "/assets/**", "/img/**", "/error", "/favicon.ico",
-                        "/h2-console/**"
-                ).permitAll()
-                .requestMatchers(HttpMethod.POST,
-                        "/api/auth/login",
-                        "/api/auth/signup",
-                        "/api/auth/reissue"
-                ).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/check-duplicate").permitAll()
-                .anyRequest().authenticated()
-            )
-
-            // 케이스 3에서 추가: 인증 예외 발생 시 우리가 만든 EntryPoint가 처리
-            .exceptionHandling(exception ->
-                exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            )
-
-            .addFilterBefore(
-                    new JwtAuthenticationFilter(jwtTokenProvider),  // 케이스 3 버전 필터 (try-catch 포함)
-                    UsernamePasswordAuthenticationFilter.class
-            );
-
-        return http.build();
-    }
-}</code></pre>
-
-      <hr class="case-divider" />
-
-      <!-- ===================== REFRESH TOKEN ===================== -->
-      <h2 class="section">RefreshToken 관리 — RTR 기반 재발급</h2>
-
-      <p>
-        Refresh Token을 DB(JPA)에 저장하고 재발급 시 RTR(Refresh Token Rotation)을 적용하는 패턴이다.
-        Redis를 사용한다면 <code>RefreshToken</code> 엔티티와 Repository를 <code>@RedisHash</code>로 대체한다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          RefreshToken.java — 엔티티
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Entity
-@Table(name = "refresh_tokens")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    private Long memberId; // 1명 = 1개의 Refresh Token (다중 기기 로그인은 별도 설계 필요)
-
-    @Column(nullable = false, length = 512)
-    private String token;
-
-    @Builder
-    public RefreshToken(Long memberId, String token) {
-        this.memberId = memberId;
-        this.token    = token;
-    }
-
-    /** 기존 토큰을 새 토큰으로 교체 — 더티 체킹으로 UPDATE 발생 */
-    public void updateToken(String newToken) {
-        this.token = newToken;
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          RefreshTokenRepository.java
-        </span>
-      </h3>
-
-      <pre><code class="language-java">public interface RefreshTokenRepository extends JpaRepository&lt;RefreshToken, Long&gt; {
-
-    Optional&lt;RefreshToken&gt; findByToken(String token);      // 재발급 시 토큰 대조용
-
-    Optional&lt;RefreshToken&gt; findByMemberId(Long memberId); // 로그인 시 기존 토큰 조회용
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AuthService.java — 완성본 (로그인 + RTR 재발급)
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@Service
-@RequiredArgsConstructor
-public class AuthService {
-
-    private final MemberRepository       memberRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtTokenProvider       jwtTokenProvider;
-    private final PasswordEncoder        passwordEncoder;
-
-    /**
-     * 로그인 처리 — Access + Refresh Token 발급 후 Refresh Token을 DB에 저장
-     * 수정 포인트: LoginRequest, LoginResponse, Member 클래스는 프로젝트 실제 타입으로 교체
-     */
-    @Transactional
-    public LoginResponse login(LoginRequest request) {
-        // 1. 아이디(이메일/닉네임 등)로 회원 조회
-        Member member = memberRepository.findByEmail(request.email())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-        // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
-            throw new MemberException(MemberErrorCode.INVALID_PASSWORD);
-        }
-
-        // 3. Access + Refresh Token 발급
-        AuthTokens tokens = generateTokens(member);
-
-        // 4. Refresh Token DB 저장 — 기존 토큰이 있으면 업데이트(더티 체킹), 없으면 신규 저장
-        refreshTokenRepository.findByMemberId(member.getId())
-                .ifPresentOrElse(
-                        rt -> rt.updateToken(tokens.refreshToken()),
-                        () -> refreshTokenRepository.save(
-                                RefreshToken.builder()
-                                        .memberId(member.getId())
-                                        .token(tokens.refreshToken())
-                                        .build()
-                        )
-                );
-
-        return LoginResponse.of(tokens, member);
-    }
-
-    /**
-     * Access Token 재발급 (RTR 적용)
-     * 1. Refresh Token 유효성 검증
-     * 2. DB에 실제로 저장된 토큰인지 대조
-     * 3. Access + Refresh Token 모두 새로 발급
-     * 4. 기존 Refresh Token 즉시 폐기(RTR)
-     */
-    @Transactional
-    public AuthTokens reissue(String refreshToken) {
-        // 1. 서명 및 만료 검증
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        // 2. DB 대조 — 탈취된 예전 토큰이면 여기서 걸러짐
-        RefreshToken tokenEntity = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS));
-
-        // 3. 회원 정보 조회 후 새 토큰 발급
-        Member member = memberRepository.findById(tokenEntity.getMemberId())
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-        AuthTokens newTokens = generateTokens(member);
-
-        // 4. RTR: 한 번 사용한 Refresh Token은 새것으로 교체(더티 체킹으로 UPDATE)
-        tokenEntity.updateToken(newTokens.refreshToken());
-
-        return newTokens;
-    }
-
-    /** Access Token + Refresh Token 동시 발급 내부 헬퍼 */
-    private AuthTokens generateTokens(Member member) {
-        String accessToken  = jwtTokenProvider.createAccessToken(member.getId(), member.getRole().name());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId());
-        return new AuthTokens(accessToken, refreshToken);
-    }
-}</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          AuthController.java — 완성본
-        </span>
-      </h3>
-
-      <pre><code class="language-java">@RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
-public class AuthController {
-
-    private final AuthService      authService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CookieUtils      cookieUtils;
-
-    /**
-     * 로그인
-     * Access Token은 응답 Body에, Refresh Token은 HttpOnly 쿠키에 담아 반환한다.
-     * 쿠키는 JS로 접근 불가(HttpOnly) → XSS 공격으로 Refresh Token 탈취 불가
-     */
-    @PostMapping("/login")
-    public ResponseEntity&lt;ApiResponse&lt;LoginResponse&gt;&gt; login(
-            @RequestBody @Valid LoginRequest loginRequest,
-            HttpServletResponse response) {
-
-        LoginResponse loginResponse = authService.login(loginRequest);
-
-        // Refresh Token을 HttpOnly 쿠키에 저장
-        Cookie cookie = cookieUtils.createCookie(
-                AuthConstants.REFRESH_TOKEN,
-                loginResponse.tokens().refreshToken(),
-                jwtTokenProvider.getRefreshTokenValidityInSeconds()
-        );
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok(ApiResponse.success(loginResponse));
-    }
-
-    /**
-     * Access Token 재발급
-     * 브라우저가 자동으로 쿠키를 함께 전송 → @CookieValue로 꺼낸다.
-     * 새 Refresh Token(RTR)으로 쿠키도 덮어쓴다.
-     */
-    @PostMapping("/reissue")
-    public ResponseEntity&lt;ApiResponse&lt;AuthTokens&gt;&gt; reissue(
-            @CookieValue(value = AuthConstants.REFRESH_TOKEN, required = false) String refreshToken,
-            HttpServletResponse response) {
-
-        if (refreshToken == null) {
-            throw new MemberException(MemberErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        AuthTokens tokens = authService.reissue(refreshToken);
-
-        // RTR: 새로 발급된 Refresh Token으로 쿠키 덮어쓰기
-        Cookie cookie = cookieUtils.createCookie(
-                AuthConstants.REFRESH_TOKEN,
-                tokens.refreshToken(),
-                jwtTokenProvider.getRefreshTokenValidityInSeconds()
-        );
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok(ApiResponse.success(tokens));
-    }
-
-    /**
-     * 로그아웃 — 쿠키 파기 (Redis 블랙리스트 적용 시 Access Token도 서버에 등록 필요)
-     */
-    @PostMapping("/logout")
-    public ResponseEntity&lt;ApiResponse&lt;Void&gt;&gt; logout(HttpServletResponse response) {
-        // Refresh Token 쿠키를 즉시 만료시켜 브라우저에서 파기
-        response.addCookie(cookieUtils.deleteCookie(AuthConstants.REFRESH_TOKEN));
-        return ResponseEntity.ok(ApiResponse.success(null));
-    }
-}</code></pre>
-
-      <!-- ===================== 케이스 비교 ===================== -->
-      <h2 class="section">케이스 비교 요약</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:12%;">구분</th>
-            <th>Principal 타입</th>
-            <th>필터 예외 처리</th>
-            <th>에러 응답</th>
-            <th>추가 파일</th>
+            <th style="width:35%;">파일</th>
+            <th style="width:25%;">역할</th>
+            <th>수정 포인트</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>케이스 1</strong></td>
-            <td><code>Long</code> (memberId)</td>
-            <td><code>validateToken()</code> 내부에서 처리</td>
-            <td>Spring Security 기본 (단순 401)</td>
-            <td>없음</td>
+            <td><code>PostMapper.java</code></td>
+            <td>매핑 규칙을 선언하는 인터페이스</td>
+            <td>클래스명, 필드명 매핑, default 메서드 로직</td>
           </tr>
           <tr>
-            <td><strong>케이스 2</strong></td>
-            <td><code>LoginUserInfoDto</code></td>
-            <td>케이스 1과 동일</td>
-            <td>케이스 1과 동일</td>
-            <td>LoginUserInfoDto, @LoginUser, LoginUserArgumentResolver, WebMvcConfig</td>
+            <td><code>PostMapperImpl.java</code></td>
+            <td>컴파일 타임에 자동 생성된 구현체 (직접 수정 금지)</td>
+            <td>수정 불필요 — 인터페이스를 수정하면 재생성됨</td>
           </tr>
           <tr>
-            <td><strong>케이스 3</strong></td>
-            <td><code>LoginUserInfoDto</code></td>
-            <td>try-catch + <code>request.setAttribute("exception", e)</code></td>
-            <td>만료/위조/미제출 구분하여 상세 JSON 응답</td>
-            <td>케이스 2 + JwtAuthenticationEntryPoint</td>
+            <td><code>PostService.java</code></td>
+            <td>생성된 Bean을 주입받아 사용</td>
+            <td>주입받는 Mapper 타입, 호출 메서드명</td>
           </tr>
         </tbody>
       </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          PostMapper.java — 완성본
+        </span>
+      </h3>
+
+      <pre><code class="language-java">/**
+ * Post 도메인 MapStruct 매퍼.
+ *
+ * [componentModel = "spring"]
+ * 컴파일 시 PostMapperImpl을 생성하고 Spring Bean으로 등록한다.
+ * → PostService에서 @RequiredArgsConstructor로 바로 주입받아 사용 가능.
+ *
+ * 수정 포인트: 클래스명(PostMapper)과 변환 대상 엔티티/DTO를 실제 도메인으로 교체한다.
+ */
+@Mapper(componentModel = "spring")
+public interface PostMapper {
+
+    // ================================================================
+    // 패턴 1. 필드명이 같은 경우 — 아무것도 선언하지 않아도 자동 매핑
+    // ================================================================
+    // 예시: PostImage.id → PostImageResponse.id (이름이 같으면 MapStruct가 알아서 연결)
+    // 아래 @Mapping은 이름이 다른 필드만 명시적으로 선언한 것이다.
+
+    // ================================================================
+    // 패턴 2. 필드명이 다른 경우 — @Mapping으로 방향을 명시
+    // ================================================================
+
+    /**
+     * PostImage(Entity) → PostImageResponse(DTO) 단건 변환.
+     *
+     * 수정 포인트:
+     *   - source: 엔티티의 실제 필드명
+     *   - target: DTO의 실제 필드명
+     *   - 필드명이 같으면 해당 @Mapping 줄 제거
+     *   - 매핑이 필요 없는 필드(무시)는 @Mapping(target = "fieldName", ignore = true) 사용
+     */
+    @Mapping(source = "imgOrder", target = "imageOrder") // Entity 필드명 → DTO 필드명
+    PostImageResponse toImageResponse(PostImage postImage);
+
+    // ================================================================
+    // 패턴 3. List 변환 — 단건 메서드를 선언하면 MapStruct가 자동으로 List 변환 생성
+    // ================================================================
+
+    /**
+     * List&lt;PostImage&gt; → List&lt;PostImageResponse&gt; 변환.
+     *
+     * 별도 구현 없이 선언만 해도 된다.
+     * MapStruct가 위에서 선언한 toImageResponse()를 내부적으로 for문 돌려서 자동 생성한다.
+     * Stream().map().toList() 노가다가 완전히 사라진다.
+     *
+     * 수정 포인트: 단건 변환 메서드(toImageResponse)가 인터페이스에 선언되어 있어야 한다.
+     */
+    List&lt;PostImageResponse&gt; toImageResponses(List&lt;PostImage&gt; postImages);
+
+    // ================================================================
+    // 패턴 4. 커스텀 로직 — default 메서드로 직접 구현
+    // ================================================================
+
+    /**
+     * Post + List&lt;PostImage&gt; → PostResponse 변환.
+     *
+     * MapStruct가 자동으로 처리하기 어려운 경우
+     * (여러 파라미터 조합, 기본값 세팅, 중첩 변환 호출 등)에 사용한다.
+     *
+     * 수정 포인트:
+     *   - PostResponse 생성자 파라미터를 실제 DTO 구조에 맞게 수정한다.
+     *   - 기본값 세팅 로직(LikeStatusResponse.empty(), 임시 댓글 수 0 등)을 실제 요구사항에 맞게 교체한다.
+     *   - 내부에서 위에 선언한 toImageResponses()처럼 다른 MapStruct 메서드를 자유롭게 호출할 수 있다.
+     */
+    default PostResponse toResponse(Post post, List&lt;PostImage&gt; images) {
+        if (post == null) {
+            return null;
+        }
+        return new PostResponse(
+                post.getId(),
+                post.getContent(),
+                post.getWriter().getUsername(),         // 수정 포인트: 연관 엔티티 접근 시 N+1 주의
+                post.getWriter().getProfileImageUrl(),
+                toImageResponses(images),               // 위에서 선언한 List 변환 메서드 호출
+                post.getCreatedAt(),
+                LikeStatusResponse.empty(),             // 수정 포인트: 복잡한 기본값 처리 로직
+                0                                       // 수정 포인트: 임시값 — 실제 조회 로직으로 교체
+        );
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. 서비스에서 사용하기</h2>
+
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class PostService {
+
+    private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
+
+    // 수정 포인트: MapStruct가 컴파일 타임에 생성한 PostMapperImpl이 Bean으로 등록된다.
+    // 인터페이스 타입(PostMapper)으로 주입받으면 된다.
+    private final PostMapper postMapper;
+
+    public PostResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        List&lt;PostImage&gt; images = postImageRepository.findByPost(post);
+
+        // Stream().map(PostResponse::from).toList() 대신 한 줄로 처리
+        return postMapper.toResponse(post, images);
+    }
+
+    public List&lt;PostImageResponse&gt; getImages(List&lt;PostImage&gt; postImages) {
+        // List 변환도 한 줄 — for문이나 Stream 불필요
+        return postMapper.toImageResponses(postImages);
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 자주 쓰는 @Mapping 옵션 정리</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:45%;">옵션</th>
+            <th>설명 및 사용 예시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@Mapping(source = "A", target = "B")</code></td>
+            <td>필드명이 다를 때 매핑 방향을 명시한다.<br>
+              <code>source</code>: 엔티티의 필드명 / <code>target</code>: DTO의 필드명</td>
+          </tr>
+          <tr>
+            <td><code>@Mapping(target = "field", ignore = true)</code></td>
+            <td>특정 필드를 변환에서 제외한다. 보안상 노출하면 안 되는 필드나 직접 세팅할 필드에 사용한다.</td>
+          </tr>
+          <tr>
+            <td><code>@Mapping(target = "field", constant = "ACTIVE")</code></td>
+            <td>항상 고정값을 할당한다. enum 기본값이나 상수 세팅에 유용하다.</td>
+          </tr>
+          <tr>
+            <td><code>@Mapping(target = "field", expression = "java(…)")</code></td>
+            <td>Java 표현식을 직접 작성한다. 간단한 로직을 인라인으로 처리할 때 사용한다.<br>
+              예: <code>expression = "java(entity.getPrice() * 1.1)"</code></td>
+          </tr>
+          <tr>
+            <td><code>@Mapping(source = "a.b", target = "c")</code></td>
+            <td>중첩 필드에 접근한다. <code>post.writer.username</code>처럼 깊은 경로를 직접 지정할 수 있다.<br>
+              예: <code>source = "writer.username", target = "authorName"</code></td>
+          </tr>
+          <tr>
+            <td><code>@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)</code></td>
+            <td>부분 업데이트(PATCH)에 사용한다. 소스가 null인 필드는 타겟에 덮어쓰지 않는다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          중첩 필드 + ignore 활용 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    // 수정 포인트: 중첩 필드(writer.username)를 단일 필드(authorName)로 매핑
+    @Mapping(source = "writer.username",        target = "authorName")
+    @Mapping(source = "writer.profileImageUrl", target = "profileUrl")
+    @Mapping(target  = "password",              ignore = true)  // 보안 필드 제외
+    @Mapping(target  = "status",                constant = "ACTIVE") // 고정값 설정
+    UserResponse toResponse(User user);
+
+    // 부분 업데이트(PATCH) — null인 필드는 덮어쓰지 않음
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(UserUpdateRequest request, @MappingTarget User user);
+}</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">@MappingTarget — 기존 객체를 업데이트할 때</span>
+        <code>@MappingTarget</code>을 붙인 파라미터는 새 객체를 생성하지 않고 <strong>기존 객체의 필드를 수정</strong>한다.<br>
+        PATCH 요청처럼 변경된 필드만 엔티티에 반영할 때 사용한다.
+        <code>@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)</code>와 함께 쓰면
+        요청에서 null로 온 필드는 엔티티를 덮어쓰지 않는다.
+      </div>
+
+      <hr class="case-divider" />
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. MapStruct vs 직접 변환 비교</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%;">구분</th>
+            <th>직접 변환 (정적 팩토리 메서드)</th>
+            <th>MapStruct</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>코드량</strong></td>
+            <td>변환 메서드를 DTO마다 직접 작성</td>
+            <td>필드명이 같으면 선언만 해도 자동 생성</td>
+          </tr>
+          <tr>
+            <td><strong>리스트 변환</strong></td>
+            <td><code>.stream().map().toList()</code> 반복 작성</td>
+            <td>메서드 선언 하나로 자동 처리</td>
+          </tr>
+          <tr>
+            <td><strong>필드 변경 시</strong></td>
+            <td>변환 메서드를 수동으로 찾아 수정</td>
+            <td>컴파일 오류로 즉시 감지</td>
+          </tr>
+          <tr>
+            <td><strong>커스텀 로직</strong></td>
+            <td>메서드 안에 자유롭게 작성</td>
+            <td><code>default</code> 메서드로 직접 구현</td>
+          </tr>
+          <tr>
+            <td><strong>런타임 성능</strong></td>
+            <td>빠름</td>
+            <td>빠름 (리플렉션 없음, 컴파일 타임 코드 생성)</td>
+          </tr>
+          <tr>
+            <td><strong>적합한 상황</strong></td>
+            <td>변환 로직이 복잡하고 커스텀이 많은 경우</td>
+            <td>필드 수가 많고 변환 패턴이 단순 반복인 경우</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ MapStruct 사용 시 주의사항</span>
+        <strong>N+1 주의:</strong> <code>default</code> 메서드 안에서 <code>post.getWriter().getUsername()</code>처럼 연관 엔티티에 접근하면 Lazy Loading이 발생한다. 매퍼를 호출하기 전에 Fetch Join으로 연관 데이터를 미리 로딩해야 한다.<br><br>
+        <strong>컴파일 후 확인:</strong> MapStruct 관련 오류는 컴파일 타임에 발생한다. IDE에서 <code>Build Project</code>를 실행해야 오류가 표시된다. <code>build/generated/sources/annotationProcessor</code>에서 생성된 코드를 직접 확인할 수 있다.<br><br>
+        <strong>Lombok 순서:</strong> <code>annotationProcessorPaths</code>에서 Lombok이 MapStruct보다 반드시 먼저 와야 한다.
+      </div>
 
       <p class="muted"><a href="/templates/">← Templates로 돌아가기</a></p>
     </article>
