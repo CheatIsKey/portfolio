@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 82일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 82일차 TIL — Redisson 분산 락 · tryLock · watchdog · Circuit Breaker</h1>
+      <p class="muted">작성일 2026-04-28 · 분류: 부트캠프, TIL, Redis, Redisson, 분산 락, RLock, watchdog, Circuit Breaker</p>
+
+      <h2 class="section">82일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Redisson</strong>이 단순 RedisTemplate보다 분산 락에 적합한 이유를 이해한다.</li>
+        <li><code>tryLock</code>의 <strong>waitTime</strong>과 <strong>leaseTime</strong> 두 파라미터의 의미와 트레이드오프를 파악한다.</li>
+        <li><strong>watchdog</strong> 메커니즘이 락을 어떻게 자동으로 유지하고 안전하게 해제하는지 이해한다.</li>
+        <li>분산 락 구현 전체 코드 흐름(<code>getLock → tryLock → 비즈니스 로직 → unlock</code>)을 익힌다.</li>
+        <li>고경합 상황에서 시스템 전체를 보호하는 <strong>Circuit Breaker 패턴</strong>을 이해한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. Redisson이란</h2>
+
+      <p>
+        Redis를 Java 친화적으로 사용할 수 있게 만든 고수준 Redis 클라이언트 라이브러리다.
+        직접 <code>SETNX</code>와 <code>DEL</code> 명령을 조합해 분산 락을 구현할 때 발생하는 여러 엣지 케이스(TTL 만료, 락 주인 검증 등)를
+        Redisson이 내부적으로 최적화된 Lua 스크립트로 원자적으로 처리해준다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30%;">특징</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lua 스크립트 기반</strong></td>
+            <td>락 획득/해제가 Redis에서 원자적으로 실행되어 경쟁 상태가 없다.</td>
+          </tr>
+          <tr>
+            <td><strong>waitTime 재시도</strong></td>
+            <td>락을 얻지 못했을 때 직접 재시도 로직을 짜지 않아도 된다.</td>
+          </tr>
+          <tr>
+            <td><strong>watchdog</strong></td>
+            <td>비즈니스 로직 실행 중 락이 만료되지 않도록 자동으로 갱신한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Redlock 알고리즘 지원</strong></td>
+            <td>Redis 클러스터 환경에서도 안전하게 분산 락을 사용할 수 있다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success-box">
+        <span class="box-title">의존성 추가 및 자동 설정</span>
+        <code>redisson-spring-boot-starter</code>를 추가하면 <code>RedissonClient</code> Bean이 자동으로 등록된다.<br>
+        <code>application.yml</code>의 Redis host/port 설정을 그대로 읽으므로 별도 설정 없이 <code>@Autowired</code>로 바로 주입받아 사용할 수 있다.<br><br>
+        <code>implementation 'org.redisson:redisson-spring-boot-starter:3.27.2'</code>
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. tryLock의 핵심 파라미터 — waitTime과 leaseTime</h2>
+
+      <pre><code class="language-java">// tryLock(waitTime, leaseTime, TimeUnit)
+boolean acquired = lock.tryLock(5, -1, TimeUnit.SECONDS);</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          waitTime — 락을 얻지 못했을 때 포기하기 전까지 기다리는 시간
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">값</th>
+            <th style="width:30%;">전략</th>
+            <th>흐름</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>waitTime = 0</strong></td>
+            <td>Fail-Fast (즉시 실패)</td>
+            <td>요청 → 락 없음 → 즉시 409 반환. 응답 속도 최우선. 재시도 없음.</td>
+          </tr>
+          <tr>
+            <td><strong>waitTime = 5</strong></td>
+            <td>재시도 (처리량 우선)</td>
+            <td>요청 → 락 없음 → 5초 동안 재시도 → 획득 성공 시 처리 / 5초 초과 시 409 반환.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">waitTime 선택 기준</span>
+        <strong>waitTime = 0 (Fail-Fast):</strong> 결제, 선착순 쿠폰 발급처럼 중복 요청을 허용하면 안 되는 경우.
+        사용자에게 즉시 실패를 알리는 것이 더 나은 UX인 상황에 적합하다.<br><br>
+        <strong>waitTime > 0 (재시도):</strong> 좋아요, 재고 차감처럼 요청이 조금 늦어져도 반드시 성공해야 하는 경우.
+        대부분의 요청이 결국 처리되므로 처리량이 높아진다.
+        단, waitTime 동안 스레드가 대기하므로 너무 길게 잡으면 스레드 풀이 소진될 수 있다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          leaseTime — 락이 자동으로 만료되는 시간
+        </span>
+      </h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">값</th>
+            <th>동작</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>leaseTime &gt; 0</strong></td>
+            <td>지정한 시간이 지나면 락이 자동 만료된다. watchdog이 비활성화된다. 비즈니스 로직이 leaseTime보다 오래 걸리면 락이 풀려버린다.</td>
+          </tr>
+          <tr>
+            <td><strong>leaseTime = -1</strong></td>
+            <td>watchdog이 활성화된다. 락 만료 시간을 Redisson이 자동으로 관리한다. 비즈니스 로직이 얼마나 걸려도 락이 유지된다. <strong>권장 설정.</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. watchdog — 락 자동 갱신 메커니즘</h2>
+
+      <p>
+        <code>leaseTime = -1</code>로 설정하면 Redisson의 watchdog이 활성화된다.
+        watchdog은 백그라운드에서 주기적으로 락의 만료 시간을 갱신하여 비즈니스 로직 실행 중 락이 중간에 풀리는 것을 방지한다.
+      </p>
+
+      <div class="concept-box">
+        <span class="box-title">watchdog의 두 가지 종료 시나리오</span>
+        <strong>정상 종료:</strong> 비즈니스 로직이 완료되면 <code>finally</code> 블록에서 <code>unlock()</code>이 호출되고 락이 즉시 해제된다. watchdog도 함께 중단된다.<br><br>
+        <strong>서버 다운(비정상 종료):</strong> <code>unlock()</code>이 호출되지 못하지만, 서버가 다운되면 watchdog도 중단된다. 더 이상 갱신이 없으므로 기본값인 <strong>30초 후 락이 자동 만료</strong>된다. 락이 영원히 잠기는 데드락 상황이 발생하지 않는다.
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 분산 락 전체 구현 — 좋아요 토글 예시</h2>
+
+      <pre><code class="language-java">/**
+ * 좋아요 토글 — Redisson RLock 버전
+ *
+ * waitTime  = 5초: 락을 얻지 못하면 5초 동안 재시도한다.
+ * leaseTime = -1 : watchdog이 자동으로 락을 갱신한다.
+ *
+ * 수정 포인트: 락 키(lock:like:)를 도메인에 맞게 변경한다.
+ */
+@Transactional
+public LikeStatusResponse toggleLikeWithRedisson(Long loginMemberId, Long postId) {
+
+    // ── 1. RLock 객체 생성 ────────────────────────────────────────
+    // getLock()은 Redis에 실제로 접근하지 않는다.
+    // 키 이름과 연결된 락 객체를 반환할 뿐이다.
+    // 실제 Redis 명령은 tryLock() 시점에 발행된다.
+    RLock lock = redissonClient.getLock("lock:like:" + postId);
+
+    // ── 2. 락 획득 여부를 추적하는 플래그 ─────────────────────────
+    // finally에서 "내가 실제로 락을 획득했는가"를 확인하기 위해 필요하다.
+    // tryLock이 예외를 던진 경우 acquired=false이므로 unlock을 호출하지 않는다.
+    boolean acquired = false;
+
+    try {
+        // ── 3. 락 획득 시도 ───────────────────────────────────────
+        acquired = lock.tryLock(5, -1, TimeUnit.SECONDS);
+        //                      ↑     ↑
+        //                  waitTime  leaseTime(-1=watchdog 활성화)
+
+        if (!acquired) {
+            // 5초를 기다렸는데도 락을 못 얻음 → 요청이 너무 많은 상황
+            // 수정 포인트: 프로젝트 예외 체계로 교체한다.
+            throw new LockAcquisitionException("요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.");
+        }
+
+        // ── 4. 비즈니스 로직 ──────────────────────────────────────
+        // Redisson 락이 직렬화 지점이므로 일반 findById만으로 충분하다.
+        // 비관적 락(findByIdForLock)을 중복해서 쓸 필요가 없다.
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+
+        Member member = memberService.getReferenceById(loginMemberId);
+        boolean alreadyLiked = postLikeRepository.existsByMemberAndPost(member, post);
+
+        if (alreadyLiked) {
+            postLikeRepository.deleteByMemberAndPost(member, post);
+            post.changeLikeCountBy(-1);
+            return new LikeStatusResponse(false, post.getLikeCount());
+        }
+
+        postLikeRepository.save(PostLike.create(member, post));
+        post.changeLikeCountBy(1);
+        return new LikeStatusResponse(true, post.getLikeCount());
+
+    } catch (InterruptedException e) {
+        // tryLock 대기 중 스레드가 인터럽트되면 InterruptedException이 발생한다.
+        // interrupt() 상태를 복원해야 상위 코드가 인터럽트를 인식할 수 있다.
+        Thread.currentThread().interrupt();
+        throw new LockAcquisitionException("락 대기 중 인터럽트가 발생했습니다.", e);
+
+    } finally {
+        // acquired=true이고 현재 스레드가 락 보유자인 경우에만 해제한다.
+        // isHeldByCurrentThread(): 다른 스레드의 락을 실수로 해제하는 사고를 막는다.
+        if (acquired && lock.isHeldByCurrentThread()) {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">단계별 흐름 정리</span>
+        <strong>getLock():</strong> Redis 접근 없음. 키 이름에 해당하는 RLock 객체만 반환한다.<br>
+        <strong>tryLock():</strong> 이 시점에 실제 Redis 명령이 발행된다. Lua 스크립트로 원자적으로 락 획득을 시도한다.<br>
+        <strong>비즈니스 로직:</strong> 락을 보유한 상태에서 실행된다. watchdog이 백그라운드에서 주기적으로 만료 시간을 갱신한다.<br>
+        <strong>finally:</strong> 정상/예외 종료 모두 여기서 락을 해제한다. <code>isHeldByCurrentThread()</code>로 이중 해제 사고를 방지한다.
+      </div>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ finally에서 isHeldByCurrentThread()를 확인하는 이유</span>
+        <code>acquired = true</code>인 상태에서도 예외가 발생해 락이 이미 해제된 경우가 있다.
+        이때 <code>unlock()</code>을 한 번 더 호출하면 다른 스레드가 획득한 락을 실수로 해제하는 심각한 버그가 생긴다.
+        <code>isHeldByCurrentThread()</code>는 "현재 스레드가 이 락을 실제로 보유 중인가"를 확인하므로
+        이중 해제 문제를 원천 차단한다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 고경합 상황 대응 — Circuit Breaker 패턴</h2>
+
+      <p>
+        분산 락이 병목이 되어 락 획득 실패가 폭증하면, 모든 요청이 waitTime 동안 스레드를 점유하다 실패한다.
+        Redis에 대한 부하도 급증하고, 결국 시스템 전체가 느려지거나 다운될 수 있다.
+        Circuit Breaker 패턴은 이런 상황에서 시스템 전체를 보호하는 방어선이다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:20%;">상태</th>
+            <th>동작</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>CLOSED</strong></td>
+            <td>정상 상태. 모든 요청이 분산 락을 통해 정상 처리된다.</td>
+          </tr>
+          <tr>
+            <td><strong>OPEN</strong></td>
+            <td>락 획득 실패가 임계치를 초과. 이후 요청은 Redis 시도조차 하지 않고 즉시 fallback 처리된다. Redis 부하를 차단한다.</td>
+          </tr>
+          <tr>
+            <td><strong>HALF-OPEN</strong></td>
+            <td>일정 시간 후 소량의 요청을 허용해 시스템이 정상으로 돌아왔는지 탐색한다. 정상이면 CLOSED로 복귀, 아니면 OPEN 유지.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">Circuit Breaker가 해결하는 핵심 문제</span>
+        분산 락이 없을 때: 동시성 문제로 데이터 정합성이 깨진다.<br>
+        분산 락만 있을 때: 고경합 상황에서 락이 병목이 되어 시스템 전체 성능이 저하된다.<br>
+        <strong>분산 락 + Circuit Breaker:</strong> 정상 상태에서는 분산 락으로 정합성을 보장하고, 이상 상태에서는 Circuit Breaker가 Redis를 보호하며 빠른 fallback으로 응답한다.<br><br>
+        Spring에서는 <code>Resilience4j</code> 라이브러리의 <code>@CircuitBreaker</code> 어노테이션으로 선언적으로 적용할 수 있다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        RedisTemplate으로 직접 <code>SETNX</code>와 <code>DEL</code>을 조합하면 TTL 만료, 락 주인 검증, 재시도 로직을 모두 직접 구현해야 한다.
+        Redisson은 이 모든 것을 내부 Lua 스크립트로 원자적으로 처리해준다.
+        <code>tryLock</code>의 <code>waitTime</code>과 <code>leaseTime</code> 두 파라미터를 이해하는 것이 Redisson 사용의 핵심이다.
+      </p>
+
+      <p>
+        <code>leaseTime = -1</code>과 watchdog의 조합은 특히 중요하다.
+        비즈니스 로직 실행 시간이 얼마나 걸릴지 예측하기 어렵기 때문에, 고정 만료 시간을 잡으면 로직이 더 오래 걸릴 때 락이 풀려버리는 위험이 있다.
+        watchdog은 이 문제를 "내가 살아있는 한 락을 계속 갱신한다"는 방식으로 해결하고, 서버가 다운되면 자연스럽게 갱신이 멈추어 30초 후 락이 만료된다.
+      </p>
+
+      <p>
+        <code>finally</code>에서 <code>isHeldByCurrentThread()</code>를 확인하는 패턴도 처음에는 왜 필요한지 의아할 수 있다.
+        하지만 <code>acquired = true</code>가 반드시 "지금도 락을 보유 중"이라는 뜻이 아니다.
+        예외가 발생해 락이 해제된 후 다른 스레드가 락을 획득했을 때, 내가 다시 <code>unlock()</code>을 호출하면 남의 락을 해제하는 버그가 생긴다.
+        이 한 줄이 이런 엣지 케이스를 방지한다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
