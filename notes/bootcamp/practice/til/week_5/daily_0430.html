@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 83일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 83일차 TIL — Redis Pub/Sub · 구독/발행 구조 · Scale-Out 서버 간 브로드캐스트</h1>
+      <p class="muted">작성일 2026-04-29 · 분류: 부트캠프, TIL, Redis, Pub/Sub, 실시간, Scale-Out, 서버 간 통신</p>
+
+      <h2 class="section">83일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li><strong>Redis Pub/Sub</strong>의 Publisher, Channel, Subscriber 역할을 이해한다.</li>
+        <li>일반 Key-Value 방식과 Pub/Sub 방식의 차이를 비교한다.</li>
+        <li>Pub/Sub의 메시지 전달 흐름(구독 → 발행 → 전달 → 수신)을 정리한다.</li>
+        <li>단일 서버에서 충분했던 STOMP 채팅이 <strong>Scale-Out 환경</strong>에서 한계를 갖는 이유를 파악한다.</li>
+        <li>Redis Pub/Sub를 중간에 넣어 다중 서버 환경에서도 메시지를 브로드캐스트하는 구조를 이해한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. Redis Pub/Sub란</h2>
+
+      <p>
+        Publisher(발행자)가 메시지를 Channel(통로)에 던지면,
+        그 Channel을 구독한 Subscriber(구독자)들이 동시에 받아가는 <strong>1:N 메시지 전달 방식</strong>이다.
+        발행자는 누가 구독하고 있는지 신경 쓰지 않고 Channel에 메시지를 발행하기만 한다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%;">구성 요소</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Publisher (발행자)</strong></td>
+            <td>메시지를 특정 Channel에 발행한다. 누가 구독하고 있는지 알지 못하고 관심도 없다.</td>
+          </tr>
+          <tr>
+            <td><strong>Channel (채널)</strong></td>
+            <td>메시지의 통로다. 이름 기반으로 구독과 발행이 연결된다.</td>
+          </tr>
+          <tr>
+            <td><strong>Subscriber (구독자)</strong></td>
+            <td>관심 있는 Channel을 구독하고, 메시지가 오면 실시간으로 수신한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">유튜브로 이해하는 Pub/Sub</span>
+        유튜버(Publisher)가 영상을 유튜브 채널(Channel)에 업로드하면,
+        그 채널을 구독한 구독자들(Subscriber)에게 알림이 즉시 전달된다.<br><br>
+        유튜버는 구독자 명단을 직접 관리하지 않는다. 채널에 올리기만 하면 Redis(유튜브 플랫폼)가 구독자 전원에게 알린다.
+        이것이 Pub/Sub의 핵심 구조다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. Key-Value 방식 vs Pub/Sub 방식</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">특성</th>
+            <th>Key-Value (일반 Redis)</th>
+            <th>Pub/Sub</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>메시지 저장</strong></td>
+            <td>저장됨 — 나중에 조회 가능</td>
+            <td>저장 안 됨 — 발행 즉시 전달 후 사라짐</td>
+          </tr>
+          <tr>
+            <td><strong>통신 방향</strong></td>
+            <td>요청 → 응답 (1:1)</td>
+            <td>발행 → 구독 (1:N), 연결 지속</td>
+          </tr>
+          <tr>
+            <td><strong>수신자 지정</strong></td>
+            <td>특정 키로 조회</td>
+            <td>Channel 기반 브로드캐스트</td>
+          </tr>
+          <tr>
+            <td><strong>실시간 여부</strong></td>
+            <td>조회 시점 기준 (클라이언트가 먼저 요청해야 함)</td>
+            <td>즉시 전달 (발행되는 순간 구독자가 수신)</td>
+          </tr>
+          <tr>
+            <td><strong>주 사용 목적</strong></td>
+            <td>캐시, 세션, 카운터</td>
+            <td>실시간 메시지 전달, 서버 간 통신</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ Pub/Sub의 핵심 제약 — 메시지가 저장되지 않는다</span>
+        Pub/Sub에서 메시지를 발행하는 시점에 구독자가 없거나 오프라인 상태이면, 해당 메시지는 그냥 사라진다.
+        재전송이 없고 유실된 메시지를 나중에 다시 받을 수 없다.<br><br>
+        메시지 유실이 허용되지 않는 경우(결제 이벤트, 주문 알림 등)에는
+        Pub/Sub 대신 메시지 큐(Kafka, RabbitMQ)나 Redis Stream을 사용해야 한다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. Pub/Sub 전달 흐름</h2>
+
+      <p>
+        Pub/Sub는 구독 → 발행 → 전달 → 수신 순서로 동작한다.
+        구독이 먼저 이루어진 상태에서 발행이 일어나야 메시지를 받을 수 있다.
+      </p>
+
+      <ol>
+        <li>Subscriber가 <code>SUBSCRIBE news:tech</code>로 채널 구독을 시작한다.</li>
+        <li>Publisher가 <code>PUBLISH news:tech "새 기사"</code>로 메시지를 발행한다.</li>
+        <li>Redis가 <code>news:tech</code> 채널을 구독 중인 모든 Subscriber에게 즉시 전달한다.</li>
+        <li>각 Subscriber가 메시지를 수신하고 처리한다.</li>
+      </ol>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Redis CLI로 직접 실습하기
+        </span>
+      </h3>
+
+      <pre><code class="language-bash"># Docker Redis 컨테이너 접속
+docker exec -it redis redis-cli
+
+# [터미널 1] 구독자 — 채널을 구독하고 대기
+SUBSCRIBE chat
+
+# [터미널 2] 발행자 — 메시지 발행 (새 터미널에서 실행)
+docker exec -it redis redis-cli
+PUBLISH chat "Hello, World!"
+
+# 터미널 1에 즉시 출력됨:
+# 1) "message"
+# 2) "chat"
+# 3) "Hello, World!"</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. Scale-Out 환경에서 Pub/Sub가 필요한 이유</h2>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          단일 서버 — STOMP만으로 충분하다
+        </span>
+      </h3>
+
+      <p>
+        서버가 1대일 때는 모든 WebSocket 연결이 같은 서버에 존재한다.
+        클라이언트 A가 메시지를 보내면 서버가 메모리에 있는 세션 목록을 순회하며 모든 클라이언트에게 전달할 수 있다.
+      </p>
+
+      <pre><code class="language-text">단일 서버 환경
+
+Client A ──┐
+Client B ──┤── Server 1 (STOMP) ── 모든 세션에 브로드캐스트
+Client C ──┘
+
+Client A의 메시지 → Server 1 → Client B, Client C에게 전달 ✅</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          다중 서버 (Scale-Out) — 문제 발생
+        </span>
+      </h3>
+
+      <p>
+        서버를 Scale-Out하면 Client A와 Client B가 서로 다른 서버에 연결될 수 있다.
+        Server 1은 자신에게 연결된 세션만 알고 Server 2의 세션을 알지 못한다.
+        Server 1에 메시지가 도착해도 Server 2에 연결된 Client B는 받지 못한다.
+      </p>
+
+      <pre><code class="language-text">다중 서버 환경 — 메시지 유실 문제
+
+Client A ── Server 1 (STOMP)
+Client B ── Server 2 (STOMP)
+
+Client A가 메시지 전송 → Server 1이 수신
+Server 1은 Server 2에 연결된 Client B를 모름
+→ Client B는 메시지를 받지 못함 ❌</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Redis Pub/Sub를 중간에 넣어 해결
+        </span>
+      </h3>
+
+      <p>
+        모든 서버가 동일한 Redis Channel을 구독하면, 어느 서버에 메시지가 도착해도
+        Redis가 모든 서버에 전달하고 각 서버가 자신에게 연결된 클라이언트에게 다시 전달한다.
+        어떤 서버에 연결된 클라이언트든 메시지를 빠짐없이 받을 수 있다.
+      </p>
+
+      <pre><code class="language-text">Redis Pub/Sub로 해결한 다중 서버 환경
+
+Client A ── Server 1 ── PUBLISH ──→ Redis ──→ Server 1 SUBSCRIBE ── Client A ✅
+Client B ── Server 2                      └──→ Server 2 SUBSCRIBE ── Client B ✅
+
+흐름:
+1. Client A가 Server 1에 메시지 전송
+2. Server 1이 Redis Channel에 PUBLISH
+3. Redis가 해당 Channel을 SUBSCRIBE 중인 Server 1, Server 2 모두에 전달
+4. 각 서버가 자신에게 연결된 클라이언트에게 전달
+→ Client B도 메시지 수신 ✅</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Redis Pub/Sub가 해결하는 핵심 문제</span>
+        서버 간 메시지 공유 문제는 <strong>서버들이 공유 메모리를 갖지 않기 때문</strong>에 발생한다.
+        각 서버는 자신의 메모리에 있는 WebSocket 세션만 알고, 다른 서버의 세션은 알지 못한다.<br><br>
+        Redis Pub/Sub는 <strong>모든 서버가 구독하는 공유 메시지 버스</strong> 역할을 한다.
+        어떤 서버에서 메시지를 발행하든 Redis가 구독 중인 모든 서버에 동시에 전달하므로,
+        서버 수가 아무리 늘어나도 메시지가 빠짐없이 전달된다.
+      </div>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        Redis의 Key-Value 방식은 데이터를 저장하고 나중에 꺼내는 것이 목적이고,
+        Pub/Sub는 데이터를 저장하지 않고 <strong>지금 이 순간 연결된 구독자들에게 즉시 전달</strong>하는 것이 목적이다.
+        두 방식은 전혀 다른 문제를 해결한다.
+        Pub/Sub에서 메시지가 저장되지 않는다는 특성은 단점이 아니라 설계 철학이다.
+        "저장 없이 즉시 전달"이 필요한 곳에 쓰고, 유실이 허용되지 않는 곳에는 적합하지 않다.
+      </p>
+
+      <p>
+        Scale-Out 문제는 단순히 서버를 늘릴 때 생기는 부수적인 문제가 아니다.
+        트래픽이 증가할수록 서버를 수평 확장해야 하는데, 이 순간 단일 서버에서 완벽히 동작하던 실시간 채팅이 갑자기 깨진다.
+        Redis Pub/Sub는 이 문제를 애플리케이션 코드를 거의 바꾸지 않고 해결할 수 있다는 점에서 실용적인 해법이다.
+        서버가 늘어나도 Redis Channel 구독만 추가하면 새 서버도 메시지를 빠짐없이 수신한다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
