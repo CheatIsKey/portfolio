@@ -24,7 +24,7 @@
 
     <article class="prose">
       <h1>프로그래머스 Level 2 Daily 문제 묶음</h1>
-      <p class="muted">작성일 2026-04-29 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+      <p class="muted">작성일 2026-05-04 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
 
 
 
@@ -33,14 +33,14 @@
 
       
       <!-- 문제 1 -->
-      <h2 class="section">문제 1 — 요격 시스템</h2>
+      <h2 class="section">문제 1 — 연속된 부분 수열의 합</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181188">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/178870">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_2/daily_0429_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_2/daily_0504_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
       </figure>
 
 
@@ -53,15 +53,15 @@
       </h3>
       
       <p>
-        <strong>요격 시스템 (프로그래머스)</strong>는<br>
-        N개의 미사일 구간 [s, e)가 주어질 때, <strong>모든 미사일을 요격하기 위한 최소 요격 미사일 수를 구</strong>하는 문제다.<br>
-        <strong>끝 좌표 기준으로 정렬한 뒤 그리디하게 요격 위치를 결정</strong>하면 최소 횟수가 보장된다.
+        <strong>연속된 부분 수열의 합 (프로그래머스)</strong>는<br>
+        비내림차순 정수 배열에서 연속된 부분 수열의 합이 k가 되는 구간 중 <strong>길이가 가장 짧은 구간의 시작·끝 인덱스를 구</strong>하는 문제다.<br>
+        <strong>두 포인터(슬라이딩 윈도우)로 합이 k인 구간을 탐색</strong>하며 최단 길이를 갱신한다.
       </p>
       
       <ul>
-        <li>미사일 구간은 닫힌 시작점 s와 열린 끝점 e로 이루어진 반개구간 [s, e)이므로, 끝점 e에서의 요격은 해당 미사일을 맞히지 못한다.</li>
-        <li>끝 좌표가 가장 작은 구간을 기준으로 요격하면, 그 지점을 포함하는 다른 구간도 함께 요격할 수 있어 최소 횟수가 보장된다.</li>
-        <li>이미 요격된 구간(시작점이 마지막 요격 위치보다 큰 경우)은 새로운 요격이 필요하다.</li>
+        <li>배열이 비내림차순이므로 윈도우를 오른쪽으로 확장하면 합이 단조 증가하고, 왼쪽을 줄이면 합이 감소한다. 이 성질 덕분에 두 포인터가 유효하게 동작한다.</li>
+        <li>합이 k를 초과하면 왼쪽 포인터를 오른쪽으로 이동하여 합을 줄이고, 합이 k와 같아지면 현재 구간 길이를 최솟값과 비교한다.</li>
+        <li>길이가 같은 구간이 여러 개일 경우 먼저 등장한 구간을 유지한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -73,13 +73,13 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 끝 좌표 기준 정렬 + 그리디 구간 커버링</li>
-        <li><strong>선택 이유</strong>: 끝 좌표가 가장 작은 구간은 반드시 그 구간 내에서 요격해야 한다. 이 구간의 끝점 직전에서 요격하면 해당 위치를 포함하는 모든 구간을 동시에 처리할 수 있어 항상 최적이다. 끝 좌표 오름차순 정렬 후 단일 순회로 O(N log N)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 두 포인터 (슬라이딩 윈도우)</li>
+        <li><strong>선택 이유</strong>: 배열이 비내림차순이므로 구간 합이 단조적으로 변화한다. 두 포인터로 윈도우를 조절하면 모든 유효 구간을 O(N)에 탐색할 수 있어, 완전 탐색 O(N²)보다 훨씬 효율적이다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>구간 배열을 끝 좌표 오름차순으로 정렬한다.</li>
-            <li>현재 구간의 시작점이 마지막 요격 위치 이상이면 새로운 요격이 필요하므로 <code>count</code>를 증가시키고 <code>last_pos</code>를 현재 끝 좌표로 갱신한다.</li>
-            <li>마지막 요격 위치가 현재 구간의 시작점보다 크면 이미 요격된 것이므로 건너뛴다.</li>
+            <li><code>end</code>를 오른쪽으로 이동하며 <code>total</code>에 현재 원소를 더한다.</li>
+            <li><code>total</code>이 k를 초과하면 <code>start</code>를 오른쪽으로 이동하며 <code>total</code>을 줄인다.</li>
+            <li><code>total == k</code>이면 현재 구간 길이를 최솟값과 비교하여 더 짧으면 <code>answer</code>를 갱신한다.</li>
           </ul>
         </li>
       </ul>
@@ -93,36 +93,49 @@
       </p>
       
       <ul>
-        <li><strong>1) 끝 좌표 기준 정렬</strong>
-          <pre><code>Arrays.sort(targets, (a, b) -> {
-          return Integer.compare(a[1], b[1]);
-      });</code></pre>
+        <li><strong>1) 초기화</strong>
+          <pre><code>int[] answer = new int[2];
+      int length = Integer.MAX_VALUE;
+      int total = 0;
+      int start = 0;
+      int end = 0;</code></pre>
           <ul>
-            <li>구간 배열을 끝 좌표(인덱스 1) 오름차순으로 정렬한다. 이렇게 하면 가장 먼저 끝나는 구간부터 순서대로 처리할 수 있다.</li>
+            <li>현재까지 찾은 최단 구간 길이 <code>length</code>를 <code>Integer.MAX_VALUE</code>로 초기화하여 첫 번째 유효 구간이 항상 갱신되도록 한다. <code>start</code>와 <code>end</code>는 윈도우의 왼쪽·오른쪽 경계다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 그리디 요격 위치 결정</strong>
-          <pre><code>int count = 0;
-      int last_pos = -1;
+        <li><strong>2) 두 포인터 탐색</strong>
+          <pre><code>while (end < sequence.length) {
+          total += sequence[end];
       
-      for (int[] target : targets) {
-          if (last_pos <= target[0]) {
-              count++;
-              last_pos = target[1];
+          while (total > k && start <= end) {
+              total -= sequence[start];
+              start++;
           }
+      
+          if (total == k) {
+              int curLength = end - start + 1;
+      
+              if (curLength < length) {
+                  length = curLength;
+                  answer[0] = start;
+                  answer[1] = end;
+              }
+          }
+      
+          end++;
       }</code></pre>
           <ul>
-            <li><code>last_pos</code>는 마지막으로 요격한 위치를 나타내며 -1로 초기화한다. 어떤 구간도 -1 이하에서 시작하지 않으므로 첫 번째 구간은 항상 새로운 요격을 발생시킨다.</li>
-            <li><code>last_pos &lt;= target[0]</code>: 마지막 요격 위치가 현재 구간의 시작점 이하이면 아직 요격되지 않은 구간이므로 새 요격이 필요하다. <code>count</code>를 증가시키고 <code>last_pos</code>를 현재 끝 좌표로 갱신한다.</li>
-            <li>끝 좌표 정렬 덕분에 현재 요격 위치가 이후 구간 중 가장 많은 수를 커버함이 보장된다.</li>
+            <li><code>total += sequence[end]</code>: 오른쪽 포인터를 확장하며 윈도우 합에 현재 원소를 추가한다.</li>
+            <li><code>total &gt; k</code>인 동안 <code>start</code>를 오른쪽으로 이동하며 합을 줄인다. <code>start &lt;= end</code> 조건으로 윈도우가 역전되지 않도록 보호한다.</li>
+            <li><code>total == k</code>이면 현재 구간 길이 <code>end - start + 1</code>을 최솟값과 비교하여 더 짧을 때만 <code>answer</code>를 갱신한다. 동일한 길이의 구간은 갱신하지 않으므로 먼저 등장한 구간이 유지된다.</li>
           </ul>
         </li>
       
         <li><strong>3) 결과 반환</strong>
-          <pre><code>return count;</code></pre>
+          <pre><code>return answer;</code></pre>
           <ul>
-            <li>모든 미사일을 요격하기 위한 최소 요격 횟수 <code>count</code>를 반환한다.</li>
+            <li>합이 k가 되는 가장 짧은 구간의 시작·끝 인덱스를 담은 배열을 반환한다.</li>
           </ul>
         </li>
       </ul>
@@ -138,16 +151,15 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(N log N)</strong>: 구간 정렬에 O(N log N), 이후 단일 순회에 O(N)이 소요되므로 전체 O(N log N)이다.</li>
+            <li><strong>O(N)</strong>: <code>start</code>와 <code>end</code> 모두 왼쪽에서 오른쪽으로만 이동하므로 각 원소는 최대 두 번(추가, 제거) 처리된다. 전체 O(N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: 입력 배열을 제자리 정렬하며 <code>count</code>, <code>last_pos</code> 두 개의 정수 변수만 추가로 사용하므로 상수 공간만 필요하다.</li>
+            <li><strong>O(1)</strong>: <code>answer</code> 배열(크기 2)과 포인터 변수들만 사용하므로 입력 크기와 무관한 상수 공간만 필요하다.</li>
           </ul>
         </li>
       </ul>
-
 
 
 
@@ -215,14 +227,14 @@
 
       
       <!-- 문제 2 -->
-      <h2 class="section">문제 2 — 두 원 사이의 정수 쌍</h2>
+      <h2 class="section">문제 2 — 과제 진행하기</h2>
 
       <h3 class="section">문제 링크</h3>
-      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181187">프로그래머스 문제 보기</a></p>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/176962">프로그래머스 문제 보기</a></p>
 
       <h3 class="section">코드 (IDE 스크린샷)</h3>
       <figure class="figure">
-        <img src="/assets/notes/programmers/Level_2/daily_0429_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+        <img src="/assets/notes/programmers/Level_2/daily_0504_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
       </figure>
 
 
@@ -235,15 +247,16 @@
       </h3>
       
       <p>
-        <strong>두 원 사이의 정수 쌍 (프로그래머스)</strong>는<br>
-        반지름 r1, r2인 두 동심원 사이의 영역에 놓인 <strong>격자점(정수 좌표를 가진 점)의 수를 구</strong>하는 문제다.<br>
-        <strong>1사분면에서의 경우의 수를 구한 뒤 4를 곱하고, 축 위의 점을 별도로 처리</strong>하여 전체 격자점 수를 계산한다.
+        <strong>과제 진행하기 (프로그래머스)</strong>는<br>
+        과제 목록이 주어질 때, 시작 시각 순서대로 과제를 진행하되 <strong>새 과제가 시작되면 현재 과제를 중단하고, 남은 시간에 중단된 과제를 역순으로 처리하여 완료 순서를 구</strong>하는 문제다.<br>
+        <strong>중단된 과제는 스택으로 관리</strong>하여 가장 최근에 중단된 것부터 재개한다.
       </p>
       
       <ul>
-        <li>1사분면에서 x를 1부터 r2까지 순회하며, 각 x에 대해 두 원 사이에 놓이는 y 좌표의 범위를 계산한다.</li>
-        <li>큰 원 안쪽의 최대 y는 <code>floor(√(r2² - x²))</code>, 작은 원 바깥쪽의 최소 y는 x &lt; r1이면 <code>ceil(√(r1² - x²))</code>, x ≥ r1이면 1이다.</li>
-        <li>축 위(x축, y축)의 점은 별도로 처리하며, 각 축마다 r1~r2 사이의 정수 개수 (r2 - r1 + 1)개씩 4방향에 존재한다.</li>
+        <li>과제를 시작 시각 오름차순으로 정렬한 뒤, 인접한 두 과제의 시작 시각 차이로 현재 과제에 주어진 가용 시간을 계산한다.</li>
+        <li>가용 시간이 현재 과제의 소요 시간보다 짧으면 과제를 중단하고 스택에 push한다.</li>
+        <li>가용 시간이 남으면 현재 과제를 완료한 뒤 남은 시간으로 스택의 과제를 순서대로 재개한다.</li>
+        <li>마지막 과제와 스택에 남은 과제는 순서대로 완료 처리한다.</li>
       </ul>
       
       <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
@@ -255,13 +268,14 @@
       </p>
       
       <ul>
-        <li><strong>핵심 알고리즘</strong>: 1사분면 x축 순회 + 수직 범위 계산 후 대칭 적용</li>
-        <li><strong>선택 이유</strong>: 두 동심원은 4사분면 대칭이므로 1사분면(x ≥ 1, y ≥ 1)에서의 격자점 수를 구해 4를 곱하면 내부 점을 빠르게 집계할 수 있다. 각 x에 대해 유효한 y의 범위는 O(1)에 계산되므로 전체 O(r2)에 해결된다.</li>
+        <li><strong>핵심 알고리즘</strong>: 정렬 + 스택을 이용한 과제 중단·재개 시뮬레이션</li>
+        <li><strong>선택 이유</strong>: 중단된 과제는 가장 최근에 중단된 것부터 재개되므로 LIFO 구조인 스택이 적합하다. 시작 시각 기준으로 정렬하면 인접한 두 과제의 시각 차이로 가용 시간을 O(1)에 계산할 수 있어, 전체 O(N log N)에 해결된다.</li>
         <li><strong>세부 전략</strong>:
           <ul>
-            <li>x를 1부터 r2까지 순회하며 최대 y(<code>floor</code>)와 최소 y(<code>ceil</code>)를 계산한다.</li>
-            <li>유효한 y 범위가 존재하면 <code>maxY - minY + 1</code>을 <code>answer</code>에 누적한다.</li>
-            <li>1사분면 합계에 4를 곱해 4사분면을 반영하고, 축 위의 점 <code>(r2 - r1 + 1) × 4</code>를 더한다.</li>
+            <li>과제를 시작 시각 오름차순으로 정렬한다.</li>
+            <li>인접한 두 과제의 시작 시각 차이 <code>sub</code>를 계산하여 현재 과제의 소요 시간과 비교한다.</li>
+            <li><code>sub == playtime</code>이면 현재 과제 완료, <code>sub &lt; playtime</code>이면 남은 시간을 줄여 스택에 push, <code>sub &gt; playtime</code>이면 완료 후 남은 시간으로 스택 과제를 순서대로 재개한다.</li>
+            <li>마지막 과제를 완료 처리한 뒤 스택에 남은 과제를 순서대로 완료한다.</li>
           </ul>
         </li>
       </ul>
@@ -275,43 +289,74 @@
       </p>
       
       <ul>
-        <li><strong>1) x별 유효 y 범위 계산 및 집계</strong>
-          <pre><code>for (int x = 1; x <= r2; x++) {
-          long maxY = (long) Math.floor(Math.sqrt((long)r2 * r2 - (long)x * x));
+        <li><strong>1) Plan 클래스 및 정렬</strong>
+          <pre><code>static class Plan {
+          String name;
+          int start;
+          int playtime;
       
-          long minY = 0;
-          if (x < r1) {
-              minY = (long) Math.ceil(Math.sqrt((long)r1 * r1 - (long)x * x));
-          } else {
-              minY = 1;
+          public Plan(String name, String start, String playtime) {
+              this.name = name;
+              this.start = convertTime(start);
+              this.playtime = Integer.parseInt(playtime);
           }
       
-          if (maxY >= minY) {
-              answer += (maxY - minY + 1);
+          private int convertTime(String time) {
+              String[] split = time.split(":");
+              return Integer.parseInt(split[0]) * 60 + Integer.parseInt(split[1]);
+          }
+      }
+      
+      planList.sort((a, b) -> a.start - b.start);</code></pre>
+          <ul>
+            <li>시각 문자열 "HH:MM"을 분 단위 정수로 변환하여 시각 차이를 정수 연산으로 처리한다. 과제 목록을 시작 시각 오름차순으로 정렬한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 과제 진행 시뮬레이션</strong>
+          <pre><code>for (int i = 0; i < planList.size() - 1; i++) {
+          Plan current = planList.get(i);
+          Plan next = planList.get(i + 1);
+      
+          int sub = next.start - current.start;
+      
+          if (sub == current.playtime) {
+              answer.add(current.name);
+          } else if (sub < current.playtime) {
+              current.playtime -= sub;
+              stack.push(current);
+          } else {
+              answer.add(current.name);
+              int gap = sub - current.playtime;
+      
+              while (!stack.isEmpty() && gap > 0) {
+                  Plan paused = stack.peek();
+      
+                  if (paused.playtime <= gap) {
+                      gap -= paused.playtime;
+                      answer.add(stack.pop().name);
+                  } else {
+                      paused.playtime -= gap;
+                      gap = 0;
+                  }
+              }
           }
       }</code></pre>
           <ul>
-            <li><code>maxY = floor(√(r2² - x²))</code>: 큰 원 경계 이하의 최대 정수 y다. 큰 원의 경계 위 점도 두 원 사이에 포함되므로 <code>floor</code>를 사용한다.</li>
-            <li><code>minY = ceil(√(r1² - x²))</code>: 작은 원 경계 이상의 최소 정수 y다. 작은 원의 경계 위 점도 두 원 사이에 포함되므로 <code>ceil</code>을 사용한다. x ≥ r1이면 작은 원이 x축 아래에 있으므로 minY = 1로 설정한다.</li>
-            <li>오버플로우 방지를 위해 제곱 연산에 <code>(long)</code> 캐스팅을 적용한다.</li>
-            <li><code>maxY ≥ minY</code>인 경우에만 유효한 y 범위가 존재하므로 <code>maxY - minY + 1</code>을 누적한다.</li>
+            <li><code>sub == playtime</code>: 가용 시간이 정확히 맞아 현재 과제를 완료한다.</li>
+            <li><code>sub &lt; playtime</code>: 다음 과제가 일찍 시작되므로 현재 과제를 중단하고 남은 소요 시간을 갱신한 뒤 스택에 push한다.</li>
+            <li><code>sub &gt; playtime</code>: 현재 과제를 완료한 뒤 남은 시간 <code>gap</code>으로 스택 최상단 과제부터 재개한다. 재개한 과제의 소요 시간이 <code>gap</code> 이하이면 완료하고 다음 스택 과제를 확인하며, <code>gap</code>이 부족하면 소요 시간을 줄이고 중단한다.</li>
           </ul>
         </li>
       
-        <li><strong>2) 대칭 적용 및 축 위의 점 추가</strong>
-          <pre><code>answer *= 4;
+        <li><strong>3) 마지막 과제 및 스택 처리</strong>
+          <pre><code>answer.add(planList.get(planList.size() - 1).name);
       
-      answer += (long)(r2 - r1 + 1) * 4;</code></pre>
+      while (!stack.isEmpty()) {
+          answer.add(stack.pop().name);
+      }</code></pre>
           <ul>
-            <li><code>answer *= 4</code>: 1사분면(x ≥ 1, y ≥ 1)의 격자점 수를 4사분면에 대칭 적용한다.</li>
-            <li><code>(r2 - r1 + 1) × 4</code>: 축 위의 점(y = 0 또는 x = 0)은 위 루프에서 제외되었으므로 별도로 추가한다. x축과 y축 각각에 r1~r2 사이의 정수 (r2 - r1 + 1)개가 있고, 양의 방향과 음의 방향을 합산하면 각 축마다 2 × (r2 - r1 + 1)이므로 두 축 합계는 4 × (r2 - r1 + 1)이다.</li>
-          </ul>
-        </li>
-      
-        <li><strong>3) 결과 반환</strong>
-          <pre><code>return answer;</code></pre>
-          <ul>
-            <li>두 동심원 사이에 놓인 전체 격자점 수 <code>answer</code>를 반환한다.</li>
+            <li>마지막 과제는 다음 과제가 없으므로 항상 완료된다. 이후 스택에 남은 과제를 LIFO 순서로 순서대로 완료 처리한다.</li>
           </ul>
         </li>
       </ul>
@@ -327,12 +372,12 @@
       <ul>
         <li><strong>시간 복잡도</strong>
           <ul>
-            <li><strong>O(r2)</strong>: x를 1부터 r2까지 순회하며 각 위치에서 제곱근 계산과 O(1) 연산만 수행하므로 전체 O(r2)이다.</li>
+            <li><strong>O(N log N)</strong>: 과제 정렬에 O(N log N), 이후 순회와 스택 처리에 각 과제가 최대 한 번씩 push·pop되므로 O(N)이다. 전체 O(N log N)이다.</li>
           </ul>
         </li>
         <li><strong>공간 복잡도</strong>
           <ul>
-            <li><strong>O(1)</strong>: <code>answer</code>, <code>maxY</code>, <code>minY</code> 등 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+            <li><strong>O(N)</strong>: 과제 목록 리스트, 스택, 결과 리스트 모두 최대 N개의 항목을 저장하므로 전체 O(N)이다.</li>
           </ul>
         </li>
       </ul>
