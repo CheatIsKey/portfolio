@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>프로그래머스 Level 2 Daily 문제 묶음</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <!-- 좌측 목차: 문제(H2)만 자동 생성 -->
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">문제 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>프로그래머스 Level 2 Daily 문제 묶음</h1>
+      <p class="muted">작성일 2026-04-29 · 분류: 코딩 테스트(프로그래머스), Level 1</p>
+
+
+
+
+
+
+      
+      <!-- 문제 1 -->
+      <h2 class="section">문제 1 — 요격 시스템</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181188">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_2/daily_0429_1to2/p1-code.png" alt="문제 1 코드 스크린샷">
+      </figure>
+
+
+      
+
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>요격 시스템 (프로그래머스)</strong>는<br>
+        N개의 미사일 구간 [s, e)가 주어질 때, <strong>모든 미사일을 요격하기 위한 최소 요격 미사일 수를 구</strong>하는 문제다.<br>
+        <strong>끝 좌표 기준으로 정렬한 뒤 그리디하게 요격 위치를 결정</strong>하면 최소 횟수가 보장된다.
+      </p>
+      
+      <ul>
+        <li>미사일 구간은 닫힌 시작점 s와 열린 끝점 e로 이루어진 반개구간 [s, e)이므로, 끝점 e에서의 요격은 해당 미사일을 맞히지 못한다.</li>
+        <li>끝 좌표가 가장 작은 구간을 기준으로 요격하면, 그 지점을 포함하는 다른 구간도 함께 요격할 수 있어 최소 횟수가 보장된다.</li>
+        <li>이미 요격된 구간(시작점이 마지막 요격 위치보다 큰 경우)은 새로운 요격이 필요하다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 끝 좌표 기준 정렬 + 그리디 구간 커버링</li>
+        <li><strong>선택 이유</strong>: 끝 좌표가 가장 작은 구간은 반드시 그 구간 내에서 요격해야 한다. 이 구간의 끝점 직전에서 요격하면 해당 위치를 포함하는 모든 구간을 동시에 처리할 수 있어 항상 최적이다. 끝 좌표 오름차순 정렬 후 단일 순회로 O(N log N)에 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>구간 배열을 끝 좌표 오름차순으로 정렬한다.</li>
+            <li>현재 구간의 시작점이 마지막 요격 위치 이상이면 새로운 요격이 필요하므로 <code>count</code>를 증가시키고 <code>last_pos</code>를 현재 끝 좌표로 갱신한다.</li>
+            <li>마지막 요격 위치가 현재 구간의 시작점보다 크면 이미 요격된 것이므로 건너뛴다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) 끝 좌표 기준 정렬</strong>
+          <pre><code>Arrays.sort(targets, (a, b) -> {
+          return Integer.compare(a[1], b[1]);
+      });</code></pre>
+          <ul>
+            <li>구간 배열을 끝 좌표(인덱스 1) 오름차순으로 정렬한다. 이렇게 하면 가장 먼저 끝나는 구간부터 순서대로 처리할 수 있다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 그리디 요격 위치 결정</strong>
+          <pre><code>int count = 0;
+      int last_pos = -1;
+      
+      for (int[] target : targets) {
+          if (last_pos <= target[0]) {
+              count++;
+              last_pos = target[1];
+          }
+      }</code></pre>
+          <ul>
+            <li><code>last_pos</code>는 마지막으로 요격한 위치를 나타내며 -1로 초기화한다. 어떤 구간도 -1 이하에서 시작하지 않으므로 첫 번째 구간은 항상 새로운 요격을 발생시킨다.</li>
+            <li><code>last_pos &lt;= target[0]</code>: 마지막 요격 위치가 현재 구간의 시작점 이하이면 아직 요격되지 않은 구간이므로 새 요격이 필요하다. <code>count</code>를 증가시키고 <code>last_pos</code>를 현재 끝 좌표로 갱신한다.</li>
+            <li>끝 좌표 정렬 덕분에 현재 요격 위치가 이후 구간 중 가장 많은 수를 커버함이 보장된다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 반환</strong>
+          <pre><code>return count;</code></pre>
+          <ul>
+            <li>모든 미사일을 요격하기 위한 최소 요격 횟수 <code>count</code>를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(N log N)</strong>: 구간 정렬에 O(N log N), 이후 단일 순회에 O(N)이 소요되므로 전체 O(N log N)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: 입력 배열을 제자리 정렬하며 <code>count</code>, <code>last_pos</code> 두 개의 정수 변수만 추가로 사용하므로 상수 공간만 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      <!-- 문제 2 -->
+      <h2 class="section">문제 2 — 두 원 사이의 정수 쌍</h2>
+
+      <h3 class="section">문제 링크</h3>
+      <p><a href="https://school.programmers.co.kr/learn/courses/30/lessons/181187">프로그래머스 문제 보기</a></p>
+
+      <h3 class="section">코드 (IDE 스크린샷)</h3>
+      <figure class="figure">
+        <img src="/assets/notes/programmers/Level_2/daily_0429_1to2/p2-code.png" alt="문제 2 코드 스크린샷">
+      </figure>
+
+
+
+      
+      <h3 class="section">
+        <span style="background-color:#bbdefb; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          해설
+        </span>
+      </h3>
+      
+      <p>
+        <strong>두 원 사이의 정수 쌍 (프로그래머스)</strong>는<br>
+        반지름 r1, r2인 두 동심원 사이의 영역에 놓인 <strong>격자점(정수 좌표를 가진 점)의 수를 구</strong>하는 문제다.<br>
+        <strong>1사분면에서의 경우의 수를 구한 뒤 4를 곱하고, 축 위의 점을 별도로 처리</strong>하여 전체 격자점 수를 계산한다.
+      </p>
+      
+      <ul>
+        <li>1사분면에서 x를 1부터 r2까지 순회하며, 각 x에 대해 두 원 사이에 놓이는 y 좌표의 범위를 계산한다.</li>
+        <li>큰 원 안쪽의 최대 y는 <code>floor(√(r2² - x²))</code>, 작은 원 바깥쪽의 최소 y는 x &lt; r1이면 <code>ceil(√(r1² - x²))</code>, x ≥ r1이면 1이다.</li>
+        <li>축 위(x축, y축)의 점은 별도로 처리하며, 각 축마다 r1~r2 사이의 정수 개수 (r2 - r1 + 1)개씩 4방향에 존재한다.</li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 개요
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>핵심 알고리즘</strong>: 1사분면 x축 순회 + 수직 범위 계산 후 대칭 적용</li>
+        <li><strong>선택 이유</strong>: 두 동심원은 4사분면 대칭이므로 1사분면(x ≥ 1, y ≥ 1)에서의 격자점 수를 구해 4를 곱하면 내부 점을 빠르게 집계할 수 있다. 각 x에 대해 유효한 y의 범위는 O(1)에 계산되므로 전체 O(r2)에 해결된다.</li>
+        <li><strong>세부 전략</strong>:
+          <ul>
+            <li>x를 1부터 r2까지 순회하며 최대 y(<code>floor</code>)와 최소 y(<code>ceil</code>)를 계산한다.</li>
+            <li>유효한 y 범위가 존재하면 <code>maxY - minY + 1</code>을 <code>answer</code>에 누적한다.</li>
+            <li>1사분면 합계에 4를 곱해 4사분면을 반영하고, 축 위의 점 <code>(r2 - r1 + 1) × 4</code>를 더한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          코드가 하는 일
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>1) x별 유효 y 범위 계산 및 집계</strong>
+          <pre><code>for (int x = 1; x <= r2; x++) {
+          long maxY = (long) Math.floor(Math.sqrt((long)r2 * r2 - (long)x * x));
+      
+          long minY = 0;
+          if (x < r1) {
+              minY = (long) Math.ceil(Math.sqrt((long)r1 * r1 - (long)x * x));
+          } else {
+              minY = 1;
+          }
+      
+          if (maxY >= minY) {
+              answer += (maxY - minY + 1);
+          }
+      }</code></pre>
+          <ul>
+            <li><code>maxY = floor(√(r2² - x²))</code>: 큰 원 경계 이하의 최대 정수 y다. 큰 원의 경계 위 점도 두 원 사이에 포함되므로 <code>floor</code>를 사용한다.</li>
+            <li><code>minY = ceil(√(r1² - x²))</code>: 작은 원 경계 이상의 최소 정수 y다. 작은 원의 경계 위 점도 두 원 사이에 포함되므로 <code>ceil</code>을 사용한다. x ≥ r1이면 작은 원이 x축 아래에 있으므로 minY = 1로 설정한다.</li>
+            <li>오버플로우 방지를 위해 제곱 연산에 <code>(long)</code> 캐스팅을 적용한다.</li>
+            <li><code>maxY ≥ minY</code>인 경우에만 유효한 y 범위가 존재하므로 <code>maxY - minY + 1</code>을 누적한다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>2) 대칭 적용 및 축 위의 점 추가</strong>
+          <pre><code>answer *= 4;
+      
+      answer += (long)(r2 - r1 + 1) * 4;</code></pre>
+          <ul>
+            <li><code>answer *= 4</code>: 1사분면(x ≥ 1, y ≥ 1)의 격자점 수를 4사분면에 대칭 적용한다.</li>
+            <li><code>(r2 - r1 + 1) × 4</code>: 축 위의 점(y = 0 또는 x = 0)은 위 루프에서 제외되었으므로 별도로 추가한다. x축과 y축 각각에 r1~r2 사이의 정수 (r2 - r1 + 1)개가 있고, 양의 방향과 음의 방향을 합산하면 각 축마다 2 × (r2 - r1 + 1)이므로 두 축 합계는 4 × (r2 - r1 + 1)이다.</li>
+          </ul>
+        </li>
+      
+        <li><strong>3) 결과 반환</strong>
+          <pre><code>return answer;</code></pre>
+          <ul>
+            <li>두 동심원 사이에 놓인 전체 격자점 수 <code>answer</code>를 반환한다.</li>
+          </ul>
+        </li>
+      </ul>
+      
+      <div style="height:1px; background:rgba(0,0,0,0.1); margin:1.5em 0;"></div>
+      
+      <p>
+        <span style="background-color:#ffecb3; color:#e65100; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          시간 · 공간 복잡도
+        </span>
+      </p>
+      
+      <ul>
+        <li><strong>시간 복잡도</strong>
+          <ul>
+            <li><strong>O(r2)</strong>: x를 1부터 r2까지 순회하며 각 위치에서 제곱근 계산과 O(1) 연산만 수행하므로 전체 O(r2)이다.</li>
+          </ul>
+        </li>
+        <li><strong>공간 복잡도</strong>
+          <ul>
+            <li><strong>O(1)</strong>: <code>answer</code>, <code>maxY</code>, <code>minY</code> 등 고정된 수의 변수만 사용하므로 상수 공간만 필요하다.</li>
+          </ul>
+        </li>
+      </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+          
+      
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+
+      <p class="muted">출처: 프로그래머스 코딩 테스트 연습, 
+        <a href="https://school.programmers.co.kr/learn/challenges" target="_blank">
+          https://school.programmers.co.kr/learn/challenges
+        </a>
+      </p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <!-- H2(.section)만 목차로 사용 -->
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if(!article) return;
+    const headers = [...article.querySelectorAll('h2.section')]; // 문제 제목만
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if(!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
