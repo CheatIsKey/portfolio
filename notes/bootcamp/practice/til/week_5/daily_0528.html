@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>내일배움캠프 Spring 백엔드 86일차 TIL</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+    }
+    .prose table th,
+    .prose table td {
+      border: 1px solid #ddd;
+      padding: 0.8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .prose table th {
+      background-color: #f1f3f5;
+      font-weight: 700;
+      color: #495057;
+      white-space: nowrap;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e9ecef;
+      margin: 1rem 0;
+    }
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9em;
+    }
+    .concept-box {
+      background-color: #e3f2fd;
+      border-left: 5px solid #2196f3;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #0d47a1;
+    }
+    .concept-box strong {
+      font-weight: 700;
+      color: #002171;
+      display: inline;
+    }
+    .box-title {
+      display: block;
+      font-size: 1.1em;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #1565c0;
+      border-bottom: 1px dashed #90caf9;
+      padding-bottom: 0.3rem;
+    }
+    .warning-box {
+      background-color: #fff3cd;
+      border-left: 5px solid #ffc107;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #856404;
+    }
+    .warning-box strong {
+      font-weight: 700;
+      color: #533f03;
+      display: inline;
+    }
+    .success-box {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      color: #155724;
+    }
+    .success-box strong {
+      font-weight: 700;
+      color: #0a3622;
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header container">
+    <a class="brand" href="/">spring-jpa.dev</a>
+    <nav class="nav">
+      <a href="/projects/">Projects</a>
+      <a class="active" href="/notes/">Notes</a>
+    </nav>
+  </header>
+
+  <main class="container article">
+    <aside class="toc" aria-label="Table of contents">
+      <div class="toc-title">섹션 목록</div>
+      <ul id="toc-list"></ul>
+    </aside>
+
+    <article class="prose">
+      <h1>내일배움캠프 Spring 백엔드 86일차 TIL — 알림 시스템 설계: 단일 테이블 전략 · 비동기 처리 · 트랜잭션 이벤트 · 데이터 관리</h1>
+      <p class="muted">작성일 2026-05-20 · 분류: 부트캠프, TIL, 알림 시스템, @Async, @TransactionalEventListener, 스레드 풀, 테이블 파티셔닝</p>
+
+      <h2 class="section">86일차 개요</h2>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          오늘 목표
+        </span>
+      </h3>
+      <ul>
+        <li>알림 테이블을 <strong>단일 테이블 + ENUM</strong>으로 설계하는 전략을 이해한다.</li>
+        <li><strong>복합 인덱스 설계 원칙</strong>(등호 조건 우선, 자주 쓰는 컬럼 앞배치)을 정리한다.</li>
+        <li><code>@Async</code>와 전용 스레드 풀(<code>AsyncConfig</code>)을 설정하는 방법과 <strong>CallerRunsPolicy</strong>의 동작을 파악한다.</li>
+        <li><code>@EventListener</code>가 유발하는 <strong>유령 알림</strong> 문제와 <code>@TransactionalEventListener</code>로 해결하는 원리를 이해한다.</li>
+        <li>이벤트 발행(<code>ApplicationEventPublisher</code>)과 수신(<code>@TransactionalEventListener + @Async</code>)의 전체 흐름을 익힌다.</li>
+        <li>알림 테이블 데이터 관리 전략 4가지(TTL 배치 삭제, 파티셔닝, 아카이빙, Redis 캐시)를 정리한다.</li>
+      </ul>
+
+      <!-- ===================== SECTION 1 ===================== -->
+      <h2 class="section">1. 알림 테이블 설계 — 단일 테이블 + ENUM 전략</h2>
+
+      <p>
+        알림 종류(좋아요, 팔로우, 댓글, 멘션)마다 별도 테이블을 만드는 대신,
+        <strong>하나의 테이블에 ENUM 타입의 <code>type</code> 필드</strong>를 두어 관리한다.
+        새 알림 종류가 추가되어도 ENUM에 값 하나만 추가하면 되고,
+        알림 목록 조회 쿼리도 단 한 줄로 충분하다.
+      </p>
+
+      <pre><code class="language-sql">-- 단일 테이블로 모든 알림을 한 번에 조회
+SELECT * FROM notifications
+WHERE receiver_id = 1
+ORDER BY created_at DESC
+LIMIT 20;</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Notification 엔티티
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Entity
+@Table(
+    name = "notifications",
+    indexes = {
+        // 수정 포인트: 인덱스 순서 설계 원칙
+        // ① 등호(=) 조건을 사용하는 컬럼을 앞에 배치 (receiver_id)
+        // ② 그 다음 범위/필터 조건 컬럼 배치 (is_read)
+        // ③ 정렬 기준 컬럼을 마지막에 배치 (created_at)
+        @Index(name = "idx_notification_receiver",
+               columnList = "receiver_id, created_at DESC"),
+        @Index(name = "idx_notification_receiver_unread",
+               columnList = "receiver_id, is_read, created_at DESC")
+    }
+)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Notification extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private NotificationType type;
+
+    /** 알림을 받는 사람 */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private Member receiver;
+
+    /** 알림을 발생시킨 사람 */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "sender_id", nullable = false)
+    private Member sender;
+
+    /**
+     * 알림의 대상 ID
+     * - LIKE, COMMENT, MENTION → postId
+     * - FOLLOW → null (팔로우는 sender만으로 충분)
+     */
+    @Column(name = "target_id")
+    private Long targetId;
+
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
+
+    @Column(length = 200)
+    private String message;
+
+    public static Notification create(NotificationType type, Member receiver,
+                                      Member sender, Long targetId, String message) {
+        Notification n = new Notification();
+        n.type = type;
+        n.receiver = receiver;
+        n.sender = sender;
+        n.targetId = targetId;
+        n.message = message;
+        return n;
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
+    }
+}
+
+// NotificationType.java
+public enum NotificationType {
+    LIKE,    // 좋아요
+    FOLLOW,  // 팔로우
+    COMMENT, // 댓글
+    MENTION  // 멘션
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">복합 인덱스 설계 원칙</span>
+        WHERE 조건에서 <strong>등호(=) 조건을 사용하는 컬럼을 인덱스 앞에 배치</strong>하고,
+        범위 조건(<code>BETWEEN</code>, <code>&gt;</code>, <code>&lt;</code>)은 그 다음에, 정렬 기준은 마지막에 배치한다.<br><br>
+        <code>(receiver_id, is_read, created_at)</code> 순서로 설계한 이유:<br>
+        1. <code>receiver_id</code> — 등호 조건 (<code>WHERE receiver_id = 1</code>), 가장 앞<br>
+        2. <code>is_read</code> — 등호 조건 (<code>WHERE is_read = false</code>), 두 번째<br>
+        3. <code>created_at</code> — 정렬 기준 (<code>ORDER BY created_at DESC</code>), 마지막<br><br>
+        자기 자신에 대한 알림(<code>sender.id == receiver.id</code>) 필터링은 DB 인덱스가 아닌 <strong>Service 레이어에서 처리</strong>한다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. @Async — 알림 비동기 처리</h2>
+
+      <p>
+        알림 저장은 사용자의 주요 액션(좋아요, 댓글 작성)과 직접적으로 관련이 없다.
+        동기로 처리하면 알림 저장이 느릴 때 사용자 응답도 함께 느려진다.
+        <code>@Async</code>로 알림 처리를 별도 스레드에서 수행하면 사용자에게는 빠른 응답을 주고,
+        알림은 뒤에서 처리할 수 있다.
+      </p>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ 기본 SimpleAsyncTaskExecutor는 절대 사용하지 않는다</span>
+        Spring의 기본 <code>@Async</code> 실행자는 <code>SimpleAsyncTaskExecutor</code>로,
+        <code>@Async</code> 메서드를 호출할 때마다 <strong>새 스레드를 생성하고 재사용하지 않는다.</strong>
+        트래픽이 몰리면 스레드가 무한히 생성되어 <strong>OOM으로 서버가 다운</strong>될 수 있다.
+        반드시 스레드 풀을 직접 설정해야 한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          AsyncConfig — 전용 스레드 풀 설정
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// core/config/AsyncConfig.java
+@Configuration
+@EnableAsync // 수정 포인트: 메인 클래스 또는 설정 클래스에 반드시 선언
+public class AsyncConfig implements AsyncConfigurer {
+
+    /**
+     * 알림 처리 전용 스레드 풀
+     *
+     * 카페 비유:
+     * - corePoolSize(5)   = 기본 바리스타 5명 (평소 항상 대기)
+     * - maxPoolSize(10)   = 최대 바리스타 10명 (바쁠 때 임시 투입)
+     * - queueCapacity(50) = 대기 좌석 50석 (바리스타가 다 바쁘면 여기서 대기)
+     */
+    @Bean(name = "notificationExecutor")
+    public Executor notificationExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("notif-"); // 로그에서 식별 편의
+        // 수정 포인트: 풀+큐가 꽉 찼을 때 호출 스레드가 직접 처리 → 작업을 잃지 않음
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
+    /**
+     * @Async 메서드에서 예외가 발생하면 기본적으로 조용히 사라진다.
+     * AsyncUncaughtExceptionHandler로 전역 예외를 한 곳에서 처리한다.
+     */
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (ex, method, params) ->
+                log.error("[Async 예외] method={}, message={}", method.getName(), ex.getMessage(), ex);
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">스레드 풀 동작 흐름 — CallerRunsPolicy까지</span>
+        요청 1~5건: <strong>corePool(5)</strong>에서 즉시 처리<br>
+        요청 6~55건: <strong>Queue(50)</strong>에 대기 (corePool이 바쁠 때)<br>
+        요청 56~60건: <strong>maxPool(10)</strong>까지 임시 스레드 확장 (Queue가 찰 때)<br>
+        요청 61건~: <strong>CallerRunsPolicy</strong> — 풀+큐 모두 꽉 참 → 메인 스레드가 직접 처리<br><br>
+        <code>CallerRunsPolicy</code>는 작업을 버리지 않고 잠깐 느려지는 방식을 선택한다.
+        기본 <code>AbortPolicy</code>는 예외를 던지고 작업을 버리므로 알림이 유실된다.
+      </div>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. @TransactionalEventListener — 유령 알림 방지</h2>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ @EventListener의 유령 알림 문제</span>
+        <code>@EventListener</code>는 트랜잭션 안에서 즉시 실행된다.
+        좋아요 처리가 이벤트를 발행하고 나서 롤백되더라도 알림은 이미 저장된다.
+        <strong>좋아요는 실패했는데 알림은 전송된 상태(유령 알림)</strong>가 발생한다.
+      </div>
+
+      <div class="success-box">
+        <span class="box-title">@TransactionalEventListener — 커밋 후에만 실행</span>
+        <code>@TransactionalEventListener</code>는 <strong>트랜잭션이 커밋된 후에만 이벤트 핸들러를 실행</strong>한다.
+        비즈니스 로직이 롤백되면 이벤트 핸들러는 실행되지 않으므로 유령 알림이 발생하지 않는다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          NotificationEventHandler — @Async + @TransactionalEventListener 조합
+        </span>
+      </h3>
+
+      <pre><code class="language-java">@Component
+@RequiredArgsConstructor
+@Slf4j
+public class NotificationEventHandler {
+
+    private final NotificationRepository notificationRepository;
+    private final MemberRepository memberRepository;
+
+    /**
+     * @TransactionalEventListener: 트랜잭션 커밋 후에만 실행 → 유령 알림 방지
+     * @Async("notificationExecutor"): 전용 스레드 풀에서 실행 → 빠른 응답 보장
+     * @Transactional(REQUIRES_NEW): 알림 저장은 독립 트랜잭션으로 처리
+     *
+     * 이 세 어노테이션의 조합:
+     * ① 좋아요 트랜잭션 롤백 → 이 메서드 실행 안 됨 (안전!)
+     * ② 트랜잭션 커밋 → 별도 스레드에서 알림 저장 (빠름!)
+     * ③ 알림 저장 실패 → 비즈니스 로직에 영향 없음 (격리!)
+     */
+    @Async("notificationExecutor")
+    @TransactionalEventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleNotification(NotificationEvent event) {
+        // 자기 자신에 대한 알림 무시 (Service 레이어 대신 여기서 처리 가능)
+        if (event.isSelfNotification()) {
+            log.debug("[알림 무시] 자기 자신에 대한 {} 알림 (senderId={})",
+                    event.type(), event.senderId());
+            return;
+        }
+
+        try {
+            Member receiver = memberRepository.getReferenceById(event.receiverId());
+            Member sender   = memberRepository.getReferenceById(event.senderId());
+            String message  = buildMessage(event.type(), sender);
+
+            notificationRepository.save(
+                Notification.create(event.type(), receiver, sender, event.targetId(), message)
+            );
+
+            log.info("[알림 저장] {} → {} (type={}, targetId={})",
+                    sender.getUsername(), event.receiverId(), event.type(), event.targetId());
+
+        } catch (Exception e) {
+            // 수정 포인트: 알림 실패가 원본 비즈니스 로직에 영향 주면 안 됨 → catch로 격리
+            log.error("[알림 저장 실패] type={}, receiver={}, sender={}: {}",
+                    event.type(), event.receiverId(), event.senderId(), e.getMessage());
+        }
+    }
+
+    private String buildMessage(NotificationType type, Member sender) {
+        String username = sender.getUsername();
+        return switch (type) {
+            case LIKE    -> username + "님이 회원님의 게시물을 좋아합니다";
+            case FOLLOW  -> username + "님이 회원님을 팔로우하기 시작했습니다";
+            case COMMENT -> username + "님이 댓글을 남겼습니다";
+            case MENTION -> username + "님이 댓글에서 회원님을 언급했습니다";
+        };
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 이벤트 발행 — ApplicationEventPublisher</h2>
+
+      <p>
+        비즈니스 로직이 담긴 서비스에서 <code>ApplicationEventPublisher</code>를 주입받아
+        <code>publishEvent()</code>로 이벤트를 발행하면, 위에서 정의한 핸들러가 자동으로 수신한다.
+      </p>
+
+      <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class CommentService {
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    public void addComment(Long loginMemberId, Long postId, CommentRequest request) {
+        // ... 댓글 저장 로직 ...
+
+        // ✅ 댓글 알림 발행 — 게시물 작성자에게
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.COMMENT,
+                post.getWriter().getId(), // receiver = 게시물 작성자
+                loginMemberId,            // sender = 댓글 작성자
+                postId,                   // target = 게시물
+                null
+        ));
+
+        // ✅ 멘션 알림 발행 — 멘션된 각 유저에게
+        for (Member mentioned : existingMembers) {
+            eventPublisher.publishEvent(new NotificationEvent(
+                    NotificationType.MENTION,
+                    mentioned.getId(),            // receiver = 멘션된 사람
+                    comment.getWriter().getId(),  // sender = 댓글 작성자
+                    comment.getPost().getId(),    // target = 게시물
+                    null
+            ));
+        }
+    }
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Redis INCR을 @TransactionalEventListener로 처리해야 하는 이유</span>
+        Redis INCR을 트랜잭션 내부에서 호출하면, 이후 DB 트랜잭션이 롤백되어도 Redis 값은 그대로 남는다.
+        DB와 Redis 간 데이터 불일치가 발생하는 것이다.<br><br>
+        Redis INCR도 <code>@TransactionalEventListener</code>로 이동하면 <strong>트랜잭션 커밋 후에만 실행</strong>되어
+        DB와 Redis가 항상 같은 방향으로 움직인다.<br><br>
+        단, Redis는 순서 보장이 안 되기 때문에 Redis INCR은 <strong>@Async 없이 동기로 처리</strong>해야 한다.
+        비동기로 처리하면 여러 스레드가 동시에 INCR을 호출해 순서가 꼬일 수 있다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 알림 테이블 데이터 관리 전략</h2>
+
+      <p>
+        알림은 쓰기가 매우 많은 테이블이다. 그대로 쌓아두기만 하면 SELECT 성능이 급격히 나빠진다.
+        아래 4가지 전략을 상황에 맞게 조합한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 1 — TTL + 배치 삭제
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// 수정 포인트: cron 표현식 "초 분 시 일 월 요일"
+@Scheduled(cron = "0 0 3 * * *")  // 매일 새벽 3시
+public void cleanOldNotifications() {
+    LocalDateTime threshold = LocalDateTime.now().minusDays(30);
+    notificationRepository.deleteAllByCreatedAtBefore(threshold);
+}</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 2 — 테이블 파티셔닝 (MySQL)
+        </span>
+      </h3>
+
+      <p>
+        생성일자를 기준으로 월별 파티셔닝을 적용하면, 오래된 파티션을 <code>DROP PARTITION</code>으로
+        행 단위 <code>DELETE</code>보다 훨씬 빠르게 정리할 수 있다.
+      </p>
+
+      <pre><code class="language-sql">CREATE TABLE notifications (
+    ...
+) PARTITION BY RANGE (YEAR(created_at) * 100 + MONTH(created_at)) (
+    PARTITION p202604 VALUES LESS THAN (202605),
+    PARTITION p202605 VALUES LESS THAN (202606),
+    PARTITION p202606 VALUES LESS THAN (202607)
+    -- 수정 포인트: 월별로 파티션 추가
+);</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 3 — 아카이빙
+        </span>
+      </h3>
+
+      <p>
+        최근 30일 알림은 MySQL에 유지하고, 오래된 알림은 S3 / DynamoDB 같은 저비용 스토리지로 이동한다.
+        사용자가 30일 이전 알림을 조회하려 할 때만 아카이브에서 가져오는 방식이다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          전략 4 — Redis Sorted Set 최근 알림 캐시
+        </span>
+      </h3>
+
+      <p>
+        최근 N개의 알림만 Redis Sorted Set에 유지하고, 알림 목록 API가 먼저 Redis를 조회한다.
+        Cache Miss일 때만 DB로 fallback 한다.
+        자주 조회되는 최근 알림에 대한 DB 부하를 대폭 줄일 수 있다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%;">전략</th>
+            <th style="width:30%;">핵심 방식</th>
+            <th style="width:25%;">장점</th>
+            <th>단점 / 주의사항</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>TTL + 배치 삭제</strong></td>
+            <td>스케줄러로 N일 이상 된 알림 주기적 DELETE</td>
+            <td>구현 단순</td>
+            <td>대량 DELETE 시 DB 부하, 락 경합 가능</td>
+          </tr>
+          <tr>
+            <td><strong>테이블 파티셔닝</strong></td>
+            <td>월별 파티션 생성, 오래된 파티션 DROP</td>
+            <td>삭제 속도 매우 빠름</td>
+            <td>MySQL DDL 변경 필요, 파티션 관리 운영 비용</td>
+          </tr>
+          <tr>
+            <td><strong>아카이빙</strong></td>
+            <td>오래된 데이터를 저비용 스토리지로 이동</td>
+            <td>비용 절감, DB 용량 유지</td>
+            <td>아카이브 조회 로직 추가 구현 필요</td>
+          </tr>
+          <tr>
+            <td><strong>Redis 최근 알림 캐시</strong></td>
+            <td>최근 N개를 Redis Sorted Set에 유지</td>
+            <td>알림 목록 조회 DB 부하 감소</td>
+            <td>Redis 장애 시 DB fallback 로직 필요</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="section">마무리</h2>
+
+      <p>
+        알림 시스템에서 핵심은 <strong>비즈니스 로직과 알림 처리를 완전히 분리</strong>하는 것이다.
+        알림이 실패하더라도 좋아요나 댓글 작성이 실패해서는 안 되고,
+        알림 저장이 느리더라도 사용자 응답이 느려서는 안 된다.
+        <code>@TransactionalEventListener + @Async</code> 조합은 이 두 요구를 동시에 만족시킨다.
+      </p>
+
+      <p>
+        <code>@EventListener</code> 대신 <code>@TransactionalEventListener</code>를 선택한 이유를 명확히 이해하는 것이 중요하다.
+        트랜잭션이 롤백되었는데도 알림이 전송되는 유령 알림 문제는 개발 환경에서는 드러나지 않지만
+        실제 서비스에서 사용자 경험을 해치는 조용한 버그가 된다.
+        트랜잭션 커밋 후에만 실행된다는 보장 하나가 이 클래스의 신뢰성을 결정한다.
+      </p>
+
+      <p>
+        알림 테이블은 사용할수록 데이터가 계속 쌓이는 특성이 있다.
+        처음에는 배치 삭제로 단순하게 시작하고, 데이터가 급증하면 파티셔닝을 도입하고,
+        조회 부하가 커지면 Redis 캐시를 추가하는 식으로 단계적으로 진화시키는 것이 현실적인 접근이다.
+      </p>
+
+      <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
+    </article>
+  </main>
+
+  <footer class="container site-footer">
+    <span>© spring-jpa.dev</span>
+    <span class="muted">Built with Spring • JPA • QueryDSL</span>
+  </footer>
+
+  <script>
+  (function(){
+    const article = document.querySelector('article.prose');
+    if (!article) return;
+    const headers = [...article.querySelectorAll('h2.section')];
+    const slugify = s => s.toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+      .trim().replace(/\s+/g, '-').slice(0,64);
+    headers.forEach(h => { if (!h.id) h.id = slugify(h.textContent); });
+    const toc = document.getElementById('toc-list');
+    toc.innerHTML = '';
+    headers.forEach(h => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      toc.appendChild(li);
+    });
+  })();
+  </script>
+</body>
+</html>
