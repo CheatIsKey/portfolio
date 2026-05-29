@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 87일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 88일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -109,273 +109,409 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 87일차 TIL — Redis ZSet · 실시간 랭킹 · Time Window · ZUNIONSTORE</h1>
-      <p class="muted">작성일 2026-05-28 · 분류: 부트캠프, TIL, Redis, ZSet, Sorted Set, 실시간 랭킹, Time Window, ZUNIONSTORE</p>
+      <h1>내일배움캠프 Spring 백엔드 88일차 TIL — Kafka 핵심 개념 · 클러스터 · Offset · 에러 처리 · DLT · Lag</h1>
+      <p class="muted">작성일 2026-05-29 · 분류: 부트캠프, TIL, Kafka, 메시지 큐, Producer, Consumer, Partition, Offset, DLT, KRaft</p>
 
-      <h2 class="section">87일차 개요</h2>
+      <h2 class="section">88일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li><strong>Redis ZSet(Sorted Set)</strong>의 구조와 자동 정렬 원리를 이해한다.</li>
-        <li>핵심 명령어(<code>ZADD</code>, <code>ZINCRBY</code>, <code>ZREVRANGE</code>)의 사용법을 익힌다.</li>
-        <li>누적 데이터가 아닌 <strong>최근 데이터 기반 실시간 랭킹</strong>을 구현하기 위한 Time Window 개념을 파악한다.</li>
-        <li><strong>ZUNIONSTORE</strong>로 여러 날짜의 ZSet을 합산해 슬라이딩 윈도우 랭킹을 구성하는 방법을 정리한다.</li>
+        <li>Kafka가 해결하는 핵심 문제 3가지(버퍼, 비동기, 병렬 처리)를 이해한다.</li>
+        <li><strong>Producer, Consumer, Topic, Partition, Consumer Group, Offset</strong> 구성 요소의 역할을 정리한다.</li>
+        <li><strong>Kafka 클러스터</strong>와 Replica(Leader/Follower) 구조가 고가용성을 보장하는 원리를 파악한다.</li>
+        <li><strong>Offset과 Commit</strong>의 차이, 자동/수동 Commit 방식을 익힌다.</li>
+        <li><strong>DefaultErrorHandler</strong>의 에러 처리 흐름과 <strong>DLT(Dead Letter Topic)</strong>의 역할을 이해한다.</li>
+        <li><strong>Lag</strong>으로 Consumer 처리 상태를 모니터링하는 방법을 파악한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Redis ZSet (Sorted Set) 이란</h2>
+      <h2 class="section">1. Kafka란 — 해결하는 핵심 문제 3가지</h2>
 
       <p>
-        <strong>점수(score)에 따라 자동으로 정렬되는 집합 자료구조</strong>다.
-        값을 넣는 순간 이미 정렬된 형태로 저장되기 때문에, 조회할 때 별도의 정렬 연산이 필요 없다.
-        실시간으로 순위 변동이 잦은 데이터 처리에 압도적으로 유리하다.
+        Kafka는 이벤트를 순서대로 저장해두는 분산 메시지 스트리밍 플랫폼이다.
+        Consumer가 저장된 메시지를 하나씩 꺼내 처리하므로, 이벤트를 실시간으로 바로 처리하지 않아도 된다.
+        API 서버와 처리 로직 사이의 <strong>중간 저장소(버퍼)</strong> 역할을 한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 1 — 버퍼 역할: API 서버가 죽지 않는다
+        </span>
+      </h3>
+
+      <pre><code class="language-text">Kafka 없이                              Kafka 있이
+사용자 요청 → 서버 → DB/Redis (동기)    a. 요청 받음 → Kafka에 저장 → 즉시 응답 반환
+                                        b. Consumer가 준비되면 Kafka에서 꺼내 처리
+
+모든 요청을 바로 처리해야 하므로        API 서버는 무거운 일을 직접 하지 않으므로
+트래픽 증가 시 빠르게 한계 도달          트래픽이 몰려도 버틸 수 있음</code></pre>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 2 — 비동기 처리: 데이터 유실이 없다
+        </span>
+      </h3>
+
+      <p>
+        Redis가 잠시 느려지거나, DB가 막히거나, 서버가 재배포되더라도
+        이벤트는 Kafka에 안전하게 저장되어 있어 Consumer가 재시작 후 이어서 처리할 수 있다.
+        Kafka는 메시지가 안전하게 처리되었다고 Commit이 완료되어야 다음 메시지를 읽으며,
+        처리된 메시지도 즉시 삭제되지 않고 설정된 보관 기간(retention)까지 유지된다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          문제 3 — 파티션 기반 병렬 처리: 처리량이 폭발적으로 증가한다
+        </span>
+      </h3>
+
+      <p>
+        Kafka는 Partition이라는 병렬 처리 단위를 제공한다.
+        파티션 수만큼 Consumer가 동시에 메시지를 처리할 수 있으므로 수평 확장이 간단하다.
+      </p>
+
+      <pre><code class="language-text">파티션 3개  →  Consumer 3개가 동시 처리  →  처리량 3배
+파티션 10개 →  Consumer 10개가 동시 처리 →  처리량 10배</code></pre>
+
+      <div class="success-box">
+        <span class="box-title">Kafka 한 줄 요약</span>
+        트래픽이 갑자기 폭발해도 데이터를 절대 잃지 않고, 이벤트를 안전하게 모아서
+        나중에 여러 Consumer가 병렬로 처리할 수 있게 해주는 중간 저장소다.
+      </div>
+
+      <!-- ===================== SECTION 2 ===================== -->
+      <h2 class="section">2. 핵심 구성 요소</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%;">구성 요소</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Producer</strong></td>
+            <td>Kafka로 메시지를 보내는 역할. API 서버가 Producer가 된다. 이벤트를 생성해 Topic에 전달한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Consumer</strong></td>
+            <td>Kafka에서 메시지를 읽어 처리하는 역할. Kafka에 쌓인 이벤트를 하나씩 꺼내 처리한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Topic</strong></td>
+            <td>메시지를 종류별로 분리하는 폴더. 이벤트 종류마다 별도 Topic을 만든다.</td>
+          </tr>
+          <tr>
+            <td><strong>Partition</strong></td>
+            <td>Topic을 여러 칸으로 나눈 병렬 처리 단위. 파티션이 많을수록 동시 처리량이 증가한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Consumer Group</strong></td>
+            <td>여러 Consumer를 팀으로 묶어 파티션을 나눠 처리한다. 어떤 Consumer가 어떤 파티션을 담당할지 자동 조율한다.</td>
+          </tr>
+          <tr>
+            <td><strong>Offset</strong></td>
+            <td>Consumer가 어디까지 읽었는지를 나타내는 번호. 재시작 후에도 이어서 읽을 수 있다.</td>
+          </tr>
+          <tr>
+            <td><strong>Broker</strong></td>
+            <td>메시지를 저장하는 Kafka 서버. Producer가 보낸 데이터를 Topic/Partition 형태로 내부에 저장한다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">Partition과 Consumer 수의 최적 관계</span>
+        <strong>파티션 수 = Consumer 수</strong>일 때 가장 효율적이다.<br><br>
+        Consumer가 더 많은 경우: 남는 Consumer는 아무 일도 하지 않고 대기한다 (낭비)<br>
+        Consumer가 더 적은 경우: 1개의 Consumer가 2개 이상의 파티션을 담당해 처리 속도가 저하된다<br><br>
+        또한 <strong>하나의 파티션은 한 시점에 오직 하나의 Consumer만 처리</strong>할 수 있다.
+        파티션 수가 최대 병렬 처리 Consumer 수의 상한선이 된다.
+        파티션은 늘릴 수 있지만, 이미 존재하는 파티션을 줄일 수는 없으므로 초기 설계에 주의한다.
+      </div>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Spring Kafka — Producer / Consumer 기본 예시
+        </span>
+      </h3>
+
+      <pre><code class="language-java">// Producer — 이벤트를 Topic에 전송
+@Service
+@RequiredArgsConstructor
+public class OrderEventProducer {
+
+    private final KafkaTemplate&lt;String, String&gt; kafkaTemplate;
+
+    public void sendOrderEvent(Long orderId) {
+        // 수정 포인트: Topic 이름과 메시지 형식을 실제 도메인에 맞게 교체
+        kafkaTemplate.send("order-events", String.valueOf(orderId));
+    }
+}
+
+// Consumer — Topic에서 메시지를 읽어 처리
+@Component
+public class OrderEventConsumer {
+
+    // groupId: Consumer Group 이름. 같은 Group 내 Consumer끼리 파티션을 나눠 처리
+    @KafkaListener(topics = "order-events", groupId = "order-consumer-group")
+    public void handle(String message) {
+        // 수정 포인트: 메시지 역직렬화 및 비즈니스 로직 처리
+        Long orderId = Long.parseLong(message);
+        // ... 주문 처리 로직
+    }
+}</code></pre>
+
+      <!-- ===================== SECTION 3 ===================== -->
+      <h2 class="section">3. Kafka 클러스터 — 고가용성 보장</h2>
+
+      <p>
+        단일 브로커 구조는 장애에 취약하고 성능에 한계가 있어 실서비스에 적합하지 않다.
+        Kafka 클러스터는 여러 브로커가 하나의 Kafka처럼 동작하는 구조로,
+        파티션을 여러 브로커에 분산해 병렬 처리 성능을 높이고 장애 시 자동으로 역할을 인계한다.
+      </p>
+
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          Replica — Leader와 Follower
+        </span>
+      </h3>
+
+      <p>
+        각 Partition은 원본(Leader)과 복제본(Follower)으로 구성된다.
+        Producer와 Consumer는 항상 Leader와 통신하고,
+        Leader에 장애가 발생하면 Follower 중 하나가 자동으로 Leader로 승격된다.
       </p>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">구성 요소</th>
+            <th style="width:20%;">역할</th>
             <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>key</strong></td>
-            <td>ZSet 자체의 이름. 어떤 랭킹인지를 나타낸다. (예: <code>category_rank</code>)</td>
+            <td><strong>Leader</strong></td>
+            <td>모든 read/write 요청을 처리한다. Producer와 Consumer가 실제로 통신하는 대상이다. 장애 발생 시 새로운 Leader가 자동 선출된다.</td>
           </tr>
           <tr>
-            <td><strong>value (member)</strong></td>
-            <td>ZSet 안에 저장되는 실제 데이터. (예: 카테고리명, 상품 ID)</td>
-          </tr>
-          <tr>
-            <td><strong>score</strong></td>
-            <td>value를 정렬하는 기준이 되는 숫자. 높을수록 상위에 위치한다.</td>
+            <td><strong>Follower</strong></td>
+            <td>Leader의 데이터를 그대로 복제한다. Leader 장애 시 자동으로 Leader로 승격된다. Follower 장애 복구 후에는 Leader 데이터를 다시 동기화한다.</td>
           </tr>
         </tbody>
       </table>
 
       <div class="concept-box">
-        <span class="box-title">ZSet이 실시간 랭킹에 압도적으로 유리한 이유</span>
-        DB에서 <code>ORDER BY COUNT DESC LIMIT 5</code>로 TOP 5를 뽑으려면 매번 집계 연산이 필요하고,
-        데이터가 많을수록 쿼리가 느려진다.<br><br>
-        ZSet은 <strong>데이터를 저장하는 순간 이미 정렬된 상태로 유지</strong>된다.
-        점수가 변경되면 순위가 즉시 반영되고, TOP N 조회도 O(log N) 수준으로 빠르다.
-        별도 <code>ORDER BY</code>가 필요 없고 순위 계산 비용이 거의 없다.
+        <span class="box-title">KRaft Controller — Kafka 내부 조율 시스템</span>
+        Controller는 브로커 생사 확인, Partition Leader 관리, Failover 시 새 Leader 선출, 메타데이터 관리를 담당한다.<br><br>
+        과거에는 ZooKeeper라는 외부 시스템이 이 역할을 했으나,
+        <strong>KRaft(Kafka Raft)</strong>는 이 기능을 Kafka 내부에 직접 포함시켰다.
+        Raft 합의 알고리즘 기반으로 안정적인 Leader 선출을 지원하며, 외부 의존성을 제거해 운영이 단순해졌다.
       </div>
 
-      <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. ZSet 핵심 명령어</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ZADD — 값과 점수 저장
-        </span>
-      </h3>
-
-      <p>
-        ZSet에 value와 score를 함께 저장한다.
-        같은 value가 이미 있으면 score를 덮어쓴다.
-      </p>
-
-      <pre><code class="language-bash"># 형식: ZADD key score value
-ZADD category_rank 1 "A"   # A는 점수 1
-ZADD category_rank 2 "B"   # B는 점수 2
-# 점수가 높은 값이 자동으로 상위에 정렬됨</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ZINCRBY — 점수 증가
-        </span>
-      </h3>
-
-      <p>
-        사용자가 클릭, 조회, 검색 등을 수행할 때 해당 항목의 점수를 올린다.
-        점수가 변경되는 즉시 순위도 자동으로 반영된다.
-      </p>
-
-      <pre><code class="language-bash"># 형식: ZINCRBY key increment value
-ZINCRBY category_rank 1 "A"
-# A의 점수가 1만큼 증가 → 순위가 즉시 재정렬됨</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          ZREVRANGE — 상위 N개 조회
-        </span>
-      </h3>
-
-      <p>
-        점수가 높은 순서(내림차순)대로 데이터를 가져온다.
-        인덱스는 0부터 시작하므로 TOP 3은 0~2, TOP 5는 0~4다.
-      </p>
-
-      <pre><code class="language-bash"># 형식: ZREVRANGE key 시작인덱스 종료인덱스 [WITHSCORES]
-ZREVRANGE category_rank 0 2 WITHSCORES   # TOP 3 조회
-ZREVRANGE category_rank 0 4 WITHSCORES   # TOP 5 조회
-
-# 응답 예시 (WITHSCORES 포함)
-# 1) "B"
-# 2) "3"    ← score
-# 3) "A"
-# 4) "2"    ← score</code></pre>
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. Offset과 Commit</h2>
 
       <table>
         <thead>
           <tr>
-            <th style="width:20%;">명령어</th>
-            <th style="width:30%;">역할</th>
-            <th>대표 사용 시점</th>
+            <th style="width:20%;">개념</th>
+            <th>설명</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>ZADD</strong></td>
-            <td>value + score 저장 / 갱신</td>
-            <td>초기 데이터 등록, 집계 결과 일괄 입력</td>
+            <td><strong>Offset</strong></td>
+            <td>Consumer가 작업을 어디까지 수행했는지 나타내는 번호. 파티션 내 메시지 위치를 식별한다.</td>
           </tr>
           <tr>
-            <td><strong>ZINCRBY</strong></td>
-            <td>기존 score에 점수 누적</td>
-            <td>클릭, 검색, 조회 발생 시 실시간 카운트 증가</td>
-          </tr>
-          <tr>
-            <td><strong>ZREVRANGE</strong></td>
-            <td>점수 높은 순으로 TOP N 조회</td>
-            <td>랭킹 목록 API 응답</td>
+            <td><strong>Commit</strong></td>
+            <td>이 번호(Offset)까지 읽었다는 것을 Kafka에 기록하는 행위. 서버 재시작 후에도 이어서 읽을 수 있게 된다.</td>
           </tr>
         </tbody>
       </table>
 
-      <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. Time Window — 실시간 랭킹의 핵심 개념</h2>
-
-      <div class="warning-box">
-        <span class="box-title">⚠️ 누적 데이터만 쓰면 실시간 랭킹이 되지 않는다</span>
-        Key 하나에 계속 ZINCRBY를 누적하면, 오래전부터 쌓인 데이터가 반영되어
-        <strong>과거에 잠깐 유행했던 항목이 영원히 상위를 차지</strong>하게 된다.
-        "지금 인기 있는 것"이 아니라 "역대 가장 많이 클릭된 것"이 나온다.
-      </div>
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          자동 Commit vs 수동 Commit
+        </span>
+      </h3>
 
       <p>
-        실시간 랭킹은 <strong>최근 N일(또는 N시간)의 데이터만 반영</strong>해야 한다.
-        이를 구현하는 방법이 <strong>날짜(또는 시간) 단위로 Key를 분리</strong>하는 Time Window 패턴이다.
+        Spring Kafka는 <code>@KafkaListener</code> 뒤에서 Listener Container가 메시지를 가져와 메서드에 전달하고,
+        기본적으로 적절한 시점에 자동으로 Offset을 Commit한다.
+        처리 성공 여부와 무관하게 Commit되면 데이터 유실 위험이 있으므로,
+        중요한 처리에는 수동 Commit을 사용한다.
       </p>
 
-      <pre><code class="language-bash"># 날짜별로 Key를 분리해서 데이터 저장
-ZADD category_rank:2026-05-26 3 "스포츠"
-ZADD category_rank:2026-05-27 5 "패션"
-ZADD category_rank:2026-05-27 2 "스포츠"
-ZADD category_rank:2026-05-28 4 "스포츠"
-ZADD category_rank:2026-05-28 1 "전자제품"
+      <pre><code class="language-java">// 수동 Commit 예시 — 처리가 완전히 끝난 후에만 Commit
+@KafkaListener(
+    topics = "order-events",
+    groupId = "order-consumer-group",
+    // 수정 포인트: 수동 Commit을 사용하려면 containerFactory에서 ackMode를 MANUAL로 설정
+    containerFactory = "manualAckContainerFactory"
+)
+public void handle(String message, Acknowledgment ack) {
+    try {
+        Long orderId = Long.parseLong(message);
+        // 비즈니스 로직 처리
+        processOrder(orderId);
 
-# 이렇게 하면 하루치 데이터를 독립적으로 관리할 수 있다.</code></pre>
+        // 처리가 성공적으로 끝난 경우에만 Offset Commit
+        ack.acknowledge();
 
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. ZUNIONSTORE — 여러 날짜의 ZSet 합산</h2>
+    } catch (Exception e) {
+        // 예외 발생 시 ack.acknowledge()를 호출하지 않으므로
+        // 이 메시지는 재처리 대상이 됨
+        log.error("주문 처리 실패: {}", message, e);
+    }
+}</code></pre>
 
-      <p>
-        날짜별로 분리된 ZSet들을 합산해서 최근 N일 랭킹을 만드는 명령어다.
-        같은 value의 score를 합산(<code>AGGREGATE SUM</code>)하여 새로운 ZSet을 생성한다.
-      </p>
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. 에러 처리 — DefaultErrorHandler와 DLT</h2>
 
-      <pre><code class="language-bash"># 형식: ZUNIONSTORE 새로운키 집합개수 집합목록... [AGGREGATE SUM]
+      <h3 class="section">
+        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
+          에러 처리 흐름
+        </span>
+      </h3>
 
-# 최근 3일치 데이터를 합산해서 새로운 ZSet 생성
-ZUNIONSTORE category_rank:recent3 3 \
-    category_rank:2026-05-26 \
-    category_rank:2026-05-27 \
-    category_rank:2026-05-28 \
-    AGGREGATE SUM
-
-# 파라미터 설명
-# category_rank:recent3  → 새로 생성될 ZSet 이름
-# 3                       → 합칠 ZSet의 개수
-# 3개의 날짜 키           → 합산 대상 ZSet 목록
-# AGGREGATE SUM           → 같은 value의 score를 더하는 방식으로 합산</code></pre>
-
-      <pre><code class="language-bash"># 최근 3일 합산 결과로 TOP 3 조회
-ZREVRANGE category_rank:recent3 0 2 WITHSCORES
-
-# 결과 예시
-# 1) "스포츠"     → 3 + 2 + 4 = 9
-# 2) "패션"       → 5
-# 3) "전자제품"   → 1</code></pre>
+      <pre><code class="language-text">[1] Kafka Consumer 스레드가 메시지를 poll()로 가져옴
+  ↓
+[2] @KafkaListener 메서드 호출
+  ↓
+[3] 비즈니스 로직 실행 중 예외 발생
+  ↓
+[4] DefaultErrorHandler로 제어권 이동
+  ↓
+[5] DefaultErrorHandler 결정
+    - 재시도할지?
+    - 잠깐 기다렸다가 재시도할지? (BackOff)
+    - 더 이상 안 되겠다 → 포기(recover)할지?
+    - 포기라면 DLT로 보낼지?
+  ↓
+[6] 최종 결과
+    - 재시도 중  → 같은 메시지 다시 리스너에 전달
+    - 포기 결정 → Offset Commit + DLT 전송(옵션)</code></pre>
 
       <div class="concept-box">
-        <span class="box-title">Time Window + ZUNIONSTORE 전체 흐름</span>
-        <strong>Step 1 — 데이터 쌓기:</strong> 사용자 이벤트(클릭, 검색 등) 발생 시 오늘 날짜 Key에 ZINCRBY<br>
-        <code>ZINCRBY category_rank:2026-05-28 1 "스포츠"</code><br><br>
-        <strong>Step 2 — 합산 ZSet 생성:</strong> 주기적(예: 1시간마다 스케줄러)으로 최근 N일치 키를 ZUNIONSTORE로 합산<br>
-        <code>ZUNIONSTORE category_rank:recent3 3 ... AGGREGATE SUM</code><br><br>
-        <strong>Step 3 — 랭킹 조회:</strong> API 요청 시 합산 ZSet에서 TOP N을 ZREVRANGE로 조회<br>
-        <code>ZREVRANGE category_rank:recent3 0 4 WITHSCORES</code><br><br>
-        <strong>Step 4 — 오래된 Key TTL 설정:</strong> 날짜 Key에 TTL을 걸어 자동으로 만료되도록 설정해 메모리를 관리한다.<br>
-        <code>EXPIRE category_rank:2026-05-26 604800</code> (7일 후 자동 삭제)
+        <span class="box-title">DefaultErrorHandler 기본 동작</span>
+        동일 메시지를 <strong>10번까지 재시도</strong>한다. (백오프 0ms, 연속 시도)<br>
+        10번 실패하면 에러 로그를 남기고 해당 레코드를 포기하면서 Offset을 Commit한다.<br><br>
+        Kafka는 멈추지 않고 다음 메시지로 넘어간다.
+        포기한 메시지가 사라지지 않도록 DLT로 전송하면 나중에 원인을 분석하고 재처리할 수 있다.
       </div>
 
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Spring에서 ZSet 사용 예시
+          DLT와 재시도 불필요 예외 설정
         </span>
       </h3>
 
-      <pre><code class="language-java">@Service
-@RequiredArgsConstructor
-public class RankingService {
+      <pre><code class="language-java">// ErrorHandler 커스터마이징 — DLT 설정 + 재시도 불필요 예외 지정
+@Bean
+public DefaultErrorHandler errorHandler(KafkaOperations&lt;String, Object&gt; template) {
 
-    private final RedisTemplate&lt;String, String&gt; redisTemplate;
-    private static final String RANK_KEY_PREFIX = "category_rank:";
+    // 수정 포인트: 재시도 간격(100ms), 최대 재시도 횟수(3회)
+    BackOff backOff = new FixedBackOff(100L, 3L);
 
-    // 카테고리 클릭 시 오늘 날짜 Key에 점수 증가
-    public void incrementScore(String category) {
-        String todayKey = RANK_KEY_PREFIX + LocalDate.now();
-        redisTemplate.opsForZSet().incrementScore(todayKey, category, 1);
-    }
+    // DLT로 실패 메시지를 전송하는 DeadLetterPublishingRecoverer
+    // 원본 Topic명-dlt 형태로 자동 전송됨 (예: order-events → order-events-dlt)
+    DeadLetterPublishingRecoverer recoverer =
+            new DeadLetterPublishingRecoverer(template);
 
-    // 최근 3일 합산 ZSet에서 TOP N 조회
-    public Set&lt;ZSetOperations.TypedTuple&lt;String&gt;&gt; getTopN(int n) {
-        String recentKey = RANK_KEY_PREFIX + "recent3";
-        // 수정 포인트: 0부터 시작, n-1까지 (TOP N)
-        return redisTemplate.opsForZSet().reverseRangeWithScores(recentKey, 0, n - 1);
-    }
+    DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
 
-    // 스케줄러에서 주기적으로 최근 3일치 합산 ZSet 갱신
-    @Scheduled(cron = "0 0 * * * *") // 매 정시마다
-    public void refreshRecentRanking() {
-        String recentKey = RANK_KEY_PREFIX + "recent3";
-        List&lt;String&gt; keys = List.of(
-                RANK_KEY_PREFIX + LocalDate.now(),
-                RANK_KEY_PREFIX + LocalDate.now().minusDays(1),
-                RANK_KEY_PREFIX + LocalDate.now().minusDays(2)
-        );
+    // 수정 포인트: 재시도해도 의미없는 예외는 즉시 포기하고 DLT로 보냄
+    // 예) 역직렬화 오류, 비즈니스 규칙 위반 등 재시도해도 동일하게 실패하는 경우
+    handler.addNotRetryableExceptions(
+            IllegalArgumentException.class,  // 잘못된 메시지 형식
+            InvalidDataException.class       // 유효하지 않은 데이터
+    );
 
-        // ZUNIONSTORE 실행 후 TTL 설정 (25시간 — 하루치 여유)
-        redisTemplate.opsForZSet().unionAndStore(keys.get(0), keys.subList(1, 3), recentKey);
-        redisTemplate.expire(recentKey, Duration.ofHours(25));
-    }
+    return handler;
+}
+
+// DLT Consumer — 실패한 메시지 확인 및 처리
+@KafkaListener(topics = "order-events-dlt", groupId = "order-dlt-group")
+public void handleDeadLetter(String message) {
+    // 수정 포인트: 운영자 알림, 별도 저장, 수동 재처리 등 판단
+    log.warn("[DLT] 처리 실패 메시지 수신: {}", message);
 }</code></pre>
+
+      <div class="warning-box">
+        <span class="box-title">⚠️ DLT 없이 메시지를 포기하면 데이터가 사라진다</span>
+        DefaultErrorHandler가 재시도를 포기할 때 DLT 설정이 없으면 해당 메시지는 그냥 버려진다.
+        왜 실패했는지, 어떤 데이터였는지 추적이 불가능해진다.
+        실서비스에서는 반드시 DLT를 설정하고, DLT를 주기적으로 모니터링하는 프로세스를 만들어야 한다.
+      </div>
+
+      <!-- ===================== SECTION 6 ===================== -->
+      <h2 class="section">6. Lag — Consumer 처리 상태 모니터링</h2>
+
+      <p>
+        Lag는 Topic에 쌓여있는 메시지 중 해당 Consumer Group이 <strong>아직 읽지 못한 메시지 수</strong>다.
+        Consumer의 처리 속도가 메시지 발행 속도를 따라가고 있는지를 나타내는 핵심 지표다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%;">Lag 상태</th>
+            <th>의미</th>
+            <th>대응</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>0에 가까움</strong></td>
+            <td>새로운 메시지가 거의 실시간으로 처리되고 있다. 정상 상태.</td>
+            <td>유지</td>
+          </tr>
+          <tr>
+            <td><strong>점점 증가</strong></td>
+            <td>Consumer 처리 속도보다 메시지가 더 빠르게 쌓이고 있다. 병목 신호.</td>
+            <td>Consumer 수 증가 / 처리 로직 최적화 / 메시지 생산량 조절</td>
+          </tr>
+          <tr>
+            <td><strong>급격히 증가</strong></td>
+            <td>Consumer가 다운됐거나 처리 오류가 반복되고 있다.</td>
+            <td>Consumer 상태 확인 / DLT 모니터링 / 긴급 대응</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="concept-box">
+        <span class="box-title">Redis vs Kafka — 언제 어떤 것을 쓰는가</span>
+        <strong>Redis:</strong> 조회가 빠른 것 — 캐시, 세션, 실시간 카운트, 순위 조회<br>
+        <strong>Kafka:</strong> 저장 / 재처리 / 순서 보장이 필요한 것 — 이벤트 로그, 비동기 처리, 대량 메시지 병렬 처리<br><br>
+        Kafka는 실시간으로 이벤트를 처리하는 것이 아니다. 이벤트를 저장해두었다가 순서대로 안전하게 처리할 수 있도록 도와주는 구조임을 기억해야 한다.
+      </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        ZSet은 단순히 "빠른 정렬"을 제공하는 게 아니라, <strong>삽입 시점에 정렬이 완료</strong>된다는 것이 핵심이다.
-        DB에서 매번 <code>GROUP BY</code>와 <code>ORDER BY</code>로 집계하는 것과 비교하면,
-        ZSet은 조회 시 정렬 비용이 없어 트래픽이 높아도 응답 속도가 일정하다.
-        실시간으로 순위가 바뀌는 서비스(검색어 랭킹, 상품 인기도, 게임 점수판 등)에서 ZSet이 사실상 표준인 이유다.
+        Kafka의 핵심 가치는 <strong>API 서버와 처리 로직의 분리</strong>다.
+        서버가 모든 것을 동기로 처리하면 트래픽이 몰릴 때 가장 느린 작업(DB 저장, 외부 API 호출 등)이 전체 응답 시간을 결정한다.
+        Kafka를 중간에 두면 API 서버는 이벤트를 Kafka에 던지고 바로 응답을 반환하며, 실제 처리는 Consumer가 자신의 속도에 맞게 처리한다.
       </p>
 
       <p>
-        Time Window 패턴이 없으면 실시간 랭킹이 아니라 역대 누적 랭킹이 된다.
-        날짜별로 Key를 분리하는 것만으로 "오늘의 인기 카테고리", "이번 주 인기 상품" 같은 기간 기반 랭킹을 자연스럽게 구현할 수 있다.
-        <code>ZUNIONSTORE</code>로 여러 날짜의 ZSet을 합산하면 슬라이딩 윈도우가 완성된다.
+        Partition과 Consumer Group의 관계를 이해하는 것이 Kafka 성능 설계의 핵심이다.
+        파티션 수가 최대 병렬 처리 한계를 결정하고, Consumer 수를 파티션 수에 맞추어야 낭비 없이 효율적으로 동작한다.
+        파티션은 늘릴 수 있지만 줄일 수 없으므로 초기 설계에 충분한 여유를 두어야 한다.
       </p>
 
       <p>
-        날짜 Key에 TTL을 설정해 오래된 데이터가 자동으로 만료되도록 하는 것도 중요하다.
-        TTL 없이 날짜 Key를 계속 만들면 Redis 메모리가 계속 증가해 결국 장애로 이어진다.
-        데이터를 쌓는 것만큼 <strong>지우는 전략도 함께 설계</strong>해야 한다.
+        에러 처리에서 DLT는 선택이 아니라 필수다.
+        재시도를 포기한 메시지가 사라지면 어떤 데이터가 처리되지 않았는지 알 수 없다.
+        DLT를 설정해두면 실패한 메시지를 나중에 분석하고 재처리할 수 있다.
+        Lag 모니터링과 DLT 모니터링을 함께 운영하면 Kafka 기반 시스템의 건강 상태를 실시간으로 파악할 수 있다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
