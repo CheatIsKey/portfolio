@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>내일배움캠프 Spring 백엔드 88일차 TIL</title>
+  <title>내일배움캠프 Spring 백엔드 89일차 TIL</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
     body {
@@ -91,6 +91,19 @@
       color: #0a3622;
       display: inline;
     }
+    /* 다이어그램 공통 */
+    .diagram-wrap {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem 1rem;
+      margin: 1.2rem 0;
+      overflow-x: auto;
+    }
+    .diagram-wrap svg {
+      display: block;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -109,409 +122,458 @@
     </aside>
 
     <article class="prose">
-      <h1>내일배움캠프 Spring 백엔드 88일차 TIL — Kafka 핵심 개념 · 클러스터 · Offset · 에러 처리 · DLT · Lag</h1>
-      <p class="muted">작성일 2026-05-29 · 분류: 부트캠프, TIL, Kafka, 메시지 큐, Producer, Consumer, Partition, Offset, DLT, KRaft</p>
+      <h1>내일배움캠프 Spring 백엔드 89일차 TIL — 페이징 통계 집계 전략: Batch Mapping vs 상관 서브쿼리 · QueryDSL transform</h1>
+      <p class="muted">작성일 2026-06-01 · 분류: 부트캠프, TIL, JPA, QueryDSL, 페이징 최적화, N+1, Batch Mapping, Correlated Subquery, transform</p>
 
-      <h2 class="section">88일차 개요</h2>
+      <h2 class="section">89일차 개요</h2>
       <h3 class="section">
         <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
           오늘 목표
         </span>
       </h3>
       <ul>
-        <li>Kafka가 해결하는 핵심 문제 3가지(버퍼, 비동기, 병렬 처리)를 이해한다.</li>
-        <li><strong>Producer, Consumer, Topic, Partition, Consumer Group, Offset</strong> 구성 요소의 역할을 정리한다.</li>
-        <li><strong>Kafka 클러스터</strong>와 Replica(Leader/Follower) 구조가 고가용성을 보장하는 원리를 파악한다.</li>
-        <li><strong>Offset과 Commit</strong>의 차이, 자동/수동 Commit 방식을 익힌다.</li>
-        <li><strong>DefaultErrorHandler</strong>의 에러 처리 흐름과 <strong>DLT(Dead Letter Topic)</strong>의 역할을 이해한다.</li>
-        <li><strong>Lag</strong>으로 Consumer 처리 상태를 모니터링하는 방법을 파악한다.</li>
+        <li>피드 페이징에서 "게시물마다 댓글 수를 함께 보여주는" 문제가 왜 까다로운지 이해한다.</li>
+        <li><strong>Batch Mapping(IN + GROUP BY)</strong> 방식의 동작 흐름과 트레이드오프를 파악한다.</li>
+        <li><strong>Correlated Subquery(상관 서브쿼리)</strong> 방식의 동작 흐름과 트레이드오프를 파악한다.</li>
+        <li>두 방식을 비교해 상황에 맞는 선택 기준을 익힌다.</li>
+        <li><strong>QueryDSL <code>transform()</code></strong>이 보일러플레이트 코드를 얼마나 줄여주는지 이해한다.</li>
       </ul>
 
       <!-- ===================== SECTION 1 ===================== -->
-      <h2 class="section">1. Kafka란 — 해결하는 핵심 문제 3가지</h2>
+      <h2 class="section">1. 문제 상황 — 피드에서 댓글 수를 보여주려면</h2>
 
       <p>
-        Kafka는 이벤트를 순서대로 저장해두는 분산 메시지 스트리밍 플랫폼이다.
-        Consumer가 저장된 메시지를 하나씩 꺼내 처리하므로, 이벤트를 실시간으로 바로 처리하지 않아도 된다.
-        API 서버와 처리 로직 사이의 <strong>중간 저장소(버퍼)</strong> 역할을 한다.
+        인스타그램 피드처럼 게시물 카드에 댓글 수를 함께 표시하는 화면을 만든다고 가정해보자.
+        게시물 20개를 한 페이지에 보여줄 때, 각 게시물의 댓글 수를 가져오는 방법이 문제다.
       </p>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 1 — 버퍼 역할: API 서버가 죽지 않는다
-        </span>
-      </h3>
-
-      <pre><code class="language-text">Kafka 없이                              Kafka 있이
-사용자 요청 → 서버 → DB/Redis (동기)    a. 요청 받음 → Kafka에 저장 → 즉시 응답 반환
-                                        b. Consumer가 준비되면 Kafka에서 꺼내 처리
-
-모든 요청을 바로 처리해야 하므로        API 서버는 무거운 일을 직접 하지 않으므로
-트래픽 증가 시 빠르게 한계 도달          트래픽이 몰려도 버틸 수 있음</code></pre>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 2 — 비동기 처리: 데이터 유실이 없다
-        </span>
-      </h3>
-
-      <p>
-        Redis가 잠시 느려지거나, DB가 막히거나, 서버가 재배포되더라도
-        이벤트는 Kafka에 안전하게 저장되어 있어 Consumer가 재시작 후 이어서 처리할 수 있다.
-        Kafka는 메시지가 안전하게 처리되었다고 Commit이 완료되어야 다음 메시지를 읽으며,
-        처리된 메시지도 즉시 삭제되지 않고 설정된 보관 기간(retention)까지 유지된다.
-      </p>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          문제 3 — 파티션 기반 병렬 처리: 처리량이 폭발적으로 증가한다
-        </span>
-      </h3>
-
-      <p>
-        Kafka는 Partition이라는 병렬 처리 단위를 제공한다.
-        파티션 수만큼 Consumer가 동시에 메시지를 처리할 수 있으므로 수평 확장이 간단하다.
-      </p>
-
-      <pre><code class="language-text">파티션 3개  →  Consumer 3개가 동시 처리  →  처리량 3배
-파티션 10개 →  Consumer 10개가 동시 처리 →  처리량 10배</code></pre>
-
-      <div class="success-box">
-        <span class="box-title">Kafka 한 줄 요약</span>
-        트래픽이 갑자기 폭발해도 데이터를 절대 잃지 않고, 이벤트를 안전하게 모아서
-        나중에 여러 Consumer가 병렬로 처리할 수 있게 해주는 중간 저장소다.
+      <div class="warning-box">
+        <span class="box-title">⚠️ 가장 나쁜 방법 — 루프 안에서 COUNT 쿼리를 N번 날리기 (N+1 문제)</span>
+        게시물 20개를 가져온 뒤 for문을 돌며 게시물마다 <code>SELECT COUNT(*) FROM comments WHERE post_id = ?</code>를 실행하면
+        쿼리가 <strong>1(게시물 조회) + 20(댓글 수 조회) = 21번</strong> 발생한다.
+        100개면 101번, 1,000개면 1,001번으로 선형적으로 증가한다. 이것이 N+1 문제다.
       </div>
+
+      <p>
+        이 문제를 해결하는 대표적인 두 가지 전략이 <strong>Batch Mapping</strong>과 <strong>Correlated Subquery</strong>다.
+      </p>
 
       <!-- ===================== SECTION 2 ===================== -->
-      <h2 class="section">2. 핵심 구성 요소</h2>
+      <h2 class="section">2. Batch Mapping (IN + GROUP BY)</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:22%;">구성 요소</th>
-            <th>역할</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Producer</strong></td>
-            <td>Kafka로 메시지를 보내는 역할. API 서버가 Producer가 된다. 이벤트를 생성해 Topic에 전달한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Consumer</strong></td>
-            <td>Kafka에서 메시지를 읽어 처리하는 역할. Kafka에 쌓인 이벤트를 하나씩 꺼내 처리한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Topic</strong></td>
-            <td>메시지를 종류별로 분리하는 폴더. 이벤트 종류마다 별도 Topic을 만든다.</td>
-          </tr>
-          <tr>
-            <td><strong>Partition</strong></td>
-            <td>Topic을 여러 칸으로 나눈 병렬 처리 단위. 파티션이 많을수록 동시 처리량이 증가한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Consumer Group</strong></td>
-            <td>여러 Consumer를 팀으로 묶어 파티션을 나눠 처리한다. 어떤 Consumer가 어떤 파티션을 담당할지 자동 조율한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Offset</strong></td>
-            <td>Consumer가 어디까지 읽었는지를 나타내는 번호. 재시작 후에도 이어서 읽을 수 있다.</td>
-          </tr>
-          <tr>
-            <td><strong>Broker</strong></td>
-            <td>메시지를 저장하는 Kafka 서버. Producer가 보낸 데이터를 Topic/Partition 형태로 내부에 저장한다.</td>
-          </tr>
-        </tbody>
-      </table>
+      <p>
+        한 번의 쿼리로 여러 게시물의 댓글 수를 한 방에 가져오는 방법이다.
+        먼저 게시물 목록을 조회해 ID를 추출하고, 그 ID 목록을 IN 절에 넣어 댓글 수를 일괄 집계한다.
+      </p>
 
-      <div class="concept-box">
-        <span class="box-title">Partition과 Consumer 수의 최적 관계</span>
-        <strong>파티션 수 = Consumer 수</strong>일 때 가장 효율적이다.<br><br>
-        Consumer가 더 많은 경우: 남는 Consumer는 아무 일도 하지 않고 대기한다 (낭비)<br>
-        Consumer가 더 적은 경우: 1개의 Consumer가 2개 이상의 파티션을 담당해 처리 속도가 저하된다<br><br>
-        또한 <strong>하나의 파티션은 한 시점에 오직 하나의 Consumer만 처리</strong>할 수 있다.
-        파티션 수가 최대 병렬 처리 Consumer 수의 상한선이 된다.
-        파티션은 늘릴 수 있지만, 이미 존재하는 파티션을 줄일 수는 없으므로 초기 설계에 주의한다.
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" width="720" height="320">
+          <!-- 배경 영역 -->
+          <rect x="0" y="0" width="720" height="320" fill="#f8f9fa" rx="8"/>
+
+          <!-- WAS 박스 -->
+          <rect x="20" y="100" width="160" height="120" rx="8" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+          <text x="100" y="130" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">WAS</text>
+          <text x="100" y="150" text-anchor="middle" font-size="11" fill="#1565c0">(Spring 서버)</text>
+          <text x="100" y="170" text-anchor="middle" font-size="10" fill="#1565c0">① 게시물 ID 추출</text>
+          <text x="100" y="186" text-anchor="middle" font-size="10" fill="#1565c0">[1, 2, 3, ...]</text>
+          <text x="100" y="202" text-anchor="middle" font-size="10" fill="#1565c0">③ Map 병합 후 응답</text>
+
+          <!-- DB 박스 -->
+          <rect x="540" y="60" width="160" height="80" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+          <text x="620" y="90" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">DB</text>
+          <text x="620" y="110" text-anchor="middle" font-size="10" fill="#388e3c">쿼리 1: 게시물 조회</text>
+          <text x="620" y="126" text-anchor="middle" font-size="10" fill="#388e3c">SELECT * FROM posts</text>
+
+          <rect x="540" y="180" width="160" height="80" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+          <text x="620" y="210" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">DB</text>
+          <text x="620" y="228" text-anchor="middle" font-size="10" fill="#e65100">쿼리 2: 댓글 수 집계</text>
+          <text x="620" y="244" text-anchor="middle" font-size="10" fill="#e65100">WHERE id IN (1,2,3...)</text>
+
+          <!-- 화살표 1: WAS → DB (쿼리1) -->
+          <line x1="180" y1="115" x2="536" y2="95" stroke="#2196f3" stroke-width="2" marker-end="url(#arrow-blue)"/>
+          <text x="355" y="96" text-anchor="middle" font-size="10" fill="#1565c0">① 게시물 조회 요청</text>
+
+          <!-- 화살표 2: DB → WAS (결과1) -->
+          <line x1="536" y1="110" x2="180" y2="148" stroke="#4caf50" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+          <text x="355" y="138" text-anchor="middle" font-size="10" fill="#2e7d32">② 게시물 + ID 목록 반환</text>
+
+          <!-- 화살표 3: WAS → DB (쿼리2) -->
+          <line x1="180" y1="175" x2="536" y2="215" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow-orange)"/>
+          <text x="355" y="205" text-anchor="middle" font-size="10" fill="#e65100">③ IN(1,2,3...) 댓글 수 요청</text>
+
+          <!-- 화살표 4: DB → WAS (결과2) -->
+          <line x1="536" y1="230" x2="180" y2="196" stroke="#f44336" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+          <text x="355" y="258" text-anchor="middle" font-size="10" fill="#c62828">④ {1:3, 2:5, 3:0} 반환</text>
+
+          <!-- 총 라운드트립 표시 -->
+          <rect x="240" y="280" width="240" height="28" rx="6" fill="#e3f2fd" stroke="#2196f3" stroke-width="1.5"/>
+          <text x="360" y="299" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">네트워크 라운드트립 총 2회</text>
+
+          <!-- 화살표 마커 -->
+          <defs>
+            <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#2196f3"/>
+            </marker>
+            <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#4caf50"/>
+            </marker>
+            <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#ff9800"/>
+            </marker>
+            <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#f44336"/>
+            </marker>
+          </defs>
+
+          <!-- 제목 -->
+          <text x="360" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Batch Mapping 동작 흐름</text>
+          <text x="360" y="50" text-anchor="middle" font-size="11" fill="#666">쿼리 2번으로 N+1 없이 처리, WAS에서 Map 병합</text>
+        </svg>
       </div>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Spring Kafka — Producer / Consumer 기본 예시
-        </span>
-      </h3>
+      <pre><code class="language-java">// Batch Mapping — QueryDSL 구현 (transform 미사용 버전)
+@Override
+public Map&lt;Long, Long&gt; countCommentsByPostIds(List&lt;Long&gt; postIds) {
+    if (postIds == null || postIds.isEmpty()) return Collections.emptyMap();
 
-      <pre><code class="language-java">// Producer — 이벤트를 Topic에 전송
-@Service
-@RequiredArgsConstructor
-public class OrderEventProducer {
+    // 쿼리 2번: IN 절 + GROUP BY로 postId별 댓글 수를 한 번에 집계
+    // 인스타그램 정책: 피드 카드에는 원댓글 수만 노출 (대댓글 제외) → parent IS NULL
+    List&lt;Tuple&gt; results = queryFactory
+            .select(comment.post.id, comment.count())
+            .from(comment)
+            .where(
+                comment.post.id.in(postIds),
+                comment.parent.isNull()    // 원댓글만 카운트
+            )
+            .groupBy(comment.post.id)
+            .fetch();
 
-    private final KafkaTemplate&lt;String, String&gt; kafkaTemplate;
-
-    public void sendOrderEvent(Long orderId) {
-        // 수정 포인트: Topic 이름과 메시지 형식을 실제 도메인에 맞게 교체
-        kafkaTemplate.send("order-events", String.valueOf(orderId));
-    }
+    // DB 결과(List&lt;Tuple&gt;)를 WAS 메모리에서 Map으로 변환 — 보일러플레이트
+    return results.stream()
+            .collect(Collectors.toMap(
+                    tuple -> tuple.get(comment.post.id),
+                    tuple -> tuple.get(comment.count())
+            ));
 }
 
-// Consumer — Topic에서 메시지를 읽어 처리
-@Component
-public class OrderEventConsumer {
+// 서비스에서 사용
+public List&lt;FeedResponse&gt; getFeed(Pageable pageable) {
+    List&lt;Post&gt; posts = postRepository.findAll(pageable).getContent();
+    List&lt;Long&gt; postIds = posts.stream().map(Post::getId).toList();
 
-    // groupId: Consumer Group 이름. 같은 Group 내 Consumer끼리 파티션을 나눠 처리
-    @KafkaListener(topics = "order-events", groupId = "order-consumer-group")
-    public void handle(String message) {
-        // 수정 포인트: 메시지 역직렬화 및 비즈니스 로직 처리
-        Long orderId = Long.parseLong(message);
-        // ... 주문 처리 로직
-    }
+    // 한 번의 쿼리로 N개의 게시물 댓글 수를 Map으로 받아옴
+    Map&lt;Long, Long&gt; commentCountMap = commentRepository.countCommentsByPostIds(postIds);
+
+    return posts.stream()
+            .map(post -&gt; FeedResponse.of(
+                    post,
+                    commentCountMap.getOrDefault(post.getId(), 0L) // 댓글 없으면 0
+            ))
+            .toList();
 }</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">Batch Mapping의 특징 — "DB는 단순하게, 조립은 WAS에서"</span>
+        서브쿼리가 없어 쿼리 자체가 가볍다. DB 옵티마이저가 실행 계획을 세우기 쉽고, 인덱스를 잘 탄다면 매우 빠르고 안정적이다.<br><br>
+        단점은 네트워크 라운드트립이 2회 발생하고, WAS 서버 메모리에서 ID 추출과 Map 병합 코드를 직접 작성해야 해서 코드가 길어진다.
+      </div>
 
       <!-- ===================== SECTION 3 ===================== -->
-      <h2 class="section">3. Kafka 클러스터 — 고가용성 보장</h2>
+      <h2 class="section">3. Correlated Subquery (상관 서브쿼리)</h2>
 
       <p>
-        단일 브로커 구조는 장애에 취약하고 성능에 한계가 있어 실서비스에 적합하지 않다.
-        Kafka 클러스터는 여러 브로커가 하나의 Kafka처럼 동작하는 구조로,
-        파티션을 여러 브로커에 분산해 병렬 처리 성능을 높이고 장애 시 자동으로 역할을 인계한다.
+        쿼리 한 번에 게시물 조회와 댓글 수 집계를 동시에 끝내는 방법이다.
+        <code>SELECT</code> 절 안에 서브쿼리를 넣어 각 게시물 행마다 댓글 수를 함께 계산한다.
       </p>
 
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          Replica — Leader와 Follower
-        </span>
-      </h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" width="720" height="280">
+          <rect x="0" y="0" width="720" height="280" fill="#f8f9fa" rx="8"/>
 
-      <p>
-        각 Partition은 원본(Leader)과 복제본(Follower)으로 구성된다.
-        Producer와 Consumer는 항상 Leader와 통신하고,
-        Leader에 장애가 발생하면 Follower 중 하나가 자동으로 Leader로 승격된다.
-      </p>
+          <!-- WAS 박스 -->
+          <rect x="20" y="90" width="160" height="100" rx="8" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+          <text x="100" y="120" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">WAS</text>
+          <text x="100" y="140" text-anchor="middle" font-size="11" fill="#1565c0">(Spring 서버)</text>
+          <text x="100" y="160" text-anchor="middle" font-size="10" fill="#1565c0">조립 로직 없음!</text>
+          <text x="100" y="176" text-anchor="middle" font-size="10" fill="#1565c0">바로 응답 가능</text>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">역할</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Leader</strong></td>
-            <td>모든 read/write 요청을 처리한다. Producer와 Consumer가 실제로 통신하는 대상이다. 장애 발생 시 새로운 Leader가 자동 선출된다.</td>
-          </tr>
-          <tr>
-            <td><strong>Follower</strong></td>
-            <td>Leader의 데이터를 그대로 복제한다. Leader 장애 시 자동으로 Leader로 승격된다. Follower 장애 복구 후에는 Leader 데이터를 다시 동기화한다.</td>
-          </tr>
-        </tbody>
-      </table>
+          <!-- DB 박스 (크게) -->
+          <rect x="400" y="40" width="280" height="190" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+          <text x="540" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">DB — 단 1번의 쿼리</text>
 
-      <div class="concept-box">
-        <span class="box-title">KRaft Controller — Kafka 내부 조율 시스템</span>
-        Controller는 브로커 생사 확인, Partition Leader 관리, Failover 시 새 Leader 선출, 메타데이터 관리를 담당한다.<br><br>
-        과거에는 ZooKeeper라는 외부 시스템이 이 역할을 했으나,
-        <strong>KRaft(Kafka Raft)</strong>는 이 기능을 Kafka 내부에 직접 포함시켰다.
-        Raft 합의 알고리즘 기반으로 안정적인 Leader 선출을 지원하며, 외부 의존성을 제거해 운영이 단순해졌다.
+          <!-- 쿼리 구조 시각화 -->
+          <rect x="415" y="78" width="250" height="140" rx="6" fill="white" stroke="#a5d6a7" stroke-width="1.5"/>
+          <text x="427" y="98" font-size="10" fill="#1b5e20" font-family="monospace">SELECT</text>
+          <text x="427" y="114" font-size="10" fill="#1b5e20" font-family="monospace">  p.id, p.content,</text>
+
+          <!-- 서브쿼리 강조 박스 -->
+          <rect x="427" y="118" width="228" height="44" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="1.5"/>
+          <text x="435" y="133" font-size="9.5" fill="#e65100" font-family="monospace">  (SELECT COUNT(*)</text>
+          <text x="435" y="147" font-size="9.5" fill="#e65100" font-family="monospace">   FROM comments c</text>
+          <text x="435" y="160" font-size="9.5" fill="#e65100" font-family="monospace">   WHERE c.post_id = p.id) AS cnt</text>
+
+          <text x="427" y="178" font-size="10" fill="#1b5e20" font-family="monospace">FROM posts p</text>
+          <text x="427" y="194" font-size="10" fill="#1b5e20" font-family="monospace">WHERE p.id IN (1,2,3...)</text>
+
+          <!-- 라벨: 원댓글마다 서브쿼리 실행 -->
+          <text x="540" y="228" text-anchor="middle" font-size="10" fill="#e65100">⚠ 게시물 1건마다 서브쿼리 1번 내부 실행</text>
+
+          <!-- 화살표 왕복 1번 -->
+          <line x1="180" y1="135" x2="396" y2="135" stroke="#2196f3" stroke-width="2" marker-end="url(#arr-b2)"/>
+          <text x="290" y="122" text-anchor="middle" font-size="10" fill="#1565c0">① 단 1번의 요청</text>
+          <line x1="396" y1="155" x2="180" y2="155" stroke="#4caf50" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-g2)"/>
+          <text x="290" y="170" text-anchor="middle" font-size="10" fill="#2e7d32">② 게시물 + 댓글 수 한 번에 반환</text>
+
+          <!-- 총 라운드트립 -->
+          <rect x="240" y="242" width="240" height="28" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5"/>
+          <text x="360" y="261" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">네트워크 라운드트립 총 1회</text>
+
+          <defs>
+            <marker id="arr-b2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#2196f3"/>
+            </marker>
+            <marker id="arr-g2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#4caf50"/>
+            </marker>
+          </defs>
+
+          <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Correlated Subquery 동작 흐름</text>
+        </svg>
       </div>
 
-      <!-- ===================== SECTION 4 ===================== -->
-      <h2 class="section">4. Offset과 Commit</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width:20%;">개념</th>
-            <th>설명</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Offset</strong></td>
-            <td>Consumer가 작업을 어디까지 수행했는지 나타내는 번호. 파티션 내 메시지 위치를 식별한다.</td>
-          </tr>
-          <tr>
-            <td><strong>Commit</strong></td>
-            <td>이 번호(Offset)까지 읽었다는 것을 Kafka에 기록하는 행위. 서버 재시작 후에도 이어서 읽을 수 있게 된다.</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          자동 Commit vs 수동 Commit
-        </span>
-      </h3>
-
-      <p>
-        Spring Kafka는 <code>@KafkaListener</code> 뒤에서 Listener Container가 메시지를 가져와 메서드에 전달하고,
-        기본적으로 적절한 시점에 자동으로 Offset을 Commit한다.
-        처리 성공 여부와 무관하게 Commit되면 데이터 유실 위험이 있으므로,
-        중요한 처리에는 수동 Commit을 사용한다.
-      </p>
-
-      <pre><code class="language-java">// 수동 Commit 예시 — 처리가 완전히 끝난 후에만 Commit
-@KafkaListener(
-    topics = "order-events",
-    groupId = "order-consumer-group",
-    // 수정 포인트: 수동 Commit을 사용하려면 containerFactory에서 ackMode를 MANUAL로 설정
-    containerFactory = "manualAckContainerFactory"
-)
-public void handle(String message, Acknowledgment ack) {
-    try {
-        Long orderId = Long.parseLong(message);
-        // 비즈니스 로직 처리
-        processOrder(orderId);
-
-        // 처리가 성공적으로 끝난 경우에만 Offset Commit
-        ack.acknowledge();
-
-    } catch (Exception e) {
-        // 예외 발생 시 ack.acknowledge()를 호출하지 않으므로
-        // 이 메시지는 재처리 대상이 됨
-        log.error("주문 처리 실패: {}", message, e);
-    }
-}</code></pre>
-
-      <!-- ===================== SECTION 5 ===================== -->
-      <h2 class="section">5. 에러 처리 — DefaultErrorHandler와 DLT</h2>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          에러 처리 흐름
-        </span>
-      </h3>
-
-      <pre><code class="language-text">[1] Kafka Consumer 스레드가 메시지를 poll()로 가져옴
-  ↓
-[2] @KafkaListener 메서드 호출
-  ↓
-[3] 비즈니스 로직 실행 중 예외 발생
-  ↓
-[4] DefaultErrorHandler로 제어권 이동
-  ↓
-[5] DefaultErrorHandler 결정
-    - 재시도할지?
-    - 잠깐 기다렸다가 재시도할지? (BackOff)
-    - 더 이상 안 되겠다 → 포기(recover)할지?
-    - 포기라면 DLT로 보낼지?
-  ↓
-[6] 최종 결과
-    - 재시도 중  → 같은 메시지 다시 리스너에 전달
-    - 포기 결정 → Offset Commit + DLT 전송(옵션)</code></pre>
-
-      <div class="concept-box">
-        <span class="box-title">DefaultErrorHandler 기본 동작</span>
-        동일 메시지를 <strong>10번까지 재시도</strong>한다. (백오프 0ms, 연속 시도)<br>
-        10번 실패하면 에러 로그를 남기고 해당 레코드를 포기하면서 Offset을 Commit한다.<br><br>
-        Kafka는 멈추지 않고 다음 메시지로 넘어간다.
-        포기한 메시지가 사라지지 않도록 DLT로 전송하면 나중에 원인을 분석하고 재처리할 수 있다.
-      </div>
-
-      <h3 class="section">
-        <span style="background-color:#e3f2fd; color:#0d47a1; font-weight:bold; padding:3px 8px; border-radius:6px;">
-          DLT와 재시도 불필요 예외 설정
-        </span>
-      </h3>
-
-      <pre><code class="language-java">// ErrorHandler 커스터마이징 — DLT 설정 + 재시도 불필요 예외 지정
-@Bean
-public DefaultErrorHandler errorHandler(KafkaOperations&lt;String, Object&gt; template) {
-
-    // 수정 포인트: 재시도 간격(100ms), 최대 재시도 횟수(3회)
-    BackOff backOff = new FixedBackOff(100L, 3L);
-
-    // DLT로 실패 메시지를 전송하는 DeadLetterPublishingRecoverer
-    // 원본 Topic명-dlt 형태로 자동 전송됨 (예: order-events → order-events-dlt)
-    DeadLetterPublishingRecoverer recoverer =
-            new DeadLetterPublishingRecoverer(template);
-
-    DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
-
-    // 수정 포인트: 재시도해도 의미없는 예외는 즉시 포기하고 DLT로 보냄
-    // 예) 역직렬화 오류, 비즈니스 규칙 위반 등 재시도해도 동일하게 실패하는 경우
-    handler.addNotRetryableExceptions(
-            IllegalArgumentException.class,  // 잘못된 메시지 형식
-            InvalidDataException.class       // 유효하지 않은 데이터
-    );
-
-    return handler;
-}
-
-// DLT Consumer — 실패한 메시지 확인 및 처리
-@KafkaListener(topics = "order-events-dlt", groupId = "order-dlt-group")
-public void handleDeadLetter(String message) {
-    // 수정 포인트: 운영자 알림, 별도 저장, 수동 재처리 등 판단
-    log.warn("[DLT] 처리 실패 메시지 수신: {}", message);
+      <pre><code class="language-java">// Correlated Subquery — QueryDSL 구현
+@Override
+public List&lt;FeedRow&gt; findFeedWithCommentCount(Pageable pageable) {
+    // 한 번의 쿼리로 게시물 + 댓글 수를 함께 조회
+    // 단, SELECT 절의 서브쿼리는 게시물 1건마다 내부적으로 1번씩 실행됨
+    return queryFactory
+            .select(Projections.constructor(FeedRow.class,
+                    post.id,
+                    post.content,
+                    // 수정 포인트: 상관 서브쿼리 — post.id가 바깥 쿼리의 현재 행을 참조
+                    JPAExpressions
+                            .select(comment.count())
+                            .from(comment)
+                            .where(
+                                comment.post.id.eq(post.id),
+                                comment.parent.isNull()
+                            )
+            ))
+            .from(post)
+            .orderBy(post.id.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
 }</code></pre>
 
       <div class="warning-box">
-        <span class="box-title">⚠️ DLT 없이 메시지를 포기하면 데이터가 사라진다</span>
-        DefaultErrorHandler가 재시도를 포기할 때 DLT 설정이 없으면 해당 메시지는 그냥 버려진다.
-        왜 실패했는지, 어떤 데이터였는지 추적이 불가능해진다.
-        실서비스에서는 반드시 DLT를 설정하고, DLT를 주기적으로 모니터링하는 프로세스를 만들어야 한다.
+        <span class="box-title">⚠️ 상관 서브쿼리의 성능 함정 — 인덱스가 없으면 N+1보다 나쁠 수 있다</span>
+        <code>SELECT</code> 절에 들어가는 상관 서브쿼리는 <strong>조회되는 게시물 행마다 내부적으로 한 번씩 실행</strong>된다.
+        게시물 20개면 DB 내부에서 댓글 COUNT 쿼리가 20번 돌아간다.<br><br>
+        단, 이 실행은 DB 내부에서 이루어지므로 네트워크 왕복이 1번이고,
+        <code>comments.post_id</code>에 인덱스가 걸려 있다면 각 COUNT가 매우 빠르다.
+        하지만 <strong>인덱스가 없거나 데이터가 수천만 건에 달한다면</strong>
+        DB CPU 부하가 Batch Mapping보다 심해질 수 있다.
+      </div>
+
+      <!-- ===================== SECTION 4 ===================== -->
+      <h2 class="section">4. 두 방식 비교</h2>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" width="720" height="200">
+          <rect x="0" y="0" width="720" height="200" fill="#f8f9fa" rx="8"/>
+
+          <!-- 헤더 -->
+          <rect x="10" y="10" width="700" height="36" rx="6" fill="#37474f"/>
+          <text x="210" y="34" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Batch Mapping (IN + GROUP BY)</text>
+          <text x="530" y="34" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Correlated Subquery</text>
+          <line x1="360" y1="10" x2="360" y2="190" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- 항목들 -->
+          <!-- 라운드트립 -->
+          <text x="10" y="68" font-size="11" font-weight="bold" fill="#546e7a">네트워크 라운드트립</text>
+          <rect x="10" y="74" width="340" height="22" rx="4" fill="#fff9c4"/>
+          <text x="180" y="90" text-anchor="middle" font-size="11" fill="#e65100">2회 (게시물 조회 + 댓글 집계)</text>
+          <rect x="370" y="74" width="340" height="22" rx="4" fill="#e8f5e9"/>
+          <text x="540" y="90" text-anchor="middle" font-size="11" fill="#2e7d32">1회 (단일 쿼리)</text>
+
+          <!-- 코드 가독성 -->
+          <text x="10" y="116" font-size="11" font-weight="bold" fill="#546e7a">코드 가독성</text>
+          <rect x="10" y="122" width="340" height="22" rx="4" fill="#fff9c4"/>
+          <text x="180" y="138" text-anchor="middle" font-size="11" fill="#e65100">Map 병합 코드 필요 (보일러플레이트↑)</text>
+          <rect x="370" y="122" width="340" height="22" rx="4" fill="#e8f5e9"/>
+          <text x="540" y="138" text-anchor="middle" font-size="11" fill="#2e7d32">서비스 계층 조립 로직 없음 (깔끔)</text>
+
+          <!-- DB 부하 -->
+          <text x="10" y="164" font-size="11" font-weight="bold" fill="#546e7a">대용량 시 DB 부하</text>
+          <rect x="10" y="170" width="340" height="22" rx="4" fill="#e8f5e9"/>
+          <text x="180" y="186" text-anchor="middle" font-size="11" fill="#2e7d32">낮음 (단순 쿼리, 옵티마이저 유리)</text>
+          <rect x="370" y="170" width="340" height="22" rx="4" fill="#fff9c4"/>
+          <text x="540" y="186" text-anchor="middle" font-size="11" fill="#e65100">인덱스 없으면 CPU 부하 위험</text>
+        </svg>
+      </div>
+
+      <div class="success-box">
+        <span class="box-title">선택 기준</span>
+        <strong>Batch Mapping 추천:</strong> 데이터가 많거나(수백만 건+), 성능이 최우선이거나, DB 부하를 예측 가능하게 유지하고 싶을 때<br>
+        <strong>Correlated Subquery 추천:</strong> 데이터 규모가 크지 않고, 코드 가독성이 우선이며, <code>comments.post_id</code>에 인덱스가 확실히 걸려 있을 때<br><br>
+        인덱스 유무, 데이터 규모, 팀의 코드 컨벤션을 종합해서 결정한다. 어느 쪽도 절대적으로 옳은 답은 없다.
+      </div>
+
+      <!-- ===================== SECTION 5 ===================== -->
+      <h2 class="section">5. QueryDSL transform() — 보일러플레이트를 없애는 마법</h2>
+
+      <p>
+        Batch Mapping에서 가장 귀찮은 부분이 <code>List&lt;Tuple&gt;</code>을 <code>Map</code>으로 변환하는 코드다.
+        <code>transform()</code>은 이 과정을 QueryDSL이 내부적으로 처리해준다.
+      </p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" width="720" height="210">
+          <rect x="0" y="0" width="720" height="210" fill="#f8f9fa" rx="8"/>
+
+          <!-- 제목 -->
+          <text x="360" y="26" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">transform() 전후 비교</text>
+
+          <!-- Before 박스 -->
+          <rect x="10" y="38" width="330" height="160" rx="8" fill="white" stroke="#ef9a9a" stroke-width="2"/>
+          <rect x="10" y="38" width="330" height="28" rx="8" fill="#ef9a9a"/>
+          <text x="175" y="58" text-anchor="middle" font-size="12" font-weight="bold" fill="white">transform() 미사용 (Before)</text>
+          <text x="22" y="84" font-size="9.5" fill="#333" font-family="monospace">List&lt;Tuple&gt; results = queryFactory</text>
+          <text x="22" y="100" font-size="9.5" fill="#333" font-family="monospace">  .select(comment.post.id, comment.count())</text>
+          <text x="22" y="116" font-size="9.5" fill="#333" font-family="monospace">  .from(comment)...</text>
+          <text x="22" y="132" font-size="9.5" fill="#333" font-family="monospace">  .fetch();</text>
+          <rect x="16" y="138" width="318" height="52" rx="4" fill="#ffebee"/>
+          <text x="22" y="154" font-size="9.5" fill="#c62828" font-family="monospace">// 직접 변환 (보일러플레이트)</text>
+          <text x="22" y="170" font-size="9.5" fill="#c62828" font-family="monospace">return results.stream().collect(</text>
+          <text x="22" y="186" font-size="9.5" fill="#c62828" font-family="monospace">  Collectors.toMap(t-&gt;..., t-&gt;...));</text>
+
+          <!-- After 박스 -->
+          <rect x="380" y="38" width="330" height="160" rx="8" fill="white" stroke="#a5d6a7" stroke-width="2"/>
+          <rect x="380" y="38" width="330" height="28" rx="8" fill="#66bb6a"/>
+          <text x="545" y="58" text-anchor="middle" font-size="12" font-weight="bold" fill="white">transform() 사용 (After)</text>
+          <text x="392" y="84" font-size="9.5" fill="#333" font-family="monospace">return queryFactory</text>
+          <text x="392" y="100" font-size="9.5" fill="#333" font-family="monospace">  .from(comment)</text>
+          <text x="392" y="116" font-size="9.5" fill="#333" font-family="monospace">  .where(comment.post.id.in(postIds),</text>
+          <text x="392" y="132" font-size="9.5" fill="#333" font-family="monospace">         comment.parent.isNull())</text>
+          <text x="392" y="148" font-size="9.5" fill="#333" font-family="monospace">  .groupBy(comment.post.id)</text>
+          <rect x="386" y="152" width="318" height="38" rx="4" fill="#e8f5e9"/>
+          <text x="392" y="168" font-size="9.5" fill="#2e7d32" font-family="monospace">  .transform(groupBy(comment.post.id)</text>
+          <text x="392" y="184" font-size="9.5" fill="#2e7d32" font-family="monospace">           .as(comment.id.count()));</text>
+
+          <!-- 화살표 -->
+          <text x="358" y="130" text-anchor="middle" font-size="18" fill="#666">→</text>
+        </svg>
+      </div>
+
+      <pre><code class="language-java">// transform() 사용 버전 — 완성본
+@Override
+public Map&lt;Long, Long&gt; countCommentsByPostIds(List&lt;Long&gt; postIds) {
+    if (postIds == null || postIds.isEmpty()) {
+        return Collections.emptyMap();
+    }
+
+    // SELECT post_id, COUNT(*) FROM comments
+    // WHERE post_id IN (...) AND parent_id IS NULL
+    // GROUP BY post_id
+    //
+    // transform()이 DB 조회 결과를 순회하며 Map&lt;postId, count&gt; 형태로 자동 변환
+    Map&lt;Long, Long&gt; result = queryFactory
+            .from(comment)
+            .where(
+                comment.post.id.in(postIds),
+                comment.parent.isNull()   // 원댓글만 집계
+            )
+            .groupBy(comment.post.id)
+            .transform(groupBy(comment.post.id).as(comment.id.count()));
+            // 수정 포인트: comment.count()는 Long을 반환하지 않을 수 있어
+            //             comment.id.count()를 사용하는 것이 더 안전하다
+
+    return result != null ? result : Collections.emptyMap();
+}</code></pre>
+
+      <div class="concept-box">
+        <span class="box-title">transform()이 하는 일</span>
+        <code>transform(groupBy(키).as(값))</code>은 QueryDSL이 DB 조회 결과를 내부적으로 순회하며
+        <strong>자바 Map 객체로 한 번에 매핑</strong>해준다.<br><br>
+        <code>.fetch()</code>로 <code>List&lt;Tuple&gt;</code>을 받은 뒤 <code>stream().collect(Collectors.toMap(...))</code>으로
+        수동 변환하는 보일러플레이트 코드를 완전히 없애준다.<br><br>
+        단, <code>transform()</code>은 JPQL로 변환되지 않고 <strong>메모리에서 처리</strong>된다는 점을 알아두어야 한다.
+        쿼리 실행 후 결과를 Java 메모리에서 그룹핑하는 방식이므로, 결과 행이 매우 많으면 메모리 사용량이 늘어날 수 있다.
       </div>
 
       <!-- ===================== SECTION 6 ===================== -->
-      <h2 class="section">6. Lag — Consumer 처리 상태 모니터링</h2>
+      <h2 class="section">6. 전체 흐름 한눈에 보기</h2>
 
-      <p>
-        Lag는 Topic에 쌓여있는 메시지 중 해당 Consumer Group이 <strong>아직 읽지 못한 메시지 수</strong>다.
-        Consumer의 처리 속도가 메시지 발행 속도를 따라가고 있는지를 나타내는 핵심 지표다.
-      </p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" width="720" height="260">
+          <rect x="0" y="0" width="720" height="260" fill="#f8f9fa" rx="8"/>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width:25%;">Lag 상태</th>
-            <th>의미</th>
-            <th>대응</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>0에 가까움</strong></td>
-            <td>새로운 메시지가 거의 실시간으로 처리되고 있다. 정상 상태.</td>
-            <td>유지</td>
-          </tr>
-          <tr>
-            <td><strong>점점 증가</strong></td>
-            <td>Consumer 처리 속도보다 메시지가 더 빠르게 쌓이고 있다. 병목 신호.</td>
-            <td>Consumer 수 증가 / 처리 로직 최적화 / 메시지 생산량 조절</td>
-          </tr>
-          <tr>
-            <td><strong>급격히 증가</strong></td>
-            <td>Consumer가 다운됐거나 처리 오류가 반복되고 있다.</td>
-            <td>Consumer 상태 확인 / DLT 모니터링 / 긴급 대응</td>
-          </tr>
-        </tbody>
-      </table>
+          <text x="360" y="24" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">피드 댓글 수 집계 — 세 가지 방법 비교</text>
 
-      <div class="concept-box">
-        <span class="box-title">Redis vs Kafka — 언제 어떤 것을 쓰는가</span>
-        <strong>Redis:</strong> 조회가 빠른 것 — 캐시, 세션, 실시간 카운트, 순위 조회<br>
-        <strong>Kafka:</strong> 저장 / 재처리 / 순서 보장이 필요한 것 — 이벤트 로그, 비동기 처리, 대량 메시지 병렬 처리<br><br>
-        Kafka는 실시간으로 이벤트를 처리하는 것이 아니다. 이벤트를 저장해두었다가 순서대로 안전하게 처리할 수 있도록 도와주는 구조임을 기억해야 한다.
+          <!-- N+1 -->
+          <rect x="10" y="38" width="210" height="200" rx="8" fill="white" stroke="#ef9a9a" stroke-width="2"/>
+          <rect x="10" y="38" width="210" height="26" rx="8" fill="#ef5350"/>
+          <text x="115" y="56" text-anchor="middle" font-size="11" font-weight="bold" fill="white">N+1 (하지 말 것)</text>
+          <text x="115" y="82" text-anchor="middle" font-size="10" fill="#c62828">게시물 1건 조회</text>
+          <text x="115" y="98" text-anchor="middle" font-size="10" fill="#c62828">↓</text>
+          <text x="115" y="114" text-anchor="middle" font-size="10" fill="#c62828">댓글 수 쿼리 1번</text>
+          <text x="115" y="130" text-anchor="middle" font-size="10" fill="#c62828">↓</text>
+          <text x="115" y="146" text-anchor="middle" font-size="10" fill="#c62828">댓글 수 쿼리 1번</text>
+          <text x="115" y="162" text-anchor="middle" font-size="10" fill="#c62828">↓ (N번 반복)</text>
+          <rect x="20" y="174" width="190" height="56" rx="4" fill="#ffebee"/>
+          <text x="115" y="196" text-anchor="middle" font-size="10" fill="#b71c1c">쿼리 수: 1 + N번</text>
+          <text x="115" y="212" text-anchor="middle" font-size="10" fill="#b71c1c">N=20이면 21번!</text>
+          <text x="115" y="228" text-anchor="middle" font-size="10" font-weight="bold" fill="#b71c1c">절대 사용 금지</text>
+
+          <!-- Batch Mapping -->
+          <rect x="255" y="38" width="210" height="200" rx="8" fill="white" stroke="#ffcc02" stroke-width="2"/>
+          <rect x="255" y="38" width="210" height="26" rx="8" fill="#ffc107"/>
+          <text x="360" y="56" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Batch Mapping</text>
+          <text x="360" y="80" text-anchor="middle" font-size="10" fill="#555">① 게시물 조회 쿼리</text>
+          <text x="360" y="98" text-anchor="middle" font-size="10" fill="#555">② ID 추출 (WAS 메모리)</text>
+          <text x="360" y="116" text-anchor="middle" font-size="10" fill="#555">③ IN(1,2,3..) + GROUP BY 쿼리</text>
+          <text x="360" y="134" text-anchor="middle" font-size="10" fill="#555">④ Map 병합 (WAS 메모리)</text>
+          <rect x="265" y="148" width="190" height="82" rx="4" fill="#fff8e1"/>
+          <text x="360" y="168" text-anchor="middle" font-size="10" fill="#e65100">쿼리 수: 2번 고정</text>
+          <text x="360" y="184" text-anchor="middle" font-size="10" fill="#e65100">코드: 다소 길어짐</text>
+          <text x="360" y="200" text-anchor="middle" font-size="10" fill="#e65100">DB 부하: 낮음 (안정적)</text>
+          <text x="360" y="218" text-anchor="middle" font-size="10" font-weight="bold" fill="#e65100">대용량에 권장</text>
+
+          <!-- Correlated Subquery -->
+          <rect x="500" y="38" width="210" height="200" rx="8" fill="white" stroke="#a5d6a7" stroke-width="2"/>
+          <rect x="500" y="38" width="210" height="26" rx="8" fill="#43a047"/>
+          <text x="605" y="56" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Correlated Subquery</text>
+          <text x="605" y="80" text-anchor="middle" font-size="10" fill="#555">① 단 1번의 쿼리 전송</text>
+          <text x="605" y="98" text-anchor="middle" font-size="10" fill="#555">② DB 내부에서 게시물마다</text>
+          <text x="605" y="114" text-anchor="middle" font-size="10" fill="#555">  서브쿼리 자동 실행</text>
+          <text x="605" y="132" text-anchor="middle" font-size="10" fill="#555">③ 결과를 WAS로 한 번에 반환</text>
+          <rect x="510" y="148" width="190" height="82" rx="4" fill="#e8f5e9"/>
+          <text x="605" y="168" text-anchor="middle" font-size="10" fill="#2e7d32">쿼리 수: 1번</text>
+          <text x="605" y="184" text-anchor="middle" font-size="10" fill="#2e7d32">코드: 깔끔함</text>
+          <text x="605" y="200" text-anchor="middle" font-size="10" fill="#2e7d32">DB 부하: 인덱스 있으면 OK</text>
+          <text x="605" y="218" text-anchor="middle" font-size="10" font-weight="bold" fill="#2e7d32">소/중규모에 권장</text>
+        </svg>
       </div>
 
       <h2 class="section">마무리</h2>
 
       <p>
-        Kafka의 핵심 가치는 <strong>API 서버와 처리 로직의 분리</strong>다.
-        서버가 모든 것을 동기로 처리하면 트래픽이 몰릴 때 가장 느린 작업(DB 저장, 외부 API 호출 등)이 전체 응답 시간을 결정한다.
-        Kafka를 중간에 두면 API 서버는 이벤트를 Kafka에 던지고 바로 응답을 반환하며, 실제 처리는 Consumer가 자신의 속도에 맞게 처리한다.
+        피드 페이징에서 통계 집계(댓글 수, 좋아요 수)를 붙이는 문제는 어떤 방법을 선택하든 트레이드오프가 존재한다.
+        중요한 것은 "N+1 문제를 반드시 피한다"는 원칙 하에 상황에 맞는 방법을 선택하는 것이다.
       </p>
 
       <p>
-        Partition과 Consumer Group의 관계를 이해하는 것이 Kafka 성능 설계의 핵심이다.
-        파티션 수가 최대 병렬 처리 한계를 결정하고, Consumer 수를 파티션 수에 맞추어야 낭비 없이 효율적으로 동작한다.
-        파티션은 늘릴 수 있지만 줄일 수 없으므로 초기 설계에 충분한 여유를 두어야 한다.
+        Batch Mapping은 코드가 길어지는 대신 DB에 단순하고 예측 가능한 부하를 준다.
+        데이터 규모가 크고 성능이 중요할수록 Batch Mapping이 유리하다.
+        Correlated Subquery는 코드가 깔끔하지만 인덱스 설계가 받쳐주지 않으면 오히려 더 느려질 수 있다.
       </p>
 
       <p>
-        에러 처리에서 DLT는 선택이 아니라 필수다.
-        재시도를 포기한 메시지가 사라지면 어떤 데이터가 처리되지 않았는지 알 수 없다.
-        DLT를 설정해두면 실패한 메시지를 나중에 분석하고 재처리할 수 있다.
-        Lag 모니터링과 DLT 모니터링을 함께 운영하면 Kafka 기반 시스템의 건강 상태를 실시간으로 파악할 수 있다.
+        <code>transform()</code>은 Batch Mapping의 가장 큰 단점인 보일러플레이트 코드를 제거해준다.
+        <code>List&lt;Tuple&gt;</code>을 받아 수동으로 <code>Map</code>으로 변환하는 코드를 직접 작성하지 않아도 된다.
+        단, <code>transform()</code>은 DB가 아닌 WAS 메모리에서 처리되므로 결과 행이 매우 많을 때는 메모리 사용량을 의식해야 한다.
       </p>
 
       <p class="muted"><a href="/notes/">← Notes로 돌아가기</a></p>
